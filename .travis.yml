@@ -26,7 +26,7 @@ after_success:
   - coveralls
 script:
   - black ./ -l 79 --target-version py37 --check
-  - travis_wait 40 bash travis/run_tests.sh
+#  - travis_wait 40 bash travis/run_tests.sh
 notifications:
   email:
     recipients:
