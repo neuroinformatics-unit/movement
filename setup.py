@@ -1,6 +1,6 @@
 from setuptools import setup, find_namespace_packages
 
-requirements = ["imlib"]
+requirements = ["imlib", "numpy"]
 
 setup(
     name="movement",
