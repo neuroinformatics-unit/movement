@@ -4,7 +4,7 @@ requirements = ["imlib", "numpy"]
 
 setup(
     name="movement",
-    version="0.0.2",
+    version="0.0.3",
     description="Movement analysis",
     install_requires=requirements,
     extras_require={
