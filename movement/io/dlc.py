@@ -8,7 +8,7 @@ def load_and_clean_dlc(dlc_files, regex_remove_columns=None):
     """
     Load N dlc files, and clean up the column names
     :param dlc_files: A list of dlc files, in order
-    :param search_string_list: A list of regex strings to search for.
+    :param regex_remove_columns: A list of regex strings to search for.
     Columns matching these will be removed
     :return: A single dataframe with all output, and informative column names
     """
