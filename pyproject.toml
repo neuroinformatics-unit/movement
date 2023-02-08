@@ -4,7 +4,7 @@ authors = [
   {name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com"},
   {name = "Joe Ziminski", email = "j.ziminski@ucl.ac.uk"},
   {name = "Laura Porta", email = "29216006+lauraporta@users.noreply.github.com"},
-  {name = "Adam Tyson", email = "code@adamltyson.com"},  
+  {name = "Adam Tyson", email = "code@adamltyson.com"},
 ]
 description = "Analysis of body movement"
 readme = "README.md"
@@ -12,6 +12,13 @@ requires-python = ">=3.8.0"
 dynamic = ["version"]
 
 license = {text = "BSD-3-Clause"}
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "rich",
+    "fancylog",
+]
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
