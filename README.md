@@ -26,7 +26,7 @@ The following projects cover related needs and served as inspiration for this pr
 ## How to contribute
 ### Setup
 * Clone the repository and install the package in editable mode (including all `dev` dependencies):
-    
+
   ```bash
   git clone https://github.com/neuroinformatics-ua/movement
   cd movement
