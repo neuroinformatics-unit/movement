@@ -12,9 +12,9 @@ The package is currently in early development 🏗️ and is not yet ready for u
 
 ## Aims
 * Load keypoint tracks from pose estimation software (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
-* Clean the data (remove outliers, interpolate missing values, smooth, filter, etc.)
+* Evaluate the quality of the tracks and perform data cleaning
 * Calculate kinematic variables (e.g. speed, acceleration, joint angles, etc.)
-* Produce reports and visualise the results with plots (e.g. trajectories, heatmaps, etc.)
+* Produce reports and visualise the results
 
 ## Related projects
 The following projects cover related needs and served as inspiration for this project:
@@ -26,16 +26,17 @@ The following projects cover related needs and served as inspiration for this pr
 ## How to contribute
 ### Setup
 * Clone the repository and install the package in editable mode (including all `dev` dependencies):
-    ```bash
-    git clone https://github.com/SainsburyWellcomeCentre/WAZP
-    cd WAZP
-    pip install -e '.[dev]'
-    ```
+    
+  ```bash
+  git clone https://github.com/neuroinformatics-ua/movement
+  cd movement
+  pip install -e '.[dev]'
+  ```
 * Initialize the pre-commit hooks:
 
-    ```bash
-    pre-commit install
-    ```
+  ```bash
+  pre-commit install
+  ```
 
 ### Workflow
 * Create a new branch, make your changes, and stage them.
