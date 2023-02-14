@@ -28,7 +28,7 @@ The following projects cover related needs and served as inspiration for this pr
 * Clone the repository and install the package in editable mode (including all `dev` dependencies):
 
   ```bash
-  git clone https://github.com/neuroinformatics-ua/movement
+  git clone https://github.com/neuroinformatics-unit/movement
   cd movement
   pip install -e '.[dev]'
   ```
