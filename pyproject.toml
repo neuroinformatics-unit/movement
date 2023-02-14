@@ -2,9 +2,6 @@
 name = "movement"
 authors = [
   {name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com"},
-  {name = "Joe Ziminski", email = "j.ziminski@ucl.ac.uk"},
-  {name = "Laura Porta", email = "29216006+lauraporta@users.noreply.github.com"},
-  {name = "Adam Tyson", email = "code@adamltyson.com"},
 ]
 description = "Analysis of body movement"
 readme = "README.md"
