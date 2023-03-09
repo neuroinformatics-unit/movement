@@ -1,11 +1,11 @@
 from pathlib import Path
-from typing import Union, Optional
+from typing import Optional, Union
+
 import pandas as pd
 
 
 def validate_file_path(
-    filepath: Union[Path, str],
-    suffix: Optional[str] = None
+    filepath: Union[Path, str], suffix: Optional[str] = None
 ) -> Path:
     """Validate a file path.
 
@@ -38,8 +38,10 @@ def validate_file_path(
 
     # Ensure filepath is a Path object or a string
     if not isinstance(filepath, (Path, str)):
-        raise TypeError(f"Filepath must be a Path object or a str. "
-                        f"Received {type(filepath)} instead.")
+        raise TypeError(
+            f"Filepath must be a Path object or a str. "
+            f"Received {type(filepath)} instead."
+        )
     # Ensure a Path object
     filepath = Path(filepath)
 
@@ -58,7 +60,7 @@ def validate_file_path(
 
 
 def validate_dataframe(df: object) -> pd.DataFrame:
-    """ This function ensures that `df` is
+    """This function ensures that `df` is
     a non-empty pandas DataFrame.
 
     Parameters
@@ -73,7 +75,8 @@ def validate_dataframe(df: object) -> pd.DataFrame:
     """
 
     if not isinstance(df, pd.DataFrame):
-        raise TypeError(f"Expected a pandas DataFrame. "
-                        f"Received {type(df)} instead.")
+        raise TypeError(
+            f"Expected a pandas DataFrame. " f"Received {type(df)} instead."
+        )
 
     return df

@@ -1,18 +1,19 @@
-from pathlib import Path
-from typing import Union, Optional
 import warnings
+from pathlib import Path
+from typing import Optional, Union
+
 import h5py
 import pandas as pd
-from movement.utils import validate_file_path, validate_dataframe
 
+from movement.utils import validate_dataframe, validate_file_path
 
 # TODO:
 #  - store tracks in a custom Trajectory class instead of DataFrame
 #  - add support for other file formats (e.g. .csv, .pickle)
 
+
 def from_dlc_h5(
-    filepath: Union[Path, str],
-    key: Optional[str] = "df_with_missing"
+    filepath: Union[Path, str], key: Optional[str] = "df_with_missing"
 ) -> Optional[pd.DataFrame]:
     """Load tracks from a Deeplabcut (DLC) HDF5 (.h5) file.
 
@@ -45,11 +46,12 @@ def from_dlc_h5(
         if not isinstance(key, str):
             raise TypeError(
                 f"Key must be a string or None. "
-                f"Received {type(key)} instead.")
+                f"Received {type(key)} instead."
+            )
 
     # Check if the key is in the file
     if key is not None:
-        with h5py.File(filepath, 'r') as h5_file:
+        with h5py.File(filepath, "r") as h5_file:
             if key not in h5_file:
                 warnings.warn(
                     f"Key '{key}' not found in file: {filepath}. "
