@@ -15,6 +15,7 @@ dependencies = [
     "pandas",
     "rich",
     "fancylog",
+    "h5py",
 ]
 
 classifiers = [
