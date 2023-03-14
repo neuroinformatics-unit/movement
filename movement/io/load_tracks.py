@@ -62,7 +62,7 @@ def from_dlc_h5(
     # Load the DLC tracks
     try:
         df = pd.read_hdf(filepath, key=key)
-    except BaseException:
+    except (OSError, TypeError, ValueError):
         raise OSError(
             f"Could not read from {filepath}. "
             "Please check that the file is a valid, readable "
