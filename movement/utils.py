@@ -75,7 +75,7 @@ def validate_dataframe(df: object) -> pd.DataFrame:
 
     if not isinstance(df, pd.DataFrame):
         raise TypeError(
-            f"Expected a pandas DataFrame. " f"Received {type(df)} instead."
+            f"Expected a pandas DataFrame. Received {type(df)} instead."
         )
 
     return df
