@@ -49,12 +49,11 @@ def validate_file_path(
     if not filepath.is_file():
         raise FileNotFoundError(f"File not found: {filepath}")
 
-    if suffix is not None:
-        if filepath.suffix != suffix:
-            raise ValueError(
-                f"File must have the extension {suffix}. "
-                f"Received {filepath} instead."
-            )
+    if (suffix is not None) and (filepath.suffix != suffix):
+        raise ValueError(
+            f"File must have the extension {suffix}. "
+            f"Received {filepath} instead."
+        )
 
     return filepath
 
