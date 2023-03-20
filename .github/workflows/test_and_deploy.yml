@@ -12,13 +12,13 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@main
+      - uses: neuroinformatics-unit/actions/lint@v2
 
   manifest:
     name: Check Manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/check_manifest@main
+      - uses: neuroinformatics-unit/actions/check_manifest@v2
 
   test:
     needs: [linting, manifest]
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       # Run tests
-      - uses: neuroinformatics-unit/actions/test@main
+      - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -48,7 +48,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@main
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
 
 
   upload_all:
