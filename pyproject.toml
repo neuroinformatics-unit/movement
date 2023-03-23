@@ -14,6 +14,7 @@ dependencies = [
     "numpy",
     "pandas",
     "rich",
+    "h5py",
 ]
 
 classifiers = [
