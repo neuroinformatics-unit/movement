@@ -15,7 +15,7 @@ from movement.utils import validate_dataframe, validate_file_path
 def from_dlc_h5(
     filepath: Union[Path, str], key: Optional[str] = "df_with_missing"
 ) -> Optional[pd.DataFrame]:
-    """Load tracks from a Deeplabcut (DLC) HDF5 (.h5) file.
+    """Load pose estimation results from a Deeplabcut (DLC) HDF5 (.h5) file.
 
     Parameters
     ----------
@@ -35,8 +35,8 @@ def from_dlc_h5(
 
     Examples
     --------
-    >>> from movement.io import load_tracks
-    >>> tracks = load_tracks.from_dlc_h5("path/to/file.h5")
+    >>> from movement.io import load_poses
+    >>> tracks = load_poses.from_dlc_h5("path/to/file.h5")
     """
 
     filepath = validate_file_path(filepath, suffix=".h5")

@@ -5,7 +5,7 @@ import h5py
 import pandas as pd
 import pytest
 
-from movement.io import load_tracks
+from movement.io import load_poses
 
 
 @pytest.fixture
@@ -56,7 +56,7 @@ def invalid_files(tmp_path):
 def test_load_valid_dlc_h5_files(valid_dlc_h5_files):
     """Test loading valid DLC tracks files."""
     for file_type, file_path in valid_dlc_h5_files.items():
-        tracks = load_tracks.from_dlc_h5(file_path)
+        tracks = load_poses.from_dlc_h5(file_path)
         assert isinstance(tracks, pd.DataFrame)
 
 
@@ -64,9 +64,9 @@ def test_load_valid_dlc_h5_files(valid_dlc_h5_files):
 def test_load_from_dlc_with_valid_keys(valid_dlc_h5_files, key):
     if key in ["wrong_key", ""]:
         with pytest.warns(UserWarning):
-            tracks = load_tracks.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
+            tracks = load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
     else:
-        tracks = load_tracks.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
+        tracks = load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
     assert isinstance(tracks, pd.DataFrame)
 
 
@@ -75,24 +75,24 @@ def test_load_invalid_dlc_h5_files(invalid_files):
     for file_type, file_path in invalid_files.items():
         if file_type == "nonexistent":
             with pytest.raises(FileNotFoundError):
-                load_tracks.from_dlc_h5(file_path)
+                load_poses.from_dlc_h5(file_path)
         elif file_type == "wrong_ext":
             with pytest.raises(ValueError):
-                load_tracks.from_dlc_h5(file_path)
+                load_poses.from_dlc_h5(file_path)
         else:
             with pytest.raises(OSError):
-                load_tracks.from_dlc_h5(file_path)
+                load_poses.from_dlc_h5(file_path)
 
 
 @pytest.mark.parametrize("filepath", [1, 1.0, True, None, [], {}])
 def test_load_from_dlc_with_incorrect_filepath_types(filepath):
     """Test loading tracks from a file with an incorrect type."""
     with pytest.raises(TypeError):
-        load_tracks.from_dlc_h5(filepath)
+        load_poses.from_dlc_h5(filepath)
 
 
 @pytest.mark.parametrize("key", [1, 1.0, True, [], {}])
 def test_load_from_dlc_with_incorrect_key_types(valid_dlc_h5_files, key):
     """Test loading tracks from a file with an incorrect type."""
     with pytest.raises(TypeError):
-        load_tracks.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
+        load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
