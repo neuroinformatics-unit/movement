@@ -1,14 +1,12 @@
-import warnings
 from pathlib import Path
 from typing import Optional, Union
 
-import h5py
 import pandas as pd
 
 from movement.utils import validate_dataframe, validate_file_path
 
 # TODO:
-#  - store tracks in a custom Trajectory class instead of DataFrame
+#  - store poses in a custom Trajectory class instead of DataFrame
 #  - add support for other file formats (e.g. .csv)
 
 
@@ -20,7 +18,7 @@ def from_dlc_h5(
     Parameters
     ----------
     filepath : pathlib Path or str
-        Path to the file containing the DLC tracks.
+        Path to the file containing the DLC poses.
     key : str or None, optional
         Key to the dataframe in the HDF5 file.
         The default is "df_with_missing".
@@ -31,12 +29,12 @@ def from_dlc_h5(
     Returns
     -------
     pandas DataFrame
-        DataFrame containing the DLC tracks
+        DataFrame containing the DLC poses
 
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> tracks = load_poses.from_dlc_h5("path/to/file.h5")
+    >>> poses = load_poses.from_dlc_h5("path/to/file.h5")
     """
 
     filepath = validate_file_path(filepath, suffix=".h5")
@@ -49,17 +47,7 @@ def from_dlc_h5(
                 f"Received {type(key)} instead."
             )
 
-    # Check if the key is in the file
-    if key is not None:
-        with h5py.File(filepath, "r") as h5_file:
-            if key not in h5_file:
-                warnings.warn(
-                    f"Key '{key}' not found in file: {filepath}. "
-                    "Will try to find a single dataframe in the file."
-                )
-                key = None
-
-    # Load the DLC tracks
+    # Load the DLC poses
     try:
         df = pd.read_hdf(filepath, key=key)
     except (OSError, TypeError, ValueError):
@@ -70,4 +58,5 @@ def from_dlc_h5(
             ""
         )
 
-    return validate_dataframe(df)
+    dlc_poses_df = validate_dataframe(df)
+    return dlc_poses_df
