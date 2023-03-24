@@ -29,8 +29,8 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     >>> poses = load_poses.from_dlc("path/to/file.h5")
     """
 
-    # Validate the input data
-    dlc_poses_file = DeeplabcutPosesFile(file_path=file_path)
+    # Validate the input file path
+    dlc_poses_file = DeeplabcutPosesFile(file_path=file_path)  # type: ignore
     file_suffix = dlc_poses_file.file_path.suffix
 
     # Load the DLC poses
