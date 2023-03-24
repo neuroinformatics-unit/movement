@@ -1,9 +1,15 @@
+import logging
 from pathlib import Path
 from typing import Optional, Union
 
 import pandas as pd
 
 from movement.io.validators import DeeplabcutPosesFile
+from movement.log_config import configure_logging
+
+# initialize logger
+configure_logging()
+logger = logging.getLogger(__name__)
 
 # TODO:
 #  - store poses in a custom Trajectory class instead of DataFrame
@@ -41,10 +47,12 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
             df = pd.read_hdf(dlc_poses_file.file_path)
             # above line does not necessarily return a DataFrame
             df = pd.DataFrame(df)
-    except (OSError, TypeError, ValueError):
-        raise OSError(
+    except (OSError, TypeError, ValueError) as e:
+        error_msg = (
             f"Could not load poses from {file_path}. "
             "Please check that the file is valid and readable."
-            ""
         )
+        logger.error(error_msg)
+        raise OSError from e
+    logger.info(f"Loaded poses from {file_path}")
     return df

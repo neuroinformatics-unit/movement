@@ -1,6 +1,10 @@
+import logging
 from pathlib import Path
 
 from pydantic import BaseModel, validator
+
+# initialize logger
+logger = logging.getLogger(__name__)
 
 
 class DeeplabcutPosesFile(BaseModel):
@@ -21,14 +25,18 @@ class DeeplabcutPosesFile(BaseModel):
     @validator("file_path")
     def file_must_exist(cls, value):
         if not value.is_file():
-            raise FileNotFoundError(f"File not found: {value}")
+            error_msg = f"File not found: {value}"
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
         return value
 
     @validator("file_path")
     def file_must_have_valid_suffix(cls, value):
         if value.suffix not in (".h5", ".csv"):
-            raise ValueError(
-                "File suffix must be '.h5' or '.csv'. "
-                f"Received {value.suffix} instead."
+            error_msg = (
+                f"File suffix must be '.h5' or '.csv'. "
+                f"Received `{value.suffix}` instead."
             )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
         return value
