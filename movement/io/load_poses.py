@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from movement.validators import DeeplabcutPosesFile, validate_dataframe
+from movement.validators import DeeplabcutPosesFile
 
 # TODO:
 #  - store poses in a custom Trajectory class instead of DataFrame
@@ -35,6 +35,7 @@ def from_dlc_h5(filepath: Union[Path, str]) -> Optional[pd.DataFrame]:
     # Load the DLC poses
     try:
         df = pd.read_hdf(dlc_poses_file.filepath)
+        df = pd.DataFrame(df)
     except (OSError, TypeError, ValueError):
         raise OSError(
             f"Could not read from {filepath}. "
@@ -42,4 +43,4 @@ def from_dlc_h5(filepath: Union[Path, str]) -> Optional[pd.DataFrame]:
             "HDF5 file containing a dataframe."
             ""
         )
-    return validate_dataframe(df)
+    return df

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pandas as pd
 from pydantic import BaseModel, validator
 
 
@@ -32,32 +31,3 @@ class DeeplabcutPosesFile(BaseModel):
                 f"Received {filepath} instead."
             )
         return filepath
-
-
-def validate_dataframe(df: object) -> pd.DataFrame:
-    """Validate that the input object is a non-empty pandas DataFrame.
-
-    Parameters
-    ----------
-    df : pandas DataFrame
-        DataFrame to validate.
-
-    Returns
-    -------
-    pandas DataFrame
-        Validated DataFrame.
-
-    Raises
-    ------
-    TypeError
-        If the input is not a pandas DataFrame.
-    ValueError
-        If the DataFrame is empty.
-    """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError(
-            f"Expected a pandas DataFrame. Found {type(df)} instead."
-        )
-    if df.empty:
-        raise ValueError("DataFrame cannot be empty.")
-    return df
