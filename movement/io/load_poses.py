@@ -43,9 +43,8 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
             df = pd.DataFrame(df)
     except (OSError, TypeError, ValueError):
         raise OSError(
-            f"Could not read from {file_path}. "
-            "Please check that the file is a valid, readable "
-            "HDF5 file containing a dataframe."
+            f"Could not load poses from {file_path}. "
+            "Please check that the file is valid and readable."
             ""
         )
     return df
