@@ -75,8 +75,8 @@ class TestLoadPoses:
                 with pytest.raises(OSError):
                     load_poses.from_dlc_h5(file_path)
 
-    @pytest.mark.parametrize("filepath", [1, 1.0, True, None, [], {}])
-    def test_load_from_dlc_with_incorrect_filepath_types(self, filepath):
-        """Test loading poses from a filepath with an incorrect type."""
+    @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
+    def test_load_from_dlc_with_incorrect_file_path_types(self, file_path):
+        """Test loading poses from a file_path with an incorrect type."""
         with pytest.raises(ValidationError):
-            load_poses.from_dlc_h5(filepath)
+            load_poses.from_dlc_h5(file_path)

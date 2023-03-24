@@ -10,12 +10,12 @@ from movement.io.validators import DeeplabcutPosesFile
 #  - add support for other file formats (e.g. .csv)
 
 
-def from_dlc_h5(filepath: Union[Path, str]) -> Optional[pd.DataFrame]:
+def from_dlc_h5(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     """Load pose estimation results from a Deeplabcut (DLC) HDF5 (.h5) file.
 
     Parameters
     ----------
-    filepath : pathlib Path or str
+    file_path : pathlib Path or str
         Path to the file containing the DLC poses.
 
     Returns
@@ -30,15 +30,15 @@ def from_dlc_h5(filepath: Union[Path, str]) -> Optional[pd.DataFrame]:
     """
 
     # Validate the input data
-    dlc_poses_file = DeeplabcutPosesFile(filepath=filepath)
+    dlc_poses_file = DeeplabcutPosesFile(file_path=file_path)
 
     # Load the DLC poses
     try:
-        df = pd.read_hdf(dlc_poses_file.filepath)
+        df = pd.read_hdf(dlc_poses_file.file_path)
         df = pd.DataFrame(df)
     except (OSError, TypeError, ValueError):
         raise OSError(
-            f"Could not read from {filepath}. "
+            f"Could not read from {file_path}. "
             "Please check that the file is a valid, readable "
             "HDF5 file containing a dataframe."
             ""

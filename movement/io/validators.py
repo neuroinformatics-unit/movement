@@ -14,20 +14,20 @@ class DeeplabcutPosesFile(BaseModel):
      - the file must have the '.h5' suffix
     """
 
-    filepath: Path
+    file_path: Path
 
-    @validator("filepath")
-    def file_must_exist(cls, filepath):
-        filepath = Path(filepath)
-        if not filepath.is_file():
-            raise FileNotFoundError(f"File not found: {filepath}")
-        return filepath
+    @validator("file_path")
+    def file_must_exist(cls, file_path):
+        file_path = Path(file_path)
+        if not file_path.is_file():
+            raise FileNotFoundError(f"File not found: {file_path}")
+        return file_path
 
-    @validator("filepath")
-    def filepath_must_have_h5_suffix(cls, filepath):
-        if filepath.suffix != ".h5":
+    @validator("file_path")
+    def file_path_must_have_h5_suffix(cls, file_path):
+        if file_path.suffix != ".h5":
             raise ValueError(
                 f"File must have the '.h5' suffix. "
-                f"Received {filepath} instead."
+                f"Received {file_path} instead."
             )
-        return filepath
+        return file_path
