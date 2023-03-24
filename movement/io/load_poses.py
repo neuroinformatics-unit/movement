@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from movement.validators import DeeplabcutPosesFile
+from movement.io.validators import DeeplabcutPosesFile
 
 # TODO:
 #  - store poses in a custom Trajectory class instead of DataFrame
