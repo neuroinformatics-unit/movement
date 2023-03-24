@@ -4,6 +4,7 @@ from pathlib import Path
 import h5py
 import pandas as pd
 import pytest
+from pydantic import ValidationError
 
 from movement.io import load_poses
 
@@ -43,12 +44,17 @@ def invalid_files(tmp_path):
     with h5py.File(h5_file_no_dataframe, "w") as f:
         f.create_dataset("df_with_missing", data=[1, 2, 3])
 
+    h5_file_empty_dataframe = tmp_path / "empty_dataframe.h5"
+    with h5py.File(h5_file_empty_dataframe, "w") as f:
+        f.create_dataset("df_with_missing", data=pd.DataFrame())
+
     nonexistent_file = tmp_path / "nonexistent.h5"
 
     return {
         "unreadable": unreadable_file,
         "wrong_ext": wrong_ext_file,
         "no_dataframe": h5_file_no_dataframe,
+        "empty_dataframe": h5_file_empty_dataframe,
         "nonexistent": nonexistent_file,
     }
 
@@ -58,16 +64,6 @@ def test_load_valid_dlc_h5_files(valid_dlc_h5_files):
     for file_type, file_path in valid_dlc_h5_files.items():
         poses = load_poses.from_dlc_h5(file_path)
         assert isinstance(poses, pd.DataFrame)
-
-
-@pytest.mark.parametrize("key", ["df_with_missing", "", "wrong_key", None])
-def test_load_from_dlc_with_valid_keys(valid_dlc_h5_files, key):
-    if key in ["wrong_key", ""]:
-        with pytest.warns(UserWarning):
-            poses = load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
-    else:
-        poses = load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)
-    assert isinstance(poses, pd.DataFrame)
 
 
 def test_load_invalid_dlc_h5_files(invalid_files):
@@ -87,12 +83,5 @@ def test_load_invalid_dlc_h5_files(invalid_files):
 @pytest.mark.parametrize("filepath", [1, 1.0, True, None, [], {}])
 def test_load_from_dlc_with_incorrect_filepath_types(filepath):
     """Test loading poses from a file with an incorrect type."""
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         load_poses.from_dlc_h5(filepath)
-
-
-@pytest.mark.parametrize("key", [1, 1.0, True, [], {}])
-def test_load_from_dlc_with_incorrect_key_types(valid_dlc_h5_files, key):
-    """Test loading poses from a file with an incorrect type."""
-    with pytest.raises(TypeError):
-        load_poses.from_dlc_h5(valid_dlc_h5_files["h5"], key=key)

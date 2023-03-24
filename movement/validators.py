@@ -1,8 +1,5 @@
-import warnings
 from pathlib import Path
-from typing import Optional
 
-import h5py
 import pandas as pd
 from pydantic import BaseModel, validator
 
@@ -16,11 +13,9 @@ class DeeplabcutPosesFile(BaseModel):
     We also run some additional checks on top of that:
      - the file must exist
      - the file must have the '.h5' suffix
-     - if a key is provided, and it is not found in the file,
-       a warning is raised and the key is set to None."""
+    """
 
     filepath: Path
-    key: Optional[str] = "df_with_missing"
 
     @validator("filepath")
     def file_must_exist(cls, filepath):
@@ -37,18 +32,6 @@ class DeeplabcutPosesFile(BaseModel):
                 f"Received {filepath} instead."
             )
         return filepath
-
-    @validator("key")
-    def set_key_to_none_if_key_not_in_file(cls, key, values):
-        if key is not None:
-            with h5py.File(values["filepath"], "r") as h5_file:
-                if key not in h5_file:
-                    warnings.warn(
-                        f"Key '{key}' not found in {values['filepath']}. "
-                        "Will try to find a single dataframe in the file."
-                    )
-                    return None
-            return key
 
 
 def validate_dataframe(df: object) -> pd.DataFrame:
