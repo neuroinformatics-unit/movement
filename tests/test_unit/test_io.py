@@ -13,7 +13,7 @@ class TestLoadPoses:
     """Test the load_poses module."""
 
     @pytest.fixture
-    def valid_dlc_h5_files(self, tmp_path):
+    def valid_dlc_files(self, tmp_path):
         """Return the paths to valid DLC poses files,
         in .h5 format.
 
@@ -26,9 +26,12 @@ class TestLoadPoses:
         """
         test_data_dir = Path(__file__).parent.parent.parent / "data"
         h5_file = test_data_dir / "DLC_sample_poses.h5"
+        csv_file = test_data_dir / "DLC_sample_poses.csv"
         return {
             "h5_path": h5_file,
             "h5_str": h5_file.as_posix(),
+            "csv_path": csv_file,
+            "csv_str": csv_file.as_posix(),
         }
 
     @pytest.fixture
@@ -55,28 +58,28 @@ class TestLoadPoses:
             "nonexistent": nonexistent_file,
         }
 
-    def test_load_valid_dlc_h5_files(self, valid_dlc_h5_files):
+    def test_load_valid_dlc_files(self, valid_dlc_files):
         """Test loading valid DLC poses files."""
-        for file_type, file_path in valid_dlc_h5_files.items():
-            df = load_poses.from_dlc_h5(file_path)
+        for file_type, file_path in valid_dlc_files.items():
+            df = load_poses.from_dlc(file_path)
             assert isinstance(df, pd.DataFrame)
             assert not df.empty
 
-    def test_load_invalid_dlc_h5_files(self, invalid_files):
+    def test_load_invalid_dlc_files(self, invalid_files):
         """Test loading invalid DLC poses files."""
         for file_type, file_path in invalid_files.items():
             if file_type == "nonexistent":
                 with pytest.raises(FileNotFoundError):
-                    load_poses.from_dlc_h5(file_path)
+                    load_poses.from_dlc(file_path)
             elif file_type == "wrong_ext":
                 with pytest.raises(ValueError):
-                    load_poses.from_dlc_h5(file_path)
+                    load_poses.from_dlc(file_path)
             else:
                 with pytest.raises(OSError):
-                    load_poses.from_dlc_h5(file_path)
+                    load_poses.from_dlc(file_path)
 
     @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
     def test_load_from_dlc_with_incorrect_file_path_types(self, file_path):
         """Test loading poses from a file_path with an incorrect type."""
         with pytest.raises(ValidationError):
-            load_poses.from_dlc_h5(file_path)
+            load_poses.from_dlc(file_path)

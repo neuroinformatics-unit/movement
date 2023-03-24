@@ -4,14 +4,12 @@ from pydantic import BaseModel, validator
 
 
 class DeeplabcutPosesFile(BaseModel):
-    """Validates files containing pose estimation results from
-    Deeplabcut (DLC).
+    """Pydantic class for validating files containing
+    pose estimation results from Deeplabcut (DLC).
 
-    Pydantic will automatically enforce input data types and
-    raise errors if the data is invalid.
-    We also run some additional checks on top of that:
-     - the file must exist
-     - the file must have the '.h5' suffix
+    Pydantic will enforce the input data type.
+    This class additionally checks that the file exists
+    and has a valid suffix.
     """
 
     file_path: Path
@@ -24,10 +22,11 @@ class DeeplabcutPosesFile(BaseModel):
         return file_path
 
     @validator("file_path")
-    def file_path_must_have_h5_suffix(cls, file_path):
-        if file_path.suffix != ".h5":
+    def file_must_have_valid_suffix(cls, file_path):
+        file_path = Path(file_path)
+        if file_path.suffix not in (".h5", ".csv"):
             raise ValueError(
-                f"File must have the '.h5' suffix. "
-                f"Received {file_path} instead."
+                "File suffix must be '.h5' or '.csv'. "
+                f"Received {file_path.suffix} instead."
             )
         return file_path
