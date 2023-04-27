@@ -11,9 +11,6 @@ from movement.log_config import configure_logging
 configure_logging()
 logger = logging.getLogger(__name__)
 
-# TODO:
-#  - store poses in a custom Trajectory class instead of DataFrame
-
 
 def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     """Load pose estimation results from a DeepLabCut (DLC) files.
