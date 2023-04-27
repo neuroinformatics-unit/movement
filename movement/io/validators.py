@@ -7,9 +7,9 @@ from pydantic import BaseModel, validator
 logger = logging.getLogger(__name__)
 
 
-class DeeplabcutPosesFile(BaseModel):
+class DeepLabCutPosesFile(BaseModel):
     """Pydantic class for validating files containing
-    pose estimation results from Deeplabcut (DLC).
+    pose estimation results from DeepLabCut (DLC).
 
     Pydantic will enforce the input data type.
     This class additionally checks that the file exists

@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from movement.io.validators import DeeplabcutPosesFile
+from movement.io.validators import DeepLabCutPosesFile
 from movement.log_config import configure_logging
 
 # initialize logger
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
-    """Load pose estimation results from a Deeplabcut (DLC) files.
+    """Load pose estimation results from a DeepLabCut (DLC) files.
     Files must be in .h5 format or .csv format.
 
     Parameters
@@ -36,7 +36,7 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     """
 
     # Validate the input file path
-    dlc_poses_file = DeeplabcutPosesFile(file_path=file_path)  # type: ignore
+    dlc_poses_file = DeepLabCutPosesFile(file_path=file_path)  # type: ignore
     file_suffix = dlc_poses_file.file_path.suffix
 
     # Load the DLC poses
