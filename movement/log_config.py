@@ -1,9 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from rich.logging import RichHandler
-
-FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+FORMAT = "%(asctime)s - %(levelname)s - "
+FORMAT += "%(processName)s %(filename)s:%(lineno)s - %(message)s"
 
 
 def configure_logging():
@@ -27,5 +26,3 @@ def configure_logging():
 
     # Add the handler to the logger
     logger.addHandler(handler)
-    # Also add the rich handler to the logger
-    logger.addHandler(RichHandler())
