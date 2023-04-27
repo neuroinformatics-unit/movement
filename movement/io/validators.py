@@ -34,8 +34,9 @@ class DeepLabCutPosesFile(BaseModel):
     def file_must_have_valid_suffix(cls, value):
         if value.suffix not in (".h5", ".csv"):
             error_msg = (
-                f"File suffix must be '.h5' or '.csv'. "
-                f"Received `{value.suffix}` instead."
+                "Expected a file with pose estimation results from "
+                "DeepLabCut, in one of '.h5' or '.csv' formats. "
+                f"Received a file with suffix '{value.suffix}' instead."
             )
             logger.error(error_msg)
             raise ValueError(error_msg)
