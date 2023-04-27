@@ -15,6 +15,7 @@ dependencies = [
     "pandas",
     "rich",
     "h5py",
+    "pydantic"
 ]
 
 classifiers = [
@@ -47,7 +48,6 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
-  "pydantic",
 ]
 
 [build-system]
