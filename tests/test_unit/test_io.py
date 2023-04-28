@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import h5py
+import numpy as np
 import pandas as pd
 import pytest
 from pydantic import ValidationError
@@ -83,3 +84,14 @@ class TestLoadPoses:
         """Test loading poses from a file_path with an incorrect type."""
         with pytest.raises(ValidationError):
             load_poses.from_dlc(file_path)
+
+    def test_load_from_dlc_csv_or_h5_file_returns_same_df(
+        self, valid_dlc_files
+    ):
+        """Test that loading poses from DLC .csv and .h5 files
+        return the same DataFrame."""
+        df_from_h5 = load_poses.from_dlc(valid_dlc_files["h5_path"])
+        df_from_csv = load_poses.from_dlc(valid_dlc_files["csv_path"])
+        assert df_from_h5.index.equals(df_from_csv.index)
+        assert all(df_from_h5.columns == df_from_csv.columns)
+        assert np.allclose(df_from_h5.values, df_from_csv.values)
