@@ -1,17 +1,35 @@
+import ctypes
 import logging
+import os
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 FORMAT = "%(asctime)s - %(levelname)s - "
 FORMAT += "%(processName)s %(filename)s:%(lineno)s - %(message)s"
 
 
-def configure_logging():
-    """Configure the logging module."""
+def configure_logging(log_level=logging.INFO):
+    """Configure the logging module for the current Python script.
+    This function sets up a circular log file with a rotating file handler.
+    """
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(log_level)
 
-    log_file = "movement.log"
+    # Set the log directory and file path
+    log_directory = Path.home() / ".movement"
+    log_directory.mkdir(parents=True, exist_ok=True)
+    log_file = log_directory / "movement.log"
+
+    # Make the .movement directory hidden on Windows
+    if os.name == "nt":
+        FILE_ATTRIBUTE_HIDDEN = 0x02
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(
+                str(log_directory), FILE_ATTRIBUTE_HIDDEN
+            )
+        except ctypes.WinError() as e:
+            print(f"Unable to hide folder: {e}")
 
     # Create a rotating file handler
     max_log_size = 1 * 1024 * 1024  # 1 MB
