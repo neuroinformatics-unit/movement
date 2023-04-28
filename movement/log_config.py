@@ -3,14 +3,18 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
 
+from rich.logging import RichHandler
+
 FORMAT = "%(asctime)s - %(levelname)s - "
 FORMAT += "%(processName)s %(filename)s:%(lineno)s - %(message)s"
 
 
 def configure_logging(
-    log_level: int = logging.INFO, logger_name: Optional[str] = None
+    log_level: int = logging.INFO,
+    logger_name: Optional[str] = None,
+    log_to_console: bool = False,
 ):
-    """Configure the logging module for the current Python script.
+    """Configure the logging module.
     This function sets up a circular log file with a rotating file handler.
 
     Parameters
@@ -20,12 +24,14 @@ def configure_logging(
     logger_name : str, optional
         The name of the logger to configure. If None (default),
         the name of the calling package is used.
+    log_to_console : bool
+        Whether to log to the console in addition to the log file.
+        Defaults to False.
     """
 
     if logger_name is None:
         # Get the name of the calling package
         logger_name = __name__.split(".")[0]
-    print(logger_name)
 
     # If a logger with the given name is already configured
     if logger_name in logging.root.manager.loggerDict:
@@ -53,3 +59,7 @@ def configure_logging(
 
     # Add the handler to the logger
     logger.addHandler(handler)
+
+    if log_to_console:
+        # Also log to the console using RichHandler
+        logger.addHandler(RichHandler())
