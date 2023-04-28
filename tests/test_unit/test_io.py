@@ -14,7 +14,7 @@ class TestLoadPoses:
     """Test the load_poses module."""
 
     @pytest.fixture
-    def valid_dlc_files(self, tmp_path):
+    def valid_dlc_files(self):
         """Return the paths to valid DLC poses files,
         in .h5 format.
 
