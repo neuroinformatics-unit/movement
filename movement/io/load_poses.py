@@ -5,10 +5,8 @@ from typing import Optional, Union
 import pandas as pd
 
 from movement.io.validators import DeepLabCutPosesFile
-from movement.log_config import configure_logging
 
-# initialize logger
-configure_logging()
+# get logger
 logger = logging.getLogger(__name__)
 
 
