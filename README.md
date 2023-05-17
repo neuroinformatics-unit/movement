@@ -25,7 +25,15 @@ The following projects cover related needs and served as inspiration for this pr
 
 ## How to contribute
 ### Setup
-* Clone the repository and install the package in editable mode (including all `dev` dependencies):
+* We recommend you install `movement` inside a [conda](https://docs.conda.io/en/latest/) environment.
+Assuming you have `conda` installed, the following will create and activate an environment containing Python 3 as well as the required `pytables` library. You can call your environment whatever you like, we've used `movement-env`.
+
+  ```sh
+  conda create -n movement-env -c conda-forge python=3.11 pytables
+  conda activate movement-env
+  ```
+
+* Next clone the repository and install the package in editable mode (including all `dev` dependencies):
 
   ```bash
   git clone https://github.com/neuroinformatics-unit/movement
