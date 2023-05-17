@@ -2,8 +2,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-from rich.logging import RichHandler
-
 FORMAT = (
     "%(asctime)s - %(levelname)s - "
     "%(processName)s %(filename)s:%(lineno)s - %(message)s"
@@ -13,7 +11,6 @@ FORMAT = (
 def configure_logging(
     log_level: int = logging.DEBUG,
     logger_name: str = "movement",
-    log_to_console: bool = False,
     log_directory: Path = Path.home() / ".movement",
 ):
     """Configure the logging module.
@@ -26,9 +23,6 @@ def configure_logging(
     logger_name : str, optional
         The name of the logger to configure.
         Defaults to 'movement'.
-    log_to_console : bool
-        Whether to log to the console in addition to the log file.
-        Defaults to False.
     log_directory : pathlib.Path, optional
         The directory to store the log file in. Defaults to
         ~/.movement. A different directory can be specified,
@@ -65,7 +59,3 @@ def configure_logging(
 
     # Add the handler to the logger
     logger.addHandler(handler)
-
-    if log_to_console:
-        # Also log to the console using RichHandler
-        logger.addHandler(RichHandler())

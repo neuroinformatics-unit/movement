@@ -12,6 +12,5 @@ def setup_logging(tmp_path):
     configure_logging(
         log_level=logging.DEBUG,
         logger_name="movement",
-        log_to_console=False,
         log_directory=(tmp_path / ".movement"),
     )

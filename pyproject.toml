@@ -13,10 +13,8 @@ license = {text = "BSD-3-Clause"}
 dependencies = [
     "numpy",
     "pandas",
-    "rich",
     "h5py",
     "pydantic",
-    "rich",
 ]
 
 classifiers = [
