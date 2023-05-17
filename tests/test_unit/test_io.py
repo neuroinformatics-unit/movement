@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 import h5py
-import numpy as np
 import pandas as pd
 import pytest
+from pandas.testing import assert_frame_equal
 from pydantic import ValidationError
 
 from movement.io import load_poses
@@ -92,6 +92,4 @@ class TestLoadPoses:
         return the same DataFrame."""
         df_from_h5 = load_poses.from_dlc(valid_dlc_files["h5_path"])
         df_from_csv = load_poses.from_dlc(valid_dlc_files["csv_path"])
-        assert df_from_h5.index.equals(df_from_csv.index)
-        assert all(df_from_h5.columns == df_from_csv.columns)
-        assert np.allclose(df_from_h5.values, df_from_csv.values)
+        assert_frame_equal(df_from_h5, df_from_csv)
