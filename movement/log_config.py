@@ -5,8 +5,10 @@ from typing import Optional
 
 from rich.logging import RichHandler
 
-FORMAT = "%(asctime)s - %(levelname)s - "
-FORMAT += "%(processName)s %(filename)s:%(lineno)s - %(message)s"
+FORMAT = (
+    "%(asctime)s - %(levelname)s - "
+    "%(processName)s %(filename)s:%(lineno)s - %(message)s"
+)
 
 
 def configure_logging(
