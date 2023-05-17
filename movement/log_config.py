@@ -12,7 +12,7 @@ FORMAT = (
 
 
 def configure_logging(
-    log_level: int = logging.INFO,
+    log_level: int = logging.DEBUG,
     logger_name: Optional[str] = None,
     log_to_console: bool = False,
 ):
