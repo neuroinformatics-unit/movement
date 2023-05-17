@@ -29,7 +29,7 @@ The following projects cover related needs and served as inspiration for this pr
 Assuming you have `conda` installed, the following will create and activate an environment containing Python 3 as well as the required `pytables` library. You can call your environment whatever you like, we've used `movement-env`.
 
   ```sh
-  conda create -n movement-env -c conda-forge python=3 pytables
+  conda create -n movement-env -c conda-forge python=3.11 pytables
   conda activate movement-env
   ```
 
