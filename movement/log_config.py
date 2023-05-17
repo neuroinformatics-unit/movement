@@ -49,11 +49,8 @@ def configure_logging(
     log_file = log_directory / f"{logger_name}.log"
 
     # Create a rotating file handler
-    max_log_size = 1 * 1024 * 1024  # 1 MB
-    backup_count = 5  # Number of archived log files to keep
-    handler = RotatingFileHandler(
-        log_file, maxBytes=max_log_size, backupCount=backup_count
-    )
+    max_log_size = 5 * 1024 * 1024  # 5 MB
+    handler = RotatingFileHandler(log_file, maxBytes=max_log_size)
 
     # Create a formatter and set it to the handler
     formatter = logging.Formatter(FORMAT)
