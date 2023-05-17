@@ -31,20 +31,29 @@ def configure_logging(
         Defaults to False.
     log_directory : pathlib.Path, optional
         The directory to store the log file in. Defaults to
-        ~/.movement.
+        ~/.movement. A different directory can be specified,
+        for example for testing purposes.
     """
-
-    # If a logger with the given name is already configured
-    if logger_name in logging.root.manager.loggerDict:
-        # skip configuration
-        return
-
-    logger = logging.getLogger(logger_name)
-    logger.setLevel(log_level)
 
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
     log_file = log_directory / f"{logger_name}.log"
+
+    # If a logger with the given name is already configured
+    if logger_name in logging.root.manager.loggerDict:
+        logger = logging.getLogger(logger_name)
+        handlers = logger.handlers[:]
+        # If the log file path has changed
+        if log_file.as_posix() != handlers[0].baseFilename:  # type: ignore
+            # remove the handlers to allow for reconfiguration
+            for handler in handlers:
+                logger.removeHandler(handler)
+        else:
+            # otherwise, do nothing
+            return
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(log_level)
 
     # Create a rotating file handler
     max_log_size = 5 * 1024 * 1024  # 5 MB
