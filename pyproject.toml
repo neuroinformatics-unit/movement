@@ -15,7 +15,8 @@ dependencies = [
     "pandas",
     "rich",
     "h5py",
-    "pydantic"
+    "pydantic",
+    "rich",
 ]
 
 classifiers = [
