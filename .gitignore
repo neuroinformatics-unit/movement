@@ -84,3 +84,6 @@ venv/
 
 # Vale configuration
 .vale.ini
+
+# pre-commit and pytest cache
+.*_cache/
