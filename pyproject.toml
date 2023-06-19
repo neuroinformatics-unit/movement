@@ -15,6 +15,7 @@ dependencies = [
     "pandas",
     "h5py",
     "pydantic",
+    "pooch",
 ]
 
 classifiers = [
