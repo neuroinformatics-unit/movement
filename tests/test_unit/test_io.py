@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 import h5py
 import pandas as pd
@@ -7,6 +6,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 from pydantic import ValidationError
 
+from movement.datasets import fetch_pose_data_path
 from movement.io import load_poses
 
 
@@ -25,9 +25,8 @@ class TestLoadPoses:
             - h5_path: pathlib Path to a valid .h5 file
             - h5_str: path as str to a valid .h5 file
         """
-        test_data_dir = Path(__file__).parent.parent.parent / "data"
-        h5_file = test_data_dir / "DLC_sample_poses.h5"
-        csv_file = test_data_dir / "DLC_sample_poses.csv"
+        h5_file = fetch_pose_data_path("DLC_single-wasp.predictions.h5")
+        csv_file = fetch_pose_data_path("DLC_single-wasp.predictions.csv")
         return {
             "h5_path": h5_file,
             "h5_str": h5_file.as_posix(),
