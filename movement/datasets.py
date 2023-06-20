@@ -10,6 +10,7 @@ from pathlib import Path
 import pooch
 
 # URL to the remote data repository on GIN
+# noinspection PyInterpreter
 DATA_URL = (
     "https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master"
 )
@@ -34,8 +35,12 @@ POSE_DATA = pooch.create(
 )
 
 
-def fetch_pose_data(filename: str) -> Path:
+def fetch_pose_data_path(filename: str) -> Path:
     """Fetch sample pose data from the remote repository.
+
+    The data are downloaded to the user's local machine the first time they are
+    used and are stored in a local cache directory. The function returns the
+    path to the downloaded file, not the contents of the file itself.
 
     Parameters
     ----------
