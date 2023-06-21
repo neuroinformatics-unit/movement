@@ -31,15 +31,15 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     """
 
     # Validate the input file path
-    dlc_poses_file = DeepLabCutPosesFile(file_path=file_path)  # type: ignore
-    file_suffix = dlc_poses_file.file_path.suffix
+    dlc_poses_file = DeepLabCutPosesFile(path=file_path)  # type: ignore
+    file_suffix = dlc_poses_file.path.suffix
 
     # Load the DLC poses
     try:
         if file_suffix == ".csv":
-            df = _parse_dlc_csv_to_dataframe(dlc_poses_file.file_path)
+            df = _parse_dlc_csv_to_dataframe(dlc_poses_file.path)
         else:  # file can only be .h5 at this point
-            df = pd.read_hdf(dlc_poses_file.file_path)
+            df = pd.read_hdf(dlc_poses_file.path)
             # above line does not necessarily return a DataFrame
             df = pd.DataFrame(df)
     except (OSError, TypeError, ValueError) as e:
