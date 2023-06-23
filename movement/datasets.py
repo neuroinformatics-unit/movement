@@ -33,6 +33,8 @@ POSE_DATA = pooch.create(
         "SLEAP_single-mouse_EPM.analysis.h5": "0df0a09c2493a1d9964ba98cbf751eda62743f1d688ae82b6df7b0f77169ed47",  # noqa: E501
         "SLEAP_two-mice_social-interaction.predictions.slp": "45881affde9704c045e70b8d4b3f6bbb8d9bd8ef9f4cdea6d173cfe35857549b",  # noqa: E501
         "SLEAP_two-mice_social-interaction.analysis.h5": "f7f1e59d4b2c34712089f8aaf2390272291d93e6991c1abe32d9ce798a6234f9",  # noqa: E501
+        "SLEAP_three-mice_Aeon_proofread.predictions.slp": "7b7436a52dfd5f4d80d7c66919ad1a1732e5435fe33faf9011ec5f7b7074e788",  # noqa: E501
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5": "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a",  # noqa: E501
     },
 )
 
