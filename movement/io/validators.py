@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+import h5py
 from pydantic import BaseModel, validator
 
 # initialize logger
@@ -52,23 +53,57 @@ class DeepLabCutPosesFile(FilePath):
         return value
 
 
-class SleapPredictionsFile(FilePath):
+class SleapAnalysisFile(FilePath):
     """Pydantic class for validating file paths containing
-    pose estimation results (predictions) from SLEAP.
+    analysis results from SLEAP.
 
     In addition to the checks performed by the FilePath class,
-    this class also checks that the file has one of the two
-    expected suffixes - ".slp" or ".h5".
+    this class also ensures that:
+    - the file has the expected suffix ".h5",
+    - the file contains some expected datasets
+    - the dataset array shapes are consistent with each other
     """
 
     @validator("path")
     def file_must_have_valid_suffix(cls, value):
-        if value.suffix not in (".slp", ".h5"):
+        if value.suffix != ".h5":
             error_msg = (
-                "Expected a file with pose estimation results (predictions)"
-                "from SLEAP, in one of '.slp' or '.h5' formats. "
+                "Expected a SLEAP analysis file in '.h5' format. "
                 f"Received a file with suffix '{value.suffix}' instead."
             )
             logger.error(error_msg)
             raise ValueError(error_msg)
+        return value
+
+    @validator("path")
+    def file_must_contain_expected_datasets(cls, value):
+        expected_datasets = ["tracks", "track_occupancy", "node_names"]
+        with h5py.File(value, "r") as f:
+            for dataset in expected_datasets:
+                if dataset not in list(f.keys()):
+                    error_msg = (
+                        f"Expected dataset '{dataset}' not found in file: "
+                        f"{value}. Ensure this is a valid SLEAP analysis file."
+                    )
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+        return value
+
+    @validator("path")
+    def dataset_shapes_must_be_consistent(cls, value):
+        with h5py.File(value, "r") as f:
+            n_tracks, n_dims, n_nodes, n_frames = f["tracks"].shape
+            node_names = [n.decode() for n in f["node_names"][:]]
+
+            try:
+                assert f["track_occupancy"].shape == (n_frames, n_tracks)
+                assert n_nodes == len(node_names)
+            except AssertionError:
+                error_msg = (
+                    f"Dataset shapes in file {value} are inconsistent. "
+                    f"Ensure this is a valid SLEAP analysis file."
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+
         return value
