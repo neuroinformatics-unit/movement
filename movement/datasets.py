@@ -29,8 +29,10 @@ POSE_DATA = pooch.create(
         "DLC_single-wasp.predictions.h5": "931dddb6ef5e08db6054d3757a441ee31dd0d9ff5a10802ad8405d6c4e7e274e",  # noqa: E501
         "DLC_single-wasp.predictions.csv": "9b194cc930c2e2e0d33c816320d029f889b306d53ff2fe95ff408e99c9cdea23",  # noqa: E501
         "DLC_single-mouse_EPM.predictions.h5": "0ddc2b08c9401435929783b22ea31b3673ceb80c3a02c5f3531bb1cfd78deea5",  # noqa: E501
-        "SLEAP_single-mouse_EPM.predictions.slp": "6ede1837dc8a66e5615ff1dc8d2d590727fa78e9b4d9391bad9e9ef0922445fe",  # noqa: E501
+        "SLEAP_single-mouse_EPM.predictions.slp": "ca620db6123635761ddf69947f72f653d14a59137b355bd2d8f7c2f1be67e474",  # noqa: E501
+        "SLEAP_single-mouse_EPM.analysis.h5": "0df0a09c2493a1d9964ba98cbf751eda62743f1d688ae82b6df7b0f77169ed47",  # noqa: E501
         "SLEAP_two-mice_social-interaction.predictions.slp": "45881affde9704c045e70b8d4b3f6bbb8d9bd8ef9f4cdea6d173cfe35857549b",  # noqa: E501
+        "SLEAP_two-mice_social-interaction.analysis.h5": "f7f1e59d4b2c34712089f8aaf2390272291d93e6991c1abe32d9ce798a6234f9",  # noqa: E501
     },
 )
 
