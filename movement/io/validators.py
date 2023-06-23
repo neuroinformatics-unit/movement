@@ -94,10 +94,12 @@ class SleapAnalysisFile(FilePath):
         with h5py.File(value, "r") as f:
             n_tracks, n_dims, n_nodes, n_frames = f["tracks"].shape
             node_names = [n.decode() for n in f["node_names"][:]]
+            track_names = [n.decode() for n in f["track_names"][:]]
 
             try:
                 assert f["track_occupancy"].shape == (n_frames, n_tracks)
                 assert n_nodes == len(node_names)
+                assert n_tracks == len(track_names)
             except AssertionError:
                 error_msg = (
                     f"Dataset shapes in file {value} are inconsistent. "
