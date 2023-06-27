@@ -23,6 +23,8 @@ class TestLoadPoses:
             Dictionary containing the paths.
             - h5_path: pathlib Path to a valid .h5 file
             - h5_str: path as str to a valid .h5 file
+            - csv_path: pathlib Path to a valid .csv file
+            - csv_str: path as str to a valid .csv file
         """
         h5_file = fetch_pose_data_path("DLC_single-wasp.predictions.h5")
         csv_file = fetch_pose_data_path("DLC_single-wasp.predictions.csv")
