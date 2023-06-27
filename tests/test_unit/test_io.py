@@ -35,17 +35,18 @@ class TestLoadPoses:
 
     @pytest.fixture
     def invalid_files(self, tmp_path):
-        """Return the paths to invalid poses files.
+        """Return the paths to invalid poses files, and the expected errors.
 
         Returns
         -------
         dict
-            Dictionary containing the paths.
-            - unreadable: path to a file with no read permissions
-            - wrong_ext: path to a file with the wrong extension
+            Dictionary containing tuple(path, error) pairs as values.
+            The keys are:
+            - unreadable: file with no read permissions
+            - wrong_ext: file with the wrong extension
             - h5_missing_data: h5 file missing the expected dataset
-            - nonexistent: path to a file that does not exist
-            - csv_no_header: path to a CSV file with no header
+            - nonexistent: file that does not exist
+            - csv_no_header: CSV file with no header
         """
         unreadable_file = tmp_path / "unreadable.h5"
         with open(unreadable_file, "w") as f:
@@ -67,11 +68,11 @@ class TestLoadPoses:
             f.write("1,0,1,0,1")
 
         return {
-            "unreadable": unreadable_file,
-            "wrong_ext": wrong_ext_file,
-            "h5_missing_data": h5_file_missing_data,
-            "nonexistent": nonexistent_file,
-            "csv_no_header": csv_file_no_header,
+            "unreadable": (unreadable_file, PermissionError),
+            "wrong_ext": (wrong_ext_file, ValueError),
+            "h5_missing_data": (h5_file_missing_data, ValueError),
+            "nonexistent": (nonexistent_file, FileNotFoundError),
+            "csv_no_header": (csv_file_no_header, ValueError),
         }
 
     def test_load_valid_dlc_files(self, valid_dlc_files):
@@ -81,24 +82,21 @@ class TestLoadPoses:
             assert isinstance(df, pd.DataFrame)
             assert not df.empty
 
-    def test_load_invalid_dlc_files(self, invalid_files):
-        """Test loading invalid DLC poses files."""
-        for file_type, file_path in invalid_files.items():
-            if file_type == "nonexistent":
-                with pytest.raises(FileNotFoundError):
-                    load_poses.from_dlc(file_path)
-            elif file_type == "unreadable":
-                with pytest.raises(PermissionError):
-                    load_poses.from_dlc(file_path)
-            else:
-                with pytest.raises(ValueError):
-                    load_poses.from_dlc(file_path)
+    def test_load_invalid_files(self, invalid_files):
+        """Test loading invalid poses files from both DLC and SLEAP."""
+        for file_type, (file_path, exception) in invalid_files.items():
+            with pytest.raises(exception):
+                load_poses.from_dlc(file_path)
+            with pytest.raises(exception):
+                load_poses.from_sleap(file_path)
 
     @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
-    def test_load_from_dlc_with_incorrect_file_path_types(self, file_path):
+    def test_load_with_incorrect_file_path_types(self, file_path):
         """Test loading poses from a file_path with an incorrect type."""
         with pytest.raises(ValidationError):
             load_poses.from_dlc(file_path)
+        with pytest.raises(ValidationError):
+            load_poses.from_sleap(file_path)
 
     def test_load_from_dlc_csv_or_h5_file_returns_same_df(
         self, valid_dlc_files
