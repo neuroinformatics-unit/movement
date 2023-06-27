@@ -105,7 +105,7 @@ def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def from_sleap(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
+def from_sleap(file_path: Union[Path, str]) -> dict:
     """Load pose estimation results from a SLEAP analysis file.
 
     Parameters
@@ -168,43 +168,5 @@ def from_sleap(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
                 (n_frames, n_nodes, n_tracks), dtype=np.float32
             )
 
-        # Describe the values in the data dictionary we just created.
-        for key, value in poses.items():
-            if isinstance(value, np.ndarray):
-                print(f"{key}: {value.dtype} array of shape {value.shape}")
-            else:
-                print(f"{key}: {value}")
-
-        # Build a DLC-style multi-index dataframe
-        # SLEAP doesn't have the concept of "scorer",
-        # so we use the filename as the scorer name
-        df = pd.DataFrame(
-            poses["tracks"].reshape(n_frames, n_tracks * n_nodes * n_dims),
-            columns=pd.MultiIndex.from_product(
-                [
-                    [sleap_poses_file.path.stem],
-                    poses["track_names"],
-                    poses["node_names"],
-                    ["x", "y"],
-                ],
-                names=["scorer", "individual", "bodyparts", "coords"],
-            ),
-            index=pd.Index(range(n_frames)),
-        )
-
-        logger.info(f"Loaded poses from {file_path}")
-        # Save the dataframe as csv
-        df.to_csv(sleap_poses_file.path.parent / "sleap_poses.csv")
-        return df
-
-
-if __name__ == "__main__":
-    from movement.datasets import fetch_pose_data_path
-
-    dlc_file = fetch_pose_data_path("DLC_single-mouse_EPM.predictions.h5")
-    sleap_file = fetch_pose_data_path(
-        "SLEAP_three-mice_Aeon_proofread.analysis.h5"
-    )
-
-    dlc_df = from_dlc(dlc_file)
-    sleap_df = from_sleap(sleap_file)
+    logger.info(f"Loaded poses from {file_path}")
+    return poses
