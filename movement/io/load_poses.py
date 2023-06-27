@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 import pandas as pd
 
-from movement.io.validators import DeepLabCutPosesFile, SleapAnalysisFile
+from movement.io.validators import DeepLabCutPosesFile, SleapPosesFile
 
 # get logger
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ def from_sleap(file_path: Union[Path, str]) -> dict:
     """
 
     # Validate the input file
-    sleap_poses_file = SleapAnalysisFile(path=file_path)  # type: ignore
+    sleap_poses_file = SleapPosesFile(path=file_path)  # type: ignore
 
     # Load the SLEAP poses
     with h5py.File(sleap_poses_file.path, "r") as f:

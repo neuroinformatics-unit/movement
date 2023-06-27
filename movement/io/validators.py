@@ -53,7 +53,7 @@ class DeepLabCutPosesFile(FilePath):
         return value
 
 
-class SleapAnalysisFile(FilePath):
+class SleapPosesFile(FilePath):
     """Pydantic class for validating file paths containing
     analysis results from SLEAP.
 
