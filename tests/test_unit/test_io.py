@@ -36,6 +36,23 @@ class TestLoadPoses:
         }
 
     @pytest.fixture
+    def valid_sleap_files(self):
+        """Return the paths to valid Sleap poses files.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the paths.
+            - h5_path: pathlib Path to a valid .h5 file
+            - h5_str: path as str to a valid .h5 file
+        """
+        h5_file = fetch_pose_data_path(
+            "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+        )
+
+        return {"h5_path": h5_file, "h5_str": h5_file.as_posix()}
+
+    @pytest.fixture
     def invalid_files(self, tmp_path):
         """Return the paths to invalid poses files, and the expected errors.
 
@@ -83,6 +100,23 @@ class TestLoadPoses:
             df = load_poses.from_dlc(file_path)
             assert isinstance(df, pd.DataFrame)
             assert not df.empty
+
+    def test_load_valid_sleap_files(self, valid_sleap_files):
+        """Test loading valid Sleap poses files."""
+        for file_type, file_path in valid_sleap_files.items():
+            poses = load_poses.from_sleap(file_path)
+            assert isinstance(poses, dict)
+            expected_keys = ["tracks", "track_occupancy", "node_names"]
+            assert all(key in poses.keys() for key in expected_keys)
+
+            n_frames, n_nodes, n_dims, n_tracks = poses["tracks"].shape
+            assert poses["track_occupancy"].shape == (n_frames, n_tracks)
+            assert len(poses["node_names"]) == n_nodes
+            assert len(poses["track_names"]) == n_tracks
+            assert n_frames == 601
+            assert n_nodes == 1
+            assert n_dims == 2
+            assert n_tracks == 3
 
     def test_load_invalid_files(self, invalid_files):
         """Test loading invalid poses files from both DLC and SLEAP."""
