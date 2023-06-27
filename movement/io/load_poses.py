@@ -26,6 +26,17 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     pandas DataFrame
         DataFrame containing the DLC poses
 
+    Notes
+    -----
+    In the case of multi-animal DLC, movement expects the tracks to be
+    proofread before loading them. There should be as many tracks as there
+    are individuals (animals) in the video, without identity switches.
+    Follow the relevant multi-animal DLC guide [1]_.
+
+    References
+    ----------
+    .. [1] https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html
+
     Examples
     --------
     >>> from movement.io import load_poses
@@ -125,6 +136,11 @@ def from_sleap(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     ----------
     .. [1] https://sleap.ai/tutorials/analysis.html
     .. [2] https://sleap.ai/guides/proofreading.html
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> poses = load_poses.from_sleap("path/to/file.h5")
     """
 
     # Validate the input file
@@ -187,7 +203,7 @@ if __name__ == "__main__":
 
     dlc_file = fetch_pose_data_path("DLC_single-mouse_EPM.predictions.h5")
     sleap_file = fetch_pose_data_path(
-        "SLEAP_two-mice_social-interaction.analysis.h5"
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5"
     )
 
     dlc_df = from_dlc(dlc_file)
