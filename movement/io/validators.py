@@ -40,7 +40,7 @@ class DeepLabCutPosesFile(FilePath):
     expected suffixes - ".h5" or ".csv".
     """
 
-    @validator("path")
+    @validator("path", pre=True)  # runs before other validators
     def file_must_have_valid_suffix(cls, value):
         if value.suffix not in (".h5", ".csv"):
             error_msg = (
@@ -50,6 +50,22 @@ class DeepLabCutPosesFile(FilePath):
             )
             logger.error(error_msg)
             raise ValueError(error_msg)
+        return value
+
+    @validator("path")
+    def h5_file_must_contain_expected_df(cls, value):
+        if value.suffix == ".h5":
+            with h5py.File(value, "r") as f:
+                dataset = "df_with_missing"
+                if dataset not in list(f.keys()):
+                    error_msg = (
+                        f"Expected dataset '{dataset}' not found in file: "
+                        f"{value}. Ensure this is a valid DLC output file."
+                    )
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+        else:
+            pass
         return value
 
 

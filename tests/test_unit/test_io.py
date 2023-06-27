@@ -15,8 +15,7 @@ class TestLoadPoses:
 
     @pytest.fixture
     def valid_dlc_files(self):
-        """Return the paths to valid DLC poses files,
-        in .h5 format.
+        """Return the paths to valid DLC poses files.
 
         Returns
         -------
@@ -36,6 +35,18 @@ class TestLoadPoses:
 
     @pytest.fixture
     def invalid_files(self, tmp_path):
+        """Return the paths to invalid poses files.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the paths.
+            - unreadable: path to a file with no read permissions
+            - wrong_ext: path to a file with the wrong extension
+            - h5_missing_data: h5 file missing the expected dataset
+            - nonexistent: path to a file that does not exist
+            - csv_no_header: path to a CSV file with no header
+        """
         unreadable_file = tmp_path / "unreadable.h5"
         with open(unreadable_file, "w") as f:
             f.write("unreadable data")
@@ -45,17 +56,22 @@ class TestLoadPoses:
         with open(wrong_ext_file, "w") as f:
             f.write("")
 
-        h5_file_no_dataframe = tmp_path / "no_dataframe.h5"
-        with h5py.File(h5_file_no_dataframe, "w") as f:
+        h5_file_missing_data = tmp_path / "h5_missing_data.h5"
+        with h5py.File(h5_file_missing_data, "w") as f:
             f.create_dataset("data_in_list", data=[1, 2, 3])
 
         nonexistent_file = tmp_path / "nonexistent.h5"
 
+        csv_file_no_header = tmp_path / "no_header.csv"
+        with open(csv_file_no_header, "w") as f:
+            f.write("1,0,1,0,1")
+
         return {
             "unreadable": unreadable_file,
             "wrong_ext": wrong_ext_file,
-            "no_dataframe": h5_file_no_dataframe,
+            "h5_missing_data": h5_file_missing_data,
             "nonexistent": nonexistent_file,
+            "csv_no_header": csv_file_no_header,
         }
 
     def test_load_valid_dlc_files(self, valid_dlc_files):
@@ -71,11 +87,11 @@ class TestLoadPoses:
             if file_type == "nonexistent":
                 with pytest.raises(FileNotFoundError):
                     load_poses.from_dlc(file_path)
-            elif file_type == "wrong_ext":
-                with pytest.raises(ValueError):
+            elif file_type == "unreadable":
+                with pytest.raises(PermissionError):
                     load_poses.from_dlc(file_path)
             else:
-                with pytest.raises(OSError):
+                with pytest.raises(ValueError):
                     load_poses.from_dlc(file_path)
 
     @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])

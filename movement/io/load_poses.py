@@ -48,20 +48,13 @@ def from_dlc(file_path: Union[Path, str]) -> Optional[pd.DataFrame]:
     file_suffix = dlc_poses_file.path.suffix
 
     # Load the DLC poses
-    try:
-        if file_suffix == ".csv":
-            df = _parse_dlc_csv_to_dataframe(dlc_poses_file.path)
-        else:  # file can only be .h5 at this point
-            df = pd.read_hdf(dlc_poses_file.path)
-            # above line does not necessarily return a DataFrame
-            df = pd.DataFrame(df)
-    except (OSError, TypeError, ValueError) as e:
-        error_msg = (
-            f"Could not load poses from {file_path}. "
-            "Please check that the file is valid and readable."
-        )
-        logger.error(error_msg)
-        raise OSError from e
+    if file_suffix == ".csv":
+        df = _parse_dlc_csv_to_dataframe(dlc_poses_file.path)
+    else:  # file can only be .h5 at this point
+        df = pd.read_hdf(dlc_poses_file.path)
+        # above line does not necessarily return a DataFrame
+        df = pd.DataFrame(df)
+
     logger.info(f"Loaded poses from {file_path}")
     return df
 
@@ -91,6 +84,12 @@ def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
             for line in f.readlines()
             if line.split(",")[0] in possible_level_names
         ]
+        # if there are no header lines, raise an error
+        if len(header_lines) == 0:
+            raise ValueError(
+                f"Could not find any header lines in {file_path}. "
+                f"Please check that the file is a valid DLC csv file."
+            )
 
     # Form multi-index column names from the header lines
     level_names = [line[0] for line in header_lines]
