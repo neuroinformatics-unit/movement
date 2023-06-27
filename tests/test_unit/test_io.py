@@ -1,6 +1,7 @@
 import os
 
 import h5py
+import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
@@ -37,7 +38,7 @@ class TestLoadPoses:
 
     @pytest.fixture
     def valid_sleap_files(self):
-        """Return the paths to valid Sleap poses files.
+        """Return the paths to valid SLEAP poses files.
 
         Returns
         -------
@@ -66,6 +67,8 @@ class TestLoadPoses:
             - h5_missing_data: h5 file missing the expected dataset
             - nonexistent: file that does not exist
             - csv_no_header: CSV file with no header
+            - misshapen_sleap: SLEAP analysis.h5 file containing datasets
+                with the mismatched shapes
         """
         unreadable_file = tmp_path / "unreadable.h5"
         with open(unreadable_file, "w") as f:
@@ -86,12 +89,26 @@ class TestLoadPoses:
         with open(csv_file_no_header, "w") as f:
             f.write("1,0,1,0,1")
 
+        mismatched_sleap_file = tmp_path / "sleap_mismatched_shapes.h5"
+        with h5py.File(mismatched_sleap_file, "w") as f:
+            f.create_dataset("tracks", data=np.zeros((2, 2, 1, 50)))
+            f.create_dataset("track_occupancy", data=np.zeros((50, 2)))
+            node_names = ["centroid"]
+            f.create_dataset(
+                "node_names", data=[n.encode("utf8") for n in node_names]
+            )
+            track_names = ["track_0", "track_1", "track_3"]
+            f.create_dataset(
+                "track_names", data=[n.encode("utf8") for n in track_names]
+            )
+
         return {
             "unreadable": (unreadable_file, PermissionError),
             "wrong_ext": (wrong_ext_file, ValueError),
             "h5_missing_data": (h5_file_missing_data, ValueError),
             "nonexistent": (nonexistent_file, FileNotFoundError),
             "csv_no_header": (csv_file_no_header, ValueError),
+            "misshapen_sleap": (mismatched_sleap_file, ValueError),
         }
 
     def test_load_valid_dlc_files(self, valid_dlc_files):
