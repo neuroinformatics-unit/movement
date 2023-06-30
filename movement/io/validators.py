@@ -40,7 +40,7 @@ class DeepLabCutPosesFile(FilePath):
     expected suffixes - ".h5" or ".csv".
     """
 
-    @validator("path", pre=True)  # runs before other validators
+    @validator("path")
     def file_must_have_valid_suffix(cls, value):
         if value.suffix not in (".h5", ".csv"):
             error_msg = (
