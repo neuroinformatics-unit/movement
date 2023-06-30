@@ -69,7 +69,7 @@ def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
         DataFrame containing the DLC poses, with multi-index columns.
     """
 
-    possible_level_names = ["scorer", "bodyparts", "coords", "individual"]
+    possible_level_names = ["scorer", "bodyparts", "coords", "individuals"]
     with open(file_path, "r") as f:
         # if line starts with a possible level name, split it into a list
         # of strings, and add it to the list of header lines
