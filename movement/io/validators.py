@@ -64,8 +64,6 @@ class DeepLabCutPosesFile(FilePath):
                     )
                     logger.error(error_msg)
                     raise ValueError(error_msg)
-        else:
-            pass
         return value
 
 
