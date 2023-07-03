@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 from pydantic import ValidationError
+from tables import HDF5ExtError
 
 from movement.datasets import fetch_pose_data_path
 from movement.io import load_poses
@@ -36,8 +37,13 @@ class TestLoadPoses:
 
     @pytest.fixture
     def invalid_files(self, tmp_path):
-        unreadable_file = tmp_path / "unreadable.h5"
-        with open(unreadable_file, "w") as f:
+        unreadable_h5_file = tmp_path / "unreadable.h5"
+        with open(unreadable_h5_file, "w") as f:
+            f.write("unreadable data")
+            os.chmod(f.name, 0o000)
+
+        unreadable_csv_file = tmp_path / "unreadable.csv"
+        with open(unreadable_csv_file, "w") as f:
             f.write("unreadable data")
             os.chmod(f.name, 0o000)
 
@@ -52,7 +58,8 @@ class TestLoadPoses:
         nonexistent_file = tmp_path / "nonexistent.h5"
 
         return {
-            "unreadable": unreadable_file,
+            "unreadable_h5": unreadable_h5_file,
+            "unreadable_csv": unreadable_csv_file,
             "wrong_ext": wrong_ext_file,
             "no_dataframe": h5_file_no_dataframe,
             "nonexistent": nonexistent_file,
@@ -73,6 +80,9 @@ class TestLoadPoses:
                     load_poses.from_dlc(file_path)
             elif file_type == "wrong_ext":
                 with pytest.raises(ValueError):
+                    load_poses.from_dlc(file_path)
+            elif file_type == "unreadable_h5":
+                with pytest.raises(HDF5ExtError):
                     load_poses.from_dlc(file_path)
             else:
                 with pytest.raises(OSError):
