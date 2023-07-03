@@ -18,10 +18,6 @@ class FilePath(BaseModel):
 
     path: Path
 
-    @validator("path", pre=True)  # runs before other validators
-    def convert_to_path(cls, value):
-        return Path(value)
-
     @validator("path")
     def file_must_exist(cls, value):
         if not value.is_file():
