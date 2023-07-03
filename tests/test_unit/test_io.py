@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 from pydantic import ValidationError
+from tables import HDF5ExtError
 
 from movement.datasets import fetch_pose_data_path
 from movement.io import load_poses
@@ -75,7 +76,7 @@ class TestLoadPoses:
                 with pytest.raises(ValueError):
                     load_poses.from_dlc(file_path)
             else:
-                with pytest.raises(OSError):
+                with pytest.raises((OSError, HDF5ExtError)):
                     load_poses.from_dlc(file_path)
 
     @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
