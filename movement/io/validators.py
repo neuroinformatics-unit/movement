@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 # initialize logger
 logger = logging.getLogger(__name__)
@@ -18,11 +18,7 @@ class DeepLabCutPosesFile(BaseModel):
 
     file_path: Path
 
-    @validator("file_path", pre=True)  # runs before other validators
-    def convert_to_path(cls, value):
-        return Path(value)
-
-    @validator("file_path")
+    @field_validator("file_path")
     def file_must_exist(cls, value):
         if not value.is_file():
             error_msg = f"File not found: {value}"
@@ -30,7 +26,7 @@ class DeepLabCutPosesFile(BaseModel):
             raise FileNotFoundError(error_msg)
         return value
 
-    @validator("file_path")
+    @field_validator("file_path")
     def file_must_have_valid_suffix(cls, value):
         if value.suffix not in (".h5", ".csv"):
             error_msg = (
