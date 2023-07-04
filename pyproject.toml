@@ -2,6 +2,7 @@
 name = "movement"
 authors = [
   {name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com"},
+  {name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk"},
 ]
 description = "Analysis of body movement"
 readme = "README.md"
