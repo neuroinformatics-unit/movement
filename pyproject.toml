@@ -19,6 +19,7 @@ dependencies = [
     "pooch",
     "tqdm",
     "sleap-io",
+    "xarray",
 ]
 
 classifiers = [
