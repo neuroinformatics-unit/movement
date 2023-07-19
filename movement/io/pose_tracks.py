@@ -8,6 +8,8 @@ import pandas as pd
 import xarray as xr
 from sleap_io.io.slp import read_labels
 
+from movement.io.validators import DeepLabCutPosesFile
+
 # get logger
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,42 @@ class PoseTracks(xr.Dataset):
         return ds
 
     @classmethod
+    def from_dataframe(cls, df: pd.DataFrame, fps: Optional[float] = None):
+        """Create a `PoseTracks` dataset from a pandas DataFrame.
+
+        Parameters
+        ----------
+        df : pandas DataFrame
+            DataFrame containing the pose tracks and confidence scores. Must
+            be formatted as in DeepLabCut output files (see Notes).
+        fps : float, optional
+            The number of frames per second in the video. If None (default),
+            the `time` coordinate will not be created.
+
+        Notes
+        -----
+        The DataFrame must have a multi-index column with the following levels:
+        "scorer", ("individuals"), "bodyparts", "coords".
+        The "individuals level may be omitted if there is only one individual
+        in the video. The "coords" level contains the spatial coordinates "x",
+        "y", as well as "likelihood" (point-wise confidence scores). The row
+        index corresponds to the frame number.
+
+        Examples
+        --------
+        >>> from movement.io import PoseTracks
+        >>> df = pd.read_csv("path/to/poses.csv")
+        >>> poses = PoseTracks.from_dataframe(df, fps=30)
+        """
+
+        # Convert the DataFrame to a dictionary
+        dict_ = cls.dataframe_to_dict(df)
+
+        # Initialize a PoseTracks dataset from the dictionary
+        ds = cls.from_dict({**dict_, "fps": fps})
+        return ds
+
+    @classmethod
     def from_sleap(
         cls, file_path: Union[Path, str], fps: Optional[float] = None
     ):
@@ -181,6 +219,57 @@ class PoseTracks(xr.Dataset):
         ds.attrs["source_file"] = file_path.as_posix()
         return ds
 
+    @classmethod
+    def from_dlc(
+        cls, file_path: Union[Path, str], fps: Optional[float] = None
+    ):
+        """Load pose tracking data from a DeepLabCut (DLC) output file.
+
+        Parameters
+        ----------
+        file_path : pathlib Path or str
+            Path to the file containing the DLC poses, either in ".slp"
+            or ".h5" (analysis) format.
+        fps : float, optional
+            The number of frames per second in the video. If None (default),
+            the `time` coordinate will not be created.
+
+
+        Examples
+        --------
+        >>> from movement.io import PoseTracks
+        >>> poses = PoseTracks.from_dlc("path/to/video_model.h5", fps=30)
+        """
+
+        # Validate the input file path
+        dlc_poses_file = DeepLabCutPosesFile(file_path=file_path)
+        file_suffix = dlc_poses_file.file_path.suffix
+
+        # Load the DLC poses into a DataFrame
+        try:
+            if file_suffix == ".csv":
+                df = cls._parse_dlc_csv_to_dataframe(dlc_poses_file.file_path)
+            else:  # file can only be .h5 at this point
+                df = pd.read_hdf(dlc_poses_file.file_path)
+                # above line does not necessarily return a DataFrame
+                df = pd.DataFrame(df)
+        except (OSError, TypeError, ValueError) as e:
+            error_msg = (
+                f"Could not load poses from {file_path}. "
+                "Please check that the file is valid and readable."
+            )
+            logger.error(error_msg)
+            raise OSError from e
+        logger.info(f"Loaded poses from {file_path} into a DataFrame.")
+
+        # Convert the DataFrame to a PoseTracks dataset
+        ds = cls.from_dataframe(df=df, fps=fps)
+
+        # Add metadata as attrs
+        ds.attrs["source_software"] = "DeepLabCut"
+        ds.attrs["source_file"] = dlc_poses_file.filepath.as_posix()
+        return ds
+
     @staticmethod
     def _load_dict_from_sleap_analysis_file(file_path: Path):
         """Load pose tracks and confidence scores from a SLEAP analysis
@@ -220,4 +309,86 @@ class PoseTracks(xr.Dataset):
             "confidence_scores": tracks_with_scores[:, :, :, -1],
             "individual_names": [track.name for track in labels.tracks],
             "keypoint_names": [kp.name for kp in labels.skeletons[0].nodes],
+        }
+
+    def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
+        """If poses are loaded from a DeepLabCut.csv file, the DataFrame
+        lacks the multi-index columns that are present in the .h5 file. This
+        function parses the csv file to a DataFrame with multi-index columns,
+        i.e. the same format as in the .h5 file.
+
+        Parameters
+        ----------
+        file_path : pathlib Path
+            Path to the file containing the DLC poses, in .csv format.
+
+        Returns
+        -------
+        pandas DataFrame
+            DataFrame containing the DLC poses, with multi-index columns.
+        """
+
+        possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
+        with open(file_path, "r") as f:
+            # if line starts with a possible level name, split it into a list
+            # of strings, and add it to the list of header lines
+            header_lines = [
+                line.strip().split(",")
+                for line in f.readlines()
+                if line.split(",")[0] in possible_level_names
+            ]
+
+        # Form multi-index column names from the header lines
+        level_names = [line[0] for line in header_lines]
+        column_tuples = list(zip(*[line[1:] for line in header_lines]))
+        columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
+
+        # Import the DLC poses as a DataFrame
+        df = pd.read_csv(
+            file_path, skiprows=len(header_lines), index_col=0, names=columns
+        )
+        df.columns.rename(level_names, inplace=True)
+        return df
+
+    @staticmethod
+    def dataframe_to_dict(df: pd.DataFrame) -> dict:
+        """Convert a DeepLabCut-style DataFrame containing pose tracks and
+        likelihood scores into a dictionary.
+
+        Parameters
+        ----------
+        df : pandas DataFrame
+            DataFrame formatted as in DeepLabCut output files.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the pose tracks, confidence scores, and
+            metadata.
+        """
+
+        # read names of individuals and keypoints from the DataFrame
+        # retain the order of their appearance in the DataFrame
+        if "individuals" in df.columns.names:
+            ind_names = (
+                df.columns.get_level_values("individuals").unique().to_list()
+            )
+        else:
+            ind_names = ["individual_0"]
+
+        kp_names = df.columns.get_level_values("bodyparts").unique().to_list()
+        print(ind_names)
+        print(kp_names)
+
+        # reshape the data into (n_frames, n_individuals, n_keypoints, 3)
+        # where the last axis contains "x", "y", "likelihood"
+        tracks_with_scores = df.to_numpy().reshape(
+            (-1, len(ind_names), len(kp_names), 3)
+        )
+
+        return {
+            "pose_tracks": tracks_with_scores[:, :, :, :-1],
+            "confidence_scores": tracks_with_scores[:, :, :, -1],
+            "individual_names": ind_names,
+            "keypoint_names": kp_names,
         }
