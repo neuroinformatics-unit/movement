@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, Union
 
 import h5py
 import numpy as np
@@ -9,15 +9,24 @@ from sleap_io.io.slp import read_labels
 
 
 class PoseTracks(xr.Dataset):
-    """Pose tracking data with point-wise confidence scores.
+    """Dataset containing pose tracks and point-wise confidence scores.
 
-    This is a subclass of `xarray.Dataset`, with the following dimensions:
+    This is a `xarray.Dataset` object, with the following dimensions:
     - `frames`: the number of frames in the video
     - `individuals`: the number of individuals in the video
     - `keypoints`: the number of keypoints in the skeleton
-    - `space`: the number of spatial dimensions, either 2 (x,y) or 3 (x,y,z)
+    - `space`: the number of spatial dimensions, either 2 or 3
 
-    The dataset contains two data variables:
+    Each dimension is assigned appropriate coordinates:
+     - frame indices (int) for `frames`
+     - list of unique names (str) for `individuals` and `keypoints`
+     - `x`, `y` (and `z`) for `space`
+
+    If `fps` is supplied, the `frames` dimension is also assigned a `time`
+    coordinate. If `fps` is None, the temporal dimension can only be
+    accessed through frame indices.
+
+    The dataset contains two data variables (`xarray.DataArray` objects):
     - `pose_tracks`: with shape (`frames`, `individuals`, `keypoints`, `space`)
     - `confidence_scores`: with shape (`frames`, `individuals`, `keypoints`)
 
@@ -44,7 +53,7 @@ class PoseTracks(xr.Dataset):
         cls,
         dict_: dict,
     ):
-        """Create an xarray.Dataset from a dictionary of pose tracks,
+        """Create a `PosteTracks` dataset from a dictionary of pose tracks,
         confidence scores, and metadata.
 
         Parameters
@@ -59,11 +68,6 @@ class PoseTracks(xr.Dataset):
             - "keypoint_names": list of strings, with length n_keypoints
             - "fps": float, the number of frames per second in the video.
                 If None, the "time" coordinate will not be added.
-
-        Returns
-        -------
-        xarray.Dataset
-            xarray.Dataset containing `pose_tracks` and `confidence_scores`.
         """
 
         # Convert the pose tracks and confidence scores to xarray.DataArray
@@ -101,7 +105,9 @@ class PoseTracks(xr.Dataset):
         return ds
 
     @classmethod
-    def from_sleap(cls, file_path: Path, fps: Optional[float] = None):
+    def from_sleap(
+        cls, file_path: Union[Path, str], fps: Optional[float] = None
+    ):
         """Load pose tracking data from a SLEAP labels or analysis file.
 
         Parameters
@@ -111,7 +117,7 @@ class PoseTracks(xr.Dataset):
             or ".h5" (analysis) format. See Notes for more information.
         fps : float, optional
             The number of frames per second in the video. If None (default),
-            the "time" coordinate will not be created.
+            the `time` coordinate will not be created.
 
         Notes
         -----
@@ -122,8 +128,8 @@ class PoseTracks(xr.Dataset):
         or alternatively by choosing "Export Analysis HDF5…" from the "File"
         menu of the SLEAP GUI [1]_.
 
-        This function will only load the predicted instances in the ".slp",
-        file not the user-labeled ones.
+        If the ".slp" file contains both user-labeled and predicted instances,
+        this function will only load the ones predicted by the SLEAP model
 
         `movement` expects the tracks to be proofread before loading them.
         There should be as many tracks as there are instances (animals) in the
@@ -138,7 +144,8 @@ class PoseTracks(xr.Dataset):
         Examples
         --------
         >>> from movement.io import PoseTracks
-        >>> poses = PoseTracks.from_sleap("path/to/labels.predictions.slp")"""
+        >>> poses = PoseTracks.from_sleap("path/to/v1.predictions.slp", fps=30)
+        """
 
         if not isinstance(file_path, Path):
             file_path = Path(file_path)
@@ -193,35 +200,3 @@ class PoseTracks(xr.Dataset):
         ds.attrs["source_software"] = "SLEAP"
         ds.attrs["source_file"] = file_path.as_posix()
         return ds
-
-
-if __name__ == "__main__":
-    from movement.datasets import fetch_pose_data_path
-
-    h5_file = fetch_pose_data_path("SLEAP_single-mouse_EPM.analysis.h5")
-    slp_file = fetch_pose_data_path("SLEAP_single-mouse_EPM.predictions.slp")
-
-    h5_poses = PoseTracks.from_sleap(h5_file, fps=60)
-    slp_poses = PoseTracks.from_sleap(slp_file, fps=60)
-
-    # Plot the trajectories - 2 subplots: h5 and slp
-    from matplotlib import pyplot as plt
-
-    titles = ["h5", "slp"]
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    for i, poses in enumerate([h5_poses, slp_poses]):
-        tracks = poses.pose_tracks[:, 0, 0, :].to_pandas()
-        # Plot the trajectories of the first individual, first keypoint
-        tracks.plot(
-            title=titles[i],
-            x="x",
-            y="y",
-            s=1,
-            c=tracks.index.values,
-            kind="scatter",
-            backend="matplotlib",
-            cmap="viridis",
-            ax=axes[i],
-            colorbar=False,
-        )
-    plt.show()
