@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import ClassVar, Optional, Union
 
@@ -6,6 +7,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from sleap_io.io.slp import read_labels
+
+# get logger
+logger = logging.getLogger(__name__)
 
 
 class PoseTracks(xr.Dataset):
@@ -150,33 +154,11 @@ class PoseTracks(xr.Dataset):
         if not isinstance(file_path, Path):
             file_path = Path(file_path)
 
+        # Load data into a dictionary
         if file_path.suffix == ".h5":
-            with h5py.File(file_path, "r") as f:
-                tracks = f["tracks"][:].T
-                n_frames, n_nodes, n_space_dims, n_tracks = tracks.shape
-                tracks = tracks.reshape(
-                    (n_frames, n_tracks, n_nodes, n_space_dims)
-                )
-                # Create an array of NaNs for the confidence scores
-                scores = np.full(
-                    (n_frames, n_tracks, n_nodes), np.nan, dtype="float32"
-                )
-                # If present, read the point-wise scores, and reshape them
-                if "point_scores" in f.keys():
-                    scores = f["point_scores"][:].reshape(
-                        (n_frames, n_tracks, n_nodes)
-                    )
-                individual_names = [n.decode() for n in f["track_names"][:]]
-                keypoint_names = [n.decode() for n in f["node_names"][:]]
+            dict_ = cls._load_dict_from_sleap_analysis_file(file_path)
         elif file_path.suffix == ".slp":
-            labels = read_labels(file_path.as_posix())
-            tracks_with_scores = labels.numpy(
-                return_confidence=True, untracked=False
-            )
-            tracks = tracks_with_scores[:, :, :, :-1]
-            scores = tracks_with_scores[:, :, :, -1]
-            individual_names = [track.name for track in labels.tracks]
-            keypoint_names = [node.name for node in labels.skeletons[0].nodes]
+            dict_ = cls._load_dict_from_sleap_labels_file(file_path)
         else:
             error_msg = (
                 f"Expected file suffix to be '.h5' or '.slp', "
@@ -187,16 +169,55 @@ class PoseTracks(xr.Dataset):
             # logger.error(error_msg)
             raise ValueError(error_msg)
 
-        ds = cls.from_dict(
-            {
-                "pose_tracks": tracks,
-                "confidence_scores": scores,
-                "individual_names": individual_names,
-                "keypoint_names": keypoint_names,
-                "fps": fps,
-            }
+        logger.debug(
+            f"Loaded pose tracks from {file_path.as_posix()} into a dict."
         )
-        # Add metadata to the dataset.attrs dictionary
+
+        # Initialize a PoseTracks dataset from the dictionary
+        ds = cls.from_dict({**dict_, "fps": fps})
+
+        # Add metadata as attrs
         ds.attrs["source_software"] = "SLEAP"
         ds.attrs["source_file"] = file_path.as_posix()
         return ds
+
+    @staticmethod
+    def _load_dict_from_sleap_analysis_file(file_path: Path):
+        """Load pose tracks and confidence scores from a SLEAP analysis
+        file into a dictionary."""
+
+        with h5py.File(file_path, "r") as f:
+            tracks = f["tracks"][:].T
+            n_frames, n_keypoints, n_space, n_tracks = tracks.shape
+            tracks = tracks.reshape((n_frames, n_tracks, n_keypoints, n_space))
+            # Create an array of NaNs for the confidence scores
+            scores = np.full(
+                (n_frames, n_tracks, n_keypoints), np.nan, dtype="float32"
+            )
+            # If present, read the point-wise scores, and reshape them
+            if "point_scores" in f.keys():
+                scores = f["point_scores"][:].reshape(
+                    (n_frames, n_tracks, n_keypoints)
+                )
+
+            return {
+                "pose_tracks": tracks,
+                "confidence_scores": scores,
+                "individual_names": [n.decode() for n in f["track_names"][:]],
+                "keypoint_names": [n.decode() for n in f["node_names"][:]],
+            }
+
+    @staticmethod
+    def _load_dict_from_sleap_labels_file(file_path: Path):
+        """Load pose tracks and confidence scores from a SLEAP labels file
+        into a dictionary."""
+
+        labels = read_labels(file_path.as_posix())
+        tracks_with_scores = labels.numpy(return_confidence=True)
+
+        return {
+            "pose_tracks": tracks_with_scores[:, :, :, :-1],
+            "confidence_scores": tracks_with_scores[:, :, :, -1],
+            "individual_names": [track.name for track in labels.tracks],
+            "keypoint_names": [kp.name for kp in labels.skeletons[0].nodes],
+        }
