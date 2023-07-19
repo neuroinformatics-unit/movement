@@ -51,68 +51,88 @@ class PoseTracks(xr.Dataset):
 
     __slots__ = ("fps", "source_software", "source_file")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    @classmethod
-    def from_dict(
-        cls,
-        dict_: dict,
+    def __init__(
+        self,
+        pose_tracks: np.ndarray,
+        confidence_scores: Optional[np.ndarray] = None,
+        individual_names: Optional[list[str]] = None,
+        keypoint_names: Optional[list[str]] = None,
+        fps: Optional[float] = None,
     ):
-        """Create a `PosteTracks` dataset from a dictionary of pose tracks,
-        confidence scores, and metadata.
+        """Create a `PoseTracks` dataset.
 
         Parameters
         ----------
-        dict_ : dict
-            A dictionary with the following keys:
-            - "pose_tracks": np.ndarray of shape (n_frames, n_individuals,
-                n_keypoints, n_space_dims)
-            - "confidence_scores": np.ndarray of shape (n_frames,
-                n_individuals, n_keypoints)
-            - "individual_names": list of strings, with length individuals
-            - "keypoint_names": list of strings, with length n_keypoints
-            - "fps": float, the number of frames per second in the video.
-                If None, the "time" coordinate will not be added.
+        pose_tracks : np.ndarray
+            Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+            containing the pose tracks.
+        confidence_scores : np.ndarray, optional
+            Array of shape (n_frames, n_individuals, n_keypoints) containing
+            the point-wise confidence scores. If None (default), the
+            confidence scores will be set to an array of NaNs.
+        individual_names : list of str, optional
+            List of unique names for the individuals in the video. If None
+            (default), the individuals will be named "individual_0",
+            "individual_1", etc.
+        keypoint_names : list of str, optional
+            List of unique names for the keypoints in the skeleton. If None
+            (default), the keypoints will be named "keypoint_0", "keypoint_1",
+            etc.
+        fps : float, optional
+            The number of frames per second in the video. If None (default),
+            the `time` coordinate will not be created.
         """
 
+        n_frames, n_individuals, n_keypoints, n_space = pose_tracks.shape
+        if confidence_scores is None:
+            confidence_scores = np.full(
+                (n_frames, n_individuals, n_keypoints), np.nan, dtype="float32"
+            )
+        if individual_names is None:
+            individual_names = [
+                f"individual_{i}" for i in range(n_individuals)
+            ]
+        if keypoint_names is None:
+            keypoint_names = [f"keypoint_{i}" for i in range(n_keypoints)]
+        if (fps is not None) and (fps <= 0):
+            logger.warning(
+                f"Expected fps to be a positive number, but got {fps}. "
+                "Setting fps to None."
+            )
+            fps = None
+
         # Convert the pose tracks and confidence scores to xarray.DataArray
-        tracks_da = xr.DataArray(dict_["pose_tracks"], dims=cls.dim_names)
-        scores_da = xr.DataArray(
-            dict_["confidence_scores"], dims=cls.dim_names[:-1]
-        )
+        tracks_da = xr.DataArray(pose_tracks, dims=self.dim_names)
+        scores_da = xr.DataArray(confidence_scores, dims=self.dim_names[:-1])
 
         # Combine the DataArrays into a Dataset, with common coordinates
-        ds = cls(
+        super().__init__(
             data_vars={
                 "pose_tracks": tracks_da,
                 "confidence_scores": scores_da,
             },
             coords={
-                cls.dim_names[0]: np.arange(
-                    dict_["pose_tracks"].shape[0], dtype=int
-                ),
-                cls.dim_names[1]: dict_["individual_names"],
-                cls.dim_names[2]: dict_["keypoint_names"],
-                cls.dim_names[3]: ["x", "y", "z"][
-                    : dict_["pose_tracks"].shape[-1]
-                ],
+                self.dim_names[0]: np.arange(n_frames, dtype=int),
+                self.dim_names[1]: individual_names,
+                self.dim_names[2]: keypoint_names,
+                self.dim_names[3]: ["x", "y", "z"][:n_space],
             },
-            attrs={"fps": dict_["fps"]},
+            attrs={"fps": fps, "source_software": None, "source_file": None},
         )
 
-        # If fps is given, create "time" coords for 1st ("frames") dimension
-        if dict_["fps"] is not None:
-            times = pd.TimedeltaIndex(
-                ds.coords["frames"] / dict_["fps"], unit="s"
-            )
-            ds.coords["time"] = (cls.dim_names[0], times)
+        if fps is not None:
+            self._add_time_coord()
 
-        return ds
+    def _add_time_coord(self):
+        """Add a `time` coordinate to the dataset, based on the `frames`
+        dimension and the value of the `fps` attribute.
+        """
+        times = pd.TimedeltaIndex(self.coords["frames"] / self.fps, unit="s")
+        self.coords["time"] = (self.dim_names[0], times)
 
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame, fps: Optional[float] = None):
-        """Create a `PoseTracks` dataset from a pandas DataFrame.
+        """Create a `PoseTracks` dataset from a DLC_style pandas DataFrame.
 
         Parameters
         ----------
@@ -139,12 +159,31 @@ class PoseTracks(xr.Dataset):
         >>> poses = PoseTracks.from_dataframe(df, fps=30)
         """
 
-        # Convert the DataFrame to a dictionary
-        dict_ = cls.dataframe_to_dict(df)
+        # read names of individuals and keypoints from the DataFrame
+        if "individuals" in df.columns.names:
+            individual_names = (
+                df.columns.get_level_values("individuals").unique().to_list()
+            )
+        else:
+            individual_names = ["individual_0"]
 
-        # Initialize a PoseTracks dataset from the dictionary
-        ds = cls.from_dict({**dict_, "fps": fps})
-        return ds
+        keypoint_names = (
+            df.columns.get_level_values("bodyparts").unique().to_list()
+        )
+
+        # reshape the data into (n_frames, n_individuals, n_keypoints, 3)
+        # where the last axis contains "x", "y", "likelihood"
+        tracks_with_scores = df.to_numpy().reshape(
+            (-1, len(individual_names), len(keypoint_names), 3)
+        )
+
+        return cls(
+            pose_tracks=tracks_with_scores[:, :, :, :-1],
+            confidence_scores=tracks_with_scores[:, :, :, -1],
+            individual_names=individual_names,
+            keypoint_names=keypoint_names,
+            fps=fps,
+        )
 
     @classmethod
     def from_sleap(
@@ -194,9 +233,9 @@ class PoseTracks(xr.Dataset):
 
         # Load data into a dictionary
         if file_path.suffix == ".h5":
-            dict_ = cls._load_dict_from_sleap_analysis_file(file_path)
+            data_dict = cls._load_dict_from_sleap_analysis_file(file_path)
         elif file_path.suffix == ".slp":
-            dict_ = cls._load_dict_from_sleap_labels_file(file_path)
+            data_dict = cls._load_dict_from_sleap_labels_file(file_path)
         else:
             error_msg = (
                 f"Expected file suffix to be '.h5' or '.slp', "
@@ -212,11 +251,14 @@ class PoseTracks(xr.Dataset):
         )
 
         # Initialize a PoseTracks dataset from the dictionary
-        ds = cls.from_dict({**dict_, "fps": fps})
+        ds = cls(**data_dict, fps=fps)
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "SLEAP"
         ds.attrs["source_file"] = file_path.as_posix()
+
+        logger.info(f"Loaded pose tracks from {ds.source_file}:")
+        logger.info(ds)
         return ds
 
     @classmethod
@@ -260,14 +302,17 @@ class PoseTracks(xr.Dataset):
             )
             logger.error(error_msg)
             raise OSError from e
-        logger.info(f"Loaded poses from {file_path} into a DataFrame.")
+        logger.debug(f"Loaded poses from {file_path} into a DataFrame.")
 
         # Convert the DataFrame to a PoseTracks dataset
         ds = cls.from_dataframe(df=df, fps=fps)
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "DeepLabCut"
-        ds.attrs["source_file"] = dlc_poses_file.filepath.as_posix()
+        ds.attrs["source_file"] = dlc_poses_file.file_path.as_posix()
+
+        logger.info(f"Loaded pose tracks from {ds.source_file}:")
+        logger.info(ds)
         return ds
 
     @staticmethod
@@ -349,46 +394,3 @@ class PoseTracks(xr.Dataset):
         )
         df.columns.rename(level_names, inplace=True)
         return df
-
-    @staticmethod
-    def dataframe_to_dict(df: pd.DataFrame) -> dict:
-        """Convert a DeepLabCut-style DataFrame containing pose tracks and
-        likelihood scores into a dictionary.
-
-        Parameters
-        ----------
-        df : pandas DataFrame
-            DataFrame formatted as in DeepLabCut output files.
-
-        Returns
-        -------
-        dict
-            Dictionary containing the pose tracks, confidence scores, and
-            metadata.
-        """
-
-        # read names of individuals and keypoints from the DataFrame
-        # retain the order of their appearance in the DataFrame
-        if "individuals" in df.columns.names:
-            ind_names = (
-                df.columns.get_level_values("individuals").unique().to_list()
-            )
-        else:
-            ind_names = ["individual_0"]
-
-        kp_names = df.columns.get_level_values("bodyparts").unique().to_list()
-        print(ind_names)
-        print(kp_names)
-
-        # reshape the data into (n_frames, n_individuals, n_keypoints, 3)
-        # where the last axis contains "x", "y", "likelihood"
-        tracks_with_scores = df.to_numpy().reshape(
-            (-1, len(ind_names), len(kp_names), 3)
-        )
-
-        return {
-            "pose_tracks": tracks_with_scores[:, :, :, :-1],
-            "confidence_scores": tracks_with_scores[:, :, :, -1],
-            "individual_names": ind_names,
-            "keypoint_names": kp_names,
-        }
