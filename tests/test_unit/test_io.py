@@ -1,38 +1,89 @@
 import os
 
 import h5py
+import numpy as np
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal
-from pydantic import ValidationError
-from tables import HDF5ExtError
+from xarray.testing import assert_allclose
 
 from movement.datasets import fetch_pose_data_path
-from movement.io import load_poses
+from movement.io import PoseTracks
 
 
-class TestLoadPoses:
-    """Test the load_poses module."""
+class TestPoseTracksIO:
+    """Test the IO functionalities of the PoseTracks class."""
 
     @pytest.fixture
-    def valid_dlc_files(self):
-        """Return the paths to valid DLC poses files,
-        in .h5 format.
+    def dlc_file_h5_single(self):
+        """Return the path to a valid DLC h5 file containing pose data
+        for a single animal."""
+        return fetch_pose_data_path("DLC_single-wasp.predictions.h5")
 
-        Returns
-        -------
-        dict
-            Dictionary containing the paths.
-            - h5_path: pathlib Path to a valid .h5 file
-            - h5_str: path as str to a valid .h5 file
-        """
-        h5_file = fetch_pose_data_path("DLC_single-wasp.predictions.h5")
-        csv_file = fetch_pose_data_path("DLC_single-wasp.predictions.csv")
+    @pytest.fixture
+    def dlc_file_csv_single(self):
+        """Return the path to a valid DLC .csv file containing pose data
+        for a single animal. The underlying data is the same as in the
+        `dlc_file_h5_single` fixture."""
+        return fetch_pose_data_path("DLC_single-wasp.predictions.csv")
+
+    @pytest.fixture
+    def dlc_file_csv_multi(self):
+        """Return the path to a valid DLC .csv file containing pose data
+        for multiple animals."""
+        return fetch_pose_data_path("DLC_two-mice.predictions.csv")
+
+    @pytest.fixture
+    def sleap_file_h5_single(self):
+        """Return the path to a valid SLEAP "analysis" .h5 file containing
+        pose data for a single animal."""
+        return fetch_pose_data_path("SLEAP_single-mouse_EPM.analysis.h5")
+
+    @pytest.fixture
+    def sleap_file_slp_single(self):
+        """Return the path to a valid SLEAP .slp file containing
+        predicted poses (labels) for a single animal."""
+        return fetch_pose_data_path("SLEAP_single-mouse_EPM.predictions.slp")
+
+    @pytest.fixture
+    def sleap_file_h5_multi(self):
+        """Return the path to a valid SLEAP "analysis" .h5 file containing
+        pose data for multiple animals."""
+        return fetch_pose_data_path(
+            "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+        )
+
+    @pytest.fixture
+    def sleap_file_slp_multi(self):
+        """Return the path to a valid SLEAP .slp file containing
+        predicted poses (labels) for multiple animals."""
+        return fetch_pose_data_path(
+            "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+        )
+
+    @pytest.fixture
+    def valid_dlc_files(
+        dlc_file_h5_single, dlc_file_csv_single, dlc_file_csv_multi
+    ):
+        """Aggregate all valid DLC files in a dictionary, for convenience."""
         return {
-            "h5_path": h5_file,
-            "h5_str": h5_file.as_posix(),
-            "csv_path": csv_file,
-            "csv_str": csv_file.as_posix(),
+            "h5_single": dlc_file_h5_single,
+            "csv_single": dlc_file_csv_single,
+            "csv_multi": dlc_file_csv_multi,
+        }
+
+    @pytest.fixture
+    def valid_sleap_files(
+        sleap_file_h5_single,
+        sleap_file_slp_single,
+        sleap_file_h5_multi,
+        sleap_file_slp_multi,
+    ):
+        """Aggregate all valid SLEAP files in a dictionary, for convenience."""
+        return {
+            "h5_single": sleap_file_h5_single,
+            "slp_single": sleap_file_slp_single,
+            "h5_multi": sleap_file_h5_multi,
+            "slp_multi": sleap_file_slp_multi,
         }
 
     @pytest.fixture
@@ -59,37 +110,46 @@ class TestLoadPoses:
             "nonexistent": nonexistent_file,
         }
 
-    def test_load_valid_dlc_files(self, valid_dlc_files):
-        """Test loading valid DLC poses files."""
-        for file_type, file_path in valid_dlc_files.items():
-            df = load_poses.from_dlc(file_path)
-            assert isinstance(df, pd.DataFrame)
-            assert not df.empty
+    @pytest.fixture
+    def dlc_style_df(self, dlc_file_h5_single):
+        """Return a valid DLC-style DataFrame."""
+        df = pd.read_hdf(dlc_file_h5_single)
+        return df
 
-    def test_load_invalid_dlc_files(self, invalid_files):
-        """Test loading invalid DLC poses files."""
-        for file_type, file_path in invalid_files.items():
-            if file_type == "nonexistent":
-                with pytest.raises(FileNotFoundError):
-                    load_poses.from_dlc(file_path)
-            elif file_type == "wrong_ext":
-                with pytest.raises(ValueError):
-                    load_poses.from_dlc(file_path)
-            else:
-                with pytest.raises((OSError, HDF5ExtError)):
-                    load_poses.from_dlc(file_path)
-
-    @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
-    def test_load_from_dlc_with_incorrect_file_path_types(self, file_path):
-        """Test loading poses from a file_path with an incorrect type."""
-        with pytest.raises(ValidationError):
-            load_poses.from_dlc(file_path)
-
-    def test_load_from_dlc_csv_or_h5_file_returns_same_df(
-        self, valid_dlc_files
+    def test_load_from_dlc_file_csv_or_h5_file_returns_same(
+        self, dlc_file_h5_single, dlc_file_csv_single
     ):
-        """Test that loading poses from DLC .csv and .h5 files
-        return the same DataFrame."""
-        df_from_h5 = load_poses.from_dlc(valid_dlc_files["h5_path"])
-        df_from_csv = load_poses.from_dlc(valid_dlc_files["csv_path"])
-        assert_frame_equal(df_from_h5, df_from_csv)
+        """Test that loading pose tracks from DLC .csv and .h5 files
+        return the same Dataset."""
+        ds_from_h5 = PoseTracks.from_dlc_file(dlc_file_h5_single)
+        ds_from_csv = PoseTracks.from_dlc_file(dlc_file_csv_single)
+        assert_allclose(ds_from_h5, ds_from_csv)
+
+    @pytest.mark.parametrize("fps", [None, -5, 0, 30, 60.0])
+    def test_fps_and_time_coords(self, sleap_file_h5_multi, fps):
+        """Test that time coordinates are set according to the fps."""
+        ds = PoseTracks.from_sleap_file(sleap_file_h5_multi, fps=fps)
+        if (fps is None) or (fps <= 0):
+            assert ds.fps is None
+            assert ds.time_unit == "frames"
+        else:
+            assert ds.fps == fps
+            assert ds.time_unit == "seconds"
+            np.allclose(
+                ds.coords["time"].data,
+                np.arange(ds.dims["time"], dtype=int) / ds.attrs["fps"],
+            )
+
+    def test_from_and_to_dlc_df(self, dlc_style_df):
+        """Test that loading pose tracks from a DLC-style DataFrame and
+        converting back to a DataFrame returns the same data values."""
+        ds = PoseTracks.from_dlc_df(dlc_style_df)
+        df = ds.to_dlc_df()
+        assert np.allclose(df.values, dlc_style_df.values)
+
+    def test_load_from_str_path(self, sleap_file_h5_single):
+        """Test that file paths provided as strings are accepted as input."""
+        assert_allclose(
+            PoseTracks.from_sleap_file(sleap_file_h5_single),
+            PoseTracks.from_sleap_file(sleap_file_h5_single.as_posix()),
+        )
