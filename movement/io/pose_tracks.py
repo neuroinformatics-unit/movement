@@ -17,20 +17,17 @@ logger = logging.getLogger(__name__)
 class PoseTracks(xr.Dataset):
     """Dataset containing pose tracks and point-wise confidence scores.
 
-    This is a `xarray.Dataset` object, with the following dimensions:
+    This is an `xarray.Dataset` object, with the following dimensions:
     - `frames`: the number of frames in the video
     - `individuals`: the number of individuals in the video
     - `keypoints`: the number of keypoints in the skeleton
     - `space`: the number of spatial dimensions, either 2 or 3
 
-    Each dimension is assigned appropriate coordinates:
-     - frame indices (int) for `frames`
-     - list of unique names (str) for `individuals` and `keypoints`
-     - `x`, `y` (and `z`) for `space`
-
-    If `fps` is supplied, the `frames` dimension is also assigned a `time`
-    coordinate. If `fps` is None, the temporal dimension can only be
-    accessed through frame indices.
+    Appropriate coordinate labels are assigned to each dimension:
+    frame indices (int) for `frames`. list of unique names (str) for
+    `individuals` and `keypoints`, ['x','y',('z')] for `space`. If `fps`
+    is supplied, the `frames` dimension is also assigned a `time`
+    coordinate.
 
     The dataset contains two data variables (`xarray.DataArray` objects):
     - `pose_tracks`: with shape (`frames`, `individuals`, `keypoints`, `space`)
@@ -146,17 +143,11 @@ class PoseTracks(xr.Dataset):
         Notes
         -----
         The DataFrame must have a multi-index column with the following levels:
-        "scorer", ("individuals"), "bodyparts", "coords".
-        The "individuals level may be omitted if there is only one individual
-        in the video. The "coords" level contains the spatial coordinates "x",
-        "y", as well as "likelihood" (point-wise confidence scores). The row
-        index corresponds to the frame number.
-
-        Examples
-        --------
-        >>> from movement.io import PoseTracks
-        >>> df = pd.read_csv("path/to/poses.csv")
-        >>> poses = PoseTracks.from_dataframe(df, fps=30)
+        "scorer", ("individuals"), "bodyparts", "coords". The "individuals"
+        level may be omitted if there is only one individual in the video.
+        The "coords" level contains the spatial coordinates "x", "y",
+        as well as "likelihood" (point-wise confidence scores).
+        The row index corresponds to the frame number.
         """
 
         # read names of individuals and keypoints from the DataFrame
@@ -202,20 +193,18 @@ class PoseTracks(xr.Dataset):
 
         Notes
         -----
-        The SLEAP inference procedure normally produces a file suffixed with
-        ".slp" containing the predictions, e.g. "myproject.predictions.slp".
-        This can be converted to an ".h5" (analysis) file using the command
-        line tool `sleap-convert` with the "--format analysis" option enabled,
-        or alternatively by choosing "Export Analysis HDF5…" from the "File"
-        menu of the SLEAP GUI [1]_.
+        The SLEAP predictions are normally saved in a ".slp" file, e.g.
+        "v1.predictions.slp". If this file contains both user-labeled and
+        predicted instances, only the predicted iones will be loaded.
 
-        If the ".slp" file contains both user-labeled and predicted instances,
-        this function will only load the ones predicted by the SLEAP model
+        An analysis file, suffixed with ".h5" can be exported from the ".slp"
+        file, using either the command line tool `sleap-convert` (with the
+        "--format analysis" option enabled) or the SLEAP GUI (Choose
+        "Export Analysis HDF5…" from the "File" menu) [1]_.
 
-        `movement` expects the tracks to be proofread before loading them.
-        There should be as many tracks as there are instances (animals) in the
-        video, without identity switches. Follow the SLEAP guide for
-        tracking and proofreading [2]_.
+        `movement` expects the tracks to be proofread before loading them,
+        meaning each track is interpreted as a single individual/animal.
+        Follow the SLEAP guide for tracking and proofreading [2]_.
 
         References
         ----------
@@ -270,8 +259,8 @@ class PoseTracks(xr.Dataset):
         Parameters
         ----------
         file_path : pathlib Path or str
-            Path to the file containing the DLC poses, either in ".slp"
-            or ".h5" (analysis) format.
+            Path to the file containing the DLC poses, either in ".h5"
+            or ".csv" format.
         fps : float, optional
             The number of frames per second in the video. If None (default),
             the `time` coordinate will not be created.
@@ -359,8 +348,8 @@ class PoseTracks(xr.Dataset):
     def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
         """If poses are loaded from a DeepLabCut.csv file, the DataFrame
         lacks the multi-index columns that are present in the .h5 file. This
-        function parses the csv file to a DataFrame with multi-index columns,
-        i.e. the same format as in the .h5 file.
+        function parses the csv file to a pandas DataFrame with multi-index
+        columns, i.e. the same format as in the .h5 file.
 
         Parameters
         ----------
