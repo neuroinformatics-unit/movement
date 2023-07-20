@@ -8,8 +8,6 @@ import pandas as pd
 import xarray as xr
 from sleap_io.io.slp import read_labels
 
-from movement.io.validators import DeepLabCutPosesFile
-
 # get logger
 logger = logging.getLogger(__name__)
 
@@ -18,35 +16,35 @@ class PoseTracks(xr.Dataset):
     """Dataset containing pose tracks and point-wise confidence scores.
 
     This is an `xarray.Dataset` object, with the following dimensions:
-    - `frames`: the number of frames in the video
+    - `time`: the number of frames in the video
     - `individuals`: the number of individuals in the video
     - `keypoints`: the number of keypoints in the skeleton
     - `space`: the number of spatial dimensions, either 2 or 3
 
     Appropriate coordinate labels are assigned to each dimension:
-    frame indices (int) for `frames`. list of unique names (str) for
-    `individuals` and `keypoints`, ['x','y',('z')] for `space`. If `fps`
-    is supplied, the `frames` dimension is also assigned a `time`
-    coordinate.
+    list of unique names (str) for `individuals` and `keypoints`,
+    ['x','y',('z')] for `space`. The coordinates of the `time` dimension are
+    in seconds if `fps` is provided, otherwise they are in frame numbers.
 
     The dataset contains two data variables (`xarray.DataArray` objects):
-    - `pose_tracks`: with shape (`frames`, `individuals`, `keypoints`, `space`)
-    - `confidence_scores`: with shape (`frames`, `individuals`, `keypoints`)
+    - `pose_tracks`: with shape (`time`, `individuals`, `keypoints`, `space`)
+    - `confidence_scores`: with shape (`time`, `individuals`, `keypoints`)
 
     The dataset may also contain following attributes as metadata:
     - `fps`: the number of frames per second in the video
+    - `time_unit`: the unit of the `time` coordinates, frames or seconds
     - `source_software`: the software from which the pose tracks were loaded
     - `source_file`: the file from which the pose tracks were loaded
     """
 
     dim_names: ClassVar[tuple] = (
-        "frames",
+        "time",
         "individuals",
         "keypoints",
         "space",
     )
 
-    __slots__ = ("fps", "source_software", "source_file")
+    __slots__ = ("fps", "time_unit", "source_software", "source_file")
 
     def __init__(
         self,
@@ -80,7 +78,7 @@ class PoseTracks(xr.Dataset):
             etc.
         fps : float, optional
             The number of frames per second in the video. If None (default),
-            the `time` coordinate will not be created.
+            the `time` coordinates will be in frame numbers.
         """
 
         n_frames, n_individuals, n_keypoints, n_space = tracks_array.shape
@@ -105,6 +103,13 @@ class PoseTracks(xr.Dataset):
         tracks_da = xr.DataArray(tracks_array, dims=self.dim_names)
         scores_da = xr.DataArray(scores_array, dims=self.dim_names[:-1])
 
+        # Create the time coordinate, depending on the value of fps
+        time_coords = np.arange(n_frames, dtype=int)
+        time_unit = "frames"
+        if fps is not None:
+            time_coords = time_coords / fps
+            time_unit = "seconds"
+
         # Combine the DataArrays into a Dataset, with common coordinates
         super().__init__(
             data_vars={
@@ -112,17 +117,18 @@ class PoseTracks(xr.Dataset):
                 "confidence_scores": scores_da,
             },
             coords={
-                self.dim_names[0]: np.arange(n_frames, dtype=int),
+                self.dim_names[0]: time_coords,
                 self.dim_names[1]: individual_names,
                 self.dim_names[2]: keypoint_names,
                 self.dim_names[3]: ["x", "y", "z"][:n_space],
             },
-            attrs={"fps": fps, "source_software": None, "source_file": None},
+            attrs={
+                "fps": fps,
+                "time_unit": time_unit,
+                "source_software": None,
+                "source_file": None,
+            },
         )
-
-        if fps is not None:
-            times = pd.TimedeltaIndex(self.coords["frames"] / fps, unit="s")
-            self.coords["time"] = (self.dim_names[0], times)
 
     @classmethod
     def from_dlc_df(cls, df: pd.DataFrame, fps: Optional[float] = None):
@@ -135,7 +141,7 @@ class PoseTracks(xr.Dataset):
             be formatted as in DeepLabCut output files (see Notes).
         fps : float, optional
             The number of frames per second in the video. If None (default),
-            the `time` coordinate will not be created.
+            the `time` coordinates will be in frame numbers.
 
         Notes
         -----
@@ -184,9 +190,8 @@ class PoseTracks(xr.Dataset):
         file_path : pathlib Path or str
             Path to the file containing the SLEAP predictions, either in ".slp"
             or ".h5" (analysis) format. See Notes for more information.
-        fps : float, optional
-            The number of frames per second in the video. If None (default),
-            the `time` coordinate will not be created.
+        The number of frames per second in the video. If None (default),
+            the `time` coordinates will be in frame numbers.
 
         Notes
         -----
@@ -260,7 +265,7 @@ class PoseTracks(xr.Dataset):
             or ".csv" format.
         fps : float, optional
             The number of frames per second in the video. If None (default),
-            the `time` coordinate will not be created.
+            the `time` coordinates will be in frame numbers.
 
 
         Examples
@@ -270,15 +275,16 @@ class PoseTracks(xr.Dataset):
         """
 
         # Validate the input file path
-        dlc_poses_file = DeepLabCutPosesFile(file_path=file_path)
-        file_suffix = dlc_poses_file.file_path.suffix
+        if not isinstance(file_path, Path):
+            file_path = Path(file_path)
+        file_suffix = file_path.suffix
 
         # Load the DLC poses into a DataFrame
         try:
             if file_suffix == ".csv":
-                df = cls._parse_dlc_csv_to_dataframe(dlc_poses_file.file_path)
+                df = cls._parse_dlc_csv_to_dataframe(file_path)
             else:  # file can only be .h5 at this point
-                df = pd.read_hdf(dlc_poses_file.file_path)
+                df = pd.read_hdf(file_path)
                 # above line does not necessarily return a DataFrame
                 df = pd.DataFrame(df)
         except (OSError, TypeError, ValueError) as e:
@@ -295,9 +301,9 @@ class PoseTracks(xr.Dataset):
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "DeepLabCut"
-        ds.attrs["source_file"] = dlc_poses_file.file_path.as_posix()
+        ds.attrs["source_file"] = file_path.as_posix()
 
-        logger.info(f"Loaded pose tracks from {dlc_poses_file.file_path}:")
+        logger.info(f"Loaded pose tracks from {file_path}:")
         logger.info(ds)
         return ds
 
@@ -341,8 +347,8 @@ class PoseTracks(xr.Dataset):
             [scorer, individuals, bodyparts, coords], names=index_levels
         )
         df = pd.DataFrame(
-            data=tracks_with_scores.reshape(self.dims["frames"], -1),
-            index=self.coords["frames"].data,
+            data=tracks_with_scores.reshape(self.dims["time"], -1),
+            index=np.arange(self.dims["time"], dtype=int),
             columns=columns,
             dtype=float,
         )
