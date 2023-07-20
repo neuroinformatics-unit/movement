@@ -50,23 +50,26 @@ class PoseTracks(xr.Dataset):
 
     def __init__(
         self,
-        pose_tracks: np.ndarray,
-        confidence_scores: Optional[np.ndarray] = None,
+        tracks_array: np.ndarray,
+        scores_array: Optional[np.ndarray] = None,
         individual_names: Optional[list[str]] = None,
         keypoint_names: Optional[list[str]] = None,
         fps: Optional[float] = None,
     ):
-        """Create a `PoseTracks` dataset.
+        """Create a `PoseTracks` dataset containing pose tracks and
+        point-wise confidence scores.
 
         Parameters
         ----------
-        pose_tracks : np.ndarray
+        tracks_array : np.ndarray
             Array of shape (n_frames, n_individuals, n_keypoints, n_space)
-            containing the pose tracks.
-        confidence_scores : np.ndarray, optional
+            containing the pose tracks. It will be converted to a
+            `xarray.DataArray` object named "pose_tracks".
+        scores_array : np.ndarray, optional
             Array of shape (n_frames, n_individuals, n_keypoints) containing
-            the point-wise confidence scores. If None (default), the
-            confidence scores will be set to an array of NaNs.
+            the point-wise confidence scores. It will be converted to a
+            `xarray.DataArray` object named "confidence_scores".
+            If None (default), the scores will be set to an array of NaNs.
         individual_names : list of str, optional
             List of unique names for the individuals in the video. If None
             (default), the individuals will be named "individual_0",
@@ -80,9 +83,9 @@ class PoseTracks(xr.Dataset):
             the `time` coordinate will not be created.
         """
 
-        n_frames, n_individuals, n_keypoints, n_space = pose_tracks.shape
-        if confidence_scores is None:
-            confidence_scores = np.full(
+        n_frames, n_individuals, n_keypoints, n_space = tracks_array.shape
+        if scores_array is None:
+            scores_array = np.full(
                 (n_frames, n_individuals, n_keypoints), np.nan, dtype="float32"
             )
         if individual_names is None:
@@ -99,8 +102,8 @@ class PoseTracks(xr.Dataset):
             fps = None
 
         # Convert the pose tracks and confidence scores to xarray.DataArray
-        tracks_da = xr.DataArray(pose_tracks, dims=self.dim_names)
-        scores_da = xr.DataArray(confidence_scores, dims=self.dim_names[:-1])
+        tracks_da = xr.DataArray(tracks_array, dims=self.dim_names)
+        scores_da = xr.DataArray(scores_array, dims=self.dim_names[:-1])
 
         # Combine the DataArrays into a Dataset, with common coordinates
         super().__init__(
@@ -169,8 +172,8 @@ class PoseTracks(xr.Dataset):
         )
 
         return cls(
-            pose_tracks=tracks_with_scores[:, :, :, :-1],
-            confidence_scores=tracks_with_scores[:, :, :, -1],
+            tracks_array=tracks_with_scores[:, :, :, :-1],
+            scores_array=tracks_with_scores[:, :, :, -1],
             individual_names=individual_names,
             keypoint_names=keypoint_names,
             fps=fps,
@@ -324,8 +327,8 @@ class PoseTracks(xr.Dataset):
                 )
 
             return {
-                "pose_tracks": tracks,
-                "confidence_scores": scores,
+                "tracks_array": tracks,
+                "scores_array": scores,
                 "individual_names": [n.decode() for n in f["track_names"][:]],
                 "keypoint_names": [n.decode() for n in f["node_names"][:]],
             }
@@ -339,8 +342,8 @@ class PoseTracks(xr.Dataset):
         tracks_with_scores = labels.numpy(return_confidence=True)
 
         return {
-            "pose_tracks": tracks_with_scores[:, :, :, :-1],
-            "confidence_scores": tracks_with_scores[:, :, :, -1],
+            "tracks_array": tracks_with_scores[:, :, :, :-1],
+            "scores_array": tracks_with_scores[:, :, :, -1],
             "individual_names": [track.name for track in labels.tracks],
             "keypoint_names": [kp.name for kp in labels.skeletons[0].nodes],
         }
