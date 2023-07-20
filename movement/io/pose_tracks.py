@@ -121,17 +121,11 @@ class PoseTracks(xr.Dataset):
         )
 
         if fps is not None:
-            self._add_time_coord()
-
-    def _add_time_coord(self):
-        """Add a `time` coordinate to the dataset, based on the `frames`
-        dimension and the value of the `fps` attribute.
-        """
-        times = pd.TimedeltaIndex(self.coords["frames"] / self.fps, unit="s")
-        self.coords["time"] = (self.dim_names[0], times)
+            times = pd.TimedeltaIndex(self.coords["frames"] / fps, unit="s")
+            self.coords["time"] = (self.dim_names[0], times)
 
     @classmethod
-    def from_dataframe(cls, df: pd.DataFrame, fps: Optional[float] = None):
+    def from_dlc_df(cls, df: pd.DataFrame, fps: Optional[float] = None):
         """Create a `PoseTracks` dataset from a DLC_style pandas DataFrame.
 
         Parameters
@@ -249,7 +243,7 @@ class PoseTracks(xr.Dataset):
         ds.attrs["source_software"] = "SLEAP"
         ds.attrs["source_file"] = file_path.as_posix()
 
-        logger.info(f"Loaded pose tracks from {ds.source_file}:")
+        logger.info(f"Loaded pose tracks from {file_path}:")
         logger.info(ds)
         return ds
 
@@ -297,15 +291,63 @@ class PoseTracks(xr.Dataset):
         logger.debug(f"Loaded poses from {file_path} into a DataFrame.")
 
         # Convert the DataFrame to a PoseTracks dataset
-        ds = cls.from_dataframe(df=df, fps=fps)
+        ds = cls.from_dlc_df(df=df, fps=fps)
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "DeepLabCut"
         ds.attrs["source_file"] = dlc_poses_file.file_path.as_posix()
 
-        logger.info(f"Loaded pose tracks from {ds.source_file}:")
+        logger.info(f"Loaded pose tracks from {dlc_poses_file.file_path}:")
         logger.info(ds)
         return ds
+
+    def to_dlc_df(self) -> pd.DataFrame:
+        """Convert the PoseTracks dataset to a DeepLabCut-style pandas
+        DataFrame with multi-index columns.
+        See the Notes section of the `from_dlc_df()` method for details.
+
+        Returns
+        -------
+        pandas DataFrame
+
+        Notes
+        -----
+        The DataFrame will have a multi-index column with the following levels:
+        "scorer", "individuals", "bodyparts", "coords" (even if there is only
+        one individual present). Regardless of the provenance of the
+        points-wise confidence scores, they will be referred to as
+        "likelihood", and stored in the "coords" level (as DeepLabCut expects).
+        """
+
+        # Concatenate the pose tracks and confidence scores into one array
+        tracks_with_scores = np.concatenate(
+            (
+                self.pose_tracks.data,
+                self.confidence_scores.data[..., np.newaxis],
+            ),
+            axis=-1,
+        )
+
+        # Create the DLC-style multi-index columns
+        # Use the DLC terminology: scorer, individuals, bodyparts, coords
+        scorer = ["movement"]
+        individuals = self.coords["individuals"].data.tolist()
+        bodyparts = self.coords["keypoints"].data.tolist()
+        # The confidence scores in DLC are referred to as "likelihood"
+        coords = self.coords["space"].data.tolist() + ["likelihood"]
+
+        index_levels = ["scorer", "individuals", "bodyparts", "coords"]
+        columns = pd.MultiIndex.from_product(
+            [scorer, individuals, bodyparts, coords], names=index_levels
+        )
+        df = pd.DataFrame(
+            data=tracks_with_scores.reshape(self.dims["frames"], -1),
+            index=self.coords["frames"].data,
+            columns=columns,
+            dtype=float,
+        )
+        logger.info("Converted PoseTracks dataset to DLC-style DataFrame.")
+        return df
 
     @staticmethod
     def _load_dict_from_sleap_analysis_file(file_path: Path):
