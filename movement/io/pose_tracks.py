@@ -174,7 +174,7 @@ class PoseTracks(xr.Dataset):
         )
 
     @classmethod
-    def from_sleap(
+    def from_sleap_file(
         cls, file_path: Union[Path, str], fps: Optional[float] = None
     ):
         """Load pose tracking data from a SLEAP labels or analysis file.
@@ -211,7 +211,7 @@ class PoseTracks(xr.Dataset):
         Examples
         --------
         >>> from movement.io import PoseTracks
-        >>> poses = PoseTracks.from_sleap("path/to/v1.predictions.slp", fps=30)
+        >>> poses = PoseTracks.from_sleap_file("path/to/file.slp", fps=30)
         """
 
         if not isinstance(file_path, Path):
@@ -248,7 +248,7 @@ class PoseTracks(xr.Dataset):
         return ds
 
     @classmethod
-    def from_dlc(
+    def from_dlc_file(
         cls, file_path: Union[Path, str], fps: Optional[float] = None
     ):
         """Load pose tracking data from a DeepLabCut (DLC) output file.
@@ -266,7 +266,7 @@ class PoseTracks(xr.Dataset):
         Examples
         --------
         >>> from movement.io import PoseTracks
-        >>> poses = PoseTracks.from_dlc("path/to/video_model.h5", fps=30)
+        >>> poses = PoseTracks.from_dlc_file("path/to/file.h5", fps=30)
         """
 
         # Validate the input file path
