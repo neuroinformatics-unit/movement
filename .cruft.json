@@ -1,0 +1,23 @@
+{
+  "template": "https://github.com/neuroinformatics-unit/python-cookiecutter",
+  "commit": "ac40e82e88d29ce57d6cf8aa372aa1af4bde8308",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Niko Sirmpilatze",
+      "email": "niko.sirbiladze@gmail.com",
+      "github_username_or_organization": "neuroinformatics-unit",
+      "package_name": "movement",
+      "github_repository_url": "provide later",
+      "module_name": "movement",
+      "short_description": "Analysis of body movement",
+      "license": "BSD-3",
+      "create_docs": "yes",
+      "_copy_without_render": [
+        ".github/*"
+      ],
+      "_template": "https://github.com/neuroinformatics-unit/python-cookiecutter"
+    }
+  },
+  "directory": null
+}

@@ -1,0 +1,34 @@
+name: Build Sphinx docs and deploy to GitHub Pages
+
+# Generate the documentation on all merges to main, all pull requests, or by
+# manual workflow dispatch. The build job can be used as a CI check that the
+# docs still build successfully. The deploy job only runs when a tag is
+# pushed and actually moves the generated html to the gh-pages branch
+# (which triggers a GitHub pages deployment).
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_sphinx_docs:
+    name: Build Sphinx Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neuroinformatics-unit/actions/build_sphinx_docs@v2
+
+  deploy_sphinx_docs:
+    name: Deploy Sphinx Docs
+    needs: build_sphinx_docs
+    permissions:
+      contents: write
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v2
+        with:
+          secret_input: ${{ secrets.GITHUB_TOKEN }}
