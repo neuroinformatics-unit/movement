@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import ClassVar, Optional, Union
+from typing import ClassVar, List, Optional, Union
 
 import h5py
 import numpy as np
@@ -50,8 +50,8 @@ class PoseTracks(xr.Dataset):
         self,
         tracks_array: np.ndarray,
         scores_array: Optional[np.ndarray] = None,
-        individual_names: Optional[list[str]] = None,
-        keypoint_names: Optional[list[str]] = None,
+        individual_names: Optional[List[str]] = None,
+        keypoint_names: Optional[List[str]] = None,
         fps: Optional[float] = None,
     ):
         """Create a `PoseTracks` dataset containing pose tracks and
