@@ -196,7 +196,7 @@ class TestPoseTracksIO:
             assert np.allclose(ds.confidence_scores.data, scores_array)
         else:
             with pytest.raises(ValueError):
-                ds = PoseTracks(tracks, scores_array=scores_array)
+                PoseTracks(tracks, scores_array=scores_array)
 
     @pytest.mark.parametrize(
         "individual_names",
@@ -223,7 +223,7 @@ class TestPoseTracksIO:
             )
         else:
             with pytest.raises(ValueError):
-                ds = PoseTracks(tracks, individual_names=individual_names)
+                PoseTracks(tracks, individual_names=individual_names)
 
     @pytest.mark.parametrize(
         "keypoint_names", [None, ["kp_1", "kp_2"], ["kp_1", "kp_2", "kp_3"]]
@@ -244,4 +244,4 @@ class TestPoseTracksIO:
             assert all([n in ds.coords["keypoints"] for n in keypoint_names])
         else:
             with pytest.raises(ValueError):
-                ds = PoseTracks(tracks, keypoint_names=keypoint_names)
+                PoseTracks(tracks, keypoint_names=keypoint_names)
