@@ -153,3 +153,69 @@ class TestPoseTracksIO:
             PoseTracks.from_sleap_file(sleap_file_h5_single),
             PoseTracks.from_sleap_file(sleap_file_h5_single.as_posix()),
         )
+
+    @pytest.mark.parametrize(
+        "scores_array", [None, np.zeros((10, 2, 2)), np.zeros((10, 2, 3))]
+    )
+    def test_init_scores(self, scores_array):
+        """Test that confidence scores are correctly initialized."""
+        tracks = np.random.rand(10, 2, 2, 2)
+
+        if scores_array is None:
+            ds = PoseTracks(tracks, scores_array=scores_array)
+            assert ds.confidence_scores.shape == (10, 2, 2)
+            assert np.all(np.isnan(ds.confidence_scores.data))
+        elif scores_array.shape == (10, 2, 2):
+            ds = PoseTracks(tracks, scores_array=scores_array)
+            assert np.allclose(ds.confidence_scores.data, scores_array)
+        else:
+            with pytest.raises(ValueError):
+                ds = PoseTracks(tracks, scores_array=scores_array)
+
+    @pytest.mark.parametrize(
+        "individual_names",
+        [None, ["animal_1", "animal_2"], ["animal_1", "animal_2", "animal_3"]],
+    )
+    def test_init_individual_names(self, individual_names):
+        """Test that individual names are correctly initialized."""
+        tracks = np.random.rand(10, 2, 2, 2)
+
+        if individual_names is None:
+            ds = PoseTracks(tracks, individual_names=individual_names)
+            assert ds.dims["individuals"] == 2
+            assert all(
+                [
+                    f"individual_{i}" in ds.coords["individuals"]
+                    for i in range(2)
+                ]
+            )
+        elif len(individual_names) == 2:
+            ds = PoseTracks(tracks, individual_names=individual_names)
+            assert ds.dims["individuals"] == 2
+            assert all(
+                [n in ds.coords["individuals"] for n in individual_names]
+            )
+        else:
+            with pytest.raises(ValueError):
+                ds = PoseTracks(tracks, individual_names=individual_names)
+
+    @pytest.mark.parametrize(
+        "keypoint_names", [None, ["kp_1", "kp_2"], ["kp_1", "kp_2", "kp_3"]]
+    )
+    def test_init_keypoint_names(self, keypoint_names):
+        """Test that keypoint names are correctly initialized."""
+        tracks = np.random.rand(10, 2, 2, 2)
+
+        if keypoint_names is None:
+            ds = PoseTracks(tracks, keypoint_names=keypoint_names)
+            assert ds.dims["keypoints"] == 2
+            assert all(
+                [f"keypoint_{i}" in ds.coords["keypoints"] for i in range(2)]
+            )
+        elif len(keypoint_names) == 2:
+            ds = PoseTracks(tracks, keypoint_names=keypoint_names)
+            assert ds.dims["keypoints"] == 2
+            assert all([n in ds.coords["keypoints"] for n in keypoint_names])
+        else:
+            with pytest.raises(ValueError):
+                ds = PoseTracks(tracks, keypoint_names=keypoint_names)
