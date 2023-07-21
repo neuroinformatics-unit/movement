@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 import pandas as pd
 import pytest
+from xarray import DataArray
 from xarray.testing import assert_allclose
 
 from movement.datasets import fetch_pose_data_path
@@ -61,29 +62,25 @@ class TestPoseTracksIO:
         )
 
     @pytest.fixture
-    def valid_dlc_files(
-        dlc_file_h5_single, dlc_file_csv_single, dlc_file_csv_multi
-    ):
-        """Aggregate all valid DLC files in a dictionary, for convenience."""
-        return {
-            "h5_single": dlc_file_h5_single,
-            "csv_single": dlc_file_csv_single,
-            "csv_multi": dlc_file_csv_multi,
-        }
-
-    @pytest.fixture
-    def valid_sleap_files(
+    def valid_files(
+        self,
+        dlc_file_h5_single,
+        dlc_file_csv_single,
+        dlc_file_csv_multi,
         sleap_file_h5_single,
         sleap_file_slp_single,
         sleap_file_h5_multi,
         sleap_file_slp_multi,
     ):
-        """Aggregate all valid SLEAP files in a dictionary, for convenience."""
+        """Aggregate all valid files in a dictionary, for convenience."""
         return {
-            "h5_single": sleap_file_h5_single,
-            "slp_single": sleap_file_slp_single,
-            "h5_multi": sleap_file_h5_multi,
-            "slp_multi": sleap_file_slp_multi,
+            "DLC_h5_single": dlc_file_h5_single,
+            "DLC_csv_single": dlc_file_csv_single,
+            "DLC_csv_multi": dlc_file_csv_multi,
+            "SLEAP_h5_single": sleap_file_h5_single,
+            "SLEAP_slp_single": sleap_file_slp_single,
+            "SLEAP_h5_multi": sleap_file_h5_multi,
+            "SLEAP_slp_multi": sleap_file_slp_multi,
         }
 
     @pytest.fixture
@@ -115,6 +112,35 @@ class TestPoseTracksIO:
         """Return a valid DLC-style DataFrame."""
         df = pd.read_hdf(dlc_file_h5_single)
         return df
+
+    def test_load_from_valid_files(self, valid_files):
+        """Test that loading pose tracks from a wide variety of valid files
+        returns a proper Dataset."""
+        abbrev_expand = {"DLC": "DeepLabCut", "SLEAP": "SLEAP"}
+
+        for file_type, file_path in valid_files.items():
+            if file_type.startswith("DLC"):
+                ds = PoseTracks.from_dlc_file(file_path)
+            elif file_type.startswith("SLEAP"):
+                ds = PoseTracks.from_sleap_file(file_path)
+
+            assert isinstance(ds, PoseTracks)
+            # Expected variables are present and of right shape/type
+            for var in ["pose_tracks", "confidence_scores"]:
+                assert var in ds.data_vars
+                assert isinstance(ds[var], DataArray)
+            assert ds.pose_tracks.ndim == 4
+            assert ds.confidence_scores.shape == ds.pose_tracks.shape[:-1]
+            # Check the dims and coords
+            assert all([i in ds.dims for i in ds.dim_names])
+            for d, dim in enumerate(ds.dim_names[1:]):
+                assert ds.dims[dim] == ds.pose_tracks.shape[d + 1]
+                assert all([isinstance(s, str) for s in ds.coords[dim].values])
+            assert all([i in ds.coords["space"] for i in ["x", "y"]])
+            # Check the metadata attributes
+            assert ds.source_software == abbrev_expand[file_type.split("_")[0]]
+            assert ds.source_file == file_path.as_posix()
+            assert ds.fps is None
 
     def test_load_from_dlc_file_csv_or_h5_file_returns_same(
         self, dlc_file_h5_single, dlc_file_csv_single
