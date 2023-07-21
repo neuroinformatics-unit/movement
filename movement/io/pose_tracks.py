@@ -396,6 +396,7 @@ class PoseTracks(xr.Dataset):
             "keypoint_names": [kp.name for kp in labels.skeletons[0].nodes],
         }
 
+    @staticmethod
     def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
         """If poses are loaded from a DeepLabCut.csv file, the DataFrame
         lacks the multi-index columns that are present in the .h5 file. This
