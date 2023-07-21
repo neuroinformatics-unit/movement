@@ -1,0 +1,7 @@
+linkify-it-py
+myst-parser
+nbsphinx
+pydata-sphinx-theme
+setuptools-scm
+sphinx
+sphinx-autodoc-typehints

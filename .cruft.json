@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/neuroinformatics-unit/python-cookiecutter",
-  "commit": "7e9b918c2360a11111f5d2c9adfea78f12a881c2",
+  "commit": "ac40e82e88d29ce57d6cf8aa372aa1af4bde8308",
   "checkout": null,
   "context": {
     "cookiecutter": {

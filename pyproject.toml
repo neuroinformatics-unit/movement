@@ -65,7 +65,8 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 include = ["movement*"]
-exclude = ["tests*"]
+exclude = ["tests", "docs*"]
+
 
 [tool.pytest.ini_options]
 addopts = "--cov=movement"
@@ -79,14 +80,15 @@ line-length = 79
 
 [tool.check-manifest]
 ignore = [
-  "*.yaml",
-  ".bumpversion.cfg",
+  ".yaml",
   "tox.ini",
-  "tests/*",
-  "tests/test_unit/*",
-  "tests/test_integration/*",
-  ".flake8"
+  "tests/",
+  "tests/test_unit/",
+  "tests/test_integration/",
+  "docs/",
+  "docs/source/",
 ]
+
 
 [tool.ruff]
 line-length = 79
@@ -99,3 +101,23 @@ build = "cp38-* cp39-* cp310-* cp311-*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{38,39,310,311}
+isolated_build = True
+
+[gh-actions]
+python =
+    3.8: py38
+    3.9: py39
+    3.10: py310
+    3.11: py311
+
+[testenv]
+extras =
+    dev
+commands =
+    pytest -v --color=yes --cov=movement --cov-report=xml
+"""
