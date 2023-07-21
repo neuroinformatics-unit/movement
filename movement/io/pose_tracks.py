@@ -284,9 +284,7 @@ class PoseTracks(xr.Dataset):
             if file_suffix == ".csv":
                 df = cls._parse_dlc_csv_to_dataframe(file_path)
             else:  # file can only be .h5 at this point
-                df = pd.read_hdf(file_path)
-                # above line does not necessarily return a DataFrame
-                df = pd.DataFrame(df)
+                df = pd.DataFrame(pd.read_hdf(file_path))
         except (OSError, TypeError, ValueError) as e:
             error_msg = (
                 f"Could not load poses from {file_path}. "
@@ -431,7 +429,10 @@ class PoseTracks(xr.Dataset):
 
         # Import the DLC poses as a DataFrame
         df = pd.read_csv(
-            file_path, skiprows=len(header_lines), index_col=0, names=columns
+            file_path,
+            skiprows=len(header_lines),
+            index_col=0,
+            names=np.array(columns),
         )
         df.columns.rename(level_names, inplace=True)
         return df

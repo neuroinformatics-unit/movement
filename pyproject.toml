@@ -52,6 +52,7 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
+  "pandas-stubs",
 ]
 
 [build-system]
@@ -90,6 +91,14 @@ ignore = [
   "docs/",
   "docs/source/",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+  "pooch.*",
+  "h5py.*",
+  "sleap_io.*",
+]
+ignore_missing_imports = true
 
 
 [tool.ruff]
