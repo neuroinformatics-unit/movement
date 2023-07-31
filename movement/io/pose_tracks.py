@@ -6,7 +6,10 @@ import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
+from pydantic import ValidationError
 from sleap_io.io.slp import read_labels
+
+from movement.io.file_validators import ValidFile, ValidHDF5, ValidPosesCSV
 
 # get logger
 logger = logging.getLogger(__name__)
@@ -190,14 +193,16 @@ class PoseTracks(xr.Dataset):
         file_path : pathlib Path or str
             Path to the file containing the SLEAP predictions, either in ".slp"
             or ".h5" (analysis) format. See Notes for more information.
-        The number of frames per second in the video. If None (default),
+        fps : float, optional
+            The number of frames per second in the video. If None (default),
             the `time` coordinates will be in frame numbers.
+
 
         Notes
         -----
         The SLEAP predictions are normally saved in a ".slp" file, e.g.
         "v1.predictions.slp". If this file contains both user-labeled and
-        predicted instances, only the predicted iones will be loaded.
+        predicted instances, only the predicted ones will be loaded.
 
         An analysis file, suffixed with ".h5" can be exported from the ".slp"
         file, using either the command line tool `sleap-convert` (with the
@@ -219,26 +224,25 @@ class PoseTracks(xr.Dataset):
         >>> poses = PoseTracks.from_sleap_file("path/to/file.slp", fps=30)
         """
 
-        if not isinstance(file_path, Path):
-            file_path = Path(file_path)
+        # Validate the file path
+        try:
+            file = ValidFile(
+                path=file_path,
+                expected_permission="r",
+                expected_suffix=[".h5", ".slp"],
+            )
+        except ValidationError as error:
+            logger.error(error)
+            raise error
 
         # Load data into a dictionary
-        if file_path.suffix == ".h5":
-            data_dict = cls._load_dict_from_sleap_analysis_file(file_path)
-        elif file_path.suffix == ".slp":
-            data_dict = cls._load_dict_from_sleap_labels_file(file_path)
-        else:
-            error_msg = (
-                f"Expected file suffix to be '.h5' or '.slp', "
-                f"but got '{file_path.suffix}'. Make sure the file is "
-                "a SLEAP labels file with suffix '.slp' or SLEAP analysis "
-                "file with suffix '.h5'."
-            )
-            # logger.error(error_msg)
-            raise ValueError(error_msg)
+        if file.path.suffix == ".h5":
+            data_dict = cls._load_dict_from_sleap_analysis_file(file)
+        else:  # file.path.suffix == ".slp"
+            data_dict = cls._load_dict_from_sleap_labels_file(file)
 
         logger.debug(
-            f"Loaded pose tracks from {file_path.as_posix()} into a dict."
+            f"Loaded pose tracks from {file.path.as_posix()} into a dict."
         )
 
         # Initialize a PoseTracks dataset from the dictionary
@@ -246,9 +250,9 @@ class PoseTracks(xr.Dataset):
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "SLEAP"
-        ds.attrs["source_file"] = file_path.as_posix()
+        ds.attrs["source_file"] = file.path.as_posix()
 
-        logger.info(f"Loaded pose tracks from {file_path}:")
+        logger.info(f"Loaded pose tracks from {file.path}:")
         logger.info(ds)
         return ds
 
@@ -274,32 +278,32 @@ class PoseTracks(xr.Dataset):
         >>> poses = PoseTracks.from_dlc_file("path/to/file.h5", fps=30)
         """
 
-        # Validate the input file path
-        if not isinstance(file_path, Path):
-            file_path = Path(file_path)
-        file_suffix = file_path.suffix
+        # Validate the file path
+        try:
+            file = ValidFile(
+                path=file_path,
+                expected_permission="r",
+                expected_suffix=[".csv", ".h5"],
+            )
+        except ValidationError as error:
+            logger.error(error)
+            raise error
 
         # Load the DLC poses into a DataFrame
-        try:
-            if file_suffix == ".csv":
-                df = cls._parse_dlc_csv_to_dataframe(file_path)
-            else:  # file can only be .h5 at this point
-                df = pd.DataFrame(pd.read_hdf(file_path))
-        except (OSError, TypeError, ValueError) as e:
-            error_msg = (
-                f"Could not load poses from {file_path}. "
-                "Please check that the file is valid and readable."
-            )
-            logger.error(error_msg)
-            raise OSError from e
-        logger.debug(f"Loaded poses from {file_path} into a DataFrame.")
+        if file.path.suffix == ".csv":
+            df = cls._parse_dlc_csv_to_df(file)
+        else:  # file.path.suffix == ".h5"
+            df = cls._load_df_from_dlc_h5(file)
 
+        logger.debug(
+            f"Loaded poses from {file.path.as_posix()} into a DataFrame."
+        )
         # Convert the DataFrame to a PoseTracks dataset
         ds = cls.from_dlc_df(df=df, fps=fps)
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "DeepLabCut"
-        ds.attrs["source_file"] = file_path.as_posix()
+        ds.attrs["source_file"] = file.path.as_posix()
 
         logger.info(f"Loaded pose tracks from {file_path}:")
         logger.info(ds)
@@ -353,12 +357,48 @@ class PoseTracks(xr.Dataset):
         logger.info("Converted PoseTracks dataset to DLC-style DataFrame.")
         return df
 
+    def to_dlc_file(self, file_path: Union[str, Path]):
+        """Save the dataset to a DeepLabCut-style .h5 or .csv file
+
+        Parameters
+        ----------
+        file_path : pathlib Path or str
+            Path to the file to save the DLC poses to. The file extension
+            must be either ".h5" (recommended) or ".csv".
+        """
+
+        # Validate the file path
+        try:
+            file = ValidFile(
+                path=file_path,
+                expected_permission="w",
+                expected_suffix=[".csv", ".h5"],
+            )
+        except ValidationError as error:
+            logger.error(error)
+            raise error
+
+        # Convert the PoseTracks dataset to a DataFrame
+        df = self.to_dlc_df()
+        if file.path.suffix == ".csv":
+            df.to_csv(file.path, sep=",")
+        else:  # file.path.suffix == ".h5"
+            df.to_hdf(file.path, key="df_with_missing")
+        logger.info(f"Saved PoseTracks dataset to {file.path.as_posix()}.")
+
     @staticmethod
-    def _load_dict_from_sleap_analysis_file(file_path: Path):
+    def _load_dict_from_sleap_analysis_file(file: ValidFile):
         """Load pose tracks and confidence scores from a SLEAP analysis
         file into a dictionary."""
 
-        with h5py.File(file_path, "r") as f:
+        # Validate the hdf5 file
+        try:
+            ValidHDF5(file=file, expected_datasets=["tracks"])
+        except ValidationError as error:
+            logger.error(error)
+            raise error
+
+        with h5py.File(file.path, "r") as f:
             tracks = f["tracks"][:].T
             n_frames, n_keypoints, n_space, n_tracks = tracks.shape
             tracks = tracks.reshape((n_frames, n_tracks, n_keypoints, n_space))
@@ -380,11 +420,18 @@ class PoseTracks(xr.Dataset):
             }
 
     @staticmethod
-    def _load_dict_from_sleap_labels_file(file_path: Path):
+    def _load_dict_from_sleap_labels_file(file: ValidFile):
         """Load pose tracks and confidence scores from a SLEAP labels file
         into a dictionary."""
 
-        labels = read_labels(file_path.as_posix())
+        # Validate the .slp file as an HDF5 file
+        try:
+            ValidHDF5(file=file, expected_datasets=["pred_points", "metadata"])
+        except ValidationError as error:
+            logger.error(error)
+            raise error
+
+        labels = read_labels(file.path.as_posix())
         tracks_with_scores = labels.numpy(return_confidence=True)
 
         return {
@@ -395,25 +442,21 @@ class PoseTracks(xr.Dataset):
         }
 
     @staticmethod
-    def _parse_dlc_csv_to_dataframe(file_path: Path) -> pd.DataFrame:
+    def _parse_dlc_csv_to_df(file: ValidFile) -> pd.DataFrame:
         """If poses are loaded from a DeepLabCut.csv file, the DataFrame
         lacks the multi-index columns that are present in the .h5 file. This
         function parses the csv file to a pandas DataFrame with multi-index
         columns, i.e. the same format as in the .h5 file.
-
-        Parameters
-        ----------
-        file_path : pathlib Path
-            Path to the file containing the DLC poses, in .csv format.
-
-        Returns
-        -------
-        pandas DataFrame
-            DataFrame containing the DLC poses, with multi-index columns.
         """
 
+        try:
+            ValidPosesCSV(file=file, multianimal=False)
+        except ValidationError as error:
+            logger.error(error)
+            raise error
+
         possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
-        with open(file_path, "r") as f:
+        with open(file.path, "r") as f:
             # if line starts with a possible level name, split it into a list
             # of strings, and add it to the list of header lines
             header_lines = [
@@ -429,10 +472,30 @@ class PoseTracks(xr.Dataset):
 
         # Import the DLC poses as a DataFrame
         df = pd.read_csv(
-            file_path,
+            file.path,
             skiprows=len(header_lines),
             index_col=0,
             names=np.array(columns),
         )
         df.columns.rename(level_names, inplace=True)
+        return df
+
+    @staticmethod
+    def _load_df_from_dlc_h5(file: ValidFile) -> pd.DataFrame:
+        """Load pose tracks and likelihood scores from a DeepLabCut .h5 file
+        into a pandas DataFrame."""
+
+        try:
+            ValidHDF5(file=file, expected_datasets=["df_with_missing"])
+        except ValidationError as error:
+            logger.error(error)
+            raise error
+
+        try:
+            # pd.read_hdf does not always return a DataFrame
+            df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
+        except Exception as error:
+            logger.error(error)
+            raise error
+
         return df
