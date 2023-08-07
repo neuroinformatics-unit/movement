@@ -1,6 +1,5 @@
 import logging
-from collections.abc import Iterable
-from typing import Any, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Union
 
 import numpy as np
 from attrs import converters, define, field
