@@ -1,15 +1,15 @@
 import logging
 from pathlib import Path
-from typing import ClassVar, List, Optional, Union
+from typing import ClassVar, Optional, Union
 
 import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
-from pydantic import ValidationError
 from sleap_io.io.slp import read_labels
 
 from movement.io.file_validators import ValidFile, ValidHDF5, ValidPosesCSV
+from movement.io.tracks_validators import ValidPoseTracks
 
 # get logger
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class PoseTracks(xr.Dataset):
 
     The dataset contains two data variables (`xarray.DataArray` objects):
     - `pose_tracks`: with shape (`time`, `individuals`, `keypoints`, `space`)
-    - `confidence_scores`: with shape (`time`, `individuals`, `keypoints`)
+    - `confidence`: with shape (`time`, `individuals`, `keypoints`)
 
     The dataset may also contain following attributes as metadata:
     - `fps`: the number of frames per second in the video
@@ -49,84 +49,45 @@ class PoseTracks(xr.Dataset):
 
     __slots__ = ("fps", "time_unit", "source_software", "source_file")
 
-    def __init__(
-        self,
-        tracks_array: np.ndarray,
-        scores_array: Optional[np.ndarray] = None,
-        individual_names: Optional[List[str]] = None,
-        keypoint_names: Optional[List[str]] = None,
-        fps: Optional[float] = None,
-    ):
-        """Create a `PoseTracks` dataset containing pose tracks and
-        point-wise confidence scores.
+    @classmethod
+    def _from_valid_data(cls, data: ValidPoseTracks):
+        """Initialize a `PoseTracks` xarray.Dataset from already validated
+        data - i.e. a `ValidPoseTracks` object.
 
         Parameters
         ----------
-        tracks_array : np.ndarray
-            Array of shape (n_frames, n_individuals, n_keypoints, n_space)
-            containing the pose tracks. It will be converted to a
-            `xarray.DataArray` object named "pose_tracks".
-        scores_array : np.ndarray, optional
-            Array of shape (n_frames, n_individuals, n_keypoints) containing
-            the point-wise confidence scores. It will be converted to a
-            `xarray.DataArray` object named "confidence_scores".
-            If None (default), the scores will be set to an array of NaNs.
-        individual_names : list of str, optional
-            List of unique names for the individuals in the video. If None
-            (default), the individuals will be named "individual_0",
-            "individual_1", etc.
-        keypoint_names : list of str, optional
-            List of unique names for the keypoints in the skeleton. If None
-            (default), the keypoints will be named "keypoint_0", "keypoint_1",
-            etc.
-        fps : float, optional
-            The number of frames per second in the video. If None (default),
-            the `time` coordinates will be in frame numbers.
+        data : movement.io.tracks_validators.ValidPoseTracks
+            The validated data object.
         """
 
-        n_frames, n_individuals, n_keypoints, n_space = tracks_array.shape
-        if scores_array is None:
-            scores_array = np.full(
-                (n_frames, n_individuals, n_keypoints), np.nan, dtype="float32"
-            )
-        if individual_names is None:
-            individual_names = [
-                f"individual_{i}" for i in range(n_individuals)
-            ]
-        if keypoint_names is None:
-            keypoint_names = [f"keypoint_{i}" for i in range(n_keypoints)]
-        if (fps is not None) and (fps <= 0):
-            logger.warning(
-                f"Expected fps to be a positive number, but got {fps}. "
-                "Setting fps to None."
-            )
-            fps = None
-
-        # Convert the pose tracks and confidence scores to xarray.DataArray
-        tracks_da = xr.DataArray(tracks_array, dims=self.dim_names)
-        scores_da = xr.DataArray(scores_array, dims=self.dim_names[:-1])
+        n_frames = data.tracks_array.shape[0]
+        n_space = data.tracks_array.shape[-1]
 
         # Create the time coordinate, depending on the value of fps
         time_coords = np.arange(n_frames, dtype=int)
         time_unit = "frames"
-        if fps is not None:
-            time_coords = time_coords / fps
+        if data.fps is not None:
+            time_coords = time_coords / data.fps
             time_unit = "seconds"
 
-        # Combine the DataArrays into a Dataset, with common coordinates
-        super().__init__(
+        # Convert data to an xarray.Dataset
+        return cls(
             data_vars={
-                "pose_tracks": tracks_da,
-                "confidence_scores": scores_da,
+                "pose_tracks": xr.DataArray(
+                    data.tracks_array, dims=cls.dim_names
+                ),
+                "confidence": xr.DataArray(
+                    data.scores_array, dims=cls.dim_names[:-1]
+                ),
             },
             coords={
-                self.dim_names[0]: time_coords,
-                self.dim_names[1]: individual_names,
-                self.dim_names[2]: keypoint_names,
-                self.dim_names[3]: ["x", "y", "z"][:n_space],
+                cls.dim_names[0]: time_coords,
+                cls.dim_names[1]: data.individual_names,
+                cls.dim_names[2]: data.keypoint_names,
+                cls.dim_names[3]: ["x", "y", "z"][:n_space],
             },
             attrs={
-                "fps": fps,
+                "fps": data.fps,
                 "time_unit": time_unit,
                 "source_software": None,
                 "source_file": None,
@@ -174,13 +135,19 @@ class PoseTracks(xr.Dataset):
             (-1, len(individual_names), len(keypoint_names), 3)
         )
 
-        return cls(
-            tracks_array=tracks_with_scores[:, :, :, :-1],
-            scores_array=tracks_with_scores[:, :, :, -1],
-            individual_names=individual_names,
-            keypoint_names=keypoint_names,
-            fps=fps,
-        )
+        try:
+            valid_data = ValidPoseTracks(
+                tracks_array=tracks_with_scores[:, :, :, :-1],
+                scores_array=tracks_with_scores[:, :, :, -1],
+                individual_names=individual_names,
+                keypoint_names=keypoint_names,
+                fps=fps,
+            )
+        except ValueError as error:
+            logger.error(error)
+            raise error
+        else:
+            return cls._from_valid_data(valid_data)
 
     @classmethod
     def from_sleap_file(
@@ -224,29 +191,25 @@ class PoseTracks(xr.Dataset):
         >>> poses = PoseTracks.from_sleap_file("path/to/file.slp", fps=30)
         """
 
-        # Validate the file path
         try:
             file = ValidFile(
-                path=file_path,
+                file_path,
                 expected_permission="r",
                 expected_suffix=[".h5", ".slp"],
             )
-        except ValidationError as error:
+        except (OSError, ValueError) as error:
             logger.error(error)
             raise error
 
-        # Load data into a dictionary
+        # Load and validate data
         if file.path.suffix == ".h5":
-            data_dict = cls._load_dict_from_sleap_analysis_file(file)
+            valid_data = cls._load_from_sleap_analysis_file(file.path, fps=fps)
         else:  # file.path.suffix == ".slp"
-            data_dict = cls._load_dict_from_sleap_labels_file(file)
-
-        logger.debug(
-            f"Loaded pose tracks from {file.path.as_posix()} into a dict."
-        )
+            valid_data = cls._load_from_sleap_labels_file(file.path, fps=fps)
+        logger.debug(f"Validated pose tracks from {file.path}.")
 
         # Initialize a PoseTracks dataset from the dictionary
-        ds = cls(**data_dict, fps=fps)
+        ds = cls._from_valid_data(valid_data)
 
         # Add metadata as attrs
         ds.attrs["source_software"] = "SLEAP"
@@ -271,33 +234,29 @@ class PoseTracks(xr.Dataset):
             The number of frames per second in the video. If None (default),
             the `time` coordinates will be in frame numbers.
 
-
         Examples
         --------
         >>> from movement.io import PoseTracks
         >>> poses = PoseTracks.from_dlc_file("path/to/file.h5", fps=30)
         """
 
-        # Validate the file path
         try:
             file = ValidFile(
-                path=file_path,
+                file_path,
                 expected_permission="r",
                 expected_suffix=[".csv", ".h5"],
             )
-        except ValidationError as error:
+        except (OSError, ValueError) as error:
             logger.error(error)
             raise error
 
         # Load the DLC poses into a DataFrame
         if file.path.suffix == ".csv":
-            df = cls._parse_dlc_csv_to_df(file)
+            df = cls._parse_dlc_csv_to_df(file.path)
         else:  # file.path.suffix == ".h5"
-            df = cls._load_df_from_dlc_h5(file)
+            df = cls._load_df_from_dlc_h5(file.path)
 
-        logger.debug(
-            f"Loaded poses from {file.path.as_posix()} into a DataFrame."
-        )
+        logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
         # Convert the DataFrame to a PoseTracks dataset
         ds = cls.from_dlc_df(df=df, fps=fps)
 
@@ -305,7 +264,7 @@ class PoseTracks(xr.Dataset):
         ds.attrs["source_software"] = "DeepLabCut"
         ds.attrs["source_file"] = file.path.as_posix()
 
-        logger.info(f"Loaded pose tracks from {file_path}:")
+        logger.info(f"Loaded pose tracks from {file.path}:")
         logger.info(ds)
         return ds
 
@@ -331,7 +290,7 @@ class PoseTracks(xr.Dataset):
         tracks_with_scores = np.concatenate(
             (
                 self.pose_tracks.data,
-                self.confidence_scores.data[..., np.newaxis],
+                self.confidence.data[..., np.newaxis],
             ),
             axis=-1,
         )
@@ -367,14 +326,13 @@ class PoseTracks(xr.Dataset):
             must be either ".h5" (recommended) or ".csv".
         """
 
-        # Validate the file path
         try:
             file = ValidFile(
-                path=file_path,
+                file_path,
                 expected_permission="w",
                 expected_suffix=[".csv", ".h5"],
             )
-        except ValidationError as error:
+        except (OSError, ValueError) as error:
             logger.error(error)
             raise error
 
@@ -384,19 +342,16 @@ class PoseTracks(xr.Dataset):
             df.to_csv(file.path, sep=",")
         else:  # file.path.suffix == ".h5"
             df.to_hdf(file.path, key="df_with_missing")
-        logger.info(f"Saved PoseTracks dataset to {file.path.as_posix()}.")
+        logger.info(f"Saved PoseTracks dataset to {file.path}.")
 
     @staticmethod
-    def _load_dict_from_sleap_analysis_file(file: ValidFile):
-        """Load pose tracks and confidence scores from a SLEAP analysis
-        file into a dictionary."""
+    def _load_from_sleap_analysis_file(
+        file_path: Path, fps: Optional[float]
+    ) -> ValidPoseTracks:
+        """Load and validate pose tracks and confidence scores from a SLEAP
+        analysis file"""
 
-        # Validate the hdf5 file
-        try:
-            ValidHDF5(file=file, expected_datasets=["tracks"])
-        except ValidationError as error:
-            logger.error(error)
-            raise error
+        file = ValidHDF5(file_path, expected_datasets=["tracks"])
 
         with h5py.File(file.path, "r") as f:
             tracks = f["tracks"][:].T
@@ -412,48 +367,57 @@ class PoseTracks(xr.Dataset):
                     (n_frames, n_tracks, n_keypoints)
                 )
 
-            return {
-                "tracks_array": tracks,
-                "scores_array": scores,
-                "individual_names": [n.decode() for n in f["track_names"][:]],
-                "keypoint_names": [n.decode() for n in f["node_names"][:]],
-            }
+            try:
+                valid_data = ValidPoseTracks(
+                    tracks_array=tracks,
+                    scores_array=scores,
+                    individual_names=[n.decode() for n in f["track_names"][:]],
+                    keypoint_names=[n.decode() for n in f["node_names"][:]],
+                    fps=fps,
+                )
+            except ValueError as error:
+                logger.error(error)
+                raise error
+            else:
+                return valid_data
 
     @staticmethod
-    def _load_dict_from_sleap_labels_file(file: ValidFile):
-        """Load pose tracks and confidence scores from a SLEAP labels file
-        into a dictionary."""
+    def _load_from_sleap_labels_file(
+        file_path: Path, fps: Optional[float]
+    ) -> ValidPoseTracks:
+        """Load and validate pose tracks and confidence scores from a SLEAP
+        labels file."""
 
-        # Validate the .slp file as an HDF5 file
-        try:
-            ValidHDF5(file=file, expected_datasets=["pred_points", "metadata"])
-        except ValidationError as error:
-            logger.error(error)
-            raise error
+        file = ValidHDF5(
+            file_path, expected_datasets=["pred_points", "metadata"]
+        )
 
         labels = read_labels(file.path.as_posix())
         tracks_with_scores = labels.numpy(return_confidence=True)
 
-        return {
-            "tracks_array": tracks_with_scores[:, :, :, :-1],
-            "scores_array": tracks_with_scores[:, :, :, -1],
-            "individual_names": [track.name for track in labels.tracks],
-            "keypoint_names": [kp.name for kp in labels.skeletons[0].nodes],
-        }
+        try:
+            valid_data = ValidPoseTracks(
+                tracks_array=tracks_with_scores[:, :, :, :-1],
+                scores_array=tracks_with_scores[:, :, :, -1],
+                individual_names=[track.name for track in labels.tracks],
+                keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
+                fps=fps,
+            )
+        except ValueError as error:
+            logger.error(error)
+            raise error
+        else:
+            return valid_data
 
     @staticmethod
-    def _parse_dlc_csv_to_df(file: ValidFile) -> pd.DataFrame:
+    def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
         """If poses are loaded from a DeepLabCut.csv file, the DataFrame
         lacks the multi-index columns that are present in the .h5 file. This
         function parses the csv file to a pandas DataFrame with multi-index
         columns, i.e. the same format as in the .h5 file.
         """
 
-        try:
-            ValidPosesCSV(file=file, multianimal=False)
-        except ValidationError as error:
-            logger.error(error)
-            raise error
+        file = ValidPosesCSV(file_path, multianimal=False)
 
         possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
         with open(file.path, "r") as f:
@@ -481,15 +445,11 @@ class PoseTracks(xr.Dataset):
         return df
 
     @staticmethod
-    def _load_df_from_dlc_h5(file: ValidFile) -> pd.DataFrame:
+    def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
         """Load pose tracks and likelihood scores from a DeepLabCut .h5 file
         into a pandas DataFrame."""
 
-        try:
-            ValidHDF5(file=file, expected_datasets=["df_with_missing"])
-        except ValidationError as error:
-            logger.error(error)
-            raise error
+        file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
 
         try:
             # pd.read_hdf does not always return a DataFrame
@@ -497,5 +457,5 @@ class PoseTracks(xr.Dataset):
         except Exception as error:
             logger.error(error)
             raise error
-
-        return df
+        else:
+            return df

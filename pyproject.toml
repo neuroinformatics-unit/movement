@@ -15,7 +15,7 @@ dependencies = [
     "numpy",
     "pandas",
     "h5py",
-    "pydantic>=2.0",
+    "attrs",
     "pooch",
     "tqdm",
     "sleap-io",
@@ -53,6 +53,7 @@ dev = [
   "ruff",
   "setuptools_scm",
   "pandas-stubs",
+  "types-attrs",
 ]
 
 [build-system]
@@ -99,7 +100,6 @@ module = [
   "sleap_io.*",
 ]
 ignore_missing_imports = true
-
 
 [tool.ruff]
 line-length = 79

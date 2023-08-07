@@ -9,10 +9,16 @@ from xarray.testing import assert_allclose
 
 from movement.datasets import fetch_pose_data_path
 from movement.io import PoseTracks
+from movement.io.tracks_validators import ValidPoseTracks
 
 
 class TestPoseTracksIO:
     """Test the IO functionalities of the PoseTracks class."""
+
+    @pytest.fixture
+    def valid_tracks_array(self):
+        """Return a valid tracks array."""
+        return np.zeros((10, 2, 2, 2))
 
     @pytest.fixture
     def dlc_file_h5_single(self):
@@ -126,11 +132,11 @@ class TestPoseTracksIO:
 
             assert isinstance(ds, PoseTracks)
             # Expected variables are present and of right shape/type
-            for var in ["pose_tracks", "confidence_scores"]:
+            for var in ["pose_tracks", "confidence"]:
                 assert var in ds.data_vars
                 assert isinstance(ds[var], DataArray)
             assert ds.pose_tracks.ndim == 4
-            assert ds.confidence_scores.shape == ds.pose_tracks.shape[:-1]
+            assert ds.confidence.shape == ds.pose_tracks.shape[:-1]
             # Check the dims and coords
             assert all([i in ds.dims for i in ds.dim_names])
             for d, dim in enumerate(ds.dim_names[1:]):
@@ -181,67 +187,122 @@ class TestPoseTracksIO:
         )
 
     @pytest.mark.parametrize(
-        "scores_array", [None, np.zeros((10, 2, 2)), np.zeros((10, 2, 3))]
+        "tracks_array",
+        [
+            None,  # invalid, argument is non-optional
+            [1, 2, 3],  # not an ndarray
+            np.zeros((10, 2, 3)),  # not 4d
+            np.zeros((10, 2, 3, 4)),  # last dim not 2 or 3
+        ],
     )
-    def test_init_scores(self, scores_array):
-        """Test that confidence scores are correctly initialized."""
-        tracks = np.random.rand(10, 2, 2, 2)
+    def test_tracks_array_validation(self, tracks_array):
+        """Test that invalid tracks arrays raise the appropriate errors."""
+        with pytest.raises(ValueError):
+            ValidPoseTracks(tracks_array=tracks_array)
 
+    @pytest.mark.parametrize(
+        "scores_array",
+        [
+            None,  # valid, should default to array of NaNs
+            np.ones((10, 3, 2)),  # will not match tracks_array shape
+            [1, 2, 3],  # not an ndarray, should raise ValueError
+        ],
+    )
+    def test_scores_array_validation(self, valid_tracks_array, scores_array):
+        """Test that invalid scores arrays raise the appropriate errors."""
         if scores_array is None:
-            ds = PoseTracks(tracks, scores_array=scores_array)
-            assert ds.confidence_scores.shape == (10, 2, 2)
-            assert np.all(np.isnan(ds.confidence_scores.data))
-        elif scores_array.shape == (10, 2, 2):
-            ds = PoseTracks(tracks, scores_array=scores_array)
-            assert np.allclose(ds.confidence_scores.data, scores_array)
+            poses = ValidPoseTracks(tracks_array=valid_tracks_array)
+            assert np.all(np.isnan(poses.scores_array))
         else:
             with pytest.raises(ValueError):
-                PoseTracks(tracks, scores_array=scores_array)
+                ValidPoseTracks(
+                    tracks_array=valid_tracks_array, scores_array=scores_array
+                )
 
     @pytest.mark.parametrize(
         "individual_names",
-        [None, ["animal_1", "animal_2"], ["animal_1", "animal_2", "animal_3"]],
+        [
+            None,  # generate default names
+            ["ind1", "ind2"],  # valid input
+            ("ind1", "ind2"),  # valid input
+            [1, 2],  # will be converted to ["1", "2"]
+            "ind1",  # will be converted to ["ind1"]
+            5,  # invalid, should raise ValueError
+        ],
     )
-    def test_init_individual_names(self, individual_names):
-        """Test that individual names are correctly initialized."""
-        tracks = np.random.rand(10, 2, 2, 2)
-
+    def test_individual_names_validation(
+        self, valid_tracks_array, individual_names
+    ):
         if individual_names is None:
-            ds = PoseTracks(tracks, individual_names=individual_names)
-            assert ds.dims["individuals"] == 2
-            assert all(
-                [
-                    f"individual_{i}" in ds.coords["individuals"]
-                    for i in range(2)
-                ]
+            poses = ValidPoseTracks(
+                tracks_array=valid_tracks_array,
+                individual_names=individual_names,
             )
-        elif len(individual_names) == 2:
-            ds = PoseTracks(tracks, individual_names=individual_names)
-            assert ds.dims["individuals"] == 2
-            assert all(
-                [n in ds.coords["individuals"] for n in individual_names]
+            assert poses.individual_names == ["individual_0", "individual_1"]
+        elif type(individual_names) in (list, tuple):
+            poses = ValidPoseTracks(
+                tracks_array=valid_tracks_array,
+                individual_names=individual_names,
             )
+            assert poses.individual_names == [str(i) for i in individual_names]
+        elif type(individual_names) == str:
+            poses = ValidPoseTracks(
+                tracks_array=np.zeros((10, 1, 2, 2)),
+                individual_names=individual_names,
+            )
+            assert poses.individual_names == [individual_names]
+            # raises error if not 1 individual
+            with pytest.raises(ValueError):
+                ValidPoseTracks(
+                    tracks_array=valid_tracks_array,
+                    individual_names=individual_names,
+                )
         else:
             with pytest.raises(ValueError):
-                PoseTracks(tracks, individual_names=individual_names)
+                ValidPoseTracks(
+                    tracks_array=valid_tracks_array,
+                    individual_names=individual_names,
+                )
 
     @pytest.mark.parametrize(
-        "keypoint_names", [None, ["kp_1", "kp_2"], ["kp_1", "kp_2", "kp_3"]]
+        "keypoint_names",
+        [
+            None,  # generate default names
+            ["key1", "key2"],  # valid input
+            ("key", "key2"),  # valid input
+            [1, 2],  # will be converted to ["1", "2"]
+            "key1",  # will be converted to ["ind1"]
+            5,  # invalid, should raise ValueError
+        ],
     )
-    def test_init_keypoint_names(self, keypoint_names):
-        """Test that keypoint names are correctly initialized."""
-        tracks = np.random.rand(10, 2, 2, 2)
-
+    def test_keypoint_names_validation(
+        self, valid_tracks_array, keypoint_names
+    ):
         if keypoint_names is None:
-            ds = PoseTracks(tracks, keypoint_names=keypoint_names)
-            assert ds.dims["keypoints"] == 2
-            assert all(
-                [f"keypoint_{i}" in ds.coords["keypoints"] for i in range(2)]
+            poses = ValidPoseTracks(
+                tracks_array=valid_tracks_array, keypoint_names=keypoint_names
             )
-        elif len(keypoint_names) == 2:
-            ds = PoseTracks(tracks, keypoint_names=keypoint_names)
-            assert ds.dims["keypoints"] == 2
-            assert all([n in ds.coords["keypoints"] for n in keypoint_names])
+            assert poses.keypoint_names == ["keypoint_0", "keypoint_1"]
+        elif type(keypoint_names) in (list, tuple):
+            poses = ValidPoseTracks(
+                tracks_array=valid_tracks_array, keypoint_names=keypoint_names
+            )
+            assert poses.keypoint_names == [str(i) for i in keypoint_names]
+        elif type(keypoint_names) == str:
+            poses = ValidPoseTracks(
+                tracks_array=np.zeros((10, 2, 1, 2)),
+                keypoint_names=keypoint_names,
+            )
+            assert poses.keypoint_names == [keypoint_names]
+            # raises error if not 1 keypoint
+            with pytest.raises(ValueError):
+                ValidPoseTracks(
+                    tracks_array=valid_tracks_array,
+                    keypoint_names=keypoint_names,
+                )
         else:
             with pytest.raises(ValueError):
-                PoseTracks(tracks, keypoint_names=keypoint_names)
+                ValidPoseTracks(
+                    tracks_array=valid_tracks_array,
+                    keypoint_names=keypoint_names,
+                )
