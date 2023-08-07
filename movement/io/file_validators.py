@@ -70,18 +70,18 @@ class ValidFile:
     def file_has_access_permissions(self, attribute, value):
         """Ensures that the file has the expected access permission(s).
         Raises a PermissionError if not."""
-        if "r" in self.expected_permission:
-            if not os.access(value, os.R_OK):
-                raise PermissionError(
-                    f"Unable to read file: {value}. "
-                    "Make sure that you have read permissions for it."
-                )
-        if "w" in self.expected_permission:
-            if not os.access(value.parent, os.W_OK):
-                raise PermissionError(
-                    f"Unable to write to file: {value}. "
-                    "Make sure that you have write permissions for it."
-                )
+        file_is_readable = os.access(value, os.R_OK)
+        parent_is_writeable = os.access(value.parent, os.W_OK)
+        if ("r" in self.expected_permission) and (not file_is_readable):
+            raise PermissionError(
+                f"Unable to read file: {value}. "
+                "Make sure that you have read permissions for it."
+            )
+        if ("w" in self.expected_permission) and (not parent_is_writeable):
+            raise PermissionError(
+                f"Unable to write to file: {value}. "
+                "Make sure that you have write permissions."
+            )
 
     @path.validator
     def file_has_expected_suffix(self, attribute, value):

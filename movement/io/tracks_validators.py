@@ -117,21 +117,19 @@ class ValidPoseTracks:
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
-        if value is not None:
-            if len(value) != self.tracks_array.shape[1]:
-                raise ValueError(
-                    f"Expected {self.tracks_array.shape[1]} `{attribute}`, "
-                    f"but got {len(value)}."
-                )
+        if (value is not None) and (len(value) != self.tracks_array.shape[1]):
+            raise ValueError(
+                f"Expected {self.tracks_array.shape[1]} `{attribute}`, "
+                f"but got {len(value)}."
+            )
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        if value is not None:
-            if len(value) != self.tracks_array.shape[2]:
-                raise ValueError(
-                    f"Expected {self.tracks_array.shape[2]} `{attribute}`, "
-                    f"but got {len(value)}."
-                )
+        if (value is not None) and (len(value) != self.tracks_array.shape[2]):
+            raise ValueError(
+                f"Expected {self.tracks_array.shape[2]} `{attribute}`, "
+                f"but got {len(value)}."
+            )
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)"""
