@@ -9,6 +9,7 @@ from xarray.testing import assert_allclose
 
 from movement.datasets import fetch_pose_data_path
 from movement.io import PoseTracks
+from movement.io.file_validators import ValidFile, ValidHDF5, ValidPosesCSV
 from movement.io.tracks_validators import ValidPoseTracks
 
 
@@ -106,11 +107,26 @@ class TestPoseTracksIO:
 
         nonexistent_file = tmp_path / "nonexistent.h5"
 
+        directory = tmp_path / "directory"
+        directory.mkdir()
+
+        fake_h5_file = tmp_path / "fake.h5"
+        with open(fake_h5_file, "w") as f:
+            f.write("")
+
+        fake_csv_file = tmp_path / "fake.csv"
+        with open(fake_csv_file, "w") as f:
+            f.write("some,columns\n")
+            f.write("1,2")
+
         return {
             "unreadable": unreadable_file,
             "wrong_ext": wrong_ext_file,
             "no_dataframe": h5_file_no_dataframe,
             "nonexistent": nonexistent_file,
+            "directory": directory,
+            "fake_h5": fake_h5_file,
+            "fake_csv": fake_csv_file,
         }
 
     @pytest.fixture
@@ -147,6 +163,53 @@ class TestPoseTracksIO:
             assert ds.source_software == abbrev_expand[file_type.split("_")[0]]
             assert ds.source_file == file_path.as_posix()
             assert ds.fps is None
+
+    def test_file_validation(self, invalid_files):
+        """Test that loading from invalid files path raises the
+        appropriate errors."""
+        for file_type, file_path in invalid_files.items():
+            if file_type == "unreadable":
+                with pytest.raises(PermissionError):
+                    ValidFile(path=file_path, expected_permission="r")
+            elif file_type == "wrong_ext":
+                with pytest.raises(ValueError):
+                    ValidFile(
+                        path=file_path,
+                        expected_permission="r",
+                        expected_suffix=["h5", "csv"],
+                    )
+            elif file_type == "nonexistent":
+                with pytest.raises(FileNotFoundError):
+                    ValidFile(path=file_path, expected_permission="r")
+            elif file_type == "directory":
+                with pytest.raises(IsADirectoryError):
+                    ValidFile(path=file_path, expected_permission="r")
+            elif file_type in ["fake_h5", "no_dataframe"]:
+                with pytest.raises(ValueError):
+                    ValidHDF5(path=file_path, expected_datasets=["dataframe"])
+            elif file_type == "fake_csv":
+                with pytest.raises(ValueError):
+                    ValidPosesCSV(path=file_path)
+
+    def test_write_to_dlc_file(
+        self, sleap_file_h5_multi, invalid_files, tmp_path
+    ):
+        """Test that writing pose tracks to DLC .h5 and .csv files and then
+        reading them back in returns the same Dataset."""
+        ds = PoseTracks.from_sleap_file(sleap_file_h5_multi)
+        ds.to_dlc_file(tmp_path / "dlc.h5")
+        ds.to_dlc_file(tmp_path / "dlc.csv")
+        ds_from_h5 = PoseTracks.from_dlc_file(tmp_path / "dlc.h5")
+        ds_from_csv = PoseTracks.from_dlc_file(tmp_path / "dlc.csv")
+        assert_allclose(ds_from_h5, ds)
+        assert_allclose(ds_from_csv, ds)
+
+        with pytest.raises(FileExistsError):
+            ds.to_dlc_file(invalid_files["fake_h5"])
+        with pytest.raises(ValueError):
+            ds.to_dlc_file(tmp_path / "dlc.txt")
+        with pytest.raises(IsADirectoryError):
+            ds.to_dlc_file(invalid_files["directory"])
 
     def test_load_from_dlc_file_csv_or_h5_file_returns_same(
         self, dlc_file_h5_single, dlc_file_csv_single

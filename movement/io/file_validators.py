@@ -56,6 +56,17 @@ class ValidFile:
             )
 
     @path.validator
+    def file_exists_when_expected(self, attribute, value):
+        """Ensures that the file exists (or not) depending on the expected
+        usage (read and/or write)."""
+        if "r" in self.expected_permission:
+            if not value.exists():
+                raise FileNotFoundError(f"File {value} does not exist.")
+        else:  # expected_permission is 'w'
+            if value.exists():
+                raise FileExistsError(f"File {value} already exists.")
+
+    @path.validator
     def file_has_access_permissions(self, attribute, value):
         """Ensures that the file has the expected access permission(s).
         Raises a PermissionError if not."""
@@ -66,22 +77,11 @@ class ValidFile:
                     "Make sure that you have read permissions for it."
                 )
         if "w" in self.expected_permission:
-            if not os.access(value, os.W_OK):
+            if not os.access(value.parent, os.W_OK):
                 raise PermissionError(
                     f"Unable to write to file: {value}. "
                     "Make sure that you have write permissions for it."
                 )
-
-    @path.validator
-    def file_exists_when_expected(self, attribute, value):
-        """Ensures that the file exists (or not) depending on the expected
-        usage (read and/or write)."""
-        if "r" in self.expected_permission:
-            if not value.exists():
-                raise FileNotFoundError(f"File {value} does not exist.")
-        else:  # expected_permission is 'w'
-            if value.exists():
-                raise FileExistsError(f"File {value} already exists.")
 
     @path.validator
     def file_has_expected_suffix(self, attribute, value):
@@ -119,11 +119,13 @@ class ValidHDF5:
     @path.validator
     def file_is_h5(self, attribute, value):
         """Ensure that the file is indeed in HDF5 format."""
-        with h5py.File(value, "r") as f:
-            if not isinstance(f, h5py.File):
-                raise ValueError(
-                    f"Expected an HDF5 file but got {type(f)}: {value}."
-                )
+        try:
+            with h5py.File(value, "r") as f:
+                f.close()
+        except Exception as e:
+            raise ValueError(
+                f"File {value} does not seem to be in valid" "HDF5 format."
+            ) from e
 
     @path.validator
     def file_contains_expected_datasets(self, attribute, value):
@@ -176,7 +178,7 @@ class ValidPosesCSV:
             ]
             if not all(level_in_header_row_starts):
                 raise ValueError(
-                    f"The header rows of the CSV file {value.path} do not "
+                    f"The header rows of the CSV file {value} do not "
                     "contain all expected index column levels "
                     f"{expected_levels}."
                 )
