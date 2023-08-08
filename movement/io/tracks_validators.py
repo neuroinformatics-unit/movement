@@ -8,7 +8,7 @@ from attrs import converters, define, field
 logger = logging.getLogger(__name__)
 
 
-def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
+def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
     """Try to coerce the value into a list of strings.
     Otherwise, raise a ValueError."""
     if type(value) is str:
@@ -26,7 +26,7 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
         raise ValueError(error_msg)
 
 
-def _ensure_type_ndarray(value: Any):
+def _ensure_type_ndarray(value: Any) -> None:
     """Raise ValueError the value is a not numpy array."""
     if type(value) is not np.ndarray:
         raise ValueError(f"Expected a numpy array, but got {type(value)}.")
