@@ -1,1 +1,1 @@
-from .pose_tracks import PoseTracks
+from .poses_accessor import PosesAccessor

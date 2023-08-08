@@ -4,22 +4,62 @@ import h5py
 import numpy as np
 import pandas as pd
 import pytest
-from xarray import DataArray
-from xarray.testing import assert_allclose
+import xarray as xr
 
 from movement.datasets import fetch_pose_data_path
-from movement.io import PoseTracks
-from movement.io.file_validators import ValidFile, ValidHDF5, ValidPosesCSV
-from movement.io.tracks_validators import ValidPoseTracks
+from movement.io import PosesAccessor, load_poses, save_poses
+from movement.io.validators import (
+    ValidFile,
+    ValidHDF5,
+    ValidPosesCSV,
+    ValidPoseTracks,
+)
 
 
-class TestPoseTracksIO:
+class TestPosesIO:
     """Test the IO functionalities of the PoseTracks class."""
 
     @pytest.fixture
     def valid_tracks_array(self):
         """Return a valid tracks array."""
         return np.zeros((10, 2, 2, 2))
+
+    @pytest.fixture
+    def valid_pose_dataset(self, valid_tracks_array):
+        """Return a valid pose tracks dataset."""
+        dim_names = PosesAccessor.dim_names
+        return xr.Dataset(
+            data_vars={
+                "pose_tracks": xr.DataArray(
+                    valid_tracks_array, dims=dim_names
+                ),
+                "confidence": xr.DataArray(
+                    valid_tracks_array[..., 0], dims=dim_names[:-1]
+                ),
+            },
+            coords={
+                "time": np.arange(valid_tracks_array.shape[0]),
+                "individuals": ["ind1", "ind2"],
+                "keypoints": ["key1", "key2"],
+                "space": ["x", "y"],
+            },
+            attrs={
+                "fps": None,
+                "time_unit": "frames",
+                "source_software": "SLEAP",
+                "source_file": "test.h5",
+            },
+        )
+
+    @pytest.fixture
+    def invalid_pose_datasets(self, valid_pose_dataset):
+        """Return a list of invalid pose tracks datasets."""
+        return {
+            "not_a_dataset": [1, 2, 3],
+            "empty_dataset": xr.Dataset(),
+            "missing_var": valid_pose_dataset.drop_vars("pose_tracks"),
+            "missing_dim": valid_pose_dataset.drop_dims("time"),
+        }
 
     @pytest.fixture
     def dlc_file_h5_single(self):
@@ -142,20 +182,21 @@ class TestPoseTracksIO:
 
         for file_type, file_path in valid_files.items():
             if file_type.startswith("DLC"):
-                ds = PoseTracks.from_dlc_file(file_path)
+                ds = load_poses.from_dlc_file(file_path)
             elif file_type.startswith("SLEAP"):
-                ds = PoseTracks.from_sleap_file(file_path)
+                ds = load_poses.from_sleap_file(file_path)
 
-            assert isinstance(ds, PoseTracks)
+            assert isinstance(ds, xr.Dataset)
             # Expected variables are present and of right shape/type
             for var in ["pose_tracks", "confidence"]:
                 assert var in ds.data_vars
-                assert isinstance(ds[var], DataArray)
+                assert isinstance(ds[var], xr.DataArray)
             assert ds.pose_tracks.ndim == 4
             assert ds.confidence.shape == ds.pose_tracks.shape[:-1]
             # Check the dims and coords
-            assert all([i in ds.dims for i in ds.dim_names])
-            for d, dim in enumerate(ds.dim_names[1:]):
+            DIM_NAMES = PosesAccessor.dim_names
+            assert all([i in ds.dims for i in DIM_NAMES])
+            for d, dim in enumerate(DIM_NAMES[1:]):
                 assert ds.dims[dim] == ds.pose_tracks.shape[d + 1]
                 assert all([isinstance(s, str) for s in ds.coords[dim].values])
             assert all([i in ds.coords["space"] for i in ["x", "y"]])
@@ -169,20 +210,20 @@ class TestPoseTracksIO:
         raises the appropriate errors."""
         for file_path in invalid_files.values():
             with pytest.raises((OSError, ValueError)):
-                PoseTracks.from_dlc_file(file_path)
+                load_poses.from_dlc_file(file_path)
             with pytest.raises((OSError, ValueError)):
-                PoseTracks.from_sleap_file(file_path)
+                load_poses.from_sleap_file(file_path)
 
     @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
     def test_load_with_incorrect_file_path_types(self, file_path):
         """Test loading poses from a file_path with an incorrect type."""
         with pytest.raises(TypeError):
-            PoseTracks.from_dlc_file(file_path)
+            load_poses.from_dlc_file(file_path)
         with pytest.raises(TypeError):
-            PoseTracks.from_sleap_file(file_path)
+            load_poses.from_sleap_file(file_path)
 
     def test_file_validator(self, invalid_files):
-        """Test that the file validator class raoses the right errors."""
+        """Test that the file validator class raises the right errors."""
         for file_type, file_path in invalid_files.items():
             if file_type == "unreadable":
                 with pytest.raises(PermissionError):
@@ -207,39 +248,50 @@ class TestPoseTracksIO:
                 with pytest.raises(ValueError):
                     ValidPosesCSV(path=file_path)
 
-    def test_write_to_dlc_file(
-        self, sleap_file_h5_multi, invalid_files, tmp_path
-    ):
-        """Test that writing pose tracks to DLC .h5 and .csv files and then
-        reading them back in returns the same Dataset."""
-        ds = PoseTracks.from_sleap_file(sleap_file_h5_multi)
-        ds.to_dlc_file(tmp_path / "dlc.h5")
-        ds.to_dlc_file(tmp_path / "dlc.csv")
-        ds_from_h5 = PoseTracks.from_dlc_file(tmp_path / "dlc.h5")
-        ds_from_csv = PoseTracks.from_dlc_file(tmp_path / "dlc.csv")
-        assert_allclose(ds_from_h5, ds)
-        assert_allclose(ds_from_csv, ds)
+    def test_load_and_save_to_dlc_df(self, dlc_style_df):
+        """Test that loading pose tracks from a DLC-style DataFrame and
+        converting back to a DataFrame returns the same data values."""
+        ds = load_poses.from_dlc_df(dlc_style_df)
+        df = save_poses.to_dlc_df(ds)
+        assert np.allclose(df.values, dlc_style_df.values)
 
+    def test_save_and_load_dlc_file(self, valid_pose_dataset, tmp_path):
+        """Test that saving pose tracks to DLC .h5 and .csv files and then
+        loading them back in returns the same Dataset."""
+        save_poses.to_dlc_file(valid_pose_dataset, tmp_path / "dlc.h5")
+        save_poses.to_dlc_file(valid_pose_dataset, tmp_path / "dlc.csv")
+        ds_from_h5 = load_poses.from_dlc_file(tmp_path / "dlc.h5")
+        ds_from_csv = load_poses.from_dlc_file(tmp_path / "dlc.csv")
+        xr.testing.assert_allclose(ds_from_h5, valid_pose_dataset)
+        xr.testing.assert_allclose(ds_from_csv, valid_pose_dataset)
+
+    def test_save_valid_dataset_to_invalid_file_paths(
+        self, valid_pose_dataset, invalid_files, tmp_path
+    ):
         with pytest.raises(FileExistsError):
-            ds.to_dlc_file(invalid_files["fake_h5"])
+            save_poses.to_dlc_file(
+                valid_pose_dataset, invalid_files["fake_h5"]
+            )
         with pytest.raises(ValueError):
-            ds.to_dlc_file(tmp_path / "dlc.txt")
+            save_poses.to_dlc_file(valid_pose_dataset, tmp_path / "dlc.txt")
         with pytest.raises(IsADirectoryError):
-            ds.to_dlc_file(invalid_files["directory"])
+            save_poses.to_dlc_file(
+                valid_pose_dataset, invalid_files["directory"]
+            )
 
     def test_load_from_dlc_file_csv_or_h5_file_returns_same(
         self, dlc_file_h5_single, dlc_file_csv_single
     ):
         """Test that loading pose tracks from DLC .csv and .h5 files
         return the same Dataset."""
-        ds_from_h5 = PoseTracks.from_dlc_file(dlc_file_h5_single)
-        ds_from_csv = PoseTracks.from_dlc_file(dlc_file_csv_single)
-        assert_allclose(ds_from_h5, ds_from_csv)
+        ds_from_h5 = load_poses.from_dlc_file(dlc_file_h5_single)
+        ds_from_csv = load_poses.from_dlc_file(dlc_file_csv_single)
+        xr.testing.assert_allclose(ds_from_h5, ds_from_csv)
 
     @pytest.mark.parametrize("fps", [None, -5, 0, 30, 60.0])
     def test_fps_and_time_coords(self, sleap_file_h5_multi, fps):
         """Test that time coordinates are set according to the fps."""
-        ds = PoseTracks.from_sleap_file(sleap_file_h5_multi, fps=fps)
+        ds = load_poses.from_sleap_file(sleap_file_h5_multi, fps=fps)
         if (fps is None) or (fps <= 0):
             assert ds.fps is None
             assert ds.time_unit == "frames"
@@ -251,19 +303,18 @@ class TestPoseTracksIO:
                 np.arange(ds.dims["time"], dtype=int) / ds.attrs["fps"],
             )
 
-    def test_from_and_to_dlc_df(self, dlc_style_df):
-        """Test that loading pose tracks from a DLC-style DataFrame and
-        converting back to a DataFrame returns the same data values."""
-        ds = PoseTracks.from_dlc_df(dlc_style_df)
-        df = ds.to_dlc_df()
-        assert np.allclose(df.values, dlc_style_df.values)
-
     def test_load_from_str_path(self, sleap_file_h5_single):
         """Test that file paths provided as strings are accepted as input."""
-        assert_allclose(
-            PoseTracks.from_sleap_file(sleap_file_h5_single),
-            PoseTracks.from_sleap_file(sleap_file_h5_single.as_posix()),
+        xr.testing.assert_allclose(
+            load_poses.from_sleap_file(sleap_file_h5_single),
+            load_poses.from_sleap_file(sleap_file_h5_single.as_posix()),
         )
+
+    def test_save_invalid_pose_datasets(self, invalid_pose_datasets, tmp_path):
+        """Test that saving invalid pose datasets raises ValueError."""
+        for ds in invalid_pose_datasets.values():
+            with pytest.raises(ValueError):
+                save_poses.to_dlc_file(ds, tmp_path / "test.h5")
 
     @pytest.mark.parametrize(
         "tracks_array",
