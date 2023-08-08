@@ -164,9 +164,25 @@ class TestPoseTracksIO:
             assert ds.source_file == file_path.as_posix()
             assert ds.fps is None
 
-    def test_file_validation(self, invalid_files):
-        """Test that loading from invalid files path raises the
-        appropriate errors."""
+    def test_load_from_invalid_files(self, invalid_files):
+        """Test that loading pose tracks from a wide variety of invalid files
+        raises the appropriate errors."""
+        for file_path in invalid_files.values():
+            with pytest.raises((OSError, ValueError)):
+                PoseTracks.from_dlc_file(file_path)
+            with pytest.raises((OSError, ValueError)):
+                PoseTracks.from_sleap_file(file_path)
+
+    @pytest.mark.parametrize("file_path", [1, 1.0, True, None, [], {}])
+    def test_load_with_incorrect_file_path_types(self, file_path):
+        """Test loading poses from a file_path with an incorrect type."""
+        with pytest.raises(TypeError):
+            PoseTracks.from_dlc_file(file_path)
+        with pytest.raises(TypeError):
+            PoseTracks.from_sleap_file(file_path)
+
+    def test_file_validator(self, invalid_files):
+        """Test that the file validator class raoses the right errors."""
         for file_type, file_path in invalid_files.items():
             if file_type == "unreadable":
                 with pytest.raises(PermissionError):
