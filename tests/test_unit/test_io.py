@@ -369,13 +369,13 @@ class TestPosesIO:
                 individual_names=individual_names,
             )
             assert poses.individual_names == ["individual_0", "individual_1"]
-        elif type(individual_names) in (list, tuple):
+        elif isinstance(individual_names, (list, tuple)):
             poses = ValidPoseTracks(
                 tracks_array=valid_tracks_array,
                 individual_names=individual_names,
             )
             assert poses.individual_names == [str(i) for i in individual_names]
-        elif type(individual_names) == str:
+        elif isinstance(individual_names, str):
             poses = ValidPoseTracks(
                 tracks_array=np.zeros((10, 1, 2, 2)),
                 individual_names=individual_names,
@@ -413,12 +413,12 @@ class TestPosesIO:
                 tracks_array=valid_tracks_array, keypoint_names=keypoint_names
             )
             assert poses.keypoint_names == ["keypoint_0", "keypoint_1"]
-        elif type(keypoint_names) in (list, tuple):
+        elif isinstance(keypoint_names, (list, tuple)):
             poses = ValidPoseTracks(
                 tracks_array=valid_tracks_array, keypoint_names=keypoint_names
             )
             assert poses.keypoint_names == [str(i) for i in keypoint_names]
-        elif type(keypoint_names) == str:
+        elif isinstance(keypoint_names, str):
             poses = ValidPoseTracks(
                 tracks_array=np.zeros((10, 2, 1, 2)),
                 keypoint_names=keypoint_names,
