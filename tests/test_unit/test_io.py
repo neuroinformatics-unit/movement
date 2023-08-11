@@ -132,10 +132,16 @@ class TestPosesIO:
 
     @pytest.fixture
     def invalid_files(self, tmp_path):
+        """Return a dictionary containing paths to invalid files."""
         unreadable_file = tmp_path / "unreadable.h5"
         with open(unreadable_file, "w") as f:
             f.write("unreadable data")
             os.chmod(f.name, 0o000)
+
+        unwriteable_dir = tmp_path / "no_write"
+        unwriteable_dir.mkdir()
+        os.chmod(unwriteable_dir, 0o555)
+        unwritable_file = unwriteable_dir / "unwritable.h5"
 
         wrong_ext_file = tmp_path / "wrong_extension.txt"
         with open(wrong_ext_file, "w") as f:
@@ -161,6 +167,7 @@ class TestPosesIO:
 
         return {
             "unreadable": unreadable_file,
+            "unwritable": unwritable_file,
             "wrong_ext": wrong_ext_file,
             "no_dataframe": h5_file_no_dataframe,
             "nonexistent": nonexistent_file,
@@ -228,6 +235,9 @@ class TestPosesIO:
             if file_type == "unreadable":
                 with pytest.raises(PermissionError):
                     ValidFile(path=file_path, expected_permission="r")
+            elif file_type == "unwritable":
+                with pytest.raises(PermissionError):
+                    ValidFile(path=file_path, expected_permission="w")
             elif file_type == "wrong_ext":
                 with pytest.raises(ValueError):
                     ValidFile(
