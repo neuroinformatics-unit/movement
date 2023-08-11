@@ -88,5 +88,5 @@ def log_warning(message: str, logger_name: str = "movement"):
     logger_name : str, optional
         The name of the logger to use. Defaults to 'movement'.
     """
-    logger = logging.getLogger("movement")
+    logger = logging.getLogger(logger_name)
     logger.warning(message)

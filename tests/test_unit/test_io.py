@@ -1,4 +1,5 @@
 import os
+import stat
 
 import h5py
 import numpy as np
@@ -136,11 +137,11 @@ class TestPosesIO:
         unreadable_file = tmp_path / "unreadable.h5"
         with open(unreadable_file, "w") as f:
             f.write("unreadable data")
-            os.chmod(f.name, 0o000)
+            os.chmod(f.name, not stat.S_IRUSR)
 
         unwriteable_dir = tmp_path / "no_write"
         unwriteable_dir.mkdir()
-        os.chmod(unwriteable_dir, 0o555)
+        os.chmod(unwriteable_dir, not stat.S_IWUSR)
         unwritable_file = unwriteable_dir / "unwritable.h5"
 
         wrong_ext_file = tmp_path / "wrong_extension.txt"
