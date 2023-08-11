@@ -59,3 +59,34 @@ def configure_logging(
 
     # Add the handler to the logger
     logger.addHandler(handler)
+
+
+def log_and_raise_error(error, message: str, logger_name: str = "movement"):
+    """Log an error message and raise a ValueError.
+
+    Parameters
+    ----------
+    error : Exception
+        The error to log and raise.
+    message : str
+        The error message.
+    logger_name : str, optional
+        The name of the logger to use. Defaults to 'movement'.
+    """
+    logger = logging.getLogger(logger_name)
+    logger.error(message)
+    raise error(message)
+
+
+def log_warning(message: str, logger_name: str = "movement"):
+    """Log a warning message.
+
+    Parameters
+    ----------
+    message : str
+        The warning message.
+    logger_name : str, optional
+        The name of the logger to use. Defaults to 'movement'.
+    """
+    logger = logging.getLogger("movement")
+    logger.warning(message)

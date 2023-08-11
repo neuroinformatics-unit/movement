@@ -15,6 +15,7 @@ from movement.io.validators import (
     ValidPosesCSV,
     ValidPoseTracks,
 )
+from movement.logging import log_and_raise_error
 
 logger = logging.getLogger(__name__)
 
@@ -64,19 +65,14 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
         (-1, len(individual_names), len(keypoint_names), 3)
     )
 
-    try:
-        valid_data = ValidPoseTracks(
-            tracks_array=tracks_with_scores[:, :, :, :-1],
-            scores_array=tracks_with_scores[:, :, :, -1],
-            individual_names=individual_names,
-            keypoint_names=keypoint_names,
-            fps=fps,
-        )
-    except ValueError as error:
-        logger.error(error)
-        raise error
-    else:
-        return _from_valid_data(valid_data)
+    valid_data = ValidPoseTracks(
+        tracks_array=tracks_with_scores[:, :, :, :-1],
+        scores_array=tracks_with_scores[:, :, :, -1],
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=fps,
+    )
+    return _from_valid_data(valid_data)
 
 
 def from_sleap_file(
@@ -125,15 +121,11 @@ def from_sleap_file(
     >>> ds = load_poses.from_sleap_file("path/to/file.slp", fps=30)
     """
 
-    try:
-        file = ValidFile(
-            file_path,
-            expected_permission="r",
-            expected_suffix=[".h5", ".slp"],
-        )
-    except (OSError, ValueError) as error:
-        logger.error(error)
-        raise error
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".h5", ".slp"],
+    )
 
     # Load and validate data
     if file.path.suffix == ".h5":
@@ -180,15 +172,11 @@ def from_dlc_file(
     >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
     """
 
-    try:
-        file = ValidFile(
-            file_path,
-            expected_permission="r",
-            expected_suffix=[".csv", ".h5"],
-        )
-    except (OSError, ValueError) as error:
-        logger.error(error)
-        raise error
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".csv", ".h5"],
+    )
 
     # Load the DLC poses into a DataFrame
     if file.path.suffix == ".csv":
@@ -245,19 +233,13 @@ def _load_from_sleap_analysis_file(
                 (n_frames, n_tracks, n_keypoints)
             )
 
-        try:
-            valid_data = ValidPoseTracks(
-                tracks_array=tracks,
-                scores_array=scores,
-                individual_names=[n.decode() for n in f["track_names"][:]],
-                keypoint_names=[n.decode() for n in f["node_names"][:]],
-                fps=fps,
-            )
-        except ValueError as error:
-            logger.error(error)
-            raise error
-        else:
-            return valid_data
+        return ValidPoseTracks(
+            tracks_array=tracks,
+            scores_array=scores,
+            individual_names=[n.decode() for n in f["track_names"][:]],
+            keypoint_names=[n.decode() for n in f["node_names"][:]],
+            fps=fps,
+        )
 
 
 def _load_from_sleap_labels_file(
@@ -285,19 +267,13 @@ def _load_from_sleap_labels_file(
     labels = read_labels(file.path.as_posix())
     tracks_with_scores = labels.numpy(return_confidence=True)
 
-    try:
-        valid_data = ValidPoseTracks(
-            tracks_array=tracks_with_scores[:, :, :, :-1],
-            scores_array=tracks_with_scores[:, :, :, -1],
-            individual_names=[track.name for track in labels.tracks],
-            keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
-            fps=fps,
-        )
-    except ValueError as error:
-        logger.error(error)
-        raise error
-    else:
-        return valid_data
+    return ValidPoseTracks(
+        tracks_array=tracks_with_scores[:, :, :, :-1],
+        scores_array=tracks_with_scores[:, :, :, -1],
+        individual_names=[track.name for track in labels.tracks],
+        keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
+        fps=fps,
+    )
 
 
 def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
@@ -366,10 +342,10 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
         # pd.read_hdf does not always return a DataFrame
         df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
     except Exception as error:
-        logger.error(error)
-        raise error
-    else:
-        return df
+        log_and_raise_error(
+            error, f"Could not load a dataframe from {file.path}."
+        )
+    return df
 
 
 def _from_valid_data(data: ValidPoseTracks) -> xr.Dataset:

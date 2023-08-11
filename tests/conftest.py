@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from movement.log_config import configure_logging
+from movement.logging import configure_logging
 
 
 @pytest.fixture(autouse=True)
