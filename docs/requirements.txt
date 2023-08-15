@@ -1,6 +1,6 @@
+-e .
 linkify-it-py
 matplotlib
-movement
 myst-parser
 nbsphinx
 pydata-sphinx-theme
