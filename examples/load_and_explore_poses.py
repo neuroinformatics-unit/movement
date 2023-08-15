@@ -18,12 +18,13 @@ from movement.io import load_poses
 # ------------------------
 # Print a list of available datasets:
 
-print(datasets.find_pose_data())
+for file_name in datasets.find_pose_data():
+    print(file_name)
 
 # %%
-# Fetch the path to an example dataset
-# (Feel free to replace this with the path to your own dataset.
-# e.g., `file_path = "/path/to/my/data.h5"`)
+# Fetch the path to an example dataset.
+# Feel free to replace this with the path to your own dataset.
+# e.g., ``file_path = "/path/to/my/data.h5"``)
 file_path = datasets.fetch_pose_data_path(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
 )
@@ -33,35 +34,35 @@ file_path = datasets.fetch_pose_data_path(
 # ----------------
 
 ds = load_poses.from_sleap_file(file_path, fps=60)
-ds
+print(ds)
 
 # %%
 # The loaded dataset contains two data variables:
-# `pose_tracks` and `confidence`
+# ``pose_tracks`` and ``confidence```
 # To get the pose tracks:
 pose_tracks = ds["pose_tracks"]
 
 # %%
-# Slect and plot data with ``xarray``
-# -----------------------------------
+# Select and plot data with xarray
+# --------------------------------
 # You can use the ``sel`` method to index into ``xarray`` objects.
-# For example, we can get a `DataArray` containing only data
-# for the "centroid" keypoint of the first individual:
+# For example, we can get a ``DataArray`` containing only data
+# for a single keypoint of the first individual:
 
 da = pose_tracks.sel(individuals="AEON3B_NTP", keypoints="centroid")
+print(da)
 
 # %%
-# We could plot the x,y coordinates of this keypoint over time,
+# We could plot the x, y coordinates of this keypoint over time,
 # using ``xarray``'s built-in plotting methods:
 da.plot.line(x="time", row="space", aspect=2, size=2.5)
 
 # %%
-# Similarly we could plot the same keypoint's x,y coordinates
+# Similarly we could plot the same keypoint's x, y coordinates
 # for all individuals:
 
-pose_tracks.sel(keypoints="centroid").plot.line(
-    x="time", row="individuals", aspect=2, size=2.5
-)
+da = pose_tracks.sel(keypoints="centroid")
+da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
 # %%s
 # Trajectory plots
@@ -70,16 +71,16 @@ pose_tracks.sel(keypoints="centroid").plot.line(
 # For example, we can use ``matplotlib`` to plot trajectories
 # (using scatter plots):
 
-individuals = pose_tracks.individuals.values
-for i, ind in enumerate(individuals):
-    da_ind = pose_tracks.sel(individuals=ind, keypoints="centroid")
-    plt.scatter(
-        da_ind.sel(space="x"),
-        da_ind.sel(space="y"),
-        s=2,
-        color=plt.cm.tab10(i),
-        label=ind,
-    )
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend()
+mouse_name = "AEON3B_TP1"
+
+plt.scatter(
+    da.sel(individuals=mouse_name, space="x"),
+    da.sel(individuals=mouse_name, space="y"),
+    s=2,
+    c=da.time,
+    cmap="viridis",
+)
+plt.title(f"Trajectory of {mouse_name}")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.colorbar(label="time (sec)")
