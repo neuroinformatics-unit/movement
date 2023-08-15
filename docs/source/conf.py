@@ -45,6 +45,7 @@ extensions = [
     "myst_parser",
     "nbsphinx",
     "sphinx_design",
+    "sphinx_gallery.gen_gallery",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -83,6 +84,12 @@ exclude_patterns = [
     # https://github.com/sphinx-doc/sphinx/issues/1965#issuecomment-124732907
     "**/includes/**",
 ]
+
+# Configure Sphinx gallery
+sphinx_gallery_conf = {
+    "examples_dirs": ["../../examples"],
+    "filename_pattern": "/*.py",  # which files to execute before inclusion
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

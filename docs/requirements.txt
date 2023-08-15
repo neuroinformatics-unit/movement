@@ -6,3 +6,4 @@ setuptools-scm
 sphinx
 sphinx-autodoc-typehints
 sphinx-design
+sphinx-gallery

@@ -26,4 +26,5 @@ The following projects cover related needs and served as inspiration for this pr
 :maxdepth: 2
 
 getting_started
+auto_examples/index
 ```
