@@ -103,7 +103,7 @@ e.g., ``file_path = "/path/to/my/data.h5"``)
  .. code-block:: none
 
     Downloading file 'SLEAP_three-mice_Aeon_proofread.analysis.h5' from 'https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master/poses/SLEAP_three-mice_Aeon_proofread.analysis.h5' to '/home/runner/.movement/data/poses'.
-    0.00B [00:00, ?B/s]    39.9kB [00:00, 207kB/s]    0.00B [00:00, ?B/s]        0.00B [00:00, ?B/s]
+    0.00B [00:00, ?B/s]    34.8kB [00:00, 198kB/s]    0.00B [00:00, ?B/s]        0.00B [00:00, ?B/s]
 
 
 
@@ -227,7 +227,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f035cf80050>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd94d467c50>
 
 
 
@@ -258,7 +258,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f035ce49410>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd94dcf9e50>
 
 
 
@@ -302,14 +302,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f0359d05350>
+    <matplotlib.colorbar.Colorbar object at 0x7fd949c7bcd0>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.283 seconds)
+   **Total running time of the script:** ( 0 minutes  4.624 seconds)
 
 
 .. _sphx_glr_download_auto_examples_load_and_explore_poses.py:
