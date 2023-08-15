@@ -84,8 +84,9 @@ def from_sleap_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the SLEAP predictions, either in ".slp"
-        or ".h5" (analysis) format. See Notes for more information.
+        Path to the file containing the SLEAP predictions, either in ".h5"
+        (analysis) or in ".slp" format. The analysis file is preferred.
+        See Notes for more information.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
@@ -100,11 +101,15 @@ def from_sleap_file(
     The SLEAP predictions are normally saved in a ".slp" file, e.g.
     "v1.predictions.slp". If this file contains both user-labeled and
     predicted instances, only the predicted ones will be loaded.
+    Loading from such files is intended to function primarily for single-video
+    prediction results. If there are multiple videos in the file, only the
+    first one will be used.
 
     An analysis file, suffixed with ".h5" can be exported from the ".slp"
     file, using either the command line tool `sleap-convert` (with the
     "--format analysis" option enabled) or the SLEAP GUI (Choose
-    "Export Analysis HDF5…" from the "File" menu) [1]_.
+    "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
+    preferred format for loading pose tracks from SLEAP into `movement`.
 
     `movement` expects the tracks to be proofread before loading them,
     meaning each track is interpreted as a single individual/animal.
@@ -220,18 +225,14 @@ def _load_from_sleap_analysis_file(
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
 
     with h5py.File(file.path, "r") as f:
-        tracks = f["tracks"][:].T
-        n_frames, n_keypoints, n_space, n_tracks = tracks.shape
-        tracks = tracks.reshape((n_frames, n_tracks, n_keypoints, n_space))
+        # transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)
+        tracks = f["tracks"][:].transpose((3, 0, 2, 1))
         # Create an array of NaNs for the confidence scores
-        scores = np.full(
-            (n_frames, n_tracks, n_keypoints), np.nan, dtype="float32"
-        )
-        # If present, read the point-wise scores, and reshape them
+        scores = np.full(tracks.shape[:-1], np.nan, dtype="float32")
+        # If present, read the point-wise scores,
+        # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
-            scores = f["point_scores"][:].reshape(
-                (n_frames, n_tracks, n_keypoints)
-            )
+            scores = f["point_scores"][:].transpose((2, 0, 1))
 
         return ValidPoseTracks(
             tracks_array=tracks,
@@ -265,7 +266,7 @@ def _load_from_sleap_labels_file(
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
 
     labels = read_labels(file.path.as_posix())
-    tracks_with_scores = labels.numpy(return_confidence=True)
+    tracks_with_scores = labels.numpy(untracked=False, return_confidence=True)
 
     return ValidPoseTracks(
         tracks_array=tracks_with_scores[:, :, :, :-1],
