@@ -72,12 +72,6 @@ Load from [SLEAP analysis files](https://sleap.ai/tutorials/analysis.html) (`.h5
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 ```
-
-Alternatively, you can also directly load from `.slp` files,
-assuming they contain predicted poses.
-```python
-ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
-```
 :::
 
 :::{tab-item} DeepLabCut
