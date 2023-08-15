@@ -25,6 +25,7 @@ copyright = "2022, UCL"
 author = "Niko Sirmpilatze"
 try:
     release = setuptools_scm.get_version(root="../..", relative_to=__file__)
+    release = release.split("+")[0]  # remove git hash
 except LookupError:
     # if git is not initialised, still allow local build
     # with a dummy version
