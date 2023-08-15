@@ -13,6 +13,9 @@ on:
     tags:
       - '*'
   pull_request:
+    branches:
+      - main
+      - pose-tracks-io
   workflow_dispatch:
 
 jobs:
@@ -27,7 +30,6 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: github.event_name == 'push' && github.ref == 'refs/heads/pose-tracks-io'
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v2
