@@ -84,9 +84,9 @@ def from_sleap_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the SLEAP predictions, either in ".h5"
-        (analysis) or in ".slp" format. The analysis file is preferred.
-        See Notes for more information.
+        Path to the file containing the SLEAP predictions in ".h5"
+        (analysis) format. Alternatively, an ".slp" (labels) file can
+        also be supplied (but this feature is experimental, see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
@@ -98,21 +98,21 @@ def from_sleap_file(
 
     Notes
     -----
-    The SLEAP predictions are normally saved in a ".slp" file, e.g.
-    "v1.predictions.slp". If this file contains both user-labeled and
-    predicted instances, only the predicted ones will be loaded.
-    Loading from such files is intended to function primarily for single-video
-    prediction results. If there are multiple videos in the file, only the
-    first one will be used.
-
-    An analysis file, suffixed with ".h5" can be exported from the ".slp"
-    file, using either the command line tool `sleap-convert` (with the
-    "--format analysis" option enabled) or the SLEAP GUI (Choose
+    The SLEAP predictions are normally saved in ".slp" files, e.g.
+    "v1.predictions.slp". An analysis file, suffixed with ".h5" can be exported
+    from the ".slp" file, using either the command line tool `sleap-convert`
+    (with the "--format analysis" option enabled) or the SLEAP GUI (Choose
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into `movement`.
 
-    `movement` expects the tracks to be proofread before loading them,
-    meaning each track is interpreted as a single individual/animal.
+    You can also try directly loading te ".slp" file, but this feature is
+    experimental and doesnot work in all cases. If the ".slp" file contains
+    both user-labeled and predicted instances, only the predicted ones will be
+    loaded. If there are multiple videos in the file, only the first one will
+    be used.
+
+    `movement` expects the tracks to be assigned and proofread before loading
+    them, meaning each track is interpreted as a single individual/animal.
     Follow the SLEAP guide for tracking and proofreading [2]_.
 
     References
@@ -123,7 +123,7 @@ def from_sleap_file(
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_sleap_file("path/to/file.slp", fps=30)
+    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
     """
 
     file = ValidFile(
