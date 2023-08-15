@@ -1,0 +1,13 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_sg_execution_times:
+
+
+Computation times
+=================
+**00:03.441** total execution time for **auto_examples** files:
+
++-----------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_load_and_explore_poses.py` (``load_and_explore_poses.py``) | 00:03.441 | 0.0 MB |
++-----------------------------------------------------------------------------------------+-----------+--------+
