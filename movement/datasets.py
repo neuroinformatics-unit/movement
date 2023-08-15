@@ -6,6 +6,7 @@ and are downloaded to the user's local machine the first time they are used.
 """
 
 from pathlib import Path
+from typing import List
 
 import pooch
 
@@ -38,6 +39,11 @@ POSE_DATA = pooch.create(
         "SLEAP_three-mice_Aeon_proofread.predictions.slp": "7b7436a52dfd5f4d80d7c66919ad1a1732e5435fe33faf9011ec5f7b7074e788",  # noqa: E501
     },
 )
+
+
+def find_pose_data() -> List[str]:
+    """Find available sample pose data."""
+    return list(POSE_DATA.registry.keys())
 
 
 def fetch_pose_data_path(filename: str) -> Path:
