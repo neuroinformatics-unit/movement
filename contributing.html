@@ -368,18 +368,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
 <h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this heading">#</a></h1>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">#</a></h2>
+</section>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p><strong>Contributors to movement are absolutely encouraged</strong>, whether to fix a bug,
 develop a new feature, or improve the documentation.
 If you’re unsure about any part of the contributing process, please get in touch.
 It’s best to reach out in public, e.g. by <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">opening an issue</a>
 so that others can benefit from the discussion.</p>
-</section>
+</div>
 <section id="contributing-code">
-<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this heading">#</a></h2>
+<h1>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this heading">#</a></h1>
 <section id="creating-a-development-environment">
-<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Permalink to this heading">#</a></h3>
+<h2>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Permalink to this heading">#</a></h2>
 <p>It is recommended to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
 or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a> to create a
 development environment for movement. In the following we assume you have
@@ -405,7 +406,7 @@ required for development.</p>
 </div>
 </section>
 <section id="pull-requests">
-<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">#</a></h3>
+<h2>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">#</a></h2>
 <p>In all cases, please submit code to the main repository via a pull request (PR).
 We recommend, and adhere, to the following conventions:</p>
 <ul class="simple">
@@ -433,9 +434,9 @@ We recommend, and adhere, to the following conventions:</p>
 </section>
 </section>
 <section id="development-guidelines">
-<h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Permalink to this heading">#</a></h2>
+<h1>Development guidelines<a class="headerlink" href="#development-guidelines" title="Permalink to this heading">#</a></h1>
 <section id="formatting-and-pre-commit-hooks">
-<h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h3>
+<h2>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h2>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/charliermarsh/ruff">ruff</a> does a number of jobs, including enforcing PEP8 and sorting imports</p></li>
@@ -458,7 +459,7 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>-a<span class="w"> 
 <p>For docstrings, we adhere to the  <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
 </section>
 <section id="testing">
-<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h3>
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h2>
 <p>We use <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a> for testing and aim for
 ~100% test coverage (as far as is reasonable).
 All new features should be tested.
@@ -469,7 +470,7 @@ We store several sample datasets in an external data repository.
 See <a class="reference internal" href="#sample-data">sample data</a> for more information.</p>
 </section>
 <section id="continuous-integration">
-<h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h3>
+<h2>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h2>
 <p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions">GitHub actions</a>.
 This will usually include linting, testing and deployment.</p>
 <p>A GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/test_and_deploy.yml</span></code>) has been set up to run (on each push/PR):</p>
@@ -480,7 +481,7 @@ This will usually include linting, testing and deployment.</p>
 </ul>
 </section>
 <section id="versioning-and-releases">
-<h3>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Permalink to this heading">#</a></h3>
+<h2>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Permalink to this heading">#</a></h2>
 <p>We use <a class="reference external" href="https://semver.org/">semantic versioning</a>, which includes <code class="docutils literal notranslate"><span class="pre">MAJOR</span></code>.<code class="docutils literal notranslate"><span class="pre">MINOR</span></code>.<code class="docutils literal notranslate"><span class="pre">PATCH</span></code> version numbers:</p>
 <ul class="simple">
 <li><p>PATCH = small bugfix</p></li>
@@ -504,7 +505,7 @@ The version number is automatically determined from the latest tag on the <em>ma
 </section>
 </section>
 <section id="contributing-documentation">
-<h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Permalink to this heading">#</a></h2>
+<h1>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Permalink to this heading">#</a></h1>
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
 <a class="reference external" href="https://neuroinformatics-unit.github.io/movement/">neuroinformatics-unit.github.io/movement</a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
@@ -520,7 +521,7 @@ The build job is triggered on each PR, ensuring that the documentation build is 
 The deployment job is only triggerred whenever a tag is pushed to the <em>main</em> branch,
 ensuring that the documentation is published in sync with each PyPI release.</p>
 <section id="editing-the-documentation">
-<h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h3>
+<h2>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h2>
 <p>To edit the documentation, first clone the repository, and install movement in a
 <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
 <p>Now open a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
@@ -540,7 +541,7 @@ my_new_file
 </div>
 </section>
 <section id="updating-the-api-reference">
-<h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Permalink to this heading">#</a></h3>
+<h2>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Permalink to this heading">#</a></h2>
 <p>If your PR introduces new public-facing functions, classes, or methods,
 make sure to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> page, so that they are
 included in the <a class="reference external" href="https://neuroinformatics-unit.github.io/movement/api_index.html">API reference</a>,
@@ -559,7 +560,7 @@ e.g.:</p>
 that follow the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
 </section>
 <section id="updating-the-examples">
-<h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Permalink to this heading">#</a></h3>
+<h2>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Permalink to this heading">#</a></h2>
 <p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/index.html">sphinx-gallery</a>
 to create the <a class="reference external" href="https://neuroinformatics-unit.github.io/movement/auto_examples/index.html">examples</a>.
 To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
@@ -567,7 +568,7 @@ The file should be structured as specified in the relevant
 <a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax.html">sphinx-gallery documentation</a>.</p>
 </section>
 <section id="building-the-documentation-locally">
-<h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h3>
+<h2>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h2>
 <p>We recommend that you build and view the documentation website locally, before you push it.
 To do so, first install the requirements for building the documentation:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
@@ -585,7 +586,7 @@ To refresh the documentation, after making changes, remove the <code class="docu
 </section>
 </section>
 <section id="sample-data">
-<h2>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h2>
+<h1>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h1>
 <p>We maintain some sample data to be used for testing, examples and tutorials on an
 <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data">external data repository</a>.
 Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/">GIN</a> and is maintained
@@ -596,7 +597,7 @@ GIN has a GitHub-like interface and git-like
 stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder. Each file name starts with either “DLC” or “SLEAP”,
 depending on the pose estimation software used to generate the data.</p>
 <section id="fetching-data">
-<h3>Fetching data<a class="headerlink" href="#fetching-data" title="Permalink to this heading">#</a></h3>
+<h2>Fetching data<a class="headerlink" href="#fetching-data" title="Permalink to this heading">#</a></h2>
 <p>To fetch the data from GIN, we use the <a class="reference external" href="https://www.fatiando.org/pooch/latest/index.html">pooch</a>
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
@@ -612,7 +613,7 @@ The most important parts of this module are:</p>
 This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module.</p>
 </section>
 <section id="adding-new-data">
-<h3>Adding new data<a class="headerlink" href="#adding-new-data" title="Permalink to this heading">#</a></h3>
+<h2>Adding new data<a class="headerlink" href="#adding-new-data" title="Permalink to this heading">#</a></h2>
 <p>Only core movement developers may add new files to the external data repository.
 To add a new file, you will need to:</p>
 <ol class="arabic simple">
@@ -626,7 +627,6 @@ To add a new file, you will need to:</p>
 <li><p>Update the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module on the <a class="reference external" href="https://github.com/SainsburyWellcomeCentre/movement">movement GitHub repository</a> by adding the new files to the <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual <a class="reference internal" href="#contributing-code">guidelines for contributing code</a>. Make sure to test whether the new files can be fetched successfully (see <a class="reference internal" href="#fetching-data">fetching data</a> above) before submitting your pull request.</p></li>
 </ol>
 <p>You can also perform steps 3-6 via the GIN web interface, if you prefer to avoid using the CLI.</p>
-</section>
 </section>
 </section>
 
@@ -668,32 +668,33 @@ To add a new file, you will need to:</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-code">Contributing code</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">How to Contribute</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-code">Contributing code</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fetching-data">Fetching data</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-data">Adding new data</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fetching-data">Fetching data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-data">Adding new data</a></li>
 </ul>
 </li>
 </ul>
+
   </nav></div>
 
   <div class="sidebar-secondary-item">
