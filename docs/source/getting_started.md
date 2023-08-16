@@ -97,6 +97,35 @@ ds = load_poses.from_dlc_df(df, fps=30)
 
 ::::
 
+You can also try movement out on some sample data included in the package.
+:::{dropdown} Fetching sample data
+
+You can view the available sample data files with:
+
+```python
+from movement import datasets
+
+file_names = datasets.find_pose_data()
+print(file_names)
+```
+This will print a list of file names containing sample pose data.
+The files are prefixed with the name of the pose estimation software package,
+either "DLC" or "SLEAP".
+
+To get the path to one of the sample files,
+you can use the `fetch_pose_data_path` function:
+
+```python
+file_path = datasets.fetch_pose_data_path("DLC_single-wasp.predictions.h5")
+```
+The first time you call this function, it will download the corresponding file
+to your local machine and save it in the `~/.movement/data` directory. On
+subsequent calls, it will simply return the path to that local file.
+
+You can feed the path to the `from_dlc_file` or `from_sleap_file` functions
+and load the data, as shown above.
+:::
+
 ## Working with movement datasets
 
 Loaded pose estimation data are represented in movement as
