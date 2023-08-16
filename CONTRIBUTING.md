@@ -1,7 +1,5 @@
 # How to Contribute
 
-## Introduction
-
 **Contributors to movement are absolutely encouraged**, whether to fix a bug,
 develop a new feature, or improve the documentation.
 If you're unsure about any part of the contributing process, please get in touch.
