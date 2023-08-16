@@ -9,12 +9,17 @@
 
 Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience and ethology research 🔬.
 
+Read the [documentation](https://neuroinformatics-unit.github.io/movement/) for more information.
+
 ## Status
-The package is currently in early development 🏗️ and is not yet ready for use. Stay tuned ⌛
+> **Warning**
+> - 🏗️ The package is currently in early development. Stay tuned ⌛
+> - It is not sufficiently tested to be used for scientific analysis
+> - The interface is subject to changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
 
 ## Aims
-* Load keypoint tracks from pose estimation software (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
-* Evaluate the quality of the tracks and perform data cleaning
+* Load pose tracks from pose estimation software packages (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
+* Evaluate the quality of the tracks and perform data cleaning operations
 * Calculate kinematic variables (e.g. speed, acceleration, joint angles, etc.)
 * Produce reports and visualise the results
 
@@ -24,6 +29,12 @@ The following projects cover related needs and served as inspiration for this pr
 * [PyRat](https://github.com/pyratlib/pyrat)
 * [Kino](https://github.com/BrancoLab/Kino)
 * [WAZP](https://github.com/SainsburyWellcomeCentre/WAZP)
+
+## License
+⚖️ [BSD 3-Clause](./LICENSE)
+
+## Template
+This package layout and configuration (including pre-commit hooks and GitHub actions) have been copied from the [python-cookiecutter](https://github.com/SainsburyWellcomeCentre/python-cookiecutter) template.
 
 ## How to contribute
 ### Setup
@@ -72,10 +83,3 @@ git commit -m "Add new changes"
 git tag -a v1.0.0 -m "Bump to version 1.0.0"
 git push --follow-tags
 ```
-
-## License
-
-⚖️ [BSD 3-Clause](./LICENSE)
-
-## Template
-This package layout and configuration (including pre-commit hooks and GitHub actions) have been copied from the [python-cookiecutter](https://github.com/SainsburyWellcomeCentre/python-cookiecutter) template.

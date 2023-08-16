@@ -2,12 +2,6 @@
 
 Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience and ethology research.
 
-:::{warning}
-- 🏗️ The package is currently in early development. Stay tuned ⌛
-- It is not sufficiently tested to be used for scientific analysis
-- The interface is subject changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
-:::
-
 ::::{grid} 1 2 2 3
 :gutter: 3
 
@@ -32,6 +26,13 @@ Example use cases.
 Index of all functions, classes, and methods.
 :::
 ::::
+
+## Status
+:::{warning}
+- 🏗️ The package is currently in early development. Stay tuned ⌛
+- It is not sufficiently tested to be used for scientific analysis
+- The interface is subject to changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
+:::
 
 
 ## Aims
