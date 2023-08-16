@@ -56,4 +56,5 @@ The following projects cover related needs and served as inspiration for this pr
 getting_started
 auto_examples/index
 api_index
+contributing
 ```
