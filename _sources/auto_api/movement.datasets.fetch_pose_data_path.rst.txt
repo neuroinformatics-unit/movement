@@ -1,0 +1,6 @@
+﻿movement.datasets.fetch\_pose\_data\_path
+=========================================
+
+.. currentmodule:: movement.datasets
+
+.. autofunction:: fetch_pose_data_path

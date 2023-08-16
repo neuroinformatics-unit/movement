@@ -8,6 +8,32 @@ Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience
 - The interface is subject changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
 :::
 
+::::{grid} 1 2 2 3
+:gutter: 3
+
+:::{grid-item-card} {fas}`rocket;sd-text-primary` Getting Started
+:link: getting_started
+:link-type: doc
+
+Install and try it out.
+:::
+
+:::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
+:link: auto_examples/index
+:link-type: doc
+
+Example use cases.
+:::
+
+:::{grid-item-card} {fas}`code;sd-text-primary` API Reference
+:link: api_index
+:link-type: doc
+
+Index of all functions, classes, and methods.
+:::
+::::
+
+
 ## Aims
 * Load pose tracks from pose estimation software packages (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
 * Evaluate the quality of the tracks and perform data cleaning operations
@@ -24,7 +50,9 @@ The following projects cover related needs and served as inspiration for this pr
 
 ```{toctree}
 :maxdepth: 2
+:hidden:
 
 getting_started
 auto_examples/index
+api_index
 ```

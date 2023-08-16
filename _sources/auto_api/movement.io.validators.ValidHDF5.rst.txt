@@ -1,0 +1,31 @@
+﻿movement.io.validators.ValidHDF5
+================================
+
+.. currentmodule:: movement.io.validators
+
+.. autoclass:: ValidHDF5
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ValidHDF5.__init__
+      ~ValidHDF5.file_contains_expected_datasets
+      ~ValidHDF5.file_is_h5
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ValidHDF5.path
+      ~ValidHDF5.expected_datasets
+   
+   

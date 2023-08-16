@@ -1,0 +1,6 @@
+﻿movement.logging.configure\_logging
+===================================
+
+.. currentmodule:: movement.logging
+
+.. autofunction:: configure_logging

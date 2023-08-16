@@ -1,0 +1,34 @@
+﻿movement.io.validators.ValidFile
+================================
+
+.. currentmodule:: movement.io.validators
+
+.. autoclass:: ValidFile
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ValidFile.__init__
+      ~ValidFile.file_exists_when_expected
+      ~ValidFile.file_has_access_permissions
+      ~ValidFile.file_has_expected_suffix
+      ~ValidFile.path_is_not_dir
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ValidFile.path
+      ~ValidFile.expected_permission
+      ~ValidFile.expected_suffix
+   
+   
