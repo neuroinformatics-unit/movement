@@ -151,6 +151,13 @@
                       </a>
                     </li>
                 
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="contributing.html">
+                        How to Contribute
+                      </a>
+                    </li>
+                
   </ul>
 </nav></div>
       
@@ -264,6 +271,13 @@ document.write(`
                       </a>
                     </li>
                 
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="contributing.html">
+                        How to Contribute
+                      </a>
+                    </li>
+                
   </ul>
 </nav></div>
         
@@ -357,12 +371,12 @@ document.write(`
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
-<p>We recommend you use install <code class="docutils literal notranslate"><span class="pre">movement</span></code> inside a <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
+<p>We recommend you install movement inside a <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
 or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a> environment.
 In the following we assume you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed,
 but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
 <p>First, create and activate an environment.
-You can call your environment whatever you like, we’ve used <code class="docutils literal notranslate"><span class="pre">movement-env</span></code>.</p>
+You can call your environment whatever you like, we’ve used “movement-env”.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>pytables
 conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </pre></div>
@@ -392,17 +406,16 @@ and then run from inside the repository:</p>
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span><span class="w">  </span><span class="c1"># works on zsh (the default shell on macOS)</span>
 </pre></div>
 </div>
-<p>This will install the package in editable mode, including all <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies.</p>
+<p>This will install the package in editable mode, including all <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies.
+Please see the <a class="reference internal" href="contributing.html"><span class="std std-doc">contributing guide</span></a> for more information.</p>
 </div>
 </div>
 </section>
-<section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
 <section id="loading-data">
-<h3>Loading data<a class="headerlink" href="#loading-data" title="Permalink to this heading">#</a></h3>
-<p>You can load predicted pose tracks for the pose estimation software packages
+<h2>Loading data<a class="headerlink" href="#loading-data" title="Permalink to this heading">#</a></h2>
+<p>You can load predicted pose tracks from the pose estimation software packages
 <a class="reference external" href="http://www.mackenziemathislab.org/deeplabcut">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/">SLEAP</a>.</p>
-<p>First import the <code class="docutils literal notranslate"><span class="pre">load_poses</span></code> function from the <code class="docutils literal notranslate"><span class="pre">movement.io</span></code> module:</p>
+<p>First import the <code class="docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
 </pre></div>
 </div>
@@ -428,7 +441,7 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p>If you have already imported the data into a pandas DataFrame, you can
-convert it to a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset with:</p>
+convert it to a movement dataset with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>
@@ -437,7 +450,128 @@ convert it to a <code class="docutils literal notranslate"><span class="pre">mov
 </div>
 </div>
 </div>
+<p>You can also try movement out on some sample data included in the package.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header">
+Fetching sample data<div class="sd-summary-down docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-down" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M5.22 8.72a.75.75 0 000 1.06l6.25 6.25a.75.75 0 001.06 0l6.25-6.25a.75.75 0 00-1.06-1.06L12 14.44 6.28 8.72a.75.75 0 00-1.06 0z"></path></svg></div>
+<div class="sd-summary-up docutils">
+<svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
+</summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">You can view the available sample data files with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">datasets</span>
+
+<span class="n">file_names</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">find_pose_data</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">This will print a list of file names containing sample pose data.
+The files are prefixed with the name of the pose estimation software package,
+either “DLC” or “SLEAP”.</p>
+<p class="sd-card-text">To get the path to one of the sample files,
+you can use the <code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path</span></code> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_pose_data_path</span><span class="p">(</span><span class="s2">&quot;DLC_single-wasp.predictions.h5&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">The first time you call this function, it will download the corresponding file
+to your local machine and save it in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> directory. On
+subsequent calls, it will simply return the path to that local file.</p>
+<p class="sd-card-text">You can feed the path to the <code class="docutils literal notranslate"><span class="pre">from_dlc_file</span></code> or <code class="docutils literal notranslate"><span class="pre">from_sleap_file</span></code> functions
+and load the data, as shown above.</p>
+</div>
+</details></section>
+<section id="working-with-movement-datasets">
+<h2>Working with movement datasets<a class="headerlink" href="#working-with-movement-datasets" title="Permalink to this heading">#</a></h2>
+<p>Loaded pose estimation data are represented in movement as
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html"><code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
+<p>You can view information about the loaded dataset by printing it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you working in a Jupyter notebook, you can also view an interactive
+representation of the dataset by simply typing its name - e.g. <code class="docutils literal notranslate"><span class="pre">ds</span></code> - in a cell.</p>
+<section id="dataset-structure">
+<h3>Dataset structure<a class="headerlink" href="#dataset-structure" title="Permalink to this heading">#</a></h3>
+<p>The movement <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> has the following dimensions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: the number of frames in the video</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>: the number of individuals in the video</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code>: the number of keypoints in the skeleton</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>: the number of spatial dimensions, either 2 or 3</p></li>
+</ul>
+<p>Appropriate coordinate labels are assigned to each dimension:
+list of unique names (str) for <code class="docutils literal notranslate"><span class="pre">individuals</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>,
+[‘x’,‘y’,(‘z’)] for <code class="docutils literal notranslate"><span class="pre">space</span></code>. The coordinates of the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension are
+in seconds if <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, otherwise they are in frame numbers.</p>
+<p>The dataset contains two data variables stored as
+<a class="reference external" href="https://docs.xarray.dev/en/latest/generated/xarray.DataArray.html#xarray.DataArray"><code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> objects:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pose_tracks</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>)</p></li>
+</ul>
+<p>You can think of a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> as a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> with <code class="docutils literal notranslate"><span class="pre">pandas</span></code>-style
+indexing and labelling. To learn more about <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data structures, see the
+relevant <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/data-structures.html">documentation</a>.</p>
+<p>The dataset may also contain the following attributes as metadata:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fps</span></code>: the number of frames per second in the video</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_unit</span></code>: the unit of the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates, frames or seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_software</span></code>: the software from which the pose tracks were loaded</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_file</span></code>: the file from which the pose tracks were loaded</p></li>
+</ul>
 </section>
+<section id="indexing-and-selection">
+<h3>Indexing and selection<a class="headerlink" href="#indexing-and-selection" title="Permalink to this heading">#</a></h3>
+<p>You can access the data variables and attributes of the dataset as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span>  <span class="c1"># ds[&#39;pose_tracks&#39;] also works</span>
+<span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span>
+
+<span class="n">fps</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span>   <span class="c1"># ds.attrs[&#39;fps&#39;] also works</span>
+</pre></div>
+</div>
+<p>You can select subsets of the data using the <code class="docutils literal notranslate"><span class="pre">sel</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># select the first 100 seconds of data</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+
+<span class="c1"># select specific individuals or keypoints</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="s2">&quot;mouse2&quot;</span><span class="p">])</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+
+<span class="c1"># combine selections</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">individuals</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All of the above selections can also be applied to the data variables,
+resulting in a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> rather than a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You may also use all the other powerful <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/indexing.html">indexing and selection</a> methods provided by <code class="docutils literal notranslate"><span class="pre">xarray</span></code>.</p>
+</section>
+<section id="plotting">
+<h3>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h3>
+<p>You can also use the built-in <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/plotting.html"><code class="docutils literal notranslate"><span class="pre">xarray</span></code> plotting methods</a>
+to visualise the data. Check out the <a class="reference internal" href="auto_examples/load_and_explore_poses.html"><span class="std std-doc">Load and explore pose tracks</span></a>
+example for inspiration.</p>
+</section>
+</section>
+<section id="saving-data">
+<h2>Saving data<a class="headerlink" href="#saving-data" title="Permalink to this heading">#</a></h2>
+<p>You can save movement datasets to disk in a variety of formats.
+Currently, only saving to DeepLabCut-style files is supported.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">save_poses</span>
+
+<span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>  <span class="c1"># preferred</span>
+<span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Instead of saving to file directly, you can also convert the dataset to a
+DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> first:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and then save it to file using any <code class="docutils literal notranslate"><span class="pre">pandas</span></code> method, e.g. <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> or <code class="docutils literal notranslate"><span class="pre">to_csv</span></code>.</p>
 </section>
 </section>
 
@@ -489,10 +623,14 @@ convert it to a <code class="docutils literal notranslate"><span class="pre">mov
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data">Loading data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data">Loading data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-movement-datasets">Working with movement datasets</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-structure">Dataset structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#indexing-and-selection">Indexing and selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting">Plotting</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-data">Saving data</a></li>
 </ul>
   </nav></div>
 
