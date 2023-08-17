@@ -397,6 +397,11 @@ document.write(`
 <span class="sd">    one individual present). Regardless of the provenance of the</span>
 <span class="sd">    points-wise confidence scores, they will be referred to as</span>
 <span class="sd">    &quot;likelihood&quot;, and stored in the &quot;coords&quot; level (as DeepLabCut expects).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_file : Save the xarray dataset containing pose tracks directly</span>
+<span class="sd">        to a DeepLabCut-style &quot;.h5&quot; or &quot;.csv&quot; file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
@@ -438,8 +443,8 @@ document.write(`
 
 
 <div class="viewcode-block" id="to_dlc_file"><a class="viewcode-back" href="../../../auto_api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export the xarray dataset containing pose tracks to a</span>
-<span class="sd">    DeepLabCut-style .h5 or .csv file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset containing pose tracks to a</span>
+<span class="sd">    DeepLabCut-style &quot;.h5&quot; or &quot;.csv&quot; file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -448,6 +453,11 @@ document.write(`
 <span class="sd">    file_path : pathlib Path or str</span>
 <span class="sd">        Path to the file to save the DLC poses to. The file extension</span>
 <span class="sd">        must be either &quot;.h5&quot; (recommended) or &quot;.csv&quot;.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_df : Convert an xarray dataset containing pose tracks into a</span>
+<span class="sd">        DeepLabCut-style pandas DataFrame with multi-index columns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">try</span><span class="p">:</span>

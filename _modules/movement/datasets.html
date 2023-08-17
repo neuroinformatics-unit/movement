@@ -408,12 +408,17 @@ document.write(`
 
 
 <div class="viewcode-block" id="find_pose_data"><a class="viewcode-back" href="../../auto_api/movement.datasets.find_pose_data.html#movement.datasets.find_pose_data">[docs]</a><span class="k">def</span> <span class="nf">find_pose_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find available sample pose data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find available sample pose data in the *movement* data repository.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filenames : list of str</span>
+<span class="sd">        List of filenames for available pose data.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">POSE_DATA</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="fetch_pose_data_path"><a class="viewcode-back" href="../../auto_api/movement.datasets.fetch_pose_data_path.html#movement.datasets.fetch_pose_data_path">[docs]</a><span class="k">def</span> <span class="nf">fetch_pose_data_path</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch sample pose data from the remote repository.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch sample pose data from the *movement* data repository.</span>
 
 <span class="sd">    The data are downloaded to the user&#39;s local machine the first time they are</span>
 <span class="sd">    used and are stored in a local cache directory. The function returns the</span>

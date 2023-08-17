@@ -406,7 +406,7 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.load_poses.from_dlc_df">
 <span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_dlc_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_dlc_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_dlc_df" title="Permalink to this definition">#</a></dt>
-<dd><p>Create an xarray.Dataset from a DLC_style pandas DataFrame.</p>
+<dd><p>Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -430,6 +430,13 @@ level may be omitted if there is only one individual in the video.
 The “coords” level contains the spatial coordinates “x”, “y”,
 as well as “likelihood” (point-wise confidence scores).
 The row index corresponds to the frame number.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_dlc_file</span></code></a></dt><dd><p>Load pose tracks directly from file.</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 </section>

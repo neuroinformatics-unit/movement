@@ -99,6 +99,8 @@ ds = load_poses.from_dlc_df(df, fps=30)
 
 You can also try movement out on some sample data included in the package.
 :::{dropdown} Fetching sample data
+:color: primary
+:icon: unlock
 
 You can view the available sample data files with:
 

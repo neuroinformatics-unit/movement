@@ -406,8 +406,7 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.load_poses.from_sleap_file">
 <span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_sleap_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_sleap_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_sleap_file" title="Permalink to this definition">#</a></dt>
-<dd><p>Load pose tracking data from a SLEAP labels or analysis file
-into an xarray Dataset.</p>
+<dd><p>Load pose tracking data from a SLEAP file into an xarray Dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -431,13 +430,13 @@ the <cite>time</cite> coordinates will be in frame numbers.</p></li>
 from the “.slp” file, using either the command line tool <cite>sleap-convert</cite>
 (with the “–format analysis” option enabled) or the SLEAP GUI (Choose
 “Export Analysis HDF5…” from the “File” menu) <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. This is the
-preferred format for loading pose tracks from SLEAP into <cite>movement</cite>.</p>
-<p>You can also try directly loading te “.slp” file, but this feature is
+preferred format for loading pose tracks from SLEAP into <em>movement</em>.</p>
+<p>You can also try directly loading the “.slp” file, but this feature is
 experimental and doesnot work in all cases. If the “.slp” file contains
 both user-labeled and predicted instances, only the predicted ones will be
 loaded. If there are multiple videos in the file, only the first one will
 be used.</p>
-<p><cite>movement</cite> expects the tracks to be assigned and proofread before loading
+<p><em>movement</em> expects the tracks to be assigned and proofread before loading
 them, meaning each track is interpreted as a single individual/animal.
 Follow the SLEAP guide for tracking and proofreading <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <p class="rubric">References</p>

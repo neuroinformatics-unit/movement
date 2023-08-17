@@ -405,20 +405,20 @@ document.write(`
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_sleap_file</span></code></a>(file_path[, fps])</p></td>
-<td><p>Load pose tracking data from a SLEAP labels or analysis file into an xarray Dataset.</p></td>
+<td><p>Load pose tracking data from a SLEAP file into an xarray Dataset.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_file</span></code></a>(file_path[, fps])</p></td>
 <td><p>Load pose tracking data from a DeepLabCut (DLC) output file into an xarray Dataset.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.io.load_poses.from_dlc_df.html#movement.io.load_poses.from_dlc_df" title="movement.io.load_poses.from_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_df</span></code></a>(df[, fps])</p></td>
-<td><p>Create an xarray.Dataset from a DLC_style pandas DataFrame.</p></td>
+<td><p>Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a>(ds, file_path)</p></td>
-<td><p>Export the xarray dataset containing pose tracks to a DeepLabCut-style .h5 or .csv file.</p></td>
+<td><p>Save the xarray dataset containing pose tracks to a DeepLabCut-style &quot;.h5&quot; or &quot;.csv&quot; file.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df" title="movement.io.save_poses.to_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_df</span></code></a>(ds)</p></td>
 <td><p>Convert an xarray dataset containing pose tracks into a DeepLabCut-style pandas DataFrame with multi-index columns.</p></td>
@@ -444,10 +444,10 @@ document.write(`
 <table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.datasets.find_pose_data.html#movement.datasets.find_pose_data" title="movement.datasets.find_pose_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_pose_data</span></code></a>()</p></td>
-<td><p>Find available sample pose data.</p></td>
+<td><p>Find available sample pose data in the <em>movement</em> data repository.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.datasets.fetch_pose_data_path.html#movement.datasets.fetch_pose_data_path" title="movement.datasets.fetch_pose_data_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_pose_data_path</span></code></a>(filename)</p></td>
-<td><p>Fetch sample pose data from the remote repository.</p></td>
+<td><p>Fetch sample pose data from the <em>movement</em> data repository.</p></td>
 </tr>
 </tbody>
 </table>

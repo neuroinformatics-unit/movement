@@ -387,7 +387,7 @@ document.write(`
 
 
 <div class="viewcode-block" id="from_dlc_df"><a class="viewcode-back" href="../../../auto_api/movement.io.load_poses.from_dlc_df.html#movement.io.load_poses.from_dlc_df">[docs]</a><span class="k">def</span> <span class="nf">from_dlc_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an xarray.Dataset from a DLC_style pandas DataFrame.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -411,6 +411,10 @@ document.write(`
 <span class="sd">    The &quot;coords&quot; level contains the spatial coordinates &quot;x&quot;, &quot;y&quot;,</span>
 <span class="sd">    as well as &quot;likelihood&quot; (point-wise confidence scores).</span>
 <span class="sd">    The row index corresponds to the frame number.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.load_poses.from_dlc_file : Load pose tracks directly from file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># read names of individuals and keypoints from the DataFrame</span>
@@ -444,8 +448,7 @@ document.write(`
 <div class="viewcode-block" id="from_sleap_file"><a class="viewcode-back" href="../../../auto_api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file">[docs]</a><span class="k">def</span> <span class="nf">from_sleap_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load pose tracking data from a SLEAP labels or analysis file</span>
-<span class="sd">    into an xarray Dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load pose tracking data from a SLEAP file into an xarray Dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -469,15 +472,15 @@ document.write(`
 <span class="sd">    from the &quot;.slp&quot; file, using either the command line tool `sleap-convert`</span>
 <span class="sd">    (with the &quot;--format analysis&quot; option enabled) or the SLEAP GUI (Choose</span>
 <span class="sd">    &quot;Export Analysis HDF5…&quot; from the &quot;File&quot; menu) [1]_. This is the</span>
-<span class="sd">    preferred format for loading pose tracks from SLEAP into `movement`.</span>
+<span class="sd">    preferred format for loading pose tracks from SLEAP into *movement*.</span>
 
-<span class="sd">    You can also try directly loading te &quot;.slp&quot; file, but this feature is</span>
+<span class="sd">    You can also try directly loading the &quot;.slp&quot; file, but this feature is</span>
 <span class="sd">    experimental and doesnot work in all cases. If the &quot;.slp&quot; file contains</span>
 <span class="sd">    both user-labeled and predicted instances, only the predicted ones will be</span>
 <span class="sd">    loaded. If there are multiple videos in the file, only the first one will</span>
 <span class="sd">    be used.</span>
 
-<span class="sd">    `movement` expects the tracks to be assigned and proofread before loading</span>
+<span class="sd">    *movement* expects the tracks to be assigned and proofread before loading</span>
 <span class="sd">    them, meaning each track is interpreted as a single individual/animal.</span>
 <span class="sd">    Follow the SLEAP guide for tracking and proofreading [2]_.</span>
 
@@ -526,7 +529,7 @@ document.write(`
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_path : pathlib.Path or str</span>
-<span class="sd">        Path to the file containing the DLC poses, either in &quot;.h5&quot;</span>
+<span class="sd">        Path to the file containing the DLC predicted poses, either in &quot;.h5&quot;</span>
 <span class="sd">        or &quot;.csv&quot; format.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
@@ -536,6 +539,10 @@ document.write(`
 <span class="sd">    -------</span>
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        Dataset containing the pose tracks, confidence scores, and metadata.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.load_poses.from_dlc_df : Load pose tracks from a DataFrame.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
