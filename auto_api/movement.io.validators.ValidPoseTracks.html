@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.datasets.fetch_pose_data_path &#8212; movement</title>
+    <title>movement.io.validators.ValidPoseTracks &#8212; movement</title>
   
   
   
@@ -44,12 +44,12 @@
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_api/movement.datasets.fetch_pose_data_path';</script>
-    <link rel="canonical" href="https://neuroinformatics-unit.github.io/movement/auto_api/movement.datasets.fetch_pose_data_path.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_api/movement.io.validators.ValidPoseTracks';</script>
+    <link rel="canonical" href="https://neuroinformatics-unit.github.io/movement/auto_api/movement.io.validators.ValidPoseTracks.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.logging.configure_logging" href="movement.logging.configure_logging.html" />
-    <link rel="prev" title="movement.datasets.find_pose_data" href="movement.datasets.find_pose_data.html" />
+    <link rel="next" title="movement.datasets.find_pose_data" href="movement.datasets.find_pose_data.html" />
+    <link rel="prev" title="movement.io.validators.ValidPosesCSV" href="movement.io.validators.ValidPosesCSV.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -331,15 +331,15 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">movement.io.save_poses.to_dlc_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html">movement.io.save_poses.to_dlc_df</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidFile.html">movement.io.validators.ValidFile</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidHDF5.html">movement.io.validators.ValidHDF5</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPoseTracks.html">movement.io.validators.ValidPoseTracks</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.io.validators.ValidPoseTracks</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.datasets.find_pose_data.html">movement.datasets.find_pose_data</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.datasets.fetch_pose_data_path</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.datasets.fetch_pose_data_path.html">movement.datasets.fetch_pose_data_path</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.logging.configure_logging.html">movement.logging.configure_logging</a></li>
@@ -385,7 +385,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">movement.datasets.fetch_pose_data_path</li>
+    <li class="breadcrumb-item active" aria-current="page">movement.io.validators.ValidPoseTracks</li>
   </ul>
 </nav>
 </div>
@@ -402,26 +402,110 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="movement-datasets-fetch-pose-data-path">
-<h1>movement.datasets.fetch_pose_data_path<a class="headerlink" href="#movement-datasets-fetch-pose-data-path" title="Permalink to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="movement.datasets.fetch_pose_data_path">
-<span class="sig-prename descclassname"><span class="pre">movement.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_pose_data_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/datasets.html#fetch_pose_data_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.datasets.fetch_pose_data_path" title="Permalink to this definition">#</a></dt>
-<dd><p>Fetch sample pose data from the <em>movement</em> data repository.</p>
-<p>The data are downloaded to the user’s local machine the first time they are
-used and are stored in a local cache directory. The function returns the
-path to the downloaded file, not the contents of the file itself.</p>
+  <section id="movement-io-validators-validposetracks">
+<h1>movement.io.validators.ValidPoseTracks<a class="headerlink" href="#movement-io-validators-validposetracks" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.io.validators.</span></span><span class="sig-name descname"><span class="pre">ValidPoseTracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracks_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scores_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keypoint_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/validators.html#ValidPoseTracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.validators.ValidPoseTracks" title="Permalink to this definition">#</a></dt>
+<dd><p>Class for validating pose tracking data imported from a file.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.tracks_array">
+<span class="sig-name descname"><span class="pre">tracks_array</span></span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.tracks_array" title="Permalink to this definition">#</a></dt>
+<dd><p>Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+containing the pose tracks. It will be converted to a
+<cite>xarray.DataArray</cite> object named “pose_tracks”.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – Name of the file to fetch.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>path</strong> – Path to the downloaded file.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.scores_array">
+<span class="sig-name descname"><span class="pre">scores_array</span></span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.scores_array" title="Permalink to this definition">#</a></dt>
+<dd><p>Array of shape (n_frames, n_individuals, n_keypoints) containing
+the point-wise confidence scores. It will be converted to a
+<cite>xarray.DataArray</cite> object named “confidence”.
+If None (default), the scores will be set to an array of NaNs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.individual_names">
+<span class="sig-name descname"><span class="pre">individual_names</span></span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.individual_names" title="Permalink to this definition">#</a></dt>
+<dd><p>List of unique names for the individuals in the video. If None
+(default), the individuals will be named “individual_0”,
+“individual_1”, etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.keypoint_names">
+<span class="sig-name descname"><span class="pre">keypoint_names</span></span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.keypoint_names" title="Permalink to this definition">#</a></dt>
+<dd><p>List of unique names for the keypoints in the skeleton. If None
+(default), the keypoints will be named “keypoint_0”, “keypoint_1”,
+etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of str, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.fps">
+<span class="sig-name descname"><span class="pre">fps</span></span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.fps" title="Permalink to this definition">#</a></dt>
+<dd><p>Frames per second of the video. Defaults to None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.io.validators.ValidPoseTracks.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracks_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scores_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keypoint_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.io.validators.ValidPoseTracks.__init__" title="Permalink to this definition">#</a></dt>
+<dd><p>Method generated by attrs for class ValidPoseTracks.</p>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.__init__" title="movement.io.validators.ValidPoseTracks.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(*, tracks_array[, scores_array, ...])</p></td>
+<td><p>Method generated by attrs for class ValidPoseTracks.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.tracks_array" title="movement.io.validators.ValidPoseTracks.tracks_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tracks_array</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.scores_array" title="movement.io.validators.ValidPoseTracks.scores_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scores_array</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.individual_names" title="movement.io.validators.ValidPoseTracks.individual_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">individual_names</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.keypoint_names" title="movement.io.validators.ValidPoseTracks.keypoint_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keypoint_names</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.io.validators.ValidPoseTracks.fps" title="movement.io.validators.ValidPoseTracks.fps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fps</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </section>
@@ -438,20 +522,20 @@ path to the downloaded file, not the contents of the file itself.</p>
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.datasets.find_pose_data.html"
+       href="movement.io.validators.ValidPosesCSV.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.datasets.find_pose_data</p>
+        <p class="prev-next-title">movement.io.validators.ValidPosesCSV</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.logging.configure_logging.html"
+       href="movement.datasets.find_pose_data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.logging.configure_logging</p>
+        <p class="prev-next-title">movement.datasets.find_pose_data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -473,13 +557,21 @@ path to the downloaded file, not the contents of the file itself.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.datasets.fetch_pose_data_path"><code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.tracks_array"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.tracks_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.scores_array"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.scores_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.individual_names"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.individual_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.keypoint_names"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.keypoint_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.fps"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.fps</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.validators.ValidPoseTracks.__init__"><code class="docutils literal notranslate"><span class="pre">ValidPoseTracks.__init__()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/auto_api/movement.datasets.fetch_pose_data_path.rst.txt">
+    <a href="../_sources/auto_api/movement.io.validators.ValidPoseTracks.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
