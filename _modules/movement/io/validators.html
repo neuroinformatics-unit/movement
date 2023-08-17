@@ -563,7 +563,7 @@ document.write(`
 <span class="k">def</span> <span class="nf">_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to coerce the value into a list of strings.</span>
 <span class="sd">    Otherwise, raise a ValueError.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">log_warning</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Invalid value (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). Expected a list of strings. &quot;</span>
             <span class="s2">&quot;Converting to a list of length 1.&quot;</span>
@@ -579,7 +579,7 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise ValueError the value is a not numpy array.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected a numpy array, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
