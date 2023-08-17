@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
-    """Create an xarray.Dataset from a DLC_style pandas DataFrame.
+    """Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.
 
     Parameters
     ----------
@@ -45,6 +45,10 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
     The "coords" level contains the spatial coordinates "x", "y",
     as well as "likelihood" (point-wise confidence scores).
     The row index corresponds to the frame number.
+
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file : Load pose tracks directly from file.
     """
 
     # read names of individuals and keypoints from the DataFrame
@@ -78,8 +82,7 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
 def from_sleap_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a SLEAP labels or analysis file
-    into an xarray Dataset.
+    """Load pose tracking data from a SLEAP file into an xarray Dataset.
 
     Parameters
     ----------
@@ -103,15 +106,15 @@ def from_sleap_file(
     from the ".slp" file, using either the command line tool `sleap-convert`
     (with the "--format analysis" option enabled) or the SLEAP GUI (Choose
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
-    preferred format for loading pose tracks from SLEAP into `movement`.
+    preferred format for loading pose tracks from SLEAP into *movement*.
 
-    You can also try directly loading te ".slp" file, but this feature is
+    You can also try directly loading the ".slp" file, but this feature is
     experimental and doesnot work in all cases. If the ".slp" file contains
     both user-labeled and predicted instances, only the predicted ones will be
     loaded. If there are multiple videos in the file, only the first one will
     be used.
 
-    `movement` expects the tracks to be assigned and proofread before loading
+    *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual/animal.
     Follow the SLEAP guide for tracking and proofreading [2]_.
 
@@ -160,7 +163,7 @@ def from_dlc_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC poses, either in ".h5"
+        Path to the file containing the DLC predicted poses, either in ".h5"
         or ".csv" format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -170,6 +173,10 @@ def from_dlc_file(
     -------
     xarray.Dataset
         Dataset containing the pose tracks, confidence scores, and metadata.
+
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_df : Load pose tracks from a DataFrame.
 
     Examples
     --------

@@ -31,6 +31,11 @@ def to_dlc_df(ds: xr.Dataset) -> pd.DataFrame:
     one individual present). Regardless of the provenance of the
     points-wise confidence scores, they will be referred to as
     "likelihood", and stored in the "coords" level (as DeepLabCut expects).
+
+    See Also
+    --------
+    to_dlc_file : Save the xarray dataset containing pose tracks directly
+        to a DeepLabCut-style ".h5" or ".csv" file.
     """
 
     if not isinstance(ds, xr.Dataset):
@@ -72,8 +77,8 @@ def to_dlc_df(ds: xr.Dataset) -> pd.DataFrame:
 
 
 def to_dlc_file(ds: xr.Dataset, file_path: Union[str, Path]) -> None:
-    """Export the xarray dataset containing pose tracks to a
-    DeepLabCut-style .h5 or .csv file.
+    """Save the xarray dataset containing pose tracks to a
+    DeepLabCut-style ".h5" or ".csv" file.
 
     Parameters
     ----------
@@ -82,6 +87,11 @@ def to_dlc_file(ds: xr.Dataset, file_path: Union[str, Path]) -> None:
     file_path : pathlib Path or str
         Path to the file to save the DLC poses to. The file extension
         must be either ".h5" (recommended) or ".csv".
+
+    See Also
+    --------
+    to_dlc_df : Convert an xarray dataset containing pose tracks into a
+        DeepLabCut-style pandas DataFrame with multi-index columns.
     """
 
     try:
