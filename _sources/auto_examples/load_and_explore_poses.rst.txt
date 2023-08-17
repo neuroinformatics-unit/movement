@@ -102,7 +102,7 @@ e.g., ``file_path = "/path/to/my/data.h5"``)
 
  .. code-block:: none
 
-    0.00B [00:00, ?B/s]    9.22kB [00:00, 69.4kB/s]    34.8kB [00:00, 53.0kB/s]    0.00B [00:00, ?B/s]         0.00B [00:00, ?B/s]
+    0.00B [00:00, ?B/s]    9.22kB [00:00, 90.9kB/s]    39.9kB [00:00, 93.4kB/s]    0.00B [00:00, ?B/s]         0.00B [00:00, ?B/s]
 
 
 
@@ -226,7 +226,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f1b689e6950>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7faf376b3a50>
 
 
 
@@ -257,7 +257,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f1b68588410>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7faf33f0f050>
 
 
 
@@ -301,14 +301,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f1b652331d0>
+    <matplotlib.colorbar.Colorbar object at 0x7faf33e81110>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  3.057 seconds)
+   **Total running time of the script:** ( 0 minutes  3.220 seconds)
 
 
 .. _sphx_glr_download_auto_examples_load_and_explore_poses.py:
