@@ -197,7 +197,7 @@ class ValidPosesCSV:
 def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
     """Try to coerce the value into a list of strings.
     Otherwise, raise a ValueError."""
-    if type(value) is str:
+    if isinstance(value, str):
         log_warning(
             f"Invalid value ({value}). Expected a list of strings. "
             "Converting to a list of length 1."
@@ -213,7 +213,7 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
 
 def _ensure_type_ndarray(value: Any) -> None:
     """Raise ValueError the value is a not numpy array."""
-    if type(value) is not np.ndarray:
+    if not isinstance(value, np.ndarray):
         raise log_and_raise_error(
             ValueError, f"Expected a numpy array, but got {type(value)}."
         )
