@@ -31,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=e5fbc548" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
@@ -416,7 +416,7 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p>One approval of a PR (by a repo owner) is enough for it to be merged.</p></li>
 <li><p>Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.</p></li>
 <li><p>Ask for a review from someone specific if you think they would be a particularly suited reviewer.</p></li>
-<li><p>PRs are preferenitally merged via the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits">“squash and merge”</a> option, to keep a clean commit history on the <em>main</em> branch.</p></li>
+<li><p>PRs are preferably merged via the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits">“squash and merge”</a> option, to keep a clean commit history on the <em>main</em> branch.</p></li>
 </ul>
 <p>A typical PR workflow would be:</p>
 <ul class="simple">
@@ -429,7 +429,7 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p>Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.</p></li>
 <li><p>If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.</p></li>
 <li><p>Respond to review comments and implement any requested changes.</p></li>
-<li><p>Sucess 🎉 !! Your PR will be (squash-)merged into the <em>main</em> branch.</p></li>
+<li><p>Success 🎉 !! Your PR will be (squash-)merged into the <em>main</em> branch.</p></li>
 </ul>
 </section>
 </section>
@@ -515,7 +515,7 @@ The <code class="docutils literal notranslate"><span class="pre">index.md</span>
 Other <code class="docutils literal notranslate"><span class="pre">.rst</span></code>  or <code class="docutils literal notranslate"><span class="pre">.md</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
 <p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> and the
 <a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-to build the source files into html output.
+to build the source files into HTML output.
 This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
 The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
 The deployment job is only triggerred whenever a tag is pushed to the <em>main</em> branch,
@@ -524,7 +524,7 @@ ensuring that the documentation is published in sync with each PyPI release.</p>
 <h2>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h2>
 <p>To edit the documentation, first clone the repository, and install movement in a
 <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
-<p>Now open a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
+<p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
 and commit your changes. Submit your documentation changes via a pull request,
 following the <a class="reference internal" href="#pull-requests">same guidelines as for code changes</a>.
 Make sure that the header levels in your <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are incremented

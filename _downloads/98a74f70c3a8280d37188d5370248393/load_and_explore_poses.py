@@ -64,7 +64,7 @@ da.plot.line(x="time", row="space", aspect=2, size=2.5)
 da = pose_tracks.sel(keypoints="centroid")
 da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
-# %%s
+# %%
 # Trajectory plots
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.

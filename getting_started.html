@@ -31,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=e5fbc548" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
@@ -489,7 +489,7 @@ and load the data, as shown above.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If you working in a Jupyter notebook, you can also view an interactive
+<p>If you are working in a Jupyter notebook, you can also view an interactive
 representation of the dataset by simply typing its name - e.g. <code class="docutils literal notranslate"><span class="pre">ds</span></code> - in a cell.</p>
 <section id="dataset-structure">
 <h3>Dataset structure<a class="headerlink" href="#dataset-structure" title="Permalink to this heading">#</a></h3>
@@ -524,10 +524,10 @@ relevant <a class="reference external" href="https://docs.xarray.dev/en/latest/u
 <section id="indexing-and-selection">
 <h3>Indexing and selection<a class="headerlink" href="#indexing-and-selection" title="Permalink to this heading">#</a></h3>
 <p>You can access the data variables and attributes of the dataset as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span>  <span class="c1"># ds[&#39;pose_tracks&#39;] also works</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span>  <span class="c1"># ds[&quot;pose_tracks&quot;] also works</span>
 <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span>
 
-<span class="n">fps</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span>   <span class="c1"># ds.attrs[&#39;fps&#39;] also works</span>
+<span class="n">fps</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span>   <span class="c1"># ds.attrs[&quot;fps&quot;] also works</span>
 </pre></div>
 </div>
 <p>You can select subsets of the data using the <code class="docutils literal notranslate"><span class="pre">sel</span></code> method:</p>
