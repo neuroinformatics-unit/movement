@@ -62,7 +62,7 @@ def configure_logging(
 
 
 def log_and_raise_error(error, message: str, logger_name: str = "movement"):
-    """Log an error message and raise a ValueError.
+    """Log an error message and raise an Error.
 
     Parameters
     ----------

@@ -35,4 +35,4 @@ The following projects cover related needs and served as inspiration for this pr
 ⚖️ [BSD 3-Clause](./LICENSE)
 
 ## Template
-This package layout and configuration (including pre-commit hooks and GitHub actions) have been copied from the [python-cookiecutter]((https://github.com/neuroinformatics-unit/python-cookiecutter)) template.
+This package layout and configuration (including pre-commit hooks and GitHub actions) have been copied from the [python-cookiecutter](https://github.com/neuroinformatics-unit/python-cookiecutter) template.

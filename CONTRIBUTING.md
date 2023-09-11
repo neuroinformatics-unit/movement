@@ -53,7 +53,7 @@ We recommend, and adhere, to the following conventions:
 - One approval of a PR (by a repo owner) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
 - Ask for a review from someone specific if you think they would be a particularly suited reviewer.
-- PRs are preferenitally merged via the ["squash and merge"](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
+- PRs are preferably merged via the ["squash and merge"](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
 * Create a new branch, make your changes, and stage them.
@@ -65,7 +65,7 @@ A typical PR workflow would be:
 * Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.
 * If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.
 * Respond to review comments and implement any requested changes.
-* Sucess 🎉 !! Your PR will be (squash-)merged into the _main_ branch.
+* Success 🎉 !! Your PR will be (squash-)merged into the _main_ branch.
 
 ## Development guidelines
 
@@ -153,7 +153,7 @@ Other `.rst`  or `.md` files are linked to the homepage via the `toctree` direct
 
 We use [Sphinx](https://www.sphinx-doc.org/en/master/) and the
 [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html)
-to build the source files into html output.
+to build the source files into HTML output.
 This is handled by a GitHub actions workflow (`.github/workflows/docs_build_and_deploy.yml`).
 The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
 The deployment job is only triggerred whenever a tag is pushed to the _main_ branch,
@@ -164,7 +164,7 @@ ensuring that the documentation is published in sync with each PyPI release.
 To edit the documentation, first clone the repository, and install movement in a
 [development environment](#creating-a-development-environment).
 
-Now open a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
+Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
 and commit your changes. Submit your documentation changes via a pull request,
 following the [same guidelines as for code changes](#pull-requests).
 Make sure that the header levels in your `.md` or `.rst` files are incremented

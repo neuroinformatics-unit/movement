@@ -138,7 +138,7 @@ You can view information about the loaded dataset by printing it:
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 print(ds)
 ```
-If you working in a Jupyter notebook, you can also view an interactive
+If you are working in a Jupyter notebook, you can also view an interactive
 representation of the dataset by simply typing its name - e.g. `ds` - in a cell.
 
 ### Dataset structure
@@ -172,10 +172,10 @@ The dataset may also contain the following attributes as metadata:
 ### Indexing and selection
 You can access the data variables and attributes of the dataset as follows:
 ```python
-pose_tracks = ds.pose_tracks  # ds['pose_tracks'] also works
+pose_tracks = ds.pose_tracks  # ds["pose_tracks"] also works
 confidence = ds.confidence
 
-fps = ds.fps   # ds.attrs['fps'] also works
+fps = ds.fps   # ds.attrs["fps"] also works
 ```
 
 You can select subsets of the data using the `sel` method:

@@ -80,7 +80,7 @@ class ValidFile:
             raise log_and_raise_error(
                 PermissionError,
                 f"Unable to read file: {value}. "
-                "Make sure that you have read permissions for it.",
+                "Make sure that you have read permissions.",
             )
         if ("w" in self.expected_permission) and (not parent_is_writeable):
             raise log_and_raise_error(
