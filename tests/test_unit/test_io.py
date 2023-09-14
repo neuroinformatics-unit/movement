@@ -270,7 +270,7 @@ class TestPosesIO:
         converting back to a DataFrame returns the same data values."""
         ds = load_poses.from_dlc_df(dlc_style_df)
         df = save_poses.to_dlc_df(ds)
-        assert np.allclose(df.values, dlc_style_df.values)
+        np.testing.assert_allclose(df.values, dlc_style_df.values)
 
     def test_save_and_load_dlc_file(self, valid_pose_dataset, tmp_path):
         """Test that saving pose tracks to DLC .h5 and .csv files and then
@@ -315,7 +315,7 @@ class TestPosesIO:
         else:
             assert ds.fps == fps
             assert ds.time_unit == "seconds"
-            np.allclose(
+            np.testing.assert_allclose(
                 ds.coords["time"].data,
                 np.arange(ds.dims["time"], dtype=int) / ds.attrs["fps"],
             )
