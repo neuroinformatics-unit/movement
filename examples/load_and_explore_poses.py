@@ -33,7 +33,7 @@ file_path = datasets.fetch_pose_data_path(
 # Load the dataset
 # ----------------
 
-ds = load_poses.from_sleap_file(file_path, fps=60)
+ds = load_poses.from_sleap_file(file_path, fps=50)
 print(ds)
 
 # %%
