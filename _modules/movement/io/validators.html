@@ -372,7 +372,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">attrs</span> <span class="kn">import</span> <span class="n">converters</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
 
-<span class="kn">from</span> <span class="nn">movement.logging</span> <span class="kn">import</span> <span class="n">log_and_raise_error</span><span class="p">,</span> <span class="n">log_warning</span>
+<span class="kn">from</span> <span class="nn">movement.logging</span> <span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
 
 
 <div class="viewcode-block" id="ValidFile"><a class="viewcode-back" href="../../../auto_api/movement.io.validators.ValidFile.html#movement.io.validators.ValidFile">[docs]</a><span class="nd">@define</span>
@@ -416,7 +416,7 @@ document.write(`
     <span class="k">def</span> <span class="nf">path_is_not_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the path does not point to a directory.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-            <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">IsADirectoryError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Expected a file path but got a directory: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -427,12 +427,12 @@ document.write(`
 <span class="sd">        usage (read and/or write).&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># expected_permission is &#39;w&#39;</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">FileExistsError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> already exists.&quot;</span>
                 <span class="p">)</span>
 
@@ -443,13 +443,13 @@ document.write(`
         <span class="n">file_is_readable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">)</span>
         <span class="n">parent_is_writeable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_is_readable</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">PermissionError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Unable to read file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
                 <span class="s2">&quot;Make sure that you have read permissions.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;w&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">parent_is_writeable</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">PermissionError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Unable to write to file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
                 <span class="s2">&quot;Make sure that you have write permissions.&quot;</span><span class="p">,</span>
@@ -460,7 +460,7 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the file has one of the expected suffix(es).&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>  <span class="c1"># list is not empty</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;Expected file with suffix(es) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="si">}</span><span class="s2"> &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;but got suffix </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">,</span>
@@ -496,7 +496,7 @@ document.write(`
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not seem to be in valid&quot;</span> <span class="s2">&quot;HDF5 format.&quot;</span><span class="p">,</span>
             <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
@@ -508,7 +508,7 @@ document.write(`
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_datasets</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+                    <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                         <span class="ne">ValueError</span><span class="p">,</span>
                         <span class="sa">f</span><span class="s2">&quot;Could not find the expected dataset(s) </span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2"> &quot;</span>
                         <span class="sa">f</span><span class="s2">&quot;in file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span><span class="p">,</span>
@@ -552,7 +552,7 @@ document.write(`
                 <span class="n">level</span> <span class="ow">in</span> <span class="n">header_rows_start</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">expected_levels</span>
             <span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">level_in_header_row_starts</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;The header rows of the CSV file </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> do not &quot;</span>
                     <span class="s2">&quot;contain all expected index column levels &quot;</span>
@@ -572,7 +572,7 @@ document.write(`
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">log_and_raise_error</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid value (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). Expected a list of strings.&quot;</span>
         <span class="p">)</span>
 
@@ -580,7 +580,7 @@ document.write(`
 <span class="k">def</span> <span class="nf">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise ValueError the value is a not numpy array.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">log_and_raise_error</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected a numpy array, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
 
@@ -646,13 +646,13 @@ document.write(`
     <span class="k">def</span> <span class="nf">_validate_tracks_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">` to have 4 dimensions, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-            <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">` to have 2 or 3 spatial dimensions, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
@@ -663,7 +663,7 @@ document.write(`
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">log_and_raise_error</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">` to have shape &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
@@ -672,7 +672,7 @@ document.write(`
     <span class="nd">@individual_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">_validate_individual_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">`, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
@@ -681,7 +681,7 @@ document.write(`
     <span class="nd">@keypoint_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">_validate_keypoint_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
-            <span class="n">log_and_raise_error</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">`, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>

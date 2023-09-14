@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.datasets.find_pose_data &#8212; movement</title>
+    <title>movement.logging.log_error &#8212; movement</title>
   
   
   
@@ -44,12 +44,12 @@
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_api/movement.datasets.find_pose_data';</script>
-    <link rel="canonical" href="https://neuroinformatics-unit.github.io/movement/auto_api/movement.datasets.find_pose_data.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_api/movement.logging.log_error';</script>
+    <link rel="canonical" href="https://neuroinformatics-unit.github.io/movement/auto_api/movement.logging.log_error.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.datasets.fetch_pose_data_path" href="movement.datasets.fetch_pose_data_path.html" />
-    <link rel="prev" title="movement.io.validators.ValidPoseTracks" href="movement.io.validators.ValidPoseTracks.html" />
+    <link rel="next" title="movement.logging.log_warning" href="movement.logging.log_warning.html" />
+    <link rel="prev" title="movement.logging.configure_logging" href="movement.logging.configure_logging.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -337,13 +337,13 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPoseTracks.html">movement.io.validators.ValidPoseTracks</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.datasets.find_pose_data</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.datasets.list_pose_data.html">movement.datasets.list_pose_data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.datasets.fetch_pose_data_path.html">movement.datasets.fetch_pose_data_path</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.logging.configure_logging.html">movement.logging.configure_logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.logging.log_and_raise_error.html">movement.logging.log_and_raise_error</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.logging.log_error</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.logging.log_warning.html">movement.logging.log_warning</a></li>
 </ul>
 </div>
@@ -385,7 +385,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">movement.datasets.find_pose_data</li>
+    <li class="breadcrumb-item active" aria-current="page">movement.logging.log_error</li>
   </ul>
 </nav>
 </div>
@@ -402,18 +402,25 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="movement-datasets-find-pose-data">
-<h1>movement.datasets.find_pose_data<a class="headerlink" href="#movement-datasets-find-pose-data" title="Permalink to this heading">#</a></h1>
+  <section id="movement-logging-log-error">
+<h1>movement.logging.log_error<a class="headerlink" href="#movement-logging-log-error" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.datasets.find_pose_data">
-<span class="sig-prename descclassname"><span class="pre">movement.datasets.</span></span><span class="sig-name descname"><span class="pre">find_pose_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/datasets.html#find_pose_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.datasets.find_pose_data" title="Permalink to this definition">#</a></dt>
-<dd><p>Find available sample pose data in the <em>movement</em> data repository.</p>
+<dt class="sig sig-object py" id="movement.logging.log_error">
+<span class="sig-prename descclassname"><span class="pre">movement.logging.</span></span><span class="sig-name descname"><span class="pre">log_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/logging.html#log_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.logging.log_error" title="Permalink to this definition">#</a></dt>
+<dd><p>Log an error message and return the Exception.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filenames</strong> – List of filenames for available pose data.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>error</strong> (<em>Exception</em>) – The error to log and return.</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – The error message.</p></li>
+<li><p><strong>logger_name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the logger to use. Defaults to “movement”.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of str</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The error that was passed in.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Exception</p>
 </dd>
 </dl>
 </dd></dl>
@@ -432,20 +439,20 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.io.validators.ValidPoseTracks.html"
+       href="movement.logging.configure_logging.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.io.validators.ValidPoseTracks</p>
+        <p class="prev-next-title">movement.logging.configure_logging</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.datasets.fetch_pose_data_path.html"
+       href="movement.logging.log_warning.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.datasets.fetch_pose_data_path</p>
+        <p class="prev-next-title">movement.logging.log_warning</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -467,13 +474,13 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.datasets.find_pose_data"><code class="docutils literal notranslate"><span class="pre">find_pose_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.logging.log_error"><code class="docutils literal notranslate"><span class="pre">log_error()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/auto_api/movement.datasets.find_pose_data.rst.txt">
+    <a href="../_sources/auto_api/movement.logging.log_error.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

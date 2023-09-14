@@ -461,7 +461,7 @@ convert it to a movement dataset with:</p>
 <p class="sd-card-text">You can view the available sample data files with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">datasets</span>
 
-<span class="n">file_names</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">find_pose_data</span><span class="p">()</span>
+<span class="n">file_names</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">list_pose_data</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -470,7 +470,7 @@ The files are prefixed with the name of the pose estimation software package,
 either “DLC” or “SLEAP”.</p>
 <p class="sd-card-text">To get the path to one of the sample files,
 you can use the <code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path</span></code> function:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_pose_data_path</span><span class="p">(</span><span class="s2">&quot;DLC_single-wasp.predictions.h5&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_pose_data_path</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">The first time you call this function, it will download the corresponding file
@@ -535,16 +535,16 @@ relevant <a class="reference external" href="https://docs.xarray.dev/en/latest/u
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
 
 <span class="c1"># select specific individuals or keypoints</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="s2">&quot;mouse2&quot;</span><span class="p">])</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">])</span>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
 
 <span class="c1"># combine selections</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">individuals</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">],</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>All of the above selections can also be applied to the data variables,
 resulting in a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> rather than a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;mouse1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You may also use all the other powerful <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/indexing.html">indexing and selection</a> methods provided by <code class="docutils literal notranslate"><span class="pre">xarray</span></code>.</p>

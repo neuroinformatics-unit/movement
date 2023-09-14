@@ -1,6 +1,0 @@
-﻿movement.logging.log\_and\_raise\_error
-=======================================
-
-.. currentmodule:: movement.logging
-
-.. autofunction:: log_and_raise_error

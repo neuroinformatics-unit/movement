@@ -606,7 +606,7 @@ like verification of sha256 hashes and decompression of archives.</p>
 The most important parts of this module are:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> download manager object, which contains a list of stored files and their known hashes.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">find_pose_data()</span></code> function, which returns a list of the available files in the data repository.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">list_pose_data()</span></code> function, which returns a list of the available files in the data repository.</p></li>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path()</span></code> function, which downloads a file (if not already cached locally) and returns the local path to it.</p></li>
 </ol>
 <p>By default, the downloaded files are stored in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> folder.

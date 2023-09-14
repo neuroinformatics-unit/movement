@@ -1,6 +1,6 @@
-﻿movement.datasets.find\_pose\_data
+﻿movement.datasets.list\_pose\_data
 ==================================
 
 .. currentmodule:: movement.datasets
 
-.. autofunction:: find_pose_data
+.. autofunction:: list_pose_data

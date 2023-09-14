@@ -401,7 +401,7 @@ to download the full example code</p>
 <section id="fetch-an-example-dataset">
 <h2>Fetch an example dataset<a class="headerlink" href="#fetch-an-example-dataset" title="Permalink to this heading">#</a></h2>
 <p>Print a list of available datasets:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">find_pose_data</span><span class="p">():</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">list_pose_data</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -426,7 +426,6 @@ e.g., <code class="docutils literal notranslate"><span class="pre">file_path</sp
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.00B [00:00, ?B/s]
-32.8kB [00:00, 322kB/s]
 0.00B [00:00, ?B/s]
 0.00B [00:00, ?B/s]
 </pre></div>
@@ -434,14 +433,14 @@ e.g., <code class="docutils literal notranslate"><span class="pre">file_path</sp
 </section>
 <section id="load-the-dataset">
 <h2>Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permalink to this heading">#</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt;
 Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
 Coordinates:
-  * time         (time) float64 0.0 0.01667 0.03333 0.05 ... 9.967 9.983 10.0
+  * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
   * individuals  (individuals) &lt;U10 &#39;AEON3B_NTP&#39; &#39;AEON3B_TP1&#39; &#39;AEON3B_TP2&#39;
   * keypoints    (keypoints) &lt;U8 &#39;centroid&#39;
   * space        (space) &lt;U1 &#39;x&#39; &#39;y&#39;
@@ -449,7 +448,7 @@ Data variables:
     pose_tracks  (time, individuals, keypoints, space) float64 770.3 ... 755.1
     confidence   (time, individuals, keypoints) float64 nan nan nan ... nan nan
 Attributes:
-    fps:              60.0
+    fps:              50.0
     time_unit:        seconds
     source_software:  SLEAP
     source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
@@ -474,7 +473,7 @@ for a single keypoint of the first individual:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;pose_tracks&#39; (time: 601, space: 2)&gt;
 770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
 Coordinates:
-  * time         (time) float64 0.0 0.01667 0.03333 0.05 ... 9.967 9.983 10.0
+  * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
     individuals  &lt;U10 &#39;AEON3B_NTP&#39;
     keypoints    &lt;U8 &#39;centroid&#39;
   * space        (space) &lt;U1 &#39;x&#39; &#39;y&#39;
@@ -485,7 +484,7 @@ using <code class="docutils literal notranslate"><span class="pre">xarray</span>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fea1a51c790&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fec47769a10&gt;
 </pre></div>
 </div>
 <p>Similarly we could plot the same keypoint’s x, y coordinates
@@ -494,7 +493,7 @@ for all individuals:</p>
 <span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fea19f2d550&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fec339370d0&gt;
 </pre></div>
 </div>
 </section>
@@ -518,10 +517,10 @@ For example, we can use <code class="docutils literal notranslate"><span class="
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (sec)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fea19bff790&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fec316ff090&gt;
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.379 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.454 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-load-and-explore-poses-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/98a74f70c3a8280d37188d5370248393/load_and_explore_poses.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">load_and_explore_poses.py</span></code></a></p>

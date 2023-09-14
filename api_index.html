@@ -338,12 +338,12 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="auto_api/movement.io.validators.ValidPoseTracks.html">movement.io.validators.ValidPoseTracks</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="auto_api/movement.datasets.find_pose_data.html">movement.datasets.find_pose_data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_api/movement.datasets.list_pose_data.html">movement.datasets.list_pose_data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auto_api/movement.datasets.fetch_pose_data_path.html">movement.datasets.fetch_pose_data_path</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="auto_api/movement.logging.configure_logging.html">movement.logging.configure_logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="auto_api/movement.logging.log_and_raise_error.html">movement.logging.log_and_raise_error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_api/movement.logging.log_error.html">movement.logging.log_error</a></li>
 <li class="toctree-l1"><a class="reference internal" href="auto_api/movement.logging.log_warning.html">movement.logging.log_warning</a></li>
 </ul>
 </div>
@@ -447,7 +447,7 @@ document.write(`
 <h2>Datasets<a class="headerlink" href="#datasets" title="Permalink to this heading">#</a></h2>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.datasets.find_pose_data.html#movement.datasets.find_pose_data" title="movement.datasets.find_pose_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_pose_data</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.datasets.list_pose_data.html#movement.datasets.list_pose_data" title="movement.datasets.list_pose_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_pose_data</span></code></a>()</p></td>
 <td><p>Find available sample pose data in the <em>movement</em> data repository.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.datasets.fetch_pose_data_path.html#movement.datasets.fetch_pose_data_path" title="movement.datasets.fetch_pose_data_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fetch_pose_data_path</span></code></a>(filename)</p></td>
@@ -463,8 +463,8 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.logging.configure_logging.html#movement.logging.configure_logging" title="movement.logging.configure_logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_logging</span></code></a>([log_level, logger_name, ...])</p></td>
 <td><p>Configure the logging module.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.logging.log_and_raise_error.html#movement.logging.log_and_raise_error" title="movement.logging.log_and_raise_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_and_raise_error</span></code></a>(error, message[, ...])</p></td>
-<td><p>Log an error message and raise an Error.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="auto_api/movement.logging.log_error.html#movement.logging.log_error" title="movement.logging.log_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_error</span></code></a>(error, message[, logger_name])</p></td>
+<td><p>Log an error message and return the Exception.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="auto_api/movement.logging.log_warning.html#movement.logging.log_warning" title="movement.logging.log_warning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_warning</span></code></a>(message[, logger_name])</p></td>
 <td><p>Log a warning message.</p></td>

@@ -1,0 +1,6 @@
+﻿movement.logging.log\_error
+===========================
+
+.. currentmodule:: movement.logging
+
+.. autofunction:: log_error
