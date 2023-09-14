@@ -54,6 +54,7 @@ dev = [
   "setuptools_scm",
   "pandas-stubs",
   "types-attrs",
+  "check-manifest",
 ]
 
 [build-system]
