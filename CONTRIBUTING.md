@@ -252,7 +252,7 @@ The relevant functionality is implemented in the `movement.datasets.py` module.
 The most important parts of this module are:
 
 1. The `POSE_DATA` download manager object, which contains a list of stored files and their known hashes.
-2. The `find_pose_data()` function, which returns a list of the available files in the data repository.
+2. The `list_pose_data()` function, which returns a list of the available files in the data repository.
 3. The `fetch_pose_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.

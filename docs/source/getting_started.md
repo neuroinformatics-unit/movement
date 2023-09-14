@@ -108,7 +108,7 @@ You can view the available sample data files with:
 ```python
 from movement import datasets
 
-file_names = datasets.find_pose_data()
+file_names = datasets.list_pose_data()
 print(file_names)
 ```
 This will print a list of file names containing sample pose data.

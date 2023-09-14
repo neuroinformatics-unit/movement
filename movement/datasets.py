@@ -41,7 +41,7 @@ POSE_DATA = pooch.create(
 )
 
 
-def find_pose_data() -> List[str]:
+def list_pose_data() -> List[str]:
     """Find available sample pose data in the *movement* data repository.
 
     Returns

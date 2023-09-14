@@ -18,7 +18,7 @@ from movement.io import load_poses
 # ------------------------
 # Print a list of available datasets:
 
-for file_name in datasets.find_pose_data():
+for file_name in datasets.list_pose_data():
     print(file_name)
 
 # %%

@@ -34,7 +34,7 @@ Datasets
 .. autosummary::
     :toctree: auto_api
 
-    find_pose_data
+    list_pose_data
     fetch_pose_data_path
 
 Logging
