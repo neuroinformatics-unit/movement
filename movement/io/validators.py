@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 from attrs import converters, define, field, validators
 
-from movement.logging import log_and_raise_error, log_warning
+from movement.logging import log_error, log_warning
 
 
 @define
@@ -50,7 +50,7 @@ class ValidFile:
     def path_is_not_dir(self, attribute, value):
         """Ensures that the path does not point to a directory."""
         if value.is_dir():
-            log_and_raise_error(
+            raise log_error(
                 IsADirectoryError,
                 f"Expected a file path but got a directory: {value}.",
             )
@@ -61,12 +61,12 @@ class ValidFile:
         usage (read and/or write)."""
         if "r" in self.expected_permission:
             if not value.exists():
-                raise log_and_raise_error(
+                raise log_error(
                     FileNotFoundError, f"File {value} does not exist."
                 )
         else:  # expected_permission is 'w'
             if value.exists():
-                raise log_and_raise_error(
+                raise log_error(
                     FileExistsError, f"File {value} already exists."
                 )
 
@@ -77,13 +77,13 @@ class ValidFile:
         file_is_readable = os.access(value, os.R_OK)
         parent_is_writeable = os.access(value.parent, os.W_OK)
         if ("r" in self.expected_permission) and (not file_is_readable):
-            raise log_and_raise_error(
+            raise log_error(
                 PermissionError,
                 f"Unable to read file: {value}. "
                 "Make sure that you have read permissions.",
             )
         if ("w" in self.expected_permission) and (not parent_is_writeable):
-            raise log_and_raise_error(
+            raise log_error(
                 PermissionError,
                 f"Unable to write to file: {value}. "
                 "Make sure that you have write permissions.",
@@ -94,7 +94,7 @@ class ValidFile:
         """Ensures that the file has one of the expected suffix(es)."""
         if self.expected_suffix:  # list is not empty
             if value.suffix not in self.expected_suffix:
-                raise log_and_raise_error(
+                raise log_error(
                     ValueError,
                     f"Expected file with suffix(es) {self.expected_suffix} "
                     f"but got suffix {value.suffix} instead.",
@@ -130,7 +130,7 @@ class ValidHDF5:
             with h5py.File(value, "r") as f:
                 f.close()
         except Exception as e:
-            raise log_and_raise_error(
+            raise log_error(
                 ValueError,
                 f"File {value} does not seem to be in valid" "HDF5 format.",
             ) from e
@@ -142,7 +142,7 @@ class ValidHDF5:
             with h5py.File(value, "r") as f:
                 diff = set(self.expected_datasets).difference(set(f.keys()))
                 if len(diff) > 0:
-                    raise log_and_raise_error(
+                    raise log_error(
                         ValueError,
                         f"Could not find the expected dataset(s) {diff} "
                         f"in file: {value}. ",
@@ -186,7 +186,7 @@ class ValidPosesCSV:
                 level in header_rows_start for level in expected_levels
             ]
             if not all(level_in_header_row_starts):
-                raise log_and_raise_error(
+                raise log_error(
                     ValueError,
                     f"The header rows of the CSV file {value} do not "
                     "contain all expected index column levels "
@@ -206,7 +206,7 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
     elif isinstance(value, Iterable):
         return [str(item) for item in value]
     else:
-        log_and_raise_error(
+        raise log_error(
             ValueError, f"Invalid value ({value}). Expected a list of strings."
         )
 
@@ -214,7 +214,7 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
 def _ensure_type_ndarray(value: Any) -> None:
     """Raise ValueError the value is a not numpy array."""
     if not isinstance(value, np.ndarray):
-        raise log_and_raise_error(
+        raise log_error(
             ValueError, f"Expected a numpy array, but got {type(value)}."
         )
 
@@ -280,13 +280,13 @@ class ValidPoseTracks:
     def _validate_tracks_array(self, attribute, value):
         _ensure_type_ndarray(value)
         if value.ndim != 4:
-            log_and_raise_error(
+            raise log_error(
                 ValueError,
                 f"Expected `{attribute}` to have 4 dimensions, "
                 f"but got {value.ndim}.",
             )
         if value.shape[-1] not in [2, 3]:
-            log_and_raise_error(
+            raise log_error(
                 ValueError,
                 f"Expected `{attribute}` to have 2 or 3 spatial dimensions, "
                 f"but got {value.shape[-1]}.",
@@ -297,7 +297,7 @@ class ValidPoseTracks:
         if value is not None:
             _ensure_type_ndarray(value)
             if value.shape != self.tracks_array.shape[:-1]:
-                log_and_raise_error(
+                raise log_error(
                     ValueError,
                     f"Expected `{attribute}` to have shape "
                     f"{self.tracks_array.shape[:-1]}, but got {value.shape}.",
@@ -306,7 +306,7 @@ class ValidPoseTracks:
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
         if (value is not None) and (len(value) != self.tracks_array.shape[1]):
-            log_and_raise_error(
+            raise log_error(
                 ValueError,
                 f"Expected {self.tracks_array.shape[1]} `{attribute}`, "
                 f"but got {len(value)}.",
@@ -315,7 +315,7 @@ class ValidPoseTracks:
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         if (value is not None) and (len(value) != self.tracks_array.shape[2]):
-            log_and_raise_error(
+            raise log_error(
                 ValueError,
                 f"Expected {self.tracks_array.shape[2]} `{attribute}`, "
                 f"but got {len(value)}.",

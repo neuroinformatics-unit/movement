@@ -44,5 +44,5 @@ Logging
     :toctree: auto_api
 
     configure_logging
-    log_and_raise_error
+    log_error
     log_warning
