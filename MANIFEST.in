@@ -1,5 +1,5 @@
 include LICENSE
-include include *.md
+include *.md
 exclude .pre-commit-config.yaml
 exclude .cruft.json
 
