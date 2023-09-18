@@ -259,12 +259,6 @@ class TestPosesIO:
                 with pytest.raises(ValueError):
                     ValidPosesCSV(path=file_path)
 
-    def test_dlc_poses_csv_validator(self, dlc_file_csv_single):
-        """Test that the validator for DLC .csv files raises error when
-        multianimal=True and the 'individuals' level is missing."""
-        with pytest.raises(ValueError):
-            ValidPosesCSV(path=dlc_file_csv_single, multianimal=True)
-
     def test_load_and_save_to_dlc_df(self, dlc_style_df):
         """Test that loading pose tracks from a DLC-style DataFrame and
         converting back to a DataFrame returns the same data values."""

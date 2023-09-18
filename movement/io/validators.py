@@ -158,9 +158,6 @@ class ValidPosesCSV:
     ----------
     path : pathlib.Path
         Path to the CSV file.
-    multianimal : bool
-        Whether to ensure that the CSV file contains pose estimation outputs
-        for multiple animals. Default: False.
 
     Raises
     ------
@@ -170,28 +167,29 @@ class ValidPosesCSV:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
-    multianimal: bool = field(default=False, kw_only=True)
 
     @path.validator
     def csv_file_contains_expected_levels(self, attribute, value):
         """Ensure that the CSV file contains the expected index column levels
         among its top rows."""
         expected_levels = ["scorer", "bodyparts", "coords"]
-        if self.multianimal:
-            expected_levels.insert(1, "individuals")
 
         with open(value, "r") as f:
-            header_rows_start = [f.readline().split(",")[0] for _ in range(4)]
-            level_in_header_row_starts = [
-                level in header_rows_start for level in expected_levels
-            ]
-            if not all(level_in_header_row_starts):
-                raise log_error(
-                    ValueError,
-                    f"The header rows of the CSV file {value} do not "
-                    "contain all expected index column levels "
-                    f"{expected_levels}.",
-                )
+            top4_row_starts = [f.readline().split(",")[0] for _ in range(4)]
+
+            if top4_row_starts[3].isdigit():
+                # if 4th row starts with a digit, assume single-animal DLC file
+                expected_levels.append(top4_row_starts[3])
+            else:
+                # otherwise, assume multi-animal DLC file
+                expected_levels.insert(1, "individuals")
+
+                if top4_row_starts != expected_levels:
+                    raise log_error(
+                        ValueError,
+                        "CSV header rows do not match the known format for "
+                        "DeepLabCut pose estimation output files.",
+                    )
 
 
 def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:

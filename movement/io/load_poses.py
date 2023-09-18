@@ -301,7 +301,7 @@ def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
         DeepLabCut-style DataFrame with multi-index columns.
     """
 
-    file = ValidPosesCSV(file_path, multianimal=False)
+    file = ValidPosesCSV(file_path)
 
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
     with open(file.path, "r") as f:
