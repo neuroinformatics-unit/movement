@@ -25,6 +25,5 @@
    .. autosummary::
    
       ~ValidPosesCSV.path
-      ~ValidPosesCSV.multianimal
    
    

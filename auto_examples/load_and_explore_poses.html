@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=927b94d3fcb96560df09" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,8 +36,9 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=927b94d3fcb96560df09"></script>
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=19ab92be"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
@@ -60,6 +61,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -100,7 +110,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -116,7 +127,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -168,23 +178,25 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
         <div class="navbar-item">
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script></div>
@@ -200,8 +212,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -211,18 +223,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__kbd-shortcut">Search</span>
+    <span><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -290,10 +304,10 @@ document.write(`
           <div class="navbar-item">
 <script>
 document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
   </button>
 `);
 </script></div>
@@ -309,8 +323,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -353,8 +367,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -426,6 +440,7 @@ e.g., <code class="docutils literal notranslate"><span class="pre">file_path</sp
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.00B [00:00, ?B/s]
+39.9kB [00:00, 236kB/s]
 0.00B [00:00, ?B/s]
 0.00B [00:00, ?B/s]
 </pre></div>
@@ -484,7 +499,7 @@ using <code class="docutils literal notranslate"><span class="pre">xarray</span>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fb79c5e3a90&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fd9cb42a8d0&gt;
 </pre></div>
 </div>
 <p>Similarly we could plot the same keypoint’s x, y coordinates
@@ -493,7 +508,7 @@ for all individuals:</p>
 <span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fb79ac0a3d0&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fd9c6f2ae90&gt;
 </pre></div>
 </div>
 </section>
@@ -517,10 +532,10 @@ For example, we can use <code class="docutils literal notranslate"><span class="
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (sec)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fb79ac15d50&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fd9c38fd1d0&gt;
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.229 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.904 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-load-and-explore-poses-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/98a74f70c3a8280d37188d5370248393/load_and_explore_poses.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">load_and_explore_poses.py</span></code></a></p>
@@ -538,11 +553,10 @@ For example, we can use <code class="docutils literal notranslate"><span class="
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="index.html"
@@ -562,10 +576,7 @@ For example, we can use <code class="docutils literal notranslate"><span class="
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -609,8 +620,8 @@ For example, we can use <code class="docutils literal notranslate"><span class="
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=927b94d3fcb96560df09"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=927b94d3fcb96560df09"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -636,10 +647,11 @@ For example, we can use <code class="docutils literal notranslate"><span class="
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.0.
 </p></div>
       
     </div>
