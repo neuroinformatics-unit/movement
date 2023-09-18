@@ -57,7 +57,9 @@ local_settings.py
 instance/
 
 # Sphinx documentation
-docs/_build/
+docs/build/
+docs/source/auto_examples/
+docs/source/auto_api/
 
 # MkDocs documentation
 /site/

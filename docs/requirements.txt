@@ -1,7 +1,11 @@
+-e .
 linkify-it-py
+matplotlib
 myst-parser
 nbsphinx
 pydata-sphinx-theme
 setuptools-scm
-sphinx
+sphinx<7.2
 sphinx-autodoc-typehints
+sphinx-design
+sphinx-gallery

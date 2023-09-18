@@ -22,7 +22,7 @@ def configure_logging(
         The logging level to use. Defaults to logging.INFO.
     logger_name : str, optional
         The name of the logger to configure.
-        Defaults to 'movement'.
+        Defaults to "movement".
     log_directory : pathlib.Path, optional
         The directory to store the log file in. Defaults to
         ~/.movement. A different directory can be specified,
@@ -59,3 +59,39 @@ def configure_logging(
 
     # Add the handler to the logger
     logger.addHandler(handler)
+
+
+def log_error(error, message: str, logger_name: str = "movement"):
+    """Log an error message and return the Exception.
+
+    Parameters
+    ----------
+    error : Exception
+        The error to log and return.
+    message : str
+        The error message.
+    logger_name : str, optional
+        The name of the logger to use. Defaults to "movement".
+
+    Returns
+    -------
+    Exception
+        The error that was passed in.
+    """
+    logger = logging.getLogger(logger_name)
+    logger.error(message)
+    return error(message)
+
+
+def log_warning(message: str, logger_name: str = "movement"):
+    """Log a warning message.
+
+    Parameters
+    ----------
+    message : str
+        The warning message.
+    logger_name : str, optional
+        The name of the logger to use. Defaults to "movement".
+    """
+    logger = logging.getLogger(logger_name)
+    logger.warning(message)

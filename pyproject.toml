@@ -15,9 +15,11 @@ dependencies = [
     "numpy",
     "pandas",
     "h5py",
-    "pydantic",
+    "attrs",
     "pooch",
     "tqdm",
+    "sleap-io",
+    "xarray",
 ]
 
 classifiers = [
@@ -50,6 +52,9 @@ dev = [
   "pre-commit",
   "ruff",
   "setuptools_scm",
+  "pandas-stubs",
+  "types-attrs",
+  "check-manifest",
 ]
 
 [build-system]
@@ -89,6 +94,13 @@ ignore = [
   "docs/source/",
 ]
 
+[[tool.mypy.overrides]]
+module = [
+  "pooch.*",
+  "h5py.*",
+  "sleap_io.*",
+]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 79

@@ -1,9 +1,10 @@
 include LICENSE
-include README.md
+include *.md
 exclude .pre-commit-config.yaml
 exclude .cruft.json
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude docs *
+recursive-exclude examples *
 recursive-exclude tests *

@@ -2,6 +2,8 @@ import logging
 
 import pytest
 
+from movement.logging import log_error, log_warning
+
 log_messages = {
     "DEBUG": "This is a debug message",
     "INFO": "This is an info message",
@@ -21,3 +23,20 @@ def test_logfile_contains_message(level, message):
         last_line = f.readlines()[-1]
     assert level in last_line
     assert message in last_line
+
+
+def test_log_error(caplog):
+    """Check if the log_error function
+    logs the error message and returns an Exception."""
+    with pytest.raises(ValueError):
+        raise log_error(ValueError, "This is a test error")
+    assert caplog.records[0].message == "This is a test error"
+    assert caplog.records[0].levelname == "ERROR"
+
+
+def test_log_warning(caplog):
+    """Check if the log_warning function
+    logs the warning message."""
+    log_warning("This is a test warning")
+    assert caplog.records[0].message == "This is a test warning"
+    assert caplog.records[0].levelname == "WARNING"

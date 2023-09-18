@@ -6,6 +6,7 @@ and are downloaded to the user's local machine the first time they are used.
 """
 
 from pathlib import Path
+from typing import List
 
 import pooch
 
@@ -40,8 +41,18 @@ POSE_DATA = pooch.create(
 )
 
 
+def list_pose_data() -> List[str]:
+    """Find available sample pose data in the *movement* data repository.
+
+    Returns
+    -------
+    filenames : list of str
+        List of filenames for available pose data."""
+    return list(POSE_DATA.registry.keys())
+
+
 def fetch_pose_data_path(filename: str) -> Path:
-    """Fetch sample pose data from the remote repository.
+    """Fetch sample pose data from the *movement* data repository.
 
     The data are downloaded to the user's local machine the first time they are
     used and are stored in a local cache directory. The function returns the

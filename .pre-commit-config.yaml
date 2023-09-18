@@ -25,7 +25,10 @@ repos:
       hooks:
           - id: mypy
             additional_dependencies:
+                - attrs
                 - types-setuptools
+                - pandas-stubs
+                - types-attrs
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.49"
       hooks:
