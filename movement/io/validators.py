@@ -228,6 +228,18 @@ def _set_fps_to_none_if_invalid(fps: Optional[float]) -> Optional[float]:
     return fps
 
 
+def _validate_list_length(
+    attribute: str, value: Optional[List], expected_length: int
+):
+    """Raise a ValueError if the list does not have the expected length."""
+    if (value is not None) and (len(value) != expected_length):
+        raise log_error(
+            ValueError,
+            f"Expected `{attribute}` to have length {expected_length}, "
+            f"but got {len(value)}.",
+        )
+
+
 @define(kw_only=True)
 class ValidPoseTracks:
     """Class for validating pose tracking data imported from a file.
@@ -303,21 +315,11 @@ class ValidPoseTracks:
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
-        if (value is not None) and (len(value) != self.tracks_array.shape[1]):
-            raise log_error(
-                ValueError,
-                f"Expected {self.tracks_array.shape[1]} `{attribute}`, "
-                f"but got {len(value)}.",
-            )
+        _validate_list_length(attribute, value, self.tracks_array.shape[1])
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        if (value is not None) and (len(value) != self.tracks_array.shape[2]):
-            raise log_error(
-                ValueError,
-                f"Expected {self.tracks_array.shape[2]} `{attribute}`, "
-                f"but got {len(value)}.",
-            )
+        _validate_list_length(attribute, value, self.tracks_array.shape[2])
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)"""
