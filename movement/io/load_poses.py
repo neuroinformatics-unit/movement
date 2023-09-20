@@ -329,6 +329,21 @@ def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
     return df
 
 
+def _add_two_numbers(a: int, b: int) -> int:
+    """Function for adding two integers
+
+    Parameters
+    ----------
+    a: int
+    b: int
+
+    Returns
+    -------
+    int
+    """
+    return a + b
+
+
 def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """Load pose tracks and likelihood scores from a DeepLabCut .h5 file
     into a pandas DataFrame.
@@ -345,7 +360,6 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """
 
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
-    print(2 + 3)
 
     try:
         # pd.read_hdf does not always return a DataFrame
