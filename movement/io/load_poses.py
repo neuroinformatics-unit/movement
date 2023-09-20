@@ -345,6 +345,7 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """
 
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
+    print(2 + 3)
 
     try:
         # pd.read_hdf does not always return a DataFrame
