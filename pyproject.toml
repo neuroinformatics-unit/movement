@@ -108,7 +108,7 @@ select = ["I", "E", "F"]
 fix = true
 
 [tool.cibuildwheel]
-build = "cp38-* cp39-* cp310-* cp311-*"
+build = "cp39-* cp310-* cp311-*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
@@ -117,7 +117,7 @@ archs = ["x86_64", "arm64"]
 legacy_tox_ini = """
 [tox]
 requires = tox-conda
-envlist = py{38,39,310,311}
+envlist = py{39,310,311}
 isolated_build = True
 
 [gh-actions]
