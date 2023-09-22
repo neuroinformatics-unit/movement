@@ -1,6 +1,7 @@
 import os
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable, List, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 import h5py
 import numpy as np
@@ -44,7 +45,7 @@ class ValidFile:
     expected_permission: Literal["r", "w", "rw"] = field(
         default="r", validator=validators.in_(["r", "w", "rw"]), kw_only=True
     )
-    expected_suffix: List[str] = field(factory=list, kw_only=True)
+    expected_suffix: list[str] = field(factory=list, kw_only=True)
 
     @path.validator
     def path_is_not_dir(self, attribute, value):
@@ -121,7 +122,7 @@ class ValidHDF5:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
-    expected_datasets: List[str] = field(factory=list, kw_only=True)
+    expected_datasets: list[str] = field(factory=list, kw_only=True)
 
     @path.validator
     def file_is_h5(self, attribute, value):
@@ -192,7 +193,7 @@ class ValidPosesCSV:
                     )
 
 
-def _list_of_str(value: Union[str, Iterable[Any]]) -> List[str]:
+def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
     """Try to coerce the value into a list of strings.
     Otherwise, raise a ValueError."""
     if isinstance(value, str):
@@ -229,7 +230,7 @@ def _set_fps_to_none_if_invalid(fps: Optional[float]) -> Optional[float]:
 
 
 def _validate_list_length(
-    attribute: str, value: Optional[List], expected_length: int
+    attribute: str, value: Optional[list], expected_length: int
 ):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
@@ -270,11 +271,11 @@ class ValidPoseTracks:
     # Define class attributes
     tracks_array: np.ndarray = field()
     scores_array: Optional[np.ndarray] = field(default=None)
-    individual_names: Optional[List[str]] = field(
+    individual_names: Optional[list[str]] = field(
         default=None,
         converter=converters.optional(_list_of_str),
     )
-    keypoint_names: Optional[List[str]] = field(
+    keypoint_names: Optional[list[str]] = field(
         default=None,
         converter=converters.optional(_list_of_str),
     )

@@ -6,7 +6,6 @@ and are downloaded to the user's local machine the first time they are used.
 """
 
 from pathlib import Path
-from typing import List
 
 import pooch
 
@@ -41,7 +40,7 @@ POSE_DATA = pooch.create(
 )
 
 
-def list_pose_data() -> List[str]:
+def list_pose_data() -> list[str]:
     """Find available sample pose data in the *movement* data repository.
 
     Returns
