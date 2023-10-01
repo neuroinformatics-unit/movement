@@ -185,12 +185,12 @@ class ValidPosesCSV:
                 # otherwise, assume multi-animal DLC file
                 expected_levels.insert(1, "individuals")
 
-                if top4_row_starts != expected_levels:
-                    raise log_error(
-                        ValueError,
-                        "CSV header rows do not match the known format for "
-                        "DeepLabCut pose estimation output files.",
-                    )
+            if top4_row_starts != expected_levels:
+                raise log_error(
+                    ValueError,
+                    "CSV header rows do not match the known format for "
+                    "DeepLabCut pose estimation output files.",
+                )
 
 
 def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
