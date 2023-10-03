@@ -36,7 +36,7 @@ pip install --upgrade movement
 
 :::{tab-item} Developers
 To get the latest development version, clone the
-[GitHub repository](https://neuroinformatics-unit.github.io/movement/)
+[GitHub repository](https://github.com/neuroinformatics-unit/movement/)
 and then run from inside the repository:
 
 ```sh
