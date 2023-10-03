@@ -125,7 +125,7 @@ html_theme_options = {
 # The default is the URL of the GitHub pages
 # https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
 github_user = "neuroinformatics-unit"
-html_baseurl = "https://neuroinformatics-unit.github.io/movement/"
+html_baseurl = "https://movement.neuroinformatics.dev"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
