@@ -12,7 +12,7 @@ Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience
 
 - Read the [documentation](https://neuroinformatics-unit.github.io/movement/) for more information.
 - If you wish to contribute, please read the [contributing guide](./CONTRIBUTING.md).
-- Join our [zulip chat](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to interact with the team. We welcome your questions and suggestions.
+- Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team. We welcome your questions and suggestions.
 
 ## Status
 > **Warning**

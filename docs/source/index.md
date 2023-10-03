@@ -28,7 +28,7 @@ Index of all functions, classes, and methods.
 ::::
 
 :::{admonition} Chat with us!
-We welcome your questions and suggestions. Join our [zulip chat](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to interact with the team.
+We welcome your questions and suggestions. Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team.
 :::
 
 ## Status
