@@ -4,6 +4,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v0.json)](https://github.com/charliermarsh/ruff)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!)
 
 # movement
 
@@ -11,12 +12,13 @@ Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience
 
 - Read the [documentation](https://neuroinformatics-unit.github.io/movement/) for more information.
 - If you wish to contribute, please read the [contributing guide](./CONTRIBUTING.md).
+- Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team. We welcome your questions and suggestions.
 
 ## Status
 > **Warning**
 > - 🏗️ The package is currently in early development. Stay tuned ⌛
 > - It is not sufficiently tested to be used for scientific analysis
-> - The interface is subject to changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
+> - The interface is subject to changes.
 
 ## Aims
 * Load pose tracks from pose estimation software packages (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
