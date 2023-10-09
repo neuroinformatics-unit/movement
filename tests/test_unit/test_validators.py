@@ -115,9 +115,9 @@ class TestValidators:
     )
     def test_ValidPosesCSV(self, invalid_input, expected_exception, request):
         """Test that invalid CSV files raise the appropriate errors."""
-        invalid_dict = request.getfixturevalue(invalid_input)
+        file_path = request.getfixturevalue(invalid_input)
         with expected_exception:
-            ValidPosesCSV(invalid_dict.get("file_path"))
+            ValidPosesCSV(file_path)
 
     @pytest.mark.parametrize(
         "invalid_tracks_array",

@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pytest
 import xarray as xr
 from pytest import POSE_DATA
@@ -74,11 +73,9 @@ class TestLoadPoses:
         ds = load_poses.from_dlc_file(file_path)
         self.assert_dataset(ds, file_path, "DeepLabCut")
 
-    def test_load_from_dlc_df(self):
+    def test_load_from_dlc_df(self, dlc_style_df):
         """Test that loading pose tracks from a valid DLC-style DataFrame
         returns a proper Dataset."""
-        file_path = POSE_DATA.get("DLC_single-wasp.predictions.h5")
-        dlc_style_df = pd.read_hdf(file_path)
         ds = load_poses.from_dlc_df(dlc_style_df)
         self.assert_dataset(ds)
 
