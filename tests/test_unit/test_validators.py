@@ -80,7 +80,9 @@ class TestValidators:
             ("directory", pytest.raises(IsADirectoryError)),
         ],
     )
-    def test_ValidFile(self, invalid_input, expected_exception, request):
+    def test_valid_file_invalid_input(
+        self, invalid_input, expected_exception, request
+    ):
         """Test that invalid files raise the appropriate errors."""
         invalid_dict = request.getfixturevalue(invalid_input)
         with expected_exception:
@@ -97,7 +99,9 @@ class TestValidators:
             ("fake_h5_file", pytest.raises(ValueError)),
         ],
     )
-    def test_ValidHDF5(self, invalid_input, expected_exception, request):
+    def test_valid_hdf5_invalid_input(
+        self, invalid_input, expected_exception, request
+    ):
         """Test that invalid HDF5 files raise the appropriate errors."""
         invalid_dict = request.getfixturevalue(invalid_input)
         with expected_exception:
@@ -113,7 +117,9 @@ class TestValidators:
             ("invalid_multi_animal_csv_file", pytest.raises(ValueError)),
         ],
     )
-    def test_ValidPosesCSV(self, invalid_input, expected_exception, request):
+    def test_valid_poses_csv_invalid_input(
+        self, invalid_input, expected_exception, request
+    ):
         """Test that invalid CSV files raise the appropriate errors."""
         file_path = request.getfixturevalue(invalid_input)
         with expected_exception:
@@ -128,7 +134,7 @@ class TestValidators:
             np.zeros((10, 2, 3, 4)),  # last dim not 2 or 3
         ],
     )
-    def test_ValidPoseTrack_tracks(self, invalid_tracks_array):
+    def test_valid_pose_tracks_invalid_tracks(self, invalid_tracks_array):
         """Test that invalid tracks arrays raise the appropriate errors."""
         with pytest.raises(ValueError):
             ValidPoseTracks(tracks_array=invalid_tracks_array)
@@ -150,7 +156,7 @@ class TestValidators:
             ),  # valid, should default to array of NaNs
         ],
     )
-    def test_ValidPoseTrack_scores(
+    def test_valid_pose_tracks_scores(
         self,
         scores_array,
         expected_exception,
@@ -165,7 +171,7 @@ class TestValidators:
             if scores_array is None:
                 assert np.all(np.isnan(poses.scores_array))
 
-    def test_ValidPoseTrack_keypoint_names(
+    def test_valid_pose_tracks_keypoint_names(
         self, pose_tracks_params, valid_tracks_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
@@ -178,7 +184,7 @@ class TestValidators:
             )
             assert poses.keypoint_names == e
 
-    def test_ValidPoseTrack_individual_names(
+    def test_valid_pose_tracks_individual_names(
         self, pose_tracks_params, valid_tracks_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
