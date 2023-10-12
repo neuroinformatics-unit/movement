@@ -13,7 +13,7 @@ from movement.io import PosesAccessor
 from movement.logging import configure_logging
 
 
-def pytest_configure(config):
+def pytest_configure():
     """Perform initial configuration for pytest.
     Fetches pose data file paths as a dictionary for tests."""
     pytest.POSE_DATA = {
