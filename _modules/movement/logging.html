@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
   <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=cc9a0d3a"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=6eedfc7d"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/design-tabs.js?v=36754332"></script>
@@ -119,7 +119,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.7</p>
+    <p class="title logo__title">movement v0.0.8</p>
   
 </a></div>
     
@@ -411,34 +411,37 @@ document.write(`
 
     <span class="c1"># Set the log directory and file path</span>
     <span class="n">log_directory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">log_file</span> <span class="o">=</span> <span class="n">log_directory</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">logger_name</span><span class="si">}</span><span class="s2">.log&quot;</span>
+    <span class="n">log_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">log_directory</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">logger_name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
-    <span class="c1"># If a logger with the given name is already configured</span>
-    <span class="k">if</span> <span class="n">logger_name</span> <span class="ow">in</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">loggerDict</span><span class="p">:</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
-        <span class="n">handlers</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[:]</span>
-        <span class="c1"># If the log file path has changed</span>
-        <span class="k">if</span> <span class="n">log_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="o">!=</span> <span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">baseFilename</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
-            <span class="c1"># remove the handlers to allow for reconfiguration</span>
-            <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># otherwise, do nothing</span>
-            <span class="k">return</span>
+    <span class="c1"># Check if logger with the given name is already configured</span>
+    <span class="n">logger_configured</span> <span class="o">=</span> <span class="n">logger_name</span> <span class="ow">in</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">loggerDict</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
 
-    <span class="c1"># Create a rotating file handler</span>
-    <span class="n">max_log_size</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># 5 MB</span>
-    <span class="n">handler</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">maxBytes</span><span class="o">=</span><span class="n">max_log_size</span><span class="p">)</span>
+    <span class="c1"># Logger needs to be (re)configured if unconfigured or</span>
+    <span class="c1"># if configured but the log file path has changed</span>
+    <span class="n">configure_logger</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="ow">not</span> <span class="n">logger_configured</span>
+        <span class="ow">or</span> <span class="n">log_file</span> <span class="o">!=</span> <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">baseFilename</span>  <span class="c1"># type: ignore</span>
+    <span class="p">)</span>
 
-    <span class="c1"># Create a formatter and set it to the handler</span>
-    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">FORMAT</span><span class="p">)</span>
-    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">configure_logger</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">logger_configured</span><span class="p">:</span>
+            <span class="c1"># remove the handlers to allow for reconfiguration</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-    <span class="c1"># Add the handler to the logger</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
+
+        <span class="c1"># Create a rotating file handler</span>
+        <span class="n">max_log_size</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># 5 MB</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">RotatingFileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">maxBytes</span><span class="o">=</span><span class="n">max_log_size</span><span class="p">)</span>
+
+        <span class="c1"># Create a formatter and set it to the handler</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="n">FORMAT</span><span class="p">)</span>
+        <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+        <span class="c1"># Add the handler to the logger</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="log_error"><a class="viewcode-back" href="../../auto_api/movement.logging.log_error.html#movement.logging.log_error">[docs]</a><span class="k">def</span> <span class="nf">log_error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">):</span>
