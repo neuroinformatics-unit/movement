@@ -48,11 +48,12 @@ def unreadable_file(tmp_path):
     file_path = tmp_path / "unreadable.h5"
     with open(file_path, "w") as f:
         f.write("unreadable data")
-        os.chmod(f.name, not stat.S_IRUSR)
-    return {
+    os.chmod(f.name, not stat.S_IRUSR)
+    yield {
         "file_path": file_path,
         "expected_permission": "r",
     }
+    os.chmod(f.name, stat.S_IRUSR)
 
 
 @pytest.fixture
@@ -63,10 +64,11 @@ def unwriteable_file(tmp_path):
     unwriteable_dir.mkdir()
     os.chmod(unwriteable_dir, not stat.S_IWUSR)
     file_path = unwriteable_dir / "unwriteable.h5"
-    return {
+    yield {
         "file_path": file_path,
         "expected_permission": "w",
     }
+    os.chmod(unwriteable_dir, stat.S_IWUSR)
 
 
 @pytest.fixture
