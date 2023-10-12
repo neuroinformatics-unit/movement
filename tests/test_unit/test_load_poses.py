@@ -43,7 +43,7 @@ class TestLoadPoses:
         assert dataset.fps is None
 
     @pytest.mark.parametrize(
-        "file_stem",
+        "file_name",
         [
             "SLEAP_single-mouse_EPM.analysis.h5",
             "SLEAP_single-mouse_EPM.predictions.slp",
@@ -51,25 +51,25 @@ class TestLoadPoses:
             "SLEAP_three-mice_Aeon_proofread.predictions.slp",
         ],
     )
-    def test_load_from_slp_file(self, file_stem):
+    def test_load_from_slp_file(self, file_name):
         """Test that loading pose tracks from valid SLEAP files
         returns a proper Dataset."""
-        file_path = POSE_DATA.get(file_stem)
+        file_path = POSE_DATA.get(file_name)
         ds = load_poses.from_sleap_file(file_path)
         self.assert_dataset(ds, file_path, "SLEAP")
 
     @pytest.mark.parametrize(
-        "file_stem",
+        "file_name",
         [
             "DLC_single-wasp.predictions.h5",
             "DLC_single-wasp.predictions.csv",
             "DLC_two-mice.predictions.csv",
         ],
     )
-    def test_load_from_dlc_file(self, file_stem):
+    def test_load_from_dlc_file(self, file_name):
         """Test that loading pose tracks from valid DLC files
         returns a proper Dataset."""
-        file_path = POSE_DATA.get(file_stem)
+        file_path = POSE_DATA.get(file_name)
         ds = load_poses.from_dlc_file(file_path)
         self.assert_dataset(ds, file_path, "DeepLabCut")
 

@@ -14,10 +14,11 @@ from movement.logging import configure_logging
 
 
 def pytest_configure(config):
-    """Perform initial configuration for pytest."""
+    """Perform initial configuration for pytest.
+    Fetches pose data file paths as a dictionary for tests."""
     pytest.POSE_DATA = {
-        file_stem: fetch_pose_data_path(file_stem)
-        for file_stem in [
+        file_name: fetch_pose_data_path(file_name)
+        for file_name in [
             "DLC_single-wasp.predictions.h5",
             "DLC_single-wasp.predictions.csv",
             "DLC_two-mice.predictions.csv",
@@ -26,7 +27,7 @@ def pytest_configure(config):
             "SLEAP_three-mice_Aeon_proofread.analysis.h5",
             "SLEAP_three-mice_Aeon_proofread.predictions.slp",
         ]
-    }  # pose data file paths for tests
+    }
 
 
 @pytest.fixture(autouse=True)
