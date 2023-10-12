@@ -124,7 +124,7 @@ def h5_file_no_dataframe(tmp_path):
 def fake_h5_file(tmp_path):  # used in save_poses, validators
     """Return a dictionary containing the file path,
     expected exception, and expected datasets for
-    a file with .h5 extension but is not in HDF5 format.
+    a file with .h5 extension that is not in HDF5 format.
     """
     file_path = tmp_path / "fake.h5"
     with open(file_path, "w") as f:
