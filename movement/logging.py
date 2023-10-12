@@ -40,10 +40,11 @@ def configure_logging(
 
     # Logger needs to be (re)configured if unconfigured or
     # if configured but the log file path has changed
-    configure_logger = not logger_configured or (
-        logger_configured
-        and log_file != logger.handlers[0].baseFilename  # type: ignore
+    configure_logger = (
+        not logger_configured
+        or log_file != logger.handlers[0].baseFilename  # type: ignore
     )
+
     if configure_logger:
         if logger_configured:
             # remove the handlers to allow for reconfiguration
