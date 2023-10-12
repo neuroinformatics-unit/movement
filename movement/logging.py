@@ -31,34 +31,37 @@ def configure_logging(
 
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
-    log_file = log_directory / f"{logger_name}.log"
+    log_file = (log_directory / f"{logger_name}.log").as_posix()
 
-    # If a logger with the given name is already configured
-    if logger_name in logging.root.manager.loggerDict:
-        logger = logging.getLogger(logger_name)
-        handlers = logger.handlers[:]
-        # If the log file path has changed
-        if log_file.as_posix() != handlers[0].baseFilename:  # type: ignore
-            # remove the handlers to allow for reconfiguration
-            for handler in handlers:
-                logger.removeHandler(handler)
-        else:
-            # otherwise, do nothing
-            return
+    # Check if logger with the given name is already configured
+    logger_configured = logger_name in logging.root.manager.loggerDict
 
     logger = logging.getLogger(logger_name)
-    logger.setLevel(log_level)
 
-    # Create a rotating file handler
-    max_log_size = 5 * 1024 * 1024  # 5 MB
-    handler = RotatingFileHandler(log_file, maxBytes=max_log_size)
+    # Logger needs to be (re)configured if unconfigured or
+    # if configured but the log file path has changed
+    configure_logger = (
+        not logger_configured
+        or log_file != logger.handlers[0].baseFilename  # type: ignore
+    )
 
-    # Create a formatter and set it to the handler
-    formatter = logging.Formatter(FORMAT)
-    handler.setFormatter(formatter)
+    if configure_logger:
+        if logger_configured:
+            # remove the handlers to allow for reconfiguration
+            logger.handlers.clear()
 
-    # Add the handler to the logger
-    logger.addHandler(handler)
+        logger.setLevel(log_level)
+
+        # Create a rotating file handler
+        max_log_size = 5 * 1024 * 1024  # 5 MB
+        handler = RotatingFileHandler(log_file, maxBytes=max_log_size)
+
+        # Create a formatter and set it to the handler
+        formatter = logging.Formatter(FORMAT)
+        handler.setFormatter(formatter)
+
+        # Add the handler to the logger
+        logger.addHandler(handler)
 
 
 def log_error(error, message: str, logger_name: str = "movement"):
