@@ -27,11 +27,15 @@ Index of all functions, classes, and methods.
 :::
 ::::
 
+:::{admonition} Chat with us!
+We welcome your questions and suggestions. Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team.
+:::
+
 ## Status
 :::{warning}
 - 🏗️ The package is currently in early development. Stay tuned ⌛
 - It is not sufficiently tested to be used for scientific analysis
-- The interface is subject to changes. [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) if you have suggestions.
+- The interface is subject to changes
 :::
 
 

@@ -34,11 +34,11 @@ classifiers = [
 ]
 
 [project.urls]
-homepage = "https://github.com/neuroinformatics-unit/movement"
-bug_tracker = "https://github.com/neuroinformatics-unit/movement/issues"
-documentation = "https://github.com/neuroinformatics-unit/movement"
-source_code = "https://github.com/neuroinformatics-unit/movement"
-user_support = "https://github.com/neuroinformatics-unit/movement/issues"
+"Homepage" = "https://github.com/neuroinformatics-unit/movement"
+"Bug Tracker" = "https://github.com/neuroinformatics-unit/movement/issues"
+"Documentation" = "https://movement.neuroinformatics.dev/"
+"Source Code" = "https://github.com/neuroinformatics-unit/movement"
+"User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
 dev = [
