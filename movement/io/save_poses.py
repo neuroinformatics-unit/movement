@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Literal, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -12,18 +12,18 @@ logger = logging.getLogger(__name__)
 
 
 def to_dlc_df(
-    ds: xr.Dataset, multi_individual: bool = True
-) -> Union[pd.DataFrame, dict]:
+    ds: xr.Dataset, split_individuals: bool = True
+) -> Union[pd.DataFrame, dict[str, pd.DataFrame]]:
     """Convert an xarray dataset containing pose tracks into a DeepLabCut-style
     pandas DataFrame with multi-index columns for each individual or a
     dictionary of DataFrames for each individual based on the
-    'multi_individual' argument.
+    'split_individuals' argument.
 
     Parameters
     ----------
     ds : xarray Dataset
         Dataset containing pose tracks, confidence scores, and metadata.
-    multi_individual : bool, optional
+    split_individuals : bool, optional
         If True, return a dictionary of pandas DataFrames, for each individual.
         If False, return a single pandas DataFrame with multi-index columns
         for all individuals.
@@ -60,7 +60,7 @@ def to_dlc_df(
     bodyparts = ds.coords["keypoints"].data.tolist()
     coords = ds.coords["space"].data.tolist() + ["likelihood"]
 
-    if multi_individual:
+    if split_individuals:
         individuals = ds.coords["individuals"].data.tolist()
         result = {}
 
@@ -136,7 +136,7 @@ def to_dlc_df(
 def to_dlc_file(
     ds: xr.Dataset,
     file_path: Union[str, Path],
-    format: Literal["auto", "multi", "single"] = "auto",
+    split_individuals: Union[bool, None] = None,
 ) -> None:
     """Save the xarray dataset containing pose tracks to a
     DeepLabCut-style ".h5" or ".csv" file.
@@ -148,26 +148,26 @@ def to_dlc_file(
     file_path : pathlib Path or str
         Path to the file to save the DLC poses to. The file extension
         must be either ".h5" (recommended) or ".csv".
-    format : {"multi", "single"}, optional
+    split_individuals : bool, optional
         Format of the DeepLabcut output file.
-        - If "multi", the file will be formatted as in a multi-animal
-        DeepLabCut project: the columns will include the
-        "individuals" level and all individuals will be saved to the same file.
-        - If "single", the file will be formatted as in a single-animal
+        - If True, the file will be formatted as in a single-animal
         DeepLabCut project: no "individuals" level, and each individual will be
         saved in a separate file. The individual's name will be appended to the
         file path, just before the file extension, i.e.
         "/path/to/filename_individual1.h5".
+        - If False, the file will be formatted as in a multi-animal
+        DeepLabCut project: the columns will include the
+        "individuals" level and all individuals will be saved to the same file.
         - If "auto" the format will be determined based on the number of
-        individuals in the dataset: "multi" if there are more than one, and
-        "single" if there is only one. This is the default.
+        individuals in the dataset: True if there are more than one, and
+        False if there is only one. This is the default.
 
     See Also
     --------
     to_dlc_df : Convert an xarray dataset containing pose tracks into a
     DeepLabCut-style pandas DataFrame with multi-index columns
     for each individual or a dictionary of DataFrames for each individual
-    based on the 'multi_individual' argument.
+    based on the 'split_individuals' argument.
 
     Examples
     --------
@@ -186,24 +186,17 @@ def to_dlc_file(
         logger.error(error)
         raise error
 
-    if format == "auto":
+    # Sets default behaviour for the function
+    if split_individuals is None:
         individuals = ds.coords["individuals"].data.tolist()
-        print(individuals)
         if len(individuals) == 1:
-            format = "single"
+            split_individuals = True
         else:
-            format = "multi"
-        print(format)
+            split_individuals = False
 
-    if format == "multi":
-        df = to_dlc_df(ds, False)  # convert to pandas DataFrame
-        if file.path.suffix == ".csv":
-            df.to_csv(file.path, sep=",")
-        else:  # file.path.suffix == ".h5"
-            df.to_hdf(file.path, key="df_with_missing")
-        logger.info(f"Saved PoseTracks dataset to {file.path}.")
-
-    if format == "single":
+    """If split_individuals is True then it will split the file into a
+    dictionary of pandas dataframes for each individual."""
+    if split_individuals:
         dfdict = to_dlc_df(ds, True)
         if file.path.suffix == ".csv":
             for (
@@ -212,18 +205,31 @@ def to_dlc_file(
             ) in dfdict.items():
                 """Iterates over dictionary, the key is the name of the
                 individual and the value is the corresponding df."""
-                filepath = str(file.path.with_suffix("")) + "_" + key + ".csv"
-                print(filepath)
+                filepath = (
+                    str(file.path.with_suffix("")) + "_" + str(key) + ".csv"
+                )
                 # Convert the string back to a PosixPath object
                 filepath_posix = Path(filepath)
                 df.to_csv(filepath_posix, sep=",")
 
         else:  # file.path.suffix == ".h5"
             for key, df in dfdict.items():
-                filepath = str(file.path.with_suffix("")) + "_" + key + ".h5"
-                print(filepath)
+                filepath = (
+                    str(file.path.with_suffix("")) + "_" + str(key) + ".h5"
+                )
                 # Convert the string back to a PosixPath object
                 filepath_posix = Path(filepath)
                 df.to_hdf(filepath, key="df_with_missing")
 
+        logger.info(f"Saved PoseTracks dataset to {file.path}.")
+
+    """If split_individuals is False then it will save the file as a dataframe
+    with multi-index columns for each individual."""
+    if not split_individuals:
+        dataframe = to_dlc_df(ds, False)  # convert to pandas DataFrame
+        if isinstance(dataframe, pd.DataFrame):  # checking it's a dataframe
+            if file.path.suffix == ".csv":
+                dataframe.to_csv(file.path, sep=",")
+            else:  # file.path.suffix == ".h5"
+                dataframe.to_hdf(file.path, key="df_with_missing")
         logger.info(f"Saved PoseTracks dataset to {file.path}.")
