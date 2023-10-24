@@ -57,6 +57,7 @@ The following projects cover related needs and served as inspiration for this pr
 :maxdepth: 2
 :hidden:
 
+community/index
 getting_started
 auto_examples/index
 api_index
