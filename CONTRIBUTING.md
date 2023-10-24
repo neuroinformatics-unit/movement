@@ -1,11 +1,5 @@
 # How to Contribute
 
-**Contributors to movement are absolutely encouraged**, whether to fix a bug,
-develop a new feature, or improve the documentation.
-If you're unsure about any part of the contributing process, please get in touch.
-It's best to reach out in public, e.g. by [opening an issue](https://github.com/neuroinformatics-unit/movement/issues)
-so that others can benefit from the discussion.
-
 ## Contributing code
 
 ### Creating a development environment
