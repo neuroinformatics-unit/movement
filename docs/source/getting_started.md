@@ -45,7 +45,7 @@ pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
 ```
 
 This will install the package in editable mode, including all `dev` dependencies.
-Please see the [contributing guide](./contributing.rst) for more information.
+Please see the [contributing guide](target-contributing) for more information.
 :::
 
 ::::

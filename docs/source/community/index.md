@@ -15,4 +15,5 @@ a [roadmap](target-roadmap) outlining our current priorities, and a detailed [co
 mission-scope
 roadmap
 contributing
+related-projects
 ```
