@@ -61,5 +61,4 @@ community/index
 getting_started
 auto_examples/index
 api_index
-contributing
 ```

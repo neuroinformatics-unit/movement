@@ -6,4 +6,5 @@
 
 mission-scope
 roadmap
+contributing
 ```
