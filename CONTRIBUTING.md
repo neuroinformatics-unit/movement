@@ -187,7 +187,7 @@ My new module
 --------------
 .. currentmodule:: movement.new_module
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     new_function
     NewClass

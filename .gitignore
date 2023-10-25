@@ -59,7 +59,7 @@ instance/
 # Sphinx documentation
 docs/build/
 docs/source/examples/
-docs/source/auto_api/
+docs/source/api/
 
 # MkDocs documentation
 /site/
