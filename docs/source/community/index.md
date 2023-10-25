@@ -16,4 +16,5 @@ mission-scope
 roadmap
 contributing
 related-projects
+license
 ```
