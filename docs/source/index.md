@@ -13,7 +13,7 @@ Install and try it out.
 :::
 
 :::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
-:link: auto_examples/index
+:link: examples/index
 :link-type: doc
 
 Example use cases.
@@ -44,7 +44,7 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :hidden:
 
 getting_started
-auto_examples/index
+examples/index
 community/index
 api_index
 ```

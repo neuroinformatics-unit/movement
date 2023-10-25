@@ -11,7 +11,7 @@
 Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 > **Note**
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/auto_examples/index.html).
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 - [Overview](#overview)
 - [Status](#status)

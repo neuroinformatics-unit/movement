@@ -198,7 +198,7 @@ that follow the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html
 
 ### Updating the examples
 We use [sphinx-gallery](https://sphinx-gallery.github.io/stable/index.html)
-to create the [examples](https://movement.neuroinformatics.dev/auto_examples/index.html).
+to create the [examples](https://movement.neuroinformatics.dev/examples/index.html).
 To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](https://sphinx-gallery.github.io/stable/syntax.html).

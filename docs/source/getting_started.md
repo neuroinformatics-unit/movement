@@ -202,7 +202,7 @@ You may also use all the other powerful [indexing and selection](https://docs.xa
 ### Plotting
 
 You can also use the built-in [`xarray` plotting methods](https://docs.xarray.dev/en/latest/user-guide/plotting.html)
-to visualise the data. Check out the [Load and explore pose tracks](./auto_examples/load_and_explore_poses.rst)
+to visualise the data. Check out the [Load and explore pose tracks](./examples/load_and_explore_poses.rst)
 example for inspiration.
 
 ## Saving data
