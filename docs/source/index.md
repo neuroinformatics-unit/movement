@@ -43,8 +43,8 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :maxdepth: 2
 :hidden:
 
-community/index
 getting_started
 auto_examples/index
+community/index
 api_index
 ```
