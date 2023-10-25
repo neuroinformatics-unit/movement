@@ -3,7 +3,7 @@
 
 The roadmap outlines **current development priorities** and aims to **guide core developers** and to **encourage community contributions**. It is a living document and will be updated as the project evolves.
 
-The roadmap is **not meant to limit** movement features, and we're open to suggestions and contributions. Join our [Zulip chat](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to share your ideas. We'll take community demand and feedback into account when planning future releases.
+The roadmap is **not meant to limit** movement features, as we're open to suggestions and contributions. Join our [Zulip chat](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to share your ideas. We'll take community demand and feedback into account when planning future releases.
 
 ## Long-term vision
 The following features are being considered for the first stable version `v1.0`.

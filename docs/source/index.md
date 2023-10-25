@@ -1,7 +1,6 @@
 # movement
 
-Python tools to analyse animal body movements across space and time,
-aiming to facilitate the study of animal behaviour in neuroscience.
+Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 ::::{grid} 1 2 2 3
 :gutter: 3
