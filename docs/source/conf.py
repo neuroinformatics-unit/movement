@@ -8,6 +8,7 @@
 
 import os
 import sys
+from datetime import date
 
 import setuptools_scm
 
@@ -21,7 +22,8 @@ autodoc_mock_imports = []
 sys.path.insert(0, os.path.abspath("../.."))
 
 project = "movement"
-copyright = "2023, University College London"
+current_year = date.today().year
+copyright = f"2022-{current_year}, University College London"
 author = "Niko Sirmpilatze"
 try:
     release = setuptools_scm.get_version(root="../..", relative_to=__file__)
