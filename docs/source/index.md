@@ -1,6 +1,6 @@
 # movement
 
-Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience and ethology research.
+Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 ::::{grid} 1 2 2 3
 :gutter: 3
@@ -13,52 +13,38 @@ Install and try it out.
 :::
 
 :::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
-:link: auto_examples/index
+:link: examples/index
 :link-type: doc
 
 Example use cases.
 :::
 
-:::{grid-item-card} {fas}`code;sd-text-primary` API Reference
-:link: api_index
+:::{grid-item-card} {fas}`comments;sd-text-primary` Join the movement
+:link: community/index
 :link-type: doc
 
-Index of all functions, classes, and methods.
+Get in touch and contribute.
 :::
 ::::
 
-:::{admonition} Chat with us!
-We welcome your questions and suggestions. Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team.
-:::
+## Overview
 
-## Status
-:::{warning}
-- 🏗️ The package is currently in early development. Stay tuned ⌛
-- It is not sufficiently tested to be used for scientific analysis
-- The interface is subject to changes
-:::
+Pose estimation tools, such as [DeepLabCut](https://www.mackenziemathislab.org/deeplabcut) and [SLEAP](https://sleap.ai/) are now commonplace when processing video data of animal behaviour. There is not yet a standardised, easy-to-use way to process the *pose tracks* produced from these software packages.
 
+movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
+We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple animals.
 
-## Aims
-* Load pose tracks from pose estimation software packages (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
-* Evaluate the quality of the tracks and perform data cleaning operations
-* Calculate kinematic variables (e.g. speed, acceleration, joint angles, etc.)
-* Produce reports and visualise the results
+Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmap).
 
-## Related projects
-The following projects cover related needs and served as inspiration for this project:
-* [DLC2Kinematics](https://github.com/AdaptiveMotorControlLab/DLC2Kinematics)
-* [PyRat](https://github.com/pyratlib/pyrat)
-* [Kino](https://github.com/BrancoLab/Kino)
-* [WAZP](https://github.com/SainsburyWellcomeCentre/WAZP)
-
+```{include} /snippets/status-warning.md
+```
 
 ```{toctree}
 :maxdepth: 2
 :hidden:
 
 getting_started
-auto_examples/index
+examples/index
+community/index
 api_index
-contributing
 ```

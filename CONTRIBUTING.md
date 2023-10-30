@@ -1,11 +1,5 @@
 # How to Contribute
 
-**Contributors to movement are absolutely encouraged**, whether to fix a bug,
-develop a new feature, or improve the documentation.
-If you're unsure about any part of the contributing process, please get in touch.
-It's best to reach out in public, e.g. by [opening an issue](https://github.com/neuroinformatics-unit/movement/issues)
-so that others can benefit from the discussion.
-
 ## Contributing code
 
 ### Creating a development environment
@@ -193,7 +187,7 @@ My new module
 --------------
 .. currentmodule:: movement.new_module
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     new_function
     NewClass
@@ -204,7 +198,7 @@ that follow the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html
 
 ### Updating the examples
 We use [sphinx-gallery](https://sphinx-gallery.github.io/stable/index.html)
-to create the [examples](https://movement.neuroinformatics.dev/auto_examples/index.html).
+to create the [examples](https://movement.neuroinformatics.dev/examples/index.html).
 To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](https://sphinx-gallery.github.io/stable/syntax.html).

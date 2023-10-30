@@ -8,11 +8,26 @@
 
 # movement
 
-Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience and ethology research 🔬.
+Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
-- Read the [documentation](https://movement.neuroinformatics.dev) for more information.
-- If you wish to contribute, please read the [contributing guide](./CONTRIBUTING.md).
-- Join us on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!) to chat with the team. We welcome your questions and suggestions.
+> **Note**
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
+
+- [Overview](#overview)
+- [Status](#status)
+- [Join the movement](#join-the-movement)
+- [License](#license)
+- [Package template](#package-template)
+
+
+## Overview
+
+Pose estimation tools, such as [DeepLabCut](https://www.mackenziemathislab.org/deeplabcut) and [SLEAP](https://sleap.ai/) are now commonplace when processing video data of animal behaviour. There is not yet a standardised, easy-to-use way to process the pose tracks produced from these software packages.
+
+movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
+We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple animals.
+
+Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmap.html).
 
 ## Status
 > **Warning**
@@ -20,21 +35,15 @@ Kinematic analysis of animal 🐝 🦀 🐀 🐒 body movements for neuroscience
 > - It is not sufficiently tested to be used for scientific analysis
 > - The interface is subject to changes.
 
-## Aims
-* Load pose tracks from pose estimation software packages (e.g. [DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/))
-* Evaluate the quality of the tracks and perform data cleaning operations
-* Calculate kinematic variables (e.g. speed, acceleration, joint angles, etc.)
-* Produce reports and visualise the results
+## Join the movement
 
-## Related projects
-The following projects cover related needs and served as inspiration for this project:
-* [DLC2Kinematics](https://github.com/AdaptiveMotorControlLab/DLC2Kinematics)
-* [PyRat](https://github.com/pyratlib/pyrat)
-* [Kino](https://github.com/BrancoLab/Kino)
-* [WAZP](https://github.com/SainsburyWellcomeCentre/WAZP)
+Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
+To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
+
+You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!). You may also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
 
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)
 
-## Template
+## Package template
 This package layout and configuration (including pre-commit hooks and GitHub actions) have been copied from the [python-cookiecutter](https://github.com/neuroinformatics-unit/python-cookiecutter) template.
