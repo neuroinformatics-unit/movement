@@ -1,0 +1,790 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>How to Contribute &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'community/contributing';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/community/contributing.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Related projects" href="related-projects.html" />
+    <link rel="prev" title="Roadmap" href="roadmap.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">movement v0.0.9</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples/index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="mission-scope.html">Mission &amp; Scope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">How to Contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="related-projects.html">Related projects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Community</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">How to Contribute</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
+<span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this heading">#</a></h1>
+<section id="contributing-code">
+<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this heading">#</a></h2>
+<section id="creating-a-development-environment">
+<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Permalink to this heading">#</a></h3>
+<p>It is recommended to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
+or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a> to create a
+development environment for movement. In the following we assume you have
+<code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
+<p>First, create and activate a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment with some pre-requisites:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-dev<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>pytables
+conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
+</pre></div>
+</div>
+<p>The above method ensures that you will get packages that often can’t be
+installed via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, including <a class="reference external" href="https://www.hdfgroup.org/solutions/hdf5/">hdf5</a>.</p>
+<p>To install movement for development, clone the GitHub repository,
+and then run from inside the repository:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span><span class="w">  </span><span class="c1"># works on most shells</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span><span class="w">  </span><span class="c1"># works on zsh (the default shell on macOS)</span>
+</pre></div>
+</div>
+<p>This will install the package in editable mode, including all dependencies
+required for development.</p>
+<p>Finally, initialise the <a class="reference internal" href="#formatting-and-pre-commit-hooks">pre-commit hooks</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="pull-requests">
+<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">#</a></h3>
+<p>In all cases, please submit code to the main repository via a pull request (PR).
+We recommend, and adhere, to the following conventions:</p>
+<ul class="simple">
+<li><p>Please submit <em>draft</em> PRs as early as possible to allow for discussion.</p></li>
+<li><p>The PR title should be descriptive e.g. “Add new function to do X” or “Fix bug in Y”.</p></li>
+<li><p>The PR description should be used to provide context and motivation for the changes.</p></li>
+<li><p>One approval of a PR (by a repo owner) is enough for it to be merged.</p></li>
+<li><p>Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.</p></li>
+<li><p>Ask for a review from someone specific if you think they would be a particularly suited reviewer.</p></li>
+<li><p>PRs are preferably merged via the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits">“squash and merge”</a> option, to keep a clean commit history on the <em>main</em> branch.</p></li>
+</ul>
+<p>A typical PR workflow would be:</p>
+<ul class="simple">
+<li><p>Create a new branch, make your changes, and stage them.</p></li>
+<li><p>When you try to commit, the <a class="reference internal" href="#formatting-and-pre-commit-hooks">pre-commit hooks</a> will be triggered.</p></li>
+<li><p>Stage any changes made by the hooks, and commit.</p></li>
+<li><p>You may also run the pre-commit hooks manually, at any time, with <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">-a</span></code>.</p></li>
+<li><p>Make sure to write tests for any new features or bug fixes. See <a class="reference internal" href="#testing">testing</a> below.</p></li>
+<li><p>Don’t forget to update the documentation, if necessary. See <a class="reference internal" href="#contributing-documentation">contributing documentation</a> below.</p></li>
+<li><p>Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.</p></li>
+<li><p>If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.</p></li>
+<li><p>Respond to review comments and implement any requested changes.</p></li>
+<li><p>Success 🎉 !! Your PR will be (squash-)merged into the <em>main</em> branch.</p></li>
+</ul>
+</section>
+</section>
+<section id="development-guidelines">
+<h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Permalink to this heading">#</a></h2>
+<section id="formatting-and-pre-commit-hooks">
+<h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h3>
+<p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/charliermarsh/ruff">ruff</a> does a number of jobs, including enforcing PEP8 and sorting imports</p></li>
+<li><p><a class="reference external" href="https://black.readthedocs.io/en/stable/">black</a> for auto-formatting</p></li>
+<li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy</a> as a static type checker</p></li>
+<li><p><a class="reference external" href="https://github.com/mgedmin/check-manifest">check-manifest</a> to ensure that the right files are included in the pip package.</p></li>
+</ul>
+<p>These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>.
+black<span class="w"> </span>./
+mypy<span class="w"> </span>-p<span class="w"> </span>movement
+check-manifest
+</pre></div>
+</div>
+<p>To run all the hooks before committing:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>run<span class="w">  </span><span class="c1"># for staged files</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>-a<span class="w">  </span><span class="c1"># for all files in the repository</span>
+</pre></div>
+</div>
+<p>For docstrings, we adhere to the  <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
+</section>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h3>
+<p>We use <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a> for testing and aim for
+~100% test coverage (as far as is reasonable).
+All new features should be tested.
+Write your test methods and classes in the <em>tests</em> folder.</p>
+<p>For some tests, you will need to use real experimental data.
+Do not include these data in the repository, especially if they are large.
+We store several sample datasets in an external data repository.
+See <a class="reference internal" href="#sample-data">sample data</a> for more information.</p>
+</section>
+<section id="continuous-integration">
+<h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h3>
+<p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions">GitHub actions</a>.
+This will usually include linting, testing and deployment.</p>
+<p>A GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/test_and_deploy.yml</span></code>) has been set up to run (on each push/PR):</p>
+<ul class="simple">
+<li><p>Linting checks (pre-commit).</p></li>
+<li><p>Testing (only if linting checks pass)</p></li>
+<li><p>Release to PyPI (only if a git tag is present and if tests pass).</p></li>
+</ul>
+</section>
+<section id="versioning-and-releases">
+<h3>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Permalink to this heading">#</a></h3>
+<p>We use <a class="reference external" href="https://semver.org/">semantic versioning</a>, which includes <code class="docutils literal notranslate"><span class="pre">MAJOR</span></code>.<code class="docutils literal notranslate"><span class="pre">MINOR</span></code>.<code class="docutils literal notranslate"><span class="pre">PATCH</span></code> version numbers:</p>
+<ul class="simple">
+<li><p>PATCH = small bugfix</p></li>
+<li><p>MINOR = new feature</p></li>
+<li><p>MAJOR = breaking change</p></li>
+</ul>
+<p>We use <a class="reference external" href="https://github.com/pypa/setuptools_scm">setuptools_scm</a> to automatically version movement.
+It has been pre-configured in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file.
+<code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> will automatically <a class="reference external" href="https://github.com/pypa/setuptools_scm#default-versioning-scheme">infer the version using git</a>.
+To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
+Make sure you commit any changes you wish to be included in this version. E.g. to bump the version to <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add new changes&quot;</span>
+git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v1.0.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Bump to version 1.0.0&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>--follow-tags
+</pre></div>
+</div>
+<p>Alternatively, you can also use the GitHub web interface to create a new release and tag.</p>
+<p>The addition of a GitHub tag triggers the package’s deployment to PyPI.
+The version number is automatically determined from the latest tag on the <em>main</em> branch.</p>
+</section>
+</section>
+<section id="contributing-documentation">
+<h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Permalink to this heading">#</a></h2>
+<p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
+<a class="reference external" href="https://movement.neuroinformatics.dev">movement.neuroinformatics.dev</a>.
+Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
+They are written in either <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a> or
+<a class="reference external" href="https://myst-parser.readthedocs.io/en/stable/syntax/typography.html">markdown</a>.
+The <code class="docutils literal notranslate"><span class="pre">index.md</span></code> file corresponds to the homepage of the documentation website.
+Other <code class="docutils literal notranslate"><span class="pre">.rst</span></code>  or <code class="docutils literal notranslate"><span class="pre">.md</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
+<p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> and the
+<a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+to build the source files into HTML output.
+This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
+The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
+The deployment job is only triggerred whenever a tag is pushed to the <em>main</em> branch,
+ensuring that the documentation is published in sync with each PyPI release.</p>
+<section id="editing-the-documentation">
+<h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h3>
+<p>To edit the documentation, first clone the repository, and install movement in a
+<a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
+<p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
+and commit your changes. Submit your documentation changes via a pull request,
+following the <a class="reference internal" href="#pull-requests">same guidelines as for code changes</a>.
+Make sure that the header levels in your <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are incremented
+consistently (H1 &gt; H2 &gt; H3, etc.) without skipping any levels.</p>
+<p>If you create a new documentation source file (e.g. <code class="docutils literal notranslate"><span class="pre">my_new_file.md</span></code> or <code class="docutils literal notranslate"><span class="pre">my_new_file.rst</span></code>),
+you will need to add it to the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive in <code class="docutils literal notranslate"><span class="pre">index.md</span></code>
+for it to be included in the documentation website:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="nc">:maxdepth:</span> 2
+<span class="nc">:hidden:</span>
+
+existing_file
+my_new_file
+</pre></div>
+</div>
+</section>
+<section id="updating-the-api-reference">
+<h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Permalink to this heading">#</a></h3>
+<p>If your PR introduces new public-facing functions, classes, or methods,
+make sure to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> page, so that they are
+included in the <a class="reference external" href="https://movement.neuroinformatics.dev/api_index.html">API reference</a>,
+e.g.:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">My new module</span>
+<span class="gh">--------------</span>
+<span class="p">..</span> <span class="ow">currentmodule</span><span class="p">::</span> movement.new_module
+<span class="p">..</span> <span class="ow">autosummary</span><span class="p">::</span>
+    <span class="nc">:toctree:</span> api
+
+    new_function
+    NewClass
+</pre></div>
+</div>
+<p>For this to work, your functions/classes/methods will need to have docstrings
+that follow the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
+</section>
+<section id="updating-the-examples">
+<h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Permalink to this heading">#</a></h3>
+<p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/index.html">sphinx-gallery</a>
+to create the <a class="reference external" href="https://movement.neuroinformatics.dev/examples/index.html">examples</a>.
+To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
+The file should be structured as specified in the relevant
+<a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax.html">sphinx-gallery documentation</a>.</p>
+</section>
+<section id="building-the-documentation-locally">
+<h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h3>
+<p>We recommend that you build and view the documentation website locally, before you push it.
+To do so, first install the requirements for building the documentation:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
+</pre></div>
+</div>
+<p>Then, from the root of the repository, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build
+</pre></div>
+</div>
+<p>You can view the local build by opening <code class="docutils literal notranslate"><span class="pre">docs/build/index.html</span></code> in a browser.
+To refresh the documentation, after making changes, remove the <code class="docutils literal notranslate"><span class="pre">docs/build</span></code> folder and re-run the above command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>docs/build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sample-data">
+<h2>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h2>
+<p>We maintain some sample data to be used for testing, examples and tutorials on an
+<a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data">external data repository</a>.
+Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/">GIN</a> and is maintained
+by the <a class="reference external" href="https://www.g-node.org/">German Neuroinformatics Node</a>.
+GIN has a GitHub-like interface and git-like
+<a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">CLI</a> functionalities.</p>
+<p>Currently the data repository contains sample pose estimation data files
+stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder. Each file name starts with either “DLC” or “SLEAP”,
+depending on the pose estimation software used to generate the data.</p>
+<section id="fetching-data">
+<h3>Fetching data<a class="headerlink" href="#fetching-data" title="Permalink to this heading">#</a></h3>
+<p>To fetch the data from GIN, we use the <a class="reference external" href="https://www.fatiando.org/pooch/latest/index.html">pooch</a>
+Python package, which can download data from pre-specified URLs and store them
+locally for all subsequent uses. It also provides some nice utilities,
+like verification of sha256 hashes and decompression of archives.</p>
+<p>The relevant functionality is implemented in the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module.
+The most important parts of this module are:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> download manager object, which contains a list of stored files and their known hashes.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">list_pose_data()</span></code> function, which returns a list of the available files in the data repository.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path()</span></code> function, which downloads a file (if not already cached locally) and returns the local path to it.</p></li>
+</ol>
+<p>By default, the downloaded files are stored in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> folder.
+This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module.</p>
+</section>
+<section id="adding-new-data">
+<h3>Adding new data<a class="headerlink" href="#adding-new-data" title="Permalink to this heading">#</a></h3>
+<p>Only core movement developers may add new files to the external data repository.
+To add a new file, you will need to:</p>
+<ol class="arabic simple">
+<li><p>Create a <a class="reference external" href="https://gin.g-node.org/">GIN</a> account</p></li>
+<li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data">movement data repository</a> (if not already)</p></li>
+<li><p>Download the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> and set it up with your GIN credentials, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal.</p></li>
+<li><p>Clone the movement data repository to your local machine, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code> in a terminal.</p></li>
+<li><p>Add your new files and commit them with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>.</p></li>
+<li><p>Upload the commited changes to the GIN repository, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Latest changes to the repository can be pulled via <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code>. <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> will synchronise the latest changes bidirectionally.</p></li>
+<li><p>Determine the sha256 checksum hash of each new file, by running <code class="docutils literal notranslate"><span class="pre">sha256sum</span> <span class="pre">&lt;filename&gt;</span></code> in a terminal. Alternatively, you can use <code class="docutils literal notranslate"><span class="pre">pooch</span></code> to do this for you: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">pooch.file_hash('/path/to/file')&quot;</span></code>. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">pooch.make_registry('/path/to/folder',</span> <span class="pre">'sha256_registry.txt')</span></code>.</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module on the <a class="reference external" href="https://github.com/SainsburyWellcomeCentre/movement">movement GitHub repository</a> by adding the new files to the <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual <a class="reference internal" href="#contributing-code">guidelines for contributing code</a>. Make sure to test whether the new files can be fetched successfully (see <a class="reference internal" href="#fetching-data">fetching data</a> above) before submitting your pull request.</p></li>
+</ol>
+<p>You can also perform steps 3-6 via the GIN web interface, if you prefer to avoid using the CLI.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="roadmap.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Roadmap</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="related-projects.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Related projects</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-code">Contributing code</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fetching-data">Fetching data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-data">Adding new data</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/community/contributing.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, University College London.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

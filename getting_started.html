@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=6eedfc7d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d5b76920"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/design-tabs.js?v=36754332"></script>
@@ -49,7 +49,7 @@
     <link rel="canonical" href="https://movement.neuroinformatics.dev/getting_started.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="auto_examples/index.html" />
+    <link rel="next" title="Examples" href="examples/index.html" />
     <link rel="prev" title="movement" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -122,7 +122,8 @@
   
   
   
-    <p class="title logo__title">movement v0.0.8</p>
+  
+    <p class="title logo__title">movement v0.0.9</p>
   
 </a></div>
     
@@ -149,8 +150,15 @@
                 
 
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="auto_examples/index.html">
+                      <a class="nav-link nav-internal" href="examples/index.html">
                         Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community/index.html">
+                        Community
                       </a>
                     </li>
                 
@@ -158,13 +166,6 @@
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api_index.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="contributing.html">
-                        How to Contribute
                       </a>
                     </li>
                 
@@ -273,8 +274,15 @@ document.write(`
                 
 
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="auto_examples/index.html">
+                      <a class="nav-link nav-internal" href="examples/index.html">
                         Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="community/index.html">
+                        Community
                       </a>
                     </li>
                 
@@ -282,13 +290,6 @@ document.write(`
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="api_index.html">
                         API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="contributing.html">
-                        How to Contribute
                       </a>
                     </li>
                 
@@ -421,7 +422,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 </pre></div>
 </div>
 <p>This will install the package in editable mode, including all <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies.
-Please see the <a class="reference internal" href="contributing.html"><span class="std std-doc">contributing guide</span></a> for more information.</p>
+Please see the <a class="reference internal" href="community/contributing.html#target-contributing"><span class="std std-ref">contributing guide</span></a> for more information.</p>
 </div>
 </div>
 </section>
@@ -566,7 +567,7 @@ resulting in a <code class="docutils literal notranslate"><span class="pre">Data
 <section id="plotting">
 <h3>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h3>
 <p>You can also use the built-in <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/plotting.html"><code class="docutils literal notranslate"><span class="pre">xarray</span></code> plotting methods</a>
-to visualise the data. Check out the <a class="reference internal" href="auto_examples/load_and_explore_poses.html"><span class="std std-doc">Load and explore pose tracks</span></a>
+to visualise the data. Check out the <a class="reference internal" href="examples/load_and_explore_poses.html"><span class="std std-doc">Load and explore pose tracks</span></a>
 example for inspiration.</p>
 </section>
 </section>
@@ -609,7 +610,7 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
       </div>
     </a>
     <a class="right-next"
-       href="auto_examples/index.html"
+       href="examples/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
@@ -665,8 +666,8 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
+  <script src="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -676,7 +677,7 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
         <div class="footer-item">
   <p class="copyright">
     
-      © Copyright 2022, UCL.
+      © Copyright 2023, University College London.
       <br/>
     
   </p>
@@ -696,7 +697,7 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
 </p></div>
       
     </div>

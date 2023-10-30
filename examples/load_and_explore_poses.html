@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Load and explore pose tracks &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/load_and_explore_poses';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/load_and_explore_poses.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Community" href="../community/index.html" />
+    <link rel="prev" title="Examples" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">movement v0.0.9</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
+                        Community
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Load and explore pose tracks</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Load and...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-load-and-explore-poses-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="load-and-explore-pose-tracks">
+<span id="sphx-glr-examples-load-and-explore-poses-py"></span><h1>Load and explore pose tracks<a class="headerlink" href="#load-and-explore-pose-tracks" title="Permalink to this heading">#</a></h1>
+<p>Load and explore an example dataset of pose tracks.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
+</pre></div>
+</div>
+</section>
+<section id="fetch-an-example-dataset">
+<h2>Fetch an example dataset<a class="headerlink" href="#fetch-an-example-dataset" title="Permalink to this heading">#</a></h2>
+<p>Print a list of available datasets:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">list_pose_data</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>DLC_single-wasp.predictions.h5
+DLC_single-wasp.predictions.csv
+DLC_single-mouse_EPM.predictions.h5
+DLC_two-mice.predictions.csv
+SLEAP_single-mouse_EPM.analysis.h5
+SLEAP_single-mouse_EPM.predictions.slp
+SLEAP_two-mice_social-interaction.analysis.h5
+SLEAP_two-mice_social-interaction.predictions.slp
+SLEAP_three-mice_Aeon_proofread.analysis.h5
+SLEAP_three-mice_Aeon_proofread.predictions.slp
+</pre></div>
+</div>
+<p>Fetch the path to an example dataset.
+Feel free to replace this with the path to your own dataset.
+e.g., <code class="docutils literal notranslate"><span class="pre">file_path</span> <span class="pre">=</span> <span class="pre">&quot;/path/to/my/data.h5&quot;</span></code>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_pose_data_path</span><span class="p">(</span>
+    <span class="s2">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.00B [00:00, ?B/s]
+35.8kB [00:00, 42.9kB/s]
+0.00B [00:00, ?B/s]
+0.00B [00:00, ?B/s]
+</pre></div>
+</div>
+</section>
+<section id="load-the-dataset">
+<h2>Load the dataset<a class="headerlink" href="#load-the-dataset" title="Permalink to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt;
+Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
+Coordinates:
+  * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
+  * individuals  (individuals) &lt;U10 &#39;AEON3B_NTP&#39; &#39;AEON3B_TP1&#39; &#39;AEON3B_TP2&#39;
+  * keypoints    (keypoints) &lt;U8 &#39;centroid&#39;
+  * space        (space) &lt;U1 &#39;x&#39; &#39;y&#39;
+Data variables:
+    pose_tracks  (time, individuals, keypoints, space) float64 770.3 ... 755.1
+    confidence   (time, individuals, keypoints) float64 nan nan nan ... nan nan
+Attributes:
+    fps:              50.0
+    time_unit:        seconds
+    source_software:  SLEAP
+    source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
+</pre></div>
+</div>
+<p>The loaded dataset contains two data variables:
+<code class="docutils literal notranslate"><span class="pre">pose_tracks</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence`</span></code>
+To get the pose tracks:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span>
+</pre></div>
+</div>
+</section>
+<section id="select-and-plot-data-with-xarray">
+<h2>Select and plot data with xarray<a class="headerlink" href="#select-and-plot-data-with-xarray" title="Permalink to this heading">#</a></h2>
+<p>You can use the <code class="docutils literal notranslate"><span class="pre">sel</span></code> method to index into <code class="docutils literal notranslate"><span class="pre">xarray</span></code> objects.
+For example, we can get a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> containing only data
+for a single keypoint of the first individual:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">da</span> <span class="o">=</span> <span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;AEON3B_NTP&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;pose_tracks&#39; (time: 601, space: 2)&gt;
+770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
+Coordinates:
+  * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
+    individuals  &lt;U10 &#39;AEON3B_NTP&#39;
+    keypoints    &lt;U8 &#39;centroid&#39;
+  * space        (space) &lt;U1 &#39;x&#39; &#39;y&#39;
+</pre></div>
+</div>
+<p>We could plot the x, y coordinates of this keypoint over time,
+using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fb6204099d0&gt;
+</pre></div>
+</div>
+<p>Similarly we could plot the same keypoint’s x, y coordinates
+for all individuals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">da</span> <span class="o">=</span> <span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+<span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fb6202ce310&gt;
+</pre></div>
+</div>
+</section>
+<section id="trajectory-plots">
+<h2>Trajectory plots<a class="headerlink" href="#trajectory-plots" title="Permalink to this heading">#</a></h2>
+<p>We are not limited to <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plots.
+For example, we can use <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> to plot trajectories
+(using scatter plots):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mouse_name</span> <span class="o">=</span> <span class="s2">&quot;AEON3B_TP1&quot;</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trajectory of </span><span class="si">{</span><span class="n">mouse_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (sec)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fb61d076bd0&gt;
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.238 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-explore-poses-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/307bfbce3b04c474f9b3bd90e970e4c9/load_and_explore_poses.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">load_and_explore_poses.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/7f0c10d5c8b88801f34de1b2292ae010/load_and_explore_poses.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">load_and_explore_poses.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../community/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Community</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fetch-an-example-dataset">Fetch an example dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-dataset">Load the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#select-and-plot-data-with-xarray">Select and plot data with xarray</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#trajectory-plots">Trajectory plots</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/examples/load_and_explore_poses.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2023, University College London.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

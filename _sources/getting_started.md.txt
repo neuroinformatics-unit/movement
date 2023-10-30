@@ -45,7 +45,7 @@ pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
 ```
 
 This will install the package in editable mode, including all `dev` dependencies.
-Please see the [contributing guide](./contributing.rst) for more information.
+Please see the [contributing guide](target-contributing) for more information.
 :::
 
 ::::
@@ -202,7 +202,7 @@ You may also use all the other powerful [indexing and selection](https://docs.xa
 ### Plotting
 
 You can also use the built-in [`xarray` plotting methods](https://docs.xarray.dev/en/latest/user-guide/plotting.html)
-to visualise the data. Check out the [Load and explore pose tracks](./auto_examples/load_and_explore_poses.rst)
+to visualise the data. Check out the [Load and explore pose tracks](./examples/load_and_explore_poses.rst)
 example for inspiration.
 
 ## Saving data

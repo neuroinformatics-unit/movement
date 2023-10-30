@@ -6,7 +6,7 @@ Input/Output
 ------------
 .. currentmodule:: movement.io.load_poses
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     from_sleap_file
     from_dlc_file
@@ -14,14 +14,14 @@ Input/Output
 
 .. currentmodule:: movement.io.save_poses
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     to_dlc_file
     to_dlc_df
 
 .. currentmodule:: movement.io.validators
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     ValidFile
     ValidHDF5
@@ -32,7 +32,7 @@ Datasets
 --------
 .. currentmodule:: movement.datasets
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     list_pose_data
     fetch_pose_data_path
@@ -41,7 +41,7 @@ Logging
 -------
 .. currentmodule:: movement.logging
 .. autosummary::
-    :toctree: auto_api
+    :toctree: api
 
     configure_logging
     log_error
