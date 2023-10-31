@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from sleap_io.io.slp import read_labels
+from sleap_io.model.instance import PredictedInstance
+from sleap_io.model.labels import Labels
 
 from movement.io.poses_accessor import PosesAccessor
 from movement.io.validators import (
@@ -109,7 +111,7 @@ def from_sleap_file(
     preferred format for loading pose tracks from SLEAP into *movement*.
 
     You can also try directly loading the ".slp" file, but this feature is
-    experimental and doesnot work in all cases. If the ".slp" file contains
+    experimental and does not work in all cases. If the ".slp" file contains
     both user-labeled and predicted instances, only the predicted ones will be
     loaded. If there are multiple videos in the file, only the first one will
     be used.
@@ -227,6 +229,12 @@ def _load_from_sleap_analysis_file(
     -------
     movement.io.tracks_validators.ValidPoseTracks
         The validated pose tracks and confidence scores.
+
+    Notes
+    -----
+    If the point-level prediction scores (i.e. confidence) in the SLEAP
+    analysis file are all NaNs, this function assumes that the pose
+    tracks are user-labeled, and will assign a fixed score of 1.0.
     """
 
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
@@ -235,15 +243,18 @@ def _load_from_sleap_analysis_file(
         # transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)
         tracks = f["tracks"][:].transpose((3, 0, 2, 1))
         # Create an array of NaNs for the confidence scores
-        scores = np.full(tracks.shape[:-1], np.nan, dtype="float32")
+        scores = np.full(tracks.shape[:-1], np.nan)
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
             scores = f["point_scores"][:].transpose((2, 0, 1))
-
+            if np.all(np.isnan(scores)):
+                # Assume user-labelled and assign 1.0 as score
+                mask = np.isnan(tracks[:, :, :, 1])
+                scores = np.where(mask, scores, 1.0)
         return ValidPoseTracks(
-            tracks_array=tracks,
-            scores_array=scores,
+            tracks_array=tracks.astype(np.float32),
+            scores_array=scores.astype(np.float32),
             individual_names=[n.decode() for n in f["track_names"][:]],
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
@@ -273,7 +284,13 @@ def _load_from_sleap_labels_file(
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
 
     labels = read_labels(file.path.as_posix())
-    tracks_with_scores = labels.numpy(untracked=False, return_confidence=True)
+
+    if _sleap_labels_contains_user_labels_only(labels):
+        tracks_with_scores = _sleap_user_labels_to_numpy(labels)
+    else:
+        tracks_with_scores = labels.numpy(
+            untracked=False, return_confidence=True
+        )
 
     return ValidPoseTracks(
         tracks_array=tracks_with_scores[:, :, :, :-1],
@@ -282,6 +299,91 @@ def _load_from_sleap_labels_file(
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
     )
+
+
+def _sleap_labels_contains_user_labels_only(labels: Labels) -> bool:
+    """Check if a SLEAP `Labels` object contains only user-labeled instances.
+
+    Parameters
+    ----------
+    labels : Labels
+        A SLEAP `Labels` object.
+
+    Returns
+    -------
+    bool
+        A boolean value indicating whether the labels contain only
+        user-labeled instances.
+    """
+    all_instances = [
+        instance for lf in labels.labeled_frames for instance in lf.instances
+    ]
+    return all(
+        not isinstance(instance, PredictedInstance)
+        for instance in all_instances
+    )
+
+
+def _sleap_user_labels_to_numpy(labels: Labels) -> np.ndarray:
+    """Convert a SLEAP `Labels` object to a NumPy array containing
+    pose tracks with point scores (i.e. confidence) set as 1.0.
+
+    Parameters
+    ----------
+    labels : Labels
+        A SLEAP `Labels` object.
+
+    Returns
+    -------
+    numpy.ndarray
+        A NumPy array containing pose tracks and confidence scores.
+
+    Notes
+    -----
+        This function only considers SLEAP instances in the first
+        video of the SLEAP `Labels` object. It is primarily meant
+        to be used with `Labels` containing only user-labeled instances.
+        If `Labels` contains predicted instances only, this function
+        will overwrite all point scores to 1.0. If `Labels` contains
+        both user-labeled and predicted instances, the returned NumPy
+        array will contain the last occurrence of each tracked instance
+        in each frame.
+
+        This function is adapted from `Labels.numpy()` from the
+        `sleap_io` package [1]_ to allow user-labeled instances.
+
+    References
+    ----------
+    .. [1] https://github.com/talmolab/sleap-io
+    """
+    # Select frames from the first video only
+    lfs = [lf for lf in labels.labeled_frames if lf.video == labels.videos[0]]
+    # Figure out frame index range
+    frame_idxs = [lf.frame_idx for lf in lfs]
+    first_frame = min(0, min(frame_idxs))
+    last_frame = max(0, max(frame_idxs))
+
+    n_tracks = len(labels.tracks)
+    skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
+    n_nodes = len(skeleton.nodes)
+    n_frames = int(last_frame - first_frame + 1)
+    tracks = np.full((n_frames, n_tracks, n_nodes, 3), np.nan, dtype="float32")
+
+    for lf in lfs:
+        i = int(lf.frame_idx - first_frame)
+        tracked_instances = [
+            inst for inst in lf.instances if inst.track is not None
+        ]
+        for inst in tracked_instances:
+            j = labels.tracks.index(inst.track)
+            # Set all point scores to 1.0
+            tracks[i, j] = np.hstack(
+                (inst.numpy(), np.full((n_nodes, 1), 1.0))
+            )
+    # Reset NaN point scores to NaN
+    mask = np.isnan(tracks[:, :, :, 1])
+    tracks[:, :, :, 2] = np.where(mask, np.nan, tracks[:, :, :, 2])
+    return tracks
 
 
 def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:

@@ -2,12 +2,31 @@ import numpy as np
 import pytest
 import xarray as xr
 from pytest import POSE_DATA
+from sleap_io.io.slp import read_labels
 
 from movement.io import PosesAccessor, load_poses
 
 
 class TestLoadPoses:
     """Test suite for the load_poses module."""
+
+    @pytest.fixture(scope="module")
+    def sleap_user_labels(self):
+        """Return a SLEAP `Labels` object containing only
+        user-labeled instances.
+        """
+        slp_file = POSE_DATA.get(
+            "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+        )
+        return read_labels(slp_file)
+
+    @pytest.fixture(scope="module")
+    def sleap_predicted_labels(self):
+        """Return a SLEAP `Labels` object containing only
+        predicted instances.
+        """
+        slp_file = POSE_DATA.get("SLEAP_single-mouse_EPM.predictions.slp")
+        return read_labels(slp_file)
 
     def assert_dataset(
         self, dataset, file_path=None, expected_source_software=None
@@ -47,6 +66,61 @@ class TestLoadPoses:
         returns a proper Dataset."""
         ds = load_poses.from_sleap_file(sleap_file)
         self.assert_dataset(ds, sleap_file, "SLEAP")
+
+    @pytest.mark.parametrize(
+        "slp_file, h5_file",
+        [
+            (
+                "SLEAP_single-mouse_EPM.analysis.h5",
+                "SLEAP_single-mouse_EPM.predictions.slp",
+            ),
+            (
+                "SLEAP_three-mice_Aeon_proofread.analysis.h5",
+                "SLEAP_three-mice_Aeon_proofread.predictions.slp",
+            ),
+        ],
+    )
+    def test_load_from_sleap_slp_file_or_h5_file_returns_same(
+        self, slp_file, h5_file
+    ):
+        """Test that loading pose tracks from SLEAP .slp and .h5 files
+        return the same Dataset."""
+        slp_file_path = POSE_DATA.get(slp_file)
+        h5_file_path = POSE_DATA.get(h5_file)
+        ds_from_slp = load_poses.from_sleap_file(slp_file_path)
+        ds_from_h5 = load_poses.from_sleap_file(h5_file_path)
+        xr.testing.assert_allclose(ds_from_h5, ds_from_slp)
+
+    @pytest.mark.parametrize(
+        "sleap_labels, expected",
+        [
+            ("sleap_user_labels", True),
+            ("sleap_predicted_labels", False),
+        ],
+    )
+    def test_sleap_labels_contains_user_labels_only(
+        self, sleap_labels, expected, request
+    ):
+        labels = request.getfixturevalue(sleap_labels)
+        assert (
+            load_poses._sleap_labels_contains_user_labels_only(labels)
+            == expected
+        )
+
+    @pytest.mark.parametrize(
+        "sleap_labels",
+        [
+            "sleap_user_labels",
+            "sleap_predicted_labels",
+        ],
+    )
+    def test_sleap_user_labels_to_numpy_confidence_equals_one(
+        self, sleap_labels, request
+    ):
+        labels = request.getfixturevalue(sleap_labels)
+        confidence = load_poses._sleap_user_labels_to_numpy(labels)[:, :, :, 2]
+        mask = np.isnan(confidence)
+        assert np.all(confidence[~mask] == 1)
 
     @pytest.mark.parametrize(
         "file_name",
