@@ -63,6 +63,20 @@ class TestSavePoses:
                 ),
                 does_not_raise(),
             ),  # valid dataset
+            (
+                load_poses.from_sleap_file(
+                    POSE_DATA.get("SLEAP_single-mouse_EPM.analysis.h5")
+                ),
+                does_not_raise(),
+            ),  # valid dataset
+            (
+                load_poses.from_sleap_file(
+                    POSE_DATA.get(
+                        "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+                    )
+                ),
+                does_not_raise(),
+            ),  # valid dataset
         ],
     )
     def test_to_dlc_df(self, ds, expected_exception):
