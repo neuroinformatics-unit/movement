@@ -19,7 +19,7 @@ class TestPosesIO:
     )
     def sleap_file(self, request):
         """Return the file path for a SLEAP .h5 or .slp file."""
-        return request.param
+        return POSE_DATA.get(request.param)
 
     @pytest.fixture(params=["dlc.h5", "dlc.csv"])
     def dlc_output_file(self, request, tmp_path):
@@ -44,7 +44,7 @@ class TestPosesIO:
         """Test that pose tracks loaded from SLEAP .slp and .h5 files,
         when converted to DLC .h5 and .csv files and re-loaded return
         the same Datasets."""
-        sleap_ds = load_poses.from_sleap_file(POSE_DATA.get(sleap_file))
+        sleap_ds = load_poses.from_sleap_file(sleap_file)
         save_poses.to_dlc_file(sleap_ds, dlc_output_file)
         dlc_ds = load_poses.from_dlc_file(dlc_output_file)
         xr.testing.assert_allclose(sleap_ds, dlc_ds)
