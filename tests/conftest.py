@@ -101,7 +101,7 @@ def nonexistent_file(tmp_path):
 
 
 @pytest.fixture
-def directory(tmp_path):  # used in save_poses, validators
+def directory(tmp_path):
     """Return a dictionary containing the file path and
     expected permission for a directory."""
     file_path = tmp_path / "directory"
@@ -126,7 +126,7 @@ def h5_file_no_dataframe(tmp_path):
 
 
 @pytest.fixture
-def fake_h5_file(tmp_path):  # used in save_poses, validators
+def fake_h5_file(tmp_path):
     """Return a dictionary containing the file path,
     expected exception, and expected datasets for
     a file with .h5 extension that is not in HDF5 format.
@@ -186,7 +186,7 @@ def sleap_file(request):
 
 @pytest.fixture
 def valid_tracks_array():
-    """Return a function that generate different kinds
+    """Return a function that generates different kinds
     of valid tracks array."""
 
     def _valid_tracks_array(array_type):
