@@ -389,13 +389,13 @@ def _sleap_user_labels_to_numpy(labels: Labels) -> np.ndarray:
 def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
     """If poses are loaded from a DeepLabCut .csv file, the DataFrame
     lacks the multi-index columns that are present in the .h5 file. This
-    function parses the csv file to a pandas DataFrame with multi-index
+    function parses the .csv file to a pandas DataFrame with multi-index
     columns, i.e. the same format as in the .h5 file.
 
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the DeepLabCut-style CSV file.
+        Path to the DeepLabCut-style .csv file.
 
     Returns
     -------

@@ -34,12 +34,12 @@ class TestSavePoses:
 
     @pytest.fixture
     def new_dlc_h5_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut H5 file."""
+        """Return the file path for a new DeepLabCut .h5 file."""
         return tmp_path / "new_dlc_file.h5"
 
     @pytest.fixture
     def new_dlc_csv_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut csv file."""
+        """Return the file path for a new DeepLabCut .csv file."""
         return tmp_path / "new_dlc_file.csv"
 
     @pytest.fixture

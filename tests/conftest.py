@@ -46,7 +46,7 @@ def setup_logging(tmp_path):
 @pytest.fixture
 def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for an unreadable h5 file."""
+    expected permission for an unreadable .h5 file."""
     file_path = tmp_path / "unreadable.h5"
     with open(file_path, "w") as f:
         f.write("unreadable data")
@@ -61,7 +61,7 @@ def unreadable_file(tmp_path):
 @pytest.fixture
 def unwriteable_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for an unwriteable h5 file."""
+    expected permission for an unwriteable .h5 file."""
     unwriteable_dir = tmp_path / "no_write"
     unwriteable_dir.mkdir()
     os.chmod(unwriteable_dir, not stat.S_IWUSR)
@@ -115,7 +115,7 @@ def directory(tmp_path):
 @pytest.fixture
 def h5_file_no_dataframe(tmp_path):
     """Return a dictionary containing the file path and
-    expected datasets for an h5 file with no dataframe."""
+    expected datasets for a .h5 file with no dataframe."""
     file_path = tmp_path / "no_dataframe.h5"
     with h5py.File(file_path, "w") as f:
         f.create_dataset("data_in_list", data=[1, 2, 3])
@@ -143,7 +143,7 @@ def fake_h5_file(tmp_path):
 
 @pytest.fixture
 def invalid_single_animal_csv_file(tmp_path):
-    """Return the file path for a fake single-animal csv file."""
+    """Return the file path for a fake single-animal .csv file."""
     file_path = tmp_path / "fake_single_animal.csv"
     with open(file_path, "w") as f:
         f.write("scorer,columns\nsome,columns\ncoords,columns\n")
@@ -153,7 +153,7 @@ def invalid_single_animal_csv_file(tmp_path):
 
 @pytest.fixture
 def invalid_multi_animal_csv_file(tmp_path):
-    """Return the file path for a fake multi-animal csv file."""
+    """Return the file path for a fake multi-animal .csv file."""
     file_path = tmp_path / "fake_multi_animal.csv"
     with open(file_path, "w") as f:
         f.write(
