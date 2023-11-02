@@ -3,11 +3,11 @@
 
 ## Mission
 
-[movement](https://movement.neuroinformatics.dev/) aims to **facilitate the study of animal behaviour in neuroscience** by providing a suite of **Python tools to analyse body movements** across space and time.
+[movement](movement-website:) aims to **facilitate the study of animal behaviour in neuroscience** by providing a suite of **Python tools to analyse body movements** across space and time.
 
 ## Scope
 
-At its core, movement handles trajectories of *keypoints*, which are specific body parts of an *individual*. An individual's posture or *pose* is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms *pose tracks*. In neuroscience, these tracks are typically extracted from video data using software like [DeepLabCut](https://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/).
+At its core, movement handles trajectories of *keypoints*, which are specific body parts of an *individual*. An individual's posture or *pose* is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms *pose tracks*. In neuroscience, these tracks are typically extracted from video data using software like [DeepLabCut](dlc:) or [SLEAP](sleap:).
 
 With movement, our vision is to present a **consistent interface for pose tracks** and to **analyze them using modular and accessible tools**. We aim to accommodate data from a range of pose estimation packages, in **2D or 3D**, tracking **single or multiple individuals**. The focus will be on providing functionalities for data cleaning, visualisation and motion quantification (see the [Roadmap](target-roadmap) for details).
 
@@ -24,4 +24,4 @@ movement is committed to:
 - __Performance and responsiveness__, especially for large datasets, using parallel processing where appropriate.
 - __Modularity and flexibility__. We envision movement as a platform for new tools and analyses, offering users the building blocks to craft their own workflows.
 
-Some of these principles are shared with, and were inspired by, napari's [Mission and Values](https://napari.org/stable/community/mission_and_values.html) statement.
+Some of these principles are shared with, and were inspired by, napari's [Mission and Values](napari:community/mission_and_values) statement.

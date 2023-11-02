@@ -2,8 +2,8 @@
 
 ## Installation
 
-We recommend you install movement inside a [conda](https://docs.conda.io/en/latest/)
-or [mamba](https://mamba.readthedocs.io/en/latest/index.html) environment.
+We recommend you install movement inside a [conda](conda:)
+or [mamba](mamba:) environment.
 In the following we assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
 
@@ -36,7 +36,7 @@ pip install --upgrade movement
 
 :::{tab-item} Developers
 To get the latest development version, clone the
-[GitHub repository](https://github.com/neuroinformatics-unit/movement/)
+[GitHub repository](movement-github:)
 and then run from inside the repository:
 
 ```sh
@@ -53,7 +53,7 @@ Please see the [contributing guide](target-contributing) for more information.
 
 ## Loading data
 You can load predicted pose tracks from the pose estimation software packages
-[DeepLabCut](http://www.mackenziemathislab.org/deeplabcut) or [SLEAP](https://sleap.ai/).
+[DeepLabCut](dlc:) or [SLEAP](sleap:).
 
 First import the `movement.io.load_poses` module:
 
@@ -67,7 +67,7 @@ Then, use the `from_dlc_file` or `from_sleap_file` functions to load the data.
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis files](https://sleap.ai/tutorials/analysis.html) (`.h5`):
+Load from [SLEAP analysis files](sleap:tutorials/analysis) (`.h5`):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 ```
@@ -132,7 +132,7 @@ and load the data, as shown above.
 ## Working with movement datasets
 
 Loaded pose estimation data are represented in movement as
-[`xarray.Dataset`](https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html) objects.
+[`xarray.Dataset`](xarray:generated/xarray.Dataset.html) objects.
 
 You can view information about the loaded dataset by printing it:
 ```python
@@ -156,13 +156,13 @@ list of unique names (str) for `individuals` and `keypoints`,
 in seconds if `fps` is provided, otherwise they are in frame numbers.
 
 The dataset contains two data variables stored as
-[`xarray.DataArray`](https://docs.xarray.dev/en/latest/generated/xarray.DataArray.html#xarray.DataArray) objects:
+[`xarray.DataArray`](xarray:generated/xarray.DataArray.html#xarray.DataArray) objects:
 - `pose_tracks`: with shape (`time`, `individuals`, `keypoints`, `space`)
 - `confidence`: with shape (`time`, `individuals`, `keypoints`)
 
 You can think of a `DataArray` as a `numpy.ndarray` with `pandas`-style
 indexing and labelling. To learn more about `xarray` data structures, see the
-relevant [documentation](https://docs.xarray.dev/en/latest/user-guide/data-structures.html).
+relevant [documentation](xarray:user-guide/data-structures.html).
 
 The dataset may also contain the following attributes as metadata:
 - `fps`: the number of frames per second in the video
@@ -197,11 +197,11 @@ resulting in a `DataArray` rather than a `Dataset`:
 ```python
 pose_tracks = ds.pose_tracks.sel(individuals="individual1", keypoints="snout")
 ```
-You may also use all the other powerful [indexing and selection](https://docs.xarray.dev/en/latest/user-guide/indexing.html) methods provided by `xarray`.
+You may also use all the other powerful [indexing and selection](xarray:user-guide/indexing.html) methods provided by `xarray`.
 
 ### Plotting
 
-You can also use the built-in [`xarray` plotting methods](https://docs.xarray.dev/en/latest/user-guide/plotting.html)
+You can also use the built-in [`xarray` plotting methods](xarray:user-guide/plotting.html)
 to visualise the data. Check out the [Load and explore pose tracks](./examples/load_and_explore_poses.rst)
 example for inspiration.
 

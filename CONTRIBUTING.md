@@ -4,8 +4,8 @@
 
 ### Creating a development environment
 
-It is recommended to use [conda](https://docs.conda.io/en/latest/)
-or [mamba](https://mamba.readthedocs.io/en/latest/index.html) to create a
+It is recommended to use [conda](conda:)
+or [mamba](mamba:) to create a
 development environment for movement. In the following we assume you have
 `conda` installed, but the same commands will also work with `mamba`/`micromamba`.
 
@@ -47,7 +47,7 @@ We recommend, and adhere, to the following conventions:
 - One approval of a PR (by a repo owner) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
 - Ask for a review from someone specific if you think they would be a particularly suited reviewer.
-- PRs are preferably merged via the ["squash and merge"](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
+- PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
 * Create a new branch, make your changes, and stage them.
@@ -103,7 +103,7 @@ See [sample data](#sample-data) for more information.
 
 
 ### Continuous integration
-All pushes and pull requests will be built by [GitHub actions](https://docs.github.com/en/actions).
+All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
 This will usually include linting, testing and deployment.
 
 A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set up to run (on each push/PR):
@@ -118,9 +118,9 @@ We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR
 * MINOR = new feature
 * MAJOR = breaking change
 
-We use [setuptools_scm](https://github.com/pypa/setuptools_scm) to automatically version movement.
+We use [setuptools_scm](setuptools-scm:) to automatically version movement.
 It has been pre-configured in the `pyproject.toml` file.
-`setuptools_scm` will automatically [infer the version using git](https://github.com/pypa/setuptools_scm#default-versioning-scheme).
+`setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme).
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
 Make sure you commit any changes you wish to be included in this version. E.g. to bump the version to `1.0.0`:
 
@@ -138,7 +138,7 @@ The version number is automatically determined from the latest tag on the _main_
 ## Contributing documentation
 
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
-[movement.neuroinformatics.dev](https://movement.neuroinformatics.dev).
+[movement.neuroinformatics.dev](movement-website:).
 Its source files are located in the `docs` folder of this repository.
 They are written in either [reStructuredText](https://docutils.sourceforge.io/rst.html) or
 [markdown](https://myst-parser.readthedocs.io/en/stable/syntax/typography.html).
@@ -179,7 +179,7 @@ my_new_file
 ### Updating the API reference
 If your PR introduces new public-facing functions, classes, or methods,
 make sure to add them to the `docs/source/api_index.rst` page, so that they are
-included in the [API reference](https://movement.neuroinformatics.dev/api_index.html),
+included in the [API reference](movement-website:api_index),
 e.g.:
 
 ```rst
@@ -198,7 +198,7 @@ that follow the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html
 
 ### Updating the examples
 We use [sphinx-gallery](https://sphinx-gallery.github.io/stable/index.html)
-to create the [examples](https://movement.neuroinformatics.dev/examples/index.html).
+to create the [examples](movement-website:examples).
 To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](https://sphinx-gallery.github.io/stable/syntax.html).
@@ -226,11 +226,11 @@ rm -rf docs/build && sphinx-build docs/source docs/build
 ## Sample data
 
 We maintain some sample data to be used for testing, examples and tutorials on an
-[external data repository](https://gin.g-node.org/neuroinformatics/movement-test-data).
-Our hosting platform of choice is called [GIN](https://gin.g-node.org/) and is maintained
+[external data repository](gin:neuroinformatics/movement-test-data).
+Our hosting platform of choice is called [GIN](gin:) and is maintained
 by the [German Neuroinformatics Node](https://www.g-node.org/).
 GIN has a GitHub-like interface and git-like
-[CLI](https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
+[CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
 Currently the data repository contains sample pose estimation data files
 stored in the `poses` folder. Each file name starts with either "DLC" or "SLEAP",
@@ -256,13 +256,13 @@ This can be changed by setting the `DATA_DIR` variable in the `movement.datasets
 Only core movement developers may add new files to the external data repository.
 To add a new file, you will need to:
 
-1. Create a [GIN](https://gin.g-node.org/) account
-2. Ask to be added as a collaborator on the [movement data repository](https://gin.g-node.org/neuroinformatics/movement-test-data) (if not already)
-3. Download the [GIN CLI](https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
+1. Create a [GIN](gin:) account
+2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
+3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
 5. Add your new files and commit them with `gin commit -m <message> <filename>`.
 6. Upload the commited changes to the GIN repository, by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
 7. Determine the sha256 checksum hash of each new file, by running `sha256sum <filename>` in a terminal. Alternatively, you can use `pooch` to do this for you: `python -c "import pooch; pooch.file_hash('/path/to/file')"`. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use `python -c "import pooch; pooch.make_registry('/path/to/folder', 'sha256_registry.txt')`.
-8. Update the `movement.datasets.py` module on the [movement GitHub repository](https://github.com/SainsburyWellcomeCentre/movement) by adding the new files to the `POSE_DATA` registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual [guidelines for contributing code](#contributing-code). Make sure to test whether the new files can be fetched successfully (see [fetching data](#fetching-data) above) before submitting your pull request.
+8. Update the `movement.datasets.py` module on the [movement GitHub repository](movement-github:) by adding the new files to the `POSE_DATA` registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual [guidelines for contributing code](#contributing-code). Make sure to test whether the new files can be fetched successfully (see [fetching data](#fetching-data) above) before submitting your pull request.
 
 You can also perform steps 3-6 via the GIN web interface, if you prefer to avoid using the CLI.
