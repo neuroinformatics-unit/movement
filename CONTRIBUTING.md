@@ -138,7 +138,7 @@ The version number is automatically determined from the latest tag on the _main_
 ## Contributing documentation
 
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
-[movement.neuroinformatics.dev](movement-website:).
+[movement.neuroinformatics.dev](../index.md).
 Its source files are located in the `docs` folder of this repository.
 They are written in either [reStructuredText](https://docutils.sourceforge.io/rst.html) or
 [markdown](myst-parser:syntax/typography.html).
@@ -189,7 +189,7 @@ If it is not yet defined and you have multiple external links pointing to the sa
 ### Updating the API reference
 If your PR introduces new public-facing functions, classes, or methods,
 make sure to add them to the `docs/source/api_index.rst` page, so that they are
-included in the [API reference](movement-website:api_index),
+included in the [API reference](../api_index.rst),
 e.g.:
 
 ```rst
@@ -208,7 +208,7 @@ that follow the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html
 
 ### Updating the examples
 We use [sphinx-gallery](sphinx-gallery:)
-to create the [examples](movement-website:examples).
+to create the [examples](../examples/index.rst).
 To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](sphinx-gallery:syntax).

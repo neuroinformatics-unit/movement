@@ -146,7 +146,6 @@ myst_url_schemes = {
     "ftp": None,
     "mailto": None,
     "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
-    "movement-website": "https://movement.neuroinformatics.dev/{{path}}",
     "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!",
     "conda": "https://docs.conda.io/en/latest/",
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
