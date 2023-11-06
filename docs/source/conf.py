@@ -157,5 +157,6 @@ myst_url_schemes = {
     "napari": "https://napari.org/dev/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/",
+    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
 }

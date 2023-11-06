@@ -207,11 +207,11 @@ For this to work, your functions/classes/methods will need to have docstrings
 that follow the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 
 ### Updating the examples
-We use [sphinx-gallery](https://sphinx-gallery.github.io/stable/index.html)
+We use [sphinx-gallery](sphinx-gallery:)
 to create the [examples](movement-website:examples).
 To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
-[sphinx-gallery documentation](https://sphinx-gallery.github.io/stable/syntax.html).
+[sphinx-gallery documentation](sphinx-gallery:syntax).
 
 
 ### Building the documentation locally
