@@ -141,7 +141,7 @@ The documentation is hosted via [GitHub pages](https://pages.github.com/) at
 [movement.neuroinformatics.dev](movement-website:).
 Its source files are located in the `docs` folder of this repository.
 They are written in either [reStructuredText](https://docutils.sourceforge.io/rst.html) or
-[markdown](https://myst-parser.readthedocs.io/en/stable/syntax/typography.html).
+[markdown](myst-parser:syntax/typography.html).
 The `index.md` file corresponds to the homepage of the documentation website.
 Other `.rst`  or `.md` files are linked to the homepage via the `toctree` directive.
 
@@ -164,6 +164,7 @@ following the [same guidelines as for code changes](#pull-requests).
 Make sure that the header levels in your `.md` or `.rst` files are incremented
 consistently (H1 > H2 > H3, etc.) without skipping any levels.
 
+#### Adding new pages
 If you create a new documentation source file (e.g. `my_new_file.md` or `my_new_file.rst`),
 you will need to add it to the `toctree` directive in `index.md`
 for it to be included in the documentation website:
@@ -175,6 +176,15 @@ for it to be included in the documentation website:
 existing_file
 my_new_file
 ```
+
+#### Adding external links
+If you are adding references to an external link (e.g. `https://github.com/neuroinformatics-unit/movement/issues/1`) in a `.md` file, you will need to check if a matching URL scheme (e.g. `https://github.com/neuroinformatics-unit/movement/`) is defined in `myst_url_schemes` in `docs/source/conf.py`. If it is, the following `[](scheme:loc)` syntax will be converted to the [full URL](movement-github:issues/1) during the build process:
+```markdown
+[link text](movement-github:issues/1)
+```
+
+If it is not yet defined and you have multiple external links pointing to the same base URL, you will need to [add the URL scheme](myst-parser:syntax/cross-referencing.html#customising-external-url-resolution) to `myst_url_schemes` in `docs/source/conf.py`.
+
 
 ### Updating the API reference
 If your PR introduces new public-facing functions, classes, or methods,
