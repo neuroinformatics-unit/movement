@@ -3,7 +3,7 @@
 
 ## Mission
 
-[movement](../index.md) aims to **facilitate the study of animal behaviour in neuroscience** by providing a suite of **Python tools to analyse body movements** across space and time.
+[movement](target-movement) aims to **facilitate the study of animal behaviour in neuroscience** by providing a suite of **Python tools to analyse body movements** across space and time.
 
 ## Scope
 
