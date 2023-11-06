@@ -233,6 +233,23 @@ To refresh the documentation, after making changes, remove the `docs/build` fold
 rm -rf docs/build && sphinx-build docs/source docs/build
 ```
 
+To check that external links are correctly resolved, run:
+
+```sh
+sphinx-build docs/source docs/build -b linkcheck
+```
+
+If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to `linkcheck_anchors_ignore_for_url` in `docs/source/conf.py`, e.g.:
+
+```python
+# The linkcheck builder will skip verifying that anchors exist when checking
+# these URLs
+linkcheck_anchors_ignore_for_url = [
+    "https://gin.g-node.org/G-Node/Info/wiki/",
+    "https://neuroinformatics.zulipchat.com/",
+]
+```
+
 ## Sample data
 
 We maintain some sample data to be used for testing, examples and tutorials on an
