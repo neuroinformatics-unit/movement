@@ -17,7 +17,7 @@ from movement.io.validators import (
     ValidPosesCSV,
     ValidPoseTracks,
 )
-from movement.logging import log_error
+from movement.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
 
@@ -255,6 +255,11 @@ def _load_from_sleap_analysis_file(
                 # Assume user-labelled and assign 1.0 as score
                 mask = np.isnan(tracks[:, :, :, 1])
                 scores = np.where(mask, scores, 1.0)
+                log_warning(
+                    f"Could not find confidence scores in {file.path}. "
+                    "Assuming pose tracks are user-labelled and "
+                    "assigning fixed confidence scores of 1.0."
+                )
         return ValidPoseTracks(
             tracks_array=tracks.astype(np.float32),
             scores_array=scores.astype(np.float32),
@@ -290,6 +295,11 @@ def _load_from_sleap_labels_file(
 
     if _sleap_labels_contains_user_labels_only(labels):
         tracks_with_scores = _sleap_user_labels_to_numpy(labels)
+        log_warning(
+            f"Could not find PredictedInstances in {file.path}. "
+            "Assuming pose tracks are user-labelled and "
+            "assigning fixed confidence scores of 1.0."
+        )
     else:
         tracks_with_scores = labels.numpy(
             untracked=False, return_confidence=True
