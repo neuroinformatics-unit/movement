@@ -110,11 +110,14 @@ def from_sleap_file(
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into *movement*.
 
-    You can also try directly loading the ".slp" file, but this feature is
-    experimental and does not work in all cases. If the ".slp" file contains
-    both user-labeled and predicted instances, only the predicted ones will be
-    loaded. If there are multiple videos in the file, only the first one will
-    be used.
+    You can also try directly loading the ".slp" file, but this feature
+    does not work in all cases. If the ".slp" file contains only predicted
+    instances, they will be imported alongside their point-wise confidence
+    scores. Alternatively, if it contains only user-labelled instances, they
+    will be loaded and assigned fixed point-wise confidence scores of 1.0.
+    Lastly, if a mix of both user-labelled and predicted instances are present,
+    only the predicted ones will be loaded.
+    If there are multiple videos in the file, only the first one will be used.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual/animal.
@@ -232,9 +235,9 @@ def _load_from_sleap_analysis_file(
 
     Notes
     -----
-    If the point-level prediction scores (i.e. confidence) in the SLEAP
+    If the point-wise confidence scores in the SLEAP
     analysis file are all NaNs, this function assumes that the pose
-    tracks are user-labeled, and will assign a fixed score of 1.0.
+    tracks are user-labelled, and will assign a fixed score of 1.0.
     """
 
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
@@ -302,7 +305,7 @@ def _load_from_sleap_labels_file(
 
 
 def _sleap_labels_contains_user_labels_only(labels: Labels) -> bool:
-    """Check if a SLEAP `Labels` object contains only user-labeled instances.
+    """Check if a SLEAP `Labels` object contains only user-labelled instances.
 
     Parameters
     ----------
@@ -313,7 +316,7 @@ def _sleap_labels_contains_user_labels_only(labels: Labels) -> bool:
     -------
     bool
         A boolean value indicating whether the labels contain only
-        user-labeled instances.
+        user-labelled instances.
     """
     all_instances = [
         instance for lf in labels.labeled_frames for instance in lf.instances
@@ -326,7 +329,7 @@ def _sleap_labels_contains_user_labels_only(labels: Labels) -> bool:
 
 def _sleap_user_labels_to_numpy(labels: Labels) -> np.ndarray:
     """Convert a SLEAP `Labels` object to a NumPy array containing
-    pose tracks with point scores (i.e. confidence) set as 1.0.
+    pose tracks with point-wise confidence scores set as 1.0.
 
     Parameters
     ----------
@@ -342,15 +345,15 @@ def _sleap_user_labels_to_numpy(labels: Labels) -> np.ndarray:
     -----
     This function only considers SLEAP instances in the first
     video of the SLEAP `Labels` object. It is primarily meant
-    to be used with `Labels` containing only user-labeled instances.
+    to be used with `Labels` containing only user-labelled instances.
     If `Labels` contains predicted instances only, this function
-    will overwrite all point scores to 1.0. If `Labels` contains
-    both user-labeled and predicted instances, the returned NumPy
-    array will contain the last occurrence of each tracked instance
+    will overwrite all point-wise confidence scores to 1.0. If `Labels`
+    contains both user-labelled and predicted instances, the returned
+    NumPy array will contain the last occurrence of each tracked instance
     in each frame.
 
     This function is adapted from `Labels.numpy()` from the
-    `sleap_io` package [1]_ to allow user-labeled instances.
+    `sleap_io` package [1]_ to allow user-labelled instances.
 
     References
     ----------

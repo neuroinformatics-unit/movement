@@ -13,7 +13,7 @@ class TestLoadPoses:
     @pytest.fixture(scope="module")
     def sleap_user_labels(self):
         """Return a SLEAP `Labels` object containing only
-        user-labeled instances.
+        user-labelled instances.
         """
         slp_file = POSE_DATA.get(
             "SLEAP_three-mice_Aeon_proofread.predictions.slp"
