@@ -1,3 +1,5 @@
+.. _target-examples:
+
 Examples
 ========
 

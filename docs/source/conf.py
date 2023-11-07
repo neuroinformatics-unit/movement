@@ -132,3 +132,30 @@ html_baseurl = "https://movement.neuroinformatics.dev"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
+
+# The linkcheck builder will skip verifying that anchors exist when checking 
+# these URLs
+linkcheck_anchors_ignore_for_url = [
+    "https://gin.g-node.org/G-Node/Info/wiki/",
+    "https://neuroinformatics.zulipchat.com/",
+]
+
+myst_url_schemes = {
+    "http": None,
+    "https": None,
+    "ftp": None,
+    "mailto": None,
+    "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
+    "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!",
+    "conda": "https://docs.conda.io/en/latest/",
+    "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
+    "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
+    "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
+    "mamba": "https://mamba.readthedocs.io/en/latest/",
+    "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "napari": "https://napari.org/dev/{{path}}",
+    "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "sleap": "https://sleap.ai/",
+    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
+    "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
+}

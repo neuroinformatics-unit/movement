@@ -1,3 +1,5 @@
+.. _target-api:
+
 API Reference
 =============
 
