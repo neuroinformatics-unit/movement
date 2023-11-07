@@ -340,17 +340,17 @@ def _sleap_user_labels_to_numpy(labels: Labels) -> np.ndarray:
 
     Notes
     -----
-        This function only considers SLEAP instances in the first
-        video of the SLEAP `Labels` object. It is primarily meant
-        to be used with `Labels` containing only user-labeled instances.
-        If `Labels` contains predicted instances only, this function
-        will overwrite all point scores to 1.0. If `Labels` contains
-        both user-labeled and predicted instances, the returned NumPy
-        array will contain the last occurrence of each tracked instance
-        in each frame.
+    This function only considers SLEAP instances in the first
+    video of the SLEAP `Labels` object. It is primarily meant
+    to be used with `Labels` containing only user-labeled instances.
+    If `Labels` contains predicted instances only, this function
+    will overwrite all point scores to 1.0. If `Labels` contains
+    both user-labeled and predicted instances, the returned NumPy
+    array will contain the last occurrence of each tracked instance
+    in each frame.
 
-        This function is adapted from `Labels.numpy()` from the
-        `sleap_io` package [1]_ to allow user-labeled instances.
+    This function is adapted from `Labels.numpy()` from the
+    `sleap_io` package [1]_ to allow user-labeled instances.
 
     References
     ----------
