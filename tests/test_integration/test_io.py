@@ -1,25 +1,12 @@
 import numpy as np
 import pytest
 import xarray as xr
-from pytest import POSE_DATA
 
 from movement.io import load_poses, save_poses
 
 
 class TestPosesIO:
     """Test the IO functionalities of the PoseTracks class."""
-
-    @pytest.fixture(
-        params=[
-            "SLEAP_single-mouse_EPM.analysis.h5",
-            "SLEAP_single-mouse_EPM.predictions.slp",
-            "SLEAP_three-mice_Aeon_proofread.analysis.h5",
-            "SLEAP_three-mice_Aeon_proofread.predictions.slp",
-        ]
-    )
-    def sleap_file(self, request):
-        """Return the file path for a SLEAP .h5 or .slp file."""
-        return POSE_DATA.get(request.param)
 
     @pytest.fixture(params=["dlc.h5", "dlc.csv"])
     def dlc_output_file(self, request, tmp_path):
