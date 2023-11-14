@@ -26,6 +26,8 @@ def pytest_configure():
             "SLEAP_single-mouse_EPM.predictions.slp",
             "SLEAP_three-mice_Aeon_proofread.analysis.h5",
             "SLEAP_three-mice_Aeon_proofread.predictions.slp",
+            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
         ]
     }
 
@@ -165,6 +167,21 @@ def invalid_multi_animal_csv_file(tmp_path):
 def dlc_style_df():
     """Return a valid DLC-style DataFrame."""
     return pd.read_hdf(pytest.POSE_DATA.get("DLC_single-wasp.predictions.h5"))
+
+
+@pytest.fixture(
+    params=[
+        "SLEAP_single-mouse_EPM.analysis.h5",
+        "SLEAP_single-mouse_EPM.predictions.slp",
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5",
+        "SLEAP_three-mice_Aeon_proofread.predictions.slp",
+        "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+        "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
+    ]
+)
+def sleap_file(request):
+    """Return the file path for a SLEAP .h5 or .slp file."""
+    return pytest.POSE_DATA.get(request.param)
 
 
 @pytest.fixture
