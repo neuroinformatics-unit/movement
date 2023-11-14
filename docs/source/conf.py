@@ -94,6 +94,7 @@ sphinx_gallery_conf = {
     "examples_dirs": ["../../examples"],
     "filename_pattern": "/*.py",  # which files to execute before inclusion
     "gallery_dirs": ["examples"],  # output directory
+    "run_stale_examples": True,  # re-run examples on each build
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -133,7 +134,7 @@ html_baseurl = "https://movement.neuroinformatics.dev"
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
 
-# The linkcheck builder will skip verifying that anchors exist when checking 
+# The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
 linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",

@@ -36,6 +36,8 @@ POSE_DATA = pooch.create(
         "SLEAP_two-mice_social-interaction.predictions.slp": "45881affde9704c045e70b8d4b3f6bbb8d9bd8ef9f4cdea6d173cfe35857549b",  # noqa: E501
         "SLEAP_three-mice_Aeon_proofread.analysis.h5": "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a",  # noqa: E501
         "SLEAP_three-mice_Aeon_proofread.predictions.slp": "7b7436a52dfd5f4d80d7c66919ad1a1732e5435fe33faf9011ec5f7b7074e788",  # noqa: E501
+        "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5": "899651ec027eb8fd6181246f89142ad1c0a40f14394fc8144d44ea093c0e137d",  # noqa: E501
+        "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp": "6d3f2c5446e9c12aabf28d5a9470835736b0419dcefebba89c305114f83b82d1",  # noqa: E501
     },
 )
 
