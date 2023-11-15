@@ -1,4 +1,5 @@
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -193,30 +194,20 @@ class TestSavePoses:
                 ]
 
     @pytest.mark.parametrize(
-        "file_name, split_individuals, expected_exception",
+        "split_individuals, expected_exception",
         [
-            ("test.h5", True, does_not_raise()),
-            ("test.csv", False, does_not_raise()),
-            ("test.h5", "auto", does_not_raise()),
-            (
-                "test.h5",
-                "invalid",
-                pytest.raises(ValueError, match="boolean or 'auto'"),
-            ),
-            (
-                "test.csv",
-                1,
-                pytest.raises(ValueError, match="boolean or 'auto'"),
-            ),
+            (True, does_not_raise()),
+            (False, does_not_raise()),
+            ("auto", does_not_raise()),
+            ("1", pytest.raises(ValueError, match="boolean or 'auto'")),
         ],
     )
     def test_to_dlc_file_split_individuals(
         self,
         valid_pose_dataset,
-        file_name,
+        new_dlc_h5_file,
         split_individuals,
         expected_exception,
-        tmp_path,
         request,
     ):
         """Test that the 'split_individuals' argument affects the behaviour
@@ -225,18 +216,22 @@ class TestSavePoses:
 
         with expected_exception:
             save_poses.to_dlc_file(
-                valid_pose_dataset, tmp_path / file_name, split_individuals
+                valid_pose_dataset,
+                new_dlc_h5_file,
+                split_individuals,
             )
             ds = request.getfixturevalue("valid_pose_dataset")
 
             # "auto" becomes False, default valid dataset is multi-individual
             if split_individuals in [False, "auto"]:
                 # this should save only one file
-                assert (tmp_path / file_name).is_file()
-                (tmp_path / file_name).unlink()
+                assert new_dlc_h5_file.is_file()
+                new_dlc_h5_file.unlink()
             elif split_individuals is True:
                 # this should save one file per individual
                 for ind in ds.individuals.values:
-                    file_name_ind = file_name.replace(".", f"_{ind}.")
-                    assert (tmp_path / file_name_ind).is_file()
-                    (tmp_path / file_name_ind).unlink()
+                    file_path_ind = Path(
+                        f"{new_dlc_h5_file.with_suffix('')}_{ind}.h5"
+                    )
+                    assert file_path_ind.is_file()
+                    file_path_ind.unlink()
