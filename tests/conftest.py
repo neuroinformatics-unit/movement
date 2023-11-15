@@ -202,10 +202,19 @@ def valid_tracks_array():
 
 
 @pytest.fixture
-def valid_pose_dataset(valid_tracks_array):
+def valid_pose_dataset(valid_tracks_array, request):
     """Return a valid pose tracks dataset."""
     dim_names = PosesAccessor.dim_names
-    tracks_array = valid_tracks_array("multi_track_array")
+
+    # create a multi_track_array by default unless overriden via param
+    try:
+        array_format = request.param
+    except AttributeError:
+        array_format = "multi_track_array"
+
+    tracks_array = valid_tracks_array(array_format)
+    n_individuals, n_keypoints = tracks_array.shape[1:3]
+
     return xr.Dataset(
         data_vars={
             "pose_tracks": xr.DataArray(tracks_array, dims=dim_names),
@@ -216,8 +225,8 @@ def valid_pose_dataset(valid_tracks_array):
         },
         coords={
             "time": np.arange(tracks_array.shape[0]),
-            "individuals": ["ind1", "ind2"],
-            "keypoints": ["key1", "key2"],
+            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
+            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
             "space": ["x", "y"],
         },
         attrs={

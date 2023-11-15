@@ -26,3 +26,12 @@ class TestPosesIO:
         )
         ds = load_poses.from_dlc_file(tmp_path / file_name)
         xr.testing.assert_allclose(ds, valid_pose_dataset)
+
+    @pytest.mark.parametrize("dlc_file", ["dlc.h5", "dlc.csv"])
+    def test_load_from_sleap_save_to_dlc(self, sleap_file, dlc_file, tmp_path):
+        """Test that loading pose tracks from SLEAP and saving to a DLC-style
+        dataframe works"""
+        ds = load_poses.from_sleap_file(sleap_file)
+        save_poses.to_dlc_file(
+            ds, tmp_path / dlc_file, split_individuals="auto"
+        )

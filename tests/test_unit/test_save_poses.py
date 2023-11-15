@@ -129,3 +129,114 @@ class TestSavePoses:
                 tmp_path / "test.h5",
                 split_individuals=False,
             )
+
+    @pytest.mark.parametrize(
+        "valid_pose_dataset, split_value",
+        [("single_track_array", True), ("multi_track_array", False)],
+        indirect=["valid_pose_dataset"],
+    )
+    def test_auto_split_individuals(self, valid_pose_dataset, split_value):
+        """Test that setting 'split_individuals' to 'auto' yields True
+        for single-individual datasets and False for multi-individual ones."""
+        assert (
+            save_poses._auto_split_individuals(valid_pose_dataset)
+            == split_value
+        )
+
+    @pytest.mark.parametrize(
+        "valid_pose_dataset, split_individuals",
+        [
+            ("single_track_array", True),  # single-individual, split
+            ("multi_track_array", False),  # multi-individual, no split
+            ("single_track_array", False),  # single-individual, no split
+            ("multi_track_array", True),  # multi-individual, split
+        ],
+        indirect=["valid_pose_dataset"],
+    )
+    def test_to_dlc_df_split_individuals(
+        self,
+        valid_pose_dataset,
+        split_individuals,
+        request,
+    ):
+        """Test that the 'split_individuals' argument affects the behaviour
+        of the 'to_dlc_df` function as expected
+        """
+        df = save_poses.to_dlc_df(valid_pose_dataset, split_individuals)
+        # Get the names of the individuals in the dataset
+        ds = request.getfixturevalue("valid_pose_dataset")
+        ind_names = ds.individuals.values
+
+        if split_individuals is False:
+            # this should produce a single df in multi-animal DLC format
+            assert isinstance(df, pd.DataFrame)
+            assert df.columns.names == [
+                "scorer",
+                "individuals",
+                "bodyparts",
+                "coords",
+            ]
+            assert all(
+                [ind in df.columns.get_level_values("individuals")]
+                for ind in ind_names
+            )
+        elif split_individuals is True:
+            # this should produce a dict of dfs in single-animal DLC format
+            assert isinstance(df, dict)
+            for ind in ind_names:
+                assert ind in df.keys()
+                assert isinstance(df[ind], pd.DataFrame)
+                assert df[ind].columns.names == [
+                    "scorer",
+                    "bodyparts",
+                    "coords",
+                ]
+
+    @pytest.mark.parametrize(
+        "file_name, split_individuals, expected_exception",
+        [
+            ("test.h5", True, does_not_raise()),
+            ("test.csv", False, does_not_raise()),
+            ("test.h5", "auto", does_not_raise()),
+            (
+                "test.h5",
+                "invalid",
+                pytest.raises(ValueError, match="boolean or 'auto'"),
+            ),
+            (
+                "test.csv",
+                1,
+                pytest.raises(ValueError, match="boolean or 'auto'"),
+            ),
+        ],
+    )
+    def test_to_dlc_file_split_individuals(
+        self,
+        valid_pose_dataset,
+        file_name,
+        split_individuals,
+        expected_exception,
+        tmp_path,
+        request,
+    ):
+        """Test that the 'split_individuals' argument affects the behaviour
+        of the 'to_dlc_file` function as expected
+        """
+
+        with expected_exception:
+            save_poses.to_dlc_file(
+                valid_pose_dataset, tmp_path / file_name, split_individuals
+            )
+            ds = request.getfixturevalue("valid_pose_dataset")
+
+            # "auto" becomes False, default valid dataset is multi-individual
+            if split_individuals in [False, "auto"]:
+                # this should save only one file
+                assert (tmp_path / file_name).is_file()
+                (tmp_path / file_name).unlink()
+            elif split_individuals is True:
+                # this should save one file per individual
+                for ind in ds.individuals.values:
+                    file_name_ind = file_name.replace(".", f"_{ind}.")
+                    assert (tmp_path / file_name_ind).is_file()
+                    (tmp_path / file_name_ind).unlink()
