@@ -69,7 +69,7 @@ class TestSavePoses:
         """Test that converting a valid/invalid xarray dataset to
         a DeepLabCut-style pandas DataFrame returns the expected result."""
         with expected_exception as e:
-            df = save_poses.to_dlc_df(ds)
+            df = save_poses.to_dlc_df(ds, split_individuals=False)
             if e is None:  # valid input
                 assert isinstance(df, pd.DataFrame)
                 assert isinstance(df.columns, pd.MultiIndex)
@@ -127,4 +127,5 @@ class TestSavePoses:
             save_poses.to_dlc_file(
                 request.getfixturevalue(invalid_pose_dataset),
                 tmp_path / "test.h5",
+                split_individuals=False,
             )

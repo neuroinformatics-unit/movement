@@ -78,7 +78,7 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
 
 def to_dlc_df(
-    ds: xr.Dataset, split_individuals: bool = True
+    ds: xr.Dataset, split_individuals: bool = False
 ) -> Union[pd.DataFrame, dict[str, pd.DataFrame]]:
     """Convert an xarray dataset containing pose tracks into a single
     DeepLabCut-style pandas DataFrame or a dictionary of DataFrames
@@ -92,7 +92,7 @@ def to_dlc_df(
         If True, return a dictionary of pandas DataFrames per individual,
         with individual names as keys and DataFrames as values.
         If False, return a single pandas DataFrame for all individuals.
-        Default is True.
+        Default is False.
 
     Returns
     -------
