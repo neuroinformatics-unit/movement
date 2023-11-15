@@ -77,7 +77,7 @@ def _save_dlc_df(filepath: Path, dataframe: pd.DataFrame):
         dataframe.to_hdf(filepath, key="df_with_missing")
     # for invalid suffix
     else:
-        log_error(ValueError, "Expected filepath to end in .csv or .h5.")
+        raise log_error(ValueError, "Expected filepath to end in .csv or .h5.")
 
 
 def to_dlc_df(
@@ -119,7 +119,7 @@ def to_dlc_df(
         to a DeepLabCut-style ".h5" or ".csv" file.
     """
     if not isinstance(ds, xr.Dataset):
-        log_error(
+        raise log_error(
             ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
         )
 
