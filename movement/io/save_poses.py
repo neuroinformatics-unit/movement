@@ -70,11 +70,8 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
-    elif filepath.suffix == ".h5":
+    else:  # at this point it can only be .h5 (because of validation)
         df.to_hdf(filepath, key="df_with_missing")
-    # for invalid suffix
-    else:
-        raise log_error(ValueError, "Expected filepath to end in .csv or .h5.")
 
 
 def to_dlc_df(
