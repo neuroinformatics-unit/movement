@@ -52,8 +52,8 @@ def _auto_split_individuals(ds: xr.Dataset) -> bool:
     """Returns True if there is only one individual in the dataset,
     else returns False."""
 
-    individuals = ds.coords["individuals"].data.tolist()
-    return True if len(individuals) == 1 else False
+    n_individuals = ds.sizes["individuals"]
+    return True if n_individuals == 1 else False
 
 
 def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
