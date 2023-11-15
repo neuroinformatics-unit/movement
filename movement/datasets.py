@@ -8,6 +8,9 @@ and are downloaded to the user's local machine the first time they are used.
 from pathlib import Path
 
 import pooch
+import xarray
+
+from movement.io import load_poses
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -72,3 +75,29 @@ def fetch_pose_data_path(filename: str) -> Path:
         Path to the downloaded file.
     """
     return Path(POSE_DATA.fetch(filename, progressbar=True))
+
+
+def fetch_pose_data(filename: str) -> xarray.Dataset:
+    """Fetch sample pose data from the *movement* data repository.
+
+    The data are downloaded to the user's local machine the first time they are
+    used and are stored in a local cache directory. Returns sample pose data as
+    an xarray Dataset.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the file to fetch.
+
+    Returns
+    -------
+    ds : xarray.Dataset
+        Pose data contained in the fetched sample file.
+    """
+
+    file_path = fetch_pose_data_path(filename)
+    if filename.startswith("SLEAP"):
+        ds = load_poses.from_sleap_file(file_path)
+    elif filename.startswith("DLC"):
+        ds = load_poses.from_dlc_file(file_path)
+    return ds
