@@ -1,4 +1,5 @@
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -83,7 +84,7 @@ class TestSavePoses:
         """Test that converting a valid/invalid xarray dataset to
         a DeepLabCut-style pandas DataFrame returns the expected result."""
         with expected_exception as e:
-            df = save_poses.to_dlc_df(ds)
+            df = save_poses.to_dlc_df(ds, split_individuals=False)
             if e is None:  # valid input
                 assert isinstance(df, pd.DataFrame)
                 assert isinstance(df.columns, pd.MultiIndex)
@@ -141,4 +142,110 @@ class TestSavePoses:
             save_poses.to_dlc_file(
                 request.getfixturevalue(invalid_pose_dataset),
                 tmp_path / "test.h5",
+                split_individuals=False,
             )
+
+    @pytest.mark.parametrize(
+        "valid_pose_dataset, split_value",
+        [("single_track_array", True), ("multi_track_array", False)],
+        indirect=["valid_pose_dataset"],
+    )
+    def test_auto_split_individuals(self, valid_pose_dataset, split_value):
+        """Test that setting 'split_individuals' to 'auto' yields True
+        for single-individual datasets and False for multi-individual ones."""
+        assert (
+            save_poses._auto_split_individuals(valid_pose_dataset)
+            == split_value
+        )
+
+    @pytest.mark.parametrize(
+        "valid_pose_dataset, split_individuals",
+        [
+            ("single_track_array", True),  # single-individual, split
+            ("multi_track_array", False),  # multi-individual, no split
+            ("single_track_array", False),  # single-individual, no split
+            ("multi_track_array", True),  # multi-individual, split
+        ],
+        indirect=["valid_pose_dataset"],
+    )
+    def test_to_dlc_df_split_individuals(
+        self,
+        valid_pose_dataset,
+        split_individuals,
+        request,
+    ):
+        """Test that the 'split_individuals' argument affects the behaviour
+        of the 'to_dlc_df` function as expected
+        """
+        df = save_poses.to_dlc_df(valid_pose_dataset, split_individuals)
+        # Get the names of the individuals in the dataset
+        ds = request.getfixturevalue("valid_pose_dataset")
+        ind_names = ds.individuals.values
+
+        if split_individuals is False:
+            # this should produce a single df in multi-animal DLC format
+            assert isinstance(df, pd.DataFrame)
+            assert df.columns.names == [
+                "scorer",
+                "individuals",
+                "bodyparts",
+                "coords",
+            ]
+            assert all(
+                [ind in df.columns.get_level_values("individuals")]
+                for ind in ind_names
+            )
+        elif split_individuals is True:
+            # this should produce a dict of dfs in single-animal DLC format
+            assert isinstance(df, dict)
+            for ind in ind_names:
+                assert ind in df.keys()
+                assert isinstance(df[ind], pd.DataFrame)
+                assert df[ind].columns.names == [
+                    "scorer",
+                    "bodyparts",
+                    "coords",
+                ]
+
+    @pytest.mark.parametrize(
+        "split_individuals, expected_exception",
+        [
+            (True, does_not_raise()),
+            (False, does_not_raise()),
+            ("auto", does_not_raise()),
+            ("1", pytest.raises(ValueError, match="boolean or 'auto'")),
+        ],
+    )
+    def test_to_dlc_file_split_individuals(
+        self,
+        valid_pose_dataset,
+        new_dlc_h5_file,
+        split_individuals,
+        expected_exception,
+        request,
+    ):
+        """Test that the 'split_individuals' argument affects the behaviour
+        of the 'to_dlc_file` function as expected
+        """
+
+        with expected_exception:
+            save_poses.to_dlc_file(
+                valid_pose_dataset,
+                new_dlc_h5_file,
+                split_individuals,
+            )
+            ds = request.getfixturevalue("valid_pose_dataset")
+
+            # "auto" becomes False, default valid dataset is multi-individual
+            if split_individuals in [False, "auto"]:
+                # this should save only one file
+                assert new_dlc_h5_file.is_file()
+                new_dlc_h5_file.unlink()
+            elif split_individuals is True:
+                # this should save one file per individual
+                for ind in ds.individuals.values:
+                    file_path_ind = Path(
+                        f"{new_dlc_h5_file.with_suffix('')}_{ind}.h5"
+                    )
+                    assert file_path_ind.is_file()
+                    file_path_ind.unlink()

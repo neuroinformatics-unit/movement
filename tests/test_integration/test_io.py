@@ -17,13 +17,15 @@ class TestPosesIO:
         """Test that loading pose tracks from a DLC-style DataFrame and
         converting back to a DataFrame returns the same data values."""
         ds = load_poses.from_dlc_df(dlc_style_df)
-        df = save_poses.to_dlc_df(ds)
+        df = save_poses.to_dlc_df(ds, split_individuals=False)
         np.testing.assert_allclose(df.values, dlc_style_df.values)
 
     def test_save_and_load_dlc_file(self, dlc_output_file, valid_pose_dataset):
         """Test that saving pose tracks to DLC .h5 and .csv files and then
         loading them back in returns the same Dataset."""
-        save_poses.to_dlc_file(valid_pose_dataset, dlc_output_file)
+        save_poses.to_dlc_file(
+            valid_pose_dataset, dlc_output_file, split_individuals=False
+        )
         ds = load_poses.from_dlc_file(dlc_output_file)
         xr.testing.assert_allclose(ds, valid_pose_dataset)
 
@@ -32,6 +34,8 @@ class TestPosesIO:
         when converted to DLC .h5 and .csv files and re-loaded return
         the same Datasets."""
         sleap_ds = load_poses.from_sleap_file(sleap_file)
-        save_poses.to_dlc_file(sleap_ds, dlc_output_file)
+        save_poses.to_dlc_file(
+            sleap_ds, dlc_output_file, split_individuals=False
+        )
         dlc_ds = load_poses.from_dlc_file(dlc_output_file)
         xr.testing.assert_allclose(sleap_ds, dlc_ds)
