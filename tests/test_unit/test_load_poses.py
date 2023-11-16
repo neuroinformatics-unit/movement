@@ -49,6 +49,34 @@ class TestLoadPoses:
         self.assert_dataset(ds, sleap_file, "SLEAP")
 
     @pytest.mark.parametrize(
+        "slp_file, h5_file",
+        [
+            (
+                "SLEAP_single-mouse_EPM.analysis.h5",
+                "SLEAP_single-mouse_EPM.predictions.slp",
+            ),
+            (
+                "SLEAP_three-mice_Aeon_proofread.analysis.h5",
+                "SLEAP_three-mice_Aeon_proofread.predictions.slp",
+            ),
+            (
+                "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+                "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
+            ),
+        ],
+    )
+    def test_load_from_sleap_slp_file_or_h5_file_returns_same(
+        self, slp_file, h5_file
+    ):
+        """Test that loading pose tracks from SLEAP .slp and .h5 files
+        return the same Dataset."""
+        slp_file_path = POSE_DATA.get(slp_file)
+        h5_file_path = POSE_DATA.get(h5_file)
+        ds_from_slp = load_poses.from_sleap_file(slp_file_path)
+        ds_from_h5 = load_poses.from_sleap_file(h5_file_path)
+        xr.testing.assert_allclose(ds_from_h5, ds_from_slp)
+
+    @pytest.mark.parametrize(
         "file_name",
         [
             "DLC_single-wasp.predictions.h5",
