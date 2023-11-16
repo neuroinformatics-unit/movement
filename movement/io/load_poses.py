@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from sleap_io.io.slp import read_labels
+from sleap_io.model.labels import Labels
 
 from movement.io.poses_accessor import PosesAccessor
 from movement.io.validators import (
@@ -108,20 +109,21 @@ def from_sleap_file(
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into *movement*.
 
-    You can also try directly loading the ".slp" file, but this feature is
-    experimental and doesnot work in all cases. If the ".slp" file contains
-    both user-labeled and predicted instances, only the predicted ones will be
-    loaded. If there are multiple videos in the file, only the first one will
-    be used.
+    You can also directly load the ".slp" file. However, if the file contains
+    multiple videos, only the pose tracks from the first video will be loaded.
+    If the file contains a mix of user-labelled and predicted instances, user
+    labels are prioritised over predicted instances to mirror SLEAP's approach
+    when exporting ".h5" analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual/animal.
-    Follow the SLEAP guide for tracking and proofreading [2]_.
+    Follow the SLEAP guide for tracking and proofreading [3]_.
 
     References
     ----------
     .. [1] https://sleap.ai/tutorials/analysis.html
-    .. [2] https://sleap.ai/guides/proofreading.html
+    .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150
+    .. [3] https://sleap.ai/guides/proofreading.html
 
     Examples
     --------
@@ -235,15 +237,14 @@ def _load_from_sleap_analysis_file(
         # transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)
         tracks = f["tracks"][:].transpose((3, 0, 2, 1))
         # Create an array of NaNs for the confidence scores
-        scores = np.full(tracks.shape[:-1], np.nan, dtype="float32")
+        scores = np.full(tracks.shape[:-1], np.nan)
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
             scores = f["point_scores"][:].transpose((2, 0, 1))
-
         return ValidPoseTracks(
-            tracks_array=tracks,
-            scores_array=scores,
+            tracks_array=tracks.astype(np.float32),
+            scores_array=scores.astype(np.float32),
             individual_names=[n.decode() for n in f["track_names"][:]],
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
@@ -271,10 +272,8 @@ def _load_from_sleap_labels_file(
     """
 
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
-
     labels = read_labels(file.path.as_posix())
-    tracks_with_scores = labels.numpy(untracked=False, return_confidence=True)
-
+    tracks_with_scores = _sleap_labels_to_numpy(labels)
     return ValidPoseTracks(
         tracks_array=tracks_with_scores[:, :, :, :-1],
         scores_array=tracks_with_scores[:, :, :, -1],
@@ -284,16 +283,81 @@ def _load_from_sleap_labels_file(
     )
 
 
+def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
+    """Convert a SLEAP `Labels` object to a NumPy array containing
+    pose tracks with point-wise confidence scores.
+
+    Parameters
+    ----------
+    labels : Labels
+        A SLEAP `Labels` object.
+
+    Returns
+    -------
+    numpy.ndarray
+        A NumPy array containing pose tracks and confidence scores.
+
+    Notes
+    -----
+    This function only considers SLEAP instances in the first
+    video of the SLEAP `Labels` object. User-labelled instances are
+    prioritised over predicted instances, mirroring SLEAP's approach
+    when exporting ".h5" analysis files [1]_.
+
+    This function is adapted from `Labels.numpy()` from the
+    `sleap_io` package [2]_.
+
+    References
+    ----------
+    .. [1] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150
+    .. [2] https://github.com/talmolab/sleap-io
+    """
+    # Select frames from the first video only
+    lfs = [lf for lf in labels.labeled_frames if lf.video == labels.videos[0]]
+    # Figure out frame index range
+    frame_idxs = [lf.frame_idx for lf in lfs]
+    first_frame = min(0, min(frame_idxs))
+    last_frame = max(0, max(frame_idxs))
+
+    n_tracks = len(labels.tracks)
+    skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
+    n_nodes = len(skeleton.nodes)
+    n_frames = int(last_frame - first_frame + 1)
+    tracks = np.full((n_frames, n_tracks, n_nodes, 3), np.nan, dtype="float32")
+
+    for lf in lfs:
+        i = int(lf.frame_idx - first_frame)
+        user_instances = lf.user_instances
+        predicted_instances = lf.predicted_instances
+        for j, track in enumerate(labels.tracks):
+            user_track_instances = [
+                inst for inst in user_instances if inst.track == track
+            ]
+            predicted_track_instances = [
+                inst for inst in predicted_instances if inst.track == track
+            ]
+            # Use user-labelled instance if available
+            if user_track_instances:
+                inst = user_track_instances[0]
+                tracks[i, j] = np.hstack(
+                    (inst.numpy(), np.full((n_nodes, 1), np.nan))
+                )
+            elif predicted_track_instances:
+                inst = predicted_track_instances[0]
+                tracks[i, j] = inst.numpy(scores=True)
+    return tracks
+
+
 def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
     """If poses are loaded from a DeepLabCut .csv file, the DataFrame
     lacks the multi-index columns that are present in the .h5 file. This
-    function parses the csv file to a pandas DataFrame with multi-index
+    function parses the .csv file to a pandas DataFrame with multi-index
     columns, i.e. the same format as in the .h5 file.
 
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the DeepLabCut-style CSV file.
+        Path to the DeepLabCut-style .csv file.
 
     Returns
     -------

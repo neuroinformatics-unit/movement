@@ -139,6 +139,7 @@ html_baseurl = "https://movement.neuroinformatics.dev"
 linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
+    "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
 ]
 
 myst_url_schemes = {

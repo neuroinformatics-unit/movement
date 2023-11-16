@@ -35,12 +35,12 @@ class TestSavePoses:
 
     @pytest.fixture
     def new_dlc_h5_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut H5 file."""
+        """Return the file path for a new DeepLabCut .h5 file."""
         return tmp_path / "new_dlc_file.h5"
 
     @pytest.fixture
     def new_dlc_csv_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut csv file."""
+        """Return the file path for a new DeepLabCut .csv file."""
         return tmp_path / "new_dlc_file.csv"
 
     @pytest.fixture
@@ -61,6 +61,20 @@ class TestSavePoses:
             (
                 load_poses.from_dlc_file(
                     POSE_DATA.get("DLC_two-mice.predictions.csv")
+                ),
+                does_not_raise(),
+            ),  # valid dataset
+            (
+                load_poses.from_sleap_file(
+                    POSE_DATA.get("SLEAP_single-mouse_EPM.analysis.h5")
+                ),
+                does_not_raise(),
+            ),  # valid dataset
+            (
+                load_poses.from_sleap_file(
+                    POSE_DATA.get(
+                        "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+                    )
                 ),
                 does_not_raise(),
             ),  # valid dataset
