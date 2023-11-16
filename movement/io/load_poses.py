@@ -111,15 +111,19 @@ def from_sleap_file(
 
     You can also directly load the ".slp" file. However, if the file contains
     multiple videos, only the pose tracks from the first video will be loaded.
+    If the file contains a mix of user-labelled and predicted instances, user
+    labels are prioritised over predicted instances to mirror SLEAP's approach
+    when exporting ".h5" analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual/animal.
-    Follow the SLEAP guide for tracking and proofreading [2]_.
+    Follow the SLEAP guide for tracking and proofreading [3]_.
 
     References
     ----------
     .. [1] https://sleap.ai/tutorials/analysis.html
-    .. [2] https://sleap.ai/guides/proofreading.html
+    .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150
+    .. [3] https://sleap.ai/guides/proofreading.html
 
     Examples
     --------
