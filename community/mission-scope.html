@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d019515e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -123,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -404,11 +404,11 @@ document.write(`
 <span id="target-mission"></span><h1>Mission &amp; Scope<a class="headerlink" href="#mission-scope" title="Permalink to this heading">#</a></h1>
 <section id="mission">
 <h2>Mission<a class="headerlink" href="#mission" title="Permalink to this heading">#</a></h2>
-<p><a class="reference external" href="https://movement.neuroinformatics.dev/">movement</a> aims to <strong>facilitate the study of animal behaviour in neuroscience</strong> by providing a suite of <strong>Python tools to analyse body movements</strong> across space and time.</p>
+<p><a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement</span></a> aims to <strong>facilitate the study of animal behaviour in neuroscience</strong> by providing a suite of <strong>Python tools to analyse body movements</strong> across space and time.</p>
 </section>
 <section id="scope">
 <h2>Scope<a class="headerlink" href="#scope" title="Permalink to this heading">#</a></h2>
-<p>At its core, movement handles trajectories of <em>keypoints</em>, which are specific body parts of an <em>individual</em>. An individual’s posture or <em>pose</em> is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms <em>pose tracks</em>. In neuroscience, these tracks are typically extracted from video data using software like <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/">SLEAP</a>.</p>
+<p>At its core, movement handles trajectories of <em>keypoints</em>, which are specific body parts of an <em>individual</em>. An individual’s posture or <em>pose</em> is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms <em>pose tracks</em>. In neuroscience, these tracks are typically extracted from video data using software like <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/">SLEAP</a>.</p>
 <p>With movement, our vision is to present a <strong>consistent interface for pose tracks</strong> and to <strong>analyze them using modular and accessible tools</strong>. We aim to accommodate data from a range of pose estimation packages, in <strong>2D or 3D</strong>, tracking <strong>single or multiple individuals</strong>. The focus will be on providing functionalities for data cleaning, visualisation and motion quantification (see the <a class="reference internal" href="roadmap.html#target-roadmap"><span class="std std-ref">Roadmap</span></a> for details).</p>
 <p>While movement is not designed for behaviour classification or action segmentation, it may extract features useful for these tasks. We are planning to develop separate packages for this purpose, which will be compatible with movement and the existing ecosystem of related tools.</p>
 </section>
@@ -424,7 +424,7 @@ document.write(`
 <li><p><strong>Performance and responsiveness</strong>, especially for large datasets, using parallel processing where appropriate.</p></li>
 <li><p><strong>Modularity and flexibility</strong>. We envision movement as a platform for new tools and analyses, offering users the building blocks to craft their own workflows.</p></li>
 </ul>
-<p>Some of these principles are shared with, and were inspired by, napari’s <a class="reference external" href="https://napari.org/stable/community/mission_and_values.html">Mission and Values</a> statement.</p>
+<p>Some of these principles are shared with, and were inspired by, napari’s <a class="reference external" href="https://napari.org/dev/community/mission_and_values">Mission and Values</a> statement.</p>
 </section>
 </section>
 
@@ -498,8 +498,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -529,7 +529,7 @@ document.write(`
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

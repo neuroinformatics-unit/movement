@@ -17,12 +17,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -35,11 +35,11 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=d019515e"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/design-tabs.js?v=36754332"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -388,6 +388,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">sleap_io.io.slp</span> <span class="kn">import</span> <span class="n">read_labels</span>
+<span class="kn">from</span> <span class="nn">sleap_io.model.labels</span> <span class="kn">import</span> <span class="n">Labels</span>
 
 <span class="kn">from</span> <span class="nn">movement.io.poses_accessor</span> <span class="kn">import</span> <span class="n">PosesAccessor</span>
 <span class="kn">from</span> <span class="nn">movement.io.validators</span> <span class="kn">import</span> <span class="p">(</span>
@@ -489,20 +490,21 @@ document.write(`
 <span class="sd">    &quot;Export Analysis HDF5…&quot; from the &quot;File&quot; menu) [1]_. This is the</span>
 <span class="sd">    preferred format for loading pose tracks from SLEAP into *movement*.</span>
 
-<span class="sd">    You can also try directly loading the &quot;.slp&quot; file, but this feature is</span>
-<span class="sd">    experimental and doesnot work in all cases. If the &quot;.slp&quot; file contains</span>
-<span class="sd">    both user-labeled and predicted instances, only the predicted ones will be</span>
-<span class="sd">    loaded. If there are multiple videos in the file, only the first one will</span>
-<span class="sd">    be used.</span>
+<span class="sd">    You can also directly load the &quot;.slp&quot; file. However, if the file contains</span>
+<span class="sd">    multiple videos, only the pose tracks from the first video will be loaded.</span>
+<span class="sd">    If the file contains a mix of user-labelled and predicted instances, user</span>
+<span class="sd">    labels are prioritised over predicted instances to mirror SLEAP&#39;s approach</span>
+<span class="sd">    when exporting &quot;.h5&quot; analysis files [2]_.</span>
 
 <span class="sd">    *movement* expects the tracks to be assigned and proofread before loading</span>
 <span class="sd">    them, meaning each track is interpreted as a single individual/animal.</span>
-<span class="sd">    Follow the SLEAP guide for tracking and proofreading [2]_.</span>
+<span class="sd">    Follow the SLEAP guide for tracking and proofreading [3]_.</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] https://sleap.ai/tutorials/analysis.html</span>
-<span class="sd">    .. [2] https://sleap.ai/guides/proofreading.html</span>
+<span class="sd">    .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150</span>
+<span class="sd">    .. [3] https://sleap.ai/guides/proofreading.html</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -616,15 +618,14 @@ document.write(`
         <span class="c1"># transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)</span>
         <span class="n">tracks</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="c1"># Create an array of NaNs for the confidence scores</span>
-        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="c1"># If present, read the point-wise scores,</span>
         <span class="c1"># and transpose to shape: (n_frames, n_tracks, n_keypoints)</span>
         <span class="k">if</span> <span class="s2">&quot;point_scores&quot;</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">scores</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;point_scores&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-
         <span class="k">return</span> <span class="n">ValidPoseTracks</span><span class="p">(</span>
-            <span class="n">tracks_array</span><span class="o">=</span><span class="n">tracks</span><span class="p">,</span>
-            <span class="n">scores_array</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
+            <span class="n">tracks_array</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">scores_array</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
             <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;track_names&quot;</span><span class="p">][:]],</span>
             <span class="n">keypoint_names</span><span class="o">=</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;node_names&quot;</span><span class="p">][:]],</span>
             <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
@@ -652,10 +653,8 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">file</span> <span class="o">=</span> <span class="n">ValidHDF5</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_datasets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pred_points&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">])</span>
-
     <span class="n">labels</span> <span class="o">=</span> <span class="n">read_labels</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
-    <span class="n">tracks_with_scores</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="n">untracked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_confidence</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
+    <span class="n">tracks_with_scores</span> <span class="o">=</span> <span class="n">_sleap_labels_to_numpy</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ValidPoseTracks</span><span class="p">(</span>
         <span class="n">tracks_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
         <span class="n">scores_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
@@ -665,16 +664,81 @@ document.write(`
     <span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_sleap_labels_to_numpy</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Labels</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a SLEAP `Labels` object to a NumPy array containing</span>
+<span class="sd">    pose tracks with point-wise confidence scores.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels : Labels</span>
+<span class="sd">        A SLEAP `Labels` object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        A NumPy array containing pose tracks and confidence scores.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function only considers SLEAP instances in the first</span>
+<span class="sd">    video of the SLEAP `Labels` object. User-labelled instances are</span>
+<span class="sd">    prioritised over predicted instances, mirroring SLEAP&#39;s approach</span>
+<span class="sd">    when exporting &quot;.h5&quot; analysis files [1]_.</span>
+
+<span class="sd">    This function is adapted from `Labels.numpy()` from the</span>
+<span class="sd">    `sleap_io` package [2]_.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150</span>
+<span class="sd">    .. [2] https://github.com/talmolab/sleap-io</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Select frames from the first video only</span>
+    <span class="n">lfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">lf</span> <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">labeled_frames</span> <span class="k">if</span> <span class="n">lf</span><span class="o">.</span><span class="n">video</span> <span class="o">==</span> <span class="n">labels</span><span class="o">.</span><span class="n">videos</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="c1"># Figure out frame index range</span>
+    <span class="n">frame_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">lf</span><span class="o">.</span><span class="n">frame_idx</span> <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">lfs</span><span class="p">]</span>
+    <span class="n">first_frame</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">frame_idxs</span><span class="p">))</span>
+    <span class="n">last_frame</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">frame_idxs</span><span class="p">))</span>
+
+    <span class="n">n_tracks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">tracks</span><span class="p">)</span>
+    <span class="n">skeleton</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">skeletons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Assume project only uses last skeleton</span>
+    <span class="n">n_nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">skeleton</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_frame</span> <span class="o">-</span> <span class="n">first_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">tracks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">n_tracks</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">lfs</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lf</span><span class="o">.</span><span class="n">frame_idx</span> <span class="o">-</span> <span class="n">first_frame</span><span class="p">)</span>
+        <span class="n">user_instances</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">user_instances</span>
+        <span class="n">predicted_instances</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">predicted_instances</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">track</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">tracks</span><span class="p">):</span>
+            <span class="n">user_track_instances</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">inst</span> <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">user_instances</span> <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">track</span> <span class="o">==</span> <span class="n">track</span>
+            <span class="p">]</span>
+            <span class="n">predicted_track_instances</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">inst</span> <span class="k">for</span> <span class="n">inst</span> <span class="ow">in</span> <span class="n">predicted_instances</span> <span class="k">if</span> <span class="n">inst</span><span class="o">.</span><span class="n">track</span> <span class="o">==</span> <span class="n">track</span>
+            <span class="p">]</span>
+            <span class="c1"># Use user-labelled instance if available</span>
+            <span class="k">if</span> <span class="n">user_track_instances</span><span class="p">:</span>
+                <span class="n">inst</span> <span class="o">=</span> <span class="n">user_track_instances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">predicted_track_instances</span><span class="p">:</span>
+                <span class="n">inst</span> <span class="o">=</span> <span class="n">predicted_track_instances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tracks</span>
+
+
 <span class="k">def</span> <span class="nf">_parse_dlc_csv_to_df</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;If poses are loaded from a DeepLabCut .csv file, the DataFrame</span>
 <span class="sd">    lacks the multi-index columns that are present in the .h5 file. This</span>
-<span class="sd">    function parses the csv file to a pandas DataFrame with multi-index</span>
+<span class="sd">    function parses the .csv file to a pandas DataFrame with multi-index</span>
 <span class="sd">    columns, i.e. the same format as in the .h5 file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_path : pathlib.Path</span>
-<span class="sd">        Path to the DeepLabCut-style CSV file.</span>
+<span class="sd">        Path to the DeepLabCut-style .csv file.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -808,8 +872,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -839,7 +903,7 @@ document.write(`
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

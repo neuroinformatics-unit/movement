@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d019515e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -123,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -421,27 +421,39 @@ document.write(`
 <h1>movement.io.save_poses.to_dlc_df<a class="headerlink" href="#movement-io-save-poses-to-dlc-df" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.save_poses.to_dlc_df">
-<span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_df" title="Permalink to this definition">#</a></dt>
-<dd><p>Convert an xarray dataset containing pose tracks into a
-DeepLabCut-style pandas DataFrame with multi-index columns.</p>
+<span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_individuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_df" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert an xarray dataset containing pose tracks into a single
+DeepLabCut-style pandas DataFrame or a dictionary of DataFrames
+per individual, depending on the ‘split_individuals’ argument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ds</strong> (<em>xarray Dataset</em>) – Dataset containing pose tracks, confidence scores, and metadata.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>xarray.Dataset</em>) – Dataset containing pose tracks, confidence scores, and metadata.</p></li>
+<li><p><strong>split_individuals</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, return a dictionary of pandas DataFrames per individual,
+with individual names as keys and DataFrames as values.
+If False, return a single pandas DataFrame for all individuals.
+Default is False.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>pandas DataFrame</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame or dict</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>The DataFrame will have a multi-index column with the following levels:
-“scorer”, “individuals”, “bodyparts”, “coords” (even if there is only
-one individual present). Regardless of the provenance of the
-points-wise confidence scores, they will be referred to as
-“likelihood”, and stored in the “coords” level (as DeepLabCut expects).</p>
+<p>The DataFrame(s) will have a multi-index column with the following levels:
+“scorer”, “bodyparts”, “coords” (if split_individuals is True),
+or “scorer”, “individuals”, “bodyparts”, “coords”
+(if split_individuals is False).</p>
+<p>Regardless of the provenance of the points-wise confidence scores,
+they will be referred to as “likelihood”, and stored in
+the “coords” level (as DeepLabCut expects).</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a></dt><dd><p>Save the xarray dataset containing pose tracks directly to a DeepLabCut-style “.h5” or “.csv” file.</p>
+<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a></dt><dd><p>Save the xarray dataset containing pose tracks directly to a DeepLabCut-style .h5 or .csv file.</p>
 </dd>
 </dl>
 </div>
@@ -517,8 +529,8 @@ points-wise confidence scores, they will be referred to as
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -548,7 +560,7 @@ points-wise confidence scores, they will be referred to as
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

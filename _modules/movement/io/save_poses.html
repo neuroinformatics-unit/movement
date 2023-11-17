@@ -17,12 +17,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -35,11 +35,11 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=d019515e"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/design-tabs.js?v=36754332"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -381,50 +381,33 @@ document.write(`
   <h1>Source code for movement.io.save_poses</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">movement.io.validators</span> <span class="kn">import</span> <span class="n">ValidFile</span>
+<span class="kn">from</span> <span class="nn">movement.logging</span> <span class="kn">import</span> <span class="n">log_error</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="to_dlc_df"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an xarray dataset containing pose tracks into a</span>
-<span class="sd">    DeepLabCut-style pandas DataFrame with multi-index columns.</span>
+<span class="k">def</span> <span class="nf">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Takes an xarray dataset and DLC-style multi-index columns and outputs</span>
+<span class="sd">    a pandas dataframe.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray Dataset</span>
+<span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">    columns : pandas.MultiIndex</span>
+<span class="sd">        DLC-style multi-index columns</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    pandas DataFrame</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    The DataFrame will have a multi-index column with the following levels:</span>
-<span class="sd">    &quot;scorer&quot;, &quot;individuals&quot;, &quot;bodyparts&quot;, &quot;coords&quot; (even if there is only</span>
-<span class="sd">    one individual present). Regardless of the provenance of the</span>
-<span class="sd">    points-wise confidence scores, they will be referred to as</span>
-<span class="sd">    &quot;likelihood&quot;, and stored in the &quot;coords&quot; level (as DeepLabCut expects).</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    to_dlc_file : Save the xarray dataset containing pose tracks directly</span>
-<span class="sd">        to a DeepLabCut-style &quot;.h5&quot; or &quot;.csv&quot; file.</span>
+<span class="sd">    pandas.DataFrame</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Expected an xarray Dataset, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="n">ds</span><span class="o">.</span><span class="n">poses</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>  <span class="c1"># validate the dataset</span>
 
     <span class="c1"># Concatenate the pose tracks and confidence scores into one array</span>
     <span class="n">tracks_with_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
@@ -435,44 +418,164 @@ document.write(`
         <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Create the DLC-style multi-index columns</span>
-    <span class="c1"># Use the DLC terminology: scorer, individuals, bodyparts, coords</span>
-    <span class="n">scorer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;movement&quot;</span><span class="p">]</span>
-    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">bodyparts</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="c1"># The confidence scores in DLC are referred to as &quot;likelihood&quot;</span>
-    <span class="n">coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;likelihood&quot;</span><span class="p">]</span>
-
-    <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
-    <span class="p">)</span>
+    <span class="c1"># Create DataFrame with multi-index columns</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
         <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted PoseTracks dataset to DLC-style DataFrame.&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span></div>
+
+    <span class="k">return</span> <span class="n">df</span>
 
 
-<div class="viewcode-block" id="to_dlc_file"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset containing pose tracks to a</span>
-<span class="sd">    DeepLabCut-style &quot;.h5&quot; or &quot;.csv&quot; file.</span>
+<span class="k">def</span> <span class="nf">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if there is only one individual in the dataset,</span>
+<span class="sd">    else returns False.&quot;&quot;&quot;</span>
+
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">n_individuals</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a filepath, will save the dataframe as either a .h5 or .csv.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray Dataset</span>
+<span class="sd">    filepath : pathlib.Path</span>
+<span class="sd">        Path of the file to save the dataframe to. The file extension</span>
+<span class="sd">        must be either .h5 (recommended) or .csv.</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        Pandas Dataframe to save</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># at this point it can only be .h5 (because of validation)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="to_dlc_df"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an xarray dataset containing pose tracks into a single</span>
+<span class="sd">    DeepLabCut-style pandas DataFrame or a dictionary of DataFrames</span>
+<span class="sd">    per individual, depending on the &#39;split_individuals&#39; argument.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
-<span class="sd">    file_path : pathlib Path or str</span>
-<span class="sd">        Path to the file to save the DLC poses to. The file extension</span>
-<span class="sd">        must be either &quot;.h5&quot; (recommended) or &quot;.csv&quot;.</span>
+<span class="sd">    split_individuals : bool, optional</span>
+<span class="sd">        If True, return a dictionary of pandas DataFrames per individual,</span>
+<span class="sd">        with individual names as keys and DataFrames as values.</span>
+<span class="sd">        If False, return a single pandas DataFrame for all individuals.</span>
+<span class="sd">        Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame or dict</span>
+<span class="sd">        DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The DataFrame(s) will have a multi-index column with the following levels:</span>
+<span class="sd">    &quot;scorer&quot;, &quot;bodyparts&quot;, &quot;coords&quot; (if split_individuals is True),</span>
+<span class="sd">    or &quot;scorer&quot;, &quot;individuals&quot;, &quot;bodyparts&quot;, &quot;coords&quot;</span>
+<span class="sd">    (if split_individuals is False).</span>
+
+<span class="sd">    Regardless of the provenance of the points-wise confidence scores,</span>
+<span class="sd">    they will be referred to as &quot;likelihood&quot;, and stored in</span>
+<span class="sd">    the &quot;coords&quot; level (as DeepLabCut expects).</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    to_dlc_df : Convert an xarray dataset containing pose tracks into a</span>
-<span class="sd">        DeepLabCut-style pandas DataFrame with multi-index columns.</span>
+<span class="sd">    to_dlc_file : Save the xarray dataset containing pose tracks directly</span>
+<span class="sd">        to a DeepLabCut-style .h5 or .csv file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected an xarray Dataset, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">ds</span><span class="o">.</span><span class="n">poses</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>  <span class="c1"># validate the dataset</span>
+
+    <span class="n">scorer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;movement&quot;</span><span class="p">]</span>
+    <span class="n">bodyparts</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;likelihood&quot;</span><span class="p">]</span>
+    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
+            <span class="n">individual_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span>
+
+            <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
+            <span class="p">)</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">individual_data</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+            <span class="n">df_dict</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Converted PoseTracks dataset to DeepLabCut-style DataFrames &quot;</span>
+            <span class="s2">&quot;per individual.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_dict</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
+        <span class="p">)</span>
+
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted PoseTracks dataset to DLC-style DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_all</span></div>
+
+
+<div class="viewcode-block" id="to_dlc_file"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">split_individuals</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset containing pose tracks to a</span>
+<span class="sd">    DeepLabCut-style .h5 or .csv file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the file to save the DLC poses to. The file extension</span>
+<span class="sd">        must be either .h5 (recommended) or .csv.</span>
+<span class="sd">    split_individuals : bool, optional</span>
+<span class="sd">        If True, each individual will be saved to a separate file,</span>
+<span class="sd">        formatted as in a single-animal DeepLabCut project - i.e. without</span>
+<span class="sd">        the &quot;individuals&quot; column level. The individual&#39;s name will be appended</span>
+<span class="sd">        to the file path, just before the file extension, i.e.</span>
+<span class="sd">        &quot;/path/to/filename_individual1.h5&quot;.</span>
+<span class="sd">        If False, all individuals will be saved to the same file,</span>
+<span class="sd">        formatted as in a multi-animal DeepLabCut project - i.e. the columns</span>
+<span class="sd">        will include the &quot;individuals&quot; level. The file path will not be</span>
+<span class="sd">        modified.</span>
+<span class="sd">        If &quot;auto&quot; the argument&#39;s value be determined based on the number of</span>
+<span class="sd">        individuals in the dataset: True if there is only one, and</span>
+<span class="sd">        False if there are more than one. This is the default.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_df : Convert an xarray dataset containing pose tracks into a single</span>
+<span class="sd">        DeepLabCut-style pandas DataFrame or a dictionary of DataFrames</span>
+<span class="sd">        per individual.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_poses, load_poses</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_sleap(&quot;/path/to/file_sleap.analysis.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; save_poses.to_dlc_file(ds, &quot;/path/to/file_dlc.h5&quot;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -485,12 +588,35 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">error</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>  <span class="c1"># convert to pandas DataFrame</span>
-    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># file.path.suffix == &quot;.h5&quot;</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved PoseTracks dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+    <span class="c1"># Sets default behaviour for the function</span>
+    <span class="k">if</span> <span class="n">split_individuals</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="n">split_individuals</span> <span class="o">=</span> <span class="n">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">,</span>
+            <span class="s2">&quot;Expected &#39;split_individuals&#39; to be a boolean or &#39;auto&#39;, but got &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
+        <span class="c1"># split the dataset into a dictionary of dataframes per individual</span>
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># the key is the individual&#39;s name</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">df</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saved PoseTracks data for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># convert the dataset to a single dataframe for all individuals</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved PoseTracks dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
 </pre></div>
 
                 </article>
@@ -520,8 +646,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -551,7 +677,7 @@ document.write(`
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

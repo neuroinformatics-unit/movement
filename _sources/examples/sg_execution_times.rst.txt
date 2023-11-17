@@ -6,8 +6,8 @@
 
 Computation times
 =================
-**00:03.238** total execution time for **examples** files:
+**00:00.732** total execution time for **examples** files:
 
 +------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr_examples_load_and_explore_poses.py` (``load_and_explore_poses.py``) | 00:03.238 | 0.0 MB |
+| :ref:`sphx_glr_examples_load_and_explore_poses.py` (``load_and_explore_poses.py``) | 00:00.732 | 0.0 MB |
 +------------------------------------------------------------------------------------+-----------+--------+

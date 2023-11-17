@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d019515e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -123,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -407,7 +407,7 @@ document.write(`
 <section id="creating-a-development-environment">
 <h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Permalink to this heading">#</a></h3>
 <p>It is recommended to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
-or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a> to create a
+or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> to create a
 development environment for movement. In the following we assume you have
 <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
 <p>First, create and activate a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment with some pre-requisites:</p>
@@ -464,7 +464,7 @@ We recommend, and adhere, to the following conventions:</p>
 <h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h3>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/charliermarsh/ruff">ruff</a> does a number of jobs, including enforcing PEP8 and sorting imports</p></li>
+<li><p><a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a> does a number of jobs, including enforcing PEP8 and sorting imports</p></li>
 <li><p><a class="reference external" href="https://black.readthedocs.io/en/stable/">black</a> for auto-formatting</p></li>
 <li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy</a> as a static type checker</p></li>
 <li><p><a class="reference external" href="https://github.com/mgedmin/check-manifest">check-manifest</a> to ensure that the right files are included in the pip package.</p></li>
@@ -496,7 +496,7 @@ See <a class="reference internal" href="#sample-data">sample data</a> for more i
 </section>
 <section id="continuous-integration">
 <h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h3>
-<p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions">GitHub actions</a>.
+<p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions#">GitHub actions</a>.
 This will usually include linting, testing and deployment.</p>
 <p>A GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/test_and_deploy.yml</span></code>) has been set up to run (on each push/PR):</p>
 <ul class="simple">
@@ -513,9 +513,9 @@ This will usually include linting, testing and deployment.</p>
 <li><p>MINOR = new feature</p></li>
 <li><p>MAJOR = breaking change</p></li>
 </ul>
-<p>We use <a class="reference external" href="https://github.com/pypa/setuptools_scm">setuptools_scm</a> to automatically version movement.
+<p>We use <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/#">setuptools_scm</a> to automatically version movement.
 It has been pre-configured in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file.
-<code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> will automatically <a class="reference external" href="https://github.com/pypa/setuptools_scm#default-versioning-scheme">infer the version using git</a>.
+<code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> will automatically <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/usage#default-versioning-scheme">infer the version using git</a>.
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
 Make sure you commit any changes you wish to be included in this version. E.g. to bump the version to <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
@@ -532,10 +532,10 @@ The version number is automatically determined from the latest tag on the <em>ma
 <section id="contributing-documentation">
 <h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Permalink to this heading">#</a></h2>
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
-<a class="reference external" href="https://movement.neuroinformatics.dev">movement.neuroinformatics.dev</a>.
+<a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement.neuroinformatics.dev</span></a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
 They are written in either <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a> or
-<a class="reference external" href="https://myst-parser.readthedocs.io/en/stable/syntax/typography.html">markdown</a>.
+<a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/typography.html#">markdown</a>.
 The <code class="docutils literal notranslate"><span class="pre">index.md</span></code> file corresponds to the homepage of the documentation website.
 Other <code class="docutils literal notranslate"><span class="pre">.rst</span></code>  or <code class="docutils literal notranslate"><span class="pre">.md</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
 <p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> and the
@@ -554,6 +554,8 @@ and commit your changes. Submit your documentation changes via a pull request,
 following the <a class="reference internal" href="#pull-requests">same guidelines as for code changes</a>.
 Make sure that the header levels in your <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are incremented
 consistently (H1 &gt; H2 &gt; H3, etc.) without skipping any levels.</p>
+<section id="adding-new-pages">
+<h4>Adding new pages<a class="headerlink" href="#adding-new-pages" title="Permalink to this heading">#</a></h4>
 <p>If you create a new documentation source file (e.g. <code class="docutils literal notranslate"><span class="pre">my_new_file.md</span></code> or <code class="docutils literal notranslate"><span class="pre">my_new_file.rst</span></code>),
 you will need to add it to the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive in <code class="docutils literal notranslate"><span class="pre">index.md</span></code>
 for it to be included in the documentation website:</p>
@@ -565,11 +567,20 @@ my_new_file
 </pre></div>
 </div>
 </section>
+<section id="adding-external-links">
+<h4>Adding external links<a class="headerlink" href="#adding-external-links" title="Permalink to this heading">#</a></h4>
+<p>If you are adding references to an external link (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/issues/1</span></code>) in a <code class="docutils literal notranslate"><span class="pre">.md</span></code> file, you will need to check if a matching URL scheme (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/</span></code>) is defined in <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>. If it is, the following <code class="docutils literal notranslate"><span class="pre">[](scheme:loc)</span></code> syntax will be converted to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues/1">full URL</a> during the build process:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>[<span class="nt">link text</span>](<span class="na">movement-github:issues/1</span>)
+</pre></div>
+</div>
+<p>If it is not yet defined and you have multiple external links pointing to the same base URL, you will need to <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/cross-referencing.html#customising-external-url-resolution">add the URL scheme</a> to <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>.</p>
+</section>
+</section>
 <section id="updating-the-api-reference">
 <h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Permalink to this heading">#</a></h3>
 <p>If your PR introduces new public-facing functions, classes, or methods,
 make sure to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> page, so that they are
-included in the <a class="reference external" href="https://movement.neuroinformatics.dev/api_index.html">API reference</a>,
+included in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>,
 e.g.:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">My new module</span>
 <span class="gh">--------------</span>
@@ -586,11 +597,11 @@ that follow the <a class="reference external" href="https://numpydoc.readthedocs
 </section>
 <section id="updating-the-examples">
 <h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Permalink to this heading">#</a></h3>
-<p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/index.html">sphinx-gallery</a>
-to create the <a class="reference external" href="https://movement.neuroinformatics.dev/examples/index.html">examples</a>.
+<p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/">sphinx-gallery</a>
+to create the <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">examples</span></a>.
 To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
 The file should be structured as specified in the relevant
-<a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax.html">sphinx-gallery documentation</a>.</p>
+<a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax">sphinx-gallery documentation</a>.</p>
 </section>
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h3>
@@ -608,13 +619,26 @@ To refresh the documentation, after making changes, remove the <code class="docu
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>docs/build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build
 </pre></div>
 </div>
+<p>To check that external links are correctly resolved, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build<span class="w"> </span>-b<span class="w"> </span>linkcheck
+</pre></div>
+</div>
+<p>If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to <code class="docutils literal notranslate"><span class="pre">linkcheck_anchors_ignore_for_url</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The linkcheck builder will skip verifying that anchors exist when checking</span>
+<span class="c1"># these URLs</span>
+<span class="n">linkcheck_anchors_ignore_for_url</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;https://gin.g-node.org/G-Node/Info/wiki/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://neuroinformatics.zulipchat.com/&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="sample-data">
 <h2>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h2>
 <p>We maintain some sample data to be used for testing, examples and tutorials on an
-<a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data">external data repository</a>.
-Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/">GIN</a> and is maintained
+<a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">external data repository</a>.
+Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/#">GIN</a> and is maintained
 by the <a class="reference external" href="https://www.g-node.org/">German Neuroinformatics Node</a>.
 GIN has a GitHub-like interface and git-like
 <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">CLI</a> functionalities.</p>
@@ -642,14 +666,14 @@ This can be changed by setting the <code class="docutils literal notranslate"><s
 <p>Only core movement developers may add new files to the external data repository.
 To add a new file, you will need to:</p>
 <ol class="arabic simple">
-<li><p>Create a <a class="reference external" href="https://gin.g-node.org/">GIN</a> account</p></li>
-<li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data">movement data repository</a> (if not already)</p></li>
+<li><p>Create a <a class="reference external" href="https://gin.g-node.org/#">GIN</a> account</p></li>
+<li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a> (if not already)</p></li>
 <li><p>Download the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> and set it up with your GIN credentials, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal.</p></li>
 <li><p>Clone the movement data repository to your local machine, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code> in a terminal.</p></li>
 <li><p>Add your new files and commit them with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>.</p></li>
 <li><p>Upload the commited changes to the GIN repository, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Latest changes to the repository can be pulled via <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code>. <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> will synchronise the latest changes bidirectionally.</p></li>
 <li><p>Determine the sha256 checksum hash of each new file, by running <code class="docutils literal notranslate"><span class="pre">sha256sum</span> <span class="pre">&lt;filename&gt;</span></code> in a terminal. Alternatively, you can use <code class="docutils literal notranslate"><span class="pre">pooch</span></code> to do this for you: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">pooch.file_hash('/path/to/file')&quot;</span></code>. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">pooch.make_registry('/path/to/folder',</span> <span class="pre">'sha256_registry.txt')</span></code>.</p></li>
-<li><p>Update the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module on the <a class="reference external" href="https://github.com/SainsburyWellcomeCentre/movement">movement GitHub repository</a> by adding the new files to the <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual <a class="reference internal" href="#contributing-code">guidelines for contributing code</a>. Make sure to test whether the new files can be fetched successfully (see <a class="reference internal" href="#fetching-data">fetching data</a> above) before submitting your pull request.</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">movement.datasets.py</span></code> module on the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">movement GitHub repository</a> by adding the new files to the <code class="docutils literal notranslate"><span class="pre">POSE_DATA</span></code> registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual <a class="reference internal" href="#contributing-code">guidelines for contributing code</a>. Make sure to test whether the new files can be fetched successfully (see <a class="reference internal" href="#fetching-data">fetching data</a> above) before submitting your pull request.</p></li>
 </ol>
 <p>You can also perform steps 3-6 via the GIN web interface, if you prefer to avoid using the CLI.</p>
 </section>
@@ -712,7 +736,11 @@ To add a new file, you will need to:</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-pages">Adding new pages</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-external-links">Adding external links</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
@@ -747,8 +775,8 @@ To add a new file, you will need to:</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -778,7 +806,7 @@ To add a new file, you will need to:</p>
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

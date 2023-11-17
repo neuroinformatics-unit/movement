@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d019515e"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/design-tabs.js?v=36754332"></script>
@@ -123,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -387,7 +387,7 @@ document.write(`
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
 <p>We recommend you install movement inside a <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
-or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html">mamba</a> environment.
+or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> environment.
 In the following we assume you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed,
 but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
 <p>First, create and activate an environment.
@@ -429,7 +429,7 @@ Please see the <a class="reference internal" href="community/contributing.html#t
 <section id="loading-data">
 <h2>Loading data<a class="headerlink" href="#loading-data" title="Permalink to this heading">#</a></h2>
 <p>You can load predicted pose tracks from the pose estimation software packages
-<a class="reference external" href="http://www.mackenziemathislab.org/deeplabcut">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/">SLEAP</a>.</p>
+<a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/">SLEAP</a>.</p>
 <p>First import the <code class="docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
 </pre></div>
@@ -439,7 +439,7 @@ Please see the <a class="reference internal" href="community/contributing.html#t
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 </input><label class="sd-tab-label" for="sd-tab-item-2">
 SLEAP</label><div class="sd-tab-content docutils">
-<p>Load from <a class="reference external" href="https://sleap.ai/tutorials/analysis.html">SLEAP analysis files</a> (<code class="docutils literal notranslate"><span class="pre">.h5</span></code>):</p>
+<p>Load from <a class="reference external" href="https://sleap.ai/">SLEAP analysis files</a> (<code class="docutils literal notranslate"><span class="pre">.h5</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -498,7 +498,7 @@ and load the data, as shown above.</p>
 <section id="working-with-movement-datasets">
 <h2>Working with movement datasets<a class="headerlink" href="#working-with-movement-datasets" title="Permalink to this heading">#</a></h2>
 <p>Loaded pose estimation data are represented in movement as
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html"><code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#"><code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
 <p>You can view information about the loaded dataset by printing it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
@@ -520,14 +520,14 @@ list of unique names (str) for <code class="docutils literal notranslate"><span 
 [‘x’,‘y’,(‘z’)] for <code class="docutils literal notranslate"><span class="pre">space</span></code>. The coordinates of the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension are
 in seconds if <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, otherwise they are in frame numbers.</p>
 <p>The dataset contains two data variables stored as
-<a class="reference external" href="https://docs.xarray.dev/en/latest/generated/xarray.DataArray.html#xarray.DataArray"><code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> objects:</p>
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray"><code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> objects:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">pose_tracks</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>)</p></li>
 </ul>
 <p>You can think of a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> as a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> with <code class="docutils literal notranslate"><span class="pre">pandas</span></code>-style
 indexing and labelling. To learn more about <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data structures, see the
-relevant <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/data-structures.html">documentation</a>.</p>
+relevant <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/data-structures.html#">documentation</a>.</p>
 <p>The dataset may also contain the following attributes as metadata:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">fps</span></code>: the number of frames per second in the video</p></li>
@@ -562,11 +562,11 @@ resulting in a <code class="docutils literal notranslate"><span class="pre">Data
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You may also use all the other powerful <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/indexing.html">indexing and selection</a> methods provided by <code class="docutils literal notranslate"><span class="pre">xarray</span></code>.</p>
+<p>You may also use all the other powerful <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/indexing.html#">indexing and selection</a> methods provided by <code class="docutils literal notranslate"><span class="pre">xarray</span></code>.</p>
 </section>
 <section id="plotting">
 <h3>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">#</a></h3>
-<p>You can also use the built-in <a class="reference external" href="https://docs.xarray.dev/en/latest/user-guide/plotting.html"><code class="docutils literal notranslate"><span class="pre">xarray</span></code> plotting methods</a>
+<p>You can also use the built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/plotting.html#"><code class="docutils literal notranslate"><span class="pre">xarray</span></code> plotting methods</a>
 to visualise the data. Check out the <a class="reference internal" href="examples/load_and_explore_poses.html"><span class="std std-doc">Load and explore pose tracks</span></a>
 example for inspiration.</p>
 </section>
@@ -666,8 +666,8 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -697,7 +697,7 @@ DeepLabCut-style <code class="docutils literal notranslate"><span class="pre">pa
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

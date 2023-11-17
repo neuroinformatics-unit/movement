@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=c5ced968eda925caa686" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=c5ced968eda925caa686" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=c5ced968eda925caa686"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d5b76920"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=d019515e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -123,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.9</p>
+    <p class="title logo__title">movement v0.0.10</p>
   
 </a></div>
     
@@ -421,27 +421,45 @@ document.write(`
 <h1>movement.io.save_poses.to_dlc_file<a class="headerlink" href="#movement-io-save-poses-to-dlc-file" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.save_poses.to_dlc_file">
-<span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_file" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_individuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_file" title="Permalink to this definition">#</a></dt>
 <dd><p>Save the xarray dataset containing pose tracks to a
-DeepLabCut-style “.h5” or “.csv” file.</p>
+DeepLabCut-style .h5 or .csv file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<em>xarray Dataset</em>) – Dataset containing pose tracks, confidence scores, and metadata.</p></li>
-<li><p><strong>file_path</strong> (<em>pathlib Path</em><em> or </em><em>str</em>) – Path to the file to save the DLC poses to. The file extension
-must be either “.h5” (recommended) or “.csv”.</p></li>
+<li><p><strong>ds</strong> (<em>xarray.Dataset</em>) – Dataset containing pose tracks, confidence scores, and metadata.</p></li>
+<li><p><strong>file_path</strong> (<em>pathlib.Path</em><em> or </em><em>str</em>) – Path to the file to save the DLC poses to. The file extension
+must be either .h5 (recommended) or .csv.</p></li>
+<li><p><strong>split_individuals</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, each individual will be saved to a separate file,
+formatted as in a single-animal DeepLabCut project - i.e. without
+the “individuals” column level. The individual’s name will be appended
+to the file path, just before the file extension, i.e.
+“/path/to/filename_individual1.h5”.
+If False, all individuals will be saved to the same file,
+formatted as in a multi-animal DeepLabCut project - i.e. the columns
+will include the “individuals” level. The file path will not be
+modified.
+If “auto” the argument’s value be determined based on the number of
+individuals in the dataset: True if there is only one, and
+False if there are more than one. This is the default.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df" title="movement.io.save_poses.to_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_df</span></code></a></dt><dd><p>Convert an xarray dataset containing pose tracks into a DeepLabCut-style pandas DataFrame with multi-index columns.</p>
+<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df" title="movement.io.save_poses.to_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_df</span></code></a></dt><dd><p>Convert an xarray dataset containing pose tracks into a single DeepLabCut-style pandas DataFrame or a dictionary of DataFrames per individual.</p>
 </dd>
 </dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">save_poses</span><span class="p">,</span> <span class="n">load_poses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap</span><span class="p">(</span><span class="s2">&quot;/path/to/file_sleap.analysis.h5&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file_dlc.h5&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 
@@ -515,8 +533,8 @@ must be either “.h5” (recommended) or “.csv”.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=c5ced968eda925caa686"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=c5ced968eda925caa686"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -546,7 +564,7 @@ must be either “.h5” (recommended) or “.csv”.</p></li>
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>
