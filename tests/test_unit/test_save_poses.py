@@ -292,21 +292,21 @@ class TestSavePoses:
             )
 
     @pytest.mark.parametrize(
-        "sleap_h5_file",
+        "sleap_h5_file, fps",
         [
-            "SLEAP_single-mouse_EPM.analysis.h5",
-            "SLEAP_three-mice_Aeon_proofread.analysis.h5",
-            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            ("SLEAP_single-mouse_EPM.analysis.h5", 30),
+            ("SLEAP_three-mice_Aeon_proofread.analysis.h5", None),
+            ("SLEAP_three-mice_Aeon_mixed-labels.analysis.h5", 50),
         ],
     )
     def test_to_sleap_analysis_file_returns_same_h5_file_content(
-        self, sleap_h5_file, new_h5_file
+        self, sleap_h5_file, fps, new_h5_file
     ):
         """Test that saving pose tracks from a SLEAP analysis file
         to a SLEAP-style .h5 analysis file returns the same file
         contents."""
         sleap_h5_file_path = POSE_DATA.get(sleap_h5_file)
-        ds = load_poses.from_sleap_file(sleap_h5_file_path)
+        ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
         save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
         with h5py.File(sleap_h5_file_path, "r") as file_in, h5py.File(
