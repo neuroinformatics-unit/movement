@@ -88,8 +88,8 @@ def from_sleap_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the SLEAP predictions in ".h5"
-        (analysis) format. Alternatively, an ".slp" (labels) file can
+        Path to the file containing the SLEAP predictions in .h5
+        (analysis) format. Alternatively, a .slp (labels) file can
         also be supplied (but this feature is experimental, see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -102,18 +102,18 @@ def from_sleap_file(
 
     Notes
     -----
-    The SLEAP predictions are normally saved in ".slp" files, e.g.
+    The SLEAP predictions are normally saved in .slp files, e.g.
     "v1.predictions.slp". An analysis file, suffixed with ".h5" can be exported
-    from the ".slp" file, using either the command line tool `sleap-convert`
+    from the .slp file, using either the command line tool `sleap-convert`
     (with the "--format analysis" option enabled) or the SLEAP GUI (Choose
     "Export Analysis HDF5…" from the "File" menu) [1]_. This is the
     preferred format for loading pose tracks from SLEAP into *movement*.
 
-    You can also directly load the ".slp" file. However, if the file contains
+    You can also directly load the .slp file. However, if the file contains
     multiple videos, only the pose tracks from the first video will be loaded.
     If the file contains a mix of user-labelled and predicted instances, user
     labels are prioritised over predicted instances to mirror SLEAP's approach
-    when exporting ".h5" analysis files [2]_.
+    when exporting .h5 analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
     them, meaning each track is interpreted as a single individual/animal. If
@@ -169,8 +169,8 @@ def from_dlc_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC predicted poses, either in ".h5"
-        or ".csv" format.
+        Path to the file containing the DLC predicted poses, either in .h5
+        or .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
@@ -320,7 +320,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     This function only considers SLEAP instances in the first
     video of the SLEAP `Labels` object. User-labelled instances are
     prioritised over predicted instances, mirroring SLEAP's approach
-    when exporting ".h5" analysis files [1]_.
+    when exporting .h5 analysis files [1]_.
 
     This function is adapted from `Labels.numpy()` from the
     `sleap_io` package [2]_.
