@@ -207,13 +207,23 @@ example for inspiration.
 
 ## Saving data
 You can save movement datasets to disk in a variety of formats.
-Currently, only saving to DeepLabCut-style files is supported.
+This includes saving to DeepLabCut-style files (.h5 or .csv) and
+SLEAP-style analysis files (.h5). When saving to SLEAP-style files,
+do note that only `track_names`, `node_names`, `tracks`, `track_occupancy`,
+`point_scores`, and `labels_path` are saved. Other attributes and data variables
+(i.e., `instance_scores`, `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
+`video_ind`, and `provenance`) are not currently supported. To learn more about what
+each attribute and data variable represents, see the [SLEAP documentation](sleap:api/sleap.info.write_tracking_h5.html#module-sleap.info.write_tracking_h5).
 
 ```python
 from movement.io import save_poses
 
-save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred
+# save to DeepLabCut-style file
+save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format for DeepLabCut
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
+
+# save to SLEAP-style file
+save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
 
 Instead of saving to file directly, you can also convert the dataset to a

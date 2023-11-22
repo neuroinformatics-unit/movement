@@ -237,8 +237,24 @@ def to_sleap_analysis_file(
     ds : xarray.Dataset
         Dataset containing pose tracks, confidence scores, and metadata.
     file_path : pathlib.Path or str
-        Path to the file to save the poses to. The file extension
-        must be .h5 (recommended) or .csv.
+        Path to the file to save the poses to. The file extension must be .h5.
+
+    Notes
+    -----
+    The output file will contain the following keys (as in SLEAP .h5 analysis
+    files):
+    "track_names", "node_names", "tracks", "track_occupancy", "point_scores",
+    "instance_scores", "tracking_scores", "labels_path", "edge_names",
+    "edge_inds", "video_path", "video_ind", "provenance" [1]_.
+    However, only "track_names", "node_names", "tracks", "track_occupancy",
+    "point_scores" and "labels_path" will contain data extracted from the
+    input dataset.
+    The other attributes and data variables that are not present in the input
+    dataset will contain default (empty) values.
+
+    References
+    ----------
+    .. [1] https://sleap.ai/api/sleap.info.write_tracking_h5.html
 
     Examples
     --------
