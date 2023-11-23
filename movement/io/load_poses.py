@@ -16,7 +16,7 @@ from movement.io.validators import (
     ValidPosesCSV,
     ValidPoseTracks,
 )
-from movement.logging import log_error
+from movement.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
 
@@ -243,6 +243,12 @@ def _load_from_sleap_analysis_file(
         # Create an array of NaNs for the confidence scores
         scores = np.full(tracks.shape[:-1], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
+        if individual_names is None:
+            log_warning(
+                f"Could not find SLEAP Track in {file.path}. "
+                "Assuming single-individual dataset and assigning "
+                "default individual name."
+            )
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
@@ -280,6 +286,12 @@ def _load_from_sleap_labels_file(
     labels = read_labels(file.path.as_posix())
     tracks_with_scores = _sleap_labels_to_numpy(labels)
     individual_names = [track.name for track in labels.tracks] or None
+    if individual_names is None:
+        log_warning(
+            f"Could not find SLEAP Track in {file.path}. "
+            "Assuming single-individual dataset and assigning "
+            "default individual name."
+        )
     return ValidPoseTracks(
         tracks_array=tracks_with_scores[:, :, :, :-1],
         scores_array=tracks_with_scores[:, :, :, -1],
