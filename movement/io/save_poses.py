@@ -385,7 +385,7 @@ def _validate_dataset(ds: xr.Dataset) -> None:
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         Dataset to validate.
 
     Raises
