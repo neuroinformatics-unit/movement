@@ -1,13 +1,66 @@
+import h5py
 import numpy as np
 import pytest
 import xarray as xr
 from pytest import POSE_DATA
+from sleap_io.io.slp import read_labels, write_labels
+from sleap_io.model.labels import LabeledFrame, Labels
 
 from movement.io import PosesAccessor, load_poses
 
 
 class TestLoadPoses:
     """Test suite for the load_poses module."""
+
+    @pytest.fixture
+    def sleap_slp_file_without_tracks(self, tmp_path):
+        """Mock and return the path to a SLEAP .slp file without tracks."""
+        sleap_file = POSE_DATA.get("SLEAP_single-mouse_EPM.predictions.slp")
+        labels = read_labels(sleap_file)
+        file_path = tmp_path / "track_is_none.slp"
+        lfs = []
+        for lf in labels.labeled_frames:
+            instances = []
+            for inst in lf.instances:
+                inst.track = None
+                inst.tracking_score = 0
+                instances.append(inst)
+            lfs.append(
+                LabeledFrame(
+                    video=lf.video, frame_idx=lf.frame_idx, instances=instances
+                )
+            )
+        write_labels(
+            file_path,
+            Labels(
+                labeled_frames=lfs,
+                videos=labels.videos,
+                skeletons=labels.skeletons,
+            ),
+        )
+        return file_path
+
+    @pytest.fixture
+    def sleap_h5_file_without_tracks(self, tmp_path):
+        """Mock and return the path to a SLEAP .h5 file without tracks."""
+        sleap_file = POSE_DATA.get("SLEAP_single-mouse_EPM.analysis.h5")
+        file_path = tmp_path / "track_is_none.h5"
+        with h5py.File(sleap_file, "r") as f1, h5py.File(file_path, "w") as f2:
+            for key in list(f1.keys()):
+                if key == "track_names":
+                    f2.create_dataset(key, data=[])
+                else:
+                    f1.copy(key, f2, name=key)
+        return file_path
+
+    @pytest.fixture(
+        params=[
+            "sleap_h5_file_without_tracks",
+            "sleap_slp_file_without_tracks",
+        ]
+    )
+    def sleap_file_without_tracks(self, request):
+        return request.getfixturevalue(request.param)
 
     def assert_dataset(
         self, dataset, file_path=None, expected_source_software=None
@@ -42,11 +95,32 @@ class TestLoadPoses:
         )
         assert dataset.fps is None
 
-    def test_load_from_slp_file(self, sleap_file):
+    def test_load_from_sleap_file(self, sleap_file):
         """Test that loading pose tracks from valid SLEAP files
         returns a proper Dataset."""
         ds = load_poses.from_sleap_file(sleap_file)
         self.assert_dataset(ds, sleap_file, "SLEAP")
+
+    def test_load_from_sleap_file_without_tracks(
+        self, sleap_file_without_tracks
+    ):
+        """Test that loading pose tracks from valid SLEAP files
+        with tracks removed returns a dataset that matches the
+        original file, except for the individual names which are
+        set to default."""
+        ds_from_trackless = load_poses.from_sleap_file(
+            sleap_file_without_tracks
+        )
+        ds_from_tracked = load_poses.from_sleap_file(
+            POSE_DATA.get("SLEAP_single-mouse_EPM.analysis.h5")
+        )
+        # Check if the "individuals" coordinate matches
+        # the assigned default "individuals_0"
+        assert ds_from_trackless.individuals == ["individual_0"]
+        xr.testing.assert_allclose(
+            ds_from_trackless.drop("individuals"),
+            ds_from_tracked.drop("individuals"),
+        )
 
     @pytest.mark.parametrize(
         "slp_file, h5_file",

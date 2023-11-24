@@ -16,7 +16,7 @@ from movement.io.validators import (
     ValidPosesCSV,
     ValidPoseTracks,
 )
-from movement.logging import log_error
+from movement.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
 
@@ -116,13 +116,17 @@ def from_sleap_file(
     when exporting ".h5" analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
-    them, meaning each track is interpreted as a single individual/animal.
+    them, meaning each track is interpreted as a single individual/animal. If
+    no tracks are found in the file, *movement* assumes that this is a
+    single-individual/animal track, and will assign a default individual name.
+    If multiple instances without tracks are present in a frame, the last
+    instance is selected [2]_.
     Follow the SLEAP guide for tracking and proofreading [3]_.
 
     References
     ----------
     .. [1] https://sleap.ai/tutorials/analysis.html
-    .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150
+    .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L59
     .. [3] https://sleap.ai/guides/proofreading.html
 
     Examples
@@ -238,6 +242,13 @@ def _load_from_sleap_analysis_file(
         tracks = f["tracks"][:].transpose((3, 0, 2, 1))
         # Create an array of NaNs for the confidence scores
         scores = np.full(tracks.shape[:-1], np.nan)
+        individual_names = [n.decode() for n in f["track_names"][:]] or None
+        if individual_names is None:
+            log_warning(
+                f"Could not find SLEAP Track in {file.path}. "
+                "Assuming single-individual dataset and assigning "
+                "default individual name."
+            )
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
@@ -245,7 +256,7 @@ def _load_from_sleap_analysis_file(
         return ValidPoseTracks(
             tracks_array=tracks.astype(np.float32),
             scores_array=scores.astype(np.float32),
-            individual_names=[n.decode() for n in f["track_names"][:]],
+            individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
         )
@@ -274,10 +285,17 @@ def _load_from_sleap_labels_file(
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
     labels = read_labels(file.path.as_posix())
     tracks_with_scores = _sleap_labels_to_numpy(labels)
+    individual_names = [track.name for track in labels.tracks] or None
+    if individual_names is None:
+        log_warning(
+            f"Could not find SLEAP Track in {file.path}. "
+            "Assuming single-individual dataset and assigning "
+            "default individual name."
+        )
     return ValidPoseTracks(
         tracks_array=tracks_with_scores[:, :, :, :-1],
         scores_array=tracks_with_scores[:, :, :, -1],
-        individual_names=[track.name for track in labels.tracks],
+        individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
     )
@@ -309,7 +327,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
 
     References
     ----------
-    .. [1] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L129-L150
+    .. [1] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L59
     .. [2] https://github.com/talmolab/sleap-io
     """
     # Select frames from the first video only
@@ -319,7 +337,8 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     first_frame = min(0, min(frame_idxs))
     last_frame = max(0, max(frame_idxs))
 
-    n_tracks = len(labels.tracks)
+    n_tracks = len(labels.tracks) or 1  # If no tracks, assume 1 individual
+    individuals = labels.tracks or [None]
     skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
@@ -329,21 +348,21 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
         i = int(lf.frame_idx - first_frame)
         user_instances = lf.user_instances
         predicted_instances = lf.predicted_instances
-        for j, track in enumerate(labels.tracks):
+        for j, ind in enumerate(individuals):
             user_track_instances = [
-                inst for inst in user_instances if inst.track == track
+                inst for inst in user_instances if inst.track == ind
             ]
             predicted_track_instances = [
-                inst for inst in predicted_instances if inst.track == track
+                inst for inst in predicted_instances if inst.track == ind
             ]
             # Use user-labelled instance if available
             if user_track_instances:
-                inst = user_track_instances[0]
+                inst = user_track_instances[-1]
                 tracks[i, j] = np.hstack(
                     (inst.numpy(), np.full((n_nodes, 1), np.nan))
                 )
             elif predicted_track_instances:
-                inst = predicted_track_instances[0]
+                inst = predicted_track_instances[-1]
                 tracks[i, j] = inst.numpy(scores=True)
     return tracks
 
