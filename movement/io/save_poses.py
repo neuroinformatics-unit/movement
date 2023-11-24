@@ -246,9 +246,11 @@ def to_sleap_analysis_file(
     "track_names", "node_names", "tracks", "track_occupancy", "point_scores",
     "instance_scores", "tracking_scores", "labels_path", "edge_names",
     "edge_inds", "video_path", "video_ind", "provenance" [1]_.
-    However, only "track_names", "node_names", "tracks", "track_occupancy",
-    "point_scores" and "labels_path" will contain data extracted from the
-    input dataset.
+    However, only "track_names", "node_names", "tracks", "track_occupancy"
+    and "point_scores" will contain data extracted from the input dataset.
+    "labels_path" will contain the path to the input file only if the source
+    file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty
+    string.
     The other attributes and data variables that are not present in the input
     dataset will contain default (empty) values.
 
@@ -293,7 +295,9 @@ def to_sleap_analysis_file(
     point_scores = np.transpose(ds.confidence.data, (1, 2, 0))
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-
+    labels_path = (
+        ds.source_file if Path(ds.source_file).suffix == ".slp" else ""
+    )
     data_dict = dict(
         track_names=individual_names,
         node_names=keypoint_names,
@@ -302,7 +306,7 @@ def to_sleap_analysis_file(
         point_scores=point_scores,
         instance_scores=instance_scores,
         tracking_scores=tracking_scores,
-        labels_path=ds.source_file,
+        labels_path=labels_path,
         edge_names=[],
         edge_inds=[],
         video_path="",

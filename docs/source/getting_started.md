@@ -228,7 +228,9 @@ save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 
 :::{note}
 When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`, `track_occupancy`,
-`point_scores`, and `labels_path` are saved. Other attributes and data variables
+and `point_scores` are saved. `labels_path` will only be saved if the source
+file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
+Other attributes and data variables
 (i.e., `instance_scores`, `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
 `video_ind`, and `provenance`) are not currently supported. To learn more about what
 each attribute and data variable represents, see the
