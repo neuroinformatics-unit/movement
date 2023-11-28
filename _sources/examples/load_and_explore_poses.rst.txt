@@ -30,7 +30,7 @@ Imports
 
 .. GENERATED FROM PYTHON SOURCE LINES 11-16
 
-.. code-block:: default
+.. code-block:: Python
 
     from matplotlib import pyplot as plt
 
@@ -52,7 +52,7 @@ Print a list of available datasets:
 
 .. GENERATED FROM PYTHON SOURCE LINES 20-24
 
-.. code-block:: default
+.. code-block:: Python
 
 
     for file_name in datasets.list_pose_data():
@@ -70,6 +70,8 @@ Print a list of available datasets:
     DLC_single-wasp.predictions.csv
     DLC_single-mouse_EPM.predictions.h5
     DLC_two-mice.predictions.csv
+    LP_mouse-face_AIND.predictions.csv
+    LP_mouse-twoview_AIND.predictions.csv
     SLEAP_single-mouse_EPM.analysis.h5
     SLEAP_single-mouse_EPM.predictions.slp
     SLEAP_two-mice_social-interaction.analysis.h5
@@ -90,7 +92,7 @@ e.g., ``file_path = "/path/to/my/data.h5"``)
 
 .. GENERATED FROM PYTHON SOURCE LINES 28-32
 
-.. code-block:: default
+.. code-block:: Python
 
     file_path = datasets.fetch_pose_data_path(
         "SLEAP_three-mice_Aeon_proofread.analysis.h5"
@@ -110,7 +112,7 @@ Load the dataset
 
 .. GENERATED FROM PYTHON SOURCE LINES 35-39
 
-.. code-block:: default
+.. code-block:: Python
 
 
     ds = load_poses.from_sleap_file(file_path, fps=50)
@@ -151,7 +153,7 @@ To get the pose tracks:
 
 .. GENERATED FROM PYTHON SOURCE LINES 43-45
 
-.. code-block:: default
+.. code-block:: Python
 
     pose_tracks = ds.pose_tracks
 
@@ -172,7 +174,7 @@ for a single keypoint of the first individual:
 
 .. GENERATED FROM PYTHON SOURCE LINES 51-55
 
-.. code-block:: default
+.. code-block:: Python
 
 
     da = pose_tracks.sel(individuals="AEON3B_NTP", keypoints="centroid")
@@ -204,7 +206,7 @@ using ``xarray``'s built-in plotting methods:
 
 .. GENERATED FROM PYTHON SOURCE LINES 58-60
 
-.. code-block:: default
+.. code-block:: Python
 
     da.plot.line(x="time", row="space", aspect=2, size=2.5)
 
@@ -222,7 +224,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f8e80feec50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7efef62136d0>
 
 
 
@@ -233,7 +235,7 @@ for all individuals:
 
 .. GENERATED FROM PYTHON SOURCE LINES 63-67
 
-.. code-block:: default
+.. code-block:: Python
 
 
     da = pose_tracks.sel(keypoints="centroid")
@@ -253,7 +255,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f8e80ecb110>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7efef627d190>
 
 
 
@@ -267,7 +269,7 @@ For example, we can use ``matplotlib`` to plot trajectories
 
 .. GENERATED FROM PYTHON SOURCE LINES 73-87
 
-.. code-block:: default
+.. code-block:: Python
 
 
     mouse_name = "AEON3B_TP1"
@@ -297,14 +299,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f8e7eb25890>
+    <matplotlib.colorbar.Colorbar object at 0x7efef4007d50>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.732 seconds)
+   **Total running time of the script:** (0 minutes 0.720 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:
@@ -313,16 +315,13 @@ For example, we can use ``matplotlib`` to plot trajectories
 
   .. container:: sphx-glr-footer sphx-glr-footer-example
 
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
-
+      :download:`Download Jupyter notebook: load_and_explore_poses.ipynb <load_and_explore_poses.ipynb>`
 
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: load_and_explore_poses.py <load_and_explore_poses.py>`
-
-    .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-      :download:`Download Jupyter notebook: load_and_explore_poses.ipynb <load_and_explore_poses.ipynb>`
 
 
 .. only:: html
