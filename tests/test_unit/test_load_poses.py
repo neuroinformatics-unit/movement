@@ -205,3 +205,17 @@ class TestLoadPoses:
                 ds.coords["time"].data,
                 np.arange(ds.dims["time"], dtype=int) / ds.attrs["fps"],
             )
+
+    @pytest.mark.parametrize(
+        "file_name",
+        [
+            "LP_mouse-face_AIND.predictions.csv",
+            "LP_mouse-twoview_AIND.predictions.csv",
+        ],
+    )
+    def test_load_from_LP_file(self, file_name):
+        """Test that loading pose tracks from valid DLC files
+        returns a proper Dataset."""
+        file_path = POSE_DATA.get(file_name)
+        ds = load_poses.from_lp_file(file_path)
+        self.assert_dataset(ds, file_path, "LightningPose")
