@@ -221,7 +221,7 @@ Then, use the `to_dlc_file` or `to_sleap_analysis_file` functions to save the da
 
 ::::{tab-item} SLEAP
 
-Save to SLEAP analysis files (`.h5`):
+Save to SLEAP-style analysis files (`.h5`):
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
