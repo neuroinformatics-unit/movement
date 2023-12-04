@@ -264,7 +264,7 @@ stored in the `poses` folder. Each file name starts with either "DLC" or "SLEAP"
 depending on the pose estimation software used to generate the data.
 
 ### Fetching data
-To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
+To fetch the data from GIN, we use the [pooch](https://github.com/fatiando/pooch)
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
 like verification of sha256 hashes and decompression of archives.
