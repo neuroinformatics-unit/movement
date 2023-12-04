@@ -1,7 +1,6 @@
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
-import h5py
 import numpy as np
 import pandas as pd
 import pytest
@@ -54,52 +53,6 @@ class TestSavePoses:
         """Return a dictionary containing parameters for testing saving
         valid pose datasets to DeepLabCut- or SLEAP-style files."""
         return request.param
-
-    @pytest.fixture
-    def not_a_dataset(self):
-        """Return an invalid pose tracks dataset."""
-        return [1, 2, 3]
-
-    @pytest.fixture
-    def empty_dataset(self):
-        """Return an empty pose tracks dataset."""
-        return xr.Dataset()
-
-    @pytest.fixture
-    def missing_var_dataset(self, valid_pose_dataset):
-        """Return a pose tracks dataset missing a variable."""
-        return valid_pose_dataset.drop_vars("pose_tracks")
-
-    @pytest.fixture
-    def new_file_wrong_ext(self, tmp_path):
-        """Return the file path for a new file with the wrong extension."""
-        return tmp_path / "new_file_wrong_ext.txt"
-
-    @pytest.fixture
-    def new_h5_file(self, tmp_path):
-        """Return the file path for a new .h5 file."""
-        return tmp_path / "new_file.h5"
-
-    @pytest.fixture
-    def new_csv_file(self, tmp_path):
-        """Return the file path for a new .csv file."""
-        return tmp_path / "new_file.csv"
-
-    @pytest.fixture
-    def missing_dim_dataset(self, valid_pose_dataset):
-        """Return a pose tracks dataset missing a dimension."""
-        return valid_pose_dataset.drop_dims("time")
-
-    @pytest.fixture(
-        params=[
-            "not_a_dataset",
-            "empty_dataset",
-            "missing_var_dataset",
-            "missing_dim_dataset",
-        ]
-    )
-    def invalid_pose_dataset(self, request):
-        return request.getfixturevalue(request.param)
 
     @pytest.mark.parametrize(
         "ds, expected_exception",
@@ -197,8 +150,8 @@ class TestSavePoses:
         valid_pose_dataset,
         split_individuals,
     ):
-        """Test that the 'split_individuals' argument affects the behaviour
-        of the 'to_dlc_df` function as expected
+        """Test that the `split_individuals` argument affects the behaviour
+        of the `to_dlc_df` function as expected
         """
         df = save_poses.to_dlc_df(valid_pose_dataset, split_individuals)
         # Get the names of the individuals in the dataset
@@ -244,8 +197,8 @@ class TestSavePoses:
         split_individuals,
         expected_exception,
     ):
-        """Test that the 'split_individuals' argument affects the behaviour
-        of the 'to_dlc_file` function as expected.
+        """Test that the `split_individuals` argument affects the behaviour
+        of the `to_dlc_file` function as expected.
         """
         with expected_exception:
             save_poses.to_dlc_file(
@@ -290,36 +243,6 @@ class TestSavePoses:
                 invalid_pose_dataset,
                 new_h5_file,
             )
-
-    @pytest.mark.parametrize(
-        "sleap_h5_file, fps",
-        [
-            ("SLEAP_single-mouse_EPM.analysis.h5", 30),
-            ("SLEAP_three-mice_Aeon_proofread.analysis.h5", None),
-            ("SLEAP_three-mice_Aeon_mixed-labels.analysis.h5", 50),
-        ],
-    )
-    def test_to_sleap_analysis_file_returns_same_h5_file_content(
-        self, sleap_h5_file, fps, new_h5_file
-    ):
-        """Test that saving pose tracks from a SLEAP analysis file
-        to a SLEAP-style .h5 analysis file returns the same file
-        contents."""
-        sleap_h5_file_path = POSE_DATA.get(sleap_h5_file)
-        ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
-        save_poses.to_sleap_analysis_file(ds, new_h5_file)
-
-        with h5py.File(sleap_h5_file_path, "r") as file_in, h5py.File(
-            new_h5_file, "r"
-        ) as file_out:
-            assert set(file_in.keys()) == set(file_out.keys())
-            keys = [
-                "track_occupancy",
-                "tracks",
-                "point_scores",
-            ]
-            for key in keys:
-                np.testing.assert_allclose(file_in[key][:], file_out[key][:])
 
     def test_remove_unoccupied_tracks(self, valid_pose_dataset):
         """Test that removing unoccupied tracks from a valid pose dataset
