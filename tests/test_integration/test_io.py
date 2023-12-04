@@ -53,8 +53,8 @@ class TestPosesIO:
     def test_to_sleap_analysis_file_returns_same_h5_file_content(
         self, sleap_h5_file, fps, new_h5_file
     ):
-        """Test that saving pose tracks exported from a SLEAP analysis
-        file to a SLEAP-style .h5 analysis file returns the same file
+        """Test that saving pose tracks (loaded from a SLEAP analysis
+        file) to a SLEAP-style .h5 analysis file returns the same file
         contents."""
         sleap_h5_file_path = POSE_DATA.get(sleap_h5_file)
         ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
@@ -87,9 +87,9 @@ class TestPosesIO:
         ],
     )
     def test_to_sleap_analysis_file_source_file(self, file, new_h5_file):
-        """Test that saving pose tracks exported from a SLEAP file
-        to a SLEAP-style .h5 analysis file returns the same file
-        contents."""
+        """Test that saving pose tracks (loaded from valid source files)
+        to a SLEAP-style .h5 analysis file stores the .slp labels path
+        only when the source file is a .slp file."""
         file_path = POSE_DATA.get(file)
         if file.startswith("DLC"):
             ds = load_poses.from_dlc_file(file_path)
