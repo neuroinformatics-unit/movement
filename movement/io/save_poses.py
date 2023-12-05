@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from typing import Literal, Union
 
+import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -112,13 +113,8 @@ def to_dlc_df(
     to_dlc_file : Save the xarray dataset containing pose tracks directly
         to a DeepLabCut-style .h5 or .csv file.
     """
-    if not isinstance(ds, xr.Dataset):
-        raise log_error(
-            ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
-        )
 
-    ds.poses.validate()  # validate the dataset
-
+    _validate_dataset(ds)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
     coords = ds.coords["space"].data.tolist() + ["likelihood"]
@@ -193,19 +189,11 @@ def to_dlc_file(
     Examples
     --------
     >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_sleap("/path/to/file_sleap.analysis.h5")
+    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
     """
 
-    try:
-        file = ValidFile(
-            file_path,
-            expected_permission="w",
-            expected_suffix=[".csv", ".h5"],
-        )
-    except (OSError, ValueError) as error:
-        logger.error(error)
-        raise error
+    file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
 
     # Sets default behaviour for the function
     if split_individuals == "auto":
@@ -236,3 +224,182 @@ def to_dlc_file(
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
         logger.info(f"Saved PoseTracks dataset to {file.path}.")
+
+
+def to_sleap_analysis_file(
+    ds: xr.Dataset, file_path: Union[str, Path]
+) -> None:
+    """Save the xarray dataset containing pose tracks to a SLEAP-style
+    .h5 analysis file.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata.
+    file_path : pathlib.Path or str
+        Path to the file to save the poses to. The file extension must be .h5.
+
+    Notes
+    -----
+    The output file will contain the following keys (as in SLEAP .h5 analysis
+    files):
+    "track_names", "node_names", "tracks", "track_occupancy", "point_scores",
+    "instance_scores", "tracking_scores", "labels_path", "edge_names",
+    "edge_inds", "video_path", "video_ind", "provenance" [1]_.
+    However, only "track_names", "node_names", "tracks", "track_occupancy"
+    and "point_scores" will contain data extracted from the input dataset.
+    "labels_path" will contain the path to the input file only if the source
+    file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty
+    string.
+    The other attributes and data variables that are not present in the input
+    dataset will contain default (empty) values.
+
+    References
+    ----------
+    .. [1] https://sleap.ai/api/sleap.info.write_tracking_h5.html
+
+    Examples
+    --------
+    >>> from movement.io import save_poses, load_poses
+    >>> ds = load_poses.from_dlc_file("path/to/file.h5")
+    >>> save_poses.to_sleap_analysis_file(
+    ...     ds, "/path/to/file_sleap.analysis.h5"
+    ... )
+    """
+
+    file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
+    _validate_dataset(ds)
+
+    ds = _remove_unoccupied_tracks(ds)
+
+    # Target shapes:
+    # "track_occupancy"     n_frames * n_individuals
+    # "tracks"              n_individuals * n_space * n_keypoints * n_frames
+    # "track_names"         n_individuals
+    # "point_scores"        n_individuals * n_keypoints * n_frames
+    # "instance_scores"     n_individuals * n_frames
+    # "tracking_scores"     n_individuals * n_frames
+    individual_names = ds.individuals.values.tolist()
+    n_individuals = len(individual_names)
+    keypoint_names = ds.keypoints.values.tolist()
+    # Compute frame indices from fps, if set
+    if ds.fps is not None:
+        frame_idxs = np.rint(ds.time.values * ds.fps).astype(int).tolist()
+    else:
+        frame_idxs = ds.time.values.astype(int).tolist()
+    n_frames = frame_idxs[-1] - frame_idxs[0] + 1
+    pos_x = ds.pose_tracks.sel(space="x").values
+    # Mask denoting which individuals are present in each frame
+    track_occupancy = (~np.all(np.isnan(pos_x), axis=2)).astype(int)
+    tracks = np.transpose(ds.pose_tracks.data, (1, 3, 2, 0))
+    point_scores = np.transpose(ds.confidence.data, (1, 2, 0))
+    instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
+    tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
+    labels_path = (
+        ds.source_file if Path(ds.source_file).suffix == ".slp" else ""
+    )
+    data_dict = dict(
+        track_names=individual_names,
+        node_names=keypoint_names,
+        tracks=tracks,
+        track_occupancy=track_occupancy,
+        point_scores=point_scores,
+        instance_scores=instance_scores,
+        tracking_scores=tracking_scores,
+        labels_path=labels_path,
+        edge_names=[],
+        edge_inds=[],
+        video_path="",
+        video_ind=0,
+        provenance="{}",
+    )
+    with h5py.File(file.path, "w") as f:
+        for key, val in data_dict.items():
+            if isinstance(val, np.ndarray):
+                f.create_dataset(
+                    key,
+                    data=val,
+                    compression="gzip",
+                    compression_opts=9,
+                )
+            else:
+                f.create_dataset(key, data=val)
+    logger.info(f"Saved PoseTracks dataset to {file.path}.")
+
+
+def _remove_unoccupied_tracks(ds: xr.Dataset):
+    """Remove tracks that are completely unoccupied in the xarray dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata.
+
+    Returns
+    -------
+    xarray.Dataset
+        The input dataset without the unoccupied tracks.
+    """
+
+    all_nan = ds.pose_tracks.isnull().all(dim=["keypoints", "space", "time"])
+    return ds.where(~all_nan, drop=True)
+
+
+def _validate_file_path(
+    file_path: Union[str, Path], expected_suffix: list[str]
+) -> ValidFile:
+    """Validate the input file path by checking that the file has
+    write permission and expected suffix(es). If the file is not valid,
+    an appropriate error is raised.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the file to validate.
+    expected_suffix : list of str
+        Expected suffix(es) for the file.
+
+    Returns
+    -------
+    ValidFile
+        The validated file.
+
+    Raises
+    ------
+    OSError
+        If the file cannot be written.
+    ValueError
+        If the file does not have the expected suffix.
+    """
+
+    try:
+        file = ValidFile(
+            file_path,
+            expected_permission="w",
+            expected_suffix=expected_suffix,
+        )
+    except (OSError, ValueError) as error:
+        logger.error(error)
+        raise error
+    return file
+
+
+def _validate_dataset(ds: xr.Dataset) -> None:
+    """Validate the input dataset is an xarray Dataset with valid PoseTracks.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to validate.
+
+    Raises
+    ------
+    ValueError
+        If `ds` is not an xarray Dataset with valid PoseTracks.
+    """
+
+    if not isinstance(ds, xr.Dataset):
+        raise log_error(
+            ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
+        )
+    ds.poses.validate()  # validate the dataset

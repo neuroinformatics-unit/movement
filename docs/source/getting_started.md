@@ -206,19 +206,52 @@ to visualise the data. Check out the [Load and explore pose tracks](./examples/l
 example for inspiration.
 
 ## Saving data
-You can save movement datasets to disk in a variety of formats.
-Currently, only saving to DeepLabCut-style files is supported.
+You can save movement datasets to disk in a variety of formats, including
+DeepLabCut-style files (.h5 or .csv) and [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
+
+First import the `movement.io.save_poses` module:
 
 ```python
 from movement.io import save_poses
+```
 
-save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred
+Then, use the `to_dlc_file` or `to_sleap_analysis_file` functions to save the data.
+
+:::::{tab-set}
+
+::::{tab-item} SLEAP
+
+Save to SLEAP-style analysis files (`.h5`):
+```python
+save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
+```
+
+:::{note}
+When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`, `track_occupancy`,
+and `point_scores` are saved. `labels_path` will only be saved if the source
+file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty string.
+Other attributes and data variables
+(i.e., `instance_scores`, `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
+`video_ind`, and `provenance`) are not currently supported. To learn more about what
+each attribute and data variable represents, see the
+[SLEAP documentation](sleap:api/sleap.info.write_tracking_h5.html#module-sleap.info.write_tracking_h5).
+:::
+::::
+
+::::{tab-item} DeepLabCut
+
+Save to DeepLabCut-style files (`.h5` or `.csv`):
+```python
+save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
 ```
 
-Instead of saving to file directly, you can also convert the dataset to a
-DeepLabCut-style `pandas.DataFrame` first:
+Alternatively, you can first convert the dataset to a
+DeepLabCut-style `pandas.DataFrame` using the `to_dlc_df` function:
 ```python
 df = save_poses.to_dlc_df(ds)
 ```
 and then save it to file using any `pandas` method, e.g. `to_hdf` or `to_csv`.
+::::
+
+:::::

@@ -164,6 +164,24 @@ def invalid_multi_animal_csv_file(tmp_path):
 
 
 @pytest.fixture
+def new_file_wrong_ext(tmp_path):
+    """Return the file path for a new file with the wrong extension."""
+    return tmp_path / "new_file_wrong_ext.txt"
+
+
+@pytest.fixture
+def new_h5_file(tmp_path):
+    """Return the file path for a new .h5 file."""
+    return tmp_path / "new_file.h5"
+
+
+@pytest.fixture
+def new_csv_file(tmp_path):
+    """Return the file path for a new .csv file."""
+    return tmp_path / "new_file.csv"
+
+
+@pytest.fixture
 def dlc_style_df():
     """Return a valid DLC-style DataFrame."""
     return pd.read_hdf(pytest.POSE_DATA.get("DLC_single-wasp.predictions.h5"))
@@ -236,3 +254,39 @@ def valid_pose_dataset(valid_tracks_array, request):
             "source_file": "test.h5",
         },
     )
+
+
+@pytest.fixture
+def not_a_dataset():
+    """Return an invalid pose tracks dataset."""
+    return [1, 2, 3]
+
+
+@pytest.fixture
+def empty_dataset():
+    """Return an empty pose tracks dataset."""
+    return xr.Dataset()
+
+
+@pytest.fixture
+def missing_var_dataset(valid_pose_dataset):
+    """Return a pose tracks dataset missing a variable."""
+    return valid_pose_dataset.drop_vars("pose_tracks")
+
+
+@pytest.fixture
+def missing_dim_dataset(valid_pose_dataset):
+    """Return a pose tracks dataset missing a dimension."""
+    return valid_pose_dataset.drop_dims("time")
+
+
+@pytest.fixture(
+    params=[
+        "not_a_dataset",
+        "empty_dataset",
+        "missing_var_dataset",
+        "missing_dim_dataset",
+    ]
+)
+def invalid_pose_dataset(request):
+    return request.getfixturevalue(request.param)

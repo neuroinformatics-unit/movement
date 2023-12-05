@@ -13,40 +13,46 @@ from movement.io import load_poses, save_poses
 class TestSavePoses:
     """Test suite for the save_poses module."""
 
-    @pytest.fixture
-    def not_a_dataset(self):
-        """Return an invalid pose tracks dataset."""
-        return [1, 2, 3]
+    output_files = [
+        {
+            "file_fixture": "fake_h5_file",
+            "to_dlc_file_expected_exception": pytest.raises(FileExistsError),
+            "to_sleap_file_expected_exception": pytest.raises(FileExistsError),
+            # invalid file path
+        },
+        {
+            "file_fixture": "directory",
+            "to_dlc_file_expected_exception": pytest.raises(IsADirectoryError),
+            "to_sleap_file_expected_exception": pytest.raises(
+                IsADirectoryError
+            ),
+            # invalid file path
+        },
+        {
+            "file_fixture": "new_file_wrong_ext",
+            "to_dlc_file_expected_exception": pytest.raises(ValueError),
+            "to_sleap_file_expected_exception": pytest.raises(ValueError),
+            # invalid file path
+        },
+        {
+            "file_fixture": "new_csv_file",
+            "to_dlc_file_expected_exception": does_not_raise(),
+            "to_sleap_file_expected_exception": pytest.raises(ValueError),
+            # valid file path for dlc, invalid for sleap
+        },
+        {
+            "file_fixture": "new_h5_file",
+            "to_dlc_file_expected_exception": does_not_raise(),
+            "to_sleap_file_expected_exception": does_not_raise(),
+            # valid file path
+        },
+    ]
 
-    @pytest.fixture
-    def empty_dataset(self):
-        """Return an empty pose tracks dataset."""
-        return xr.Dataset()
-
-    @pytest.fixture
-    def missing_var_dataset(self, valid_pose_dataset):
-        """Return a pose tracks dataset missing a variable."""
-        return valid_pose_dataset.drop_vars("pose_tracks")
-
-    @pytest.fixture
-    def new_file_wrong_ext(self, tmp_path):
-        """Return the file path for a new file with the wrong extension."""
-        return tmp_path / "new_file_wrong_ext.txt"
-
-    @pytest.fixture
-    def new_dlc_h5_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut .h5 file."""
-        return tmp_path / "new_dlc_file.h5"
-
-    @pytest.fixture
-    def new_dlc_csv_file(self, tmp_path):
-        """Return the file path for a new DeepLabCut .csv file."""
-        return tmp_path / "new_dlc_file.csv"
-
-    @pytest.fixture
-    def missing_dim_dataset(self, valid_pose_dataset):
-        """Return a pose tracks dataset missing a dimension."""
-        return valid_pose_dataset.drop_dims("time")
+    @pytest.fixture(params=output_files)
+    def output_file_params(self, request):
+        """Return a dictionary containing parameters for testing saving
+        valid pose datasets to DeepLabCut- or SLEAP-style files."""
+        return request.param
 
     @pytest.mark.parametrize(
         "ds, expected_exception",
@@ -95,52 +101,23 @@ class TestSavePoses:
                     "coords",
                 ]
 
-    @pytest.mark.parametrize(
-        "file_fixture, expected_exception",
-        [
-            (
-                "fake_h5_file",
-                pytest.raises(FileExistsError),
-            ),  # invalid file path
-            (
-                "directory",
-                pytest.raises(IsADirectoryError),
-            ),  # invalid file path
-            (
-                "new_file_wrong_ext",
-                pytest.raises(ValueError),
-            ),  # invalid file path
-            ("new_dlc_h5_file", does_not_raise()),  # valid file path
-            ("new_dlc_csv_file", does_not_raise()),  # valid file path
-        ],
-    )
     def test_to_dlc_file_valid_dataset(
-        self, file_fixture, expected_exception, valid_pose_dataset, request
+        self, output_file_params, valid_pose_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
         DeepLabCut-style file returns the appropriate errors."""
-        with expected_exception:
+        with output_file_params.get("to_dlc_file_expected_exception"):
+            file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_dlc_file(valid_pose_dataset, file_path)
 
-    @pytest.mark.parametrize(
-        "invalid_pose_dataset",
-        [
-            "not_a_dataset",
-            "empty_dataset",
-            "missing_var_dataset",
-            "missing_dim_dataset",
-        ],
-    )
-    def test_to_dlc_file_invalid_dataset(
-        self, invalid_pose_dataset, request, tmp_path
-    ):
+    def test_to_dlc_file_invalid_dataset(self, invalid_pose_dataset, tmp_path):
         """Test that saving an invalid pose dataset to a valid
         DeepLabCut-style file returns the appropriate errors."""
         with pytest.raises(ValueError):
             save_poses.to_dlc_file(
-                request.getfixturevalue(invalid_pose_dataset),
+                invalid_pose_dataset,
                 tmp_path / "test.h5",
                 split_individuals=False,
             )
@@ -172,16 +149,13 @@ class TestSavePoses:
         self,
         valid_pose_dataset,
         split_individuals,
-        request,
     ):
-        """Test that the 'split_individuals' argument affects the behaviour
-        of the 'to_dlc_df` function as expected
+        """Test that the `split_individuals` argument affects the behaviour
+        of the `to_dlc_df` function as expected
         """
         df = save_poses.to_dlc_df(valid_pose_dataset, split_individuals)
         # Get the names of the individuals in the dataset
-        ds = request.getfixturevalue("valid_pose_dataset")
-        ind_names = ds.individuals.values
-
+        ind_names = valid_pose_dataset.individuals.values
         if split_individuals is False:
             # this should produce a single df in multi-animal DLC format
             assert isinstance(df, pd.DataFrame)
@@ -219,33 +193,62 @@ class TestSavePoses:
     def test_to_dlc_file_split_individuals(
         self,
         valid_pose_dataset,
-        new_dlc_h5_file,
+        new_h5_file,
         split_individuals,
         expected_exception,
-        request,
     ):
-        """Test that the 'split_individuals' argument affects the behaviour
-        of the 'to_dlc_file` function as expected
+        """Test that the `split_individuals` argument affects the behaviour
+        of the `to_dlc_file` function as expected.
         """
-
         with expected_exception:
             save_poses.to_dlc_file(
                 valid_pose_dataset,
-                new_dlc_h5_file,
+                new_h5_file,
                 split_individuals,
             )
-            ds = request.getfixturevalue("valid_pose_dataset")
-
+            # Get the names of the individuals in the dataset
+            ind_names = valid_pose_dataset.individuals.values
             # "auto" becomes False, default valid dataset is multi-individual
             if split_individuals in [False, "auto"]:
                 # this should save only one file
-                assert new_dlc_h5_file.is_file()
-                new_dlc_h5_file.unlink()
+                assert new_h5_file.is_file()
+                new_h5_file.unlink()
             elif split_individuals is True:
                 # this should save one file per individual
-                for ind in ds.individuals.values:
+                for ind in ind_names:
                     file_path_ind = Path(
-                        f"{new_dlc_h5_file.with_suffix('')}_{ind}.h5"
+                        f"{new_h5_file.with_suffix('')}_{ind}.h5"
                     )
                     assert file_path_ind.is_file()
                     file_path_ind.unlink()
+
+    def test_to_sleap_analysis_file_valid_dataset(
+        self, output_file_params, valid_pose_dataset, request
+    ):
+        """Test that saving a valid pose dataset to a valid/invalid
+        SLEAP-style file returns the appropriate errors."""
+        with output_file_params.get("to_sleap_file_expected_exception"):
+            file_fixture = output_file_params.get("file_fixture")
+            val = request.getfixturevalue(file_fixture)
+            file_path = val.get("file_path") if isinstance(val, dict) else val
+            save_poses.to_sleap_analysis_file(valid_pose_dataset, file_path)
+
+    def test_to_sleap_analysis_file_invalid_dataset(
+        self, invalid_pose_dataset, new_h5_file
+    ):
+        """Test that saving an invalid pose dataset to a valid
+        SLEAP-style file returns the appropriate errors."""
+        with pytest.raises(ValueError):
+            save_poses.to_sleap_analysis_file(
+                invalid_pose_dataset,
+                new_h5_file,
+            )
+
+    def test_remove_unoccupied_tracks(self, valid_pose_dataset):
+        """Test that removing unoccupied tracks from a valid pose dataset
+        returns the expected result."""
+        new_individuals = [f"ind{i}" for i in range(1, 4)]
+        # Add new individual with NaN data
+        ds = valid_pose_dataset.reindex(individuals=new_individuals)
+        ds = save_poses._remove_unoccupied_tracks(ds)
+        xr.testing.assert_equal(ds, valid_pose_dataset)
