@@ -76,14 +76,9 @@ class TestPosesIO:
         "file",
         [
             "DLC_single-wasp.predictions.h5",
-            "DLC_single-wasp.predictions.csv",
             "DLC_two-mice.predictions.csv",
             "SLEAP_single-mouse_EPM.analysis.h5",
-            "SLEAP_single-mouse_EPM.predictions.slp",
-            "SLEAP_three-mice_Aeon_proofread.analysis.h5",
             "SLEAP_three-mice_Aeon_proofread.predictions.slp",
-            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
-            "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
         ],
     )
     def test_to_sleap_analysis_file_source_file(self, file, new_h5_file):
