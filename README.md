@@ -10,7 +10,7 @@
 
 Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
-> **Note**
+> [!Note]
 > Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 - [Overview](#overview)
@@ -30,7 +30,7 @@ We aim to support a range of pose estimation packages, along with 2D or 3D track
 Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmap.html).
 
 ## Status
-> **Warning**
+> [!Warning]
 > - 🏗️ The package is currently in early development. Stay tuned ⌛
 > - It is not sufficiently tested to be used for scientific analysis
 > - The interface is subject to changes.
