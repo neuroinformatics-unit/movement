@@ -213,7 +213,7 @@ class TestLoadPoses:
             "LP_mouse-twoview_AIND.predictions.csv",
         ],
     )
-    def test_load_from_LP_file(self, file_name):
+    def test_load_from_lp_file(self, file_name):
         """Test that loading pose tracks from valid DLC files
         returns a proper Dataset."""
         file_path = POSE_DATA.get(file_name)
