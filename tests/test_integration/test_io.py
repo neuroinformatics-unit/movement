@@ -1,6 +1,8 @@
+import h5py
 import numpy as np
 import pytest
 import xarray as xr
+from pytest import POSE_DATA
 
 from movement.io import load_poses, save_poses
 
@@ -39,3 +41,59 @@ class TestPosesIO:
         )
         dlc_ds = load_poses.from_dlc_file(dlc_output_file)
         xr.testing.assert_allclose(sleap_ds, dlc_ds)
+
+    @pytest.mark.parametrize(
+        "sleap_h5_file, fps",
+        [
+            ("SLEAP_single-mouse_EPM.analysis.h5", 30),
+            ("SLEAP_three-mice_Aeon_proofread.analysis.h5", None),
+            ("SLEAP_three-mice_Aeon_mixed-labels.analysis.h5", 50),
+        ],
+    )
+    def test_to_sleap_analysis_file_returns_same_h5_file_content(
+        self, sleap_h5_file, fps, new_h5_file
+    ):
+        """Test that saving pose tracks (loaded from a SLEAP analysis
+        file) to a SLEAP-style .h5 analysis file returns the same file
+        contents."""
+        sleap_h5_file_path = POSE_DATA.get(sleap_h5_file)
+        ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
+        save_poses.to_sleap_analysis_file(ds, new_h5_file)
+
+        with h5py.File(ds.source_file, "r") as file_in, h5py.File(
+            new_h5_file, "r"
+        ) as file_out:
+            assert set(file_in.keys()) == set(file_out.keys())
+            keys = [
+                "track_occupancy",
+                "tracks",
+                "point_scores",
+            ]
+            for key in keys:
+                np.testing.assert_allclose(file_in[key][:], file_out[key][:])
+
+    @pytest.mark.parametrize(
+        "file",
+        [
+            "DLC_single-wasp.predictions.h5",
+            "DLC_two-mice.predictions.csv",
+            "SLEAP_single-mouse_EPM.analysis.h5",
+            "SLEAP_three-mice_Aeon_proofread.predictions.slp",
+        ],
+    )
+    def test_to_sleap_analysis_file_source_file(self, file, new_h5_file):
+        """Test that saving pose tracks (loaded from valid source files)
+        to a SLEAP-style .h5 analysis file stores the .slp labels path
+        only when the source file is a .slp file."""
+        file_path = POSE_DATA.get(file)
+        if file.startswith("DLC"):
+            ds = load_poses.from_dlc_file(file_path)
+        else:
+            ds = load_poses.from_sleap_file(file_path)
+        save_poses.to_sleap_analysis_file(ds, new_h5_file)
+
+        with h5py.File(new_h5_file, "r") as f:
+            if file_path.suffix == ".slp":
+                assert file_path.name in f["labels_path"][()].decode()
+            else:
+                assert f["labels_path"][()].decode() == ""

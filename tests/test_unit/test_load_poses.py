@@ -118,8 +118,8 @@ class TestLoadPoses:
         # the assigned default "individuals_0"
         assert ds_from_trackless.individuals == ["individual_0"]
         xr.testing.assert_allclose(
-            ds_from_trackless.drop("individuals"),
-            ds_from_tracked.drop("individuals"),
+            ds_from_trackless.drop_vars("individuals"),
+            ds_from_tracked.drop_vars("individuals"),
         )
 
     @pytest.mark.parametrize(

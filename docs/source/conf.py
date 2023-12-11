@@ -157,7 +157,7 @@ myst_url_schemes = {
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/dev/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
-    "sleap": "https://sleap.ai/",
+    "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
 }
