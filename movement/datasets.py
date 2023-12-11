@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pooch
 import xarray
+import yaml
 
 from movement.io import load_poses
 
@@ -23,27 +24,28 @@ DATA_DIR = Path("~", ".movement", "data").expanduser()
 # Create the folder if it doesn't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# Fetch newest sample metadata
+Path.unlink(DATA_DIR / "poses_files_metadata.yaml", missing_ok=True)
+METADATA_POOCH = pooch.create(
+    path=DATA_DIR,
+    base_url=f"{DATA_URL}",
+    registry={"poses_files_metadata.yaml": None},
+)
+METADATA_PATH = Path(
+    METADATA_POOCH.fetch("poses_files_metadata.yaml", progressbar=True)
+)
+
+with open(METADATA_PATH, "r") as sample_info:
+    metadata = yaml.safe_load(sample_info)
+
+sample_registry = {file["file_name"]: file["sha256sum"] for file in metadata}
+
 # Create a download manager for the pose data
 POSE_DATA = pooch.create(
     path=DATA_DIR / "poses",
     base_url=f"{DATA_URL}/poses/",
     retry_if_failed=0,
-    registry={
-        "DLC_single-wasp.predictions.h5": "931dddb6ef5e08db6054d3757a441ee31dd0d9ff5a10802ad8405d6c4e7e274e",  # noqa: E501
-        "DLC_single-wasp.predictions.csv": "9b194cc930c2e2e0d33c816320d029f889b306d53ff2fe95ff408e99c9cdea23",  # noqa: E501
-        "DLC_single-mouse_EPM.predictions.h5": "0ddc2b08c9401435929783b22ea31b3673ceb80c3a02c5f3531bb1cfd78deea5",  # noqa: E501
-        "DLC_two-mice.predictions.csv": "6e891ab4e14a3ad74451ed0899f770b47aa3eb959d9824d3782827297d7c75e0",  # noqa: E501
-        "LP_mouse-face_AIND.predictions.csv": "13620f20a3fbb20c9ef0ad6fd8898944d2cfe3e83c5fe18946b7592e0a718da2",  # noqa: E501
-        "LP_mouse-twoview_AIND.predictions.csv": "22cded593ff77226dffab3c10f87874e597d86d70d62a81e5c4c690a96fd1e49",  # noqa: E501
-        "SLEAP_single-mouse_EPM.analysis.h5": "0df0a09c2493a1d9964ba98cbf751eda62743f1d688ae82b6df7b0f77169ed47",  # noqa: E501
-        "SLEAP_single-mouse_EPM.predictions.slp": "ca620db6123635761ddf69947f72f653d14a59137b355bd2d8f7c2f1be67e474",  # noqa: E501
-        "SLEAP_two-mice_social-interaction.analysis.h5": "f7f1e59d4b2c34712089f8aaf2390272291d93e6991c1abe32d9ce798a6234f9",  # noqa: E501
-        "SLEAP_two-mice_social-interaction.predictions.slp": "45881affde9704c045e70b8d4b3f6bbb8d9bd8ef9f4cdea6d173cfe35857549b",  # noqa: E501
-        "SLEAP_three-mice_Aeon_proofread.analysis.h5": "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a",  # noqa: E501
-        "SLEAP_three-mice_Aeon_proofread.predictions.slp": "7b7436a52dfd5f4d80d7c66919ad1a1732e5435fe33faf9011ec5f7b7074e788",  # noqa: E501
-        "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5": "899651ec027eb8fd6181246f89142ad1c0a40f14394fc8144d44ea093c0e137d",  # noqa: E501
-        "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp": "6d3f2c5446e9c12aabf28d5a9470835736b0419dcefebba89c305114f83b82d1",  # noqa: E501
-    },
+    registry=sample_registry,
 )
 
 

@@ -32,6 +32,7 @@ repos:
                 - types-setuptools
                 - pandas-stubs
                 - types-attrs
+                - types-PyYAML
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.49"
       hooks:
