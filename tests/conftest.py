@@ -28,6 +28,8 @@ def pytest_configure():
             "SLEAP_three-mice_Aeon_proofread.predictions.slp",
             "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
             "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
+            "LP_mouse-face_AIND.predictions.csv",
+            "LP_mouse-twoview_AIND.predictions.csv",
         ]
     }
 

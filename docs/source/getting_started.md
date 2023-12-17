@@ -95,6 +95,14 @@ ds = load_poses.from_dlc_df(df, fps=30)
 ```
 :::
 
+:::{tab-item} Lightning Pose
+
+Load from Lightning Pose (LP) files (`.csv`):
+```python
+ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
+```
+:::
+
 ::::
 
 You can also try movement out on some sample data included in the package.

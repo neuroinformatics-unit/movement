@@ -13,6 +13,7 @@ Input/Output
     from_sleap_file
     from_dlc_file
     from_dlc_df
+    from_lp_file
 
 .. currentmodule:: movement.io.save_poses
 .. autosummary::

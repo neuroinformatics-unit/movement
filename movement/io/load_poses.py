@@ -163,7 +163,7 @@ def from_sleap_file(
 def from_lp_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a LightningPose output file
+    """Load pose tracking data from a LightningPose (LP) output file
     into an xarray Dataset.
 
     Parameters
@@ -180,14 +180,10 @@ def from_lp_file(
     xarray.Dataset
         Dataset containing the pose tracks, confidence scores, and metadata.
 
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_df : Load pose tracks from a DataFrame.
-
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_lp_file("path/to/file.h5", fps=30)
+    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
     """
 
     return _from_lp_or_dlc_file(
@@ -235,35 +231,31 @@ def _from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: Optional[float] = None,
 ) -> xr.Dataset:
-    """Loads pose tracking data from a DeepLabCut (DLC) output file or
-    a LightningPose file into an xarray Dataset.
+    """Loads pose tracking data from a DeepLabCut (DLC) or
+    a LightningPose (LP) output file into an xarray Dataset.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
         Path to the file containing the DLC predicted poses, either in ".h5"
         or ".csv" format.
+    source_software : {'LightningPose', 'DeepLabCut'}
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
-    source_software : Can be either "DeepLabCut" or "LightningPose".
 
     Returns
     -------
     xarray.Dataset
         Dataset containing the pose tracks, confidence scores, and metadata.
-
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_df : Load pose tracks from a DataFrame.
-    from_lp_file
-
     """
 
+    expected_suffix = [".csv"]
+    if source_software == "DeepLabCut":
+        expected_suffix.append(".h5")
+
     file = ValidFile(
-        file_path,
-        expected_permission="r",
-        expected_suffix=[".csv", ".h5"],
+        file_path, expected_permission="r", expected_suffix=expected_suffix
     )
 
     # Load the DLC poses into a DataFrame
