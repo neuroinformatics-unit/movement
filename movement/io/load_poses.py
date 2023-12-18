@@ -271,6 +271,12 @@ def _from_lp_or_dlc_file(
     ds.attrs["source_software"] = source_software
     ds.attrs["source_file"] = file.path.as_posix()
 
+    # If source_software="LightningPose", we need to re-validate (because the
+    # validation call in from_dlc_df was run with source_software="DeepLabCut")
+    # This rerun enforces a single individual for LightningPose datasets.
+    if source_software == "LightningPose":
+        ds.poses.validate()
+
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
     return ds
@@ -320,6 +326,7 @@ def _load_from_sleap_analysis_file(
             individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
+            source_software="SLEAP",
         )
 
 
@@ -359,6 +366,7 @@ def _load_from_sleap_labels_file(
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
+        source_software="SLEAP",
     )
 
 

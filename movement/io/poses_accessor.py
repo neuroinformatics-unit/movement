@@ -69,6 +69,7 @@ class PosesAccessor:
     def validate(self) -> None:
         """Validate the PoseTracks dataset."""
         fps = self._obj.attrs.get("fps", None)
+        source_software = self._obj.attrs.get("source_software", None)
         try:
             ValidPoseTracks(
                 tracks_array=self._obj[self.var_names[0]].values,
@@ -76,6 +77,7 @@ class PosesAccessor:
                 individual_names=self._obj.coords[self.dim_names[1]].values,
                 keypoint_names=self._obj.coords[self.dim_names[2]].values,
                 fps=fps,
+                source_software=source_software,
             )
         except Exception as e:
             error_msg = "The dataset does not contain valid pose tracks."

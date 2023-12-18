@@ -266,6 +266,9 @@ class ValidPoseTracks:
         etc.
     fps : float, optional
         Frames per second of the video. Defaults to None.
+    source_software : str, optional
+        Name of the software from which the pose tracks were loaded.
+        Defaults to None.
     """
 
     # Define class attributes
@@ -284,6 +287,10 @@ class ValidPoseTracks:
         converter=converters.pipe(  # type: ignore
             converters.optional(float), _set_fps_to_none_if_invalid
         ),
+    )
+    source_software: Optional[str] = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(str)),
     )
 
     # Add validators
@@ -316,7 +323,11 @@ class ValidPoseTracks:
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
-        _validate_list_length(attribute, value, self.tracks_array.shape[1])
+        if self.source_software == "LightningPose":
+            # LightningPose only supports a single individual
+            _validate_list_length(attribute, value, 1)
+        else:
+            _validate_list_length(attribute, value, self.tracks_array.shape[1])
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):

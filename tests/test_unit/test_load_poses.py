@@ -219,3 +219,21 @@ class TestLoadPoses:
         file_path = POSE_DATA.get(file_name)
         ds = load_poses.from_lp_file(file_path)
         self.assert_dataset(ds, file_path, "LightningPose")
+
+    def test_load_from_lp_or_dlc_file_returns_same(self):
+        """Test that loading a single-animal DeepLabCut-style .csv file
+        using either the `from_lp_file` or `from_dlc_file` function
+        returns the same Dataset (except for the source_software)."""
+        file_path = POSE_DATA.get("LP_mouse-face_AIND.predictions.csv")
+        ds_drom_lp = load_poses.from_lp_file(file_path)
+        ds_from_dlc = load_poses.from_dlc_file(file_path)
+        xr.testing.assert_allclose(ds_from_dlc, ds_drom_lp)
+        assert ds_drom_lp.source_software == "LightningPose"
+        assert ds_from_dlc.source_software == "DeepLabCut"
+
+    def test_load_multi_animal_from_lp_file_raises(self):
+        """Test that loading a multi-animal .csv file using the
+        `from_lp_file` function raises a ValueError."""
+        file_path = POSE_DATA.get("DLC_two-mice.predictions.csv")
+        with pytest.raises(ValueError):
+            load_poses.from_lp_file(file_path)
