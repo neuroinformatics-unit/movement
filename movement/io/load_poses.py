@@ -169,8 +169,7 @@ def from_lp_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the LP predicted poses, either in ".h5"
-        or ".csv" format.
+        Path to the file containing the LP predicted poses, in .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
@@ -237,8 +236,8 @@ def _from_lp_or_dlc_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC predicted poses, either in ".h5"
-        or ".csv" format.
+        Path to the file containing the DLC predicted poses, either in .h5
+        or .csv format.
     source_software : {'LightningPose', 'DeepLabCut'}
     fps : float, optional
         The number of frames per second in the video. If None (default),

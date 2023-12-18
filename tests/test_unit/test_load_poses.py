@@ -214,7 +214,7 @@ class TestLoadPoses:
         ],
     )
     def test_load_from_lp_file(self, file_name):
-        """Test that loading pose tracks from valid DLC files
+        """Test that loading pose tracks from valid LightningPose (LP) files
         returns a proper Dataset."""
         file_path = POSE_DATA.get(file_name)
         ds = load_poses.from_lp_file(file_path)
