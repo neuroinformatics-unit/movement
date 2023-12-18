@@ -61,7 +61,7 @@ First import the `movement.io.load_poses` module:
 from movement.io import load_poses
 ```
 
-Then, use the `from_dlc_file` or `from_sleap_file` functions to load the data.
+Then, depending on the source of your data, use one of the following functions:
 
 ::::{tab-set}
 
@@ -223,7 +223,7 @@ First import the `movement.io.save_poses` module:
 from movement.io import save_poses
 ```
 
-Then, use the `to_dlc_file` or `to_sleap_analysis_file` functions to save the data.
+Then, depending on the desired format, use one of the following functions:
 
 :::::{tab-set}
 
@@ -264,12 +264,17 @@ and then save it to file using any `pandas` method, e.g. `to_hdf` or `to_csv`.
 
 ::::{tab-item} LightningPose
 
-LightningPose saves pose estimation outputs to .csv files, formatted in
-the same way as DeepLabCut. Therefore, you can save movement datasets to
-LightningPose-style files using the `to_dlc_file` function:
-
+Save to LightningPose (LP) files (.csv).
 ```python
-save_poses.to_dlc_file(ds, "/path/to/file.csv")
+save_poses.to_lp_file(ds, "/path/to/file.csv")
 ```
+:::{note}
+Because LP saves pose estimation outputs in the same format as single-animal
+DeepLabCut projects, the above command is equivalent to:
+```python
+save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+```
+:::
 
+::::
 :::::

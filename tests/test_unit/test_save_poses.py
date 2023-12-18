@@ -18,6 +18,7 @@ class TestSavePoses:
             "file_fixture": "fake_h5_file",
             "to_dlc_file_expected_exception": pytest.raises(FileExistsError),
             "to_sleap_file_expected_exception": pytest.raises(FileExistsError),
+            "to_lp_file_expected_exception": pytest.raises(FileExistsError),
             # invalid file path
         },
         {
@@ -26,25 +27,29 @@ class TestSavePoses:
             "to_sleap_file_expected_exception": pytest.raises(
                 IsADirectoryError
             ),
+            "to_lp_file_expected_exception": pytest.raises(IsADirectoryError),
             # invalid file path
         },
         {
             "file_fixture": "new_file_wrong_ext",
             "to_dlc_file_expected_exception": pytest.raises(ValueError),
             "to_sleap_file_expected_exception": pytest.raises(ValueError),
+            "to_lp_file_expected_exception": pytest.raises(ValueError),
             # invalid file path
         },
         {
             "file_fixture": "new_csv_file",
             "to_dlc_file_expected_exception": does_not_raise(),
             "to_sleap_file_expected_exception": pytest.raises(ValueError),
-            # valid file path for dlc, invalid for sleap
+            "to_lp_file_expected_exception": does_not_raise(),
+            # valid file path for dlc and lp, invalid for sleap
         },
         {
             "file_fixture": "new_h5_file",
             "to_dlc_file_expected_exception": does_not_raise(),
             "to_sleap_file_expected_exception": does_not_raise(),
-            # valid file path
+            "to_lp_file_expected_exception": pytest.raises(ValueError),
+            # valid file path for dlc and sleap, invalid for lp
         },
     ]
 
@@ -81,6 +86,12 @@ class TestSavePoses:
                     POSE_DATA.get(
                         "SLEAP_three-mice_Aeon_proofread.predictions.slp"
                     )
+                ),
+                does_not_raise(),
+            ),  # valid dataset
+            (
+                load_poses.from_lp_file(
+                    POSE_DATA.get("LP_mouse-face_AIND.predictions.csv")
                 ),
                 does_not_raise(),
             ),  # valid dataset
@@ -221,6 +232,26 @@ class TestSavePoses:
                     )
                     assert file_path_ind.is_file()
                     file_path_ind.unlink()
+
+    def test_to_lp_file_valid_dataset(
+        self, output_file_params, valid_pose_dataset, request
+    ):
+        """Test that saving a valid pose dataset to a valid/invalid
+        LightningPose-style file returns the appropriate errors."""
+        with output_file_params.get("to_lp_file_expected_exception"):
+            file_fixture = output_file_params.get("file_fixture")
+            val = request.getfixturevalue(file_fixture)
+            file_path = val.get("file_path") if isinstance(val, dict) else val
+            save_poses.to_lp_file(valid_pose_dataset, file_path)
+
+    def test_to_lp_file_invalid_dataset(self, invalid_pose_dataset, tmp_path):
+        """Test that saving an invalid pose dataset to a valid
+        LightningPose-style file returns the appropriate errors."""
+        with pytest.raises(ValueError):
+            save_poses.to_lp_file(
+                invalid_pose_dataset,
+                tmp_path / "test.csv",
+            )
 
     def test_to_sleap_analysis_file_valid_dataset(
         self, output_file_params, valid_pose_dataset, request

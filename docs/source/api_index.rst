@@ -22,6 +22,7 @@ Input/Output
     to_dlc_file
     to_dlc_df
     to_sleap_analysis_file
+    to_lp_file
 
 .. currentmodule:: movement.io.validators
 .. autosummary::
