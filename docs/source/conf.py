@@ -46,6 +46,7 @@ extensions = [
     "nbsphinx",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
+    "sphinx_sitemap",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -115,11 +116,20 @@ html_theme_options = {
             "icon": "fa-brands fa-github",
             # The type of image to be used (see below for details)
             "type": "fontawesome",
-        }
+        },
+        {
+            "name": "Zulip (chat)",
+            "url": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
+            "icon": "fa-solid fa-comments",
+            "type": "fontawesome",
+        },
     ],
     "logo": {
         "text": f"{project} v{release}",
     },
+    "footer_start": ["footer_start"],
+    "footer_end": ["footer_end"],
+    "external_links": [],
 }
 
 # Redirect the webpage to another URL
@@ -128,11 +138,16 @@ html_theme_options = {
 # https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
 github_user = "neuroinformatics-unit"
 html_baseurl = "https://movement.neuroinformatics.dev"
+sitemap_url_scheme = "{link}"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
+html_css_files = [
+    ("css/custom.css", {"priority": 100}),
+]
+html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
@@ -148,7 +163,7 @@ myst_url_schemes = {
     "ftp": None,
     "mailto": None,
     "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
-    "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!",
+    "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
     "conda": "https://docs.conda.io/en/latest/",
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",

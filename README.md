@@ -8,7 +8,7 @@
 
 # movement
 
-Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
+A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 > [!Note]
 > Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
@@ -19,6 +19,7 @@ Python tools for analysing body movements across space and time, to aid the stud
 - [License](#license)
 - [Package template](#package-template)
 
+![](docs/source/_static/movement_overview.png)
 
 ## Overview
 
@@ -31,16 +32,14 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 
 ## Status
 > [!Warning]
-> - 🏗️ The package is currently in early development. Stay tuned ⌛
-> - It is not sufficiently tested to be used for scientific analysis
-> - The interface is subject to changes.
+> 🏗️ The package is currently in early development and the interface is subject to change. Feel free to play around and provide feedback.
 
 ## Join the movement
 
 Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
 To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
 
-You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!). You may also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
+You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement). You can also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
 
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)

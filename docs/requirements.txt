@@ -9,3 +9,4 @@ sphinx<7.2
 sphinx-autodoc-typehints
 sphinx-design
 sphinx-gallery
+sphinx-sitemap
