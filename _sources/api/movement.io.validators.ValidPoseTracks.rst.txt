@@ -28,5 +28,6 @@
       ~ValidPoseTracks.individual_names
       ~ValidPoseTracks.keypoint_names
       ~ValidPoseTracks.fps
+      ~ValidPoseTracks.source_software
    
    

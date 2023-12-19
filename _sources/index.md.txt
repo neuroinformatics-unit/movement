@@ -1,7 +1,7 @@
 (target-movement)=
 # movement
 
-Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
+A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 ::::{grid} 1 2 2 3
 :gutter: 3
@@ -27,6 +27,8 @@ Example use cases.
 Get in touch and contribute.
 :::
 ::::
+
+![](_static/movement_overview.png)
 
 ## Overview
 

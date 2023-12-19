@@ -148,7 +148,7 @@ Load the dataset
 .. GENERATED FROM PYTHON SOURCE LINES 40-43
 
 The loaded dataset contains two data variables:
-``pose_tracks`` and ``confidence```
+``pose_tracks`` and ``confidence``.
 To get the pose tracks:
 
 .. GENERATED FROM PYTHON SOURCE LINES 43-45
@@ -224,7 +224,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7efef62136d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f5c94929290>
 
 
 
@@ -255,7 +255,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7efef627d190>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f5c7eaf9e50>
 
 
 
@@ -299,14 +299,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7efef4007d50>
+    <matplotlib.colorbar.Colorbar object at 0x7f5c7ca2f290>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.720 seconds)
+   **Total running time of the script:** (0 minutes 0.741 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

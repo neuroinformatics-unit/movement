@@ -38,7 +38,7 @@ print(ds)
 
 # %%
 # The loaded dataset contains two data variables:
-# ``pose_tracks`` and ``confidence```
+# ``pose_tracks`` and ``confidence``.
 # To get the pose tracks:
 pose_tracks = ds.pose_tracks
 
