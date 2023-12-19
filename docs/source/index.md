@@ -28,6 +28,8 @@ Get in touch and contribute.
 :::
 ::::
 
+![](_static/movement_overview.png)
+
 ## Overview
 
 Pose estimation tools, such as [DeepLabCut](dlc:) and [SLEAP](sleap:) are now commonplace when processing video data of animal behaviour. There is not yet a standardised, easy-to-use way to process the *pose tracks* produced from these software packages.

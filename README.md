@@ -19,6 +19,7 @@ Python tools for analysing body movements across space and time, to aid the stud
 - [License](#license)
 - [Package template](#package-template)
 
+![](docs/source/_static/movement_overview.png)
 
 ## Overview
 
