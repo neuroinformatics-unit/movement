@@ -160,4 +160,5 @@ myst_url_schemes = {
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
+    "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
 }

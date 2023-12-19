@@ -200,3 +200,30 @@ class TestValidators:
                 individual_names=pose_tracks_params.get("names"),
             )
             assert poses.individual_names == e
+
+    @pytest.mark.parametrize(
+        "source_software, expected_exception",
+        [
+            (None, does_not_raise()),
+            ("SLEAP", does_not_raise()),
+            ("DeepLabCut", does_not_raise()),
+            ("LightningPose", pytest.raises(ValueError)),
+            ("fake_software", does_not_raise()),
+            (5, pytest.raises(TypeError)),  # not a string
+        ],
+    )
+    def test_pose_tracks_validator_source_software(
+        self, valid_tracks_array, source_software, expected_exception
+    ):
+        """Test that the source_software attribute is validated properly.
+        LightnigPose is incompatible with multi-track arrays."""
+        with expected_exception:
+            ds = ValidPoseTracks(
+                tracks_array=valid_tracks_array("multi_track_array"),
+                source_software=source_software,
+            )
+
+            if source_software is not None:
+                assert ds.source_software == source_software
+            else:
+                assert ds.source_software is None

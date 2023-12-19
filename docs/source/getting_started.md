@@ -61,13 +61,13 @@ First import the `movement.io.load_poses` module:
 from movement.io import load_poses
 ```
 
-Then, use the `from_dlc_file` or `from_sleap_file` functions to load the data.
+Then, depending on the source of your data, use one of the following functions:
 
 ::::{tab-set}
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis files](sleap:tutorials/analysis) (`.h5`):
+Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 ```
@@ -75,12 +75,12 @@ ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
 :::{tab-item} DeepLabCut
 
-Load pose estimation outputs from `.h5` files:
+Load pose estimation outputs from .h5 files:
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 ```
 
-You may also load `.csv` files (assuming they are formatted as DeepLabCut expects them):
+You may also load .csv files (assuming they are formatted as DeepLabCut expects them):
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 ```
@@ -92,6 +92,14 @@ import pandas as pd
 
 df = pd.read_hdf("/path/to/file.h5")
 ds = load_poses.from_dlc_df(df, fps=30)
+```
+:::
+
+:::{tab-item} LightningPose
+
+Load from LightningPose (LP) files (.csv):
+```python
+ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 ```
 :::
 
@@ -215,13 +223,13 @@ First import the `movement.io.save_poses` module:
 from movement.io import save_poses
 ```
 
-Then, use the `to_dlc_file` or `to_sleap_analysis_file` functions to save the data.
+Then, depending on the desired format, use one of the following functions:
 
 :::::{tab-set}
 
 ::::{tab-item} SLEAP
 
-Save to SLEAP-style analysis files (`.h5`):
+Save to SLEAP-style analysis files (.h5):
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
@@ -240,7 +248,7 @@ each attribute and data variable represents, see the
 
 ::::{tab-item} DeepLabCut
 
-Save to DeepLabCut-style files (`.h5` or `.csv`):
+Save to DeepLabCut-style files (.h5 or .csv):
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
@@ -254,4 +262,19 @@ df = save_poses.to_dlc_df(ds)
 and then save it to file using any `pandas` method, e.g. `to_hdf` or `to_csv`.
 ::::
 
+::::{tab-item} LightningPose
+
+Save to LightningPose (LP) files (.csv).
+```python
+save_poses.to_lp_file(ds, "/path/to/file.csv")
+```
+:::{note}
+Because LP saves pose estimation outputs in the same format as single-animal
+DeepLabCut projects, the above command is equivalent to:
+```python
+save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+```
+:::
+
+::::
 :::::

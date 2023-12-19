@@ -166,17 +166,18 @@ def to_dlc_file(
     file_path : pathlib.Path or str
         Path to the file to save the DLC poses to. The file extension
         must be either .h5 (recommended) or .csv.
-    split_individuals : bool, optional
+    split_individuals : bool or "auto", optional
+        Whether to save individuals to separate files or to the same file.\n
         If True, each individual will be saved to a separate file,
         formatted as in a single-animal DeepLabCut project - i.e. without
         the "individuals" column level. The individual's name will be appended
         to the file path, just before the file extension, i.e.
-        "/path/to/filename_individual1.h5".
+        "/path/to/filename_individual1.h5".\n
         If False, all individuals will be saved to the same file,
         formatted as in a multi-animal DeepLabCut project - i.e. the columns
         will include the "individuals" level. The file path will not be
-        modified.
-        If "auto" the argument's value be determined based on the number of
+        modified.\n
+        If "auto" the argument's value is determined based on the number of
         individuals in the dataset: True if there is only one, and
         False if there are more than one. This is the default.
 
@@ -224,6 +225,40 @@ def to_dlc_file(
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
         logger.info(f"Saved PoseTracks dataset to {file.path}.")
+
+
+def to_lp_file(
+    ds: xr.Dataset,
+    file_path: Union[str, Path],
+) -> None:
+    """Save the xarray dataset containing pose tracks to a LightningPose-style
+    .csv file. See Notes for more details.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata.
+    file_path : pathlib.Path or str
+        Path to the .csv file to save the poses to.
+
+    Notes
+    -----
+    LightningPose saves pose estimation outputs as .csv files, using the same
+    format as single-animal DeepLabCut projects. Therefore, under the hood,
+    this function calls ``to_dlc_file`` with ``split_individuals=True``. This
+    setting means that each individual is saved to a separate file, with
+    the individual's name appended to the file path, just before the file
+    extension, i.e. "/path/to/filename_individual1.csv".
+
+    See Also
+    --------
+    to_dlc_file : Save the xarray dataset containing pose tracks to a
+        DeepLabCut-style .h5 or .csv file.
+    """
+
+    file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
+    _validate_dataset(ds)
+    to_dlc_file(ds, file.path, split_individuals=True)
 
 
 def to_sleap_analysis_file(

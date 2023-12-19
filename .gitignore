@@ -60,6 +60,7 @@ instance/
 docs/build/
 docs/source/examples/
 docs/source/api/
+sg_execution_times.rst
 
 # MkDocs documentation
 /site/

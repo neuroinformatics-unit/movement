@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 import h5py
 import numpy as np
@@ -160,6 +160,36 @@ def from_sleap_file(
     return ds
 
 
+def from_lp_file(
+    file_path: Union[Path, str], fps: Optional[float] = None
+) -> xr.Dataset:
+    """Load pose tracking data from a LightningPose (LP) output file
+    into an xarray Dataset.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the file containing the LP predicted poses, in .csv format.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the `time` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
+    """
+
+    return _from_lp_or_dlc_file(
+        file_path=file_path, source_software="LightningPose", fps=fps
+    )
+
+
 def from_dlc_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
@@ -190,10 +220,41 @@ def from_dlc_file(
     >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
     """
 
+    return _from_lp_or_dlc_file(
+        file_path=file_path, source_software="DeepLabCut", fps=fps
+    )
+
+
+def _from_lp_or_dlc_file(
+    file_path: Union[Path, str],
+    source_software: Literal["LightningPose", "DeepLabCut"],
+    fps: Optional[float] = None,
+) -> xr.Dataset:
+    """Loads pose tracking data from a DeepLabCut (DLC) or
+    a LightningPose (LP) output file into an xarray Dataset.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the file containing the DLC predicted poses, either in .h5
+        or .csv format.
+    source_software : {'LightningPose', 'DeepLabCut'}
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the `time` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
+    """
+
+    expected_suffix = [".csv"]
+    if source_software == "DeepLabCut":
+        expected_suffix.append(".h5")
+
     file = ValidFile(
-        file_path,
-        expected_permission="r",
-        expected_suffix=[".csv", ".h5"],
+        file_path, expected_permission="r", expected_suffix=expected_suffix
     )
 
     # Load the DLC poses into a DataFrame
@@ -207,8 +268,14 @@ def from_dlc_file(
     ds = from_dlc_df(df=df, fps=fps)
 
     # Add metadata as attrs
-    ds.attrs["source_software"] = "DeepLabCut"
+    ds.attrs["source_software"] = source_software
     ds.attrs["source_file"] = file.path.as_posix()
+
+    # If source_software="LightningPose", we need to re-validate (because the
+    # validation call in from_dlc_df was run with source_software="DeepLabCut")
+    # This rerun enforces a single individual for LightningPose datasets.
+    if source_software == "LightningPose":
+        ds.poses.validate()
 
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
@@ -259,6 +326,7 @@ def _load_from_sleap_analysis_file(
             individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
+            source_software="SLEAP",
         )
 
 
@@ -298,6 +366,7 @@ def _load_from_sleap_labels_file(
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
+        source_software="SLEAP",
     )
 
 
