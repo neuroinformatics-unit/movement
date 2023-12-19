@@ -46,6 +46,7 @@ extensions = [
     "nbsphinx",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
+    "sphinx_sitemap",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -137,6 +138,7 @@ html_theme_options = {
 # https://www.sphinx-doc.org/en/master/usage/extensions/githubpages.html
 github_user = "neuroinformatics-unit"
 html_baseurl = "https://movement.neuroinformatics.dev"
+sitemap_url_scheme = "{link}"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
