@@ -152,6 +152,8 @@ representation of the dataset by simply typing its name - e.g. `ds` - in a cell.
 
 ### Dataset structure
 
+![](_static/dataset_structure.png)
+
 The movement `xarray.Dataset` has the following dimensions:
 - `time`: the number of frames in the video
 - `individuals`: the number of individuals in the video
