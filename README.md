@@ -8,7 +8,7 @@
 
 # movement
 
-Python tools for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
+A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
 > [!Note]
 > Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
