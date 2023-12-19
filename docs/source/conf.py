@@ -115,7 +115,13 @@ html_theme_options = {
             "icon": "fa-brands fa-github",
             # The type of image to be used (see below for details)
             "type": "fontawesome",
-        }
+        },
+        {
+            "name": "Zulip (chat)",
+            "url": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
+            "icon": "fa-solid fa-comments",
+            "type": "fontawesome",
+        },
     ],
     "logo": {
         "text": f"{project} v{release}",
@@ -148,7 +154,7 @@ myst_url_schemes = {
     "ftp": None,
     "mailto": None,
     "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
-    "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!",
+    "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
     "conda": "https://docs.conda.io/en/latest/",
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",

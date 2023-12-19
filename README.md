@@ -39,7 +39,7 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
 To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
 
-You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!). You may also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
+You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement). You may also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
 
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)
