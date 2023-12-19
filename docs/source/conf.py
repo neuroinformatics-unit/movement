@@ -126,6 +126,9 @@ html_theme_options = {
     "logo": {
         "text": f"{project} v{release}",
     },
+    "footer_start": ["footer_start"],
+    "footer_end": ["footer_end"],
+    "external_links": [],
 }
 
 # Redirect the webpage to another URL
@@ -138,7 +141,11 @@ html_baseurl = "https://movement.neuroinformatics.dev"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
+html_css_files = [
+    ("css/custom.css", {"priority": 100}),
+]
+html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
