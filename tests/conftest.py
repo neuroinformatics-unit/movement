@@ -212,12 +212,20 @@ def valid_tracks_array():
 
     def _valid_tracks_array(array_type):
         """Return a valid tracks array."""
+        # Unless specified, default is a multi_track_array with
+        # 10 frames, 2 individuals, and 2 keypoints.
+        n_frames = 10
+        n_individuals = 2
+        n_keypoints = 2
+        base = np.arange(n_frames)[:, np.newaxis, np.newaxis, np.newaxis]
         if array_type == "single_keypoint_array":
-            return np.zeros((10, 2, 1, 2))
+            n_keypoints = 1
         elif array_type == "single_track_array":
-            return np.zeros((10, 1, 2, 2))
-        else:  # "multi_track_array":
-            return np.zeros((10, 2, 2, 2))
+            n_individuals = 1
+        x_points = np.repeat(base * 3, n_individuals * n_keypoints)
+        y_points = np.repeat(base * 4, n_individuals * n_keypoints)
+        tracks_array = np.ravel(np.column_stack((x_points, y_points)))
+        return tracks_array.reshape(n_frames, n_individuals, n_keypoints, 2)
 
     return _valid_tracks_array
 
