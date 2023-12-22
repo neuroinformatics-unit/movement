@@ -78,9 +78,9 @@ def approximate_derivative(data: xr.DataArray, order: int = 0) -> np.ndarray:
         dt = data["time"].diff(dim="time").values[0]
         for _ in range(order):
             result = np.gradient(result, dt, axis=0)
+        # Pad with zeros to match the output of compute_euclidean_velocity
+        result = np.pad(result[1:], ((1, 0), (0, 0)), "constant")
     magnitude = np.linalg.norm(result, axis=-1)
-    # Pad with zero to match the output of compute_euclidean_velocity
-    magnitude = np.pad(magnitude[:-1], (1, 0), "constant")
     # direction = np.arctan2(result[..., 1], result[..., 0])
     return magnitude
 
