@@ -110,5 +110,5 @@ def fetch_sample_data(
     elif file_metadata["source_software"] == "DeepLabCut":
         ds = load_poses.from_dlc_file(file_path)
     elif file_metadata["source_software"] == "LightningPose":
-        pass
+        ds = load_poses.from_lp_file(file_path)
     return ds
