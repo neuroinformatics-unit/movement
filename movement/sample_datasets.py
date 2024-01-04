@@ -1,8 +1,9 @@
-"""Module for fetching and loading datasets.
+"""Module for fetching and loading sample datasets.
 
-This module provides functions for fetching and loading data used in tests,
-examples, and tutorials. The data are stored in a remote repository on GIN
-and are downloaded to the user's local machine the first time they are used.
+This module provides functions for fetching and loading sample data used in
+tests, examples, and tutorials. The data are stored in a remote repository
+on GIN and are downloaded to the user's local machine the first time they
+are used.
 """
 
 from pathlib import Path
@@ -36,20 +37,20 @@ METADATA_PATH = Path(
 )
 
 with open(METADATA_PATH, "r") as sample_info:
-    metadata = yaml.safe_load(sample_info)
+    METADATA = yaml.safe_load(sample_info)
 
-sample_registry = {file["file_name"]: file["sha256sum"] for file in metadata}
+SAMPLE_REGISTRY = {file["file_name"]: file["sha256sum"] for file in METADATA}
 
 # Create a download manager for the pose data
 POSE_DATA = pooch.create(
     path=DATA_DIR / "poses",
     base_url=f"{DATA_URL}/poses/",
     retry_if_failed=0,
-    registry=sample_registry,
+    registry=SAMPLE_REGISTRY,
 )
 
 
-def list_pose_data() -> list[str]:
+def list_sample_data() -> list[str]:
     """Find available sample pose data in the *movement* data repository.
 
     Returns
@@ -59,7 +60,7 @@ def list_pose_data() -> list[str]:
     return list(POSE_DATA.registry.keys())
 
 
-def fetch_pose_data_path(filename: str) -> Path:
+def fetch_sample_data_path(filename: str) -> Path:
     """Fetch sample pose data from the *movement* data repository.
 
     The data are downloaded to the user's local machine the first time they are
@@ -79,7 +80,9 @@ def fetch_pose_data_path(filename: str) -> Path:
     return Path(POSE_DATA.fetch(filename, progressbar=True))
 
 
-def fetch_pose_data(filename: str) -> xarray.Dataset:
+def fetch_sample_data(
+    filename: str,
+) -> xarray.Dataset:  # TODO: Add LightningPose
     """Fetch sample pose data from the *movement* data repository.
 
     The data are downloaded to the user's local machine the first time they are
@@ -97,9 +100,15 @@ def fetch_pose_data(filename: str) -> xarray.Dataset:
         Pose data contained in the fetched sample file.
     """
 
-    file_path = fetch_pose_data_path(filename)
-    if filename.startswith("SLEAP"):
+    file_path = fetch_sample_data_path(filename)
+    file_metadata = next(
+        file for file in METADATA if file["file_name"] == filename
+    )
+
+    if file_metadata["source_software"] == "SLEAP":
         ds = load_poses.from_sleap_file(file_path)
-    elif filename.startswith("DLC"):
+    elif file_metadata["source_software"] == "DeepLabCut":
         ds = load_poses.from_dlc_file(file_path)
+    elif file_metadata["source_software"] == "LightningPose":
+        pass
     return ds

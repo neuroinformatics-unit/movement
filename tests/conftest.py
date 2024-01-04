@@ -8,16 +8,16 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.datasets import fetch_pose_data_path
 from movement.io import PosesAccessor
 from movement.logging import configure_logging
+from movement.sample_datasets import fetch_sample_data_path
 
 
 def pytest_configure():
     """Perform initial configuration for pytest.
     Fetches pose data file paths as a dictionary for tests."""
     pytest.POSE_DATA = {
-        file_name: fetch_pose_data_path(file_name)
+        file_name: fetch_sample_data_path(file_name)
         for file_name in [
             "DLC_single-wasp.predictions.h5",
             "DLC_single-wasp.predictions.csv",
