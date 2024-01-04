@@ -10,7 +10,7 @@ Load and explore an example dataset of pose tracks.
 # -------
 from matplotlib import pyplot as plt
 
-from movement import sample_datasets
+from movement import sample_data
 from movement.io import load_poses
 
 # %%
@@ -18,14 +18,14 @@ from movement.io import load_poses
 # ------------------------
 # Print a list of available datasets:
 
-for file_name in sample_datasets.list_sample_data():
+for file_name in sample_data.list_sample_data():
     print(file_name)
 
 # %%
 # Fetch the path to an example dataset.
 # Feel free to replace this with the path to your own dataset.
 # e.g., ``file_path = "/path/to/my/data.h5"``)
-file_path = sample_datasets.fetch_sample_data_path(
+file_path = sample_data.fetch_sample_data_path(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
 )
 

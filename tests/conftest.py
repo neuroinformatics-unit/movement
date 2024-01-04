@@ -10,7 +10,7 @@ import xarray as xr
 
 from movement.io import PosesAccessor
 from movement.logging import configure_logging
-from movement.sample_datasets import fetch_sample_data_path
+from movement.sample_data import fetch_sample_data_path
 
 
 def pytest_configure():

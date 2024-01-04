@@ -82,7 +82,7 @@ def fetch_sample_data_path(filename: str) -> Path:
 
 def fetch_sample_data(
     filename: str,
-) -> xarray.Dataset:  # TODO: Add LightningPose
+) -> xarray.Dataset:
     """Fetch sample pose data from the *movement* data repository.
 
     The data are downloaded to the user's local machine the first time they are
