@@ -274,7 +274,7 @@ The most important parts of this module are:
 
 1. The `METADATA` variable, which contains detailed metadata (including filename, sha256 key, and source software) for every dataset
  in the GIN repository.
-2. The `POSE_DATA` download manager object.
+2. The `SAMPLE_DATA` download manager object.
 3. The `list_sample_data()` function, which returns a list of the available files in the data repository.
 4. The `fetch_sample_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
 5. The `fetch_sample_data()` function, which downloads and returns a given dataset as an `xarray.Dataset` directly.

@@ -42,7 +42,7 @@ with open(METADATA_PATH, "r") as sample_info:
 SAMPLE_REGISTRY = {file["file_name"]: file["sha256sum"] for file in METADATA}
 
 # Create a download manager for the pose data
-POSE_DATA = pooch.create(
+SAMPLE_DATA = pooch.create(
     path=DATA_DIR / "poses",
     base_url=f"{DATA_URL}/poses/",
     retry_if_failed=0,
@@ -57,7 +57,7 @@ def list_sample_data() -> list[str]:
     -------
     filenames : list of str
         List of filenames for available pose data."""
-    return list(POSE_DATA.registry.keys())
+    return list(SAMPLE_DATA.registry.keys())
 
 
 def fetch_sample_data_path(filename: str) -> Path:
@@ -78,7 +78,7 @@ def fetch_sample_data_path(filename: str) -> Path:
     path : pathlib.Path
         Path to the downloaded file.
     """
-    return Path(POSE_DATA.fetch(filename, progressbar=True))
+    return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
 
 
 def fetch_sample_data(
@@ -108,9 +108,9 @@ def fetch_sample_data(
     )
 
     if file_metadata["source_software"] == "SLEAP":
-        ds = load_poses.from_sleap_file(file_path)
+        ds = load_poses.from_sleap_file(file_path, fps=file_metadata["fps"])
     elif file_metadata["source_software"] == "DeepLabCut":
-        ds = load_poses.from_dlc_file(file_path)
+        ds = load_poses.from_dlc_file(file_path, fps=file_metadata["fps"])
     elif file_metadata["source_software"] == "LightningPose":
-        ds = load_poses.from_lp_file(file_path)
+        ds = load_poses.from_lp_file(file_path, fps=file_metadata["fps"])
     return ds
