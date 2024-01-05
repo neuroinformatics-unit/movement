@@ -259,9 +259,9 @@ by the [German Neuroinformatics Node](https://www.g-node.org/).
 GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
-Currently the data repository contains sample pose estimation data files
-stored in the `poses` folder. Each file name starts with either "DLC" or "SLEAP",
-depending on the pose estimation software used to generate the data.
+Currently, the data repository contains sample pose estimation data files
+stored in the `poses` folder. Each file name starts with either "DLC", "SLEAP",
+or "LP", depending on the pose estimation software used to generate the data.
 
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
@@ -269,15 +269,18 @@ Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
 like verification of sha256 hashes and decompression of archives.
 
-The relevant functionality is implemented in the `movement.datasets.py` module.
+The relevant functionality is implemented in the `movement.sample_data.py` module.
 The most important parts of this module are:
 
-1. The `POSE_DATA` download manager object, which contains a list of stored files and their known hashes.
-2. The `list_pose_data()` function, which returns a list of the available files in the data repository.
-3. The `fetch_pose_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
+1. The `METADATA` variable, which contains detailed metadata (including filename, sha256 key, and source software) for every dataset
+ in the GIN repository.
+2. The `POSE_DATA` download manager object.
+3. The `list_sample_data()` function, which returns a list of the available files in the data repository.
+4. The `fetch_sample_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
+5. The `fetch_sample_data()` function, which downloads and returns a given dataset as an `xarray.Dataset` directly.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
-This can be changed by setting the `DATA_DIR` variable in the `movement.datasets.py` module.
+This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
 
 ### Adding new data
 Only core movement developers may add new files to the external data repository.
@@ -287,9 +290,10 @@ To add a new file, you will need to:
 2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
 3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
-5. Add your new files and commit them with `gin commit -m <message> <filename>`.
-6. Upload the commited changes to the GIN repository, by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
-7. Determine the sha256 checksum hash of each new file, by running `sha256sum <filename>` in a terminal. Alternatively, you can use `pooch` to do this for you: `python -c "import pooch; pooch.file_hash('/path/to/file')"`. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use `python -c "import pooch; pooch.make_registry('/path/to/folder', 'sha256_registry.txt')`.
-8. Update the `movement.datasets.py` module on the [movement GitHub repository](movement-github:) by adding the new files to the `POSE_DATA` registry. Make sure to include the correct sha256 hash, as determined in the previous step. Follow all the usual [guidelines for contributing code](#contributing-code). Make sure to test whether the new files can be fetched successfully (see [fetching data](#fetching-data) above) before submitting your pull request.
+5. Add your new files to `/movement-test-data/poses/`.
+6. Determine the sha256 checksum hash of each new file by running `sha256sum <filename>` in a terminal. Alternatively, you can use `pooch` to do this for you: `python -c "import pooch; hash = pooch.file_hash('/path/to/file'); print(hash)"`. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use `python -c "import pooch; pooch.make_registry('/path/to/folder', 'sha256_registry.txt')`.
+7. Add metadata for your new files to `poses_files_metadata.yaml`, including their sha256 hashes.
+8. Commit your changes using `gin commit -m <message> <filename>`.
+9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
 
-You can also perform steps 3-6 via the GIN web interface, if you prefer to avoid using the CLI.
+You can also perform steps 3, 4, 8, and 9 via the GIN web interface, if you prefer to avoid using the CLI.

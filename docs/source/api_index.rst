@@ -33,14 +33,15 @@ Input/Output
     ValidPosesCSV
     ValidPoseTracks
 
-Datasets
---------
-.. currentmodule:: movement.datasets
+Sample Datasets
+---------------
+.. currentmodule:: movement.sample_data
 .. autosummary::
     :toctree: api
 
-    list_pose_data
-    fetch_pose_data_path
+    list_sample_data
+    fetch_sample_data_path
+    fetch_sample_data
 
 Logging
 -------

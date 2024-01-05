@@ -61,7 +61,8 @@ def list_sample_data() -> list[str]:
 
 
 def fetch_sample_data_path(filename: str) -> Path:
-    """Fetch sample pose data from the *movement* data repository.
+    """Download sample pose data from the *movement* data repository and return
+    its local filepath.
 
     The data are downloaded to the user's local machine the first time they are
     used and are stored in a local cache directory. The function returns the
@@ -83,7 +84,8 @@ def fetch_sample_data_path(filename: str) -> Path:
 def fetch_sample_data(
     filename: str,
 ) -> xarray.Dataset:
-    """Fetch sample pose data from the *movement* data repository.
+    """Download and return sample pose data from the *movement* data
+    repository.
 
     The data are downloaded to the user's local machine the first time they are
     used and are stored in a local cache directory. Returns sample pose data as

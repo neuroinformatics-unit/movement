@@ -53,7 +53,7 @@ Please see the [contributing guide](target-contributing) for more information.
 
 ## Loading data
 You can load predicted pose tracks from the pose estimation software packages
-[DeepLabCut](dlc:) or [SLEAP](sleap:).
+[DeepLabCut](dlc:), [SLEAP](sleap:), or [LightingPose](lp:).
 
 First import the `movement.io.load_poses` module:
 
@@ -114,20 +114,21 @@ You can also try movement out on some sample data included in the package.
 You can view the available sample data files with:
 
 ```python
-from movement import datasets
+from movement import sample_data
 
-file_names = datasets.list_pose_data()
+file_names = sample_data.list_sample_data()
 print(file_names)
 ```
+
 This will print a list of file names containing sample pose data.
-The files are prefixed with the name of the pose estimation software package,
-either "DLC" or "SLEAP".
+Each file is prefixed with the name of the pose estimation software package
+that was used to generate it - either "DLC", "SLEAP", or "LP".
 
 To get the path to one of the sample files,
 you can use the `fetch_pose_data_path` function:
 
 ```python
-file_path = datasets.fetch_pose_data_path("DLC_two-mice.predictions.csv")
+file_path = sample_data.fetch_sample_data_path("DLC_two-mice.predictions.csv")
 ```
 The first time you call this function, it will download the corresponding file
 to your local machine and save it in the `~/.movement/data` directory. On
@@ -135,6 +136,14 @@ subsequent calls, it will simply return the path to that local file.
 
 You can feed the path to the `from_dlc_file` or `from_sleap_file` functions
 and load the data, as shown above.
+
+Alternatively, you can skip the `fetch_sample_data_path()` step and load the
+data directly using the `fetch_sample_data()` function:
+
+```python
+ds = sample_data.fetch_sample_data("DLC_two-mice.predictions.csv")
+```
+
 :::
 
 ## Working with movement datasets
