@@ -14,6 +14,7 @@ import xarray
 import yaml
 
 from movement.io import load_poses
+from movement.logging import log_error
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -46,8 +47,9 @@ def fetch_metadata(file_name):
         if Path(DATA_DIR / temp_file).is_file():
             Path.rename(DATA_DIR / temp_file, DATA_DIR / file_name)
 
-        raise Exception(
-            "An error occurred while downloading the sample metadata file."
+        raise log_error(
+            requests.exceptions.ConnectionError,
+            "An error occurred while downloading the sample metadata file.",
         )
 
     return md_path
@@ -95,7 +97,14 @@ def fetch_sample_data_path(filename: str) -> Path:
     path : pathlib.Path
         Path to the downloaded file.
     """
-    return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
+    try:
+        return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
+    except ValueError:
+        raise log_error(
+            ValueError,
+            f"File '{filename}' is not in the registry. Valid "
+            f"filenames are: {list_sample_data()}",
+        )
 
 
 def fetch_sample_data(

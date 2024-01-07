@@ -134,8 +134,8 @@ The first time you call this function, it will download the corresponding file
 to your local machine and save it in the `~/.movement/data` directory. On
 subsequent calls, it will simply return the path to that local file.
 
-You can feed the path to the `from_dlc_file`, `from_sleap_file`, or `from_lp_file` functions
-and load the data, as shown above.
+You can feed the path to the `from_dlc_file`, `from_sleap_file`, or
+`from_lp_file` functions and load the data, as shown above.
 
 Alternatively, you can skip the `fetch_sample_data_path()` step and load the
 data directly using the `fetch_sample_data()` function:

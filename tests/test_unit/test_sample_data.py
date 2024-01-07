@@ -3,7 +3,18 @@
 import pytest
 from xarray import Dataset
 
-from movement.sample_data import fetch_sample_data
+from movement.sample_data import fetch_sample_data, list_sample_data
+
+
+def test_list_sample_data():
+    test_files = [
+        "SLEAP_single-mouse_EPM.analysis.h5",
+        "DLC_single-wasp.predictions.h5",
+        "LP_mouse-face_AIND.predictions.csv",
+    ]
+
+    assert isinstance(list_sample_data(), list)
+    assert all(file in list_sample_data() for file in test_files)
 
 
 def test_fetch_sample_data():
