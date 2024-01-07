@@ -9,6 +9,7 @@ are used.
 from pathlib import Path
 
 import pooch
+import requests.exceptions
 import xarray
 import yaml
 
@@ -25,28 +26,44 @@ DATA_DIR = Path("~", ".movement", "data").expanduser()
 # Create the folder if it doesn't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Fetch newest sample metadata
-Path.unlink(DATA_DIR / "poses_files_metadata.yaml", missing_ok=True)
-METADATA_POOCH = pooch.create(
-    path=DATA_DIR,
-    base_url=f"{DATA_URL}",
-    registry={"poses_files_metadata.yaml": None},
-)
-METADATA_PATH = Path(
-    METADATA_POOCH.fetch("poses_files_metadata.yaml", progressbar=True)
-)
 
-with open(METADATA_PATH, "r") as sample_info:
-    METADATA = yaml.safe_load(sample_info)
+# Try to fetch the newest sample metadata
+def fetch_metadata(file_name):
+    temp_file = f"temp_{file_name}"
 
-SAMPLE_REGISTRY = {file["file_name"]: file["sha256sum"] for file in METADATA}
+    if Path(DATA_DIR / file_name).is_file():
+        Path.replace(DATA_DIR / file_name, DATA_DIR / temp_file)
+
+    metadata_pooch = pooch.create(
+        path=DATA_DIR,
+        base_url=f"{DATA_URL}",
+        registry={file_name: None},
+    )
+
+    try:
+        md_path = Path(metadata_pooch.fetch(file_name, progressbar=True))
+    except requests.exceptions.ConnectionError:
+        if Path(DATA_DIR / temp_file).is_file():
+            Path.rename(DATA_DIR / temp_file, DATA_DIR / file_name)
+
+        raise Exception(
+            "An error occurred while downloading the sample metadata file."
+        )
+
+    return md_path
+
+
+metadata_path = fetch_metadata("poses_files_metadata.yaml")
+
+with open(metadata_path, "r") as metadata_file:
+    metadata = yaml.safe_load(metadata_file)
 
 # Create a download manager for the pose data
 SAMPLE_DATA = pooch.create(
     path=DATA_DIR / "poses",
     base_url=f"{DATA_URL}/poses/",
     retry_if_failed=0,
-    registry=SAMPLE_REGISTRY,
+    registry={file["file_name"]: file["sha256sum"] for file in metadata},
 )
 
 
@@ -104,7 +121,7 @@ def fetch_sample_data(
 
     file_path = fetch_sample_data_path(filename)
     file_metadata = next(
-        file for file in METADATA if file["file_name"] == filename
+        file for file in metadata if file["file_name"] == filename
     )
 
     if file_metadata["source_software"] == "SLEAP":
