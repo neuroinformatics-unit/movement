@@ -295,5 +295,3 @@ To add a new file, you will need to:
 7. Add metadata for your new files to `poses_files_metadata.yaml`, including their sha256 hashes.
 8. Commit your changes using `gin commit -m <message> <filename>`.
 9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
-
-You can also perform steps 3, 4, 8, and 9 via the GIN web interface, if you prefer to avoid using the CLI.

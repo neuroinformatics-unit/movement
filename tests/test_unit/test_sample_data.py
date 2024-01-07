@@ -1,4 +1,4 @@
-"""Test suite for the load_poses module."""
+"""Test suite for the sample_data module."""
 
 import pytest
 from xarray import Dataset
