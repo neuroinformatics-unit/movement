@@ -277,7 +277,7 @@ The most important parts of this module are:
 2. The `SAMPLE_DATA` download manager object.
 3. The `list_sample_data()` function, which returns a list of the available files in the data repository.
 4. The `fetch_sample_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
-5. The `fetch_sample_data()` function, which downloads and returns a given dataset as an `xarray.Dataset` directly.
+5. The `fetch_sample_data()` function, which downloads a file and loads it into movement directly, returning an `xarray.Dataset` object.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
