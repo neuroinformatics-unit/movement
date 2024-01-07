@@ -10,7 +10,7 @@ import xarray as xr
 
 from movement.io import PosesAccessor
 from movement.logging import configure_logging
-from movement.sample_data import fetch_sample_data_path
+from movement.sample_data import fetch_sample_data_path, list_sample_data
 
 
 def pytest_configure():
@@ -18,19 +18,7 @@ def pytest_configure():
     Fetches pose data file paths as a dictionary for tests."""
     pytest.POSE_DATA = {
         file_name: fetch_sample_data_path(file_name)
-        for file_name in [
-            "DLC_single-wasp.predictions.h5",
-            "DLC_single-wasp.predictions.csv",
-            "DLC_two-mice.predictions.csv",
-            "SLEAP_single-mouse_EPM.analysis.h5",
-            "SLEAP_single-mouse_EPM.predictions.slp",
-            "SLEAP_three-mice_Aeon_proofread.analysis.h5",
-            "SLEAP_three-mice_Aeon_proofread.predictions.slp",
-            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
-            "SLEAP_three-mice_Aeon_mixed-labels.predictions.slp",
-            "LP_mouse-face_AIND.predictions.csv",
-            "LP_mouse-twoview_AIND.predictions.csv",
-        ]
+        for file_name in list_sample_data()
     }
 
 
