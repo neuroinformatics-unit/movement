@@ -245,7 +245,7 @@ def valid_pose_dataset(valid_tracks_array, request):
         data_vars={
             "pose_tracks": xr.DataArray(tracks_array, dims=dim_names),
             "confidence": xr.DataArray(
-                tracks_array[..., 0],
+                np.ones(tracks_array.shape[:-1]),
                 dims=dim_names[:-1],
             ),
         },
