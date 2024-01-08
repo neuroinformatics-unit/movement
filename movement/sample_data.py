@@ -42,7 +42,7 @@ def fetch_metadata(file_name):
             path=DATA_DIR,
             progressbar=False,
         )
-        Path.rename(md_path, f"{DATA_DIR}/{file_name}")
+        md_path = Path.rename(md_path, DATA_DIR / file_name)
     except requests.exceptions.ConnectionError:
         if Path(DATA_DIR / temp_file).is_file():
             Path.rename(DATA_DIR / temp_file, DATA_DIR / file_name)
