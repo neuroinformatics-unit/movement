@@ -35,21 +35,22 @@ def fetch_metadata(file_name):
     if Path(DATA_DIR / file_name).is_file():
         Path.replace(DATA_DIR / file_name, DATA_DIR / temp_file)
 
-    metadata_pooch = pooch.create(
-        path=DATA_DIR,
-        base_url=f"{DATA_URL}",
-        registry={file_name: None},
-    )
-
     try:
-        md_path = Path(metadata_pooch.fetch(file_name, progressbar=True))
+        md_path = pooch.retrieve(
+            url=f"{DATA_URL}/{file_name}",
+            known_hash=None,
+            path=DATA_DIR,
+            progressbar=False,
+        )
+        Path.rename(md_path, f"{DATA_DIR}/{file_name}")
     except requests.exceptions.ConnectionError:
         if Path(DATA_DIR / temp_file).is_file():
             Path.rename(DATA_DIR / temp_file, DATA_DIR / file_name)
 
         raise log_error(
             requests.exceptions.ConnectionError,
-            "An error occurred while downloading the sample metadata file.",
+            "A connection error occurred while downloading the "
+            "sample metadata file.",
         )
 
     return md_path
