@@ -260,8 +260,8 @@ GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
 Currently, the data repository contains sample pose estimation data files
-stored in the `poses` folder. Each file name starts with either "DLC", "SLEAP",
-or "LP", depending on the pose estimation software used to generate the data.
+stored in the `poses` folder. Metadata for these files, including information
+about their provenance, is stored in the `poses_files_metadata.yaml` file.
 
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
@@ -272,12 +272,10 @@ like verification of sha256 hashes and decompression of archives.
 The relevant functionality is implemented in the `movement.sample_data.py` module.
 The most important parts of this module are:
 
-1. The `METADATA` variable, which contains detailed metadata (including filename, sha256 key, and source software) for every dataset
- in the GIN repository.
-2. The `SAMPLE_DATA` download manager object.
-3. The `list_sample_data()` function, which returns a list of the available files in the data repository.
-4. The `fetch_sample_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
-5. The `fetch_sample_data()` function, which downloads a file and loads it into movement directly, returning an `xarray.Dataset` object.
+1. The `SAMPLE_DATA` download manager object.
+2. The `list_sample_data()` function, which returns a list of the available files in the data repository.
+3. The `fetch_sample_data_path()` function, which downloads a file (if not already cached locally) and returns the local path to it.
+4. The `fetch_sample_data()` function, which downloads a file and loads it into movement directly, returning an `xarray.Dataset` object.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
