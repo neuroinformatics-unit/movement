@@ -16,7 +16,7 @@ from movement.sample_data import fetch_sample_data_path, list_sample_data
 def pytest_configure():
     """Perform initial configuration for pytest.
     Fetches pose data file paths as a dictionary for tests."""
-    pytest.POSE_DATA = {
+    pytest.POSE_DATA_PATHS = {
         file_name: fetch_sample_data_path(file_name)
         for file_name in list_sample_data()
     }
@@ -174,7 +174,9 @@ def new_csv_file(tmp_path):
 @pytest.fixture
 def dlc_style_df():
     """Return a valid DLC-style DataFrame."""
-    return pd.read_hdf(pytest.POSE_DATA.get("DLC_single-wasp.predictions.h5"))
+    return pd.read_hdf(
+        pytest.POSE_DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    )
 
 
 @pytest.fixture(
@@ -189,7 +191,7 @@ def dlc_style_df():
 )
 def sleap_file(request):
     """Return the file path for a SLEAP .h5 or .slp file."""
-    return pytest.POSE_DATA.get(request.param)
+    return pytest.POSE_DATA_PATHS.get(request.param)
 
 
 @pytest.fixture
