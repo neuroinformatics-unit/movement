@@ -6,15 +6,18 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
+import logging
 from pathlib import Path
 
 import pooch
-import requests.exceptions
 import xarray
 import yaml
+from requests.exceptions import RequestException
 
 from movement.io import load_poses
 from movement.logging import log_error, log_warning
+
+logger = logging.getLogger(__name__)
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -22,59 +25,86 @@ DATA_URL = (
     "https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master"
 )
 
-# Save data in ¬/.movement/data
+# Save data in ~/.movement/data
 DATA_DIR = Path("~", ".movement", "data").expanduser()
 # Create the folder if it doesn't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# Try to fetch the newest sample metadata
-def fetch_metadata(file_name: str):
+def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the yaml file containing sample metadata from the *movement*
-    data repository and return its local filepath."""
+    data repository and save it in the specified directory with a temporary
+    filename - temp_{file_name} - to avoid overwriting any existing files.
 
-    # temporarily rename existing local metadata file for safekeeping
-    local_file_path = Path(DATA_DIR / file_name)
-    temp_file_path = local_file_path.with_name(f"temp_{file_name}")
-    if local_file_path.is_file():
-        local_file_path.rename(temp_file_path)
+    Parameters
+    ----------
+    file_name : str
+        Name of the metadata file to fetch.
+    data_dir : pathlib.Path, optional
+        Directory to store the metadata file in. Defaults to the constant
+        ``DATA_DIR``. Can be overridden for testing purposes.
 
-    # try to download the new metadata file
+    Returns
+    -------
+    path : pathlib.Path
+        Path to the downloaded file.
+    """
+    local_file_path = pooch.retrieve(
+        url=f"{DATA_URL}/{file_name}",
+        known_hash=None,
+        path=data_dir,
+        fname=f"temp_{file_name}",
+        progressbar=False,
+    )
+    logger.debug(
+        f"Successfully downloaded sample metadata file {file_name} "
+        f"from {DATA_URL} to {data_dir}"
+    )
+    return Path(local_file_path)
+
+
+def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
+    """Download the yaml file containing metadata from the *movement* sample
+    data repository and load it as a list of dictionaries.
+
+    Parameters
+    ----------
+    file_name : str
+        Name of the metadata file to fetch.
+    data_dir : pathlib.Path, optional
+        Directory to store the metadata file in. Defaults to
+        the constant ``DATA_DIR``. Can be overridden for testing purposes.
+
+    Returns
+    -------
+    list[dict]
+        A list of dictionaries containing metadata for each sample file.
+    """
+
+    local_file_path = Path(data_dir / file_name)
+    failed_msg = "Failed to download the newest sample metadata file."
+
+    # try downloading the newest metadata file
     try:
-        local_file_path = Path(
-            pooch.retrieve(
-                url=f"{DATA_URL}/{file_name}",
-                known_hash=None,
-                path=DATA_DIR,
-                progressbar=False,
-            )
-        )
-
-    # if the connection fails
-    except requests.exceptions.ConnectionError as error:
-        # if temporary metadata file exists, restore it and warn the user
-        if temp_file_path.is_file():
-            temp_file_path.rename(local_file_path)
+        downloaded_file_path = _download_metadata_file(file_name, data_dir)
+        # if download succeeds, replace any existing local metadata file
+        downloaded_file_path.replace(local_file_path)
+    # if download fails, try loading an existing local metadata file,
+    # otherwise raise an error
+    except RequestException as exc_info:
+        if local_file_path.is_file():
             log_warning(
-                "Failed to download the newest sample metadata file. "
-                "Using the most recent local version instead. "
-                "Check your internet connection and retry."
+                f"{failed_msg} Will use the existing local version instead."
             )
-        # if there is no local metadata file, raise an error
         else:
-            raise log_error(
-                error,
-                "Failed to donwload the sample metadata file. "
-                "Check your internet connection and retry.",
-            )
+            raise log_error(RequestException, failed_msg) from exc_info
 
-    return local_file_path
+    with open(local_file_path, "r") as metadata_file:
+        metadata = yaml.safe_load(metadata_file)
+    return metadata
 
 
-metadata_path = fetch_metadata("poses_files_metadata.yaml")
-
-with open(metadata_path, "r") as metadata_file:
-    metadata = yaml.safe_load(metadata_file)
+metadata = _fetch_metadata("poses_files_metadata.yaml")
 
 # Create a download manager for the pose data
 SAMPLE_DATA = pooch.create(
