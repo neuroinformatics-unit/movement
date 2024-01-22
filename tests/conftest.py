@@ -1,6 +1,7 @@
 import logging
 import os
-import stat
+from pathlib import Path
+from unittest.mock import mock_open, patch
 
 import h5py
 import numpy as np
@@ -38,14 +39,15 @@ def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
     expected permission for an unreadable .h5 file."""
     file_path = tmp_path / "unreadable.h5"
-    with open(file_path, "w") as f:
-        f.write("unreadable data")
-    os.chmod(f.name, not stat.S_IRUSR)
-    yield {
-        "file_path": file_path,
-        "expected_permission": "r",
-    }
-    os.chmod(f.name, stat.S_IRUSR)
+    file_mock = mock_open()
+    file_mock.return_value.read.side_effect = PermissionError
+    with patch("builtins.open", side_effect=file_mock), patch.object(
+        Path, "exists", return_value=True
+    ):
+        yield {
+            "file_path": file_path,
+            "expected_permission": "r",
+        }
 
 
 @pytest.fixture
@@ -54,13 +56,21 @@ def unwriteable_file(tmp_path):
     expected permission for an unwriteable .h5 file."""
     unwriteable_dir = tmp_path / "no_write"
     unwriteable_dir.mkdir()
-    os.chmod(unwriteable_dir, not stat.S_IWUSR)
-    file_path = unwriteable_dir / "unwriteable.h5"
-    yield {
-        "file_path": file_path,
-        "expected_permission": "w",
-    }
-    os.chmod(unwriteable_dir, stat.S_IWUSR)
+    original_access = os.access
+
+    def mock_access(path, mode):
+        if path == unwriteable_dir and mode == os.W_OK:
+            return False
+        # Ensure that the original access function is called
+        # for all other cases
+        return original_access(path, mode)
+
+    with patch("os.access", side_effect=mock_access):
+        file_path = unwriteable_dir / "unwriteable.h5"
+        yield {
+            "file_path": file_path,
+            "expected_permission": "w",
+        }
 
 
 @pytest.fixture
