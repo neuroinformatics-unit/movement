@@ -2,8 +2,10 @@
 
 ## Installation
 
+:::{admonition} Use a conda environment
+:class: note
 We recommend you install movement inside a [conda](conda:)
-or [mamba](mamba:) environment.
+or [mamba](mamba:) environment, to avoid dependency conflicts with other packages.
 In the following we assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
 
@@ -12,11 +14,12 @@ First, create and activate an environment.
 You can call your environment whatever you like, we've used "movement-env".
 
 ```sh
-conda create -n movement-env -c conda-forge python=3.10 pytables
+conda create -n movement-env python=3.10
 conda activate movement-env
 ```
 
-Next install the `movement` package:
+Then install the `movement` package as described below.
+:::
 
 ::::{tab-set}
 
