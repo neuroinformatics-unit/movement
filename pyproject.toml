@@ -42,21 +42,28 @@ classifiers = [
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
+napari = [
+    "brainglobe-utils[napari]",
+]
 dev = [
-  "pytest",
-  "pytest-cov",
-  "coverage",
-  "tox",
-  "mypy",
-  "pre-commit",
-  "ruff",
-  "codespell",
-  "setuptools_scm",
-  "pandas-stubs",
-  "types-attrs",
-  "check-manifest",
-  "types-PyYAML",
-  "types-requests",
+    "pytest",
+    "pytest-cov",
+    "pytest-qt",
+    "coverage",
+    "tox",
+    "black",
+    "mypy",
+    "pre-commit",
+    "ruff",
+    "setuptools_scm",
+    "pandas-stubs",
+    "types-attrs",
+    "check-manifest",
+    "types-PyYAML",
+    "types-requests",
+    "qtpy",
+    "pyqt5",
+    "superqt",
 ]
 
 [build-system]
