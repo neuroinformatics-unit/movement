@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import xarray as xr
 
 from movement.analysis import kinematics
 
@@ -9,47 +10,88 @@ class TestKinematics:
 
     def test_distance(self, valid_pose_dataset):
         """Test distance calculation."""
-        # Select a single keypoint from a single individual
-        data = valid_pose_dataset.pose_tracks.isel(keypoints=0, individuals=0)
+        data = valid_pose_dataset.pose_tracks
         result = kinematics.distance(data)
-        expected = np.pad([5.0] * 9, (1, 0), "constant")
-        assert np.allclose(result, expected)
+        expected = np.full((10, 2, 2), 5.0)
+        expected[0, :, :] = np.nan
+        np.testing.assert_allclose(result.values, expected)
 
     def test_displacement(self, valid_pose_dataset):
         """Test displacement calculation."""
-        # Select a single keypoint from a single individual
-        data = valid_pose_dataset.pose_tracks.isel(keypoints=0, individuals=0)
+        data = valid_pose_dataset.pose_tracks
         result = kinematics.displacement(data)
-        expected_magnitude = np.pad([5.0] * 9, (1, 0), "constant")
-        expected_direction = np.concatenate(([0], np.full(9, 0.92729522)))
-        expected = np.stack((expected_magnitude, expected_direction), axis=1)
-        assert np.allclose(result, expected)
+        expected_magnitude = np.full((10, 2, 2), 5.0)
+        expected_magnitude[0, :, :] = np.nan
+        expected_direction = np.full((10, 2, 2), 0.92729522)
+        expected_direction[0, :, :] = np.nan
+        expected = xr.Dataset(
+            data_vars={
+                "magnitude": xr.DataArray(
+                    expected_magnitude, dims=data.dims[:-1]
+                ),
+                "direction": xr.DataArray(
+                    expected_direction, dims=data.dims[:-1]
+                ),
+            },
+            coords={
+                "time": data.time,
+                "keypoints": data.keypoints,
+                "individuals": data.individuals,
+            },
+        )
+        xr.testing.assert_allclose(result, expected)
 
     def test_velocity(self, valid_pose_dataset):
         """Test velocity calculation."""
-        # Select a single keypoint from a single individual
-        data = valid_pose_dataset.pose_tracks.isel(keypoints=0, individuals=0)
+        data = valid_pose_dataset.pose_tracks
         # Compute velocity
         result = kinematics.velocity(data)
-        expected_magnitude = np.pad([5.0] * 9, (1, 0), "constant")
-        expected_direction = np.concatenate(([0], np.full(9, 0.92729522)))
-        expected = np.stack((expected_magnitude, expected_direction), axis=1)
-        assert np.allclose(result, expected)
+        expected_magnitude = np.full((10, 2, 2), 5.0)
+        expected_direction = np.full((10, 2, 2), 0.92729522)
+        expected = xr.Dataset(
+            data_vars={
+                "magnitude": xr.DataArray(
+                    expected_magnitude, dims=data.dims[:-1]
+                ),
+                "direction": xr.DataArray(
+                    expected_direction, dims=data.dims[:-1]
+                ),
+            },
+            coords={
+                "time": data.time,
+                "keypoints": data.keypoints,
+                "individuals": data.individuals,
+            },
+        )
+        xr.testing.assert_allclose(result, expected)
 
     def test_speed(self, valid_pose_dataset):
-        """Test velocity calculation."""
-        # Select a single keypoint from a single individual
-        data = valid_pose_dataset.pose_tracks.isel(keypoints=0, individuals=0)
+        """Test speed calculation."""
+        data = valid_pose_dataset.pose_tracks
         result = kinematics.speed(data)
-        expected = np.pad([5.0] * 9, (1, 0), "constant")
-        assert np.allclose(result, expected)
+        expected = np.full((10, 2, 2), 5.0)
+        np.testing.assert_allclose(result.values, expected)
 
     def test_acceleration(self, valid_pose_dataset):
         """Test acceleration calculation."""
-        # Select a single keypoint from a single individual
-        data = valid_pose_dataset.pose_tracks.isel(keypoints=0, individuals=0)
+        data = valid_pose_dataset.pose_tracks
         result = kinematics.acceleration(data)
-        assert np.allclose(result, np.zeros((10, 2)))
+        expected = xr.Dataset(
+            data_vars={
+                "magnitude": xr.DataArray(
+                    np.zeros((10, 2, 2)), dims=data.dims[:-1]
+                ),
+                "direction": xr.DataArray(
+                    np.zeros((10, 2, 2)), dims=data.dims[:-1]
+                ),
+            },
+            coords={
+                "time": data.time,
+                "keypoints": data.keypoints,
+                "individuals": data.individuals,
+            },
+        )
+        xr.testing.assert_allclose(result, expected)
 
     def test_approximate_derivative_with_nonpositive_order(self):
         """Test that an error is raised when the order is non-positive."""
