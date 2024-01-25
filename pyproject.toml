@@ -34,6 +34,8 @@ classifiers = [
   "License :: OSI Approved :: BSD License",
 ]
 
+entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
+
 [project.urls]
 "Homepage" = "https://github.com/neuroinformatics-unit/movement"
 "Bug Tracker" = "https://github.com/neuroinformatics-unit/movement/issues"
@@ -61,9 +63,8 @@ dev = [
     "check-manifest",
     "types-PyYAML",
     "types-requests",
-    "qtpy",
     "pyqt5",
-    "superqt",
+    "brainglobe-utils[napari]",
 ]
 
 [build-system]
