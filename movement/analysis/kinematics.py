@@ -16,23 +16,11 @@ def displacement(data: xr.DataArray) -> xr.Dataset:
     -------
     xarray.Dataset
         An xarray Dataset containing the computed magnitude and
-        direction of the displacement.
+        direction of displacement.
     """
-    displacement_da = data.diff(dim="time")
-    magnitude = xr.apply_ufunc(
-        np.linalg.norm,
-        displacement_da,
-        input_core_dims=[["space"]],
-        kwargs={"axis": -1},
-    )
-    magnitude = magnitude.reindex_like(data.sel(space="x"))
-    direction = xr.apply_ufunc(
-        np.arctan2,
-        displacement_da[..., 1],
-        displacement_da[..., 0],
-    )
-    direction = direction.reindex_like(data.sel(space="x"))
-    return xr.Dataset({"magnitude": magnitude, "direction": direction})
+    displacement_xy = data.diff(dim="time")
+    displacement_xy = displacement_xy.reindex_like(data)
+    return compute_vector_magnitude_direction(displacement_xy)
 
 
 def distance(data: xr.DataArray) -> xr.DataArray:
@@ -67,7 +55,7 @@ def velocity(data: xr.DataArray) -> xr.Dataset:
     -------
     xarray.Dataset
         An xarray Dataset containing the computed magnitude and
-        direction of the velocity.
+        direction of velocity.
     """
     return approximate_derivative(data, order=1)
 
@@ -91,7 +79,7 @@ def speed(data: xr.DataArray) -> xr.DataArray:
     return velocity(data).magnitude
 
 
-def acceleration(data: xr.DataArray) -> np.ndarray:
+def acceleration(data: xr.DataArray) -> xr.Dataset:
     """Compute the acceleration of a single keypoint from
     a single individual.
 
@@ -103,8 +91,9 @@ def acceleration(data: xr.DataArray) -> np.ndarray:
 
     Returns
     -------
-    numpy.ndarray
-        A numpy array containing the computed acceleration.
+    xarray.Dataset
+        An xarray Dataset containing the magnitude and direction
+        of acceleration.
     """
     return approximate_derivative(data, order=2)
 
@@ -141,19 +130,35 @@ def approximate_derivative(data: xr.DataArray, order: int = 1) -> xr.Dataset:
                 kwargs={"axis": 0},
             )
         result = result.reindex_like(data)
+    return compute_vector_magnitude_direction(result)
+
+
+def compute_vector_magnitude_direction(input: xr.DataArray) -> xr.Dataset:
+    """Compute the magnitude and direction of a vector.
+
+    Parameters
+    ----------
+    input : xarray.DataArray
+        The input data, assumed to be of shape (..., 2), where the last
+        dimension contains the x and y coordinates.
+
+    Returns
+    -------
+    xarray.Dataset
+        An xarray Dataset containing the computed magnitude and
+        direction.
+    """
     magnitude = xr.apply_ufunc(
         np.linalg.norm,
-        result,
+        input,
         input_core_dims=[["space"]],
         kwargs={"axis": -1},
     )
-    magnitude = magnitude.reindex_like(data.sel(space="x"))
     direction = xr.apply_ufunc(
         np.arctan2,
-        result[..., 1],
-        result[..., 0],
+        input[..., 1],
+        input[..., 0],
     )
-    direction = direction.reindex_like(data.sel(space="x"))
     return xr.Dataset({"magnitude": magnitude, "direction": direction})
 
 
