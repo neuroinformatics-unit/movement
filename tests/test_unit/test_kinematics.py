@@ -13,7 +13,7 @@ class TestKinematics:
         data = valid_pose_dataset.pose_tracks
         result = kinematics.distance(data)
         expected = np.full((10, 2, 2), 5.0)
-        expected[0, :, :] = np.nan
+        expected[0, :, :] = 0
         np.testing.assert_allclose(result.values, expected)
 
     def test_displacement(self, valid_pose_dataset):
@@ -21,9 +21,9 @@ class TestKinematics:
         data = valid_pose_dataset.pose_tracks
         result = kinematics.displacement(data)
         expected_magnitude = np.full((10, 2, 2), 5.0)
-        expected_magnitude[0, :, :] = np.nan
+        expected_magnitude[0, :, :] = 0
         expected_direction = np.full((10, 2, 2), 0.92729522)
-        expected_direction[0, :, :] = np.nan
+        expected_direction[0, :, :] = 0
         expected = xr.Dataset(
             data_vars={
                 "magnitude": xr.DataArray(

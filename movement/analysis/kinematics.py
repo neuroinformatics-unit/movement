@@ -19,7 +19,7 @@ def displacement(data: xr.DataArray) -> xr.Dataset:
         direction of displacement.
     """
     displacement_xy = data.diff(dim="time")
-    displacement_xy = displacement_xy.reindex_like(data)
+    displacement_xy = displacement_xy.reindex(data.coords, fill_value=0)
     return compute_vector_magnitude_direction(displacement_xy)
 
 
