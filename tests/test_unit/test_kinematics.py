@@ -8,18 +8,23 @@ from movement.analysis import kinematics
 class TestKinematics:
     """Test suite for the kinematics module."""
 
-    def test_distance(self, valid_pose_dataset):
-        """Test distance calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.distance(data)
-        expected = np.full((10, 2, 2), 5.0)
-        expected[0, :, :] = 0
-        np.testing.assert_allclose(result.values, expected)
-
     def test_displacement(self, valid_pose_dataset):
         """Test displacement calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.displacement(data)
+        expected_values = np.full((10, 2, 2, 2), [3.0, 4.0])
+        expected_values[0, :, :, :] = 0
+        expected = xr.DataArray(
+            expected_values,
+            dims=data.dims,
+            coords=data.coords,
+        )
+        xr.testing.assert_allclose(result, expected)
+
+    def test_displacement_vector(self, valid_pose_dataset):
+        """Test displacement vector calculation."""
+        data = valid_pose_dataset.pose_tracks
+        result = kinematics.displacement_vector(data)
         expected_magnitude = np.full((10, 2, 2), 5.0)
         expected_magnitude[0, :, :] = 0
         expected_direction = np.full((10, 2, 2), 0.92729522)
@@ -46,6 +51,18 @@ class TestKinematics:
         data = valid_pose_dataset.pose_tracks
         # Compute velocity
         result = kinematics.velocity(data)
+        expected_values = np.full((10, 2, 2, 2), [3.0, 4.0])
+        expected = xr.DataArray(
+            expected_values,
+            dims=data.dims,
+            coords=data.coords,
+        )
+        xr.testing.assert_allclose(result, expected)
+
+    def test_velocity_vector(self, valid_pose_dataset):
+        """Test velocity vector calculation."""
+        data = valid_pose_dataset.pose_tracks
+        result = kinematics.velocity_vector(data)
         expected_magnitude = np.full((10, 2, 2), 5.0)
         expected_direction = np.full((10, 2, 2), 0.92729522)
         expected = xr.Dataset(
@@ -65,17 +82,21 @@ class TestKinematics:
         )
         xr.testing.assert_allclose(result, expected)
 
-    def test_speed(self, valid_pose_dataset):
-        """Test speed calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.speed(data)
-        expected = np.full((10, 2, 2), 5.0)
-        np.testing.assert_allclose(result.values, expected)
-
     def test_acceleration(self, valid_pose_dataset):
         """Test acceleration calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.acceleration(data)
+        expected = xr.DataArray(
+            np.zeros((10, 2, 2, 2)),
+            dims=data.dims,
+            coords=data.coords,
+        )
+        xr.testing.assert_allclose(result, expected)
+
+    def test_acceleration_vector(self, valid_pose_dataset):
+        """Test acceleration vector calculation."""
+        data = valid_pose_dataset.pose_tracks
+        result = kinematics.acceleration_vector(data)
         expected = xr.Dataset(
             data_vars={
                 "magnitude": xr.DataArray(
