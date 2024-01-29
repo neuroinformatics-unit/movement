@@ -56,7 +56,7 @@ def from_file(
         return from_dlc_file(file_path, fps)
     elif source_software == "SLEAP":
         return from_sleap_file(file_path, fps)
-    elif source_software == "SLEAP":
+    elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
 
 
