@@ -8,111 +8,83 @@ from movement.analysis import kinematics
 class TestKinematics:
     """Test suite for the kinematics module."""
 
-    def test_displacement(self, valid_pose_dataset):
+    @pytest.fixture
+    def expected_dataarray(self, valid_pose_dataset):
+        """Return an xarray.DataArray with default values and
+        the expected dimensions and coordinates."""
+        return xr.DataArray(
+            np.full((10, 2, 2, 2), [3.0, 4.0]),
+            dims=valid_pose_dataset.dims,
+            coords=valid_pose_dataset.coords,
+        )
+
+    @pytest.fixture
+    def expected_dataset(self, valid_pose_dataset):
+        """Return an xarray.Dataset with default `magnitude` and
+        `direction` data variables, and the expected dimensions
+        and coordinates."""
+        dims = valid_pose_dataset.pose_tracks.dims[:-1]
+        return xr.Dataset(
+            data_vars={
+                "magnitude": xr.DataArray(
+                    np.full((10, 2, 2), 5.0),
+                    dims=dims,
+                ),
+                "direction": xr.DataArray(
+                    np.full((10, 2, 2), 0.92729522),
+                    dims=dims,
+                ),
+            },
+            coords={
+                "time": valid_pose_dataset.time,
+                "individuals": valid_pose_dataset.individuals,
+                "keypoints": valid_pose_dataset.keypoints,
+            },
+        )
+
+    def test_displacement(self, valid_pose_dataset, expected_dataarray):
         """Test displacement calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.displacement(data)
-        expected_values = np.full((10, 2, 2, 2), [3.0, 4.0])
-        expected_values[0, :, :, :] = 0
-        expected = xr.DataArray(
-            expected_values,
-            dims=data.dims,
-            coords=data.coords,
-        )
-        xr.testing.assert_allclose(result, expected)
+        # Set the first displacement to zero
+        expected_dataarray[0, :, :, :] = 0
+        xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_displacement_vector(self, valid_pose_dataset):
+    def test_displacement_vector(self, valid_pose_dataset, expected_dataset):
         """Test displacement vector calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.displacement_vector(data)
-        expected_magnitude = np.full((10, 2, 2), 5.0)
-        expected_magnitude[0, :, :] = 0
-        expected_direction = np.full((10, 2, 2), 0.92729522)
-        expected_direction[0, :, :] = 0
-        expected = xr.Dataset(
-            data_vars={
-                "magnitude": xr.DataArray(
-                    expected_magnitude, dims=data.dims[:-1]
-                ),
-                "direction": xr.DataArray(
-                    expected_direction, dims=data.dims[:-1]
-                ),
-            },
-            coords={
-                "time": data.time,
-                "keypoints": data.keypoints,
-                "individuals": data.individuals,
-            },
-        )
-        xr.testing.assert_allclose(result, expected)
+        # Set the first displacement to zero
+        expected_dataset.magnitude[0, :, :] = 0
+        expected_dataset.direction[0, :, :] = 0
+        xr.testing.assert_allclose(result, expected_dataset)
 
-    def test_velocity(self, valid_pose_dataset):
+    def test_velocity(self, valid_pose_dataset, expected_dataarray):
         """Test velocity calculation."""
         data = valid_pose_dataset.pose_tracks
-        # Compute velocity
         result = kinematics.velocity(data)
-        expected_values = np.full((10, 2, 2, 2), [3.0, 4.0])
-        expected = xr.DataArray(
-            expected_values,
-            dims=data.dims,
-            coords=data.coords,
-        )
-        xr.testing.assert_allclose(result, expected)
+        xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_velocity_vector(self, valid_pose_dataset):
+    def test_velocity_vector(self, valid_pose_dataset, expected_dataset):
         """Test velocity vector calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.velocity_vector(data)
-        expected_magnitude = np.full((10, 2, 2), 5.0)
-        expected_direction = np.full((10, 2, 2), 0.92729522)
-        expected = xr.Dataset(
-            data_vars={
-                "magnitude": xr.DataArray(
-                    expected_magnitude, dims=data.dims[:-1]
-                ),
-                "direction": xr.DataArray(
-                    expected_direction, dims=data.dims[:-1]
-                ),
-            },
-            coords={
-                "time": data.time,
-                "keypoints": data.keypoints,
-                "individuals": data.individuals,
-            },
-        )
-        xr.testing.assert_allclose(result, expected)
+        xr.testing.assert_allclose(result, expected_dataset)
 
-    def test_acceleration(self, valid_pose_dataset):
+    def test_acceleration(self, valid_pose_dataset, expected_dataarray):
         """Test acceleration calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.acceleration(data)
-        expected = xr.DataArray(
-            np.zeros((10, 2, 2, 2)),
-            dims=data.dims,
-            coords=data.coords,
-        )
-        xr.testing.assert_allclose(result, expected)
+        expected_dataarray[:] = 0
+        xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_acceleration_vector(self, valid_pose_dataset):
+    def test_acceleration_vector(self, valid_pose_dataset, expected_dataset):
         """Test acceleration vector calculation."""
         data = valid_pose_dataset.pose_tracks
         result = kinematics.acceleration_vector(data)
-        expected = xr.Dataset(
-            data_vars={
-                "magnitude": xr.DataArray(
-                    np.zeros((10, 2, 2)), dims=data.dims[:-1]
-                ),
-                "direction": xr.DataArray(
-                    np.zeros((10, 2, 2)), dims=data.dims[:-1]
-                ),
-            },
-            coords={
-                "time": data.time,
-                "keypoints": data.keypoints,
-                "individuals": data.individuals,
-            },
-        )
-        xr.testing.assert_allclose(result, expected)
+        expected_dataset.magnitude[:] = 0
+        expected_dataset.direction[:] = 0
+        xr.testing.assert_allclose(result, expected_dataset)
 
     def test_approximate_derivative_with_nonpositive_order(self):
         """Test that an error is raised when the order is non-positive."""
