@@ -44,16 +44,14 @@ class TestKinematics:
 
     def test_displacement(self, valid_pose_dataset, expected_dataarray):
         """Test displacement calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.displacement(data)
+        result = kinematics.displacement(valid_pose_dataset.pose_tracks)
         # Set the first displacement to zero
         expected_dataarray[0, :, :, :] = 0
         xr.testing.assert_allclose(result, expected_dataarray)
 
     def test_displacement_vector(self, valid_pose_dataset, expected_dataset):
         """Test displacement vector calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.displacement_vector(data)
+        result = kinematics.displacement_vector(valid_pose_dataset.pose_tracks)
         # Set the first displacement to zero
         expected_dataset.magnitude[0, :, :] = 0
         expected_dataset.direction[0, :, :] = 0
@@ -61,27 +59,23 @@ class TestKinematics:
 
     def test_velocity(self, valid_pose_dataset, expected_dataarray):
         """Test velocity calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.velocity(data)
+        result = kinematics.velocity(valid_pose_dataset.pose_tracks)
         xr.testing.assert_allclose(result, expected_dataarray)
 
     def test_velocity_vector(self, valid_pose_dataset, expected_dataset):
         """Test velocity vector calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.velocity_vector(data)
+        result = kinematics.velocity_vector(valid_pose_dataset.pose_tracks)
         xr.testing.assert_allclose(result, expected_dataset)
 
     def test_acceleration(self, valid_pose_dataset, expected_dataarray):
         """Test acceleration calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.acceleration(data)
+        result = kinematics.acceleration(valid_pose_dataset.pose_tracks)
         expected_dataarray[:] = 0
         xr.testing.assert_allclose(result, expected_dataarray)
 
     def test_acceleration_vector(self, valid_pose_dataset, expected_dataset):
         """Test acceleration vector calculation."""
-        data = valid_pose_dataset.pose_tracks
-        result = kinematics.acceleration_vector(data)
+        result = kinematics.acceleration_vector(valid_pose_dataset.pose_tracks)
         expected_dataset.magnitude[:] = 0
         expected_dataset.direction[:] = 0
         xr.testing.assert_allclose(result, expected_dataset)
