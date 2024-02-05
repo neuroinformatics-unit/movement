@@ -20,9 +20,12 @@ class TestKinematics:
 
     @pytest.fixture
     def expected_dataset(self, valid_pose_dataset):
-        """Return a function to generate an expected dataset."""
+        """Return a function to generate the expected dataset
+        for different kinematic properties."""
 
         def _expected_dataset(name):
+            """Return an xarray.Dataset with expected norm and
+            theta values."""
             dims = valid_pose_dataset.pose_tracks.dims[:-1]
             ds = xr.Dataset(
                 data_vars={
@@ -49,7 +52,6 @@ class TestKinematics:
                 # Set all values to zero
                 ds.norm[:] = 0
                 ds.theta[:] = 0
-            ds.attrs["name"] = name
             return ds
 
         return _expected_dataset
