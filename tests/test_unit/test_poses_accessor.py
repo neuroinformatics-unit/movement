@@ -9,9 +9,9 @@ class TestMoveAccessor:
         "property_name", ["displacement", "velocity", "acceleration"]
     )
     def test_property(self, valid_pose_dataset, property_name):
-        """Test that the property returns an instance of xr.DataArray
-        with the correct name, and that the input xr.Dataset contains
-        the newly-added data variable with the same name."""
+        """Test that accessing a property returns an instance of
+        xr.DataArray with the correct name, and that the input xr.Dataset
+        now contains the property as a data variable."""
         result = getattr(valid_pose_dataset.move, property_name)
         assert isinstance(result, xr.DataArray)
         assert result.name == property_name
