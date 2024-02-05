@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 
-def displacement(data: xr.DataArray) -> xr.DataArray:
+def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute the displacement between consecutive x, y
     locations of each keypoint of each individual.
 
@@ -22,7 +22,7 @@ def displacement(data: xr.DataArray) -> xr.DataArray:
     return displacement_xy
 
 
-def displacement_vector(data: xr.DataArray) -> xr.Dataset:
+def compute_displacement_vector(data: xr.DataArray) -> xr.Dataset:
     """Compute the Euclidean magnitude (distance) and direction
     (angle relative to the positive x-axis) of displacement.
 
@@ -38,10 +38,10 @@ def displacement_vector(data: xr.DataArray) -> xr.Dataset:
         An xarray Dataset containing the magnitude and direction
         of the computed displacement.
     """
-    return compute_vector_magnitude_direction(displacement(data))
+    return compute_vector_magnitude_direction(compute_displacement(data))
 
 
-def velocity(data: xr.DataArray) -> xr.DataArray:
+def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute the velocity between consecutive x, y locations
     of each keypoint of each individual.
 
@@ -56,10 +56,10 @@ def velocity(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray Dataset containing the computed velocity.
     """
-    return approximate_derivative(data, order=1)
+    return compute_approximate_derivative(data, order=1)
 
 
-def velocity_vector(data: xr.DataArray) -> xr.Dataset:
+def compute_velocity_vector(data: xr.DataArray) -> xr.Dataset:
     """Compute the Euclidean magnitude (speed) and direction
     (angle relative to the positive x-axis) of velocity.
 
@@ -75,10 +75,10 @@ def velocity_vector(data: xr.DataArray) -> xr.Dataset:
         An xarray Dataset containing the magnitude and direction
         of the computed velocity.
     """
-    return compute_vector_magnitude_direction(velocity(data))
+    return compute_vector_magnitude_direction(compute_velocity(data))
 
 
-def acceleration(data: xr.DataArray) -> xr.DataArray:
+def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """Compute the acceleration between consecutive x, y
     locations of each keypoint of each individual.
 
@@ -94,10 +94,10 @@ def acceleration(data: xr.DataArray) -> xr.DataArray:
         An xarray Dataset containing the magnitude and direction
         of acceleration.
     """
-    return approximate_derivative(data, order=2)
+    return compute_approximate_derivative(data, order=2)
 
 
-def acceleration_vector(data: xr.DataArray) -> xr.Dataset:
+def compute_acceleration_vector(data: xr.DataArray) -> xr.Dataset:
     """Compute the Euclidean magnitude and direction of acceleration.
 
     Parameters
@@ -112,10 +112,12 @@ def acceleration_vector(data: xr.DataArray) -> xr.Dataset:
         An xarray Dataset containing the magnitude and direction
         of the computed acceleration.
     """
-    return compute_vector_magnitude_direction(acceleration(data))
+    return compute_vector_magnitude_direction(compute_acceleration(data))
 
 
-def approximate_derivative(data: xr.DataArray, order: int = 1) -> xr.DataArray:
+def compute_approximate_derivative(
+    data: xr.DataArray, order: int = 1
+) -> xr.DataArray:
     """Compute velocity or acceleration using numerical differentiation,
     assuming equidistant time spacing.
 
