@@ -3,6 +3,7 @@ from typing import ClassVar
 
 import xarray as xr
 
+from movement.analysis import kinematics
 from movement.io.validators import ValidPoseTracks
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,37 @@ class MoveAccessor:
 
     def __init__(self, ds: xr.Dataset):
         self._obj = ds
+
+    @property
+    def displacement(self) -> xr.DataArray:
+        """Return the displacement between consecutive x, y
+        locations of each keypoint of each individual.
+        """
+        pose_tracks = self._obj[self.var_names[0]]
+        self._obj["displacement"] = kinematics.compute_displacement(
+            pose_tracks
+        )
+        return self._obj["displacement"]
+
+    @property
+    def velocity(self) -> xr.DataArray:
+        """Return the velocity between consecutive x, y locations
+        of each keypoint of each individual.
+        """
+        pose_tracks = self._obj[self.var_names[0]]
+        self._obj["velocity"] = kinematics.compute_velocity(pose_tracks)
+        return self._obj["velocity"]
+
+    @property
+    def acceleration(self) -> xr.DataArray:
+        """Return the acceleration between consecutive x, y locations
+        of each keypoint of each individual.
+        """
+        pose_tracks = self._obj[self.var_names[0]]
+        self._obj["acceleration"] = kinematics.compute_acceleration(
+            pose_tracks
+        )
+        return self._obj["acceleration"]
 
     def validate(self) -> None:
         """Validate the PoseTracks dataset."""
