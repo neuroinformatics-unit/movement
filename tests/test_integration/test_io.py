@@ -60,9 +60,10 @@ class TestPosesIO:
         ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
         save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
-        with h5py.File(ds.source_file, "r") as file_in, h5py.File(
-            new_h5_file, "r"
-        ) as file_out:
+        with (
+            h5py.File(ds.source_file, "r") as file_in,
+            h5py.File(new_h5_file, "r") as file_out,
+        ):
             assert set(file_in.keys()) == set(file_out.keys())
             keys = [
                 "track_occupancy",

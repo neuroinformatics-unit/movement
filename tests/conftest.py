@@ -41,8 +41,9 @@ def unreadable_file(tmp_path):
     file_path = tmp_path / "unreadable.h5"
     file_mock = mock_open()
     file_mock.return_value.read.side_effect = PermissionError
-    with patch("builtins.open", side_effect=file_mock), patch.object(
-        Path, "exists", return_value=True
+    with (
+        patch("builtins.open", side_effect=file_mock),
+        patch.object(Path, "exists", return_value=True),
     ):
         yield {
             "file_path": file_path,
