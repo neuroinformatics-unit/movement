@@ -137,7 +137,7 @@ def approximate_derivative(data: xr.DataArray, order: int = 1) -> xr.DataArray:
         raise ValueError("order must be a positive integer.")
     else:
         result = data
-        dt = data["time"].diff(dim="time").values[0]
+        dt = data["time"].values[1] - data["time"].values[0]
         for _ in range(order):
             result = xr.apply_ufunc(
                 np.gradient,
