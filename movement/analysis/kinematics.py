@@ -22,25 +22,6 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     return displacement_xy
 
 
-def compute_displacement_vector(data: xr.DataArray) -> xr.Dataset:
-    """Compute the Euclidean magnitude (distance) and direction
-    (angle relative to the positive x-axis) of displacement.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where
-        the last dimension contains the x and y coordinates.
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing the magnitude and direction
-        of the computed displacement.
-    """
-    return compute_vector_magnitude_direction(compute_displacement(data))
-
-
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute the velocity between consecutive x, y locations
     of each keypoint of each individual.
@@ -57,25 +38,6 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
         An xarray Dataset containing the computed velocity.
     """
     return compute_approximate_derivative(data, order=1)
-
-
-def compute_velocity_vector(data: xr.DataArray) -> xr.Dataset:
-    """Compute the Euclidean magnitude (speed) and direction
-    (angle relative to the positive x-axis) of velocity.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where
-        the last dimension contains the x and y coordinates.
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing the magnitude and direction
-        of the computed velocity.
-    """
-    return compute_vector_magnitude_direction(compute_velocity(data))
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
@@ -97,24 +59,6 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     return compute_approximate_derivative(data, order=2)
 
 
-def compute_acceleration_vector(data: xr.DataArray) -> xr.Dataset:
-    """Compute the Euclidean magnitude and direction of acceleration.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where
-        the last dimension contains the x and y coordinates.
-
-    Returns
-    -------
-    xarray.Dataset
-        An xarray Dataset containing the magnitude and direction
-        of the computed acceleration.
-    """
-    return compute_vector_magnitude_direction(compute_acceleration(data))
-
-
 def compute_approximate_derivative(
     data: xr.DataArray, order: int = 1
 ) -> xr.DataArray:
@@ -125,7 +69,7 @@ def compute_approximate_derivative(
     ----------
     data : xarray.DataArray
         The input data, assumed to be of shape (..., 2), where the last
-        dimension contains the x and y coordinates.
+        dimension contains data in the x and y dimensions.
     order : int
         The order of the derivative. 1 for velocity, 2 for
         acceleration. Default is 1.
@@ -151,33 +95,47 @@ def compute_approximate_derivative(
     return result
 
 
-def compute_vector_magnitude_direction(input: xr.DataArray) -> xr.Dataset:
-    """Compute the magnitude and direction of a vector.
+def compute_norm(data: xr.DataArray) -> xr.DataArray:
+    """Compute the Euclidean norm (magnitude) of a vector.
 
     Parameters
     ----------
-    input : xarray.DataArray
+    data : xarray.DataArray
         The input data, assumed to be of shape (..., 2), where the last
-        dimension contains the x and y coordinates.
+        dimension contains data in the x and y dimensions.
 
     Returns
     -------
-    xarray.Dataset
-        An xarray Dataset containing the computed magnitude and
-        direction.
+    xarray.DataArray
+        An xarray DataArray containing the computed Euclidean norm.
     """
-    magnitude = xr.apply_ufunc(
+    return xr.apply_ufunc(
         np.linalg.norm,
-        input,
+        data,
         input_core_dims=[["space"]],
         kwargs={"axis": -1},
     )
-    direction = xr.apply_ufunc(
+
+
+def compute_theta(data: xr.DataArray) -> xr.DataArray:
+    """Compute the theta (direction) of a vector.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data, assumed to be of shape (..., 2), where the last
+        dimension contains data in the x and y dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed theta.
+    """
+    return xr.apply_ufunc(
         np.arctan2,
-        input[..., 1],
-        input[..., 0],
+        data[..., 1],
+        data[..., 0],
     )
-    return xr.Dataset({"magnitude": magnitude, "direction": direction})
 
 
 # Locomotion Features

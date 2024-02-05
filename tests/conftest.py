@@ -297,4 +297,11 @@ def missing_dim_dataset(valid_pose_dataset):
     ]
 )
 def invalid_pose_dataset(request):
+    """Return an invalid pose tracks dataset."""
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(params=["displacement", "velocity", "acceleration"])
+def kinematic_property(request):
+    """Return a kinematic property."""
+    return request.param

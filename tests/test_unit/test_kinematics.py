@@ -20,30 +20,42 @@ class TestKinematics:
 
     @pytest.fixture
     def expected_dataset(self, valid_pose_dataset):
-        """Return an xarray.Dataset with default `magnitude` and
-        `direction` data variables, and the expected dimensions
-        and coordinates."""
-        dims = valid_pose_dataset.pose_tracks.dims[:-1]
-        return xr.Dataset(
-            data_vars={
-                "magnitude": xr.DataArray(
-                    np.full((10, 2, 2), 5.0),
-                    dims=dims,
-                ),
-                "direction": xr.DataArray(
-                    np.full((10, 2, 2), 0.92729522),
-                    dims=dims,
-                ),
-            },
-            coords={
-                "time": valid_pose_dataset.time,
-                "individuals": valid_pose_dataset.individuals,
-                "keypoints": valid_pose_dataset.keypoints,
-            },
-        )
+        """Return a function to generate an expected dataset."""
+
+        def _expected_dataset(name):
+            dims = valid_pose_dataset.pose_tracks.dims[:-1]
+            ds = xr.Dataset(
+                data_vars={
+                    "norm": xr.DataArray(
+                        np.full((10, 2, 2), 5.0),
+                        dims=dims,
+                    ),
+                    "theta": xr.DataArray(
+                        np.full((10, 2, 2), 0.92729522),
+                        dims=dims,
+                    ),
+                },
+                coords={
+                    "time": valid_pose_dataset.time,
+                    "individuals": valid_pose_dataset.individuals,
+                    "keypoints": valid_pose_dataset.keypoints,
+                },
+            )
+            if name == "displacement":
+                # Set the first values to zero
+                ds.norm[0, :, :] = 0
+                ds.theta[0, :, :] = 0
+            elif name == "acceleration":
+                # Set all values to zero
+                ds.norm[:] = 0
+                ds.theta[:] = 0
+            ds.attrs["name"] = name
+            return ds
+
+        return _expected_dataset
 
     def test_displacement(self, valid_pose_dataset, expected_dataarray):
-        """Test displacement calculation."""
+        """Test displacement computation."""
         result = kinematics.compute_displacement(
             valid_pose_dataset.pose_tracks
         )
@@ -51,44 +63,38 @@ class TestKinematics:
         expected_dataarray[0, :, :, :] = 0
         xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_displacement_vector(self, valid_pose_dataset, expected_dataset):
-        """Test displacement vector calculation."""
-        result = kinematics.compute_displacement_vector(
-            valid_pose_dataset.pose_tracks
-        )
-        # Set the first displacement to zero
-        expected_dataset.magnitude[0, :, :] = 0
-        expected_dataset.direction[0, :, :] = 0
-        xr.testing.assert_allclose(result, expected_dataset)
-
     def test_velocity(self, valid_pose_dataset, expected_dataarray):
-        """Test velocity calculation."""
+        """Test velocity computation."""
         result = kinematics.compute_velocity(valid_pose_dataset.pose_tracks)
         xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_velocity_vector(self, valid_pose_dataset, expected_dataset):
-        """Test velocity vector calculation."""
-        result = kinematics.compute_velocity_vector(
-            valid_pose_dataset.pose_tracks
-        )
-        xr.testing.assert_allclose(result, expected_dataset)
-
     def test_acceleration(self, valid_pose_dataset, expected_dataarray):
-        """Test acceleration calculation."""
+        """Test acceleration computation."""
         result = kinematics.compute_acceleration(
             valid_pose_dataset.pose_tracks
         )
         expected_dataarray[:] = 0
         xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_acceleration_vector(self, valid_pose_dataset, expected_dataset):
-        """Test acceleration vector calculation."""
-        result = kinematics.compute_acceleration_vector(
-            valid_pose_dataset.pose_tracks
-        )
-        expected_dataset.magnitude[:] = 0
-        expected_dataset.direction[:] = 0
-        xr.testing.assert_allclose(result, expected_dataset)
+    def test_compute_norm(
+        self, valid_pose_dataset, kinematic_property, expected_dataset
+    ):
+        """Test Euclidean norm (magnitude) computation for different
+        kinematic properties."""
+        data = getattr(valid_pose_dataset.poses, kinematic_property)
+        result = kinematics.compute_norm(data)
+        expected = expected_dataset(kinematic_property).norm
+        xr.testing.assert_allclose(result, expected)
+
+    def test_compute_theta(
+        self, valid_pose_dataset, kinematic_property, expected_dataset
+    ):
+        """Test theta (direction) computation for different
+        kinematic properties."""
+        data = getattr(valid_pose_dataset.poses, kinematic_property)
+        result = kinematics.compute_theta(data)
+        expected = expected_dataset(kinematic_property).theta
+        xr.testing.assert_allclose(result, expected)
 
     def test_approximate_derivative_with_nonpositive_order(self):
         """Test that an error is raised when the order is non-positive."""
