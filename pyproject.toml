@@ -44,7 +44,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-napari = ["napari[all]>=0.4.18", "napari-video"]
+napari = ["napari[all]>=0.4.18", "napari-video", "brainglobe-utils[napari]"]
 
 dev = [
     "pytest",
@@ -64,6 +64,7 @@ dev = [
     "types-requests",
     "napari[all]>=0.4.18",
     "napari-video",
+    "brainglobe-utils[napari]",
 ]
 
 [build-system]
