@@ -2,20 +2,9 @@ name: movement
 display_name: movement
 contributions:
   commands:
-    - id: movement.get_reader
-      python_name: movement.napari._reader:napari_get_reader
-      title: Open data with movement
     - id: movement.make_widget
       python_name: movement.napari._widget:MovementWidgets
       title: movement
-  readers:
-    - command: movement.get_reader
-      accepts_directories: false
-      filename_patterns:
-      - "*.h5"
-      - "*.hdf5"
-      - "*.slp"
-      - "*.csv"
   widgets:
     - command: movement.make_widget
       display_name: movement

@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 # get logger
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def ds_to_napari_tracks(
     ds: xr.Dataset,
-) -> tuple[np.ndarray[Any, Any], dict[str, Any]]:
+) -> tuple[np.ndarray[Any, Any], pd.DataFrame]:
     """Converts movement xarray dataset to a napari Tracks layers.
 
     Napari tracks arrays are 2D arrays with shape (N, 4), where N is
@@ -31,37 +32,55 @@ def ds_to_napari_tracks(
     -------
     napari_tracks, properties : tuple
         A tuple containing the napari tracks array and the properties
-        dictionary.
+        DataFrame.
 
     """
-    n_frames = ds.dims["time"]
-    n_individuals = ds.dims["individuals"]
-    n_keypoints = ds.dims["keypoints"]
+    # Copy the dataset to avoid modifying the original
+    ds_ = ds.copy()
+
+    n_frames = ds_.sizes["time"]
+    n_individuals = ds_.sizes["individuals"]
+    n_keypoints = ds_.sizes["keypoints"]
     n_tracks = n_individuals * n_keypoints
 
+    # if NaN values in data variable, log a warning and replace with zeros
+    for data_var in ["confidence"]:
+        if ds_[data_var].isnull().any():
+            logger.warning(
+                f"NaNs found in {data_var}, will be replaced with zeros."
+            )
+            ds_[data_var] = ds_[data_var].fillna(0)
+
     # Assign unique integer ids to individuals and keypoints
-    ds.coords["individual_ids"] = ("individuals", range(n_individuals))
-    ds.coords["keypoint_ids"] = ("keypoints", range(n_keypoints))
+    ds_.coords["individual_ids"] = ("individuals", range(n_individuals))
+    ds_.coords["keypoint_ids"] = ("keypoints", range(n_keypoints))
 
     # Convert 4D to 2D array by stacking
-    ds = ds.stack(tracks=("individuals", "keypoints", "time"))
+    ds_ = ds_.stack(tracks=("individuals", "keypoints", "time"))
     # Track ids are unique ints (individual_id * n_keypoints + keypoint_id)
-    individual_ids = ds.coords["individual_ids"].values
-    keypoint_ids = ds.coords["keypoint_ids"].values
+    individual_ids = ds_.coords["individual_ids"].values
+    keypoint_ids = ds_.coords["keypoint_ids"].values
     track_ids = individual_ids * n_keypoints + keypoint_ids
 
     # Construct the napari Tracks array
-    yx_columns = np.fliplr(ds["pose_tracks"].values.T)
+    yx_columns = np.fliplr(ds_["pose_tracks"].values.T)
     time_column = np.tile(np.arange(n_frames), n_tracks)
     napari_tracks = np.hstack(
         (track_ids.reshape(-1, 1), time_column.reshape(-1, 1), yx_columns)
     )
 
-    properties = {
-        "confidence": ds["confidence"].values.flatten(),
-        "individual": individual_ids,
-        "keypoint": keypoint_ids,
-        "time": ds.coords["time"].values,
-    }
+    n_rows = napari_tracks.shape[0]
+    for col in "individuals", "keypoints", "time":
+        assert n_rows == ds_.coords[col].size
+
+    # Construct pandas DataFrame with properties
+    properties = pd.DataFrame(
+        {
+            "individual": ds_.coords["individuals"].values,
+            "keypoint": ds_.coords["keypoints"].values,
+            "time": ds_.coords["time"].values,
+            "confidence": ds_["confidence"].values.flatten(),
+        }
+    )
 
     return napari_tracks, properties
