@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from napari.utils.colormaps import ensure_colormap
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
@@ -18,6 +19,30 @@ from movement.io import load_poses
 from movement.napari.convert import ds_to_napari_tracks
 
 logger = logging.getLogger(__name__)
+
+# ColorBrewer Set2 palette with 6 colors
+set2_colors = [
+    "#66c2a5",
+    "#fc8d62",
+    "#8da0cb",
+    "#e78ac3",
+    "#a6d854",
+    "#ffd92f",
+]
+
+
+# equally sample n colors from a napari colormap
+def sample_colormap(n: int, cmap_name: str) -> list[tuple]:
+    """Sample n equally-spaced colors from a napari colormap,
+    including the endpoints."""
+    cmap = ensure_colormap(cmap_name)
+    samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
+    return [tuple(cmap.colors[i]) for i in samples]
+
+
+def norm_to_unit(p: np.ndarray) -> np.ndarray:
+    """Normalize an array to the range [0, 1]"""
+    return (p - np.min(p)) / np.max([1e-10, np.ptp(p)])
 
 
 class FileLoader(QWidget):
@@ -48,7 +73,7 @@ class FileLoader(QWidget):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
         self.source_software_combo.addItems(
-            ["DeepLabCut", "LightningPose", "SLEAP"]
+            ["SLEAP", "DeepLabCut", "LightningPose"]
         )
         self.layout().addRow("source software:", self.source_software_combo)
 
@@ -57,7 +82,7 @@ class FileLoader(QWidget):
         self.fps_spinbox = QSpinBox()
         self.fps_spinbox.setMinimum(1)
         self.fps_spinbox.setMaximum(1000)
-        self.fps_spinbox.setValue(30)
+        self.fps_spinbox.setValue(50)
         self.layout().addRow("fps:", self.fps_spinbox)
 
     def create_file_path_widget(self):
@@ -104,44 +129,52 @@ class FileLoader(QWidget):
         self.data, self.props = ds_to_napari_tracks(ds)
         logger.info("Converted pose tracks to a napari Tracks array.")
         logger.debug(f"Tracks data shape: {self.data.shape}")
-        logger.debug(f"{self.data[:5, :]}")
 
         self.file_name = Path(file_path).name
-        n_individuals = len(np.unique(self.props["individual"]))
-        self.color_by = "individual" if n_individuals > 1 else "keypoint"
-
         self.add_layers()
 
     def add_layers(self):
         """Add the predicted pose tracks and keypoints to the napari viewer."""
 
-        common_kwargs = {
-            "name": f"position {self.file_name}",
-            "properties": self.props,
-            "visible": True,
-            "blending": "translucent",
-        }
-
-        tracks_kwargs = {
-            **common_kwargs,
-            "tail_width": 5,
-            "tail_length": 60,
-            "head_length": 0,
-            "colormap": "turbo",
-            "color_by": self.color_by,
-        }
-
-        # Add the napari Tracks layer to the viewer
-        self.viewer.add_tracks(self.data, **tracks_kwargs)
+        common_kwargs = {"visible": True, "blending": "translucent"}
+        n_individuals = len(self.props["individual"].unique())
+        color_by = "individual" if n_individuals > 1 else "keypoint"
 
         # kwargs for the napari Points layer
         points_kwargs = {
             **common_kwargs,
-            "symbol": "ring",
-            "size": 15,
-            "face_color": "red",
+            "name": f"Keypoints - {self.file_name}",
+            "properties": self.props,
+            "symbol": "disc",
+            "size": 10,
             "edge_width": 0,
+            "face_color": color_by,
+            "face_color_cycle": sample_colormap(n_individuals, "turbo"),
+            "face_colormap": "viridis",
+            "text": {"string": color_by, "visible": False},
         }
+
+        # Modify properties for the napari Tracks layer
+        tracks_props = self.props.copy()
+        # Track properties must be numeric, so convert str to categorical codes
+        for col in ["individual", "keypoint"]:
+            tracks_props[col] = tracks_props[col].astype("category").cat.codes
+            logger.debug(f"{col} unique values {tracks_props[col].unique()}")
+
+        # kwargs for the napari Tracks layer
+        tracks_kwargs = {
+            **common_kwargs,
+            "name": f"Tracks - {self.file_name}",
+            "properties": tracks_props,
+            "tail_width": 5,
+            "tail_length": 60,
+            "head_length": 0,
+            "color_by": color_by,
+            "colormap": "turbo",
+        }
+
+        # Add the napari Tracks layer to the viewer
+        self.viewer.add_tracks(self.data, **tracks_kwargs)
 
         # Add the napari Points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_kwargs)
