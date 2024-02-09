@@ -83,7 +83,7 @@ class TestKinematics:
     ):
         """Test Euclidean norm (magnitude) computation for different
         kinematic properties."""
-        data = getattr(valid_pose_dataset.poses, kinematic_property)
+        data = getattr(valid_pose_dataset.move, kinematic_property)
         result = kinematics.compute_norm(data)
         expected = expected_dataset(kinematic_property).norm
         xr.testing.assert_allclose(result, expected)
@@ -93,7 +93,7 @@ class TestKinematics:
     ):
         """Test theta (direction) computation for different
         kinematic properties."""
-        data = getattr(valid_pose_dataset.poses, kinematic_property)
+        data = getattr(valid_pose_dataset.move, kinematic_property)
         result = kinematics.compute_theta(data)
         expected = expected_dataset(kinematic_property).theta
         xr.testing.assert_allclose(result, expected)
