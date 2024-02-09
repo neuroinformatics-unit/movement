@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar
+from typing import Callable, ClassVar
 
 import xarray as xr
 
@@ -71,36 +71,54 @@ class MoveAccessor:
     def __init__(self, ds: xr.Dataset):
         self._obj = ds
 
+    def _compute_property(
+        self,
+        property: str,
+        compute_function: Callable[[xr.DataArray], xr.DataArray],
+    ) -> xr.DataArray:
+        """Compute a kinematic property and store it in the dataset.
+
+        Parameters
+        ----------
+        property : str
+            The name of the property to compute.
+        compute_function : Callable[[xarray.DataArray], xarray.DataArray]
+            The function to compute the property.
+
+        Returns
+        -------
+        xarray.DataArray
+            The computed property.
+        """
+        if property not in self._obj:
+            pose_tracks = self._obj[self.var_names[0]]
+            self._obj[property] = compute_function(pose_tracks)
+        return self._obj[property]
+
     @property
     def displacement(self) -> xr.DataArray:
         """Return the displacement between consecutive x, y
         locations of each keypoint of each individual.
         """
-        pose_tracks = self._obj[self.var_names[0]]
-        self._obj["displacement"] = kinematics.compute_displacement(
-            pose_tracks
+        return self._compute_property(
+            "displacement", kinematics.compute_displacement
         )
-        return self._obj["displacement"]
 
     @property
     def velocity(self) -> xr.DataArray:
         """Return the velocity between consecutive x, y locations
         of each keypoint of each individual.
         """
-        pose_tracks = self._obj[self.var_names[0]]
-        self._obj["velocity"] = kinematics.compute_velocity(pose_tracks)
-        return self._obj["velocity"]
+        return self._compute_property("velocity", kinematics.compute_velocity)
 
     @property
     def acceleration(self) -> xr.DataArray:
         """Return the acceleration between consecutive x, y locations
         of each keypoint of each individual.
         """
-        pose_tracks = self._obj[self.var_names[0]]
-        self._obj["acceleration"] = kinematics.compute_acceleration(
-            pose_tracks
+        return self._compute_property(
+            "acceleration", kinematics.compute_acceleration
         )
-        return self._obj["acceleration"]
 
     def validate(self) -> None:
         """Validate the PoseTracks dataset."""
