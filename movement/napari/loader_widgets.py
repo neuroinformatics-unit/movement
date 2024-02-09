@@ -20,18 +20,7 @@ from movement.napari.convert import ds_to_napari_tracks
 
 logger = logging.getLogger(__name__)
 
-# ColorBrewer Set2 palette with 6 colors
-set2_colors = [
-    "#66c2a5",
-    "#fc8d62",
-    "#8da0cb",
-    "#e78ac3",
-    "#a6d854",
-    "#ffd92f",
-]
 
-
-# equally sample n colors from a napari colormap
 def sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     """Sample n equally-spaced colors from a napari colormap,
     including the endpoints."""
@@ -39,10 +28,6 @@ def sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
     return [tuple(cmap.colors[i]) for i in samples]
 
-
-def norm_to_unit(p: np.ndarray) -> np.ndarray:
-    """Normalize an array to the range [0, 1]"""
-    return (p - np.min(p)) / np.max([1e-10, np.ptp(p)])
 
 
 class FileLoader(QWidget):
@@ -138,7 +123,9 @@ class FileLoader(QWidget):
 
         common_kwargs = {"visible": True, "blending": "translucent"}
         n_individuals = len(self.props["individual"].unique())
+        n_keypoints = len(self.props["keypoint"].unique())
         color_by = "individual" if n_individuals > 1 else "keypoint"
+        n_colors = n_individuals if color_by == "individual" else n_keypoints
 
         # kwargs for the napari Points layer
         points_kwargs = {
@@ -149,7 +136,7 @@ class FileLoader(QWidget):
             "size": 10,
             "edge_width": 0,
             "face_color": color_by,
-            "face_color_cycle": sample_colormap(n_individuals, "turbo"),
+            "face_color_cycle": sample_colormap(n_colors, "turbo"),
             "face_colormap": "viridis",
             "text": {"string": color_by, "visible": False},
         }
