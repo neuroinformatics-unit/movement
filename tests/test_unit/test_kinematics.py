@@ -78,26 +78,6 @@ class TestKinematics:
         expected_dataarray[:] = 0
         xr.testing.assert_allclose(result, expected_dataarray)
 
-    def test_compute_norm(
-        self, valid_pose_dataset, kinematic_property, expected_dataset
-    ):
-        """Test Euclidean norm (magnitude) computation for different
-        kinematic properties."""
-        data = getattr(valid_pose_dataset.move, kinematic_property)
-        result = kinematics.compute_norm(data)
-        expected = expected_dataset(kinematic_property).norm
-        xr.testing.assert_allclose(result, expected)
-
-    def test_compute_theta(
-        self, valid_pose_dataset, kinematic_property, expected_dataset
-    ):
-        """Test theta (direction) computation for different
-        kinematic properties."""
-        data = getattr(valid_pose_dataset.move, kinematic_property)
-        result = kinematics.compute_theta(data)
-        expected = expected_dataset(kinematic_property).theta
-        xr.testing.assert_allclose(result, expected)
-
     def test_approximate_derivative_with_nonpositive_order(self):
         """Test that an error is raised when the order is non-positive."""
         data = np.arange(10)

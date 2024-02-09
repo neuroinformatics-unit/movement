@@ -95,49 +95,6 @@ def compute_approximate_derivative(
     return result
 
 
-def compute_norm(data: xr.DataArray) -> xr.DataArray:
-    """Compute the Euclidean norm (magnitude) of a vector.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where the last
-        dimension contains data in the x and y dimensions.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the computed Euclidean norm.
-    """
-    return xr.apply_ufunc(
-        np.linalg.norm,
-        data,
-        input_core_dims=[["space"]],
-        kwargs={"axis": -1},
-    )
-
-
-def compute_theta(data: xr.DataArray) -> xr.DataArray:
-    """Compute the theta (direction) of a vector.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where the last
-        dimension contains data in the x and y dimensions.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the computed theta.
-    """
-    return xr.apply_ufunc(
-        np.arctan2,
-        data[..., 1],
-        data[..., 0],
-    )
-
-
 # Locomotion Features
 # speed
 # speed_centroid
