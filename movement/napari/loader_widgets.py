@@ -29,7 +29,6 @@ def sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     return [tuple(cmap.colors[i]) for i in samples]
 
 
-
 class FileLoader(QWidget):
     """Widget for loading pose tracks from files into a napari viewer."""
 
