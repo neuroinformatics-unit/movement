@@ -32,8 +32,9 @@ def from_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC predicted poses, either in .h5
-        or .csv format.
+        Path to the file containing predicted poses. The file format must
+        be among those supported by the from_dlc_file(), from_slp_file()
+        or from_lp_file() functions.
     source_software : "DeepLabCut", "SLEAP" or "LightningPose"
         The source software of the file.
     fps : float, optional
@@ -50,6 +51,15 @@ def from_file(
     Identical to calling any of the functions from_dlc_file(),
     from_sleap_file() or from_lp_file().
 
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file : Load pose tracks directly
+    from DeepLabCut files.
+    movement.io.load_poses.from_sleap_file : Load pose tracks directly
+    from SLEAP files.
+    movement.io.load_poses.from_lp_file : Load pose tracks directly
+    from LightningPose files.
+
     """
 
     if source_software == "DeepLabCut":
@@ -58,6 +68,10 @@ def from_file(
         return from_sleap_file(file_path, fps)
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
+    else:
+        raise ValueError(
+            "Unsupported source software: {}".format(source_software)
+        )
 
 
 def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
