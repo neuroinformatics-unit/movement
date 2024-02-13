@@ -46,6 +46,9 @@ def interp_pose(
     )
 
     # Logging
+    if "log" not in ds_interpolated.attrs.keys():
+        ds_interpolated.attrs["log"] = []
+
     log_entry = {
         "operation": "interp_pose",
         "method": method,
@@ -59,6 +62,7 @@ def interp_pose(
     if inplace:
         ds["pose_tracks"] = ds_interpolated["pose_tracks"]
         ds["confidence"] = ds_interpolated["confidence"]
+        ds.attrs["log"] = ds_interpolated.attrs["log"]
         return None
     else:
         return ds_interpolated
@@ -131,6 +135,7 @@ def filter_confidence(
     if inplace:
         ds["pose_tracks"] = ds_thresholded["pose_tracks"]
         ds["confidence"] = ds_thresholded["confidence"]
+        ds["log"] = ds_thresholded.attrs["log"]
         return None
     if not inplace:
         return ds_thresholded
