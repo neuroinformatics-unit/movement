@@ -33,33 +33,26 @@ def from_file(
     ----------
     file_path : pathlib.Path or str
         Path to the file containing predicted poses. The file format must
-        be among those supported by the from_dlc_file(), from_slp_file()
-        or from_lp_file() functions.
+        be among those supported by the ``from_dlc_file()``,
+        ``from_slp_file()`` or ``from_lp_file()`` functions,
+        since one of these functions will be called internally, based on
+        the value of ``source_software``.
     source_software : "DeepLabCut", "SLEAP" or "LightningPose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
     xarray.Dataset
         Dataset containing the pose tracks, confidence scores, and metadata.
 
-    Notes
-    -----
-    Identical to calling any of the functions from_dlc_file(),
-    from_sleap_file() or from_lp_file().
-
     See Also
     --------
-    movement.io.load_poses.from_dlc_file : Load pose tracks directly
-    from DeepLabCut files.
-    movement.io.load_poses.from_sleap_file : Load pose tracks directly
-    from SLEAP files.
-    movement.io.load_poses.from_lp_file : Load pose tracks directly
-    from LightningPose files.
-
+    movement.io.load_poses.from_dlc_file
+    movement.io.load_poses.from_sleap_file
+    movement.io.load_poses.from_lp_file
     """
 
     if source_software == "DeepLabCut":
