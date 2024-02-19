@@ -179,10 +179,9 @@ def fetch_sample_data(
         file for file in metadata if file["file_name"] == filename
     )
 
-    if file_metadata["source_software"] == "SLEAP":
-        ds = load_poses.from_sleap_file(file_path, fps=file_metadata["fps"])
-    elif file_metadata["source_software"] == "DeepLabCut":
-        ds = load_poses.from_dlc_file(file_path, fps=file_metadata["fps"])
-    elif file_metadata["source_software"] == "LightningPose":
-        ds = load_poses.from_lp_file(file_path, fps=file_metadata["fps"])
+    ds = load_poses.from_file(
+        file_path,
+        source_software=file_metadata["source_software"],
+        fps=file_metadata["fps"],
+    )
     return ds

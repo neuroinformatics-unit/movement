@@ -21,6 +21,52 @@ from movement.logging import log_error, log_warning
 logger = logging.getLogger(__name__)
 
 
+def from_file(
+    file_path: Union[Path, str],
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    fps: Optional[float] = None,
+) -> xr.Dataset:
+    """Load pose tracking data from a DeepLabCut (DLC), LightningPose (LP) or
+    SLEAP output file into an xarray Dataset.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the file containing predicted poses. The file format must
+        be among those supported by the ``from_dlc_file()``,
+        ``from_slp_file()`` or ``from_lp_file()`` functions,
+        since one of these functions will be called internally, based on
+        the value of ``source_software``.
+    source_software : "DeepLabCut", "SLEAP" or "LightningPose"
+        The source software of the file.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
+
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file
+    movement.io.load_poses.from_sleap_file
+    movement.io.load_poses.from_lp_file
+    """
+
+    if source_software == "DeepLabCut":
+        return from_dlc_file(file_path, fps)
+    elif source_software == "SLEAP":
+        return from_sleap_file(file_path, fps)
+    elif source_software == "LightningPose":
+        return from_lp_file(file_path, fps)
+    else:
+        raise log_error(
+            ValueError, f"Unsupported source software: {source_software}"
+        )
+
+
 def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
     """Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.
 

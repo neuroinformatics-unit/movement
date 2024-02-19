@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import h5py
 import numpy as np
 import pytest
@@ -239,3 +241,25 @@ class TestLoadPoses:
         file_path = POSE_DATA_PATHS.get("DLC_two-mice.predictions.csv")
         with pytest.raises(ValueError):
             load_poses.from_lp_file(file_path)
+
+    @pytest.mark.parametrize(
+        "source_software", ["SLEAP", "DeepLabCut", "LightningPose", "Unknown"]
+    )
+    @pytest.mark.parametrize("fps", [None, 30, 60.0])
+    def test_from_file_delegates_correctly(self, source_software, fps):
+        """Test that the from_file() function delegates to the correct
+        loader function according to the source_software."""
+
+        software_to_loader = {
+            "SLEAP": "movement.io.load_poses.from_sleap_file",
+            "DeepLabCut": "movement.io.load_poses.from_dlc_file",
+            "LightningPose": "movement.io.load_poses.from_lp_file",
+        }
+
+        if source_software == "Unknown":
+            with pytest.raises(ValueError, match="Unsupported source"):
+                load_poses.from_file("some_file", source_software)
+        else:
+            with patch(software_to_loader[source_software]) as mock_loader:
+                load_poses.from_file("some_file", source_software, fps)
+                mock_loader.assert_called_with("some_file", fps)

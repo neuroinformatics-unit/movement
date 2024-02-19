@@ -73,6 +73,11 @@ Then, depending on the source of your data, use one of the following functions:
 Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
+
+# or equivalently
+ds = load_poses.from_file(
+    "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
+)
 ```
 :::
 
@@ -86,6 +91,11 @@ ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 You may also load .csv files (assuming they are formatted as DeepLabCut expects them):
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
+
+# or equivalently
+ds = load_poses.from_file(
+    "/path/to/file.csv", source_software="DeepLabCut", fps=30
+)
 ```
 
 If you have already imported the data into a pandas DataFrame, you can
@@ -103,6 +113,11 @@ ds = load_poses.from_dlc_df(df, fps=30)
 Load from LightningPose (LP) files (.csv):
 ```python
 ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
+
+# or equivalently
+ds = load_poses.from_file(
+    "/path/to/file.analysis.csv", source_software="LightningPose", fps=30
+)
 ```
 :::
 
