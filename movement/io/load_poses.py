@@ -69,8 +69,8 @@ def from_file(
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
     else:
-        raise ValueError(
-            "Unsupported source software: {}".format(source_software)
+        raise log_error(
+            ValueError, f"Unsupported source software: {source_software}"
         )
 
 
