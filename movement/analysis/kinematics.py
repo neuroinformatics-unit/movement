@@ -1,36 +1,37 @@
 import numpy as np
 import xarray as xr
 
+from movement.logging import log_error
+
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute the displacement between consecutive x, y
-    locations of each keypoint of each individual.
+    """Compute the displacement between consecutive locations
+    of each keypoint of each individual across time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where
-        the last dimension contains the x and y coordinates.
+        The input data containing `time` as a dimension.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the computed displacement.
     """
-    displacement_xy = data.diff(dim="time")
-    displacement_xy = displacement_xy.reindex(data.coords, fill_value=0)
-    return displacement_xy
+    _validate_time_dimension(data)
+    result = data.diff(dim="time")
+    result = result.reindex(data.coords, fill_value=0)
+    return result
 
 
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
-    """Compute the velocity between consecutive x, y locations
-    of each keypoint of each individual.
+    """Compute the velocity between consecutive locations
+    of each keypoint of each individual across time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where the last
-        dimension contains the x and y coordinates.
+        The input data containing `time` as a dimension.
 
     Returns
     -------
@@ -41,14 +42,13 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
-    """Compute the acceleration between consecutive x, y
-    locations of each keypoint of each individual.
+    """Compute the acceleration between consecutive locations
+    of each keypoint of each individual.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where the last
-        dimension contains the x and y coordinates.
+        The input data containing `time` as a dimension.
 
     Returns
     -------
@@ -60,7 +60,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_approximate_derivative(
-    data: xr.DataArray, order: int = 1
+    data: xr.DataArray, order: int
 ) -> xr.DataArray:
     """Compute velocity or acceleration using numerical differentiation,
     assuming equidistant time spacing.
@@ -68,40 +68,50 @@ def compute_approximate_derivative(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data, assumed to be of shape (..., 2), where the last
-        dimension contains data in the x and y dimensions.
+        The input data containing `time` as a dimension.
     order : int
         The order of the derivative. 1 for velocity, 2 for
-        acceleration. Default is 1.
+        acceleration. Value must be a positive integer.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the derived variable.
     """
+    if not isinstance(order, int):
+        raise log_error(
+            TypeError, f"Order must be an integer, but got {type(order)}."
+        )
     if order <= 0:
-        raise ValueError("order must be a positive integer.")
-    else:
-        result = data
-        dt = data["time"].values[1] - data["time"].values[0]
-        for _ in range(order):
-            result = xr.apply_ufunc(
-                np.gradient,
-                result,
-                dt,
-                kwargs={"axis": 0},
-            )
-        result = result.reindex_like(data)
+        raise log_error(ValueError, "Order must be a positive integer.")
+    _validate_time_dimension(data)
+    result = data
+    dt = data["time"].values[1] - data["time"].values[0]
+    for _ in range(order):
+        result = xr.apply_ufunc(
+            np.gradient,
+            result,
+            dt,
+            kwargs={"axis": 0},
+        )
+    result = result.reindex_like(data)
     return result
 
 
-# Locomotion Features
-# speed
-# speed_centroid
-# acceleration
-# acceleration_centroid
-# speed_fwd
-# radial_vel
-# tangential_vel
-# speed_centroid_w(s)
-# speed_(p)_w(s)
+def _validate_time_dimension(data: xr.DataArray) -> None:
+    """Validate the input data contains a 'time' dimension.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input data does not contain a 'time' dimension.
+    """
+    if "time" not in data.dims:
+        raise log_error(
+            ValueError, "Input data must contain 'time' as a dimension."
+        )

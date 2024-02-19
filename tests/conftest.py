@@ -222,7 +222,7 @@ def valid_tracks_array():
             n_keypoints = 1
         elif array_type == "single_track_array":
             n_individuals = 1
-        x_points = np.repeat(base * 3, n_individuals * n_keypoints)
+        x_points = np.repeat(base * base, n_individuals * n_keypoints)
         y_points = np.repeat(base * 4, n_individuals * n_keypoints)
         tracks_array = np.ravel(np.column_stack((x_points, y_points)))
         return tracks_array.reshape(n_frames, n_individuals, n_keypoints, 2)
