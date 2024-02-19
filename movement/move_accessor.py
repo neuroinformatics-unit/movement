@@ -90,6 +90,7 @@ class MoveAccessor:
         xarray.DataArray
             The computed property.
         """
+        self.validate()
         if property not in self._obj:
             pose_tracks = self._obj[self.var_names[0]]
             self._obj[property] = compute_function(pose_tracks)
