@@ -21,7 +21,7 @@ class TestMoveAccessor:
         self, invalid_pose_dataset, kinematic_property
     ):
         """Test that accessing a property of an invalid pose dataset
-        raises a ValueError."""
+        raises the appropriate error."""
         expected_exception = (
             ValueError
             if isinstance(invalid_pose_dataset, xr.Dataset)
