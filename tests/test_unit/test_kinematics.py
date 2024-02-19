@@ -46,44 +46,6 @@ class TestKinematics:
 
         return _expected_dataarray
 
-    @pytest.fixture
-    def expected_dataset(self, valid_pose_dataset):
-        """Return a function to generate the expected dataset
-        for different kinematic properties."""
-
-        def _expected_dataset(name):
-            """Return an xarray.Dataset with expected norm and
-            theta values."""
-            dims = valid_pose_dataset.pose_tracks.dims[:-1]
-            ds = xr.Dataset(
-                data_vars={
-                    "norm": xr.DataArray(
-                        np.full((10, 2, 2), 5.0),
-                        dims=dims,
-                    ),
-                    "theta": xr.DataArray(
-                        np.full((10, 2, 2), 0.92729522),
-                        dims=dims,
-                    ),
-                },
-                coords={
-                    "time": valid_pose_dataset.time,
-                    "individuals": valid_pose_dataset.individuals,
-                    "keypoints": valid_pose_dataset.keypoints,
-                },
-            )
-            if name == "displacement":
-                # Set the first values to zero
-                ds.norm[0, :, :] = 0
-                ds.theta[0, :, :] = 0
-            elif name == "acceleration":
-                # Set all values to zero
-                ds.norm[:] = 0
-                ds.theta[:] = 0
-            return ds
-
-        return _expected_dataset
-
     def test_displacement(self, valid_pose_dataset, expected_dataarray):
         """Test displacement computation."""
         result = kinematics.compute_displacement(
