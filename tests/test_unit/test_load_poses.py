@@ -257,7 +257,7 @@ class TestLoadPoses:
         }
 
         if source_software == "Unknown":
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError, match="Unsupported source"):
                 load_poses.from_file("some_file", source_software)
         else:
             with patch(software_to_loader[source_software]) as mock_loader:
