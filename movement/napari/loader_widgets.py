@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from napari.utils.colormaps import ensure_colormap
 from napari.viewer import Viewer
+from pandas.api.types import CategoricalDtype
 from qtpy.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -122,9 +123,8 @@ class FileLoader(QWidget):
 
         common_kwargs = {"visible": True, "blending": "translucent"}
         n_individuals = len(self.props["individual"].unique())
-        n_keypoints = len(self.props["keypoint"].unique())
         color_by = "individual" if n_individuals > 1 else "keypoint"
-        n_colors = n_individuals if color_by == "individual" else n_keypoints
+        n_colors = len(self.props[color_by].unique())
 
         # kwargs for the napari Points layer
         points_kwargs = {
@@ -136,7 +136,7 @@ class FileLoader(QWidget):
             "edge_width": 0,
             "face_color": color_by,
             "face_color_cycle": sample_colormap(n_colors, "turbo"),
-            "face_colormap": "viridis",
+            "face_colormap": "turbo",
             "text": {"string": color_by, "visible": False},
         }
 
@@ -144,8 +144,10 @@ class FileLoader(QWidget):
         tracks_props = self.props.copy()
         # Track properties must be numeric, so convert str to categorical codes
         for col in ["individual", "keypoint"]:
-            tracks_props[col] = tracks_props[col].astype("category").cat.codes
-            logger.debug(f"{col} unique values {tracks_props[col].unique()}")
+            cat_dtype = CategoricalDtype(
+                categories=tracks_props[col].unique(), ordered=True
+            )
+            tracks_props[col] = tracks_props[col].astype(cat_dtype).cat.codes
 
         # kwargs for the napari Tracks layer
         tracks_kwargs = {
