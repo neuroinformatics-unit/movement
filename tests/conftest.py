@@ -266,7 +266,7 @@ def valid_pose_dataset(valid_tracks_array, request):
 
 @pytest.fixture
 def not_a_dataset():
-    """Return an invalid pose tracks dataset."""
+    """Return data that is not a pose tracks dataset."""
     return [1, 2, 3]
 
 
