@@ -1,10 +1,8 @@
 import logging
 from pathlib import Path
 
-import numpy as np
-from napari.utils.colormaps import ensure_colormap
+import pandas as pd
 from napari.viewer import Viewer
-from pandas.api.types import CategoricalDtype
 from qtpy.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -18,16 +16,21 @@ from qtpy.QtWidgets import (
 
 from movement.io import load_poses
 from movement.napari.convert import ds_to_napari_tracks
+from movement.napari.layer_styles import PointsStyle, TracksStyle
 
 logger = logging.getLogger(__name__)
 
 
-def sample_colormap(n: int, cmap_name: str) -> list[tuple]:
-    """Sample n equally-spaced colors from a napari colormap,
-    including the endpoints."""
-    cmap = ensure_colormap(cmap_name)
-    samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
-    return [tuple(cmap.colors[i]) for i in samples]
+def columns_to_categorical(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Convert columns in a DataFrame to ordered categorical data type. The
+    categories are the unique values in the column, ordered by appearance."""
+    new_df = df.copy()
+    for col in cols:
+        cat_dtype = pd.api.types.CategoricalDtype(
+            categories=df[col].unique().tolist(), ordered=True
+        )
+        new_df[col] = df[col].astype(cat_dtype).cat.codes
+    return new_df
 
 
 class FileLoader(QWidget):
@@ -120,49 +123,28 @@ class FileLoader(QWidget):
 
     def add_layers(self):
         """Add the predicted pose tracks and keypoints to the napari viewer."""
-
-        common_kwargs = {"visible": True, "blending": "translucent"}
         n_individuals = len(self.props["individual"].unique())
         color_by = "individual" if n_individuals > 1 else "keypoint"
-        n_colors = len(self.props[color_by].unique())
 
-        # kwargs for the napari Points layer
-        points_kwargs = {
-            **common_kwargs,
-            "name": f"Keypoints - {self.file_name}",
-            "properties": self.props,
-            "symbol": "disc",
-            "size": 10,
-            "edge_width": 0,
-            "face_color": color_by,
-            "face_color_cycle": sample_colormap(n_colors, "turbo"),
-            "face_colormap": "turbo",
-            "text": {"string": color_by, "visible": False},
-        }
+        # Style properties for the napari Points layer
+        points_style = PointsStyle(
+            name=f"Keypoints - {self.file_name}",
+            properties=self.props,
+        )
+        points_style.set_color_by(prop=color_by, cmap="turbo")
 
-        # Modify properties for the napari Tracks layer
-        tracks_props = self.props.copy()
         # Track properties must be numeric, so convert str to categorical codes
-        for col in ["individual", "keypoint"]:
-            cat_dtype = CategoricalDtype(
-                categories=tracks_props[col].unique(), ordered=True
-            )
-            tracks_props[col] = tracks_props[col].astype(cat_dtype).cat.codes
+        tracks_props = columns_to_categorical(
+            self.props, ["individual", "keypoint"]
+        )
 
         # kwargs for the napari Tracks layer
-        tracks_kwargs = {
-            **common_kwargs,
-            "name": f"Tracks - {self.file_name}",
-            "properties": tracks_props,
-            "tail_width": 5,
-            "tail_length": 60,
-            "head_length": 0,
-            "color_by": color_by,
-            "colormap": "turbo",
-        }
+        tracks_style = TracksStyle(
+            name=f"Tracks - {self.file_name}",
+            properties=tracks_props,
+        )
+        tracks_style.set_color_by(prop=color_by, cmap="turbo")
 
-        # Add the napari Tracks layer to the viewer
-        self.viewer.add_tracks(self.data, **tracks_kwargs)
-
-        # Add the napari Points layer to the viewer
-        self.viewer.add_points(self.data[:, 1:], **points_kwargs)
+        # Add the new layers to the napari viewer
+        self.viewer.add_tracks(self.data, **tracks_style.as_kwargs())
+        self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
