@@ -36,12 +36,6 @@ def columns_to_categorical(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
 class FileLoader(QWidget):
     """Widget for loading pose tracks from files into a napari viewer."""
 
-    loader_func_map = {
-        "DeepLabCut": load_poses.from_dlc_file,
-        "LightingPose": load_poses.from_lp_file,
-        "SLEAP": load_poses.from_sleap_file,
-    }
-
     file_suffix_map = {
         "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
         "LightingPose": "Files containing predicted poses (*.csv)",
@@ -110,9 +104,7 @@ class FileLoader(QWidget):
     def load_file(self, file_path):
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
-        loader_func = self.loader_func_map[source_software]
-        logger.debug(f"Using {loader_func}.")
-        ds = loader_func(file_path, fps)
+        ds = load_poses.from_file(file_path, source_software, fps)
 
         self.data, self.props = ds_to_napari_tracks(ds)
         logger.info("Converted pose tracks to a napari Tracks array.")
