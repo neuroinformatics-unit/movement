@@ -217,7 +217,9 @@ def valid_tracks_array():
         n_frames = 10
         n_individuals = 2
         n_keypoints = 2
-        base = np.arange(n_frames)[:, np.newaxis, np.newaxis, np.newaxis]
+        base = np.arange(n_frames, dtype=float)[
+            :, np.newaxis, np.newaxis, np.newaxis
+        ]
         if array_type == "single_keypoint_array":
             n_keypoints = 1
         elif array_type == "single_track_array":
@@ -262,6 +264,15 @@ def valid_pose_dataset(valid_tracks_array, request):
             "source_file": "test.h5",
         },
     )
+
+
+@pytest.fixture
+def valid_pose_dataset_with_nan(valid_pose_dataset):
+    """Return a valid pose tracks dataset with NaN values."""
+    valid_pose_dataset.pose_tracks.loc[
+        {"individuals": "ind1", "time": [3, 7, 8]}
+    ] = np.nan
+    return valid_pose_dataset
 
 
 @pytest.fixture
