@@ -9,7 +9,7 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.io.poses_accessor import MoveAccessor
+from movement.io.move_accessor import MoveAccessor
 from movement.io.validators import (
     ValidFile,
     ValidHDF5,

@@ -1,1 +1,1 @@
-from .poses_accessor import MoveAccessor
+from .move_accessor import MoveAccessor
