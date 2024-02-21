@@ -321,7 +321,7 @@ def _from_lp_or_dlc_file(
     # validation call in from_dlc_df was run with source_software="DeepLabCut")
     # This rerun enforces a single individual for LightningPose datasets.
     if source_software == "LightningPose":
-        ds.poses.validate()
+        ds.move.validate()
 
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)

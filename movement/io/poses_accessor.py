@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 xr.set_options(keep_attrs=True)
 
 
-@xr.register_dataset_accessor("poses")
+@xr.register_dataset_accessor("move")
 class PosesAccessor:
     """An accessor that extends an `xarray.Dataset` object.
 
@@ -42,7 +42,7 @@ class PosesAccessor:
     See [1]_ for more details.
 
     Methods/properties that are specific to this class can be used via
-    the `.poses` accessor, e.g. `ds.poses.to_dlc_df()`.
+    the `.move` accessor, e.g. `ds.move.to_dlc_df()`.
 
     References
     ----------
