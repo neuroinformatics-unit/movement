@@ -21,17 +21,17 @@ def interpolate_over_time(
         Dataset containing pose tracks, confidence scores, and metadata.
     method : str
         String indicating which method to use for interpolation.
-        Default is `linear`. See documentation for
-        `xarray.DataSet.interpolate_na` for complete list of options.
+        Default is ``linear``. See documentation for
+        ``xarray.DataSet.interpolate_na`` for complete list of options.
     limit : int | None
         Maximum number of consecutive NaNs to interpolate over.
-        `None` indicates no limit, and is the default value.
-    max_gap : TODO: Clarify the difference between `limit` & `max_gap`
+        ``None`` indicates no limit, and is the default value.
+    max_gap :
         The largest gap of consecutive NaNs that will be
-        interpolated over. The default value is `None`.
+        interpolated over. The default value is ``None``.
     inplace: bool
         If true, updates the provided DataSet in place and returns
-        `None`.
+        ``None``.
 
     Returns
     -------
@@ -39,8 +39,7 @@ def interpolate_over_time(
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
     """
-    # TODO: This method interpolates over confidence values as well.
-    #  -> Figure out whether this is the desired default behavior.
+
     ds_interpolated = ds.interpolate_na(
         dim="time", method=method, limit=limit, max_gap=max_gap
     )
@@ -84,10 +83,10 @@ def filter_by_confidence(
         Dataset containing pose tracks, confidence scores, and metadata.
     threshold : float
         The confidence threshold below which datapoints are filtered.
-        A default value of `0.6` is used.
+        A default value of ``0.6`` is used.
     inplace : bool
         If true, updates the provided DataSet in place and returns
-        `None`.
+        ``None``.
     interp : bool
         If true, NaNs are interpolated over using `interp_pose` with
         default parameters.
@@ -111,10 +110,6 @@ def filter_by_confidence(
         n_points = ds.time.values.shape[0]
         prop_nans = round((n_nans / n_points) * 100, 2)
         print(f"{kp}: {n_nans}/{n_points} ({prop_nans}%)")
-
-    # TODO: Is this enough diagnostics? Should I write logic to allow
-    #  users to optionally plot out confidence distributions + imposed
-    #  threshold?
 
     # Logging
     if "log" not in ds_thresholded.attrs.keys():
