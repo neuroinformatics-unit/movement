@@ -5,7 +5,7 @@ import numpy as np
 import xarray as xr
 
 
-def interp_pose(
+def interpolate_over_time(
     ds: xr.Dataset,
     method: str = "linear",
     limit: Union[int, None] = None,
@@ -68,7 +68,7 @@ def interp_pose(
         return ds_interpolated
 
 
-def filter_confidence(
+def filter_by_confidence(
     ds: xr.Dataset,
     threshold: float = 0.6,
     inplace: bool = False,
@@ -130,7 +130,7 @@ def filter_confidence(
 
     # Interpolation
     if interp:
-        interp_pose(ds_thresholded, inplace=True)
+        interpolate_over_time(ds_thresholded, inplace=True)
 
     if inplace:
         ds["pose_tracks"] = ds_thresholded["pose_tracks"]
