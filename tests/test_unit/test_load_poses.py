@@ -8,7 +8,7 @@ from pytest import POSE_DATA_PATHS
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
-from movement.io import PosesAccessor, load_poses
+from movement.io import MoveAccessor, load_poses
 
 
 class TestLoadPoses:
@@ -78,7 +78,7 @@ class TestLoadPoses:
         assert dataset.pose_tracks.ndim == 4
         assert dataset.confidence.shape == dataset.pose_tracks.shape[:-1]
         # Check the dims and coords
-        DIM_NAMES = PosesAccessor.dim_names
+        DIM_NAMES = MoveAccessor.dim_names
         assert all([i in dataset.dims for i in DIM_NAMES])
         for d, dim in enumerate(DIM_NAMES[1:]):
             assert dataset.dims[dim] == dataset.pose_tracks.shape[d + 1]

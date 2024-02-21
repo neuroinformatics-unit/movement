@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.io import PosesAccessor
+from movement.io import MoveAccessor
 from movement.logging import configure_logging
 from movement.sample_data import fetch_sample_data_path, list_sample_data
 
@@ -225,17 +225,14 @@ def valid_tracks_array():
 @pytest.fixture
 def valid_pose_dataset(valid_tracks_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = PosesAccessor.dim_names
-
+    dim_names = MoveAccessor.dim_names
     # create a multi_track_array by default unless overriden via param
     try:
         array_format = request.param
     except AttributeError:
         array_format = "multi_track_array"
-
     tracks_array = valid_tracks_array(array_format)
     n_individuals, n_keypoints = tracks_array.shape[1:3]
-
     return xr.Dataset(
         data_vars={
             "pose_tracks": xr.DataArray(tracks_array, dims=dim_names),

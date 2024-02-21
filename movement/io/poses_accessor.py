@@ -12,7 +12,7 @@ xr.set_options(keep_attrs=True)
 
 
 @xr.register_dataset_accessor("move")
-class PosesAccessor:
+class MoveAccessor:
     """An accessor that extends an `xarray.Dataset` object.
 
     The `xarray.Dataset` has the following dimensions:
