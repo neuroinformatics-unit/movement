@@ -273,14 +273,14 @@ def empty_dataset():
 
 @pytest.fixture
 def missing_var_dataset(valid_pose_dataset):
-    """Return a pose tracks dataset missing a variable."""
+    """Return a pose tracks dataset missing an expected variable."""
     return valid_pose_dataset.drop_vars("pose_tracks")
 
 
 @pytest.fixture
 def missing_dim_dataset(valid_pose_dataset):
-    """Return a pose tracks dataset missing a dimension."""
-    return valid_pose_dataset.drop_dims("time")
+    """Return a pose tracks dataset missing an expected dimension."""
+    return valid_pose_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture(
