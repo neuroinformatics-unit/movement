@@ -9,8 +9,8 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.io import MoveAccessor
 from movement.logging import configure_logging
+from movement.move_accessor import MoveAccessor
 from movement.sample_data import fetch_sample_data_path, list_sample_data
 
 

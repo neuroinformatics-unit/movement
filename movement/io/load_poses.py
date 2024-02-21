@@ -9,7 +9,6 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.io.move_accessor import MoveAccessor
 from movement.io.validators import (
     ValidFile,
     ValidHDF5,
@@ -17,6 +16,7 @@ from movement.io.validators import (
     ValidPoseTracks,
 )
 from movement.logging import log_error, log_warning
+from movement.move_accessor import MoveAccessor
 
 logger = logging.getLogger(__name__)
 

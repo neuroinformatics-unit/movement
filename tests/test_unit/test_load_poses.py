@@ -8,7 +8,8 @@ from pytest import POSE_DATA_PATHS
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
-from movement.io import MoveAccessor, load_poses
+from movement.io import load_poses
+from movement.move_accessor import MoveAccessor
 
 
 class TestLoadPoses:
