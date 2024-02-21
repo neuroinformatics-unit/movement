@@ -71,6 +71,16 @@ class PosesAccessor:
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:
+            missing_dims = set(self.dim_names) - set(self._obj.dims)
+            missing_vars = set(self.var_names) - set(self._obj.data_vars)
+            if missing_dims:
+                raise ValueError(
+                    f"Missing required dimensions: {missing_dims}"
+                )
+            if missing_vars:
+                raise ValueError(
+                    f"Missing required data variables: {missing_vars}"
+                )
             ValidPoseTracks(
                 tracks_array=self._obj[self.var_names[0]].values,
                 scores_array=self._obj[self.var_names[1]].values,
