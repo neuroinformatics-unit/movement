@@ -13,40 +13,44 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MoveAccessor:
-    """An accessor that extends an `xarray.Dataset` object.
+    """An accessor that extends an xarray Dataset object.
 
-    The `xarray.Dataset` has the following dimensions:
-    - `time`: the number of frames in the video
-    - `individuals`: the number of individuals in the video
-    - `keypoints`: the number of keypoints in the skeleton
-    - `space`: the number of spatial dimensions, either 2 or 3
+    The xarray Dataset has the following dimensions:
+        - ``time``: the number of frames in the video
+        - ``individuals``: the number of individuals in the video
+        - ``keypoints``: the number of keypoints in the skeleton
+        - ``space``: the number of spatial dimensions, either 2 or 3
 
     Appropriate coordinate labels are assigned to each dimension:
-    list of unique names (str) for `individuals` and `keypoints`,
-    ['x','y',('z')] for `space`. The coordinates of the `time` dimension are
-    in seconds if `fps` is provided, otherwise they are in frame numbers.
+    list of unique names (str) for ``individuals`` and ``keypoints``,
+    ['x','y',('z')] for ``space``. The coordinates of the ``time`` dimension
+    are in seconds if ``fps`` is provided, otherwise they are in frame numbers.
 
-    The dataset contains two data variables (`xarray.DataArray` objects):
-    - `pose_tracks`: with shape (`time`, `individuals`, `keypoints`, `space`)
-    - `confidence`: with shape (`time`, `individuals`, `keypoints`)
+    The dataset contains two data variables (xarray DataArray objects):
+        - ``pose_tracks``: with shape (``time``, ``individuals``,
+          ``keypoints``, ``space``)
+        - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)
 
     The dataset may also contain following attributes as metadata:
-    - `fps`: the number of frames per second in the video
-    - `time_unit`: the unit of the `time` coordinates, frames or seconds
-    - `source_software`: the software from which the pose tracks were loaded
-    - `source_file`: the file from which the pose tracks were loaded
+        - ``fps``: the number of frames per second in the video
+        - ``time_unit``: the unit of the ``time`` coordinates, frames or
+          seconds
+        - ``source_software``: the software from which the pose tracks were
+          loaded
+        - ``source_file``: the file from which the pose tracks were
+          loaded
 
     Notes
     -----
-    Using an acessor is the recommended way to extend xarray objects.
+    Using an accessor is the recommended way to extend xarray objects.
     See [1]_ for more details.
 
     Methods/properties that are specific to this class can be used via
-    the `.move` accessor, e.g. `ds.move.to_dlc_df()`.
+    the ``.move`` accessor, e.g. ``ds.move.validate()``.
 
     References
     ----------
-    .. _1: https://docs.xarray.dev/en/stable/internals/extending-xarray.html
+    .. [1] https://docs.xarray.dev/en/stable/internals/extending-xarray.html
     """
 
     # Names of the expected dimensions in the dataset
