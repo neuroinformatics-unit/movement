@@ -437,4 +437,4 @@ def _validate_dataset(ds: xr.Dataset) -> None:
         raise log_error(
             ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
         )
-    ds.poses.validate()  # validate the dataset
+    ds.move.validate()  # validate the dataset

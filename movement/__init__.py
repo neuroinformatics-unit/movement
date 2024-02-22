@@ -1,4 +1,5 @@
 from importlib.metadata import PackageNotFoundError, version
+
 from movement.logging import configure_logging
 
 try:
