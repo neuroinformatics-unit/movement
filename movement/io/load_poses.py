@@ -9,7 +9,6 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.io.poses_accessor import PosesAccessor
 from movement.io.validators import (
     ValidFile,
     ValidHDF5,
@@ -17,6 +16,7 @@ from movement.io.validators import (
     ValidPoseTracks,
 )
 from movement.logging import log_error, log_warning
+from movement.move_accessor import MoveAccessor
 
 logger = logging.getLogger(__name__)
 
@@ -321,7 +321,7 @@ def _from_lp_or_dlc_file(
     # validation call in from_dlc_df was run with source_software="DeepLabCut")
     # This rerun enforces a single individual for LightningPose datasets.
     if source_software == "LightningPose":
-        ds.poses.validate()
+        ds.move.validate()
 
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
@@ -576,7 +576,7 @@ def _from_valid_data(data: ValidPoseTracks) -> xr.Dataset:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = PosesAccessor.dim_names
+    DIM_NAMES = MoveAccessor.dim_names
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
