@@ -45,28 +45,28 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = [
-  "napari[all]>=0.4.18", "napari-video", "brainglobe-utils[napari]>=0.4"
+  "napari[all]>=0.4.18",
+  "napari-video",
+  "brainglobe-utils[napari]>=0.4",
 ]
 
 dev = [
-    "pytest",
-    "pytest-cov",
-    "pytest-qt",
-    "coverage",
-    "tox",
-    "black",
-    "mypy",
-    "pre-commit",
-    "ruff",
-    "setuptools_scm",
-    "pandas-stubs",
-    "types-attrs",
-    "check-manifest",
-    "types-PyYAML",
-    "types-requests",
-    "napari[all]>=0.4.18",
-    "napari-video",
-    "brainglobe-utils[napari]>=0.4",
+  "pytest",
+  "pytest-cov",
+  "pytest-qt",
+  "coverage",
+  "tox",
+  "black",
+  "mypy",
+  "pre-commit",
+  "ruff",
+  "setuptools_scm",
+  "pandas-stubs",
+  "types-attrs",
+  "check-manifest",
+  "types-PyYAML",
+  "types-requests",
+  "movement[napari]",
 ]
 
 [build-system]
