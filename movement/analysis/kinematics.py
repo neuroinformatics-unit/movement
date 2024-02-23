@@ -5,13 +5,13 @@ from movement.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute the displacement between consecutive locations
-    of each keypoint of each individual across time.
+    """Compute the displacement between consecutive positions
+    of each keypoint for each individual across time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing `time` as a dimension.
+        The input data containing ``time`` as a dimension.
 
     Returns
     -------
@@ -25,36 +25,45 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
-    """Compute the velocity between consecutive locations
-    of each keypoint of each individual across time.
+    """Compute the velocity between consecutive positions
+    of each keypoint for each individual across time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing `time` as a dimension.
+        The input data containing ``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray Dataset containing the computed velocity.
+        An xarray DataArray containing the computed velocity.
+
+    Notes
+    -----
+    This function computes velocity using numerical differentiation
+    and assumes equidistant time spacing.
     """
     return _compute_approximate_derivative(data, order=1)
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
-    """Compute the acceleration between consecutive locations
-    of each keypoint of each individual.
+    """Compute the acceleration between consecutive positions
+    of each keypoint for each individual across time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing `time` as a dimension.
+        The input data containing ``time`` as a dimension.
 
     Returns
     -------
-    xarray.Dataset
-        An xarray Dataset containing the magnitude and direction
-        of acceleration.
+    xarray.DataArray
+        An xarray DataArray containing the computed acceleration.
+
+    Notes
+    -----
+    This function computes acceleration using numerical differentiation
+    and assumes equidistant time spacing.
     """
     return _compute_approximate_derivative(data, order=2)
 
@@ -68,7 +77,7 @@ def _compute_approximate_derivative(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing `time` as a dimension.
+        The input data containing ``time`` as a dimension.
     order : int
         The order of the derivative. 1 for velocity, 2 for
         acceleration. Value must be a positive integer.
@@ -99,7 +108,7 @@ def _compute_approximate_derivative(
 
 
 def _validate_time_dimension(data: xr.DataArray) -> None:
-    """Validate the input data contains a 'time' dimension.
+    """Validate the input data contains a ``time`` dimension.
 
     Parameters
     ----------
@@ -109,7 +118,7 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
     Raises
     ------
     ValueError
-        If the input data does not contain a 'time' dimension.
+        If the input data does not contain a ``time`` dimension.
     """
     if "time" not in data.dims:
         raise log_error(
