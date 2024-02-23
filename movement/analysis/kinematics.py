@@ -38,7 +38,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray Dataset containing the computed velocity.
     """
-    return compute_approximate_derivative(data, order=1)
+    return _compute_approximate_derivative(data, order=1)
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
@@ -56,10 +56,10 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
         An xarray Dataset containing the magnitude and direction
         of acceleration.
     """
-    return compute_approximate_derivative(data, order=2)
+    return _compute_approximate_derivative(data, order=2)
 
 
-def compute_approximate_derivative(
+def _compute_approximate_derivative(
     data: xr.DataArray, order: int
 ) -> xr.DataArray:
     """Compute velocity or acceleration using numerical differentiation,
