@@ -1,8 +1,9 @@
 import logging
-from typing import ClassVar
+from typing import Callable, ClassVar
 
 import xarray as xr
 
+from movement.analysis import kinematics
 from movement.io.validators import ValidPoseTracks
 
 logger = logging.getLogger(__name__)
@@ -13,9 +14,10 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MoveAccessor:
-    """An accessor that extends an xarray Dataset object.
+    """An accessor that extends an xarray Dataset by implementing
+    `movement`-specific properties and methods.
 
-    The xarray Dataset has the following dimensions:
+    The xarray Dataset contains the following expected dimensions:
         - ``time``: the number of frames in the video
         - ``individuals``: the number of individuals in the video
         - ``keypoints``: the number of keypoints in the skeleton
@@ -26,10 +28,17 @@ class MoveAccessor:
     ['x','y',('z')] for ``space``. The coordinates of the ``time`` dimension
     are in seconds if ``fps`` is provided, otherwise they are in frame numbers.
 
-    The dataset contains two data variables (xarray DataArray objects):
+    The dataset contains two expected data variables (xarray DataArrays):
         - ``pose_tracks``: with shape (``time``, ``individuals``,
           ``keypoints``, ``space``)
         - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)
+
+    When accessing a ``.move`` property (e.g. ``displacement``, ``velocity``,
+    ``acceleration``) for the first time, the property is computed and stored
+    as a data variable with the same name in the dataset. The ``.move``
+    accessor can be omitted in subsequent accesses, i.e.
+    ``ds.move.displacement`` and ``ds.displacement`` will return the same data
+    variable.
 
     The dataset may also contain following attributes as metadata:
         - ``fps``: the number of frames per second in the video
@@ -45,7 +54,7 @@ class MoveAccessor:
     Using an accessor is the recommended way to extend xarray objects.
     See [1]_ for more details.
 
-    Methods/properties that are specific to this class can be used via
+    Methods/properties that are specific to this class can be accessed via
     the ``.move`` accessor, e.g. ``ds.move.validate()``.
 
     References
@@ -69,6 +78,56 @@ class MoveAccessor:
 
     def __init__(self, ds: xr.Dataset):
         self._obj = ds
+
+    def _compute_property(
+        self,
+        property: str,
+        compute_function: Callable[[xr.DataArray], xr.DataArray],
+    ) -> xr.DataArray:
+        """Compute a kinematic property and store it in the dataset.
+
+        Parameters
+        ----------
+        property : str
+            The name of the property to compute.
+        compute_function : Callable[[xarray.DataArray], xarray.DataArray]
+            The function to compute the property.
+
+        Returns
+        -------
+        xarray.DataArray
+            The computed property.
+        """
+        self.validate()
+        if property not in self._obj:
+            pose_tracks = self._obj[self.var_names[0]]
+            self._obj[property] = compute_function(pose_tracks)
+        return self._obj[property]
+
+    @property
+    def displacement(self) -> xr.DataArray:
+        """Return the displacement between consecutive positions
+        of each keypoint for each individual across time.
+        """
+        return self._compute_property(
+            "displacement", kinematics.compute_displacement
+        )
+
+    @property
+    def velocity(self) -> xr.DataArray:
+        """Return the velocity between consecutive positions
+        of each keypoint for each individual across time.
+        """
+        return self._compute_property("velocity", kinematics.compute_velocity)
+
+    @property
+    def acceleration(self) -> xr.DataArray:
+        """Return the acceleration between consecutive positions
+        of each keypoint for each individual across time.
+        """
+        return self._compute_property(
+            "acceleration", kinematics.compute_acceleration
+        )
 
     def validate(self) -> None:
         """Validate the PoseTracks dataset."""
