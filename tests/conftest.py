@@ -212,12 +212,22 @@ def valid_tracks_array():
 
     def _valid_tracks_array(array_type):
         """Return a valid tracks array."""
+        # Unless specified, default is a multi_track_array with
+        # 10 frames, 2 individuals, and 2 keypoints.
+        n_frames = 10
+        n_individuals = 2
+        n_keypoints = 2
+        base = np.arange(n_frames, dtype=float)[
+            :, np.newaxis, np.newaxis, np.newaxis
+        ]
         if array_type == "single_keypoint_array":
-            return np.zeros((10, 2, 1, 2))
+            n_keypoints = 1
         elif array_type == "single_track_array":
-            return np.zeros((10, 1, 2, 2))
-        else:  # "multi_track_array":
-            return np.zeros((10, 2, 2, 2))
+            n_individuals = 1
+        x_points = np.repeat(base * base, n_individuals * n_keypoints)
+        y_points = np.repeat(base * 4, n_individuals * n_keypoints)
+        tracks_array = np.ravel(np.column_stack((x_points, y_points)))
+        return tracks_array.reshape(n_frames, n_individuals, n_keypoints, 2)
 
     return _valid_tracks_array
 
@@ -237,7 +247,7 @@ def valid_pose_dataset(valid_tracks_array, request):
         data_vars={
             "pose_tracks": xr.DataArray(tracks_array, dims=dim_names),
             "confidence": xr.DataArray(
-                tracks_array[..., 0],
+                np.ones(tracks_array.shape[:-1]),
                 dims=dim_names[:-1],
             ),
         },
@@ -257,8 +267,17 @@ def valid_pose_dataset(valid_tracks_array, request):
 
 
 @pytest.fixture
+def valid_pose_dataset_with_nan(valid_pose_dataset):
+    """Return a valid pose tracks dataset with NaN values."""
+    valid_pose_dataset.pose_tracks.loc[
+        {"individuals": "ind1", "time": [3, 7, 8]}
+    ] = np.nan
+    return valid_pose_dataset
+
+
+@pytest.fixture
 def not_a_dataset():
-    """Return an invalid pose tracks dataset."""
+    """Return data that is not a pose tracks dataset."""
     return [1, 2, 3]
 
 
@@ -289,4 +308,11 @@ def missing_dim_dataset(valid_pose_dataset):
     ]
 )
 def invalid_pose_dataset(request):
+    """Return an invalid pose tracks dataset."""
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture(params=["displacement", "velocity", "acceleration"])
+def kinematic_property(request):
+    """Return a kinematic property."""
+    return request.param

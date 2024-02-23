@@ -44,6 +44,24 @@ Sample Data
     fetch_sample_data_path
     fetch_sample_data
 
+Analysis
+-----------
+.. currentmodule:: movement.analysis.kinematics
+.. autosummary::
+    :toctree: api
+
+    compute_displacement
+    compute_velocity
+    compute_acceleration
+
+Move Accessor
+-------------
+.. currentmodule:: movement.move_accessor
+.. autosummary::
+    :toctree: api
+
+    MoveAccessor
+
 Logging
 -------
 .. currentmodule:: movement.logging
