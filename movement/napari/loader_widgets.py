@@ -38,7 +38,7 @@ class FileLoader(QWidget):
 
     file_suffix_map = {
         "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
-        "LightingPose": "Files containing predicted poses (*.csv)",
+        "LightningPose": "Files containing predicted poses (*.csv)",
         "SLEAP": "Files containing predicted poses (*.h5 *.slp)",
     }
 
