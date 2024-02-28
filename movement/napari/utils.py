@@ -1,4 +1,11 @@
+import logging
+
 import pandas as pd
+from napari.settings import get_settings
+
+from movement.logging import log_error
+
+logger = logging.getLogger(__name__)
 
 
 def columns_to_categorical_codes(
@@ -14,3 +21,15 @@ def columns_to_categorical_codes(
         )
         new_df[col] = df[col].astype(cat_dtype).cat.codes
     return new_df
+
+
+def set_playback_fps(fps: int):
+    """Set the playback speed for the napari viewer."""
+    # Check that the passed fps is a positive integer > 0 and < 1000
+    if not isinstance(fps, int) or fps < 1 or fps > 1000:
+        raise log_error(
+            ValueError,
+            "Playback fps must be a positive integer between 1 and 1000.",
+        )
+    settings = get_settings()
+    settings.application.playback_fps = fps

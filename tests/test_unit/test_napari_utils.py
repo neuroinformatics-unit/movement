@@ -1,7 +1,11 @@
 import pandas as pd
 import pytest
+from napari.settings import get_settings
 
-from movement.napari.utils import columns_to_categorical_codes
+from movement.napari.utils import (
+    columns_to_categorical_codes,
+    set_playback_fps,
+)
 
 
 @pytest.fixture
@@ -30,3 +34,17 @@ def test_columns_to_categorical_codes(df, cols):
             )
         else:
             pd.testing.assert_series_equal(new_df[col], df[col])
+
+
+@pytest.mark.parametrize("fps", [-1, 0, 10, "str", 10.1, 60, 2000])
+def test_set_playback_fps(fps):
+    """Test that the playback speed for the napari viewer is set."""
+    if fps in [10, 60]:  # valid fps values
+        set_playback_fps(fps)
+        settings = get_settings()
+        assert settings.application.playback_fps == fps
+    else:  # invalid fps values
+        with pytest.raises(
+            ValueError, match="positive integer between 1 and 1000."
+        ):
+            set_playback_fps(fps)
