@@ -16,7 +16,10 @@ from qtpy.QtWidgets import (
 from movement.io import load_poses
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle, TracksStyle
-from movement.napari.utils import columns_to_categorical_codes
+from movement.napari.utils import (
+    columns_to_categorical_codes,
+    set_playback_fps,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +103,9 @@ class FileLoader(QWidget):
 
         self.file_name = Path(file_path).name
         self.add_layers()
+
+        set_playback_fps(fps)
+        logger.debug(f"Set napari playback speed to {fps} fps.")
 
     def add_layers(self):
         """Add the predicted pose tracks and keypoints to the napari viewer."""
