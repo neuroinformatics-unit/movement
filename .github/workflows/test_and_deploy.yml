@@ -29,8 +29,10 @@ jobs:
         # Run all supported Python versions on linux
         python-version: ["3.9", "3.10", "3.11"]
         os: [ubuntu-latest]
-        # Include one windows and macOS run
+        # Include 1 windows, 1 Intel mac and 1 M1 mac (macos-14) run
         include:
+        - os: macos-14
+          python-version: "3.10"
         - os: macos-latest
           python-version: "3.10"
         - os: windows-latest
