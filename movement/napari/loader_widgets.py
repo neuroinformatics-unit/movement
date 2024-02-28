@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 
-import pandas as pd
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
@@ -17,20 +16,9 @@ from qtpy.QtWidgets import (
 from movement.io import load_poses
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle, TracksStyle
+from movement.napari.utils import columns_to_categorical_codes
 
 logger = logging.getLogger(__name__)
-
-
-def columns_to_categorical(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
-    """Convert columns in a DataFrame to ordered categorical data type. The
-    categories are the unique values in the column, ordered by appearance."""
-    new_df = df.copy()
-    for col in cols:
-        cat_dtype = pd.api.types.CategoricalDtype(
-            categories=df[col].unique().tolist(), ordered=True
-        )
-        new_df[col] = df[col].astype(cat_dtype).cat.codes
-    return new_df
 
 
 class FileLoader(QWidget):
@@ -126,7 +114,7 @@ class FileLoader(QWidget):
         points_style.set_color_by(prop=color_by, cmap="turbo")
 
         # Track properties must be numeric, so convert str to categorical codes
-        tracks_props = columns_to_categorical(
+        tracks_props = columns_to_categorical_codes(
             self.props, ["individual", "keypoint"]
         )
 
