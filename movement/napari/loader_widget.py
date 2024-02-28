@@ -41,6 +41,7 @@ class Loader(QWidget):
         self.create_source_software_widget()
         self.create_fps_widget()
         self.create_file_path_widget()
+        self.create_load_button()
 
     def create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -66,12 +67,17 @@ class Loader(QWidget):
         self.file_path_edit = QLineEdit()
         self.browse_button = QPushButton("browse")
         self.browse_button.clicked.connect(self.open_file_dialog)
-        self.file_path_edit.returnPressed.connect(self.load_file_from_edit)
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
-        self.layout().addRow("Pose file:", self.file_path_layout)
+        self.layout().addRow("pose file:", self.file_path_layout)
+
+    def create_load_button(self):
+        """Create a button to load the file and add layers to the viewer."""
+        self.load_button = QPushButton("Load")
+        self.load_button.clicked.connect(lambda: self.load_file())
+        self.layout().addRow(self.load_button)
 
     def open_file_dialog(self):
         dlg = QFileDialog()
@@ -84,17 +90,14 @@ class Loader(QWidget):
             file_paths = dlg.selectedFiles()
             # Set the file path in the line edit
             self.file_path_edit.setText(file_paths[0])
-            # Load the file immediately after selection
-            self.load_file(file_paths[0])
 
-    def load_file_from_edit(self):
-        # Load the file based on the path in the QLineEdit
-        file_path = self.file_path_edit.text()
-        self.load_file(file_path)
-
-    def load_file(self, file_path):
+    def load_file(self):
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
+        file_path = self.file_path_edit.text()
+        if file_path == "":
+            logger.warning("No file path specified.")
+            return
         ds = load_poses.from_file(file_path, source_software, fps)
 
         self.data, self.props = ds_to_napari_tracks(ds)
