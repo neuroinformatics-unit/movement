@@ -8,18 +8,17 @@ We recommend you install movement inside a [conda](conda:)
 or [mamba](mamba:) environment, to avoid dependency conflicts with other packages.
 In the following we assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
+:::
 
-
-First, create and activate an environment.
+First, create and activate an environment with some prerequisites.
 You can call your environment whatever you like, we've used "movement-env".
 
 ```sh
-conda create -n movement-env python=3.10
+conda create -n movement-env -c conda-forge python=3.10 hdf5
 conda activate movement-env
 ```
 
 Then install the `movement` package as described below.
-:::
 
 ::::{tab-set}
 

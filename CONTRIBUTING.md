@@ -9,12 +9,15 @@ or [mamba](mamba:) to create a
 development environment for movement. In the following we assume you have
 `conda` installed, but the same commands will also work with `mamba`/`micromamba`.
 
-First, create and activate a `conda` environment:
+First, create and activate a `conda` environment with some prerequisites:
 
 ```sh
-conda create -n movement-dev python=3.10
+conda create -n movement-dev -c conda-forge python=3.10 hdf5
 conda activate movement-dev
 ```
+
+The above method ensures that you will get packages that often can't be
+installed via `pip`, including [hdf5](https://www.hdfgroup.org/solutions/hdf5/).
 
 To install movement for development, clone the GitHub repository,
 and then run from inside the repository:

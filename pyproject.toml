@@ -1,37 +1,37 @@
 [project]
 name = "movement"
 authors = [
-  {name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com"},
-  {name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk"},
+  { name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com" },
+  { name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk" },
 ]
 description = "Analysis of body movement"
 readme = "README.md"
 requires-python = ">=3.9.0"
 dynamic = ["version"]
 
-license = {text = "BSD-3-Clause"}
+license = { text = "BSD-3-Clause" }
 
 dependencies = [
-    "numpy",
-    "pandas[hdf5]",
-    "h5py",
-    "attrs",
-    "pooch",
-    "tqdm",
-    "sleap-io",
-    "xarray[accel]",
-    "PyYAML",
+  "numpy",
+  "pandas[hdf5]",
+  "h5py",
+  "attrs",
+  "pooch",
+  "tqdm",
+  "sleap-io",
+  "xarray[accel]",
+  "PyYAML",
 ]
 
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent",
-    "License :: OSI Approved :: BSD License",
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Operating System :: OS Independent",
+  "License :: OSI Approved :: BSD License",
 ]
 
 [project.urls]
@@ -60,11 +60,7 @@ dev = [
 ]
 
 [build-system]
-requires = [
-    "setuptools>=45",
-    "wheel",
-    "setuptools_scm[toml]>=6.2",
-]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -97,16 +93,12 @@ ignore = [
 ]
 
 [[tool.mypy.overrides]]
-module = [
-  "pooch.*",
-  "h5py.*",
-  "sleap_io.*",
-]
+module = ["pooch.*", "h5py.*", "sleap_io.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 79
-exclude = ["__init__.py","build",".eggs"]
+exclude = ["__init__.py", "build", ".eggs"]
 select = ["I", "E", "F"]
 fix = true
 
@@ -119,6 +111,7 @@ archs = ["x86_64", "arm64"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
+requires = tox-conda
 envlist = py{39,310,311}
 isolated_build = True
 
@@ -129,6 +122,10 @@ python =
     3.11: py311
 
 [testenv]
+conda_deps =
+    hdf5
+conda_channels =
+    conda-forge
 extras =
     dev
 commands =
