@@ -24,8 +24,8 @@ from movement.napari.utils import (
 logger = logging.getLogger(__name__)
 
 
-class FileLoader(QWidget):
-    """Widget for loading pose tracks from files into a napari viewer."""
+class Loader(QWidget):
+    """Widget for loading data from files."""
 
     file_suffix_map = {
         "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
