@@ -1,16 +1,80 @@
+import logging
+from copy import copy
 from datetime import datetime
+from functools import wraps
 from typing import Union
 
 import numpy as np
 import xarray as xr
 
 
+def log_to_attrs(func):
+    """
+    Appends log of the operation performed to xarray.Dataset attributes
+    """
+    # TODO: Are we okay keeping this decorator here or should this
+    #  be refactored to a dedicated `decorators` module?
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+
+        log_entry = {
+            "operation": func.__name__,
+            "datetime": str(datetime.now()),
+            **{f"arg_{i}": arg for i, arg in enumerate(args[1:], start=1)},
+            **kwargs,
+        }
+
+        # Append the log entry to the result's attributes
+        if result is not None and hasattr(result, "attrs"):
+            if "log" not in result.attrs.keys():
+                result.attrs["log"] = []
+            result.attrs["log"].append(log_entry)
+
+        return result
+
+    return wrapper
+
+
+def filter_diagnostics(ds: xr.Dataset):
+    """
+    Reports the number of datapoints filtered
+    """
+    # TODO: This function currently just counts the number of NaNs in
+    #  `pose_tracks` but could potentially be tweaked to deal better
+    #  with situations where users use different filters in sequence
+    #  and e.g. want to track individual contribution of each filter.
+
+    diagnostic_report = "\nDatapoints Filtered:\n"
+    for ind in ds.individuals.values:
+        diagnostic_report += f"\nIndividual: {ind}"
+        for kp in ds.keypoints.values:
+            n_nans = np.count_nonzero(
+                np.isnan(
+                    ds.pose_tracks.sel(individuals=ind, keypoints=kp).values[
+                        :, 0
+                    ]
+                )
+            )
+            n_points = ds.time.values.shape[0]
+            prop_nans = round((n_nans / n_points) * 100, 1)
+            diagnostic_report += (
+                f"\n   {kp}: {n_nans}/{n_points} ({prop_nans}%)"
+            )
+
+    logger = logging.getLogger(__name__)
+    logger.info(diagnostic_report)
+    print(diagnostic_report)
+
+    return None
+
+
+@log_to_attrs
 def interpolate_over_time(
     ds: xr.Dataset,
     method: str = "linear",
-    limit: Union[int, None] = None,
     max_gap: Union[int, None] = None,
-    inplace: bool = False,
 ) -> Union[xr.Dataset, None]:
     """
     Fills in NaN values by interpolating over the time dimension.
@@ -23,15 +87,9 @@ def interpolate_over_time(
         String indicating which method to use for interpolation.
         Default is ``linear``. See documentation for
         ``xarray.DataSet.interpolate_na`` for complete list of options.
-    limit : int | None
-        Maximum number of consecutive NaNs to interpolate over.
-        ``None`` indicates no limit, and is the default value.
     max_gap :
         The largest gap of consecutive NaNs that will be
         interpolated over. The default value is ``None``.
-    inplace: bool
-        If true, updates the provided DataSet in place and returns
-        ``None``.
 
     Returns
     -------
@@ -39,39 +97,21 @@ def interpolate_over_time(
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
     """
+    ds = copy(ds)
 
-    ds_interpolated = ds.interpolate_na(
-        dim="time", method=method, limit=limit, max_gap=max_gap
+    tracks_interpolated = ds.pose_tracks.interpolate_na(
+        dim="time", method=method, max_gap=max_gap
     )
 
-    # Logging
-    if "log" not in ds_interpolated.attrs.keys():
-        ds_interpolated.attrs["log"] = []
+    ds_interpolated = ds.update({"pose_tracks": tracks_interpolated})
 
-    log_entry = {
-        "operation": "interp_pose",
-        "method": method,
-        "limit": limit,
-        "max_gap": max_gap,
-        "inplace": inplace,
-        "datetime": str(datetime.now()),
-    }
-    ds_interpolated.attrs["log"].append(log_entry)
-
-    if inplace:
-        ds["pose_tracks"] = ds_interpolated["pose_tracks"]
-        ds["confidence"] = ds_interpolated["confidence"]
-        ds.attrs["log"] = ds_interpolated.attrs["log"]
-        return None
-    else:
-        return ds_interpolated
+    return ds_interpolated
 
 
+@log_to_attrs
 def filter_by_confidence(
     ds: xr.Dataset,
     threshold: float = 0.6,
-    inplace: bool = False,
-    interp: bool = False,
 ) -> Union[xr.Dataset, None]:
     """
     Drops all datapoints where the associated confidence value
@@ -84,12 +124,6 @@ def filter_by_confidence(
     threshold : float
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used.
-    inplace : bool
-        If true, updates the provided DataSet in place and returns
-        ``None``.
-    interp : bool
-        If true, NaNs are interpolated over using `interp_pose` with
-        default parameters.
 
     Returns
     -------
@@ -99,38 +133,12 @@ def filter_by_confidence(
         to NaNs
     """
 
-    ds_thresholded = ds.where(ds.confidence >= threshold)
+    ds = copy(ds)
+
+    tracks_thresholded = ds.pose_tracks.where(ds.confidence >= threshold)
+    ds_thresholded = ds.update({"pose_tracks": tracks_thresholded})
 
     # Diagnostics
-    print("\nDatapoints Filtered:\n")
-    for kp in ds.keypoints.values:
-        n_nans = np.count_nonzero(
-            np.isnan(ds_thresholded.confidence.sel(keypoints=f"{kp}").values)
-        )
-        n_points = ds.time.values.shape[0]
-        prop_nans = round((n_nans / n_points) * 100, 2)
-        print(f"{kp}: {n_nans}/{n_points} ({prop_nans}%)")
+    filter_diagnostics(ds_thresholded)
 
-    # Logging
-    if "log" not in ds_thresholded.attrs.keys():
-        ds_thresholded.attrs["log"] = []
-
-    log_entry = {
-        "operation": "filter_confidence",
-        "threshold": threshold,
-        "inplace": inplace,
-        "datetime": str(datetime.now()),
-    }
-    ds_thresholded.attrs["log"].append(log_entry)
-
-    # Interpolation
-    if interp:
-        interpolate_over_time(ds_thresholded, inplace=True)
-
-    if inplace:
-        ds["pose_tracks"] = ds_thresholded["pose_tracks"]
-        ds["confidence"] = ds_thresholded["confidence"]
-        ds["log"] = ds_thresholded.attrs["log"]
-        return None
-    if not inplace:
-        return ds_thresholded
+    return ds_thresholded
