@@ -65,7 +65,6 @@ def filter_diagnostics(ds: xr.Dataset):
 
     logger = logging.getLogger(__name__)
     logger.info(diagnostic_report)
-    print(diagnostic_report)
 
     return None
 
