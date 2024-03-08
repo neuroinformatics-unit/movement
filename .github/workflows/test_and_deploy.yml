@@ -56,8 +56,7 @@ jobs:
       - name: Install HDF5
         shell: bash -el {0}
         run: |
-          conda activate movement-env
-          conda install -c conda-forge hdf5
+          conda install hdf5
       - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
