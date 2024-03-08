@@ -46,7 +46,7 @@ jobs:
             ~/.movement/*
           key: cached-test-data
           enableCrossOsArchive: true
-      - uses: neuroinformatics-unit/actions/test@main
+      - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
