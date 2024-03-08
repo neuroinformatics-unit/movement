@@ -46,6 +46,17 @@ jobs:
             ~/.movement/*
           key: cached-test-data
           enableCrossOsArchive: true
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          auto-update-conda: true
+          channels: conda-forge
+          activate-environment: movement-env
+      - name: Install HDF5
+        run: |
+          conda activate movement-env
+          conda install -c conda-forge hdf5
       - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
