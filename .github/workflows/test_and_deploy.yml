@@ -53,10 +53,6 @@ jobs:
           auto-update-conda: true
           channels: conda-forge
           activate-environment: movement-env
-      - name: Install HDF5
-        shell: bash -el {0}
-        run: |
-          conda install hdf5
       - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
