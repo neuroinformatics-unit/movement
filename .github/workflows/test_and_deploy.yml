@@ -54,7 +54,7 @@ jobs:
           channels: conda-forge
           activate-environment: movement-env
       - name: Install HDF5
-        shell: bash
+        shell: bash -el {0}
         run: |
           conda activate movement-env
           conda install -c conda-forge hdf5
