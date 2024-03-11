@@ -3,7 +3,6 @@ from datetime import datetime
 from functools import wraps
 from typing import Union
 
-import numpy as np
 import xarray as xr
 
 
@@ -55,16 +54,13 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     for ind in ds.individuals.values:
         nan_report += f"\n\tIndividual: {ind}"
         for kp in ds.keypoints.values:
-            n_nans = np.count_nonzero(
-                np.isnan(
-                    ds.pose_tracks.sel(individuals=ind, keypoints=kp).values[
-                        :, 0
-                    ]
-                )
-            )
-            n_points = ds.time.values.shape[0]
-            prop_nans = round((n_nans / n_points) * 100, 1)
-            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({prop_nans}%)"
+            # Get the track for the current individual and keypoint
+            track_ = ds.pose_tracks.sel(individuals=ind, keypoints=kp)
+            # A point is considered NaN if any of its space coordinates are NaN
+            n_nans = track_.isnull().any(["space"]).sum(["time"]).item()
+            n_points = track_.time.size
+            percent_nans = round((n_nans / n_points) * 100, 1)
+            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
 
     # Write nan report to logger
     logger = logging.getLogger(__name__)
