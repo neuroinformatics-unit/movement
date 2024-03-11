@@ -14,7 +14,7 @@ First, create and activate an environment with some prerequisites.
 You can call your environment whatever you like, we've used "movement-env".
 
 ```sh
-conda create -n movement-env -c conda-forge python=3.10 hdf5
+conda create -n movement-env -c conda-forge python=3.10 pytables
 conda activate movement-env
 ```
 
