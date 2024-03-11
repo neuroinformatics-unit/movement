@@ -38,16 +38,23 @@ def log_to_attrs(func):
     return wrapper
 
 
-def filter_diagnostics(ds: xr.Dataset):
+def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     """
-    Report the percentage of points that are NaN for each individual and
-    each keypoint in the provided dataset.
+    Report the number and percentage of points that are NaN for each individual
+    and each keypoint in the provided dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata.
+    ds_label : str
+        Label to identify the dataset in the report. Default is "dataset".
     """
 
-    # Compile diagnostic report
-    diagnostic_report = "\nDatapoints Filtered:\n"
+    # Compile the report
+    nan_report = f"\nMissing points (marked as NaN) in {ds_label}:"
     for ind in ds.individuals.values:
-        diagnostic_report += f"\nIndividual: {ind}"
+        nan_report += f"\n\tIndividual: {ind}"
         for kp in ds.keypoints.values:
             n_nans = np.count_nonzero(
                 np.isnan(
@@ -58,14 +65,13 @@ def filter_diagnostics(ds: xr.Dataset):
             )
             n_points = ds.time.values.shape[0]
             prop_nans = round((n_nans / n_points) * 100, 1)
-            diagnostic_report += (
-                f"\n   {kp}: {n_nans}/{n_points} ({prop_nans}%)"
-            )
+            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({prop_nans}%)"
 
-    # Write diagnostic report to logger
+    # Write nan report to logger
     logger = logging.getLogger(__name__)
-    logger.info(diagnostic_report)
-
+    logger.info(nan_report)
+    # Also print the report to the console
+    print(nan_report)
     return None
 
 
@@ -74,6 +80,7 @@ def interpolate_over_time(
     ds: xr.Dataset,
     method: str = "linear",
     max_gap: Union[int, None] = None,
+    print_report: bool = True,
 ) -> Union[xr.Dataset, None]:
     """
     Fill in NaN values by interpolating over the time dimension.
@@ -89,6 +96,9 @@ def interpolate_over_time(
     max_gap :
         The largest gap of consecutive NaNs that will be
         interpolated over. The default value is ``None`` (no limit).
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after interpolation. Default is ``True``.
 
     Returns
     -------
@@ -96,13 +106,14 @@ def interpolate_over_time(
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
     """
-    ds = copy(ds)
-
-    tracks_interpolated = ds.pose_tracks.interpolate_na(
+    ds_interpolated = copy(ds)
+    poses_interpolated = ds.pose_tracks.interpolate_na(
         dim="time", method=method, max_gap=max_gap
     )
-    ds_interpolated = ds.update({"pose_tracks": tracks_interpolated})
-
+    ds_interpolated.update({"pose_tracks": poses_interpolated})
+    if print_report:
+        report_nan_values(ds, "input dataset")
+        report_nan_values(ds_interpolated, "interpolated dataset")
     return ds_interpolated
 
 
@@ -110,6 +121,7 @@ def interpolate_over_time(
 def filter_by_confidence(
     ds: xr.Dataset,
     threshold: float = 0.6,
+    print_report: bool = True,
 ) -> Union[xr.Dataset, None]:
     """
     Drop all points where the associated confidence value falls below a
@@ -122,6 +134,9 @@ def filter_by_confidence(
     threshold : float
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after filtering. Default is ``True``.
 
     Returns
     -------
@@ -141,11 +156,12 @@ def filter_by_confidence(
     frameworks. We advise users to inspect the confidence values
     in their dataset and adjust the threshold accordingly.
     """
-
-    ds = copy(ds)
-
-    tracks_thresholded = ds.pose_tracks.where(ds.confidence >= threshold)
-    ds_thresholded = ds.update({"pose_tracks": tracks_thresholded})
-    filter_diagnostics(ds_thresholded)
+    ds_thresholded = copy(ds)
+    ds_thresholded.update(
+        {"pose_tracks": ds.pose_tracks.where(ds.confidence >= threshold)}
+    )
+    if print_report:
+        report_nan_values(ds, "input dataset")
+        report_nan_values(ds_thresholded, "filtered dataset")
 
     return ds_thresholded

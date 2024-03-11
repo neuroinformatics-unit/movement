@@ -52,7 +52,7 @@ Filtering
 
     filter_by_confidence
     interpolate_over_time
-    filter_diagnostics
+    report_nan_values
 
 Analysis
 -----------
