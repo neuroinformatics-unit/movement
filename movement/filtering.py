@@ -1,5 +1,4 @@
 import logging
-from copy import copy
 from datetime import datetime
 from functools import wraps
 from typing import Union
@@ -106,7 +105,7 @@ def interpolate_over_time(
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
     """
-    ds_interpolated = copy(ds)
+    ds_interpolated = ds.copy()
     poses_interpolated = ds.pose_tracks.interpolate_na(
         dim="time", method=method, max_gap=max_gap
     )
@@ -156,7 +155,7 @@ def filter_by_confidence(
     frameworks. We advise users to inspect the confidence values
     in their dataset and adjust the threshold accordingly.
     """
-    ds_thresholded = copy(ds)
+    ds_thresholded = ds.copy()
     ds_thresholded.update(
         {"pose_tracks": ds.pose_tracks.where(ds.confidence >= threshold)}
     )
