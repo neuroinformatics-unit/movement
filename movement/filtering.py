@@ -121,7 +121,7 @@ def filter_by_confidence(
         Dataset containing pose tracks, confidence scores, and metadata.
     threshold : float
         The confidence threshold below which datapoints are filtered.
-        A default value of ``0.6`` is used.
+        A default value of ``0.6`` is used. See notes for more information.
 
     Returns
     -------
@@ -129,6 +129,17 @@ def filter_by_confidence(
         The provided dataset (ds), where points with a confidence
         value below the user-defined threshold have been converted
         to NaNs
+
+    Notes
+    -----
+    The point-wise confidence values reported by various pose estimation
+    frameworks are not standardised, and the range of values can vary.
+    For example, DeepLabCut reports a likelihood value between 0 and 1, whereas
+    the point confidence reported by SLEAP can range above 1.
+    Therefore, the default threshold value will not be appropriate for all
+    datasets and does not have the same meaning across pose estimation
+    frameworks. We advise users to inspect the confidence values
+    in their dataset and adjust the threshold accordingly.
     """
 
     ds = copy(ds)
