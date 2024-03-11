@@ -10,7 +10,10 @@ import xarray as xr
 
 def log_to_attrs(func):
     """
-    Appends log of the operation performed to xarray.Dataset attributes
+    Decorator that logs the operation performed by the wrapped function
+    and appends the log entry to the xarray.Dataset's "log" attribute.
+    For the decorator to work, the wrapped function must accept an
+    xarray.Dataset as its first argument and return an xarray.Dataset.
     """
 
     @wraps(func)
@@ -37,7 +40,8 @@ def log_to_attrs(func):
 
 def filter_diagnostics(ds: xr.Dataset):
     """
-    Reports the number of datapoints filtered
+    Report the percentage of points that are NaN for each individual and
+    each keypoint in the provided dataset.
     """
 
     # Compile diagnostic report
@@ -72,7 +76,7 @@ def interpolate_over_time(
     max_gap: Union[int, None] = None,
 ) -> Union[xr.Dataset, None]:
     """
-    Fills in NaN values by interpolating over the time dimension.
+    Fill in NaN values by interpolating over the time dimension.
 
     Parameters
     ----------
@@ -84,11 +88,11 @@ def interpolate_over_time(
         ``xarray.DataSet.interpolate_na`` for complete list of options.
     max_gap :
         The largest gap of consecutive NaNs that will be
-        interpolated over. The default value is ``None``.
+        interpolated over. The default value is ``None`` (no limit).
 
     Returns
     -------
-    ds_thresholded : xr.DataArray
+    ds_interpolated : xr.Dataset
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
     """
@@ -108,8 +112,8 @@ def filter_by_confidence(
     threshold: float = 0.6,
 ) -> Union[xr.Dataset, None]:
     """
-    Drops all datapoints where the associated confidence value
-    falls below a user-defined threshold.
+    Drop all points where the associated confidence value falls below a
+    user-defined threshold.
 
     Parameters
     ----------
@@ -122,7 +126,7 @@ def filter_by_confidence(
     Returns
     -------
     ds_thresholded : xarray.Dataset
-        The provided dataset (ds), where datapoints with a confidence
+        The provided dataset (ds), where points with a confidence
         value below the user-defined threshold have been converted
         to NaNs
     """
@@ -131,8 +135,6 @@ def filter_by_confidence(
 
     tracks_thresholded = ds.pose_tracks.where(ds.confidence >= threshold)
     ds_thresholded = ds.update({"pose_tracks": tracks_thresholded})
-
-    # Get diagnostics
     filter_diagnostics(ds_thresholded)
 
     return ds_thresholded
