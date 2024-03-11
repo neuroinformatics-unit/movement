@@ -9,6 +9,7 @@ Compute velocity and acceleration on an example dataset of pose tracks.
 # Imports
 # -------
 # Install circle_fit in your virtual environment with `pip install circle-fit`
+# Install ipympl for interactive plots with `pip install ipympl`
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -209,24 +210,59 @@ print(
 # We can easily compute the velocity vectors for all individuals in our data array:
 pose_tracks_velocity = kin.compute_velocity(pose_tracks)
 
+# %%
 # We can plot the components of the velocity vector against time
 # using ``xarray``'s built-in plotting methods:
+pose_tracks_velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
-# da.plot.line(x="time", row="space", aspect=2, size=2.5)
-# da = pose_tracks.sel(keypoints="centroid")
-# da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
-
-
-
-# As well as the norm of the velocity vector (speed):
-
-
-# Quiver plot
+# We used `squeeze()` to remove the dimension of length 1 from the data (the keypoints dimension).
+# See [here](https://docs.xarray.dev/en/latest/generated/xarray.DataArray.squeeze.html) for further details.
+# Note as well that the components of the velocity vector seem noisier than the components of the position vector.
+# This is expected....
+# %%
+# Or we can use maplotlib directly for further flexibility. For example, to plot
+# the norm of the velocity vector (speed):
+fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
+for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
+    speed_one_mouse = np.linalg.norm(
+        pose_tracks_velocity.sel(individuals=mouse_name, space=["x","y"]).squeeze(),
+        axis=1
+    )
+    ax.plot(speed_one_mouse)
+    ax.set_title(mouse_name)
+    ax.set_xlabel("time (s)")
+    ax.set_ylabel("speed (px/s)")
+fig.tight_layout()  
 
 # %%
-# Compute displacement between consecutive positions
-# ----------------------------------------------------
-pose_tracks_displacement = kin.compute_displacement(pose_tracks)
+# To visualise the direction of the velocity vector at each timestep, we can use a quiver plot:
+mouse_name = 'AEON3B_TP2'
+fig = plt.figure()
+ax = fig.add_subplot()
+sc=ax.scatter(
+    pose_tracks.sel(individuals=mouse_name, space="x"),
+    pose_tracks.sel(individuals=mouse_name, space="y"),
+    s=15,
+    c=pose_tracks.time,
+    cmap="viridis",
+)
+ax.quiver(
+    pose_tracks.sel(individuals=mouse_name, space="x"), # origin of each vector
+    pose_tracks.sel(individuals=mouse_name, space="y"),
+    pose_tracks_velocity.sel(individuals=mouse_name, space="x"), # tip of each vector
+    pose_tracks_velocity.sel(individuals=mouse_name, space="y"),
+    angles='xy',
+    scale=2,
+    scale_units='xy',
+    color='r'
+)
+ax.axis('equal')
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.set_title(f'Velocity quiver plot for {mouse_name}')
+fig.colorbar(sc, ax=ax, label='time (s)')
+
+# Here we scaled the length of vectors to half of their actual value (`scale=2`) for easier visualisation.
 
 # %%
 # Compute acceleration
