@@ -155,6 +155,18 @@ ax.invert_yaxis()
 # The data of all mice fits well to a circle of radius 528.6 pixels centred at ``x=711.11``, ``y=540.53``.
 # The root mean square distance between the data points and the circle is ``rmse=2.71`` pixels.
 
+# %%
+# We can also easily plot the components of the position vector against time
+# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
+# remove the dimension of length 1 from the data (the keypoints dimension).
+pose_tracks.squeeze().plot.line(
+    x="time", row="individuals", aspect=2, size=2.5
+)
+plt.gcf().show()
+
+# %%
+# The axes units are automatically taken from the data array. In our case, ``time`` is expressed in seconds,
+# and the ``x`` and ``y`` coordinates of the ``pose_tracks`` in pixels.
 
 # %%
 # Compute displacement
@@ -374,7 +386,7 @@ for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
 fig.tight_layout()
 
 # %%
-# The norm of the acceleration vector would give us the magnitude of the acceleration. 
+# The norm of the acceleration vector would give us the magnitude of the acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
