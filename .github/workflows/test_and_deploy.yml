@@ -57,7 +57,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
-          tox-args: -r
 
   build_sdist_wheels:
     name: Build source distribution
