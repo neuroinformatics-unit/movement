@@ -31,13 +31,14 @@ def test_log_to_attrs(sample_dataset):
     assert "log" in ds.attrs
     assert ds.attrs["log"][0]["operation"] == "fake_func"
     assert (
-        ds.attrs["log"][0]["arg_1"] == "test1" and ds.attrs["log"][0]["kwarg"]
+        ds.attrs["log"][0]["arg_1"] == "test1"
+        and ds.attrs["log"][0]["kwarg"] == "test2"
     )
 
 
 def test_interpolate_over_time(sample_dataset):
     """Tests the ``interpolate_over_time`` function by checking
-    that the number of nans is decreased when running this function
+    that the number of nans is decreased after running this function
     on a filtered dataset"""
 
     ds_filtered = filter_by_confidence(sample_dataset)
@@ -59,8 +60,8 @@ def test_interpolate_over_time(sample_dataset):
 def test_filter_by_confidence(sample_dataset, caplog):
     """Tests for the ``filter_by_confidence`` function.
     Checks that the function filters the expected amount of values
-    from a known dataset, and tests that this value matches the value
-    logged."""
+    from a known dataset, and tests that this value is logged
+    correctly."""
 
     ds_filtered = filter_by_confidence(sample_dataset)
 
@@ -76,5 +77,4 @@ def test_filter_by_confidence(sample_dataset, caplog):
     assert n_nans == 3213
 
     # Check that diagnostics are being logged correctly
-    assert "Datapoints Filtered" in caplog.text
     assert f"snout: {n_nans}/{ds_filtered.time.values.shape[0]}" in caplog.text

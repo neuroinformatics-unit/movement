@@ -12,8 +12,6 @@ def log_to_attrs(func):
     """
     Appends log of the operation performed to xarray.Dataset attributes
     """
-    # TODO: Are we okay keeping this decorator here or should this
-    #  be refactored to a dedicated `decorators` module?
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -41,12 +39,8 @@ def filter_diagnostics(ds: xr.Dataset):
     """
     Reports the number of datapoints filtered
     """
-    # TODO: This function currently just counts the number of NaNs in
-    #  `pose_tracks` but could potentially be tweaked to deal better
-    #  with situations where users use different filters in sequence
-    #  and want to track individual contribution of each filter.
-    #  Thoughts?
 
+    # Compile diagnostic report
     diagnostic_report = "\nDatapoints Filtered:\n"
     for ind in ds.individuals.values:
         diagnostic_report += f"\nIndividual: {ind}"
@@ -64,11 +58,7 @@ def filter_diagnostics(ds: xr.Dataset):
                 f"\n   {kp}: {n_nans}/{n_points} ({prop_nans}%)"
             )
 
-    # TODO: I'm honestly not super I understand why this approach is more
-    #  convient than simply printing the diagnostic report. What is the
-    #  expected interface here? How is the user meant to access the logs?
-    #  Would it not be easier to simply allow user to toggle printing on
-    #  and off?
+    # Write diagnostic report to logger
     logger = logging.getLogger(__name__)
     logger.info(diagnostic_report)
 
@@ -107,7 +97,6 @@ def interpolate_over_time(
     tracks_interpolated = ds.pose_tracks.interpolate_na(
         dim="time", method=method, max_gap=max_gap
     )
-
     ds_interpolated = ds.update({"pose_tracks": tracks_interpolated})
 
     return ds_interpolated
@@ -143,7 +132,7 @@ def filter_by_confidence(
     tracks_thresholded = ds.pose_tracks.where(ds.confidence >= threshold)
     ds_thresholded = ds.update({"pose_tracks": tracks_thresholded})
 
-    # Diagnostics
+    # Get diagnostics
     filter_diagnostics(ds_thresholded)
 
     return ds_thresholded
