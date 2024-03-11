@@ -91,9 +91,9 @@ def interpolate_over_time(
     method : str
         String indicating which method to use for interpolation.
         Default is ``linear``. See documentation for
-        ``xarray.DataSet.interpolate_na`` for complete list of options.
+        ``xarray.DataArray.interpolate_na`` for complete list of options.
     max_gap :
-        The largest gap of consecutive NaNs that will be
+        The largest time gap of consecutive NaNs (in seconds) that will be
         interpolated over. The default value is ``None`` (no limit).
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
@@ -107,7 +107,7 @@ def interpolate_over_time(
     """
     ds_interpolated = ds.copy()
     poses_interpolated = ds.pose_tracks.interpolate_na(
-        dim="time", method=method, max_gap=max_gap
+        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
     )
     ds_interpolated.update({"pose_tracks": poses_interpolated})
     if print_report:
