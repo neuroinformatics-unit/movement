@@ -44,7 +44,8 @@ def filter_diagnostics(ds: xr.Dataset):
     # TODO: This function currently just counts the number of NaNs in
     #  `pose_tracks` but could potentially be tweaked to deal better
     #  with situations where users use different filters in sequence
-    #  and e.g. want to track individual contribution of each filter.
+    #  and want to track individual contribution of each filter.
+    #  Thoughts?
 
     diagnostic_report = "\nDatapoints Filtered:\n"
     for ind in ds.individuals.values:
@@ -63,6 +64,11 @@ def filter_diagnostics(ds: xr.Dataset):
                 f"\n   {kp}: {n_nans}/{n_points} ({prop_nans}%)"
             )
 
+    # TODO: I'm honestly not super I understand why this approach is more
+    #  convient than simply printing the diagnostic report. What is the
+    #  expected interface here? How is the user meant to access the logs?
+    #  Would it not be easier to simply allow user to toggle printing on
+    #  and off?
     logger = logging.getLogger(__name__)
     logger.info(diagnostic_report)
 
