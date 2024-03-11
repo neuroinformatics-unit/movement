@@ -13,7 +13,7 @@ license = { text = "BSD-3-Clause" }
 
 dependencies = [
   "numpy",
-  "pandas[hdf5]",
+  "pandas",
   "h5py",
   "attrs",
   "pooch",
