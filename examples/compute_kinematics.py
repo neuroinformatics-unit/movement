@@ -218,12 +218,14 @@ pose_tracks_velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, 
 # We used `squeeze()` to remove the dimension of length 1 from the data (the keypoints dimension).
 # See [here](https://docs.xarray.dev/en/latest/generated/xarray.DataArray.squeeze.html) for further details.
 # Note as well that the components of the velocity vector seem noisier than the components of the position vector.
-# This is expected....
+# This is expected, since we are deriving the velocity using differences in position, which is somewhat noisy, over small stepsizes.
+# More specifically, we use [Numpy's gradient implementation](https://numpy.org/doc/stable/reference/generated/numpy.gradient.html), which
+# uses second order accurate central differences. 
 # %%
 # Or we can use maplotlib directly for further flexibility. For example, to plot
 # the norm of the velocity vector (speed):
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
+for mouse_name, ax in zip(pose_tracks_velocity.individuals.values, axes):
     speed_one_mouse = np.linalg.norm(
         pose_tracks_velocity.sel(individuals=mouse_name, space=["x","y"]).squeeze(),
         axis=1
@@ -266,7 +268,39 @@ fig.colorbar(sc, ax=ax, label='time (s)')
 
 # %%
 # Compute acceleration
+# ---------------------
+# We can compute the accelaration of the data with an equivalent method
 pose_tracks_accel = kin.compute_acceleration(pose_tracks)
 
+# The plot of the components of the acceleration vector (`ax`, `ay`) per individual:
+fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
+for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
+    ax.plot(
+        pose_tracks_accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
+        label= 'ax'
+    )
+    ax.plot(
+        pose_tracks_accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
+        label='ay'
+    )
+    ax.set_title(mouse_name)
+    ax.set_xlabel("time (s)")
+    ax.set_ylabel("speed (px/s**2)")
+    ax.legend(loc='center right', bbox_to_anchor=(1.07, 1.07))
+fig.tight_layout()  
 
 
+# And the norm of the acceleration vector
+fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
+for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
+    accel_one_mouse = np.linalg.norm(
+        pose_tracks_accel.sel(individuals=mouse_name, space=["x","y"]).squeeze(),
+        axis=1
+    )
+    ax.plot(accel_one_mouse)
+    ax.set_title(mouse_name)
+    ax.set_xlabel("time (s)")
+    ax.set_ylabel("accel (px/s**2)")
+fig.tight_layout()  
+
+# %%
