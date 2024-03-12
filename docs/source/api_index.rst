@@ -44,6 +44,16 @@ Sample Data
     fetch_sample_data_path
     fetch_sample_data
 
+Filtering
+---------
+.. currentmodule:: movement.filtering
+.. autosummary::
+    :toctree: api
+
+    filter_by_confidence
+    interpolate_over_time
+    report_nan_values
+
 Analysis
 -----------
 .. currentmodule:: movement.analysis.kinematics
