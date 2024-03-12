@@ -11,12 +11,16 @@ missing values.
 # -------
 from movement import sample_data
 from movement.filtering import filter_by_confidence, interpolate_over_time
+from movement.io import load_poses
 
 # %%
 # Load a sample dataset
 # ---------------------
 
-ds = sample_data.fetch_sample_data("DLC_single-wasp.predictions.h5")
+file_path = sample_data.fetch_sample_data_path(
+    "DLC_single-wasp.predictions.h5"
+)
+ds = load_poses.from_dlc_file(file_path, fps=40)
 print(ds)
 
 # %%
