@@ -96,6 +96,15 @@ sphinx_gallery_conf = {
     "filename_pattern": "/*.py",  # which files to execute before inclusion
     "gallery_dirs": ["examples"],  # output directory
     "run_stale_examples": True,  # re-run examples on each build
+    # Integration with Binder, see https://sphinx-gallery.github.io/stable/configuration.html#generate-binder-links-for-gallery-notebooks-experimental
+    "binder": {
+        "org": "neuroinformatics-unit",
+        "repo": "movement",
+        "branch": "gh-pages",
+        "binderhub_url": "https://mybinder.org",
+        "dependencies": ["environment.yml"],
+
+     },
 }
 
 # -- Options for HTML output -------------------------------------------------
