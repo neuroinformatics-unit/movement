@@ -18,15 +18,15 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=9c66c473" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
@@ -37,11 +37,11 @@
     <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=43995f2d"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=e7e1db34"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/design-tabs.js?v=36754332"></script>
@@ -62,10 +62,9 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>
@@ -106,7 +105,7 @@
 </form></div>
   </div>
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
 <div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
     <span class="fa-solid fa-bars"></span>
@@ -126,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.12</p>
+    <p class="title logo__title">movement v0.0.13</p>
   
 </a></div>
     
@@ -138,12 +137,6 @@
       
         <div class="navbar-item">
 <nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item current active">
@@ -262,12 +255,15 @@ document.write(`
   
 </div>
 
-    </nav>
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -278,12 +274,6 @@ document.write(`
         
           <div class="navbar-item">
 <nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item current active">
@@ -366,6 +356,15 @@ document.write(`
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
@@ -413,23 +412,26 @@ document.write(`
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
+<div class="note admonition">
+<p class="admonition-title">Use a conda environment</p>
 <p>We recommend you install movement inside a <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
-or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> environment.
+or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> environment, to avoid dependency conflicts with other packages.
 In the following we assume you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed,
 but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
-<p>First, create and activate an environment.
+</div>
+<p>First, create and activate an environment with some prerequisites.
 You can call your environment whatever you like, we’ve used “movement-env”.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>pytables
 conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </pre></div>
 </div>
-<p>Next install the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package:</p>
+<p>Then install the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package as described below.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 </input><label class="sd-tab-label" for="sd-tab-item-0">
@@ -462,7 +464,7 @@ Please see the <a class="reference internal" href="community/contributing.html#t
 <section id="loading-data">
 <h2>Loading data<a class="headerlink" href="#loading-data" title="Permalink to this heading">#</a></h2>
 <p>You can load predicted pose tracks from the pose estimation software packages
-<a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> or <a class="reference external" href="https://sleap.ai/#">SLEAP</a>.</p>
+<a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a>, <a class="reference external" href="https://sleap.ai/#">SLEAP</a>, or <a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightingPose</a>.</p>
 <p>First import the <code class="docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
 </pre></div>
@@ -474,6 +476,11 @@ Please see the <a class="reference internal" href="community/contributing.html#t
 SLEAP</label><div class="sd-tab-content docutils">
 <p>Load from <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> (.h5):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -486,6 +493,11 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 </div>
 <p>You may also load .csv files (assuming they are formatted as DeepLabCut expects them):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>If you have already imported the data into a pandas DataFrame, you can
@@ -502,6 +514,11 @@ convert it to a movement dataset with:</p>
 LightningPose</label><div class="sd-tab-content docutils">
 <p>Load from LightningPose (LP) files (.csv):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_lp_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -515,25 +532,30 @@ LightningPose</label><div class="sd-tab-content docutils">
 <svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-up" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M18.78 15.28a.75.75 0 000-1.06l-6.25-6.25a.75.75 0 00-1.06 0l-6.25 6.25a.75.75 0 101.06 1.06L12 9.56l5.72 5.72a.75.75 0 001.06 0z"></path></svg></div>
 </summary><div class="sd-summary-content sd-card-body docutils">
 <p class="sd-card-text">You can view the available sample data files with:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">datasets</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
 
-<span class="n">file_names</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">list_pose_data</span><span class="p">()</span>
+<span class="n">file_names</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">list_sample_data</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">This will print a list of file names containing sample pose data.
-The files are prefixed with the name of the pose estimation software package,
-either “DLC” or “SLEAP”.</p>
+Each file is prefixed with the name of the pose estimation software package
+that was used to generate it - either “DLC”, “SLEAP”, or “LP”.</p>
 <p class="sd-card-text">To get the path to one of the sample files,
 you can use the <code class="docutils literal notranslate"><span class="pre">fetch_pose_data_path</span></code> function:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">fetch_pose_data_path</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_path</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_sample_data_path</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">The first time you call this function, it will download the corresponding file
 to your local machine and save it in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> directory. On
 subsequent calls, it will simply return the path to that local file.</p>
-<p class="sd-card-text">You can feed the path to the <code class="docutils literal notranslate"><span class="pre">from_dlc_file</span></code> or <code class="docutils literal notranslate"><span class="pre">from_sleap_file</span></code> functions
-and load the data, as shown above.</p>
+<p class="sd-card-text">You can feed the path to the <code class="docutils literal notranslate"><span class="pre">from_dlc_file</span></code>, <code class="docutils literal notranslate"><span class="pre">from_sleap_file</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">from_lp_file</span></code> functions and load the data, as shown above.</p>
+<p class="sd-card-text">Alternatively, you can skip the <code class="docutils literal notranslate"><span class="pre">fetch_sample_data_path()</span></code> step and load the
+data directly using the <code class="docutils literal notranslate"><span class="pre">fetch_sample_data()</span></code> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_sample_data</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </details></section>
 <section id="working-with-movement-datasets">
@@ -714,12 +736,14 @@ DeepLabCut projects, the above command is equivalent to:</p>
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-  <div class="sidebar-secondary-item">
 
-  <div class="page-toc tocsection onthispage">
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data">Loading data</a></li>
@@ -755,8 +779,8 @@ DeepLabCut projects, the above command is equivalent to:</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -770,7 +794,7 @@ DeepLabCut projects, the above command is equivalent to:</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.14.4.
+    0.15.2.
     </p></div>
       
     </div>

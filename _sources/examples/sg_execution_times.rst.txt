@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.741** total execution time for 1 file **from examples**:
+**00:04.119** total execution time for 2 files **from examples**:
 
 .. container::
 
@@ -32,6 +32,9 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``filter_and_interpolate.py``)
+     - 00:03.400
+     - 0.0
    * - :ref:`sphx_glr_examples_load_and_explore_poses.py` (``load_and_explore_poses.py``)
-     - 00:00.741
+     - 00:00.718
      - 0.0

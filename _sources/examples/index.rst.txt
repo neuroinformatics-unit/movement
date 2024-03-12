@@ -33,6 +33,23 @@ Below is a gallery of examples using `movement`.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Filter out points with low confidence scores and interpolate over missing values.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_filter_and_interpolate_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_filter_and_interpolate.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Filtering and interpolation</div>
+    </div>
+
+
+.. raw:: html
+
     </div>
 
 
@@ -40,6 +57,7 @@ Below is a gallery of examples using `movement`.
    :hidden:
 
    /examples/load_and_explore_poses
+   /examples/filter_and_interpolate
 
 
 .. only:: html

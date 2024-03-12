@@ -1,0 +1,6 @@
+﻿movement.filtering.interpolate\_over\_time
+==========================================
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: interpolate_over_time

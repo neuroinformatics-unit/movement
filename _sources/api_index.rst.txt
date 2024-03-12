@@ -10,6 +10,7 @@ Input/Output
 .. autosummary::
     :toctree: api
 
+    from_file
     from_sleap_file
     from_dlc_file
     from_dlc_df
@@ -33,14 +34,43 @@ Input/Output
     ValidPosesCSV
     ValidPoseTracks
 
-Datasets
---------
-.. currentmodule:: movement.datasets
+Sample Data
+-----------
+.. currentmodule:: movement.sample_data
 .. autosummary::
     :toctree: api
 
-    list_pose_data
-    fetch_pose_data_path
+    list_sample_data
+    fetch_sample_data_path
+    fetch_sample_data
+
+Filtering
+---------
+.. currentmodule:: movement.filtering
+.. autosummary::
+    :toctree: api
+
+    filter_by_confidence
+    interpolate_over_time
+    report_nan_values
+
+Analysis
+-----------
+.. currentmodule:: movement.analysis.kinematics
+.. autosummary::
+    :toctree: api
+
+    compute_displacement
+    compute_velocity
+    compute_acceleration
+
+Move Accessor
+-------------
+.. currentmodule:: movement.move_accessor
+.. autosummary::
+    :toctree: api
+
+    MoveAccessor
 
 Logging
 -------

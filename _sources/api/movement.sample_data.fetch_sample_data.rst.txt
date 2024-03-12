@@ -1,0 +1,6 @@
+﻿movement.sample\_data.fetch\_sample\_data
+=========================================
+
+.. currentmodule:: movement.sample_data
+
+.. autofunction:: fetch_sample_data

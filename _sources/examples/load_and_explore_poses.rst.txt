@@ -34,7 +34,7 @@ Imports
 
     from matplotlib import pyplot as plt
 
-    from movement import datasets
+    from movement import sample_data
     from movement.io import load_poses
 
 
@@ -55,7 +55,7 @@ Print a list of available datasets:
 .. code-block:: Python
 
 
-    for file_name in datasets.list_pose_data():
+    for file_name in sample_data.list_sample_data():
         print(file_name)
 
 
@@ -66,20 +66,20 @@ Print a list of available datasets:
 
  .. code-block:: none
 
-    DLC_single-wasp.predictions.h5
-    DLC_single-wasp.predictions.csv
     DLC_single-mouse_EPM.predictions.h5
+    DLC_single-wasp.predictions.csv
+    DLC_single-wasp.predictions.h5
     DLC_two-mice.predictions.csv
     LP_mouse-face_AIND.predictions.csv
     LP_mouse-twoview_AIND.predictions.csv
     SLEAP_single-mouse_EPM.analysis.h5
     SLEAP_single-mouse_EPM.predictions.slp
-    SLEAP_two-mice_social-interaction.analysis.h5
-    SLEAP_two-mice_social-interaction.predictions.slp
-    SLEAP_three-mice_Aeon_proofread.analysis.h5
-    SLEAP_three-mice_Aeon_proofread.predictions.slp
     SLEAP_three-mice_Aeon_mixed-labels.analysis.h5
     SLEAP_three-mice_Aeon_mixed-labels.predictions.slp
+    SLEAP_three-mice_Aeon_proofread.analysis.h5
+    SLEAP_three-mice_Aeon_proofread.predictions.slp
+    SLEAP_two-mice_social-interaction.analysis.h5
+    SLEAP_two-mice_social-interaction.predictions.slp
 
 
 
@@ -94,7 +94,7 @@ e.g., ``file_path = "/path/to/my/data.h5"``)
 
 .. code-block:: Python
 
-    file_path = datasets.fetch_pose_data_path(
+    file_path = sample_data.fetch_sample_data_path(
         "SLEAP_three-mice_Aeon_proofread.analysis.h5"
     )
 
@@ -126,16 +126,16 @@ Load the dataset
 
  .. code-block:: none
 
-    <xarray.Dataset>
+    <xarray.Dataset> Size: 27kB
     Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
     Coordinates:
-      * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
-      * individuals  (individuals) <U10 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
-      * keypoints    (keypoints) <U8 'centroid'
-      * space        (space) <U1 'x' 'y'
+      * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
+      * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
+      * keypoints    (keypoints) <U8 32B 'centroid'
+      * space        (space) <U1 8B 'x' 'y'
     Data variables:
-        pose_tracks  (time, individuals, keypoints, space) float32 770.3 ... 755.1
-        confidence   (time, individuals, keypoints) float32 nan nan nan ... nan nan
+        pose_tracks  (time, individuals, keypoints, space) float32 14kB 770.3 ......
+        confidence   (time, individuals, keypoints) float32 7kB nan nan ... nan nan
     Attributes:
         fps:              50.0
         time_unit:        seconds
@@ -188,13 +188,13 @@ for a single keypoint of the first individual:
 
  .. code-block:: none
 
-    <xarray.DataArray 'pose_tracks' (time: 601, space: 2)>
+    <xarray.DataArray 'pose_tracks' (time: 601, space: 2)> Size: 5kB
     770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
     Coordinates:
-      * time         (time) float64 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
-        individuals  <U10 'AEON3B_NTP'
-        keypoints    <U8 'centroid'
-      * space        (space) <U1 'x' 'y'
+      * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
+        individuals  <U10 40B 'AEON3B_NTP'
+        keypoints    <U8 32B 'centroid'
+      * space        (space) <U1 8B 'x' 'y'
 
 
 
@@ -224,7 +224,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f5c94929290>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f7b108d4510>
 
 
 
@@ -255,7 +255,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f5c7eaf9e50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f7af44f7a10>
 
 
 
@@ -299,14 +299,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f5c7ca2f290>
+    <matplotlib.colorbar.Colorbar object at 0x7f7af44a58d0>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.741 seconds)
+   **Total running time of the script:** (0 minutes 0.718 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:
