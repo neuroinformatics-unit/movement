@@ -10,3 +10,4 @@ sphinx-autodoc-typehints
 sphinx-design
 sphinx-gallery
 sphinx-sitemap
+tables
