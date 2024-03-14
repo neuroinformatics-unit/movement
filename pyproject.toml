@@ -108,6 +108,10 @@ build = "cp39-* cp310-* cp311-*"
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
 
+[tool.codespell]
+skip = '.git'
+check-hidden = true
+
 [tool.tox]
 legacy_tox_ini = """
 [tox]

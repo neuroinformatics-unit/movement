@@ -40,3 +40,10 @@ repos:
           - id: check-manifest
             args: [--no-build-isolation]
             additional_dependencies: [setuptools-scm]
+    - repo: https://github.com/codespell-project/codespell
+      # Configuration for codespell is in pyproject.toml
+      rev: v2.2.6
+      hooks:
+      - id: codespell
+        additional_dependencies:
+        - tomli
