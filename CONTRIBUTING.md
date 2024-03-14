@@ -150,7 +150,7 @@ We use [Sphinx](https://www.sphinx-doc.org/en/master/) and the
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (`.github/workflows/docs_build_and_deploy.yml`).
 The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
-The deployment job is only triggerred whenever a tag is pushed to the _main_ branch,
+The deployment job is only triggered whenever a tag is pushed to the _main_ branch,
 ensuring that the documentation is published in sync with each PyPI release.
 
 ### Editing the documentation
