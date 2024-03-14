@@ -70,6 +70,7 @@ Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.c
 * [black](https://black.readthedocs.io/en/stable/) for auto-formatting
 * [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker
 * [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
+* [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
 These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:
 
@@ -78,6 +79,7 @@ ruff .
 black ./
 mypy -p movement
 check-manifest
+codespell
 ```
 
 To run all the hooks before committing:
