@@ -236,7 +236,7 @@ def valid_tracks_array():
 def valid_pose_dataset(valid_tracks_array, request):
     """Return a valid pose tracks dataset."""
     dim_names = MoveAccessor.dim_names
-    # create a multi_track_array by default unless overriden via param
+    # create a multi_track_array by default unless overridden via param
     try:
         array_format = request.param
     except AttributeError:

@@ -51,6 +51,7 @@ dev = [
   "mypy",
   "pre-commit",
   "ruff",
+  "codespell",
   "setuptools_scm",
   "pandas-stubs",
   "types-attrs",
@@ -107,6 +108,10 @@ build = "cp39-* cp310-* cp311-*"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
+
+[tool.codespell]
+skip = '.git,.tox'
+check-hidden = true
 
 [tool.tox]
 legacy_tox_ini = """
