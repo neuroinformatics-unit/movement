@@ -25,4 +25,4 @@ We plan to release version `v0.1` of movement in early 2024, providing a minimal
 - [x] Public website with [documentation](target-movement).
 - [x] Package released on [PyPI](https://pypi.org/project/movement/).
 - [ ] Package released on [conda-forge](https://conda-forge.org/).
-- [ ] Ability to visualise pose tracks using [napari](napari:). We aim to represent pose tracks via napari's [Points](napari:howtos/layers/points) and  [Tracks](napari:howtos/layers/tracks) layers and overlay them on video frames.
+- [ ] Ability to visualise pose tracks using [napari](napari:). We aim to represent pose tracks via napari's [Points](napari:howtos/layers/points) and [Tracks](napari:howtos/layers/tracks) layers and overlay them on video frames.
