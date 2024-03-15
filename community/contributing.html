@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e7e1db34"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2c684bf9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.13</p>
+    <p class="title logo__title">movement v0.0.14</p>
   
 </a></div>
     
@@ -626,6 +626,13 @@ to create the <a class="reference internal" href="../examples/index.html#target-
 To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
 The file should be structured as specified in the relevant
 <a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax">sphinx-gallery documentation</a>.</p>
+<p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration.html#binder-links">integration with binder</a>
+to provide interactive versions of the examples.
+If your examples rely on packages that are not among movement’s dependencies,
+you will need to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/environment.yml</span></code> file.
+That file is used by binder to create the conda environment in which the
+examples are run. See the relevant section of the
+<a class="reference external" href="https://mybinder.readthedocs.io/en/latest/using/config_files.html">binder documentation</a>.</p>
 </section>
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h3>

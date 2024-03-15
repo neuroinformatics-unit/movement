@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e7e1db34"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2c684bf9"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.13</p>
+    <p class="title logo__title">movement v0.0.14</p>
   
 </a></div>
     
@@ -424,7 +424,7 @@ document.write(`
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
 <p><a class="reference internal" href="#sphx-glr-download-examples-filter-and-interpolate-py"><span class="std std-ref">Go to the end</span></a>
-to download the full example code</p>
+to download the full example code or to run this example in your browser via Binder</p>
 </div>
 <section class="sphx-glr-example-title" id="filtering-and-interpolation">
 <span id="sphx-glr-examples-filter-and-interpolate-py"></span><h1>Filtering and interpolation<a class="headerlink" href="#filtering-and-interpolation" title="Permalink to this heading">#</a></h1>
@@ -472,7 +472,7 @@ scores for a single wasp, generated with DeepLabCut. There are 2 keypoints:
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f7af4446050&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x75db25e74610&gt;
 </pre></div>
 </div>
 <p>We can see that the pose tracks contain some implausible “jumps”, such
@@ -508,7 +508,7 @@ they evolve over time.</p>
 <span class="n">confidence</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f7af67d6450&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x75db27f4b390&gt;
 </pre></div>
 </div>
 <p>Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -544,7 +544,7 @@ Missing points (marked as NaN) in filtered dataset:
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f7af66e9990&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x75db25acac10&gt;
 </pre></div>
 </div>
 <p>Here we can see that gaps have appeared in the pose tracks, some of which
@@ -585,7 +585,7 @@ indeed shorter than 1 second. Let’s visualise the interpolated pose tracks</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f7aea168e10&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x75db2477d250&gt;
 </pre></div>
 </div>
 </section>
@@ -601,12 +601,15 @@ applied to the data.</p>
     <span class="nb">print</span><span class="p">(</span><span class="n">log_entry</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;operation&#39;: &#39;filter_by_confidence&#39;, &#39;datetime&#39;: &#39;2024-03-12 15:17:14.490904&#39;, &#39;threshold&#39;: 0.6, &#39;print_report&#39;: True}
-{&#39;operation&#39;: &#39;interpolate_over_time&#39;, &#39;datetime&#39;: &#39;2024-03-12 15:17:16.005184&#39;, &#39;method&#39;: &#39;linear&#39;, &#39;max_gap&#39;: 1, &#39;print_report&#39;: True}
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;operation&#39;: &#39;filter_by_confidence&#39;, &#39;datetime&#39;: &#39;2024-03-15 08:44:34.864829&#39;, &#39;threshold&#39;: 0.6, &#39;print_report&#39;: True}
+{&#39;operation&#39;: &#39;interpolate_over_time&#39;, &#39;datetime&#39;: &#39;2024-03-15 08:44:36.324135&#39;, &#39;method&#39;: &#39;linear&#39;, &#39;max_gap&#39;: 1, &#39;print_report&#39;: True}
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.400 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.330 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-filter-and-interpolate-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/filter_and_interpolate.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" width="150px" /></a>
+</div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/122338c6db2328ed9eeb5e9961344704/filter_and_interpolate.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">filter_and_interpolate.ipynb</span></code></a></p>
 </div>
