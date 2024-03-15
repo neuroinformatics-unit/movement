@@ -213,6 +213,13 @@ To add new examples, you will need to create a new `.py` file in `examples/`.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](sphinx-gallery:syntax).
 
+We are using sphinx-gallery's [integration with binder](https://sphinx-gallery.github.io/stable/configuration.html#binder-links)
+to provide interactive versions of the examples.
+If your examples rely on packages that are not among movement's dependencies,
+you will need to add them to the `docs/source/environment.yml` file.
+That file is used by binder to create the conda environment in which the
+examples are run. See the relevant section of the
+[binder documentation](https://mybinder.readthedocs.io/en/latest/using/config_files.html).
 
 ### Building the documentation locally
 We recommend that you build and view the documentation website locally, before you push it.
