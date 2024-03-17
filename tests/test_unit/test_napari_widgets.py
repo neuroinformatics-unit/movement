@@ -1,17 +1,25 @@
 import pytest
-from qtpy.QtWidgets import QWidget
+from qtpy.QtWidgets import QApplication, QWidget
 
 from movement.napari.meta_widget import MovementMetaWidget
 
 
 @pytest.fixture
-def meta_widget(make_napari_viewer) -> MovementMetaWidget:
+def meta_widget(make_napari_viewer, request) -> MovementMetaWidget:
     """Fixture to expose the MovementMetaWidget for testing.
 
     Simultaneously acts as a smoke test that the widget
-    can be instantiated without crashing."""
+    can be instantiated without crashing. Also ensures
+    that the widget is properly closed after tests."""
     viewer = make_napari_viewer()
-    return MovementMetaWidget(viewer)
+    widget = MovementMetaWidget(viewer)
+
+    def teardown():
+        widget.close()  # Ensure the widget is closed after tests
+        QApplication.processEvents()  # Process remaining events
+
+    request.addfinalizer(teardown)  # Register the teardown function
+    return widget
 
 
 @pytest.fixture
