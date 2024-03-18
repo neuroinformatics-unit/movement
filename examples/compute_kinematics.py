@@ -15,9 +15,6 @@ import numpy as np
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
 # %matplotlib widget
-# Install circle_fit in your virtual environment with `pip install circle-fit`
-from circle_fit import taubinSVD
-from circle_fit.circle_fit import convert_input
 from matplotlib import pyplot as plt
 
 import movement.analysis.kinematics as kin
@@ -103,57 +100,6 @@ fig.tight_layout()
 # two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``)
 # moved around the circle in anti-clockwise direction, and
 # the third mouse (``AEON3B_TP2``) followed a clockwise direction.
-
-# %%
-# We can compute the centre and the radius of the circle that best approximates
-# the trajectories of the mice, using the ``circle_fit`` package
-# (see https://github.com/AlliedToasters/circle-fit).
-
-xy_coords_all_mice = np.vstack(
-    [
-        pose_tracks.sel(space=["x", "y"]).squeeze()[:, i, :]
-        for i, _ in enumerate(pose_tracks.individuals.values)
-    ]
-)
-
-xc, yc, rc, rmse = taubinSVD(xy_coords_all_mice)
-
-print(
-    f"Best-fit circle: \n"
-    f"- centre at ({xc:.2f}, {yc:.2f}) pixels \n"
-    f"- radius r = {rc:.2f} pixels \n"
-    f"- RMSE = {rmse:.2f} pixels \n"
-)
-# %%
-# We can visually check the fit is reasonable with a plot:
-x, y = convert_input(xy_coords_all_mice)
-fig, ax = plt.subplots(1, 1)
-
-# compute points on fitted circle
-theta_fit = np.linspace(-np.pi, np.pi, 180)
-x_fit = xc + rc * np.cos(theta_fit)
-y_fit = yc + rc * np.sin(theta_fit)
-
-# plot circle
-ax.plot(x_fit, y_fit, "b-", label="fitted circle", lw=2)
-ax.plot([xc], [yc], "bD", mec="b", mew=1)
-
-# plot raw data
-ax.scatter(x, y, c="r", label="data")
-
-ax.grid()
-ax.axis("equal")
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title("Circle fit")
-ax.legend()
-ax.invert_yaxis()
-
-# %%
-# The data of all mice fits well to a circle of radius ``r=528.6`` pixels
-# centered at ``x=711.11``, ``y=540.53``.
-# The root mean square distance between the data points and the circle is
-# ``rmse=2.71`` pixels.
 
 # %%
 # We can also easily plot the components of the position vector against time
@@ -262,54 +208,6 @@ print(
     f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} "
     "pixels long"
 )
-
-# %%
-# We can compare this result to an ideal, straightforward trajectory using the
-# circle fit.
-
-# %%
-# We first compute the vectors from the estimated centre of the circle, to the
-# initial and final position of the mouse
-ini_pos_rel_to_centre = pose_tracks.sel(
-    individuals=mouse_name, space=["x", "y"]
-).values[0, :] - [xc, yc]
-end_pos_rel_to_centre = pose_tracks.sel(
-    individuals=mouse_name, space=["x", "y"]
-).values[-1, :] - [xc, yc]
-
-
-# We divide this vectors by their norm (length) to make them unit vectors
-ini_pos_rel_to_centre_unit = ini_pos_rel_to_centre / np.linalg.norm(
-    ini_pos_rel_to_centre
-)
-end_pos_rel_to_centre_unit = end_pos_rel_to_centre / np.linalg.norm(
-    end_pos_rel_to_centre
-)
-
-# %%
-# The angle between these two vectors in radians, times the radius of the
-# circle is the length of the circular arc:
-theta_rad = np.arccos(
-    np.dot(ini_pos_rel_to_centre_unit, end_pos_rel_to_centre_unit.T)
-).item()
-arc_circle_length = rc * theta_rad
-
-trajectory_ratio = total_displacement / arc_circle_length
-print(
-    f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} pixels"
-    " long. \n"
-    f"It moved approximately {theta_rad*180/np.pi:.2f} deg around a circle."
-    " \n"
-    f"The length of the best-fit arc circle is {arc_circle_length:.2f} pixels."
-    " \n"
-    f"The trajectory of the mouse was {(trajectory_ratio-1)*100:.2f}% longer "
-    "than the best-fit circular trajectory. \n"
-)
-
-# %%
-# Notice that the mouse doesn't move in a straight line, and sometimes
-# back-tracks, so the total length of its trajectory
-# is larger than the length of the circular arc.
 
 # %%
 # Compute velocity
