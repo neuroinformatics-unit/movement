@@ -124,6 +124,11 @@ plt.gcf().show()
 displacement = ds.move.displacement
 
 # %%
+# This method will return a data array equivalent to the pose_tracks one,
+# but holding displacement data along the ``space`` axis, rather than
+# position data.
+
+# %%
 # Notice that we could also compute the displacement (and all the other
 # kinematic variables) using the kinematics module:
 
@@ -269,8 +274,10 @@ print(
 velocity = ds.move.velocity
 
 # %%
-# ``xarray`` nicely deals with the different individuals and spatial
-# dimensions for us! ✨
+# The ``velocity`` method will return a data array equivalent to the
+# pose_tracks one, but holding velocity data along the ``space`` axis, rather
+# than position data. Notice how ``xarray`` nicely deals with the different
+# individuals and spatial dimensions for us! ✨
 
 # %%
 # We can plot the components of the velocity vector against time
