@@ -37,8 +37,8 @@ print(ds)
 # %%
 # We can see in the printed description of the dataset ``ds`` that
 # the data was acquired at 50 fps, and the time axis is expressed in seconds.
-# It includes data for three individuals(``'AEON3B_NTP'``, ``'AEON3B_TP1'``,
-# and ``'AEON3B_TP2'``), and only one keypoint called ``centroid`` was tracked
+# It includes data for three individuals(``AEON3B_NTP``, ``AEON3B_TP1``,
+# and ``AEON3B_TP2``), and only one keypoint called ``centroid`` was tracked
 # in ``x`` and ``y`` dimensions.
 
 # %%
@@ -149,8 +149,8 @@ ax.legend()
 ax.invert_yaxis()
 
 # %%
-# The data of all mice fits well to a circle of radius 528.6 pixels centred
-# at ``x=711.11``, ``y=540.53``.
+# The data of all mice fits well to a circle of radius ``r=528.6 pixels``
+# centered at ``x=711.11``, ``y=540.53``.
 # The root mean square distance between the data points and the circle is
 # ``rmse=2.71`` pixels.
 
@@ -183,7 +183,7 @@ pose_tracks_displacement = kin.compute_displacement(pose_tracks)
 # %%
 # We define the displacement vector at time ``t=0`` to be the zero vector.
 # This way the shape of the ``pose_tracks_displacement`` data array is the
-#  same as the  ``pose_tracks`` array:
+# same as the  ``pose_tracks`` array:
 print(f"Shape of pose_tracks: {pose_tracks.shape}")
 print(f"Shape of pose_tracks_displacement: {pose_tracks_displacement.shape}")
 
@@ -238,7 +238,7 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 
 # %%
 # With the displacement data we can compute the distance travelled by the
-#  mouse along the curve:
+# mouse along the curve:
 displacement_vectors_lengths = np.linalg.norm(
     pose_tracks_displacement.sel(
         individuals=mouse_name, space=["x", "y"]
