@@ -1,5 +1,4 @@
 -e .
-circle_fit
 linkify-it-py
 matplotlib
 myst-parser
