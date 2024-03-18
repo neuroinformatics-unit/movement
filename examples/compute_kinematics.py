@@ -1,9 +1,9 @@
 """
 Compute and visualise kinematics
-============================
+=================================
 
-Compute displacement, velocity and acceleration data on an example dataset
-and visualise the results.
+Compute displacement, velocity and acceleration data on an example dataset and
+visualise the results.
 """
 
 # %%
@@ -350,7 +350,7 @@ fig.show()
 # %%
 # Compute acceleration
 # ---------------------
-# We can compute the accelaration of the data with an equivalent method:
+# We can compute the acceleration of the data with an equivalent method:
 accel = ds.move.acceleration
 
 # %%
