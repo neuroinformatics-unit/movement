@@ -24,7 +24,7 @@ from movement import sample_data
 # Load sample dataset
 # ------------------------
 # First, we load an example dataset. In this case, we select the
-# `SLEAP_three-mice_Aeon_proofread` sample data.
+# ``SLEAP_three-mice_Aeon_proofread`` sample data.
 ds = sample_data.fetch_sample_data(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5",
 )
@@ -87,7 +87,7 @@ for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
         c=pose_tracks.time,
         cmap="viridis",
     )
-
+    ax.invert_yaxis()
     ax.set_title(mouse_name)
     ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
@@ -98,8 +98,8 @@ fig.tight_layout()
 # %%
 # These plots show that for this snippet of the data,
 # two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``)
-# moved around the circle in anti-clockwise direction, and
-# the third mouse (``AEON3B_TP2``) followed a clockwise direction.
+# moved around the circle in clockwise direction, and
+# the third mouse (``AEON3B_TP2``) followed an anti-clockwise direction.
 
 # %%
 # We can also easily plot the components of the position vector against time
@@ -111,8 +111,8 @@ pose_tracks.squeeze().plot.line(
 plt.gcf().show()
 
 # %%
-# The axes units are automatically taken from the data array. In our case,
-# ``time`` is expressed in seconds,
+# If we use ``xarray``'s plotting function, the axes units are automatically
+# taken from the data array. In our case, ``time`` is expressed in seconds,
 # and the ``x`` and ``y`` coordinates of the ``pose_tracks`` are in pixels.
 
 # %%
@@ -135,10 +135,12 @@ displacement_kin = kin.compute_displacement(pose_tracks)
 # convenient syntax of the ``move`` accessor.
 
 # %%
-# The ``displacement``` data array holds, for a given individual, and keypoint
-# at timestep ``t``, the vector from its previous position (``t-1``) to its
-# current one (``t``).
+# The ``displacement`` data array holds, for a given individual and keypoint
+# at timestep ``t``, the vector that goes from its previous position at time
+# ``t-1`` to its current position at time ``t``.
+
 # %%
+# And what happens at ``t=0``, since there is no previous timestep?
 # We define the displacement vector at time ``t=0`` to be the zero vector.
 # This way the shape of the ``pose_tracks_displacement`` data array is the
 # same as the  ``pose_tracks`` array:
@@ -162,10 +164,60 @@ sc = ax.scatter(
     cmap="viridis",
 )
 
-# plot displacement vectors
-# the displacement vector at t is plotted:
-# - with its origin at position(t)
-# - with its tip at position (t-1)
+# plot displacement vectors: at t, vector from t-1 to t
+ax.quiver(
+    pose_tracks.sel(individuals=mouse_name, space="x"),
+    pose_tracks.sel(individuals=mouse_name, space="y"),
+    displacement.sel(individuals=mouse_name, space="x"),
+    displacement.sel(individuals=mouse_name, space="y"),
+    angles="xy",
+    scale=1,
+    scale_units="xy",
+    headwidth=7,
+    headlength=9,
+    headaxislength=9,
+)
+ax.axis("equal")
+ax.set_xlim(450, 575)
+ax.set_ylim(950, 1075)
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+fig.colorbar(sc, ax=ax, label="time (s)")
+
+# %%
+# Notice that this figure is not very useful as a visual check:
+# we can see that there are vectors defined for each point in
+# the trajectory, but we have no easy way to verify they are indeed
+# the displacement vectors from ``t-1`` to ``t``.
+
+# %%
+# If instead we plot
+# the opposite of the displacement vector, we will see that at every time
+# ``t``, the vectors point to the position at ``t-1``.
+# Remember that the displacement vector is defined as the vector at
+# time ``t``, that goes from the previous position ``t-1`` to the
+# current position at ``t``. Therefore, the opposite vector will point
+# from the position point at ``t``, to the position point at ``t-1``.
+
+# %%
+# We can easily do this by flipping the sign of the displacement vector in
+# the plot above:
+mouse_name = "AEON3B_TP2"
+
+fig = plt.figure()
+ax = fig.add_subplot()
+
+# plot position data
+sc = ax.scatter(
+    pose_tracks.sel(individuals=mouse_name, space="x"),
+    pose_tracks.sel(individuals=mouse_name, space="y"),
+    s=15,
+    c=pose_tracks.time,
+    cmap="viridis",
+)
+
+# plot displacement vectors: at t, vector from t-1 to t
 ax.quiver(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
@@ -186,23 +238,23 @@ ax.set_ylabel("y (pixels)")
 ax.set_title(f"Zoomed in trajectory of {mouse_name}")
 fig.colorbar(sc, ax=ax, label="time (s)")
 
+
 # %%
-# Notice that we invert the sign of the displacement vector in the plot for an
-# easier visual check. The displacement vector is defined as the vector at
-# time ``t``, that goes from the previous position point ``t-1`` to the
-# current position point at ``t``. Therefore, the opposite vector will point
-# from the position point at ``t``, to the position point at ``t-1``.
-# This opposite vector is what we represent in the plot.
+# Now we can visually verify that indeed the displacement vector
+# connects the previous and current positions as expected.
 
 # %%
 # With the displacement data we can compute the distance travelled by the
-# mouse along the curve:
+# mouse along its trajectory.
+
+# length of each displacement vector
 displacement_vectors_lengths = np.linalg.norm(
     displacement.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
     axis=1,
 )
 
-total_displacement = np.sum(displacement_vectors_lengths, axis=0)  # pixels
+# sum of all displacement vectors
+total_displacement = np.sum(displacement_vectors_lengths, axis=0)  # in pixels
 
 print(
     f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} "
@@ -234,17 +286,18 @@ plt.gcf().show()
 # This is expected, since we are deriving the velocity using differences in
 # position (which is somewhat noisy), over small stepsizes.
 # More specifically, we use numpy's gradient implementation, which
-# uses second order accurate central differences.
+# uses second order central differences.
 
 # %%
 # We can also visualise the speed, as the norm of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(velocity.individuals.values, axes):
-    # compute the norm of the velocity vector for a mouse
+    # compute the norm of the velocity vector for one mouse
     speed_one_mouse = np.linalg.norm(
         velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
         axis=1,
     )
+    # plot speed against time
     ax.plot(speed_one_mouse)
     ax.set_title(mouse_name)
     ax.set_xlabel("time (s)")
@@ -257,6 +310,7 @@ fig.tight_layout()
 mouse_name = "AEON3B_TP2"
 fig = plt.figure()
 ax = fig.add_subplot()
+# plot trajectory (position data)
 sc = ax.scatter(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
@@ -264,6 +318,7 @@ sc = ax.scatter(
     c=pose_tracks.time,
     cmap="viridis",
 )
+# plot velocity vectors
 ax.quiver(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
@@ -292,14 +347,16 @@ fig.show()
 accel = ds.move.acceleration
 
 # %%
-# and plot of the components of the acceleration vector (`ax`, `ay`) per
+# and plot of the components of the acceleration vector ``ax``, ``ay`` per
 # individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes):
+    # plot x-component of acceleration vector
     ax.plot(
         accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
         label="ax",
     )
+    # plot y-component of acceleration vector
     ax.plot(
         accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
         label="ay",
@@ -311,19 +368,20 @@ for mouse_name, ax in zip(accel.individuals.values, axes):
 fig.tight_layout()
 
 # %%
-# The norm of the acceleration vector would give us the magnitude of the
+# The norm of the acceleration vector is the magnitude of the
 # acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes):
+    # compute norm of the acceleration vector for one mouse
     accel_one_mouse = np.linalg.norm(
         accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
         axis=1,
     )
+
+    # plot acceleration against time
     ax.plot(accel_one_mouse)
     ax.set_title(mouse_name)
     ax.set_xlabel("time (s)")
     ax.set_ylabel("accel (px/s**2)")
 fig.tight_layout()
-
-# %%
