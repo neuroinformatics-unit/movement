@@ -80,7 +80,7 @@ for mouse_name, col in zip(pose_tracks.individuals.values, ["r", "g", "b"]):
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# We can also color color the data based on its timestamp:
+# We can also color the data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
     sc = ax.scatter(
@@ -99,9 +99,10 @@ for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
 fig.tight_layout()
 
 # %%
-# Two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``) moved around the circle
-# anti-clockwise. The third mouse (``AEON3B_TP2``) moved around the circle
-# following a clockwise direction.
+# These plots show that for this snippet of the data,
+# two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``)
+# moved around the circle in anti-clockwise direction, and
+# the third mouse (``AEON3B_TP2``) followed a clockwise direction.
 
 # %%
 # We can compute the centre and the radius of the circle that best approximates
@@ -149,7 +150,7 @@ ax.legend()
 ax.invert_yaxis()
 
 # %%
-# The data of all mice fits well to a circle of radius ``r=528.6 pixels``
+# The data of all mice fits well to a circle of radius ``r=528.6`` pixels
 # centered at ``x=711.11``, ``y=540.53``.
 # The root mean square distance between the data points and the circle is
 # ``rmse=2.71`` pixels.
@@ -166,26 +167,37 @@ plt.gcf().show()
 # %%
 # The axes units are automatically taken from the data array. In our case,
 # ``time`` is expressed in seconds,
-# and the ``x`` and ``y`` coordinates of the ``pose_tracks`` in pixels.
+# and the ``x`` and ``y`` coordinates of the ``pose_tracks`` are in pixels.
 
 # %%
 # Compute displacement
 # ---------------------
 # We can start off by computing the distance travelled by the mice along
 # their trajectories.
-# For this, we can use the ``compute_displacement`` method.
-pose_tracks_displacement = kin.compute_displacement(pose_tracks)
+# For this, we can use the ``displacement`` method of the ``move`` accessor.
+displacement = ds.move.displacement
 
 # %%
-# This will give us for an individual and keypoint at timestep ``t``,
-# the vector from its position at time ``t-1`` to its position at time ``t``.
+# Notice that we could also compute the displacement (and all the other
+# kinematic variables) using the kinematics module:
 
+# %%
+displacement_kin = kin.compute_displacement(pose_tracks)
+
+# %%
+# However, we encourage our users to familiarise themselves with the more
+# convenient syntax of the ``move`` accessor.
+
+# %%
+# The ``displacement``` data array holds, for a given individual, and keypoint
+# at timestep ``t``, the vector from its previous position (``t-1``) to its
+# current one (``t``).
 # %%
 # We define the displacement vector at time ``t=0`` to be the zero vector.
 # This way the shape of the ``pose_tracks_displacement`` data array is the
 # same as the  ``pose_tracks`` array:
 print(f"Shape of pose_tracks: {pose_tracks.shape}")
-print(f"Shape of pose_tracks_displacement: {pose_tracks_displacement.shape}")
+print(f"Shape of pose_tracks_displacement: {displacement.shape}")
 
 # %%
 # We can visualise these displacement vectors with a quiver plot. In this case
@@ -211,8 +223,8 @@ sc = ax.scatter(
 ax.quiver(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
-    -pose_tracks_displacement.sel(individuals=mouse_name, space="x"),
-    -pose_tracks_displacement.sel(individuals=mouse_name, space="y"),
+    -displacement.sel(individuals=mouse_name, space="x"),
+    -displacement.sel(individuals=mouse_name, space="y"),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -240,9 +252,7 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 # With the displacement data we can compute the distance travelled by the
 # mouse along the curve:
 displacement_vectors_lengths = np.linalg.norm(
-    pose_tracks_displacement.sel(
-        individuals=mouse_name, space=["x", "y"]
-    ).squeeze(),
+    displacement.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
     axis=1,
 )
 
@@ -306,7 +316,7 @@ print(
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
 # array:
-pose_tracks_velocity = kin.compute_velocity(pose_tracks)
+velocity = ds.move.velocity
 
 # %%
 # ``xarray`` nicely deals with the different individuals and spatial
@@ -317,9 +327,7 @@ pose_tracks_velocity = kin.compute_velocity(pose_tracks)
 # using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
 # remove the dimension of length 1 from the data (the keypoints dimension).
 
-pose_tracks_velocity.squeeze().plot.line(
-    x="time", row="individuals", aspect=2, size=2.5
-)
+velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
 
 # %%
@@ -333,12 +341,10 @@ plt.gcf().show()
 # %%
 # We can also visualise the speed, as the norm of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(pose_tracks_velocity.individuals.values, axes):
+for mouse_name, ax in zip(velocity.individuals.values, axes):
     # compute the norm of the velocity vector for a mouse
     speed_one_mouse = np.linalg.norm(
-        pose_tracks_velocity.sel(
-            individuals=mouse_name, space=["x", "y"]
-        ).squeeze(),
+        velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
         axis=1,
     )
     ax.plot(speed_one_mouse)
@@ -363,8 +369,8 @@ sc = ax.scatter(
 ax.quiver(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
-    pose_tracks_velocity.sel(individuals=mouse_name, space="x"),
-    pose_tracks_velocity.sel(individuals=mouse_name, space="y"),
+    velocity.sel(individuals=mouse_name, space="x"),
+    velocity.sel(individuals=mouse_name, space="y"),
     angles="xy",
     scale=2,
     scale_units="xy",
@@ -385,19 +391,19 @@ fig.show()
 # Compute acceleration
 # ---------------------
 # We can compute the accelaration of the data with an equivalent method:
-pose_tracks_accel = kin.compute_acceleration(pose_tracks)
+accel = ds.move.acceleration
 
 # %%
 # and plot of the components of the acceleration vector (`ax`, `ay`) per
 # individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes):
     ax.plot(
-        pose_tracks_accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
+        accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
         label="ax",
     )
     ax.plot(
-        pose_tracks_accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
+        accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
         label="ay",
     )
     ax.set_title(mouse_name)
@@ -411,11 +417,9 @@ fig.tight_layout()
 # acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes):
     accel_one_mouse = np.linalg.norm(
-        pose_tracks_accel.sel(
-            individuals=mouse_name, space=["x", "y"]
-        ).squeeze(),
+        accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
         axis=1,
     )
     ax.plot(accel_one_mouse)
