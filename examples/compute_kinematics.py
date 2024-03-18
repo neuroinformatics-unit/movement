@@ -1,8 +1,9 @@
 """
-Compute kinematics
+Compute and visualise kinematics
 ============================
 
-Compute displacement, velocity and acceleration data on an example dataset.
+Compute displacement, velocity and acceleration data on an example dataset
+and visualise the results.
 """
 
 # %%
@@ -21,33 +22,24 @@ from matplotlib import pyplot as plt
 
 import movement.analysis.kinematics as kin
 from movement import sample_data
-from movement.io import load_poses
 
 # %%
 # Load sample dataset
 # ------------------------
 # First, we load an example dataset. In this case, we select the
 # `SLEAP_three-mice_Aeon_proofread` sample data.
-file_path = sample_data.fetch_sample_data_path(
-    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+ds = sample_data.fetch_sample_data(
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5",
 )
 
-# %%
-# Inspect the data
-# ---------------------------------
-# The data was acquired at 50 fps.
-# If we pass this info to the data loading method, the time dimension will be
-# expressed in seconds.
-# If we don't, the time dimension will be frames (starting with frame 0).
-ds = load_poses.from_sleap_file(file_path, fps=50)
 print(ds)
 
 # %%
-# We can see in the printed description of the dataset ``ds`` that it includes
-# data for three individuals(``'AEON3B_NTP'``, ``'AEON3B_TP1'``, and `
-# `'AEON3B_TP2'``), and that only one keypoint called ``centroid`` was tracked
-# in ``x`` and ``y``
-# dimensions.
+# We can see in the printed description of the dataset ``ds`` that
+# the data was acquired at 50 fps, and the time axis is expressed in seconds.
+# It includes data for three individuals(``'AEON3B_NTP'``, ``'AEON3B_TP1'``,
+# and ``'AEON3B_TP2'``), and only one keypoint called ``centroid`` was tracked
+# in ``x`` and ``y`` dimensions.
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:
@@ -89,7 +81,7 @@ for mouse_name, col in zip(pose_tracks.individuals.values, ["r", "g", "b"]):
 
 # %%
 # We can also color color the data based on its timestamp:
-fig, axes = plt.subplots(3, 1)
+fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
     sc = ax.scatter(
         pose_tracks.sel(individuals=mouse_name, space="x"),
@@ -108,9 +100,8 @@ fig.tight_layout()
 
 # %%
 # Two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``) moved around the circle
-#  anti-clockwise.
-# The third mouse (``AEON3B_TP2``) moved around the circle following a
-#  clockwise direction.
+# anti-clockwise. The third mouse (``AEON3B_TP2``) moved around the circle
+# following a clockwise direction.
 
 # %%
 # We can compute the centre and the radius of the circle that best approximates
@@ -180,8 +171,8 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
-# We can start off by computing the distance travelled by the mice along their
-#  trajectories.
+# We can start off by computing the distance travelled by the mice along
+# their trajectories.
 # For this, we can use the ``compute_displacement`` method.
 pose_tracks_displacement = kin.compute_displacement(pose_tracks)
 
@@ -198,7 +189,7 @@ print(f"Shape of pose_tracks_displacement: {pose_tracks_displacement.shape}")
 
 # %%
 # We can visualise these displacement vectors with a quiver plot. In this case
-#  we focus on the mouse ``AEON3B_TP2``:
+# we focus on the mouse ``AEON3B_TP2``:
 mouse_name = "AEON3B_TP2"
 
 fig = plt.figure()
@@ -239,13 +230,10 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 
 # %%
 # Notice that we invert the sign of the displacement vector in the plot for an
-#  easier visual check.
-# The displacement vector is defined as the vector at time ``t``, that goes
-#  from the
-# previous position point ``t-1`` to the current position point at ``t``.
-#  Therefore,
-# the opposite vector will point from the position point at ``t``, to the
-#  position point at ``t-1``
+# easier visual check. The displacement vector is defined as the vector at
+# time ``t``, that goes from the previous position point ``t-1`` to the
+# current position point at ``t``. Therefore, the opposite vector will point
+# from the position point at ``t``, to the position point at ``t-1``.
 # This opposite vector is what we represent in the plot.
 
 # %%
@@ -267,11 +255,11 @@ print(
 
 # %%
 # We can compare this result to an ideal, straightforward trajectory using the
-#  circle fit.
+# circle fit.
 
 # %%
 # We first compute the vectors from the estimated centre of the circle, to the
-#  initial and final position of the mouse
+# initial and final position of the mouse
 ini_pos_rel_to_centre = pose_tracks.sel(
     individuals=mouse_name, space=["x", "y"]
 ).values[0, :] - [xc, yc]
@@ -290,7 +278,7 @@ end_pos_rel_to_centre_unit = end_pos_rel_to_centre / np.linalg.norm(
 
 # %%
 # The angle between these two vectors in radians, times the radius of the
-#  circle is the length of the circular arc:
+# circle is the length of the circular arc:
 theta_rad = np.arccos(
     np.dot(ini_pos_rel_to_centre_unit, end_pos_rel_to_centre_unit.T)
 ).item()
@@ -310,19 +298,19 @@ print(
 
 # %%
 # Notice that the mouse doesn't move in a straight line, and sometimes
-#  back-tracks, so the total length of its trajectory
+# back-tracks, so the total length of its trajectory
 # is larger than the length of the circular arc.
 
 # %%
 # Compute velocity
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
-#  array:
+# array:
 pose_tracks_velocity = kin.compute_velocity(pose_tracks)
 
 # %%
 # ``xarray`` nicely deals with the different individuals and spatial
-#  dimensions for us! ✨
+# dimensions for us! ✨
 
 # %%
 # We can plot the components of the velocity vector against time
@@ -336,9 +324,9 @@ plt.gcf().show()
 
 # %%
 # The components of the velocity vector seem noisier than the components of
-#  the position vector.
+# the position vector.
 # This is expected, since we are deriving the velocity using differences in
-#  position (which is somewhat noisy), over small stepsizes.
+# position (which is somewhat noisy), over small stepsizes.
 # More specifically, we use numpy's gradient implementation, which
 # uses second order accurate central differences.
 
@@ -361,7 +349,7 @@ fig.tight_layout()
 
 # %%
 # To visualise the direction of the velocity vector at each timestep, we can
-#  use a quiver plot:
+# use a quiver plot:
 mouse_name = "AEON3B_TP2"
 fig = plt.figure()
 ax = fig.add_subplot()
@@ -401,7 +389,7 @@ pose_tracks_accel = kin.compute_acceleration(pose_tracks)
 
 # %%
 # and plot of the components of the acceleration vector (`ax`, `ay`) per
-#  individual:
+# individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
     ax.plot(
@@ -420,7 +408,7 @@ fig.tight_layout()
 
 # %%
 # The norm of the acceleration vector would give us the magnitude of the
-#  acceleration.
+# acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(pose_tracks_accel.individuals.values, axes):
