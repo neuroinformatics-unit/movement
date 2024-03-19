@@ -32,7 +32,7 @@ Input/Output
     ValidFile
     ValidHDF5
     ValidPosesCSV
-    ValidPoseTracks
+    ValidPosesDataset
 
 Sample Data
 -----------

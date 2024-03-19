@@ -8,7 +8,7 @@ from movement.io import load_poses, save_poses
 
 
 class TestPosesIO:
-    """Test the IO functionalities of the PoseTracks class."""
+    """Test the IO functionalities for poses."""
 
     @pytest.fixture(params=["dlc.h5", "dlc.csv"])
     def dlc_output_file(self, request, tmp_path):

@@ -135,7 +135,7 @@ class TestSavePoses:
 
     @pytest.mark.parametrize(
         "valid_pose_dataset, split_value",
-        [("single_track_array", True), ("multi_track_array", False)],
+        [("single_individual_array", True), ("multi_individual_array", False)],
         indirect=["valid_pose_dataset"],
     )
     def test_auto_split_individuals(self, valid_pose_dataset, split_value):
@@ -149,10 +149,10 @@ class TestSavePoses:
     @pytest.mark.parametrize(
         "valid_pose_dataset, split_individuals",
         [
-            ("single_track_array", True),  # single-individual, split
-            ("multi_track_array", False),  # multi-individual, no split
-            ("single_track_array", False),  # single-individual, no split
-            ("multi_track_array", True),  # multi-individual, split
+            ("single_individual_array", True),  # single-individual, split
+            ("multi_individual_array", False),  # multi-individual, no split
+            ("single_individual_array", False),  # single-individual, no split
+            ("multi_individual_array", True),  # multi-individual, split
         ],
         indirect=["valid_pose_dataset"],
     )

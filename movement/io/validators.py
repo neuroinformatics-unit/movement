@@ -242,16 +242,16 @@ def _validate_list_length(
 
 
 @define(kw_only=True)
-class ValidPoseTracks:
+class ValidPosesDataset:
     """Class for validating pose tracking data imported from a file.
 
     Attributes
     ----------
-    tracks_array : np.ndarray
+    position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_keypoints, n_space)
-        containing the pose tracks. It will be converted to a
-        `xarray.DataArray` object named "pose_tracks".
-    scores_array : np.ndarray, optional
+        containing the poses. It will be converted to a
+        `xarray.DataArray` object named "position".
+    confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the point-wise confidence scores. It will be converted to a
         `xarray.DataArray` object named "confidence".
@@ -267,13 +267,13 @@ class ValidPoseTracks:
     fps : float, optional
         Frames per second of the video. Defaults to None.
     source_software : str, optional
-        Name of the software from which the pose tracks were loaded.
+        Name of the software from which the poses were loaded.
         Defaults to None.
     """
 
     # Define class attributes
-    tracks_array: np.ndarray = field()
-    scores_array: Optional[np.ndarray] = field(default=None)
+    position_array: np.ndarray = field()
+    confidence_array: Optional[np.ndarray] = field(default=None)
     individual_names: Optional[list[str]] = field(
         default=None,
         converter=converters.optional(_list_of_str),
@@ -294,8 +294,8 @@ class ValidPoseTracks:
     )
 
     # Add validators
-    @tracks_array.validator
-    def _validate_tracks_array(self, attribute, value):
+    @position_array.validator
+    def _validate_position_array(self, attribute, value):
         _ensure_type_ndarray(value)
         if value.ndim != 4:
             raise log_error(
@@ -310,15 +310,16 @@ class ValidPoseTracks:
                 f"but got {value.shape[-1]}.",
             )
 
-    @scores_array.validator
-    def _validate_scores_array(self, attribute, value):
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _ensure_type_ndarray(value)
-            if value.shape != self.tracks_array.shape[:-1]:
+            expected_shape = self.position_array.shape[:-1]
+            if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
                     f"Expected `{attribute}` to have shape "
-                    f"{self.tracks_array.shape[:-1]}, but got {value.shape}.",
+                    f"{expected_shape}, but got {value.shape}.",
                 )
 
     @individual_names.validator
@@ -327,24 +328,26 @@ class ValidPoseTracks:
             # LightningPose only supports a single individual
             _validate_list_length(attribute, value, 1)
         else:
-            _validate_list_length(attribute, value, self.tracks_array.shape[1])
+            _validate_list_length(
+                attribute, value, self.position_array.shape[1]
+            )
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        _validate_list_length(attribute, value, self.tracks_array.shape[2])
+        _validate_list_length(attribute, value, self.position_array.shape[2])
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)"""
-        if self.scores_array is None:
-            self.scores_array = np.full(
-                (self.tracks_array.shape[:-1]), np.nan, dtype="float32"
+        if self.confidence_array is None:
+            self.confidence_array = np.full(
+                (self.position_array.shape[:-1]), np.nan, dtype="float32"
             )
             log_warning(
                 "Scores array was not provided. Setting to an array of NaNs."
             )
         if self.individual_names is None:
             self.individual_names = [
-                f"individual_{i}" for i in range(self.tracks_array.shape[1])
+                f"individual_{i}" for i in range(self.position_array.shape[1])
             ]
             log_warning(
                 "Individual names were not provided. "
@@ -352,7 +355,7 @@ class ValidPoseTracks:
             )
         if self.keypoint_names is None:
             self.keypoint_names = [
-                f"keypoint_{i}" for i in range(self.tracks_array.shape[2])
+                f"keypoint_{i}" for i in range(self.position_array.shape[2])
             ]
             log_warning(
                 "Keypoint names were not provided. "

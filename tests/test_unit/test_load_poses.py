@@ -73,16 +73,16 @@ class TestLoadPoses:
         """Assert that the dataset is a proper xarray Dataset."""
         assert isinstance(dataset, xr.Dataset)
         # Expected variables are present and of right shape/type
-        for var in ["pose_tracks", "confidence"]:
+        for var in ["position", "confidence"]:
             assert var in dataset.data_vars
             assert isinstance(dataset[var], xr.DataArray)
-        assert dataset.pose_tracks.ndim == 4
-        assert dataset.confidence.shape == dataset.pose_tracks.shape[:-1]
+        assert dataset.position.ndim == 4
+        assert dataset.confidence.shape == dataset.position.shape[:-1]
         # Check the dims and coords
         DIM_NAMES = MoveAccessor.dim_names
         assert all([i in dataset.dims for i in DIM_NAMES])
         for d, dim in enumerate(DIM_NAMES[1:]):
-            assert dataset.dims[dim] == dataset.pose_tracks.shape[d + 1]
+            assert dataset.dims[dim] == dataset.position.shape[d + 1]
             assert all(
                 [isinstance(s, str) for s in dataset.coords[dim].values]
             )

@@ -193,7 +193,7 @@ in seconds if `fps` is provided, otherwise they are in frame numbers.
 
 The dataset contains two data variables stored as
 [`xarray.DataArray`](xarray:generated/xarray.DataArray.html#xarray.DataArray) objects:
-- `pose_tracks`: with shape (`time`, `individuals`, `keypoints`, `space`)
+- `position`: with shape (`time`, `individuals`, `keypoints`, `space`)
 - `confidence`: with shape (`time`, `individuals`, `keypoints`)
 
 You can think of a `DataArray` as a `numpy.ndarray` with `pandas`-style
@@ -209,7 +209,7 @@ The dataset may also contain the following attributes as metadata:
 ### Indexing and selection
 You can access the data variables and attributes of the dataset as follows:
 ```python
-pose_tracks = ds.pose_tracks  # ds["pose_tracks"] also works
+position = ds.position  # ds["position"] also works
 confidence = ds.confidence
 
 fps = ds.fps   # ds.attrs["fps"] also works
@@ -231,7 +231,7 @@ All of the above selections can also be applied to the data variables,
 resulting in a `DataArray` rather than a `Dataset`:
 
 ```python
-pose_tracks = ds.pose_tracks.sel(individuals="individual1", keypoints="snout")
+position = ds.position.sel(individuals="individual1", keypoints="snout")
 ```
 You may also use all the other powerful [indexing and selection](xarray:user-guide/indexing.html) methods provided by `xarray`.
 

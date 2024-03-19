@@ -38,9 +38,9 @@ print(ds)
 
 # %%
 # The loaded dataset contains two data variables:
-# ``pose_tracks`` and ``confidence``.
+# ``position`` and ``confidence``.
 # To get the pose tracks:
-pose_tracks = ds.pose_tracks
+position = ds.position
 
 # %%
 # Select and plot data with xarray
@@ -49,7 +49,7 @@ pose_tracks = ds.pose_tracks
 # For example, we can get a ``DataArray`` containing only data
 # for a single keypoint of the first individual:
 
-da = pose_tracks.sel(individuals="AEON3B_NTP", keypoints="centroid")
+da = position.sel(individuals="AEON3B_NTP", keypoints="centroid")
 print(da)
 
 # %%
@@ -61,7 +61,7 @@ da.plot.line(x="time", row="space", aspect=2, size=2.5)
 # Similarly we could plot the same keypoint's x, y coordinates
 # for all individuals:
 
-da = pose_tracks.sel(keypoints="centroid")
+da = position.sel(keypoints="centroid")
 da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
 # %%

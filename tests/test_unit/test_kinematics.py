@@ -35,7 +35,7 @@ class TestKinematics:
                 y_vals[0] = 0
 
             x_vals = x_vals.reshape(-1, 1, 1, 1)
-            # Repeat the x_vals to match the shape of the pose_tracks
+            # Repeat the x_vals to match the shape of the position
             x_vals = np.tile(x_vals, (1, 2, 2, 1))
             return xr.DataArray(
                 np.concatenate(
@@ -61,9 +61,9 @@ class TestKinematics:
         """Test displacement computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_displacement(ds.pose_tracks)
+            result = kinematics.compute_displacement(ds.position)
             expected = expected_dataarray("displacement")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [3, 4, 7, 8, 9]}
                 ] = np.nan
@@ -76,9 +76,9 @@ class TestKinematics:
         """Test velocity computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_velocity(ds.pose_tracks)
+            result = kinematics.compute_velocity(ds.position)
             expected = expected_dataarray("velocity")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [2, 4, 6, 7, 8, 9]}
                 ] = np.nan
@@ -91,9 +91,9 @@ class TestKinematics:
         """Test acceleration computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_acceleration(ds.pose_tracks)
+            result = kinematics.compute_acceleration(ds.position)
             expected = expected_dataarray("acceleration")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [1, 3, 5, 6, 7, 8, 9]}
                 ] = np.nan
