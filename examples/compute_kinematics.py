@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """
 Compute and visualise kinematics
 =================================
@@ -132,7 +133,7 @@ displacement = ds.move.displacement
 # kinematic variables) using the kinematics module:
 
 # %%
-import movement.analysis.kinematics as kin  # noqa: E402
+import movement.analysis.kinematics as kin
 
 displacement_kin = kin.compute_displacement(pose_tracks)
 
