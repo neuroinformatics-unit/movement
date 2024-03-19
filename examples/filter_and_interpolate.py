@@ -77,7 +77,7 @@ ds_filtered = filter_by_confidence(ds, threshold=0.6, print_report=True)
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
-# ``position`` data variable. Let's visualise the filtered position.
+# ``position`` data variable. Let's visualise the filtered data.
 
 position_filtered = ds_filtered.position.sel(individuals="individual_0")
 position_filtered.plot.line(

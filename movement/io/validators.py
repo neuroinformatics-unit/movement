@@ -343,7 +343,8 @@ class ValidPosesDataset:
                 (self.position_array.shape[:-1]), np.nan, dtype="float32"
             )
             log_warning(
-                "Scores array was not provided. Setting to an array of NaNs."
+                "Confidence array was not provided."
+                "Setting to an array of NaNs."
             )
         if self.individual_names is None:
             self.individual_names = [
