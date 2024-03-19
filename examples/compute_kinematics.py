@@ -17,7 +17,6 @@ import numpy as np
 # %matplotlib widget
 from matplotlib import pyplot as plt
 
-import movement.analysis.kinematics as kin
 from movement import sample_data
 
 # %%
@@ -133,6 +132,8 @@ displacement = ds.move.displacement
 # kinematic variables) using the kinematics module:
 
 # %%
+import movement.analysis.kinematics as kin  # noqa: E402
+
 displacement_kin = kin.compute_displacement(pose_tracks)
 
 # %%
