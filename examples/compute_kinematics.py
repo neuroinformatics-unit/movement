@@ -147,7 +147,7 @@ displacement_kin = kin.compute_displacement(pose_tracks)
 # %%
 # And what happens at ``t=0``, since there is no previous timestep?
 # We define the displacement vector at time ``t=0`` to be the zero vector.
-# This way the shape of the ``pose_tracks_displacement`` data array is the
+# This way the shape of the ``displacement`` data array is the
 # same as the  ``pose_tracks`` array:
 print(f"Shape of pose_tracks: {pose_tracks.shape}")
 print(f"Shape of pose_tracks_displacement: {displacement.shape}")
