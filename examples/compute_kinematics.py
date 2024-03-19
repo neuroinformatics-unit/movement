@@ -123,7 +123,7 @@ plt.gcf().show()
 displacement = ds.move.displacement
 
 # %%
-# This method will return a data array equivalent to the pose_tracks one,
+# This method will return a data array equivalent to the ``pose_tracks`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
 
@@ -137,8 +137,12 @@ import movement.analysis.kinematics as kin  # noqa: E402
 displacement_kin = kin.compute_displacement(pose_tracks)
 
 # %%
-# However, we encourage our users to familiarise themselves with the more
-# convenient syntax of the ``move`` accessor.
+# However, we encourage our users to familiarise themselves with the ``move``
+# accessor, since it has a very interesting advantage: if we use
+# ``ds.move.displacement`` to compute the displacement data array, it
+# will be automatically added to the ``ds`` dataset. This is very
+# convenient for later analyses!
+# See further details in :ref:`target-access-kinematics`.
 
 # %%
 # The ``displacement`` data array holds, for a given individual and keypoint
@@ -183,12 +187,14 @@ ax.quiver(
     headlength=9,
     headaxislength=9,
 )
+
 ax.axis("equal")
 ax.set_xlim(450, 575)
 ax.set_ylim(950, 1075)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+ax.invert_yaxis()
 fig.colorbar(sc, ax=ax, label="time (s)")
 
 # %%
@@ -227,8 +233,8 @@ sc = ax.scatter(
 ax.quiver(
     pose_tracks.sel(individuals=mouse_name, space="x"),
     pose_tracks.sel(individuals=mouse_name, space="y"),
-    -displacement.sel(individuals=mouse_name, space="x"),
-    -displacement.sel(individuals=mouse_name, space="y"),
+    -displacement.sel(individuals=mouse_name, space="x"),  # flipped sign
+    -displacement.sel(individuals=mouse_name, space="y"),  # flipped sign
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -242,6 +248,7 @@ ax.set_ylim(950, 1075)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+ax.invert_yaxis()
 fig.colorbar(sc, ax=ax, label="time (s)")
 
 
@@ -341,6 +348,7 @@ ax.axis("equal")
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.set_title(f"Velocity quiver plot for {mouse_name}")
+ax.invert_yaxis()
 fig.colorbar(sc, ax=ax, label="time (s)")
 fig.show()
 
@@ -393,3 +401,30 @@ for mouse_name, ax in zip(accel.individuals.values, axes):
     ax.set_xlabel("time (s)")
     ax.set_ylabel("accel (px/s**2)")
 fig.tight_layout()
+
+
+# %%
+# .. _target-access-kinematics:
+#
+# Accessing pre-computed kinematic variables
+# ------------------------------------------
+# Once each kinematic variable has been computed via the ``move`` accessor,
+# (e.g. by calling ``ds.move.velocity``), the resulting data array will
+# also be available as a dataset property, (e.g. as ``ds.velocity``).
+# Since we've already computed ``displacement``, ``velocity`` and
+# ``acceleration`` above, they should be listed among the data arrays
+# contained in the dataset:
+print(ds)
+
+# %%
+# Indeed we see that in addition to the original data arrays ``pose_tracks``
+# and ``confidence``, the ``ds`` dataset now also contains data arrays called
+# ``displacement``, ``velocity`` and ``acceleration``.
+
+print(ds.displacement)
+
+# %%
+print(ds.velocity)
+
+# %%
+print(ds.acceleration)
