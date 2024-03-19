@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2c684bf9"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.14</p>
+    <p class="title logo__title">movement v0.0.15</p>
   
 </a></div>
     
@@ -443,13 +443,15 @@ document.write(`
 </section>
 <section id="short-term-milestone-v0-1">
 <h2>Short-term milestone - <code class="docutils literal notranslate"><span class="pre">v0.1</span></code><a class="headerlink" href="#short-term-milestone-v0-1" title="Permalink to this heading">#</a></h2>
-<p>We plan to release version <code class="docutils literal notranslate"><span class="pre">v0.1</span></code> of movement in early 2024, providing a minimal set of features to demonstrate the project’s potential and to gather feedback from users. At minimum, it should include the following features:</p>
-<ul class="simple">
-<li><p>Importing pose tracks from <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a>, <a class="reference external" href="https://sleap.ai/#">SLEAP</a> and <a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightningPose</a> into a common <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> structure. This has been already accomplished.</p></li>
-<li><p>Visualisation of pose tracks using <a class="reference external" href="https://napari.org/dev/">napari</a>. We aim to represent pose tracks via the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks">napari tracks layer</a> and overlay them on a video frame. This should be accompanied by a minimal GUI widget to allow selection of a subset of the tracks to plot. This line of work is still in a pilot phase. We may decide to use a different visualisation framework if we encounter roadblocks.</p></li>
-<li><p>At least one function for cleaning the pose tracks. Once the first one is in place, it can serve as a template for others.</p></li>
-<li><p>Computing velocity and acceleration from pose tracks. Again, this should serve as a template for other kinematic variables.</p></li>
-<li><p>Package release on PyPI and conda-forge, along with documentation. The package is already available on <a class="reference external" href="https://pypi.org/project/movement/">PyPI</a> and the <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">documentation website</span></a> is up and running. We plan to also release it on conda-forge to enable one-line installation.</p></li>
+<p>We plan to release version <code class="docutils literal notranslate"><span class="pre">v0.1</span></code> of movement in early 2024, providing a minimal set of features to demonstrate the project’s potential and to gather feedback from users. At minimum, it should include:</p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Ability to import pose tracks from <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a>, <a class="reference external" href="https://sleap.ai/#">SLEAP</a> and <a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightningPose</a> into a common <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> structure.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> At least one function for cleaning the pose tracks.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Ability to compute velocity and acceleration from pose tracks.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Public website with <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">documentation</span></a>.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Package released on <a class="reference external" href="https://pypi.org/project/movement/">PyPI</a>.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Package released on <a class="reference external" href="https://conda-forge.org/">conda-forge</a>.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Ability to visualise pose tracks using <a class="reference external" href="https://napari.org/dev/">napari</a>. We aim to represent pose tracks via napari’s <a class="reference external" href="https://napari.org/dev/howtos/layers/points">Points</a> and <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks">Tracks</a> layers and overlay them on video frames.</p></li>
 </ul>
 </section>
 </section>

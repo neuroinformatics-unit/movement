@@ -224,7 +224,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x75db28552250>
+    <xarray.plot.facetgrid.FacetGrid object at 0x735cde6d8810>
 
 
 
@@ -255,7 +255,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x75db27f02690>
+    <xarray.plot.facetgrid.FacetGrid object at 0x735cde28be10>
 
 
 
@@ -299,14 +299,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x75db25e7d1d0>
+    <matplotlib.colorbar.Colorbar object at 0x735cdc054610>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.714 seconds)
+   **Total running time of the script:** (0 minutes 0.739 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

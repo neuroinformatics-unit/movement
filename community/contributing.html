@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=2c684bf9"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.14</p>
+    <p class="title logo__title">movement v0.0.15</p>
   
 </a></div>
     
@@ -492,12 +492,14 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p><a class="reference external" href="https://black.readthedocs.io/en/stable/">black</a> for auto-formatting</p></li>
 <li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy</a> as a static type checker</p></li>
 <li><p><a class="reference external" href="https://github.com/mgedmin/check-manifest">check-manifest</a> to ensure that the right files are included in the pip package.</p></li>
+<li><p><a class="reference external" href="https://github.com/codespell-project/codespell">codespell</a> to check for common misspellings.</p></li>
 </ul>
 <p>These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>.
 black<span class="w"> </span>./
 mypy<span class="w"> </span>-p<span class="w"> </span>movement
 check-manifest
+codespell
 </pre></div>
 </div>
 <p>To run all the hooks before committing:</p>
@@ -567,7 +569,7 @@ Other <code class="docutils literal notranslate"><span class="pre">.rst</span></
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
 The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
-The deployment job is only triggerred whenever a tag is pushed to the <em>main</em> branch,
+The deployment job is only triggered whenever a tag is pushed to the <em>main</em> branch,
 ensuring that the documentation is published in sync with each PyPI release.</p>
 <section id="editing-the-documentation">
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h3>

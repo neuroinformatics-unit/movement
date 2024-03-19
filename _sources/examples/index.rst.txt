@@ -50,6 +50,23 @@ Below is a gallery of examples using `movement`.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration data on an example dataset and visualise the re...">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_compute_kinematics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_compute_kinematics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics</div>
+    </div>
+
+
+.. raw:: html
+
     </div>
 
 
@@ -58,6 +75,7 @@ Below is a gallery of examples using `movement`.
 
    /examples/load_and_explore_poses
    /examples/filter_and_interpolate
+   /examples/compute_kinematics
 
 
 .. only:: html

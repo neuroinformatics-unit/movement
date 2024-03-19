@@ -17,10 +17,12 @@ The following features are being considered for the first stable version `v1.0`.
 - __Define and transform coordinate systems__. Coordinates can be relative to the camera, environment, or the animal itself (egocentric).
 
 ## Short-term milestone - `v0.1`
-We plan to release version `v0.1` of movement in early 2024, providing a minimal set of features to demonstrate the project's potential and to gather feedback from users. At minimum, it should include the following features:
+We plan to release version `v0.1` of movement in early 2024, providing a minimal set of features to demonstrate the project's potential and to gather feedback from users. At minimum, it should include:
 
-- Importing pose tracks from [DeepLabCut](dlc:), [SLEAP](sleap:) and [LightningPose](lp:) into a common `xarray.Dataset` structure. This has been already accomplished.
-- Visualisation of pose tracks using [napari](napari:). We aim to represent pose tracks via the [napari tracks layer](napari:howtos/layers/tracks) and overlay them on a video frame. This should be accompanied by a minimal GUI widget to allow selection of a subset of the tracks to plot. This line of work is still in a pilot phase. We may decide to use a different visualisation framework if we encounter roadblocks.
-- At least one function for cleaning the pose tracks. Once the first one is in place, it can serve as a template for others.
-- Computing velocity and acceleration from pose tracks. Again, this should serve as a template for other kinematic variables.
-- Package release on PyPI and conda-forge, along with documentation. The package is already available on [PyPI](https://pypi.org/project/movement/) and the [documentation website](target-movement) is up and running. We plan to also release it on conda-forge to enable one-line installation.
+- [x] Ability to import pose tracks from [DeepLabCut](dlc:), [SLEAP](sleap:) and [LightningPose](lp:) into a common `xarray.Dataset` structure.
+- [x] At least one function for cleaning the pose tracks.
+- [x] Ability to compute velocity and acceleration from pose tracks.
+- [x] Public website with [documentation](target-movement).
+- [x] Package released on [PyPI](https://pypi.org/project/movement/).
+- [ ] Package released on [conda-forge](https://conda-forge.org/).
+- [ ] Ability to visualise pose tracks using [napari](napari:). We aim to represent pose tracks via napari's [Points](napari:howtos/layers/points) and [Tracks](napari:howtos/layers/tracks) layers and overlay them on video frames.
