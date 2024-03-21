@@ -23,16 +23,19 @@ def cart2polar(data: xr.DataArray) -> xr.DataArray:
     )
     theta = xr.apply_ufunc(
         np.arctan2,
-        data[..., 1],
-        data[..., 0],
+        data.sel(space="y"),
+        data.sel(space="x"),
     )
+    # Replace space dim with space_polar
+    dims = list(data.dims)
+    dims[dims.index("space")] = "space_polar"
     return xr.combine_nested(
         [
             rho.assign_coords({"space_polar": "rho"}),
             theta.assign_coords({"space_polar": "theta"}),
         ],
         concat_dim="space_polar",
-    )
+    ).transpose(*dims)
 
 
 # validate space dimension

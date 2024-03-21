@@ -55,9 +55,23 @@ class TestVectorUtils:
 
     def test_cart2polar_(self):
         """Test rho computation."""
-        expected = 5
-        result = vector_utils.cart2polar(xr.DataArray([3, 4], dims="space"))
-        assert result.sel(space_polar="rho") == expected
+        x_vals = [5, 3.5355, 0, -10]
+        y_vals = [0, 3.5355, 10, 0]
+        time_coords = np.arange(len(x_vals), dtype=int)
+        input_data = xr.DataArray(
+            np.column_stack((x_vals, y_vals)),
+            dims=["time", "space"],
+            coords={"time": time_coords, "space": ["x", "y"]},
+        )
+        expected_theta = [0, 0.7854, 1.5708, 3.1416]
+        expected_rho = [5.0000, 5.0000, 10.0000, 10.0000]
+        expected = xr.DataArray(
+            np.column_stack((expected_rho, expected_theta)),
+            dims=["time", "space_polar"],
+            coords={"time": time_coords, "space_polar": ["rho", "theta"]},
+        )
+        result = vector_utils.cart2polar(input_data)
+        xr.testing.assert_allclose(result, expected)
 
     def test_cart2polar(
         self, valid_pose_dataset, kinematic_property, expected_dataset
