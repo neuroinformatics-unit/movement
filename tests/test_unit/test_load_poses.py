@@ -82,7 +82,7 @@ class TestLoadPoses:
         DIM_NAMES = MoveAccessor.dim_names
         assert all([i in dataset.dims for i in DIM_NAMES])
         for d, dim in enumerate(DIM_NAMES[1:]):
-            assert dataset.dims[dim] == dataset.position.shape[d + 1]
+            assert dataset.sizes[dim] == dataset.position.shape[d + 1]
             assert all(
                 [isinstance(s, str) for s in dataset.coords[dim].values]
             )
@@ -208,7 +208,7 @@ class TestLoadPoses:
             assert ds.fps == expected_fps
             np.testing.assert_allclose(
                 ds.coords["time"].data,
-                np.arange(ds.dims["time"], dtype=int) / ds.attrs["fps"],
+                np.arange(ds.sizes["time"], dtype=int) / ds.attrs["fps"],
             )
 
     @pytest.mark.parametrize(
