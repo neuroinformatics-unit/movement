@@ -5,12 +5,12 @@ from movement.napari.meta_widget import MovementMetaWidget
 
 
 @pytest.fixture
-def meta_widget(make_napari_viewer) -> MovementMetaWidget:
+def meta_widget(make_napari_viewer_proxy) -> MovementMetaWidget:
     """Fixture to expose the MovementMetaWidget for testing.
 
     Simultaneously acts as a smoke test that the widget
     can be instantiated without crashing."""
-    viewer = make_napari_viewer()
+    viewer = make_napari_viewer_proxy()
     return MovementMetaWidget(viewer)
 
 
