@@ -75,11 +75,6 @@ exclude = ["tests", "docs*"]
 [tool.pytest.ini_options]
 addopts = "--cov=movement"
 
-[tool.black]
-target-version = ['py39', 'py310', 'py311']
-skip-string-normalization = false
-line-length = 79
-
 [tool.setuptools_scm]
 
 [tool.check-manifest]
@@ -102,6 +97,9 @@ line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
 lint.select = ["I", "E", "F"]
 fix = true
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.cibuildwheel]
 build = "cp39-* cp310-* cp311-*"
