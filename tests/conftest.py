@@ -143,9 +143,9 @@ def fake_h5_file(tmp_path):
 
 
 @pytest.fixture
-def invalid_single_animal_csv_file(tmp_path):
-    """Return the file path for a fake single-animal .csv file."""
-    file_path = tmp_path / "fake_single_animal.csv"
+def invalid_single_individual_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "fake_single_individual.csv"
     with open(file_path, "w") as f:
         f.write("scorer,columns\nsome,columns\ncoords,columns\n")
         f.write("1,2")
@@ -153,9 +153,9 @@ def invalid_single_animal_csv_file(tmp_path):
 
 
 @pytest.fixture
-def invalid_multi_animal_csv_file(tmp_path):
-    """Return the file path for a fake multi-animal .csv file."""
-    file_path = tmp_path / "fake_multi_animal.csv"
+def invalid_multi_individual_csv_file(tmp_path):
+    """Return the file path for a fake multi-individual .csv file."""
+    file_path = tmp_path / "fake_multi_individual.csv"
     with open(file_path, "w") as f:
         f.write(
             "scorer,columns\nindividuals,columns\nbodyparts,columns\nsome,columns\n"

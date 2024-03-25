@@ -162,9 +162,9 @@ def from_sleap_file(
     when exporting .h5 analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
-    them, meaning each track is interpreted as a single individual/animal. If
+    them, meaning each track is interpreted as a single individual. If
     no tracks are found in the file, *movement* assumes that this is a
-    single-individual/animal track, and will assign a default individual name.
+    single-individual track, and will assign a default individual name.
     If multiple instances without tracks are present in a frame, the last
     instance is selected [2]_.
     Follow the SLEAP guide for tracking and proofreading [3]_.

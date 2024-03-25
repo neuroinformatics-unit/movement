@@ -236,8 +236,8 @@ class TestLoadPoses:
         assert ds_drom_lp.source_software == "LightningPose"
         assert ds_from_dlc.source_software == "DeepLabCut"
 
-    def test_load_multi_animal_from_lp_file_raises(self):
-        """Test that loading a multi-animal .csv file using the
+    def test_load_multi_individual_from_lp_file_raises(self):
+        """Test that loading a multi-individual .csv file using the
         `from_lp_file` function raises a ValueError."""
         file_path = POSE_DATA_PATHS.get("DLC_two-mice.predictions.csv")
         with pytest.raises(ValueError):

@@ -113,8 +113,8 @@ class TestValidators:
     @pytest.mark.parametrize(
         "invalid_input, expected_exception",
         [
-            ("invalid_single_animal_csv_file", pytest.raises(ValueError)),
-            ("invalid_multi_animal_csv_file", pytest.raises(ValueError)),
+            ("invalid_single_individual_csv_file", pytest.raises(ValueError)),
+            ("invalid_multi_individual_csv_file", pytest.raises(ValueError)),
         ],
     )
     def test_poses_csv_validator_with_invalid_input(
@@ -174,32 +174,32 @@ class TestValidators:
                 assert np.all(np.isnan(poses.confidence_array))
 
     def test_poses_dataset_validator_keypoint_names(
-        self, position_arrays_params, valid_position_array
+        self, position_array_params, valid_position_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
-        with position_arrays_params.get(
+        with position_array_params.get(
             "keypoint_names_expected_exception"
         ) as e:
             poses = ValidPosesDataset(
                 position_array=valid_position_array(
-                    position_arrays_params.get("array_type")
+                    position_array_params.get("array_type")
                 ),
-                keypoint_names=position_arrays_params.get("names"),
+                keypoint_names=position_array_params.get("names"),
             )
             assert poses.keypoint_names == e
 
     def test_poses_dataset_validator_individual_names(
-        self, position_arrays_params, valid_position_array
+        self, position_array_params, valid_position_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
-        with position_arrays_params.get(
+        with position_array_params.get(
             "individual_names_expected_exception"
         ) as e:
             poses = ValidPosesDataset(
                 position_array=valid_position_array(
-                    position_arrays_params.get("array_type")
+                    position_array_params.get("array_type")
                 ),
-                individual_names=position_arrays_params.get("names"),
+                individual_names=position_array_params.get("names"),
             )
             assert poses.individual_names == e
 
