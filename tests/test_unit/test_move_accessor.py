@@ -5,13 +5,16 @@ import xarray as xr
 class TestMoveAccessor:
     """Test suite for the move_accessor module."""
 
+    @pytest.mark.parametrize("suffix", ["", "_pol"])
     def test_property_with_valid_dataset(
-        self, valid_poses_dataset, kinematic_property
+        self, valid_poses_dataset, kinematic_property, suffix
     ):
-        """Test that accessing a property of a valid pose dataset
-        returns an instance of xr.DataArray with the correct name,
-        and that the input xr.Dataset now contains the property as
-        a data variable."""
+        """Test that accessing a kinematic property (in Cartesian
+        or polar coordinates) of a valid pose dataset returns an
+        instance of xr.DataArray with the correct name, and that
+        the input xr.Dataset now contains the property as a data
+        variable."""
+        kinematic_property += suffix
         result = getattr(valid_poses_dataset.move, kinematic_property)
         assert isinstance(result, xr.DataArray)
         assert result.name == kinematic_property
