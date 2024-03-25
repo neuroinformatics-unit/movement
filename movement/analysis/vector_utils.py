@@ -10,14 +10,15 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``space`` as a dimension with
-        ``x`` and ``y`` labels.
+        The input data containing ``space`` as a dimension,
+        with ``x`` and ``y`` in the dimension coordinate.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the polar coordinates
-        rho and theta.
+        stored in the ``space_polar`` dimension, with ``rho``
+        and ``theta`` in the dimension coordinate.
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
     rho = xr.apply_ufunc(
@@ -49,14 +50,15 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``space_polar`` as a dimension with
-        ``rho`` and ``theta`` labels.
+        The input data containing ``space_polar`` as a dimension,
+        with ``rho`` and ``theta`` in the dimension coordinate.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the Cartesian coordinates
-        x and y.
+        stored in the ``space`` dimension, with ``x`` and ``y``
+        in the dimension coordinate.
     """
     _validate_dimension_coordinates(data, {"space_polar": ["rho", "theta"]})
     rho = data.sel(space_polar="rho")
