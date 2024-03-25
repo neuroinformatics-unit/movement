@@ -54,8 +54,8 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     for ind in ds.individuals.values:
         nan_report += f"\n\tIndividual: {ind}"
         for kp in ds.keypoints.values:
-            # Get the track for the current individual and keypoint
-           position = ds.position.sel(individuals=ind, keypoints=kp)
+            # Get the position track for the current individual and keypoint
+            position = ds.position.sel(individuals=ind, keypoints=kp)
             # A point is considered NaN if any of its space coordinates are NaN
             n_nans = position.isnull().any(["space"]).sum(["time"]).item()
             n_points = position.time.size
