@@ -14,7 +14,7 @@ from movement.sample_data import fetch_sample_data
 
 @pytest.fixture(scope="module")
 def sample_dataset():
-    """Return a dict containing a single- and a multi-animal sample dataset"""
+    """Return a single-individual sample dataset"""
     return fetch_sample_data("DLC_single-mouse_EPM.predictions.h5")
 
 
@@ -47,7 +47,7 @@ def test_interpolate_over_time(sample_dataset):
     def count_nans(ds):
         n_nans = np.count_nonzero(
             np.isnan(
-                ds.pose_tracks.sel(
+                ds.position.sel(
                     individuals="individual_0", keypoints="snout"
                 ).values[:, 0]
             )
@@ -69,7 +69,7 @@ def test_filter_by_confidence(sample_dataset, caplog):
 
     n_nans = np.count_nonzero(
         np.isnan(
-            ds_filtered.pose_tracks.sel(
+            ds_filtered.position.sel(
                 individuals="individual_0", keypoints="snout"
             ).values[:, 0]
         )

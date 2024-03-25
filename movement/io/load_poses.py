@@ -13,7 +13,7 @@ from movement.io.validators import (
     ValidFile,
     ValidHDF5,
     ValidPosesCSV,
-    ValidPoseTracks,
+    ValidPosesDataset,
 )
 from movement.logging import log_error, log_warning
 from movement.move_accessor import MoveAccessor
@@ -116,9 +116,9 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
         (-1, len(individual_names), len(keypoint_names), 3)
     )
 
-    valid_data = ValidPoseTracks(
-        tracks_array=tracks_with_scores[:, :, :, :-1],
-        scores_array=tracks_with_scores[:, :, :, -1],
+    valid_data = ValidPosesDataset(
+        position_array=tracks_with_scores[:, :, :, :-1],
+        confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
@@ -162,9 +162,9 @@ def from_sleap_file(
     when exporting .h5 analysis files [2]_.
 
     *movement* expects the tracks to be assigned and proofread before loading
-    them, meaning each track is interpreted as a single individual/animal. If
+    them, meaning each track is interpreted as a single individual. If
     no tracks are found in the file, *movement* assumes that this is a
-    single-individual/animal track, and will assign a default individual name.
+    single-individual track, and will assign a default individual name.
     If multiple instances without tracks are present in a frame, the last
     instance is selected [2]_.
     Follow the SLEAP guide for tracking and proofreading [3]_.
@@ -330,7 +330,7 @@ def _from_lp_or_dlc_file(
 
 def _load_from_sleap_analysis_file(
     file_path: Path, fps: Optional[float]
-) -> ValidPoseTracks:
+) -> ValidPosesDataset:
     """Load and validate pose tracks and confidence scores from a SLEAP
     analysis file.
 
@@ -344,7 +344,7 @@ def _load_from_sleap_analysis_file(
 
     Returns
     -------
-    movement.io.tracks_validators.ValidPoseTracks
+    movement.io.tracks_validators.ValidPosesDataset
         The validated pose tracks and confidence scores.
     """
 
@@ -366,9 +366,9 @@ def _load_from_sleap_analysis_file(
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f.keys():
             scores = f["point_scores"][:].transpose((2, 0, 1))
-        return ValidPoseTracks(
-            tracks_array=tracks.astype(np.float32),
-            scores_array=scores.astype(np.float32),
+        return ValidPosesDataset(
+            position_array=tracks.astype(np.float32),
+            confidence_array=scores.astype(np.float32),
             individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
@@ -378,7 +378,7 @@ def _load_from_sleap_analysis_file(
 
 def _load_from_sleap_labels_file(
     file_path: Path, fps: Optional[float]
-) -> ValidPoseTracks:
+) -> ValidPosesDataset:
     """Load and validate pose tracks and confidence scores from a SLEAP
     labels file.
 
@@ -392,7 +392,7 @@ def _load_from_sleap_labels_file(
 
     Returns
     -------
-    movement.io.tracks_validators.ValidPoseTracks
+    movement.io.tracks_validators.ValidPosesDataset
         The validated pose tracks and confidence scores.
     """
 
@@ -406,9 +406,9 @@ def _load_from_sleap_labels_file(
             "Assuming single-individual dataset and assigning "
             "default individual name."
         )
-    return ValidPoseTracks(
-        tracks_array=tracks_with_scores[:, :, :, :-1],
-        scores_array=tracks_with_scores[:, :, :, -1],
+    return ValidPosesDataset(
+        position_array=tracks_with_scores[:, :, :, :-1],
+        confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
@@ -552,12 +552,12 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _from_valid_data(data: ValidPoseTracks) -> xr.Dataset:
+def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """Convert already validated pose tracking data to an xarray Dataset.
 
     Parameters
     ----------
-    data : movement.io.tracks_validators.ValidPoseTracks
+    data : movement.io.tracks_validators.ValidPosesDataset
         The validated data object.
 
     Returns
@@ -566,8 +566,8 @@ def _from_valid_data(data: ValidPoseTracks) -> xr.Dataset:
         Dataset containing the pose tracks, confidence scores, and metadata.
     """
 
-    n_frames = data.tracks_array.shape[0]
-    n_space = data.tracks_array.shape[-1]
+    n_frames = data.position_array.shape[0]
+    n_space = data.position_array.shape[-1]
 
     # Create the time coordinate, depending on the value of fps
     time_coords = np.arange(n_frames, dtype=int)
@@ -580,8 +580,10 @@ def _from_valid_data(data: ValidPoseTracks) -> xr.Dataset:
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
-            "pose_tracks": xr.DataArray(data.tracks_array, dims=DIM_NAMES),
-            "confidence": xr.DataArray(data.scores_array, dims=DIM_NAMES[:-1]),
+            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
+            "confidence": xr.DataArray(
+                data.confidence_array, dims=DIM_NAMES[:-1]
+            ),
         },
         coords={
             DIM_NAMES[0]: time_coords,

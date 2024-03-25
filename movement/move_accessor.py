@@ -4,7 +4,7 @@ from typing import Callable, ClassVar
 import xarray as xr
 
 from movement.analysis import kinematics
-from movement.io.validators import ValidPoseTracks
+from movement.io.validators import ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class MoveAccessor:
     are in seconds if ``fps`` is provided, otherwise they are in frame numbers.
 
     The dataset contains two expected data variables (xarray DataArrays):
-        - ``pose_tracks``: with shape (``time``, ``individuals``,
+        - ``position``: with shape (``time``, ``individuals``,
           ``keypoints``, ``space``)
         - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)
 
@@ -44,9 +44,8 @@ class MoveAccessor:
         - ``fps``: the number of frames per second in the video
         - ``time_unit``: the unit of the ``time`` coordinates, frames or
           seconds
-        - ``source_software``: the software from which the pose tracks were
-          loaded
-        - ``source_file``: the file from which the pose tracks were
+        - ``source_software``: the software from which the poses were loaded
+        - ``source_file``: the file from which the poses were
           loaded
 
     Notes
@@ -72,7 +71,7 @@ class MoveAccessor:
 
     # Names of the expected data variables in the dataset
     var_names: ClassVar[tuple] = (
-        "pose_tracks",
+        "position",
         "confidence",
     )
 
@@ -100,8 +99,8 @@ class MoveAccessor:
         """
         self.validate()
         if property not in self._obj:
-            pose_tracks = self._obj[self.var_names[0]]
-            self._obj[property] = compute_function(pose_tracks)
+            position = self._obj[self.var_names[0]]
+            self._obj[property] = compute_function(position)
         return self._obj[property]
 
     @property
@@ -130,7 +129,7 @@ class MoveAccessor:
         )
 
     def validate(self) -> None:
-        """Validate the PoseTracks dataset."""
+        """Validate the poses dataset."""
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:
@@ -144,15 +143,15 @@ class MoveAccessor:
                 raise ValueError(
                     f"Missing required data variables: {missing_vars}"
                 )
-            ValidPoseTracks(
-                tracks_array=self._obj[self.var_names[0]].values,
-                scores_array=self._obj[self.var_names[1]].values,
+            ValidPosesDataset(
+                position_array=self._obj[self.var_names[0]].values,
+                confidence_array=self._obj[self.var_names[1]].values,
                 individual_names=self._obj.coords[self.dim_names[1]].values,
                 keypoint_names=self._obj.coords[self.dim_names[2]].values,
                 fps=fps,
                 source_software=source_software,
             )
         except Exception as e:
-            error_msg = "The dataset does not contain valid pose tracks."
+            error_msg = "The dataset does not contain valid poses."
             logger.error(error_msg)
             raise ValueError(error_msg) from e

@@ -143,9 +143,9 @@ def fake_h5_file(tmp_path):
 
 
 @pytest.fixture
-def invalid_single_animal_csv_file(tmp_path):
-    """Return the file path for a fake single-animal .csv file."""
-    file_path = tmp_path / "fake_single_animal.csv"
+def invalid_single_individual_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "fake_single_individual.csv"
     with open(file_path, "w") as f:
         f.write("scorer,columns\nsome,columns\ncoords,columns\n")
         f.write("1,2")
@@ -153,9 +153,9 @@ def invalid_single_animal_csv_file(tmp_path):
 
 
 @pytest.fixture
-def invalid_multi_animal_csv_file(tmp_path):
-    """Return the file path for a fake multi-animal .csv file."""
-    file_path = tmp_path / "fake_multi_animal.csv"
+def invalid_multi_individual_csv_file(tmp_path):
+    """Return the file path for a fake multi-individual .csv file."""
+    file_path = tmp_path / "fake_multi_individual.csv"
     with open(file_path, "w") as f:
         f.write(
             "scorer,columns\nindividuals,columns\nbodyparts,columns\nsome,columns\n"
@@ -206,13 +206,13 @@ def sleap_file(request):
 
 
 @pytest.fixture
-def valid_tracks_array():
+def valid_position_array():
     """Return a function that generates different kinds
-    of valid tracks array."""
+    of a valid position array."""
 
-    def _valid_tracks_array(array_type):
-        """Return a valid tracks array."""
-        # Unless specified, default is a multi_track_array with
+    def _valid_position_array(array_type):
+        """Return a valid position array."""
+        # Unless specified, default is a multi_individual_array with
         # 10 frames, 2 individuals, and 2 keypoints.
         n_frames = 10
         n_individuals = 2
@@ -222,37 +222,37 @@ def valid_tracks_array():
         ]
         if array_type == "single_keypoint_array":
             n_keypoints = 1
-        elif array_type == "single_track_array":
+        elif array_type == "single_individual_array":
             n_individuals = 1
         x_points = np.repeat(base * base, n_individuals * n_keypoints)
         y_points = np.repeat(base * 4, n_individuals * n_keypoints)
-        tracks_array = np.ravel(np.column_stack((x_points, y_points)))
-        return tracks_array.reshape(n_frames, n_individuals, n_keypoints, 2)
+        position_array = np.ravel(np.column_stack((x_points, y_points)))
+        return position_array.reshape(n_frames, n_individuals, n_keypoints, 2)
 
-    return _valid_tracks_array
+    return _valid_position_array
 
 
 @pytest.fixture
-def valid_pose_dataset(valid_tracks_array, request):
+def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
     dim_names = MoveAccessor.dim_names
-    # create a multi_track_array by default unless overridden via param
+    # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
     except AttributeError:
-        array_format = "multi_track_array"
-    tracks_array = valid_tracks_array(array_format)
-    n_individuals, n_keypoints = tracks_array.shape[1:3]
+        array_format = "multi_individual_array"
+    position_array = valid_position_array(array_format)
+    n_individuals, n_keypoints = position_array.shape[1:3]
     return xr.Dataset(
         data_vars={
-            "pose_tracks": xr.DataArray(tracks_array, dims=dim_names),
+            "position": xr.DataArray(position_array, dims=dim_names),
             "confidence": xr.DataArray(
-                np.ones(tracks_array.shape[:-1]),
+                np.ones(position_array.shape[:-1]),
                 dims=dim_names[:-1],
             ),
         },
         coords={
-            "time": np.arange(tracks_array.shape[0]),
+            "time": np.arange(position_array.shape[0]),
             "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
             "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
             "space": ["x", "y"],
@@ -267,12 +267,12 @@ def valid_pose_dataset(valid_tracks_array, request):
 
 
 @pytest.fixture
-def valid_pose_dataset_with_nan(valid_pose_dataset):
+def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid pose tracks dataset with NaN values."""
-    valid_pose_dataset.pose_tracks.loc[
+    valid_poses_dataset.position.loc[
         {"individuals": "ind1", "time": [3, 7, 8]}
     ] = np.nan
-    return valid_pose_dataset
+    return valid_poses_dataset
 
 
 @pytest.fixture
@@ -288,15 +288,15 @@ def empty_dataset():
 
 
 @pytest.fixture
-def missing_var_dataset(valid_pose_dataset):
+def missing_var_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected variable."""
-    return valid_pose_dataset.drop_vars("pose_tracks")
+    return valid_poses_dataset.drop_vars("position")
 
 
 @pytest.fixture
-def missing_dim_dataset(valid_pose_dataset):
+def missing_dim_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected dimension."""
-    return valid_pose_dataset.rename({"time": "tame"})
+    return valid_poses_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture(
@@ -307,7 +307,7 @@ def missing_dim_dataset(valid_pose_dataset):
         "missing_dim_dataset",
     ]
 )
-def invalid_pose_dataset(request):
+def invalid_poses_dataset(request):
     """Return an invalid pose tracks dataset."""
     return request.getfixturevalue(request.param)
 

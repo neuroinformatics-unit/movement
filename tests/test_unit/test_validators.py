@@ -7,17 +7,17 @@ from movement.io.validators import (
     ValidFile,
     ValidHDF5,
     ValidPosesCSV,
-    ValidPoseTracks,
+    ValidPosesDataset,
 )
 
 
 class TestValidators:
     """Test suite for the validators module."""
 
-    pose_tracks = [
+    position_arrays = [
         {
             "names": None,
-            "array_type": "multi_track_array",
+            "array_type": "multi_individual_array",
             "individual_names_expected_exception": does_not_raise(
                 ["individual_0", "individual_1"]
             ),
@@ -27,46 +27,46 @@ class TestValidators:
         },  # valid input, will generate default names
         {
             "names": ["a", "b"],
-            "array_type": "multi_track_array",
+            "array_type": "multi_individual_array",
             "individual_names_expected_exception": does_not_raise(["a", "b"]),
             "keypoint_names_expected_exception": does_not_raise(["a", "b"]),
         },  # valid input
         {
             "names": ("a", "b"),
-            "array_type": "multi_track_array",
+            "array_type": "multi_individual_array",
             "individual_names_expected_exception": does_not_raise(["a", "b"]),
             "keypoint_names_expected_exception": does_not_raise(["a", "b"]),
         },  # valid input, will be converted to ["a", "b"]
         {
             "names": [1, 2],
-            "array_type": "multi_track_array",
+            "array_type": "multi_individual_array",
             "individual_names_expected_exception": does_not_raise(["1", "2"]),
             "keypoint_names_expected_exception": does_not_raise(["1", "2"]),
         },  # valid input, will be converted to ["1", "2"]
         {
             "names": "a",
-            "array_type": "single_track_array",
+            "array_type": "single_individual_array",
             "individual_names_expected_exception": does_not_raise(["a"]),
             "keypoint_names_expected_exception": pytest.raises(ValueError),
-        },  # single track array with multiple keypoints
+        },  # single individual array with multiple keypoints
         {
             "names": "a",
             "array_type": "single_keypoint_array",
             "individual_names_expected_exception": pytest.raises(ValueError),
             "keypoint_names_expected_exception": does_not_raise(["a"]),
-        },  # single keypoint array with multiple tracks
+        },  # single keypoint array with multiple individuals
         {
             "names": 5,
-            "array_type": "multi_track_array",
+            "array_type": "multi_individual_array",
             "individual_names_expected_exception": pytest.raises(ValueError),
             "keypoint_names_expected_exception": pytest.raises(ValueError),
         },  # invalid input
     ]
 
-    @pytest.fixture(params=pose_tracks)
-    def pose_tracks_params(self, request):
+    @pytest.fixture(params=position_arrays)
+    def position_array_params(self, request):
         """Return a dictionary containing parameters for testing
-        pose track keypoint and individual names."""
+        position array keypoint and individual names."""
         return request.param
 
     @pytest.mark.parametrize(
@@ -113,8 +113,8 @@ class TestValidators:
     @pytest.mark.parametrize(
         "invalid_input, expected_exception",
         [
-            ("invalid_single_animal_csv_file", pytest.raises(ValueError)),
-            ("invalid_multi_animal_csv_file", pytest.raises(ValueError)),
+            ("invalid_single_individual_csv_file", pytest.raises(ValueError)),
+            ("invalid_multi_individual_csv_file", pytest.raises(ValueError)),
         ],
     )
     def test_poses_csv_validator_with_invalid_input(
@@ -126,7 +126,7 @@ class TestValidators:
             ValidPosesCSV(file_path)
 
     @pytest.mark.parametrize(
-        "invalid_tracks_array",
+        "invalid_position_array",
         [
             None,  # invalid, argument is non-optional
             [1, 2, 3],  # not an ndarray
@@ -134,20 +134,20 @@ class TestValidators:
             np.zeros((10, 2, 3, 4)),  # last dim not 2 or 3
         ],
     )
-    def test_pose_tracks_validator_with_invalid_tracks(
-        self, invalid_tracks_array
+    def test_poses_dataset_validator_with_invalid_position_array(
+        self, invalid_position_array
     ):
-        """Test that invalid tracks arrays raise the appropriate errors."""
+        """Test that invalid position arrays raise the appropriate errors."""
         with pytest.raises(ValueError):
-            ValidPoseTracks(tracks_array=invalid_tracks_array)
+            ValidPosesDataset(position_array=invalid_position_array)
 
     @pytest.mark.parametrize(
-        "scores_array, expected_exception",
+        "confidence_array, expected_exception",
         [
             (
                 np.ones((10, 3, 2)),
                 pytest.raises(ValueError),
-            ),  # will not match tracks_array shape
+            ),  # will not match position_array shape
             (
                 [1, 2, 3],
                 pytest.raises(ValueError),
@@ -158,46 +158,48 @@ class TestValidators:
             ),  # valid, should default to array of NaNs
         ],
     )
-    def test_pose_tracks_validator_scores(
+    def test_poses_dataset_validator_confidence_array(
         self,
-        scores_array,
+        confidence_array,
         expected_exception,
-        valid_tracks_array,
+        valid_position_array,
     ):
-        """Test that invalid scores arrays raise the appropriate errors."""
+        """Test that invalid confidence arrays raise the appropriate errors."""
         with expected_exception:
-            poses = ValidPoseTracks(
-                tracks_array=valid_tracks_array("multi_track_array"),
-                scores_array=scores_array,
+            poses = ValidPosesDataset(
+                position_array=valid_position_array("multi_individual_array"),
+                confidence_array=confidence_array,
             )
-            if scores_array is None:
-                assert np.all(np.isnan(poses.scores_array))
+            if confidence_array is None:
+                assert np.all(np.isnan(poses.confidence_array))
 
-    def test_pose_tracks_validator_keypoint_names(
-        self, pose_tracks_params, valid_tracks_array
+    def test_poses_dataset_validator_keypoint_names(
+        self, position_array_params, valid_position_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
-        with pose_tracks_params.get("keypoint_names_expected_exception") as e:
-            poses = ValidPoseTracks(
-                tracks_array=valid_tracks_array(
-                    pose_tracks_params.get("array_type")
+        with position_array_params.get(
+            "keypoint_names_expected_exception"
+        ) as e:
+            poses = ValidPosesDataset(
+                position_array=valid_position_array(
+                    position_array_params.get("array_type")
                 ),
-                keypoint_names=pose_tracks_params.get("names"),
+                keypoint_names=position_array_params.get("names"),
             )
             assert poses.keypoint_names == e
 
-    def test_pose_tracks_validator_individual_names(
-        self, pose_tracks_params, valid_tracks_array
+    def test_poses_dataset_validator_individual_names(
+        self, position_array_params, valid_position_array
     ):
         """Test that invalid keypoint names raise the appropriate errors."""
-        with pose_tracks_params.get(
+        with position_array_params.get(
             "individual_names_expected_exception"
         ) as e:
-            poses = ValidPoseTracks(
-                tracks_array=valid_tracks_array(
-                    pose_tracks_params.get("array_type")
+            poses = ValidPosesDataset(
+                position_array=valid_position_array(
+                    position_array_params.get("array_type")
                 ),
-                individual_names=pose_tracks_params.get("names"),
+                individual_names=position_array_params.get("names"),
             )
             assert poses.individual_names == e
 
@@ -212,14 +214,14 @@ class TestValidators:
             (5, pytest.raises(TypeError)),  # not a string
         ],
     )
-    def test_pose_tracks_validator_source_software(
-        self, valid_tracks_array, source_software, expected_exception
+    def test_poses_dataset_validator_source_software(
+        self, valid_position_array, source_software, expected_exception
     ):
         """Test that the source_software attribute is validated properly.
-        LightnigPose is incompatible with multi-track arrays."""
+        LightnigPose is incompatible with multi-individual arrays."""
         with expected_exception:
-            ds = ValidPoseTracks(
-                tracks_array=valid_tracks_array("multi_track_array"),
+            ds = ValidPosesDataset(
+                position_array=valid_position_array("multi_individual_array"),
                 source_software=source_software,
             )
 

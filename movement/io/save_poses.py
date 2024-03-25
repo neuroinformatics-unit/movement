@@ -32,7 +32,7 @@ def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
     # Concatenate the pose tracks and confidence scores into one array
     tracks_with_scores = np.concatenate(
         (
-            ds.pose_tracks.data,
+            ds.position.data,
             ds.confidence.data[..., np.newaxis],
         ),
         axis=-1,
@@ -135,7 +135,7 @@ def to_dlc_df(
             df_dict[individual] = df
 
         logger.info(
-            "Converted PoseTracks dataset to DeepLabCut-style DataFrames "
+            "Converted poses dataset to DeepLabCut-style DataFrames "
             "per individual."
         )
         return df_dict
@@ -147,7 +147,7 @@ def to_dlc_df(
 
         df_all = _xarray_to_dlc_df(ds, columns)
 
-        logger.info("Converted PoseTracks dataset to DLC-style DataFrame.")
+        logger.info("Converted poses dataset to DLC-style DataFrame.")
         return df_all
 
 
@@ -216,15 +216,13 @@ def to_dlc_file(
             filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(
-                f"Saved PoseTracks data for individual {key} to {file.path}."
-            )
+            logger.info(f"Saved poses for individual {key} to {file.path}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_df(ds, split_individuals=False)
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
-        logger.info(f"Saved PoseTracks dataset to {file.path}.")
+        logger.info(f"Saved poses dataset to {file.path}.")
 
 
 def to_lp_file(
@@ -323,10 +321,10 @@ def to_sleap_analysis_file(
     else:
         frame_idxs = ds.time.values.astype(int).tolist()
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
-    pos_x = ds.pose_tracks.sel(space="x").values
+    pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
     track_occupancy = (~np.all(np.isnan(pos_x), axis=2)).astype(int)
-    tracks = np.transpose(ds.pose_tracks.data, (1, 3, 2, 0))
+    tracks = np.transpose(ds.position.data, (1, 3, 2, 0))
     point_scores = np.transpose(ds.confidence.data, (1, 2, 0))
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
@@ -359,7 +357,7 @@ def to_sleap_analysis_file(
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved PoseTracks dataset to {file.path}.")
+    logger.info(f"Saved poses dataset to {file.path}.")
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
@@ -376,7 +374,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
         The input dataset without the unoccupied tracks.
     """
 
-    all_nan = ds.pose_tracks.isnull().all(dim=["keypoints", "space", "time"])
+    all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
 
 
@@ -420,7 +418,7 @@ def _validate_file_path(
 
 
 def _validate_dataset(ds: xr.Dataset) -> None:
-    """Validate the input dataset is an xarray Dataset with valid PoseTracks.
+    """Validate the input dataset is an xarray Dataset with valid poses.
 
     Parameters
     ----------
@@ -430,7 +428,7 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     Raises
     ------
     ValueError
-        If `ds` is not an xarray Dataset with valid PoseTracks.
+        If `ds` is not an xarray Dataset with valid poses.
     """
 
     if not isinstance(ds, xr.Dataset):

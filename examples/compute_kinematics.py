@@ -40,10 +40,10 @@ print(ds)
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:
-# ``pose_tracks`` and ``confidence``.
-# To compute displacement, velocity and acceleration, we will need the pose
-# tracks one:
-pose_tracks = ds.pose_tracks
+# ``position`` and ``confidence``.
+# To compute displacement, velocity and acceleration, we will need the
+# ``position`` one:
+position = ds.position
 
 
 # %%
@@ -53,10 +53,10 @@ pose_tracks = ds.pose_tracks
 # colouring them by individual.
 
 fig, ax = plt.subplots(1, 1)
-for mouse_name, col in zip(pose_tracks.individuals.values, ["r", "g", "b"]):
+for mouse_name, col in zip(position.individuals.values, ["r", "g", "b"]):
     ax.plot(
-        pose_tracks.sel(individuals=mouse_name, space="x"),
-        pose_tracks.sel(individuals=mouse_name, space="y"),
+        position.sel(individuals=mouse_name, space="x"),
+        position.sel(individuals=mouse_name, space="y"),
         linestyle="-",
         marker=".",
         markersize=2,
@@ -79,12 +79,12 @@ for mouse_name, col in zip(pose_tracks.individuals.values, ["r", "g", "b"]):
 # %%
 # We can also color the data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
-for mouse_name, ax in zip(pose_tracks.individuals.values, axes):
+for mouse_name, ax in zip(position.individuals.values, axes):
     sc = ax.scatter(
-        pose_tracks.sel(individuals=mouse_name, space="x"),
-        pose_tracks.sel(individuals=mouse_name, space="y"),
+        position.sel(individuals=mouse_name, space="x"),
+        position.sel(individuals=mouse_name, space="y"),
         s=2,
-        c=pose_tracks.time,
+        c=position.time,
         cmap="viridis",
     )
     ax.invert_yaxis()
@@ -105,15 +105,13 @@ fig.tight_layout()
 # We can also easily plot the components of the position vector against time
 # using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
 # remove the dimension of length 1 from the data (the keypoints dimension).
-pose_tracks.squeeze().plot.line(
-    x="time", row="individuals", aspect=2, size=2.5
-)
+position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
 
 # %%
 # If we use ``xarray``'s plotting function, the axes units are automatically
 # taken from the data array. In our case, ``time`` is expressed in seconds,
-# and the ``x`` and ``y`` coordinates of the ``pose_tracks`` are in pixels.
+# and the ``x`` and ``y`` coordinates of the ``position`` are in pixels.
 
 # %%
 # Compute displacement
@@ -124,7 +122,7 @@ plt.gcf().show()
 displacement = ds.move.displacement
 
 # %%
-# This method will return a data array equivalent to the ``pose_tracks`` one,
+# This method will return a data array equivalent to the ``position`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
 
@@ -135,7 +133,7 @@ displacement = ds.move.displacement
 # %%
 import movement.analysis.kinematics as kin
 
-displacement_kin = kin.compute_displacement(pose_tracks)
+displacement_kin = kin.compute_displacement(position)
 
 # %%
 # However, we encourage our users to familiarise themselves with the ``move``
@@ -154,9 +152,9 @@ displacement_kin = kin.compute_displacement(pose_tracks)
 # And what happens at ``t=0``, since there is no previous timestep?
 # We define the displacement vector at time ``t=0`` to be the zero vector.
 # This way the shape of the ``displacement`` data array is the
-# same as the  ``pose_tracks`` array:
-print(f"Shape of pose_tracks: {pose_tracks.shape}")
-print(f"Shape of pose_tracks_displacement: {displacement.shape}")
+# same as the  ``position`` array:
+print(f"Shape of position: {position.shape}")
+print(f"Shape of displacement: {displacement.shape}")
 
 # %%
 # We can visualise these displacement vectors with a quiver plot. In this case
@@ -168,17 +166,17 @@ ax = fig.add_subplot()
 
 # plot position data
 sc = ax.scatter(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     s=15,
-    c=pose_tracks.time,
+    c=position.time,
     cmap="viridis",
 )
 
 # plot displacement vectors: at t, vector from t-1 to t
 ax.quiver(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     displacement.sel(individuals=mouse_name, space="x"),
     displacement.sel(individuals=mouse_name, space="y"),
     angles="xy",
@@ -223,17 +221,17 @@ ax = fig.add_subplot()
 
 # plot position data
 sc = ax.scatter(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     s=15,
-    c=pose_tracks.time,
+    c=position.time,
     cmap="viridis",
 )
 
 # plot displacement vectors: at t, vector from t-1 to t
 ax.quiver(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     -displacement.sel(individuals=mouse_name, space="x"),  # flipped sign
     -displacement.sel(individuals=mouse_name, space="y"),  # flipped sign
     angles="xy",
@@ -284,7 +282,7 @@ velocity = ds.move.velocity
 
 # %%
 # The ``velocity`` method will return a data array equivalent to the
-# pose_tracks one, but holding velocity data along the ``space`` axis, rather
+# ``position`` one, but holding velocity data along the ``space`` axis, rather
 # than position data. Notice how ``xarray`` nicely deals with the different
 # individuals and spatial dimensions for us! ✨
 
@@ -328,16 +326,16 @@ fig = plt.figure()
 ax = fig.add_subplot()
 # plot trajectory (position data)
 sc = ax.scatter(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     s=15,
-    c=pose_tracks.time,
+    c=position.time,
     cmap="viridis",
 )
 # plot velocity vectors
 ax.quiver(
-    pose_tracks.sel(individuals=mouse_name, space="x"),
-    pose_tracks.sel(individuals=mouse_name, space="y"),
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
     velocity.sel(individuals=mouse_name, space="x"),
     velocity.sel(individuals=mouse_name, space="y"),
     angles="xy",
@@ -418,7 +416,7 @@ fig.tight_layout()
 print(ds)
 
 # %%
-# Indeed we see that in addition to the original data arrays ``pose_tracks``
+# Indeed we see that in addition to the original data arrays ``position``
 # and ``confidence``, the ``ds`` dataset now also contains data arrays called
 # ``displacement``, ``velocity`` and ``acceleration``.
 

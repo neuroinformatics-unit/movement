@@ -11,7 +11,7 @@ class TestKinematics:
     """Test suite for the kinematics module."""
 
     @pytest.fixture
-    def expected_dataarray(self, valid_pose_dataset):
+    def expected_dataarray(self, valid_poses_dataset):
         """Return a function to generate the expected dataarray
         for different kinematic properties."""
 
@@ -35,22 +35,22 @@ class TestKinematics:
                 y_vals[0] = 0
 
             x_vals = x_vals.reshape(-1, 1, 1, 1)
-            # Repeat the x_vals to match the shape of the pose_tracks
+            # Repeat the x_vals to match the shape of the position
             x_vals = np.tile(x_vals, (1, 2, 2, 1))
             return xr.DataArray(
                 np.concatenate(
                     [x_vals, y_vals],
                     axis=-1,
                 ),
-                dims=valid_pose_dataset.dims,
-                coords=valid_pose_dataset.coords,
+                dims=valid_poses_dataset.dims,
+                coords=valid_poses_dataset.coords,
             )
 
         return _expected_dataarray
 
     kinematic_test_params = [
-        ("valid_pose_dataset", does_not_raise()),
-        ("valid_pose_dataset_with_nan", does_not_raise()),
+        ("valid_poses_dataset", does_not_raise()),
+        ("valid_poses_dataset_with_nan", does_not_raise()),
         ("missing_dim_dataset", pytest.raises(ValueError)),
     ]
 
@@ -61,9 +61,9 @@ class TestKinematics:
         """Test displacement computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_displacement(ds.pose_tracks)
+            result = kinematics.compute_displacement(ds.position)
             expected = expected_dataarray("displacement")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [3, 4, 7, 8, 9]}
                 ] = np.nan
@@ -76,9 +76,9 @@ class TestKinematics:
         """Test velocity computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_velocity(ds.pose_tracks)
+            result = kinematics.compute_velocity(ds.position)
             expected = expected_dataarray("velocity")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [2, 4, 6, 7, 8, 9]}
                 ] = np.nan
@@ -91,9 +91,9 @@ class TestKinematics:
         """Test acceleration computation."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = kinematics.compute_acceleration(ds.pose_tracks)
+            result = kinematics.compute_acceleration(ds.position)
             expected = expected_dataarray("acceleration")
-            if ds.pose_tracks.isnull().any():
+            if ds.position.isnull().any():
                 expected.loc[
                     {"individuals": "ind1", "time": [1, 3, 5, 6, 7, 8, 9]}
                 ] = np.nan

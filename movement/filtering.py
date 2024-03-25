@@ -54,11 +54,11 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     for ind in ds.individuals.values:
         nan_report += f"\n\tIndividual: {ind}"
         for kp in ds.keypoints.values:
-            # Get the track for the current individual and keypoint
-            track_ = ds.pose_tracks.sel(individuals=ind, keypoints=kp)
+            # Get the position track for the current individual and keypoint
+            position = ds.position.sel(individuals=ind, keypoints=kp)
             # A point is considered NaN if any of its space coordinates are NaN
-            n_nans = track_.isnull().any(["space"]).sum(["time"]).item()
-            n_points = track_.time.size
+            n_nans = position.isnull().any(["space"]).sum(["time"]).item()
+            n_points = position.time.size
             percent_nans = round((n_nans / n_points) * 100, 1)
             nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
 
@@ -102,10 +102,10 @@ def interpolate_over_time(
         interpolated over using the parameters provided.
     """
     ds_interpolated = ds.copy()
-    poses_interpolated = ds.pose_tracks.interpolate_na(
+    position_interpolated = ds.position.interpolate_na(
         dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
     )
-    ds_interpolated.update({"pose_tracks": poses_interpolated})
+    ds_interpolated.update({"position": position_interpolated})
     if print_report:
         report_nan_values(ds, "input dataset")
         report_nan_values(ds_interpolated, "interpolated dataset")
@@ -153,7 +153,7 @@ def filter_by_confidence(
     """
     ds_thresholded = ds.copy()
     ds_thresholded.update(
-        {"pose_tracks": ds.pose_tracks.where(ds.confidence >= threshold)}
+        {"position": ds.position.where(ds.confidence >= threshold)}
     )
     if print_report:
         report_nan_values(ds, "input dataset")
