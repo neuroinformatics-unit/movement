@@ -233,7 +233,7 @@ def valid_position_array():
 
 
 @pytest.fixture
-def valid_pose_dataset(valid_position_array, request):
+def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
     dim_names = MoveAccessor.dim_names
     # create a multi_individual_array by default unless overridden via param
@@ -267,12 +267,12 @@ def valid_pose_dataset(valid_position_array, request):
 
 
 @pytest.fixture
-def valid_pose_dataset_with_nan(valid_pose_dataset):
+def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid pose tracks dataset with NaN values."""
-    valid_pose_dataset.position.loc[
+    valid_poses_dataset.position.loc[
         {"individuals": "ind1", "time": [3, 7, 8]}
     ] = np.nan
-    return valid_pose_dataset
+    return valid_poses_dataset
 
 
 @pytest.fixture
@@ -288,15 +288,15 @@ def empty_dataset():
 
 
 @pytest.fixture
-def missing_var_dataset(valid_pose_dataset):
+def missing_var_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected variable."""
-    return valid_pose_dataset.drop_vars("position")
+    return valid_poses_dataset.drop_vars("position")
 
 
 @pytest.fixture
-def missing_dim_dataset(valid_pose_dataset):
+def missing_dim_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected dimension."""
-    return valid_pose_dataset.rename({"time": "tame"})
+    return valid_poses_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture(
@@ -307,7 +307,7 @@ def missing_dim_dataset(valid_pose_dataset):
         "missing_dim_dataset",
     ]
 )
-def invalid_pose_dataset(request):
+def invalid_poses_dataset(request):
     """Return an invalid pose tracks dataset."""
     return request.getfixturevalue(request.param)
 

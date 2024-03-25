@@ -11,7 +11,7 @@ class TestKinematics:
     """Test suite for the kinematics module."""
 
     @pytest.fixture
-    def expected_dataarray(self, valid_pose_dataset):
+    def expected_dataarray(self, valid_poses_dataset):
         """Return a function to generate the expected dataarray
         for different kinematic properties."""
 
@@ -42,15 +42,15 @@ class TestKinematics:
                     [x_vals, y_vals],
                     axis=-1,
                 ),
-                dims=valid_pose_dataset.dims,
-                coords=valid_pose_dataset.coords,
+                dims=valid_poses_dataset.dims,
+                coords=valid_poses_dataset.coords,
             )
 
         return _expected_dataarray
 
     kinematic_test_params = [
-        ("valid_pose_dataset", does_not_raise()),
-        ("valid_pose_dataset_with_nan", does_not_raise()),
+        ("valid_poses_dataset", does_not_raise()),
+        ("valid_poses_dataset_with_nan", does_not_raise()),
         ("missing_dim_dataset", pytest.raises(ValueError)),
     ]
 
