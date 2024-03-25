@@ -64,7 +64,7 @@ class TestValidators:
     ]
 
     @pytest.fixture(params=position_arrays)
-    def position_arrays_params(self, request):
+    def position_array_params(self, request):
         """Return a dictionary containing parameters for testing
         position array keypoint and individual names."""
         return request.param

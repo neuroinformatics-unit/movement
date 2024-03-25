@@ -55,10 +55,10 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
         nan_report += f"\n\tIndividual: {ind}"
         for kp in ds.keypoints.values:
             # Get the track for the current individual and keypoint
-            track_ = ds.position.sel(individuals=ind, keypoints=kp)
+           position = ds.position.sel(individuals=ind, keypoints=kp)
             # A point is considered NaN if any of its space coordinates are NaN
-            n_nans = track_.isnull().any(["space"]).sum(["time"]).item()
-            n_points = track_.time.size
+            n_nans = position.isnull().any(["space"]).sum(["time"]).item()
+            n_points = position.time.size
             percent_nans = round((n_nans / n_points) * 100, 1)
             nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
 

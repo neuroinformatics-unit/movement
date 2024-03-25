@@ -39,7 +39,7 @@ print(ds)
 # %%
 # The loaded dataset contains two data variables:
 # ``position`` and ``confidence``.
-# To get the pose tracks:
+# To get the position data:
 position = ds.position
 
 # %%

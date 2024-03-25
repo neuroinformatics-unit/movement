@@ -14,7 +14,7 @@ from movement.sample_data import fetch_sample_data
 
 @pytest.fixture(scope="module")
 def sample_dataset():
-    """Return a single-animal sample dataset"""
+    """Return a single-individual sample dataset"""
     return fetch_sample_data("DLC_single-mouse_EPM.predictions.h5")
 
 
