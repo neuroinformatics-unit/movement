@@ -129,7 +129,7 @@ class MoveAccessor:
         )
 
     def validate(self) -> None:
-        """Validate the PoseTracks dataset."""
+        """Validate the poses dataset."""
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:

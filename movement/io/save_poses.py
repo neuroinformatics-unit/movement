@@ -135,7 +135,7 @@ def to_dlc_df(
             df_dict[individual] = df
 
         logger.info(
-            "Converted PoseTracks dataset to DeepLabCut-style DataFrames "
+            "Converted poses dataset to DeepLabCut-style DataFrames "
             "per individual."
         )
         return df_dict
@@ -147,7 +147,7 @@ def to_dlc_df(
 
         df_all = _xarray_to_dlc_df(ds, columns)
 
-        logger.info("Converted PoseTracks dataset to DLC-style DataFrame.")
+        logger.info("Converted poses dataset to DLC-style DataFrame.")
         return df_all
 
 
@@ -216,15 +216,13 @@ def to_dlc_file(
             filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(
-                f"Saved PoseTracks data for individual {key} to {file.path}."
-            )
+            logger.info(f"Saved poses for individual {key} to {file.path}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_df(ds, split_individuals=False)
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
-        logger.info(f"Saved PoseTracks dataset to {file.path}.")
+        logger.info(f"Saved poses dataset to {file.path}.")
 
 
 def to_lp_file(
@@ -359,7 +357,7 @@ def to_sleap_analysis_file(
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved PoseTracks dataset to {file.path}.")
+    logger.info(f"Saved poses dataset to {file.path}.")
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
@@ -420,7 +418,7 @@ def _validate_file_path(
 
 
 def _validate_dataset(ds: xr.Dataset) -> None:
-    """Validate the input dataset is an xarray Dataset with valid PoseTracks.
+    """Validate the input dataset is an xarray Dataset with valid poses.
 
     Parameters
     ----------
@@ -430,7 +428,7 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     Raises
     ------
     ValueError
-        If `ds` is not an xarray Dataset with valid PoseTracks.
+        If `ds` is not an xarray Dataset with valid poses.
     """
 
     if not isinstance(ds, xr.Dataset):
