@@ -40,8 +40,8 @@ def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
 
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
-        data=tracks_with_scores.reshape(ds.dims["time"], -1),
-        index=np.arange(ds.dims["time"], dtype=int),
+        data=tracks_with_scores.reshape(ds.sizes["time"], -1),
+        index=np.arange(ds.sizes["time"], dtype=int),
         columns=columns,
         dtype=float,
     )
