@@ -41,8 +41,7 @@ def configure_logging(
     # Logger needs to be (re)configured if unconfigured or
     # if configured but the log file path has changed
     configure_logger = (
-        not logger_configured
-        or log_file != logger.handlers[0].baseFilename  # type: ignore
+        not logger_configured or log_file != logger.handlers[0].baseFilename  # type: ignore
     )
 
     if configure_logger:
