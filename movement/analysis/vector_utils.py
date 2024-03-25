@@ -1,6 +1,8 @@
 import numpy as np
 import xarray as xr
 
+from movement.logging import log_error
+
 
 def cart2pol(data: xr.DataArray) -> xr.DataArray:
     """Transform Cartesian coordinates to polar.
@@ -17,6 +19,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         An xarray DataArray containing the polar coordinates
         rho and theta.
     """
+    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
     rho = xr.apply_ufunc(
         np.linalg.norm,
         data,
@@ -55,6 +58,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         An xarray DataArray containing the Cartesian coordinates
         x and y.
     """
+    _validate_dimension_coordinates(data, {"space_polar": ["rho", "theta"]})
     rho = data.sel(space_polar="rho")
     theta = data.sel(space_polar="theta")
     x = rho * np.cos(theta)
@@ -71,5 +75,43 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     ).transpose(*dims)
 
 
-# validate space dimension with x and y
-# validate space_polar dimension with rho and theta
+def _validate_dimension_coordinates(
+    data: xr.DataArray, required_dim_coords: dict
+) -> None:
+    """Validate the input data contains the required dimensions and
+    coordinate values.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+    required_dim_coords : dict
+        A dictionary of required dimensions and their corresponding
+        coordinate values.
+
+    Raises
+    ------
+    ValueError
+        If the input data does not contain the required dimension(s)
+        and/or the required coordinate(s).
+    """
+    missing_dims = [
+        dim for dim in required_dim_coords.keys() if dim not in data.dims
+    ]
+    error_message = ""
+    if missing_dims:
+        error_message += (
+            f"Input data must contain {missing_dims} as dimensions.\n"
+        )
+    missing_coords = []
+    for dim, coords in required_dim_coords.items():
+        missing_coords = [
+            coord for coord in coords if coord not in data.coords.get(dim, [])
+        ]
+        if missing_coords:
+            error_message += (
+                "Input data must contain "
+                f"{missing_coords} in the '{dim}' coordinates."
+            )
+    if error_message:
+        raise log_error(ValueError, error_message)
