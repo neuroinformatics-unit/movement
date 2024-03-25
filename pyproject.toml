@@ -100,7 +100,7 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
-select = ["I", "E", "F"]
+lint.select = ["I", "E", "F"]
 fix = true
 
 [tool.cibuildwheel]
