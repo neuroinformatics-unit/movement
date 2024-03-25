@@ -12,8 +12,8 @@ class TestAnalysis:
     @pytest.mark.parametrize(
         "ds, expected_exception",
         [
-            ("valid_pose_dataset", does_not_raise()),
-            ("valid_pose_dataset_with_nan", does_not_raise()),
+            ("valid_poses_dataset", does_not_raise()),
+            ("valid_poses_dataset_with_nan", does_not_raise()),
             ("missing_dim_dataset", pytest.raises(ValueError)),
         ],
     )
