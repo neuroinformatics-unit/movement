@@ -145,12 +145,12 @@ def fetch_sample_data_path(filename: str) -> Path:
     """
     try:
         return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
-    except ValueError:
+    except ValueError as error:
         raise log_error(
             ValueError,
             f"File '{filename}' is not in the registry. Valid "
             f"filenames are: {list_sample_data()}",
-        )
+        ) from error
 
 
 def fetch_sample_data(
