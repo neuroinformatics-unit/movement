@@ -186,7 +186,7 @@ class TestSavePoses:
             # this should produce a dict of dfs in single-animal DLC format
             assert isinstance(df, dict)
             for ind in ind_names:
-                assert ind in df.keys()
+                assert ind in df
                 assert isinstance(df[ind], pd.DataFrame)
                 assert df[ind].columns.names == [
                     "scorer",
