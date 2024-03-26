@@ -59,6 +59,7 @@ A typical PR workflow would be:
 * Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.
 * If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.
 * Respond to review comments and implement any requested changes.
+* One of the maintainers will approve the PR and add it to the [merge queue](https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta/).
 * Success 🎉 !! Your PR will be (squash-)merged into the _main_ branch.
 
 ## Development guidelines
