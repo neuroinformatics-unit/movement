@@ -543,14 +543,9 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """
 
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
-
-    try:
-        # pd.read_hdf does not always return a DataFrame
-        df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
-    except Exception as error:
-        raise log_error(
-            error, f"Could not load a dataframe from {file.path}."
-        ) from error
+    # pd.read_hdf does not always return a DataFrame but we assume it does
+    # in this case (since we know what's in the "df_with_missing" dataset)
+    df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
     return df
 
 
