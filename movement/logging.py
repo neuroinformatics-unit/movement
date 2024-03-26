@@ -6,12 +6,13 @@ FORMAT = (
     "%(asctime)s - %(levelname)s - "
     "%(processName)s %(filename)s:%(lineno)s - %(message)s"
 )
+DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
 def configure_logging(
     log_level: int = logging.DEBUG,
     logger_name: str = "movement",
-    log_directory: Path = Path.home() / ".movement",
+    log_directory: Path = DEFAULT_LOG_DIRECTORY,
 ):
     """Configure the logging module.
     This function sets up a circular log file with a rotating file handler.
@@ -41,8 +42,7 @@ def configure_logging(
     # Logger needs to be (re)configured if unconfigured or
     # if configured but the log file path has changed
     configure_logger = (
-        not logger_configured
-        or log_file != logger.handlers[0].baseFilename  # type: ignore
+        not logger_configured or log_file != logger.handlers[0].baseFilename  # type: ignore
     )
 
     if configure_logger:

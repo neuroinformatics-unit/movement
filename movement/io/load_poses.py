@@ -364,7 +364,7 @@ def _load_from_sleap_analysis_file(
             )
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
-        if "point_scores" in f.keys():
+        if "point_scores" in f:
             scores = f["point_scores"][:].transpose((2, 0, 1))
         return ValidPosesDataset(
             position_array=tracks.astype(np.float32),
@@ -502,7 +502,7 @@ def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
     file = ValidPosesCSV(file_path)
 
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
-    with open(file.path, "r") as f:
+    with open(file.path) as f:
         # if line starts with a possible level name, split it into a list
         # of strings, and add it to the list of header lines
         header_lines = [
@@ -543,12 +543,9 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """
 
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
-
-    try:
-        # pd.read_hdf does not always return a DataFrame
-        df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
-    except Exception as error:
-        raise log_error(error, f"Could not load a dataframe from {file.path}.")
+    # pd.read_hdf does not always return a DataFrame but we assume it does
+    # in this case (since we know what's in the "df_with_missing" dataset)
+    df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
     return df
 
 

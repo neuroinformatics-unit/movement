@@ -54,7 +54,7 @@ def _auto_split_individuals(ds: xr.Dataset) -> bool:
     else returns False."""
 
     n_individuals = ds.sizes["individuals"]
-    return True if n_individuals == 1 else False
+    return n_individuals == 1
 
 
 def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:

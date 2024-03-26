@@ -19,7 +19,7 @@ def test_logfile_contains_message(level, message):
     logger = logging.getLogger("movement")
     eval(f"logger.{level.lower()}('{message}')")
     log_file = logger.handlers[0].baseFilename
-    with open(log_file, "r") as f:
+    with open(log_file) as f:
         last_line = f.readlines()[-1]
     assert level in last_line
     assert message in last_line
