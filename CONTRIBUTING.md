@@ -88,7 +88,27 @@ pre-commit run  # for staged files
 pre-commit run -a  # for all files in the repository
 ```
 
-For docstrings, we adhere to the  [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
+Some problems will be automatically fixed by the hooks. In this case, you should
+stage the auto-fixed changes and run the hooks again:
+
+```sh
+git add .
+pre-commit run
+```
+
+If a problem cannot be auto-fixed, the corresponding tool will provide
+information on what the issue is and how to fix it. For example, `ruff` might
+output something like:
+
+```sh
+movement/io/load_poses.py:551:80: E501 Line too long (90 > 79)
+```
+
+This pinpoints the problem to a single code line and a specific [ruff rule](https://docs.astral.sh/ruff/rules/) violation.
+
+For docstrings, we adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
+Make sure to provide docstrings for all public functions, classes, and methods.
+This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
 
