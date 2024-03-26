@@ -99,6 +99,7 @@ lint.select = [
   "F",  # Pyflakes
   "UP", # pyupgrade
   "I",  # isort
+  "B",  # flake8 bugbear
 ]
 fix = true
 

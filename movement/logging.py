@@ -6,12 +6,13 @@ FORMAT = (
     "%(asctime)s - %(levelname)s - "
     "%(processName)s %(filename)s:%(lineno)s - %(message)s"
 )
+DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
 def configure_logging(
     log_level: int = logging.DEBUG,
     logger_name: str = "movement",
-    log_directory: Path = Path.home() / ".movement",
+    log_directory: Path = DEFAULT_LOG_DIRECTORY,
 ):
     """Configure the logging module.
     This function sets up a circular log file with a rotating file handler.
