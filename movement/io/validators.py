@@ -175,7 +175,7 @@ class ValidPosesCSV:
         among its top rows."""
         expected_levels = ["scorer", "bodyparts", "coords"]
 
-        with open(value, "r") as f:
+        with open(value) as f:
             top4_row_starts = [f.readline().split(",")[0] for _ in range(4)]
 
             if top4_row_starts[3].isdigit():

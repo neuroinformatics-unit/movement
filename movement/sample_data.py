@@ -99,7 +99,7 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
         else:
             raise log_error(RequestException, failed_msg) from exc_info
 
-    with open(local_file_path, "r") as metadata_file:
+    with open(local_file_path) as metadata_file:
         metadata = yaml.safe_load(metadata_file)
     return metadata
 
