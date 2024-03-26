@@ -105,6 +105,7 @@ movement/io/load_poses.py:551:80: E501 Line too long (90 > 79)
 ```
 
 This pinpoints the problem to a single code line and a specific [ruff rule](https://docs.astral.sh/ruff/rules/) violation.
+Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. `# noqa: E501`. Replace `E501` with the code of the rule you want to ignore.
 
 For docstrings, we adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 Make sure to provide docstrings for all public functions, classes, and methods.
