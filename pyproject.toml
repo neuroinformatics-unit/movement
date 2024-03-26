@@ -94,7 +94,7 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
-lint.select = ["I", "E", "F"]
+lint.select = ["I", "E", "F", "UP"]
 fix = true
 
 [tool.ruff.format]

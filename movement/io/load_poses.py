@@ -502,7 +502,7 @@ def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
     file = ValidPosesCSV(file_path)
 
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
-    with open(file.path, "r") as f:
+    with open(file.path) as f:
         # if line starts with a possible level name, split it into a list
         # of strings, and add it to the list of header lines
         header_lines = [
