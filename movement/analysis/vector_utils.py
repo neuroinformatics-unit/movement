@@ -18,7 +18,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray DataArray containing the polar coordinates
         stored in the ``space_polar`` dimension, with ``rho``
-        and ``theta`` in the dimension coordinate.
+        and ``phi`` in the dimension coordinate.
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
     rho = xr.apply_ufunc(
@@ -27,7 +27,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         input_core_dims=[["space"]],
         kwargs={"axis": -1},
     )
-    theta = xr.apply_ufunc(
+    phi = xr.apply_ufunc(
         np.arctan2,
         data.sel(space="y"),
         data.sel(space="x"),
@@ -38,7 +38,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     return xr.combine_nested(
         [
             rho.assign_coords({"space_polar": "rho"}),
-            theta.assign_coords({"space_polar": "theta"}),
+            phi.assign_coords({"space_polar": "phi"}),
         ],
         concat_dim="space_polar",
     ).transpose(*dims)
@@ -51,7 +51,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     ----------
     data : xarray.DataArray
         The input data containing ``space_polar`` as a dimension,
-        with ``rho`` and ``theta`` in the dimension coordinate.
+        with ``rho`` and ``phi`` in the dimension coordinate.
 
     Returns
     -------
@@ -60,11 +60,11 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         stored in the ``space`` dimension, with ``x`` and ``y``
         in the dimension coordinate.
     """
-    _validate_dimension_coordinates(data, {"space_polar": ["rho", "theta"]})
+    _validate_dimension_coordinates(data, {"space_polar": ["rho", "phi"]})
     rho = data.sel(space_polar="rho")
-    theta = data.sel(space_polar="theta")
-    x = rho * np.cos(theta)
-    y = rho * np.sin(theta)
+    phi = data.sel(space_polar="phi")
+    x = rho * np.cos(phi)
+    y = rho * np.sin(phi)
     # Replace space_polar dim with space
     dims = list(data.dims)
     dims[dims.index("space_polar")] = "space"
