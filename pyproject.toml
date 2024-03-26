@@ -101,6 +101,7 @@ lint.select = [
   "I",   # isort
   "B",   # flake8 bugbear
   "SIM", # flake8 simplify
+  "C90", # McCabe complexity
 ]
 fix = true
 
