@@ -17,18 +17,18 @@ class TestVectorUtils:
         y_vals = np.array([0, 1, 1, 1, 0, -1, -1, -1], dtype=float)
         time_coords = np.arange(len(x_vals))
         rho = np.sqrt(x_vals**2 + y_vals**2)
-        theta = np.pi * np.array([0, 0.25, 0.5, 0.75, 1, -0.75, -0.5, -0.25])
+        phi = np.pi * np.array([0, 0.25, 0.5, 0.75, 1, -0.75, -0.5, -0.25])
         cart = xr.DataArray(
             np.column_stack((x_vals, y_vals)),
             dims=["time", "space"],
             coords={"time": time_coords, "space": ["x", "y"]},
         )
         pol = xr.DataArray(
-            np.column_stack((rho, theta)),
+            np.column_stack((rho, phi)),
             dims=["time", "space_polar"],
             coords={
                 "time": time_coords,
-                "space_polar": ["rho", "theta"],
+                "space_polar": ["rho", "phi"],
             },
         )
         return xr.Dataset(
@@ -69,7 +69,7 @@ class TestVectorUtils:
     @pytest.fixture
     def cart_pol_dataset_missing_pol_coords(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where the required ``space_polar["rho"]`` and ``space_polar["theta"]``
+        where the required ``space_polar["rho"]`` and ``space_polar["phi"]``
         coordinates are missing."""
         cart_pol_dataset["space_polar"] = ["a", "b"]
         return cart_pol_dataset
