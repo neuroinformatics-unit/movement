@@ -3,7 +3,7 @@ from typing import Callable, ClassVar
 
 import xarray as xr
 
-from movement.analysis import kinematics
+from movement.analysis import kinematics, vector_utils
 from movement.io.validators import ValidPosesDataset
 
 logger = logging.getLogger(__name__)
@@ -127,6 +127,49 @@ class MoveAccessor:
         return self._compute_property(
             "acceleration", kinematics.compute_acceleration
         )
+
+    def _compute_property_pol(self, property: str) -> xr.DataArray:
+        """Compute a kinematic property in polar coordinates and store it
+        in the dataset.
+
+        Parameters
+        ----------
+        property : str
+            The name of the property to compute.
+
+        Returns
+        -------
+        xarray.DataArray
+            The computed property in polar coordinates.
+        """
+        if property not in self._obj:
+            self._obj[property] = vector_utils.cart2pol(
+                getattr(self, property.replace("_pol", ""))
+            )
+        return self._obj[property]
+
+    @property
+    def displacement_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of displacement between
+        consecutive positions of each keypoint for each individual
+        across time.
+        """
+        return self._compute_property_pol("displacement_pol")
+
+    @property
+    def velocity_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of velocity between consecutive
+        positions of each keypoint for each individual across time.
+        """
+        return self._compute_property_pol("velocity_pol")
+
+    @property
+    def acceleration_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of acceleration between
+        consecutive positions of each keypoint for each individual
+        across time.
+        """
+        return self._compute_property_pol("acceleration_pol")
 
     def validate(self) -> None:
         """Validate the poses dataset."""
