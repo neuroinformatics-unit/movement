@@ -364,7 +364,7 @@ def _load_from_sleap_analysis_file(
             )
         # If present, read the point-wise scores,
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
-        if "point_scores" in f.keys():
+        if "point_scores" in f:
             scores = f["point_scores"][:].transpose((2, 0, 1))
         return ValidPosesDataset(
             position_array=tracks.astype(np.float32),

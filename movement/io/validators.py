@@ -93,13 +93,12 @@ class ValidFile:
     @path.validator
     def file_has_expected_suffix(self, attribute, value):
         """Ensures that the file has one of the expected suffix(es)."""
-        if self.expected_suffix:  # list is not empty
-            if value.suffix not in self.expected_suffix:
-                raise log_error(
-                    ValueError,
-                    f"Expected file with suffix(es) {self.expected_suffix} "
-                    f"but got suffix {value.suffix} instead.",
-                )
+        if self.expected_suffix and value.suffix not in self.expected_suffix:
+            raise log_error(
+                ValueError,
+                f"Expected file with suffix(es) {self.expected_suffix} "
+                f"but got suffix {value.suffix} instead.",
+            )
 
 
 @define
