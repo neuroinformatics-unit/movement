@@ -3,9 +3,12 @@
 import logging
 from datetime import datetime
 from functools import wraps
+from math import floor
 from typing import Union
 
 import xarray as xr
+from numpy import nan
+from scipy import ndimage, signal
 
 
 def log_to_attrs(func):
@@ -164,3 +167,84 @@ def filter_by_confidence(
         report_nan_values(ds_thresholded, "filtered dataset")
 
     return ds_thresholded
+
+
+@log_to_attrs
+def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
+    """
+    Smooths pose tracks by applying a median filter along the time dimension.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata
+    window_length : int
+        The size of the filter window
+
+    Returns
+    -------
+    ds_smoothed : xarray.Dataset
+        The provided dataset (ds), where pose tracks have been smoothed
+        using a median filter with the provided parameters
+    """
+    # TODO: I'll start by implementing this as a separate fxn, but think
+    #  that ultimately it might be nicer to clump smoothing fxns into a
+    #  single fxn where method can just be passed as a kwarg.
+
+    ds_smoothed = ds.copy()
+
+    ds_smoothed.update(
+        {
+            "pose_tracks": ndimage.median_filter(
+                ds.pose_tracks,
+                size=window_length,
+                axes=0,
+                mode="constant",
+                cval=nan,
+                origin=floor(window_length / 2),
+            )
+        }
+    )
+
+    return ds_smoothed
+
+
+@log_to_attrs
+def savgol_filter(
+    ds: xr.Dataset, window_length: int = 3, polyorder: int = 0
+) -> xr.Dataset:
+    """
+    Smooths pose tracks by applying a Savitzky-Golay filter along the
+    time dimension.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata
+
+    Returns
+    -------
+    ds_smoothed : xarray.Dataset
+        The provided dataset (ds), where pose tracks have been smoothed
+        using a Savitzky-Golay filter with the provided parameters
+
+    window_length : int
+        The size of the filter window
+
+    polyorder : int
+        The order of the polynomial used to fit the samples. Must be
+        less than ``window_length``.
+
+    """
+
+    ds_smoothed = ds.copy()
+
+    ds_smoothed.update(
+        {
+            "pose_tracks": signal.savgol_filter(
+                ds.pose_tracks, window_length, polyorder, axis=0
+            )
+        }
+    )
+
+    return ds_smoothed
