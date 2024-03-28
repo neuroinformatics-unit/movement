@@ -187,16 +187,17 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
         The provided dataset (ds), where pose tracks have been smoothed
         using a median filter with the provided parameters
     """
-    # TODO: I'll start by implementing this as a separate fxn, but think
-    #  that ultimately it might be nicer to clump smoothing fxns into a
-    #  single fxn where method can just be passed as a kwarg.
+    # TODO: I'll start by implementing this as a separate fxn, but later
+    #  down the line we can consider clumping smoothing fxns into a single
+    #  fxn where method can just be passed as a kwarg (similar to DLC's
+    #  implementation).
 
     ds_smoothed = ds.copy()
 
     ds_smoothed.update(
         {
-            "pose_tracks": ndimage.median_filter(
-                ds.pose_tracks,
+            "position": ndimage.median_filter(
+                ds.position,
                 size=window_length,
                 axes=0,
                 mode="constant",
@@ -241,8 +242,8 @@ def savgol_filter(
 
     ds_smoothed.update(
         {
-            "pose_tracks": signal.savgol_filter(
-                ds.pose_tracks, window_length, polyorder, axis=0
+            "position": signal.savgol_filter(
+                ds.position, window_length, polyorder, axis=0
             )
         }
     )
