@@ -3,8 +3,9 @@ from typing import Callable, ClassVar
 
 import xarray as xr
 
-from movement.analysis import kinematics, vector_utils
+from movement.analysis import kinematics
 from movement.io.validators import ValidPosesDataset
+from movement.utils import vector
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ class MoveAccessor:
             The computed property in polar coordinates.
         """
         if property not in self._obj:
-            self._obj[property] = vector_utils.cart2pol(
+            self._obj[property] = vector.cart2pol(
                 getattr(self, property.replace("_pol", ""))
             )
         return self._obj[property]

@@ -3,11 +3,12 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 import xarray as xr
 
-from movement.analysis import vector_utils
+from movement.utils import vector
 
 
-class TestAnalysis:
-    """Test suite for the analysis module."""
+class TestKinematicsVectorTransform:
+    """Test the vector transformation functionality with
+    various kinematic properties."""
 
     @pytest.mark.parametrize(
         "ds, expected_exception",
@@ -25,6 +26,6 @@ class TestAnalysis:
         ds = request.getfixturevalue(ds)
         with expected_exception:
             data = getattr(ds.move, kinematic_property)
-            polar_data = vector_utils.cart2pol(data)
-            cartesian_data = vector_utils.pol2cart(polar_data)
+            polar_data = vector.cart2pol(data)
+            cartesian_data = vector.pol2cart(polar_data)
             xr.testing.assert_allclose(cartesian_data, data)

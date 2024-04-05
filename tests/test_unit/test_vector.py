@@ -4,11 +4,11 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.analysis import vector_utils
+from movement.utils import vector
 
 
-class TestVectorUtils:
-    """Test suite for the vector_utils module."""
+class TestVector:
+    """Test suite for the utils.vector module."""
 
     @pytest.fixture
     def cart_pol_dataset(self):
@@ -90,7 +90,7 @@ class TestVectorUtils:
         """Test Cartesian to polar coordinates with known values."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = vector_utils.cart2pol(ds.cart)
+            result = vector.cart2pol(ds.cart)
             xr.testing.assert_allclose(result, ds.pol)
 
     @pytest.mark.parametrize(
@@ -112,5 +112,5 @@ class TestVectorUtils:
         """Test polar to Cartesian coordinates with known values."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = vector_utils.pol2cart(ds.pol)
+            result = vector.pol2cart(ds.pol)
             xr.testing.assert_allclose(result, ds.cart)
