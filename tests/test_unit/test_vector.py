@@ -13,11 +13,13 @@ class TestVector:
     @pytest.fixture
     def cart_pol_dataset(self):
         """Return an xarray.Dataset with Cartesian and polar coordinates."""
-        x_vals = np.array([1, 1, 0, -1, -10, -1, 0, 1], dtype=float)
-        y_vals = np.array([0, 1, 1, 1, 0, -1, -1, -1], dtype=float)
+        x_vals = np.array([-0.0, -1.0, 0.0, 1.0, 1.0, 1.0, 0.0, -1.0, -10.0])
+        y_vals = np.array([-0.0, -1.0, -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 0.0])
         time_coords = np.arange(len(x_vals))
         rho = np.sqrt(x_vals**2 + y_vals**2)
-        phi = np.pi * np.array([0, 0.25, 0.5, 0.75, 1, -0.75, -0.5, -0.25])
+        phi = np.pi * np.array(
+            [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
+        )
         cart = xr.DataArray(
             np.column_stack((x_vals, y_vals)),
             dims=["time", "space"],
