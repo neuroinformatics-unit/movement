@@ -64,7 +64,7 @@ Analysis
     compute_velocity
     compute_acceleration
 
-.. currentmodule:: movement.analysis.vector_utils
+.. currentmodule:: movement.utils.vector
 .. autosummary::
     :toctree: api
 

@@ -18,7 +18,8 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray DataArray containing the polar coordinates
         stored in the ``space_polar`` dimension, with ``rho``
-        and ``phi`` in the dimension coordinate.
+        and ``phi`` in the dimension coordinate. The angles
+        ``phi`` returned are in radians, in the range ``[-pi, pi]``.
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
     rho = xr.apply_ufunc(
