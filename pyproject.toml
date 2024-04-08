@@ -94,6 +94,7 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
+# See https://docs.astral.sh/ruff/rules/
 lint.select = [
   "E",   # pycodestyle errors
   "F",   # Pyflakes
@@ -102,11 +103,12 @@ lint.select = [
   "B",   # flake8 bugbear
   "SIM", # flake8 simplify
   "C90", # McCabe complexity
+  #"D",  # pydocstyle
 ]
 fix = true
 
 [tool.ruff.format]
-docstring-code-format = true
+docstring-code-format = true # Also format code in docstrings
 
 [tool.cibuildwheel]
 build = "cp39-* cp310-* cp311-*"
