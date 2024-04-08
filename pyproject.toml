@@ -47,7 +47,6 @@ dev = [
   "pytest-cov",
   "coverage",
   "tox",
-  "black",
   "mypy",
   "pre-commit",
   "ruff",
@@ -75,11 +74,6 @@ exclude = ["tests", "docs*"]
 [tool.pytest.ini_options]
 addopts = "--cov=movement"
 
-[tool.black]
-target-version = ['py39', 'py310', 'py311']
-skip-string-normalization = false
-line-length = 79
-
 [tool.setuptools_scm]
 
 [tool.check-manifest]
@@ -100,8 +94,21 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
-lint.select = ["I", "E", "F"]
+# See https://docs.astral.sh/ruff/rules/
+lint.select = [
+  "E",   # pycodestyle errors
+  "F",   # Pyflakes
+  "UP",  # pyupgrade
+  "I",   # isort
+  "B",   # flake8 bugbear
+  "SIM", # flake8 simplify
+  "C90", # McCabe complexity
+  #"D",  # pydocstyle
+]
 fix = true
+
+[tool.ruff.format]
+docstring-code-format = true # Also format code in docstrings
 
 [tool.cibuildwheel]
 build = "cp39-* cp310-* cp311-*"

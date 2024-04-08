@@ -27,7 +27,7 @@ def log_to_attrs(func):
 
         # Append the log entry to the result's attributes
         if result is not None and hasattr(result, "attrs"):
-            if "log" not in result.attrs.keys():
+            if "log" not in result.attrs:
                 result.attrs["log"] = []
             result.attrs["log"].append(log_entry)
 

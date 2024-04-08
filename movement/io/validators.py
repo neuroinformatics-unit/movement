@@ -93,13 +93,12 @@ class ValidFile:
     @path.validator
     def file_has_expected_suffix(self, attribute, value):
         """Ensures that the file has one of the expected suffix(es)."""
-        if self.expected_suffix:  # list is not empty
-            if value.suffix not in self.expected_suffix:
-                raise log_error(
-                    ValueError,
-                    f"Expected file with suffix(es) {self.expected_suffix} "
-                    f"but got suffix {value.suffix} instead.",
-                )
+        if self.expected_suffix and value.suffix not in self.expected_suffix:
+            raise log_error(
+                ValueError,
+                f"Expected file with suffix(es) {self.expected_suffix} "
+                f"but got suffix {value.suffix} instead.",
+            )
 
 
 @define
@@ -175,7 +174,7 @@ class ValidPosesCSV:
         among its top rows."""
         expected_levels = ["scorer", "bodyparts", "coords"]
 
-        with open(value, "r") as f:
+        with open(value) as f:
             top4_row_starts = [f.readline().split(",")[0] for _ in range(4)]
 
             if top4_row_starts[3].isdigit():

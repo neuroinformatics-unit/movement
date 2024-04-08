@@ -67,9 +67,8 @@ A typical PR workflow would be:
 ### Formatting and pre-commit hooks
 
 Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.com/) to ensure a consistent formatting style. Currently, these include:
-* [ruff](https://github.com/astral-sh/ruff) does a number of jobs, including enforcing PEP8 and sorting imports
-* [black](https://black.readthedocs.io/en/stable/) for auto-formatting
-* [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker
+* [ruff](https://github.com/astral-sh/ruff) does a number of jobs, including code linting and auto-formatting.
+* [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker.
 * [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
 * [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
@@ -77,7 +76,6 @@ These will prevent code from being committed if any of these hooks fail. To run 
 
 ```sh
 ruff .
-black ./
 mypy -p movement
 check-manifest
 codespell
@@ -90,7 +88,28 @@ pre-commit run  # for staged files
 pre-commit run -a  # for all files in the repository
 ```
 
-For docstrings, we adhere to the  [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
+Some problems will be automatically fixed by the hooks. In this case, you should
+stage the auto-fixed changes and run the hooks again:
+
+```sh
+git add .
+pre-commit run
+```
+
+If a problem cannot be auto-fixed, the corresponding tool will provide
+information on what the issue is and how to fix it. For example, `ruff` might
+output something like:
+
+```sh
+movement/io/load_poses.py:551:80: E501 Line too long (90 > 79)
+```
+
+This pinpoints the problem to a single code line and a specific [ruff rule](https://docs.astral.sh/ruff/rules/) violation.
+Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. `# noqa: E501`. Replace `E501` with the code of the rule you want to ignore.
+
+For docstrings, we adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
+Make sure to provide docstrings for all public functions, classes, and methods.
+This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
 

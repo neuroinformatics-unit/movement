@@ -103,8 +103,7 @@ sphinx_gallery_conf = {
         "branch": "gh-pages",
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
-
-     },
+    },
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -152,7 +151,7 @@ sitemap_url_scheme = "{link}"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_css_files = [
     ("css/custom.css", {"priority": 100}),
 ]
