@@ -5,6 +5,7 @@ import xarray as xr
 
 from movement.analysis import kinematics
 from movement.io.validators import ValidPosesDataset
+from movement.utils import vector
 
 logger = logging.getLogger(__name__)
 
@@ -99,9 +100,16 @@ class MoveAccessor:
         """
         self.validate()
         if property not in self._obj:
-            position = self._obj[self.var_names[0]]
-            self._obj[property] = compute_function(position)
+            self._obj[property] = compute_function(self.position)
         return self._obj[property]
+
+    @property
+    def position(self) -> xr.DataArray:
+        """Return the position of each keypoint for each individual
+        across time.
+        """
+        self.validate()
+        return self._obj[self.var_names[0]]
 
     @property
     def displacement(self) -> xr.DataArray:
@@ -127,6 +135,57 @@ class MoveAccessor:
         return self._compute_property(
             "acceleration", kinematics.compute_acceleration
         )
+
+    def _compute_property_pol(self, property: str) -> xr.DataArray:
+        """Compute a kinematic property in polar coordinates and store it
+        in the dataset.
+
+        Parameters
+        ----------
+        property : str
+            The name of the property to compute.
+
+        Returns
+        -------
+        xarray.DataArray
+            The computed property in polar coordinates.
+        """
+        if property not in self._obj:
+            self._obj[property] = vector.cart2pol(
+                getattr(self, property.replace("_pol", ""))
+            )
+        return self._obj[property]
+
+    @property
+    def position_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of the position of each keypoint
+        for each individual across time.
+        """
+        return self._compute_property_pol("position_pol")
+
+    @property
+    def displacement_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of the displacement between
+        consecutive positions of each keypoint for each individual
+        across time.
+        """
+        return self._compute_property_pol("displacement_pol")
+
+    @property
+    def velocity_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of the velocity between
+        consecutive positions of each keypoint for each individual
+        across time.
+        """
+        return self._compute_property_pol("velocity_pol")
+
+    @property
+    def acceleration_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of the acceleration between
+        consecutive positions of each keypoint for each individual
+        across time.
+        """
+        return self._compute_property_pol("acceleration_pol")
 
     def validate(self) -> None:
         """Validate the poses dataset."""

@@ -64,6 +64,13 @@ Analysis
     compute_velocity
     compute_acceleration
 
+.. currentmodule:: movement.utils.vector
+.. autosummary::
+    :toctree: api
+
+    cart2pol
+    pol2cart
+
 Move Accessor
 -------------
 .. currentmodule:: movement.move_accessor

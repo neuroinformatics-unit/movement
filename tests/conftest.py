@@ -312,7 +312,9 @@ def invalid_poses_dataset(request):
     return request.getfixturevalue(request.param)
 
 
-@pytest.fixture(params=["displacement", "velocity", "acceleration"])
+@pytest.fixture(
+    params=["position", "displacement", "velocity", "acceleration"]
+)
 def kinematic_property(request):
     """Return a kinematic property."""
     return request.param
