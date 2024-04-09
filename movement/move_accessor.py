@@ -100,7 +100,6 @@ class MoveAccessor:
         """
         self.validate()
         if property not in self._obj:
-            # position = self._obj[self.var_names[0]]
             self._obj[property] = compute_function(self.position)
         return self._obj[property]
 
