@@ -19,7 +19,7 @@ dependencies = [
   "pooch",
   "tqdm",
   "sleap-io",
-  "xarray[accel]",
+  "xarray[accel,viz]",
   "PyYAML",
 ]
 
