@@ -17,7 +17,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     -------
     xarray.DataArray
         An xarray DataArray containing the polar coordinates
-        stored in the ``space_polar`` dimension, with ``rho``
+        stored in the ``space_pol`` dimension, with ``rho``
         and ``phi`` in the dimension coordinate. The angles
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
     """
@@ -33,15 +33,15 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         data.sel(space="y"),
         data.sel(space="x"),
     )
-    # Replace space dim with space_polar
+    # Replace space dim with space_pol
     dims = list(data.dims)
-    dims[dims.index("space")] = "space_polar"
+    dims[dims.index("space")] = "space_pol"
     return xr.combine_nested(
         [
-            rho.assign_coords({"space_polar": "rho"}),
-            phi.assign_coords({"space_polar": "phi"}),
+            rho.assign_coords({"space_pol": "rho"}),
+            phi.assign_coords({"space_pol": "phi"}),
         ],
-        concat_dim="space_polar",
+        concat_dim="space_pol",
     ).transpose(*dims)
 
 
@@ -51,7 +51,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``space_polar`` as a dimension,
+        The input data containing ``space_pol`` as a dimension,
         with ``rho`` and ``phi`` in the dimension coordinate.
 
     Returns
@@ -61,14 +61,14 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         stored in the ``space`` dimension, with ``x`` and ``y``
         in the dimension coordinate.
     """
-    _validate_dimension_coordinates(data, {"space_polar": ["rho", "phi"]})
-    rho = data.sel(space_polar="rho")
-    phi = data.sel(space_polar="phi")
+    _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+    rho = data.sel(space_pol="rho")
+    phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
     y = rho * np.sin(phi)
-    # Replace space_polar dim with space
+    # Replace space_pol dim with space
     dims = list(data.dims)
-    dims[dims.index("space_polar")] = "space"
+    dims[dims.index("space_pol")] = "space"
     return xr.combine_nested(
         [
             x.assign_coords({"space": "x"}),

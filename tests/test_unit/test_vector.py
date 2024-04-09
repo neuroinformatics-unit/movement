@@ -27,10 +27,10 @@ class TestVector:
         )
         pol = xr.DataArray(
             np.column_stack((rho, phi)),
-            dims=["time", "space_polar"],
+            dims=["time", "space_pol"],
             coords={
                 "time": time_coords,
-                "space_polar": ["rho", "phi"],
+                "space_pol": ["rho", "phi"],
             },
         )
         return xr.Dataset(
@@ -65,15 +65,15 @@ class TestVector:
     @pytest.fixture
     def cart_pol_dataset_missing_pol_dim(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where the required ``space_polar`` dimension is missing."""
-        return cart_pol_dataset.rename({"space_polar": "spice_polar"})
+        where the required ``space_pol`` dimension is missing."""
+        return cart_pol_dataset.rename({"space_pol": "spice_pol"})
 
     @pytest.fixture
     def cart_pol_dataset_missing_pol_coords(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where the required ``space_polar["rho"]`` and ``space_polar["phi"]``
+        where the required ``space_pol["rho"]`` and ``space_pol["phi"]``
         coordinates are missing."""
-        cart_pol_dataset["space_polar"] = ["a", "b"]
+        cart_pol_dataset["space_pol"] = ["a", "b"]
         return cart_pol_dataset
 
     @pytest.mark.parametrize(
