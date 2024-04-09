@@ -100,9 +100,17 @@ class MoveAccessor:
         """
         self.validate()
         if property not in self._obj:
-            position = self._obj[self.var_names[0]]
-            self._obj[property] = compute_function(position)
+            # position = self._obj[self.var_names[0]]
+            self._obj[property] = compute_function(self.position)
         return self._obj[property]
+
+    @property
+    def position(self) -> xr.DataArray:
+        """Return the position of each keypoint for each individual
+        across time.
+        """
+        self.validate()
+        return self._obj[self.var_names[0]]
 
     @property
     def displacement(self) -> xr.DataArray:
@@ -150,8 +158,15 @@ class MoveAccessor:
         return self._obj[property]
 
     @property
+    def position_pol(self) -> xr.DataArray:
+        """Return the polar coordinates of the position of each keypoint
+        for each individual across time.
+        """
+        return self._compute_property_pol("position_pol")
+
+    @property
     def displacement_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of displacement between
+        """Return the polar coordinates of the displacement between
         consecutive positions of each keypoint for each individual
         across time.
         """
@@ -159,14 +174,15 @@ class MoveAccessor:
 
     @property
     def velocity_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of velocity between consecutive
-        positions of each keypoint for each individual across time.
+        """Return the polar coordinates of the velocity between
+        consecutive positions of each keypoint for each individual
+        across time.
         """
         return self._compute_property_pol("velocity_pol")
 
     @property
     def acceleration_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of acceleration between
+        """Return the polar coordinates of the acceleration between
         consecutive positions of each keypoint for each individual
         across time.
         """
