@@ -98,9 +98,7 @@ def _validate_dimension_coordinates(
         If the input data does not contain the required dimension(s)
         and/or the required coordinate(s).
     """
-    missing_dims = [
-        dim for dim in required_dim_coords.keys() if dim not in data.dims
-    ]
+    missing_dims = [dim for dim in required_dim_coords if dim not in data.dims]
     error_message = ""
     if missing_dims:
         error_message += (
