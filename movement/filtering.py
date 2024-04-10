@@ -243,7 +243,12 @@ def savgol_filter(
     ds_smoothed.update(
         {
             "position": signal.savgol_filter(
-                ds.position, window_length, polyorder, axis=0
+                ds.position,
+                window_length,
+                polyorder,
+                axis=0,
+                mode="constant",
+                cval=nan,
             )
         }
     )
