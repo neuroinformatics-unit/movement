@@ -187,10 +187,6 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
         The provided dataset (ds), where pose tracks have been smoothed
         using a median filter with the provided parameters
     """
-    # TODO: I'll start by implementing this as a separate fxn, but later
-    #  down the line we can consider clumping smoothing fxns into a single
-    #  fxn where method can just be passed as a kwarg (similar to DLC's
-    #  implementation).
 
     ds_smoothed = ds.copy()
 
