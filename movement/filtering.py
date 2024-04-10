@@ -49,7 +49,7 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        Dataset containing position, confidence scores, and metadata.
     ds_label : str
         Label to identify the dataset in the report. Default is "dataset".
 
@@ -87,7 +87,7 @@ def interpolate_over_time(
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        Dataset containing position, confidence scores, and metadata.
     method : str
         String indicating which method to use for interpolation.
         Default is ``linear``. See documentation for
@@ -131,7 +131,7 @@ def filter_by_confidence(
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        Dataset containing position, confidence scores, and metadata.
     threshold : float
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
@@ -177,7 +177,7 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata
+        Dataset containing position, confidence scores, and metadata
     window_length : int
         The size of the filter window
 
@@ -221,7 +221,7 @@ def savgol_filter(
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata
+        Dataset containing position, confidence scores, and metadata
 
     Returns
     -------
