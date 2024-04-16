@@ -152,11 +152,29 @@ python =
     3.10: py310
     3.11: py311
 
+[gh-actions:env]
+PLATFORM =
+    ubuntu-latest: linux
+    macos-latest: macos
+    macos-14: macos
+    windows-latest: windows
+
 [testenv]
 conda_deps =
     pytables
 conda_channels =
     conda-forge
+platform =
+    macos: darwin
+    linux: linux
+    windows: win32
+passenv =
+    CI
+    GITHUB_ACTIONS
+    DISPLAY
+    XAUTHORITY
+    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
+    PYVISTA_OFF_SCREEN
 extras =
     dev
 commands =
