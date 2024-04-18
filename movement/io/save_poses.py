@@ -153,7 +153,7 @@ def to_dlc_file(
     file_path: Union[str, Path],
     split_individuals: Union[bool, Literal["auto"]] = "auto",
 ) -> None:
-    r"""Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.
+    """Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.
 
     Parameters
     ----------
@@ -189,7 +189,7 @@ def to_dlc_file(
     >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
-    """
+    """  # noqa: D301
     file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
 
     # Sets default behaviour for the function
