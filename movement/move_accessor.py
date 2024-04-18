@@ -1,3 +1,5 @@
+"""Accessors for extending xarray objects."""
+
 import logging
 from typing import Callable, ClassVar
 
@@ -15,8 +17,7 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MoveAccessor:
-    """An accessor that extends an xarray Dataset by implementing
-    `movement`-specific properties and methods.
+    """A movement-specicific xarray Dataset accessor.
 
     The xarray Dataset contains the following expected dimensions:
         - ``time``: the number of frames in the video
@@ -57,9 +58,11 @@ class MoveAccessor:
     Methods/properties that are specific to this class can be accessed via
     the ``.move`` accessor, e.g. ``ds.move.validate()``.
 
+
     References
     ----------
     .. [1] https://docs.xarray.dev/en/stable/internals/extending-xarray.html
+
     """
 
     # Names of the expected dimensions in the dataset
@@ -77,6 +80,7 @@ class MoveAccessor:
     )
 
     def __init__(self, ds: xr.Dataset):
+        """Initialize the MoveAccessor."""
         self._obj = ds
 
     def _compute_property(
@@ -97,6 +101,7 @@ class MoveAccessor:
         -------
         xarray.DataArray
             The computed property.
+
         """
         self.validate()
         if property not in self._obj:
@@ -105,40 +110,34 @@ class MoveAccessor:
 
     @property
     def position(self) -> xr.DataArray:
-        """Return the position of each keypoint for each individual
-        across time.
-        """
+        """Return the position data array in Cartesian coordinates."""
         self.validate()
         return self._obj[self.var_names[0]]
 
     @property
     def displacement(self) -> xr.DataArray:
-        """Return the displacement between consecutive positions
-        of each keypoint for each individual across time.
-        """
+        """Return the displacement data array in Cartesian coordinates."""
         return self._compute_property(
             "displacement", kinematics.compute_displacement
         )
 
     @property
     def velocity(self) -> xr.DataArray:
-        """Return the velocity between consecutive positions
-        of each keypoint for each individual across time.
-        """
+        """Return the velocity data array in Cartesian coordinates."""
         return self._compute_property("velocity", kinematics.compute_velocity)
 
     @property
     def acceleration(self) -> xr.DataArray:
-        """Return the acceleration between consecutive positions
-        of each keypoint for each individual across time.
-        """
+        """Return the acceleration data array in Cartesian coordinates."""
         return self._compute_property(
             "acceleration", kinematics.compute_acceleration
         )
 
     def _compute_property_pol(self, property: str) -> xr.DataArray:
-        """Compute a kinematic property in polar coordinates and store it
-        in the dataset.
+        """Compute a kinematic property in polar coordinates.
+
+        The property gets stored as a data variable in the dataset.
+        See :func:`movement.utils.vector.cart2pol` for details.
 
         Parameters
         ----------
@@ -149,6 +148,7 @@ class MoveAccessor:
         -------
         xarray.DataArray
             The computed property in polar coordinates.
+
         """
         if property not in self._obj:
             self._obj[property] = vector.cart2pol(
@@ -158,37 +158,31 @@ class MoveAccessor:
 
     @property
     def position_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of the position of each keypoint
-        for each individual across time.
-        """
+        """Return the position data array in polar coordinates."""
         return self._compute_property_pol("position_pol")
 
     @property
     def displacement_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of the displacement between
-        consecutive positions of each keypoint for each individual
-        across time.
-        """
+        """Return the displacement data array in polar coordinates."""
         return self._compute_property_pol("displacement_pol")
 
     @property
     def velocity_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of the velocity between
-        consecutive positions of each keypoint for each individual
-        across time.
-        """
+        """Return the velocity data array in polar coordinates."""
         return self._compute_property_pol("velocity_pol")
 
     @property
     def acceleration_pol(self) -> xr.DataArray:
-        """Return the polar coordinates of the acceleration between
-        consecutive positions of each keypoint for each individual
-        across time.
-        """
+        """Return the acceleration data array in polar coordinates."""
         return self._compute_property_pol("acceleration_pol")
 
     def validate(self) -> None:
-        """Validate the poses dataset."""
+        """Validate the dataset.
+
+        This method checks if the dataset contains the expected dimensions,
+        data variables, and metadata attributes. It also ensures that the
+        dataset contains valid poses.
+        """
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:

@@ -1,3 +1,5 @@
+"""Logging utilities for the movement package."""
+
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -15,6 +17,7 @@ def configure_logging(
     log_directory: Path = DEFAULT_LOG_DIRECTORY,
 ):
     """Configure the logging module.
+
     This function sets up a circular log file with a rotating file handler.
 
     Parameters
@@ -28,8 +31,8 @@ def configure_logging(
         The directory to store the log file in. Defaults to
         ~/.movement. A different directory can be specified,
         for example for testing purposes.
-    """
 
+    """
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
     log_file = (log_directory / f"{logger_name}.log").as_posix()
@@ -80,6 +83,7 @@ def log_error(error, message: str, logger_name: str = "movement"):
     -------
     Exception
         The error that was passed in.
+
     """
     logger = logging.getLogger(logger_name)
     logger.error(message)
@@ -95,6 +99,7 @@ def log_warning(message: str, logger_name: str = "movement"):
         The warning message.
     logger_name : str, optional
         The name of the logger to use. Defaults to "movement".
+
     """
     logger = logging.getLogger(logger_name)
     logger.warning(message)

@@ -65,6 +65,7 @@ class TestLoadPoses:
         ]
     )
     def sleap_file_without_tracks(self, request):
+        """Fixture to parametrize the SLEAP files without tracks."""
         return request.getfixturevalue(request.param)
 
     def assert_dataset(
@@ -102,7 +103,8 @@ class TestLoadPoses:
 
     def test_load_from_sleap_file(self, sleap_file):
         """Test that loading pose tracks from valid SLEAP files
-        returns a proper Dataset."""
+        returns a proper Dataset.
+        """
         ds = load_poses.from_sleap_file(sleap_file)
         self.assert_dataset(ds, sleap_file, "SLEAP")
 
@@ -112,7 +114,8 @@ class TestLoadPoses:
         """Test that loading pose tracks from valid SLEAP files
         with tracks removed returns a dataset that matches the
         original file, except for the individual names which are
-        set to default."""
+        set to default.
+        """
         ds_from_trackless = load_poses.from_sleap_file(
             sleap_file_without_tracks
         )
@@ -148,7 +151,8 @@ class TestLoadPoses:
         self, slp_file, h5_file
     ):
         """Test that loading pose tracks from SLEAP .slp and .h5 files
-        return the same Dataset."""
+        return the same Dataset.
+        """
         slp_file_path = POSE_DATA_PATHS.get(slp_file)
         h5_file_path = POSE_DATA_PATHS.get(h5_file)
         ds_from_slp = load_poses.from_sleap_file(slp_file_path)
@@ -165,20 +169,23 @@ class TestLoadPoses:
     )
     def test_load_from_dlc_file(self, file_name):
         """Test that loading pose tracks from valid DLC files
-        returns a proper Dataset."""
+        returns a proper Dataset.
+        """
         file_path = POSE_DATA_PATHS.get(file_name)
         ds = load_poses.from_dlc_file(file_path)
         self.assert_dataset(ds, file_path, "DeepLabCut")
 
     def test_load_from_dlc_df(self, dlc_style_df):
         """Test that loading pose tracks from a valid DLC-style DataFrame
-        returns a proper Dataset."""
+        returns a proper Dataset.
+        """
         ds = load_poses.from_dlc_df(dlc_style_df)
         self.assert_dataset(ds)
 
     def test_load_from_dlc_file_csv_or_h5_file_returns_same(self):
         """Test that loading pose tracks from DLC .csv and .h5 files
-        return the same Dataset."""
+        return the same Dataset.
+        """
         csv_file_path = POSE_DATA_PATHS.get("DLC_single-wasp.predictions.csv")
         h5_file_path = POSE_DATA_PATHS.get("DLC_single-wasp.predictions.h5")
         ds_from_csv = load_poses.from_dlc_file(csv_file_path)
@@ -220,7 +227,8 @@ class TestLoadPoses:
     )
     def test_load_from_lp_file(self, file_name):
         """Test that loading pose tracks from valid LightningPose (LP) files
-        returns a proper Dataset."""
+        returns a proper Dataset.
+        """
         file_path = POSE_DATA_PATHS.get(file_name)
         ds = load_poses.from_lp_file(file_path)
         self.assert_dataset(ds, file_path, "LightningPose")
@@ -228,7 +236,8 @@ class TestLoadPoses:
     def test_load_from_lp_or_dlc_file_returns_same(self):
         """Test that loading a single-animal DeepLabCut-style .csv file
         using either the `from_lp_file` or `from_dlc_file` function
-        returns the same Dataset (except for the source_software)."""
+        returns the same Dataset (except for the source_software).
+        """
         file_path = POSE_DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
         ds_drom_lp = load_poses.from_lp_file(file_path)
         ds_from_dlc = load_poses.from_dlc_file(file_path)
@@ -238,7 +247,8 @@ class TestLoadPoses:
 
     def test_load_multi_individual_from_lp_file_raises(self):
         """Test that loading a multi-individual .csv file using the
-        `from_lp_file` function raises a ValueError."""
+        `from_lp_file` function raises a ValueError.
+        """
         file_path = POSE_DATA_PATHS.get("DLC_two-mice.predictions.csv")
         with pytest.raises(ValueError):
             load_poses.from_lp_file(file_path)
@@ -249,8 +259,8 @@ class TestLoadPoses:
     @pytest.mark.parametrize("fps", [None, 30, 60.0])
     def test_from_file_delegates_correctly(self, source_software, fps):
         """Test that the from_file() function delegates to the correct
-        loader function according to the source_software."""
-
+        loader function according to the source_software.
+        """
         software_to_loader = {
             "SLEAP": "movement.io.load_poses.from_sleap_file",
             "DeepLabCut": "movement.io.load_poses.from_dlc_file",

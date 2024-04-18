@@ -1,3 +1,5 @@
+"""Fixtures and configurations applied to the entire test suite."""
+
 import logging
 import os
 from pathlib import Path
@@ -16,7 +18,8 @@ from movement.sample_data import fetch_sample_data_path, list_sample_data
 
 def pytest_configure():
     """Perform initial configuration for pytest.
-    Fetches pose data file paths as a dictionary for tests."""
+    Fetches pose data file paths as a dictionary for tests.
+    """
     pytest.POSE_DATA_PATHS = {
         file_name: fetch_sample_data_path(file_name)
         for file_name in list_sample_data()
@@ -26,7 +29,8 @@ def pytest_configure():
 @pytest.fixture(autouse=True)
 def setup_logging(tmp_path):
     """Set up logging for the test module.
-    Redirects all logging to a temporary directory."""
+    Redirects all logging to a temporary directory.
+    """
     configure_logging(
         log_level=logging.DEBUG,
         logger_name="movement",
@@ -37,7 +41,8 @@ def setup_logging(tmp_path):
 @pytest.fixture
 def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for an unreadable .h5 file."""
+    expected permission for an unreadable .h5 file.
+    """
     file_path = tmp_path / "unreadable.h5"
     file_mock = mock_open()
     file_mock.return_value.read.side_effect = PermissionError
@@ -54,7 +59,8 @@ def unreadable_file(tmp_path):
 @pytest.fixture
 def unwriteable_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for an unwriteable .h5 file."""
+    expected permission for an unwriteable .h5 file.
+    """
     unwriteable_dir = tmp_path / "no_write"
     unwriteable_dir.mkdir()
     original_access = os.access
@@ -93,7 +99,8 @@ def wrong_ext_file(tmp_path):
 @pytest.fixture
 def nonexistent_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for a nonexistent file."""
+    expected permission for a nonexistent file.
+    """
     file_path = tmp_path / "nonexistent.h5"
     return {
         "file_path": file_path,
@@ -104,7 +111,8 @@ def nonexistent_file(tmp_path):
 @pytest.fixture
 def directory(tmp_path):
     """Return a dictionary containing the file path and
-    expected permission for a directory."""
+    expected permission for a directory.
+    """
     file_path = tmp_path / "directory"
     file_path.mkdir()
     return {
@@ -116,7 +124,8 @@ def directory(tmp_path):
 @pytest.fixture
 def h5_file_no_dataframe(tmp_path):
     """Return a dictionary containing the file path and
-    expected datasets for a .h5 file with no dataframe."""
+    expected datasets for a .h5 file with no dataframe.
+    """
     file_path = tmp_path / "no_dataframe.h5"
     with h5py.File(file_path, "w") as f:
         f.create_dataset("data_in_list", data=[1, 2, 3])
@@ -208,7 +217,8 @@ def sleap_file(request):
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
-    of a valid position array."""
+    of a valid position array.
+    """
 
     def _valid_position_array(array_type):
         """Return a valid position array."""

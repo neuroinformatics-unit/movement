@@ -1,5 +1,4 @@
-"""
-Load and explore pose tracks
+"""Load and explore pose tracks
 ============================
 
 Load and explore an example dataset of pose tracks.

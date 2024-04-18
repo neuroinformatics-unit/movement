@@ -1,3 +1,5 @@
+"""`attrs` classes for validating file paths and data structures."""
+
 import os
 from collections.abc import Iterable
 from pathlib import Path
@@ -39,6 +41,7 @@ class ValidFile:
         If the file exists when `expected_permission` is 'w'.
     ValueError
         If the file does not have one of the expected suffix(es).
+
     """
 
     path: Path = field(converter=Path, validator=validators.instance_of(Path))
@@ -49,7 +52,7 @@ class ValidFile:
 
     @path.validator
     def path_is_not_dir(self, attribute, value):
-        """Ensures that the path does not point to a directory."""
+        """Ensure that the path does not point to a directory."""
         if value.is_dir():
             raise log_error(
                 IsADirectoryError,
@@ -58,8 +61,10 @@ class ValidFile:
 
     @path.validator
     def file_exists_when_expected(self, attribute, value):
-        """Ensures that the file exists (or not) depending on the expected
-        usage (read and/or write)."""
+        """Ensure that the file exists (or not) as needed.
+
+        This depends on the expected usage (read and/or write).
+        """
         if "r" in self.expected_permission:
             if not value.exists():
                 raise log_error(
@@ -73,8 +78,10 @@ class ValidFile:
 
     @path.validator
     def file_has_access_permissions(self, attribute, value):
-        """Ensures that the file has the expected access permission(s).
-        Raises a PermissionError if not."""
+        """Ensure that the file has the expected access permission(s).
+
+        Raises a PermissionError if not.
+        """
         file_is_readable = os.access(value, os.R_OK)
         parent_is_writeable = os.access(value.parent, os.W_OK)
         if ("r" in self.expected_permission) and (not file_is_readable):
@@ -92,7 +99,7 @@ class ValidFile:
 
     @path.validator
     def file_has_expected_suffix(self, attribute, value):
-        """Ensures that the file has one of the expected suffix(es)."""
+        """Ensure that the file has one of the expected suffix(es)."""
         if self.expected_suffix and value.suffix not in self.expected_suffix:
             raise log_error(
                 ValueError,
@@ -118,6 +125,7 @@ class ValidHDF5:
     ValueError
         If the file is not in HDF5 format or if it does not contain the
         expected datasets.
+
     """
 
     path: Path = field(validator=validators.instance_of(Path))
@@ -151,27 +159,29 @@ class ValidHDF5:
 
 @define
 class ValidPosesCSV:
-    """Class for validating CSV files that contain pose estimation outputs.
-    in DeepLabCut format.
+    """Class for validating DLC-style .csv files.
 
     Parameters
     ----------
     path : pathlib.Path
-        Path to the CSV file.
+        Path to the .csv file.
 
     Raises
     ------
     ValueError
-        If the CSV file does not contain the expected DeepLabCut index column
+        If the .csv file does not contain the expected DeepLabCut index column
         levels among its top rows.
+
     """
 
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
     def csv_file_contains_expected_levels(self, attribute, value):
-        """Ensure that the CSV file contains the expected index column levels
-        among its top rows."""
+        """Ensure that the .csv file contains the expected index column levels.
+
+        These are to be found among the top 4 rows of the file.
+        """
         expected_levels = ["scorer", "bodyparts", "coords"]
 
         with open(value) as f:
@@ -187,14 +197,13 @@ class ValidPosesCSV:
             if top4_row_starts != expected_levels:
                 raise log_error(
                     ValueError,
-                    "CSV header rows do not match the known format for "
+                    ".csv header rows do not match the known format for "
                     "DeepLabCut pose estimation output files.",
                 )
 
 
 def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
-    """Try to coerce the value into a list of strings.
-    Otherwise, raise a ValueError."""
+    """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
         log_warning(
             f"Invalid value ({value}). Expected a list of strings. "
@@ -268,6 +277,7 @@ class ValidPosesDataset:
     source_software : str, optional
         Name of the software from which the poses were loaded.
         Defaults to None.
+
     """
 
     # Define class attributes
@@ -336,7 +346,7 @@ class ValidPosesDataset:
         _validate_list_length(attribute, value, self.position_array.shape[2])
 
     def __attrs_post_init__(self):
-        """Assign default values to optional attributes (if None)"""
+        """Assign default values to optional attributes (if None)."""
         if self.confidence_array is None:
             self.confidence_array = np.full(
                 (self.position_array.shape[:-1]), np.nan, dtype="float32"
