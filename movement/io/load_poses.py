@@ -28,7 +28,7 @@ def from_file(
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: Optional[float] = None,
 ) -> xr.Dataset:
-    """Load pose tracking data from a any supported file format.
+    """Load pose tracking data from any supported file format.
 
     Data can be loaded from a DeepLabCut (DLC), LightningPose (LP) or
     SLEAP output file into an xarray Dataset.
