@@ -10,7 +10,7 @@ import datetime
 from pynwb import NWBFile
 
 from movement import sample_data
-from movement.io.export_nwb import convert_movement_to_nwb
+from movement.io.nwb import convert_movement_to_nwb
 
 # Load the sample data
 ds = sample_data.fetch_sample_data("DLC_two-mice.predictions.csv")
