@@ -1,3 +1,10 @@
+"""
+Export pose tracks to NWB
+============================
+
+Export pose tracks to NWB
+"""
+
 import datetime
 
 from pynwb import NWBFile
