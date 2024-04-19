@@ -58,6 +58,7 @@ dev = [
   "types-PyYAML",
   "types-requests",
 ]
+nwb = ["pynwb", "git+https://github.com/rly/ndx-pose.git"]
 
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
