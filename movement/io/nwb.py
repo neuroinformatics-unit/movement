@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 import ndx_pose
+import numpy as np
 import pynwb
 import xarray as xr
 
@@ -147,3 +148,65 @@ def convert_movement_to_nwb(
             behavior_pm.add(pose_estimation)
         except ValueError:
             print("PoseEstimation already exists. Skipping...")
+
+
+def _convert_pse(
+    pes: ndx_pose.PoseEstimationSeries,
+    keypoint: str,
+    subject_name: str,
+    source_software: str,
+    source_file: Optional[str] = None,
+):
+    attrs = {
+        "fps": int(np.median(1 / np.diff(pes.timestamps))),
+        "time_units": pes.timestamps_unit,
+        "source_software": source_software,
+        "source_file": source_file,
+    }
+    n_space_dims = pes.data.shape[1]
+    space_dims = ["x", "y", "z"]
+
+    return xr.Dataset(
+        data_vars={
+            "position": (
+                ["time", "individuals", "keypoints", "space"],
+                pes.data[:, np.newaxis, np.newaxis, :],
+            ),
+            "confidence": (
+                ["time", "individuals", "keypoints"],
+                pes.confidence[:, np.newaxis, np.newaxis],
+            ),
+        },
+        coords={
+            "time": pes.timestamps,
+            "individuals": [subject_name],
+            "keypoints": [keypoint],
+            "space": space_dims[:n_space_dims],
+        },
+        attrs=attrs,
+    )
+
+
+def convert_nwb_to_movement(nwb_filepaths: list[str]) -> xr.Dataset:
+    datasets = []
+    for path in nwb_filepaths:
+        with pynwb.NWBHDF5IO(path, mode="r") as io:
+            nwbfile = io.read()
+            pose_estimation = nwbfile.processing["behavior"]["PoseEstimation"]
+            source_software = pose_estimation.fields["source_software"]
+            pose_estimation_series = pose_estimation.fields[
+                "pose_estimation_series"
+            ]
+
+            for keypoint, pes in pose_estimation_series.items():
+                datasets.append(
+                    _convert_pse(
+                        pes,
+                        keypoint,
+                        subject_name=nwbfile.identifier,
+                        source_software=source_software,
+                        source_file=None,
+                    )
+                )
+
+    return xr.merge(datasets)
