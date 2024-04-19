@@ -74,6 +74,7 @@ dev = [
   "pytest-qt",
   "movement[napari]",
 ]
+nwb = ["pynwb", "git+https://github.com/rly/ndx-pose.git"]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
