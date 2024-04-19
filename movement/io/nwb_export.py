@@ -1,12 +1,8 @@
-import xarray as xr
 from typing import Union
 
-try:
-    import ndx_pose
-    import pynwb
-except ImportError:
-    ndx_pose = None
-    pynwb = None
+import ndx_pose
+import pynwb
+import xarray as xr
 
 
 def _create_pose_and_skeleton_objects(
