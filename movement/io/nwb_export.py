@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional, Union
 
 import ndx_pose
 import pynwb
@@ -8,11 +8,12 @@ import xarray as xr
 def _create_pose_and_skeleton_objects(
     ds: xr.Dataset,
     subject: str,
-    pose_estimation_series_kwargs: dict = None,
-    pose_estimation_kwargs: dict = None,
-    skeleton_kwargs: dict = None,
+    pose_estimation_series_kwargs: Optional[dict] = None,
+    pose_estimation_kwargs: Optional[dict] = None,
+    skeleton_kwargs: Optional[dict] = None,
 ) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
-    """Creates PoseEstimation and Skeletons objects from a movement xarray dataset.
+    """Creates PoseEstimation and Skeletons objects from a movement xarray
+    dataset.
 
     Parameters
     ----------
@@ -84,7 +85,10 @@ def _create_pose_and_skeleton_objects(
     ]
 
     bodyparts_str = ", ".join(ds.keypoints.to_numpy().tolist())
-    description = f"Estimated positions of {bodyparts_str} of {subject} using {ds.source_software}."
+    description = (
+        f"Estimated positions of {bodyparts_str} of"
+        f"{subject} using {ds.source_software}."
+    )
 
     pose_estimation = [
         ndx_pose.PoseEstimation(
@@ -105,16 +109,16 @@ def _create_pose_and_skeleton_objects(
 def convert_movement_to_nwb(
     nwbfiles: Union[list[pynwb.NWBFile], pynwb.NWBFile],
     ds: xr.Dataset,
-    pose_estimation_series_kwargs: dict = None,
-    pose_estimation_kwargs: dict = None,
-    skeletons_kwargs: dict = None,
+    pose_estimation_series_kwargs: Optional[dict] = None,
+    pose_estimation_kwargs: Optional[dict] = None,
+    skeletons_kwargs: Optional[dict] = None,
 ):
     if isinstance(nwbfiles, pynwb.NWBFile):
         nwbfiles = [nwbfiles]
 
     if len(nwbfiles) != len(ds.individuals):
         raise ValueError(
-            "Number of NWBFiles must be equal to the number of individuals in the dataset. "
+            "Number of NWBFiles must be equal to the number of individuals. "
             "NWB requires one file per individual."
         )
 
