@@ -35,6 +35,7 @@ def _create_pose_and_skeleton_objects(
         List of PoseEstimation objects
     skeletons : ndx_pose.Skeletons
         Skeletons object containing all skeletons
+
     """
     if pose_estimation_series_kwargs is None:
         pose_estimation_series_kwargs = dict(
