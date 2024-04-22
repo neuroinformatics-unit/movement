@@ -1,5 +1,4 @@
-"""
-Export pose tracks to NWB
+"""Export pose tracks to NWB
 ============================
 
 Export pose tracks to NWB
