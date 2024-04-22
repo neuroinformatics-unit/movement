@@ -43,7 +43,8 @@ class TestVector:
     @pytest.fixture
     def cart_pol_dataset_with_nan(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where some values are NaN."""
+        where some values are NaN.
+        """
         cart_pol_dataset.cart.loc[{"time": slice(2, 3)}] = np.nan
         cart_pol_dataset.pol.loc[{"time": slice(2, 3)}] = np.nan
         return cart_pol_dataset
@@ -51,28 +52,32 @@ class TestVector:
     @pytest.fixture
     def cart_pol_dataset_missing_cart_dim(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where the required ``space`` dimension is missing."""
+        where the required ``space`` dimension is missing.
+        """
         return cart_pol_dataset.rename({"space": "spice"})
 
     @pytest.fixture
     def cart_pol_dataset_missing_cart_coords(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
         where the required ``space["x"]`` and ``space["y"]`` coordinates
-        are missing."""
+        are missing.
+        """
         cart_pol_dataset["space"] = ["a", "b"]
         return cart_pol_dataset
 
     @pytest.fixture
     def cart_pol_dataset_missing_pol_dim(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
-        where the required ``space_pol`` dimension is missing."""
+        where the required ``space_pol`` dimension is missing.
+        """
         return cart_pol_dataset.rename({"space_pol": "spice_pol"})
 
     @pytest.fixture
     def cart_pol_dataset_missing_pol_coords(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
         where the required ``space_pol["rho"]`` and ``space_pol["phi"]``
-        coordinates are missing."""
+        coordinates are missing.
+        """
         cart_pol_dataset["space_pol"] = ["a", "b"]
         return cart_pol_dataset
 

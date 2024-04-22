@@ -1,3 +1,5 @@
+"""Functions for saving pose tracking data to various file formats."""
+
 import logging
 from pathlib import Path
 from typing import Literal, Union
@@ -14,8 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
-    """Takes an xarray dataset and DLC-style multi-index columns and outputs
-    a pandas dataframe.
+    """Convert an xarray dataset to DLC-style multi-index pandas DataFrame.
 
     Parameters
     ----------
@@ -27,8 +28,8 @@ def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
     Returns
     -------
     pandas.DataFrame
-    """
 
+    """
     # Concatenate the pose tracks and confidence scores into one array
     tracks_with_scores = np.concatenate(
         (
@@ -50,9 +51,7 @@ def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
 
 
 def _auto_split_individuals(ds: xr.Dataset) -> bool:
-    """Returns True if there is only one individual in the dataset,
-    else returns False."""
-
+    """Return True if there is only one individual in the dataset."""
     n_individuals = ds.sizes["individuals"]
     return n_individuals == 1
 
@@ -67,8 +66,8 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         must be either .h5 (recommended) or .csv.
     df : pandas.DataFrame
         Pandas Dataframe to save
-    """
 
+    """
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
     else:  # at this point it can only be .h5 (because of validation)
@@ -78,9 +77,7 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 def to_dlc_df(
     ds: xr.Dataset, split_individuals: bool = False
 ) -> Union[pd.DataFrame, dict[str, pd.DataFrame]]:
-    """Convert an xarray dataset containing pose tracks into a single
-    DeepLabCut-style pandas DataFrame or a dictionary of DataFrames
-    per individual, depending on the 'split_individuals' argument.
+    """Convert an xarray dataset to DeepLabCut-style pandas DataFrame(s).
 
     Parameters
     ----------
@@ -112,8 +109,8 @@ def to_dlc_df(
     --------
     to_dlc_file : Save the xarray dataset containing pose tracks directly
         to a DeepLabCut-style .h5 or .csv file.
-    """
 
+    """
     _validate_dataset(ds)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
@@ -156,8 +153,7 @@ def to_dlc_file(
     file_path: Union[str, Path],
     split_individuals: Union[bool, Literal["auto"]] = "auto",
 ) -> None:
-    """Save the xarray dataset containing pose tracks to a
-    DeepLabCut-style .h5 or .csv file.
+    """Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.
 
     Parameters
     ----------
@@ -192,8 +188,8 @@ def to_dlc_file(
     >>> from movement.io import save_poses, load_poses
     >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
-    """
 
+    """  # noqa: D301
     file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
 
     # Sets default behaviour for the function
@@ -229,8 +225,7 @@ def to_lp_file(
     ds: xr.Dataset,
     file_path: Union[str, Path],
 ) -> None:
-    """Save the xarray dataset containing pose tracks to a LightningPose-style
-    .csv file. See Notes for more details.
+    """Save the xarray dataset to a LightningPose-style .csv file (see Notes).
 
     Parameters
     ----------
@@ -252,8 +247,8 @@ def to_lp_file(
     --------
     to_dlc_file : Save the xarray dataset containing pose tracks to a
         DeepLabCut-style .h5 or .csv file.
-    """
 
+    """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
     _validate_dataset(ds)
     to_dlc_file(ds, file.path, split_individuals=True)
@@ -262,8 +257,7 @@ def to_lp_file(
 def to_sleap_analysis_file(
     ds: xr.Dataset, file_path: Union[str, Path]
 ) -> None:
-    """Save the xarray dataset containing pose tracks to a SLEAP-style
-    .h5 analysis file.
+    """Save the xarray dataset to a SLEAP-style .h5 analysis file.
 
     Parameters
     ----------
@@ -298,8 +292,8 @@ def to_sleap_analysis_file(
     >>> save_poses.to_sleap_analysis_file(
     ...     ds, "/path/to/file_sleap.analysis.h5"
     ... )
-    """
 
+    """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
     _validate_dataset(ds)
 
@@ -372,8 +366,8 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     -------
     xarray.Dataset
         The input dataset without the unoccupied tracks.
-    """
 
+    """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
 
@@ -381,9 +375,9 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
 def _validate_file_path(
     file_path: Union[str, Path], expected_suffix: list[str]
 ) -> ValidFile:
-    """Validate the input file path by checking that the file has
-    write permission and expected suffix(es). If the file is not valid,
-    an appropriate error is raised.
+    """Validate the input file path.
+
+    We check that the file has write permission and the expected suffix(es).
 
     Parameters
     ----------
@@ -403,8 +397,8 @@ def _validate_file_path(
         If the file cannot be written.
     ValueError
         If the file does not have the expected suffix.
-    """
 
+    """
     try:
         file = ValidFile(
             file_path,
@@ -429,8 +423,8 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     ------
     ValueError
         If `ds` is not an xarray Dataset with valid poses.
-    """
 
+    """
     if not isinstance(ds, xr.Dataset):
         raise log_error(
             ValueError, f"Expected an xarray Dataset, but got {type(ds)}."

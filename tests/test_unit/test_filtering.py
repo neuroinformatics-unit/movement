@@ -1,5 +1,3 @@
-"""Testing suite for the filtering module."""
-
 import numpy as np
 import pytest
 import xarray as xr
@@ -14,13 +12,14 @@ from movement.sample_data import fetch_sample_data
 
 @pytest.fixture(scope="module")
 def sample_dataset():
-    """Return a single-individual sample dataset"""
+    """Return a single-individual sample dataset."""
     return fetch_sample_data("DLC_single-mouse_EPM.predictions.h5")
 
 
 def test_log_to_attrs(sample_dataset):
     """Test for the ``log_to_attrs()`` decorator. Decorates a mock function and
-    checks that ``attrs`` contains all expected values."""
+    checks that ``attrs`` contains all expected values.
+    """
 
     @log_to_attrs
     def fake_func(ds, arg, kwarg=None):
@@ -37,10 +36,11 @@ def test_log_to_attrs(sample_dataset):
 
 
 def test_interpolate_over_time(sample_dataset):
-    """Tests the ``interpolate_over_time`` function by checking
-    that the number of nans is decreased after running this function
-    on a filtered dataset"""
+    """Test the ``interpolate_over_time`` function.
 
+    Check that the number of nans is decreased after running this function
+    on a filtered dataset
+    """
     ds_filtered = filter_by_confidence(sample_dataset)
     ds_interpolated = interpolate_over_time(ds_filtered)
 
@@ -61,8 +61,8 @@ def test_filter_by_confidence(sample_dataset, caplog):
     """Tests for the ``filter_by_confidence`` function.
     Checks that the function filters the expected amount of values
     from a known dataset, and tests that this value is logged
-    correctly."""
-
+    correctly.
+    """
     ds_filtered = filter_by_confidence(sample_dataset)
 
     assert isinstance(ds_filtered, xr.Dataset)

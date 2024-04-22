@@ -1,3 +1,5 @@
+"""Functions for filtering and interpolating pose tracks in xarray datasets."""
+
 import logging
 from datetime import datetime
 from functools import wraps
@@ -7,9 +9,9 @@ import xarray as xr
 
 
 def log_to_attrs(func):
-    """
-    Decorator that logs the operation performed by the wrapped function
-    and appends the log entry to the xarray.Dataset's "log" attribute.
+    """Log the operation performed by the wrapped function.
+
+    This decorator appends log entries to the xarray.Dataset's "log" attribute.
     For the decorator to work, the wrapped function must accept an
     xarray.Dataset as its first argument and return an xarray.Dataset.
     """
@@ -37,9 +39,9 @@ def log_to_attrs(func):
 
 
 def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
-    """
-    Report the number and percentage of points that are NaN for each individual
-    and each keypoint in the provided dataset.
+    """Report the number and percentage of points that are NaN.
+
+    Numbers are reported for each individual and keypoint in the dataset.
 
     Parameters
     ----------
@@ -47,8 +49,8 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
         Dataset containing pose tracks, confidence scores, and metadata.
     ds_label : str
         Label to identify the dataset in the report. Default is "dataset".
-    """
 
+    """
     # Compile the report
     nan_report = f"\nMissing points (marked as NaN) in {ds_label}:"
     for ind in ds.individuals.values:
@@ -77,8 +79,7 @@ def interpolate_over_time(
     max_gap: Union[int, None] = None,
     print_report: bool = True,
 ) -> Union[xr.Dataset, None]:
-    """
-    Fill in NaN values by interpolating over the time dimension.
+    """Fill in NaN values by interpolating over the time dimension.
 
     Parameters
     ----------
@@ -100,6 +101,7 @@ def interpolate_over_time(
     ds_interpolated : xr.Dataset
         The provided dataset (ds), where NaN values have been
         interpolated over using the parameters provided.
+
     """
     ds_interpolated = ds.copy()
     position_interpolated = ds.position.interpolate_na(
@@ -118,9 +120,10 @@ def filter_by_confidence(
     threshold: float = 0.6,
     print_report: bool = True,
 ) -> Union[xr.Dataset, None]:
-    """
-    Drop all points where the associated confidence value falls below a
-    user-defined threshold.
+    """Drop all points below a certain confidence threshold.
+
+    Position points with an associated confidence value below the threshold are
+    converted to NaN.
 
     Parameters
     ----------
@@ -150,6 +153,7 @@ def filter_by_confidence(
     datasets and does not have the same meaning across pose estimation
     frameworks. We advise users to inspect the confidence values
     in their dataset and adjust the threshold accordingly.
+
     """
     ds_thresholded = ds.copy()
     ds_thresholded.update(

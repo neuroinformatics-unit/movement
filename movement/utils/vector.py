@@ -1,3 +1,5 @@
+"""Utility functions for vector operations."""
+
 import numpy as np
 import xarray as xr
 
@@ -20,6 +22,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         stored in the ``space_pol`` dimension, with ``rho``
         and ``phi`` in the dimension coordinate. The angles
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
+
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
     rho = xr.apply_ufunc(
@@ -60,6 +63,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         An xarray DataArray containing the Cartesian coordinates
         stored in the ``space`` dimension, with ``x`` and ``y``
         in the dimension coordinate.
+
     """
     _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
     rho = data.sel(space_pol="rho")
@@ -81,8 +85,9 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
 def _validate_dimension_coordinates(
     data: xr.DataArray, required_dim_coords: dict
 ) -> None:
-    """Validate the input data contains the required dimensions and
-    coordinate values.
+    """Validate the input data array.
+
+    Ensure that it contains the required dimensions and coordinates.
 
     Parameters
     ----------
@@ -97,6 +102,7 @@ def _validate_dimension_coordinates(
     ValueError
         If the input data does not contain the required dimension(s)
         and/or the required coordinate(s).
+
     """
     missing_dims = [dim for dim in required_dim_coords if dim not in data.dims]
     error_message = ""

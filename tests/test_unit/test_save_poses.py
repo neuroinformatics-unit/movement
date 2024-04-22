@@ -56,7 +56,8 @@ class TestSavePoses:
     @pytest.fixture(params=output_files)
     def output_file_params(self, request):
         """Return a dictionary containing parameters for testing saving
-        valid pose datasets to DeepLabCut- or SLEAP-style files."""
+        valid pose datasets to DeepLabCut- or SLEAP-style files.
+        """
         return request.param
 
     @pytest.mark.parametrize(
@@ -99,7 +100,8 @@ class TestSavePoses:
     )
     def test_to_dlc_df(self, ds, expected_exception):
         """Test that converting a valid/invalid xarray dataset to
-        a DeepLabCut-style pandas DataFrame returns the expected result."""
+        a DeepLabCut-style pandas DataFrame returns the expected result.
+        """
         with expected_exception as e:
             df = save_poses.to_dlc_df(ds, split_individuals=False)
             if e is None:  # valid input
@@ -116,7 +118,8 @@ class TestSavePoses:
         self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
-        DeepLabCut-style file returns the appropriate errors."""
+        DeepLabCut-style file returns the appropriate errors.
+        """
         with output_file_params.get("to_dlc_file_expected_exception"):
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
@@ -127,7 +130,8 @@ class TestSavePoses:
         self, invalid_poses_dataset, tmp_path
     ):
         """Test that saving an invalid pose dataset to a valid
-        DeepLabCut-style file returns the appropriate errors."""
+        DeepLabCut-style file returns the appropriate errors.
+        """
         with pytest.raises(ValueError):
             save_poses.to_dlc_file(
                 invalid_poses_dataset,
@@ -142,7 +146,8 @@ class TestSavePoses:
     )
     def test_auto_split_individuals(self, valid_poses_dataset, split_value):
         """Test that setting 'split_individuals' to 'auto' yields True
-        for single-individual datasets and False for multi-individual ones."""
+        for single-individual datasets and False for multi-individual ones.
+        """
         assert (
             save_poses._auto_split_individuals(valid_poses_dataset)
             == split_value
@@ -164,7 +169,7 @@ class TestSavePoses:
         split_individuals,
     ):
         """Test that the `split_individuals` argument affects the behaviour
-        of the `to_dlc_df` function as expected
+        of the `to_dlc_df` function as expected.
         """
         df = save_poses.to_dlc_df(valid_poses_dataset, split_individuals)
         # Get the names of the individuals in the dataset
@@ -239,7 +244,8 @@ class TestSavePoses:
         self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
-        LightningPose-style file returns the appropriate errors."""
+        LightningPose-style file returns the appropriate errors.
+        """
         with output_file_params.get("to_lp_file_expected_exception"):
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
@@ -248,7 +254,8 @@ class TestSavePoses:
 
     def test_to_lp_file_invalid_dataset(self, invalid_poses_dataset, tmp_path):
         """Test that saving an invalid pose dataset to a valid
-        LightningPose-style file returns the appropriate errors."""
+        LightningPose-style file returns the appropriate errors.
+        """
         with pytest.raises(ValueError):
             save_poses.to_lp_file(
                 invalid_poses_dataset,
@@ -259,7 +266,8 @@ class TestSavePoses:
         self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
-        SLEAP-style file returns the appropriate errors."""
+        SLEAP-style file returns the appropriate errors.
+        """
         with output_file_params.get("to_sleap_file_expected_exception"):
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
@@ -270,7 +278,8 @@ class TestSavePoses:
         self, invalid_poses_dataset, new_h5_file
     ):
         """Test that saving an invalid pose dataset to a valid
-        SLEAP-style file returns the appropriate errors."""
+        SLEAP-style file returns the appropriate errors.
+        """
         with pytest.raises(ValueError):
             save_poses.to_sleap_analysis_file(
                 invalid_poses_dataset,
@@ -279,7 +288,8 @@ class TestSavePoses:
 
     def test_remove_unoccupied_tracks(self, valid_poses_dataset):
         """Test that removing unoccupied tracks from a valid pose dataset
-        returns the expected result."""
+        returns the expected result.
+        """
         new_individuals = [f"ind{i}" for i in range(1, 4)]
         # Add new individual with NaN data
         ds = valid_poses_dataset.reindex(individuals=new_individuals)

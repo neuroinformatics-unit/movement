@@ -13,11 +13,13 @@ class TestKinematics:
     @pytest.fixture
     def expected_dataarray(self, valid_poses_dataset):
         """Return a function to generate the expected dataarray
-        for different kinematic properties."""
+        for different kinematic properties.
+        """
 
         def _expected_dataarray(property):
             """Return an xarray.DataArray with default values and
-            the expected dimensions and coordinates."""
+            the expected dimensions and coordinates.
+            """
             # Expected x,y values for velocity
             x_vals = np.array(
                 [1.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 17.0]

@@ -17,7 +17,8 @@ from movement.sample_data import (
 @pytest.fixture(scope="module")
 def valid_file_names_with_fps():
     """Return a dict containing one valid file name and the corresponding fps
-    for each supported pose estimation tool."""
+    for each supported pose estimation tool.
+    """
     return {
         "SLEAP_single-mouse_EPM.analysis.h5": 30,
         "DLC_single-wasp.predictions.h5": 40,
@@ -73,7 +74,8 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
     failed download and pre-existing local file. The expected behavior is
     that the function will try to download the metadata file, and if that
     fails, it will try to load an existing local file. If neither succeeds,
-    an error is raised."""
+    an error is raised.
+    """
     metadata_file_name = "poses_files_metadata.yaml"
     local_file_path = tmp_path / metadata_file_name
 

@@ -8,7 +8,8 @@ from movement.utils import vector
 
 class TestKinematicsVectorTransform:
     """Test the vector transformation functionality with
-    various kinematic properties."""
+    various kinematic properties.
+    """
 
     @pytest.mark.parametrize(
         "ds, expected_exception",
@@ -22,7 +23,8 @@ class TestKinematicsVectorTransform:
         self, ds, expected_exception, kinematic_property, request
     ):
         """Test transformation between Cartesian and polar coordinates
-        with various kinematic properties."""
+        with various kinematic properties.
+        """
         ds = request.getfixturevalue(ds)
         with expected_exception:
             data = getattr(ds.move, kinematic_property)
