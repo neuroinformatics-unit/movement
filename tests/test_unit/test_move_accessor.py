@@ -13,7 +13,8 @@ class TestMoveAccessor:
         or polar coordinates) of a valid pose dataset returns an
         instance of xr.DataArray with the correct name, and that
         the input xr.Dataset now contains the property as a data
-        variable."""
+        variable.
+        """
         kinematic_property += suffix
         result = getattr(valid_poses_dataset.move, kinematic_property)
         assert isinstance(result, xr.DataArray)
@@ -24,7 +25,8 @@ class TestMoveAccessor:
         self, invalid_poses_dataset, kinematic_property
     ):
         """Test that accessing a property of an invalid pose dataset
-        raises the appropriate error."""
+        raises the appropriate error.
+        """
         expected_exception = (
             ValueError
             if isinstance(invalid_poses_dataset, xr.Dataset)

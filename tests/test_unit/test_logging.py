@@ -15,7 +15,8 @@ log_messages = {
 @pytest.mark.parametrize("level, message", log_messages.items())
 def test_logfile_contains_message(level, message):
     """Check if the last line of the logfile contains
-    the expected message."""
+    the expected message.
+    """
     logger = logging.getLogger("movement")
     eval(f"logger.{level.lower()}('{message}')")
     log_file = logger.handlers[0].baseFilename
@@ -27,7 +28,8 @@ def test_logfile_contains_message(level, message):
 
 def test_log_error(caplog):
     """Check if the log_error function
-    logs the error message and returns an Exception."""
+    logs the error message and returns an Exception.
+    """
     with pytest.raises(ValueError):
         raise log_error(ValueError, "This is a test error")
     assert caplog.records[0].message == "This is a test error"
@@ -36,7 +38,8 @@ def test_log_error(caplog):
 
 def test_log_warning(caplog):
     """Check if the log_warning function
-    logs the warning message."""
+    logs the warning message.
+    """
     log_warning("This is a test warning")
     assert caplog.records[0].message == "This is a test warning"
     assert caplog.records[0].levelname == "WARNING"

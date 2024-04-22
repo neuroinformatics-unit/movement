@@ -17,7 +17,8 @@ class TestPosesIO:
 
     def test_load_and_save_to_dlc_df(self, dlc_style_df):
         """Test that loading pose tracks from a DLC-style DataFrame and
-        converting back to a DataFrame returns the same data values."""
+        converting back to a DataFrame returns the same data values.
+        """
         ds = load_poses.from_dlc_df(dlc_style_df)
         df = save_poses.to_dlc_df(ds, split_individuals=False)
         np.testing.assert_allclose(df.values, dlc_style_df.values)
@@ -26,7 +27,8 @@ class TestPosesIO:
         self, dlc_output_file, valid_poses_dataset
     ):
         """Test that saving pose tracks to DLC .h5 and .csv files and then
-        loading them back in returns the same Dataset."""
+        loading them back in returns the same Dataset.
+        """
         save_poses.to_dlc_file(
             valid_poses_dataset, dlc_output_file, split_individuals=False
         )
@@ -36,7 +38,8 @@ class TestPosesIO:
     def test_convert_sleap_to_dlc_file(self, sleap_file, dlc_output_file):
         """Test that pose tracks loaded from SLEAP .slp and .h5 files,
         when converted to DLC .h5 and .csv files and re-loaded return
-        the same Datasets."""
+        the same Datasets.
+        """
         sleap_ds = load_poses.from_sleap_file(sleap_file)
         save_poses.to_dlc_file(
             sleap_ds, dlc_output_file, split_individuals=False
@@ -57,7 +60,8 @@ class TestPosesIO:
     ):
         """Test that saving pose tracks (loaded from a SLEAP analysis
         file) to a SLEAP-style .h5 analysis file returns the same file
-        contents."""
+        contents.
+        """
         sleap_h5_file_path = POSE_DATA_PATHS.get(sleap_h5_file)
         ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
         save_poses.to_sleap_analysis_file(ds, new_h5_file)
@@ -87,7 +91,8 @@ class TestPosesIO:
     def test_to_sleap_analysis_file_source_file(self, file, new_h5_file):
         """Test that saving pose tracks (loaded from valid source files)
         to a SLEAP-style .h5 analysis file stores the .slp labels path
-        only when the source file is a .slp file."""
+        only when the source file is a .slp file.
+        """
         file_path = POSE_DATA_PATHS.get(file)
         if file.startswith("DLC"):
             ds = load_poses.from_dlc_file(file_path)

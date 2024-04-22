@@ -95,8 +95,15 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 79
 exclude = ["__init__.py", "build", ".eggs"]
+fix = true
+
+[tool.ruff.lint]
 # See https://docs.astral.sh/ruff/rules/
-lint.select = [
+ignore = [
+  "D203", # one blank line before class
+  "D213", # multi-line-summary second line
+]
+select = [
   "E",   # pycodestyle errors
   "F",   # Pyflakes
   "UP",  # pyupgrade
@@ -104,9 +111,17 @@ lint.select = [
   "B",   # flake8 bugbear
   "SIM", # flake8 simplify
   "C90", # McCabe complexity
-  #"D",  # pydocstyle
+  "D",   # pydocstyle
 ]
-fix = true
+per-file-ignores = { "tests/*" = [
+  "D100", # missing docstring in public module
+  "D205", # missing blank line between summary and description
+  "D103", # missing docstring in public function
+], "examples/*" = [
+  "D400", # first line should end with a period.
+  "D415", # first line should end with a period, question mark...
+  "D205", # missing blank line between summary and description
+] }
 
 [tool.ruff.format]
 docstring-code-format = true # Also format code in docstrings

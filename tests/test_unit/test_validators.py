@@ -66,7 +66,8 @@ class TestValidators:
     @pytest.fixture(params=position_arrays)
     def position_array_params(self, request):
         """Return a dictionary containing parameters for testing
-        position array keypoint and individual names."""
+        position array keypoint and individual names.
+        """
         return request.param
 
     @pytest.mark.parametrize(
@@ -218,7 +219,8 @@ class TestValidators:
         self, valid_position_array, source_software, expected_exception
     ):
         """Test that the source_software attribute is validated properly.
-        LightnigPose is incompatible with multi-individual arrays."""
+        LightnigPose is incompatible with multi-individual arrays.
+        """
         with expected_exception:
             ds = ValidPosesDataset(
                 position_array=valid_position_array("multi_individual_array"),
