@@ -125,12 +125,6 @@ per-file-ignores = { "tests/*" = [
 [tool.ruff.format]
 docstring-code-format = true # Also format code in docstrings
 
-[tool.cibuildwheel]
-build = "cp39-* cp310-* cp311-*"
-
-[tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
-
 [tool.codespell]
 skip = '.git,.tox'
 check-hidden = true
