@@ -74,7 +74,7 @@ def test_filter_by_confidence(sample_dataset, caplog):
             ).values[:, 0]
         )
     )
-    assert n_nans == 3213
+    assert n_nans == 2555
 
     # Check that diagnostics are being logged correctly
     assert f"snout: {n_nans}/{ds_filtered.time.values.shape[0]}" in caplog.text

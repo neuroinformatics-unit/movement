@@ -36,7 +36,8 @@ def validate_metadata(metadata: list[dict]) -> None:
         "species",
         "number_of_individuals",
         "shared_by",
-        "video_frame_file",
+        "frame",
+        "video",
         "note",
     ]
     check_yaml_msg = "Check the format of the metadata yaml file."
