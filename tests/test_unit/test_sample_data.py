@@ -77,7 +77,7 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
     fails, it will try to load an existing local file. If neither succeeds,
     an error is raised.
     """
-    metadata_file_name = "poses_files_metadata.yaml"
+    metadata_file_name = "metadata.yaml"
     local_file_path = tmp_path / metadata_file_name
 
     with patch("movement.sample_data.DATA_DIR", tmp_path):

@@ -107,7 +107,7 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
     return metadata
 
 
-metadata = _fetch_metadata("poses_files_metadata.yaml")
+metadata = _fetch_metadata("metadata.yaml")
 
 # Create a download manager for the pose data
 SAMPLE_DATA = pooch.create(

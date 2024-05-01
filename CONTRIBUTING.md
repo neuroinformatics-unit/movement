@@ -290,7 +290,7 @@ GIN has a GitHub-like interface and git-like
 
 Currently, the data repository contains sample pose estimation data files
 stored in the `poses` folder. Metadata for these files, including information
-about their provenance, is stored in the `poses_files_metadata.yaml` file.
+about their provenance, is stored in the `metadata.yaml` file.
 
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
@@ -319,6 +319,6 @@ To add a new file, you will need to:
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
 5. Add your new files to `/movement-test-data/poses/`.
 6. Determine the sha256 checksum hash of each new file by running `sha256sum <filename>` in a terminal. Alternatively, you can use `pooch` to do this for you: `python -c "import pooch; hash = pooch.file_hash('/path/to/file'); print(hash)"`. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use `python -c "import pooch; pooch.make_registry('/path/to/folder', 'sha256_registry.txt')`.
-7. Add metadata for your new files to `poses_files_metadata.yaml`, including their sha256 hashes.
+7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes.
 8. Commit your changes using `gin commit -m <message> <filename>`.
 9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
