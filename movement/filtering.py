@@ -3,11 +3,9 @@
 import logging
 from datetime import datetime
 from functools import wraps
-from math import floor
 from typing import Union
 
 import xarray as xr
-from numpy import nan
 from scipy import ndimage, signal
 
 
@@ -170,7 +168,9 @@ def filter_by_confidence(
 
 
 @log_to_attrs
-def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
+def median_filter(
+    ds: Union[xr.Dataset, xr.DataArray], window_length: int = 3, **kwargs
+) -> xr.Dataset:
     """
     Smooths pose tracks by applying a median filter along the time dimension.
 
@@ -179,7 +179,7 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
     ds : xarray.Dataset
         Dataset containing position, confidence scores, and metadata
     window_length : int
-        The size of the filter window
+        The size of the filter window, in number of frames
 
     Returns
     -------
@@ -187,18 +187,14 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
         The provided dataset (ds), where pose tracks have been smoothed
         using a median filter with the provided parameters
     """
+    assert "axes" not in kwargs, "The ``axes`` argument may not be overridden."
 
     ds_smoothed = ds.copy()
 
     ds_smoothed.update(
         {
             "position": ndimage.median_filter(
-                ds.position,
-                size=window_length,
-                axes=0,
-                mode="constant",
-                cval=nan,
-                origin=floor(window_length / 2),
+                ds.position, size=window_length, axes=0, **kwargs
             )
         }
     )
@@ -208,7 +204,10 @@ def median_filter(ds: xr.Dataset, window_length: int = 3) -> xr.Dataset:
 
 @log_to_attrs
 def savgol_filter(
-    ds: xr.Dataset, window_length: int = 3, polyorder: int = 0
+    ds: Union[xr.Dataset, xr.DataArray],
+    window_length: int = 5,
+    polyorder: int = 2,
+    **kwargs,
 ) -> xr.Dataset:
     """
     Smooths pose tracks by applying a Savitzky-Golay filter along the
@@ -226,13 +225,15 @@ def savgol_filter(
         using a Savitzky-Golay filter with the provided parameters
 
     window_length : int
-        The size of the filter window
+        The size of the filter window, in number of frames
 
     polyorder : int
         The order of the polynomial used to fit the samples. Must be
         less than ``window_length``.
 
     """
+    # TODO: Play around with polyorder and window_length
+    assert "axes" not in kwargs, "The ``axes`` argument may not be overridden."
 
     ds_smoothed = ds.copy()
 
@@ -243,8 +244,7 @@ def savgol_filter(
                 window_length,
                 polyorder,
                 axis=0,
-                mode="constant",
-                cval=nan,
+                **kwargs,
             )
         }
     )

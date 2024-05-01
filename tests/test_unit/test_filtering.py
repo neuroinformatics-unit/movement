@@ -6,6 +6,8 @@ from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
     log_to_attrs,
+    median_filter,
+    savgol_filter,
 )
 from movement.sample_data import fetch_dataset
 
@@ -35,6 +37,17 @@ def test_log_to_attrs(sample_dataset):
     )
 
 
+def count_nans(ds):
+    n_nans = np.count_nonzero(
+        np.isnan(
+            ds.position.sel(
+                individuals="individual_0", keypoints="snout"
+            ).values[:, 0]
+        )
+    )
+    return n_nans
+
+
 def test_interpolate_over_time(sample_dataset):
     """Test the ``interpolate_over_time`` function.
 
@@ -44,21 +57,11 @@ def test_interpolate_over_time(sample_dataset):
     ds_filtered = filter_by_confidence(sample_dataset)
     ds_interpolated = interpolate_over_time(ds_filtered)
 
-    def count_nans(ds):
-        n_nans = np.count_nonzero(
-            np.isnan(
-                ds.position.sel(
-                    individuals="individual_0", keypoints="snout"
-                ).values[:, 0]
-            )
-        )
-        return n_nans
-
     assert count_nans(ds_interpolated) < count_nans(ds_filtered)
 
 
 def test_filter_by_confidence(sample_dataset, caplog):
-    """Tests for the ``filter_by_confidence`` function.
+    """Tests for the ``filter_by_confidence()`` function.
     Checks that the function filters the expected amount of values
     from a known dataset, and tests that this value is logged
     correctly.
@@ -78,3 +81,30 @@ def test_filter_by_confidence(sample_dataset, caplog):
 
     # Check that diagnostics are being logged correctly
     assert f"snout: {n_nans}/{ds_filtered.time.values.shape[0]}" in caplog.text
+
+
+def test_median_filter(sample_dataset):
+    """Tests for the ``median_filter()`` function. Checks that
+    the function successfully receives the input data and
+    returns a different xr.Dataset with the correct dimensions.
+    """
+    ds_smoothed = median_filter(sample_dataset)
+
+    # Test whether filter received and returned correct data
+    assert isinstance(ds_smoothed, xr.Dataset) and ~(
+        ds_smoothed == sample_dataset
+    )
+    assert ds_smoothed.position.shape == sample_dataset.position.shape
+
+
+def test_savgol_filter(sample_dataset):
+    """Tests for the ``savgol_filter()`` function.
+    Checks that ... .
+    """
+    ds_smoothed = savgol_filter(sample_dataset)
+
+    # Test whether filter received and returned correct data
+    assert isinstance(ds_smoothed, xr.Dataset)
+    assert ds_smoothed.position.shape == sample_dataset.position.shape
+
+    # TODO: Test that NaNs are not propagated
