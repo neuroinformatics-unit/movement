@@ -107,14 +107,49 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
     return metadata
 
 
+def _generate_file_registry(metadata: list[dict]) -> dict[str, str]:
+    """Generate a file registry based on the contents of the metadata.
+
+    This includes files containing pose data, frames, or entire videos.
+
+    Parameters
+    ----------
+    metadata : list of dict
+        List of dictionaries containing metadata for each sample dataset.
+
+    Returns
+    -------
+    dict
+        Dictionary mapping file paths to their SHA-256 checksums.
+
+    """
+    poses_registry = {
+        "poses/" + ds["file_name"]: ds["sha256sum"] for ds in metadata
+    }
+
+    ds_with_frames = [ds for ds in metadata if ds["frame"]["file"]]
+    frames_registry = {
+        "frames" + ds["frame"]["file"]: ds["frame"]["sha256sum"]
+        for ds in ds_with_frames
+    }
+
+    ds_with_videos = [ds for ds in metadata if ds["video"]["file"]]
+    videos_registry = {
+        "videos" + ds["video"]["file"]: ds["video"]["sha256sum"]
+        for ds in ds_with_videos
+    }
+    return {**poses_registry, **frames_registry, **videos_registry}
+
+
 metadata = _fetch_metadata("metadata.yaml")
+file_registry = _generate_file_registry(metadata)
 
 # Create a download manager for the pose data
 SAMPLE_DATA = pooch.create(
-    path=DATA_DIR / "poses",
-    base_url=f"{DATA_URL}/poses/",
+    path=DATA_DIR,
+    base_url=f"{DATA_URL}/",
     retry_if_failed=0,
-    registry={file["file_name"]: file["sha256sum"] for file in metadata},
+    registry=file_registry,
 )
 
 
@@ -127,7 +162,11 @@ def list_sample_data() -> list[str]:
     List of filenames for available pose data.
 
     """
-    return list(SAMPLE_DATA.registry.keys())
+    return [
+        f.split("/")[-1]
+        for f in SAMPLE_DATA.registry
+        if f.startswith("poses/")
+    ]
 
 
 def fetch_sample_data_path(filename: str) -> Path:
@@ -150,7 +189,7 @@ def fetch_sample_data_path(filename: str) -> Path:
 
     """
     try:
-        return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
+        return Path(SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True))
     except ValueError as error:
         raise log_error(
             ValueError,
