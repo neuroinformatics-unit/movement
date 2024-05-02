@@ -281,7 +281,7 @@ linkcheck_anchors_ignore_for_url = [
 
 ## Sample data
 
-We maintain some sample data to be used for testing, examples and tutorials on an
+We maintain some sample datasets to be used for testing, examples and tutorials on an
 [external data repository](gin:neuroinformatics/movement-test-data).
 Our hosting platform of choice is called [GIN](gin:) and is maintained
 by the [German Neuroinformatics Node](https://www.g-node.org/).
@@ -289,8 +289,13 @@ GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
 Currently, the data repository contains sample pose estimation data files
-stored in the `poses` folder. Metadata for these files, including information
-about their provenance, is stored in the `metadata.yaml` file.
+stored in the `poses` folder. For some of these files, we also host
+the associated video file (in the `videos` folder) and/or a single
+video frame (in the `frames`) folder. These can be used to develop and
+test visualisations, e.g. overlaying pose data on video frames.
+The `metadata.yaml` file hold metadata for each sample dataset,
+including information on data provenance as well as the mapping between pose data files and related
+video/frame files.
 
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
@@ -302,9 +307,9 @@ The relevant functionality is implemented in the `movement.sample_data.py` modul
 The most important parts of this module are:
 
 1. The `SAMPLE_DATA` download manager object.
-2. The `list_datasets()` function, which returns a list of the available files in the data repository.
-3. The `fetch_dataset_paths()` function, which downloads a file (if not already cached locally) and returns the local path to it.
-4. The `fetch_dataset()` function, which downloads a file and loads it into movement directly, returning an `xarray.Dataset` object.
+2. The `list_datasets()` function, which returns a list of the available pose datasets (file names of the pose data files).
+3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
+4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose data into `movement`, returning an `xarray.Dataset` object. The local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
@@ -317,8 +322,28 @@ To add a new file, you will need to:
 2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
 3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
-5. Add your new files to `/movement-test-data/poses/`.
-6. Determine the sha256 checksum hash of each new file by running `sha256sum <filename>` in a terminal. Alternatively, you can use `pooch` to do this for you: `python -c "import pooch; hash = pooch.file_hash('/path/to/file'); print(hash)"`. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use `python -c "import pooch; pooch.make_registry('/path/to/folder', 'sha256_registry.txt')`.
-7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes.
-8. Commit your changes using `gin commit -m <message> <filename>`.
+5. Add your new files to the `poses`, `videos`, and/or `frames` folders as appropriate. Follow the existing file naming conventions as closely as possible.
+6. Determine the sha256 checksum hash of each new file by running `sha256sum <filename>` in a terminal. For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with `movement` installed, it will calculate the sha256 hashes for all files in the `poses`, `videos`, and `frames` folders and write them to files named `poses_hashes.txt`, `videos_hashes.txt`, and `frames_hashes.txt`, respectively.
+7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes you've calculated. See the example entry below for guidance.
+8. Commit a specific file with `gin commit -m <message> <filename>`, or `gin commit -m <message> .` to commit all changes.
 9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
+
+### `metadata.yaml` example entry
+```yaml
+- file_name: "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+  sha256sum: "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a"
+  source_software: "SLEAP"
+  fps: 50
+  species: "mouse"
+  number_of_individuals: 3
+  shared_by:
+    name: "Chang Huan Lo"
+    affiliation: "Sainsbury Wellcome Centre, UCL"
+  frame:
+    file_name: "three-mice_Aeon_frame-5sec.png"
+    sha256sum: "889e1bbee6cb23eb6d52820748123579acbd0b2a7265cf72a903dabb7fcc3d1a"
+  video:
+    file_name: "three-mice_Aeon_video.avi"
+    sha256sum: "bc7406442c90467f11a982fd6efd85258ec5ec7748228b245caf0358934f0e7d"
+  note: "All labels were proofread (user-defined) and can be considered ground truth. It was exported from the .slp file with the same prefix."
+```
