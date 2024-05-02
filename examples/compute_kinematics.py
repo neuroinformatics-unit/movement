@@ -24,7 +24,7 @@ from movement import sample_data
 # ------------------------
 # First, we load an example dataset. In this case, we select the
 # ``SLEAP_three-mice_Aeon_proofread`` sample data.
-ds = sample_data.fetch_sample_data(
+ds = sample_data.fetch_dataset(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5",
 )
 

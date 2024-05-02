@@ -7,22 +7,30 @@ import pytest
 from requests.exceptions import RequestException
 from xarray import Dataset
 
-from movement.sample_data import (
-    _fetch_metadata,
-    fetch_sample_data,
-    list_sample_data,
-)
+from movement.sample_data import _fetch_metadata, fetch_dataset, list_datasets
 
 
 @pytest.fixture(scope="module")
-def valid_file_names_with_fps():
-    """Return a dict containing one valid file name and the corresponding fps
-    for each supported pose estimation tool.
+def valid_sample_datasets():
+    """Return a dict mapping valid sample dataset file names to their
+    respective fps values, and associated frame and video file names.
     """
     return {
-        "SLEAP_single-mouse_EPM.analysis.h5": 30,
-        "DLC_single-wasp.predictions.h5": 40,
-        "LP_mouse-face_AIND.predictions.csv": 60,
+        "SLEAP_single-mouse_EPM.analysis.h5": {
+            "fps": 30,
+            "frame_file": "single-mouse_EPM_frame-20sec.png",
+            "video_file": "single-mouse_EPM_video.mp4",
+        },
+        "DLC_single-wasp.predictions.h5": {
+            "fps": 40,
+            "frame_file": "single-wasp_frame-10sec.png",
+            "video_file": None,
+        },
+        "LP_mouse-face_AIND.predictions.csv": {
+            "fps": 60,
+            "frame_file": None,
+            "video_file": None,
+        },
     }
 
 
@@ -49,7 +57,7 @@ def validate_metadata(metadata: list[dict]) -> None:
     ), f"Expected metadata entries to be dicts. {check_yaml_msg}"
     assert all(
         set(file.keys()) == set(metadata_fields) for file in metadata
-    ), f"Expected all metadata entries to have the same keys. {check_yaml_msg}"
+    ), f"Found issues with the names of medatada fields. {check_yaml_msg}"
 
     # check that filenames are unique
     file_names = [file["file_name"] for file in metadata]
@@ -106,19 +114,24 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
             validate_metadata(metadata)
 
 
-def test_list_sample_data(valid_file_names_with_fps):
-    assert isinstance(list_sample_data(), list)
-    assert all(
-        file in list_sample_data() for file in valid_file_names_with_fps
-    )
+def test_list_datasets(valid_sample_datasets):
+    assert isinstance(list_datasets(), list)
+    assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
-def test_fetch_sample_data(valid_file_names_with_fps):
+def test_fetch_dataset(valid_sample_datasets):
     # test with valid files
-    for file, fps in valid_file_names_with_fps.items():
-        ds = fetch_sample_data(file)
-        assert isinstance(ds, Dataset) and ds.fps == fps
+    for sample_name, sample in valid_sample_datasets.items():
+        ds = fetch_dataset(sample_name)
+        assert isinstance(ds, Dataset)
+
+        assert ds.attrs["fps"] == sample["fps"]
+
+        if sample["frame_file"]:
+            assert ds.attrs["frame_path"].name == sample["frame_file"]
+        if sample["video_file"]:
+            assert ds.attrs["video_path"].name == sample["video_file"]
 
     # Test with an invalid file
     with pytest.raises(ValueError):
-        fetch_sample_data("nonexistent_file")
+        fetch_dataset("nonexistent_file")

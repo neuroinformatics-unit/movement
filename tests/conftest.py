@@ -13,7 +13,7 @@ import xarray as xr
 
 from movement.logging import configure_logging
 from movement.move_accessor import MoveAccessor
-from movement.sample_data import fetch_sample_data_path, list_sample_data
+from movement.sample_data import fetch_dataset_paths, list_datasets
 
 
 def pytest_configure():
@@ -21,8 +21,8 @@ def pytest_configure():
     Fetches pose data file paths as a dictionary for tests.
     """
     pytest.POSE_DATA_PATHS = {
-        file_name: fetch_sample_data_path(file_name)
-        for file_name in list_sample_data()
+        file_name: fetch_dataset_paths(file_name)["poses"]
+        for file_name in list_datasets()
     }
 
 

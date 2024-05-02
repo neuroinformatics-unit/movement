@@ -7,13 +7,13 @@ from movement.filtering import (
     interpolate_over_time,
     log_to_attrs,
 )
-from movement.sample_data import fetch_sample_data
+from movement.sample_data import fetch_dataset
 
 
 @pytest.fixture(scope="module")
 def sample_dataset():
     """Return a single-individual sample dataset."""
-    return fetch_sample_data("DLC_single-mouse_EPM.predictions.h5")
+    return fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
 
 
 def test_log_to_attrs(sample_dataset):

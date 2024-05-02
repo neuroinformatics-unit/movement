@@ -133,7 +133,7 @@ You can view the available sample data files with:
 ```python
 from movement import sample_data
 
-file_names = sample_data.list_sample_data()
+file_names = sample_data.list_datasets()
 print(file_names)
 ```
 
@@ -145,7 +145,7 @@ To get the path to one of the sample files,
 you can use the `fetch_pose_data_path` function:
 
 ```python
-file_path = sample_data.fetch_sample_data_path("DLC_two-mice.predictions.csv")
+file_path = sample_data.fetch_dataset_paths("DLC_two-mice.predictions.csv")
 ```
 The first time you call this function, it will download the corresponding file
 to your local machine and save it in the `~/.movement/data` directory. On
@@ -154,11 +154,11 @@ subsequent calls, it will simply return the path to that local file.
 You can feed the path to the `from_dlc_file`, `from_sleap_file`, or
 `from_lp_file` functions and load the data, as shown above.
 
-Alternatively, you can skip the `fetch_sample_data_path()` step and load the
-data directly using the `fetch_sample_data()` function:
+Alternatively, you can skip the `fetch_dataset_paths()` step and load the
+data directly using the `fetch_dataset()` function:
 
 ```python
-ds = sample_data.fetch_sample_data("DLC_two-mice.predictions.csv")
+ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
 ```
 
 :::

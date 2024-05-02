@@ -17,16 +17,16 @@ from movement.io import load_poses
 # ------------------------
 # Print a list of available datasets:
 
-for file_name in sample_data.list_sample_data():
+for file_name in sample_data.list_datasets():
     print(file_name)
 
 # %%
 # Fetch the path to an example dataset.
 # Feel free to replace this with the path to your own dataset.
 # e.g., ``file_path = "/path/to/my/data.h5"``)
-file_path = sample_data.fetch_sample_data_path(
+file_path = sample_data.fetch_dataset_paths(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
-)
+)["poses"]
 
 # %%
 # Load the dataset
