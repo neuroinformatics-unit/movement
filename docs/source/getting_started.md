@@ -122,13 +122,13 @@ ds = load_poses.from_file(
 
 ::::
 
-You can also try movement out on some sample data included in the package.
+You can also try movement out on some sample datasets included in the package.
 
-:::{dropdown} Fetching sample data
+:::{dropdown} Fetching sample datasets
 :color: primary
 :icon: unlock
 
-You can view the available sample data files with:
+To view the available sample datasets:
 
 ```python
 from movement import sample_data
@@ -141,25 +141,30 @@ This will print a list of file names containing sample pose data.
 Each file is prefixed with the name of the pose estimation software package
 that was used to generate it - either "DLC", "SLEAP", or "LP".
 
-To get the path to one of the sample files,
-you can use the `fetch_pose_data_path` function:
-
-```python
-file_path = sample_data.fetch_dataset_paths("DLC_two-mice.predictions.csv")
-```
-The first time you call this function, it will download the corresponding file
-to your local machine and save it in the `~/.movement/data` directory. On
-subsequent calls, it will simply return the path to that local file.
-
-You can feed the path to the `from_dlc_file`, `from_sleap_file`, or
-`from_lp_file` functions and load the data, as shown above.
-
-Alternatively, you can skip the `fetch_dataset_paths()` step and load the
-data directly using the `fetch_dataset()` function:
+To load one of the sample datasets into `movement`, you can use the
+```sample_data.fetch_dataset()``` function:
 
 ```python
 ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
 ```
+
+This function loads the sample pose data into `movement` as an `xarray.Dataset`
+object. Some sample datasets may also have an associated video file
+(the video based on which the poses were predicted)
+or a single frame extracted from that video. These files are not directly
+loaded into `movement`, but their paths can be accessed as dataset attributes:
+
+```python
+ds.frame_path
+ds.video_path
+```
+If the value of one of these attributes are `None`, it means that the
+associated file is not available for the sample dataset.
+
+Under the hood, the first time you call the `fetch_dataset()` function,
+it will download the corresponding files to your local machine and cache them
+in the `~/.movement/data` directory. On subsequent calls, the data are directly
+loaded from the local cache.
 
 :::
 
