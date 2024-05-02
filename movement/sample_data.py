@@ -202,9 +202,10 @@ def fetch_dataset_paths(filename: str) -> dict:
     """
     available_pose_files = list_datasets()
     if filename not in available_pose_files:
-        raise ValueError(
-            f"File '{filename}' is not in the registry. Valid "
-            f"filenames are: {available_pose_files}"
+        raise log_error(
+            ValueError,
+            f"File '{filename}' is not in the registry. "
+            f"Valid filenames are: {available_pose_files}",
         )
 
     metadata_ = next(
