@@ -127,15 +127,15 @@ def _generate_file_registry(metadata: list[dict]) -> dict[str, str]:
         "poses/" + ds["file_name"]: ds["sha256sum"] for ds in metadata
     }
 
-    ds_with_frames = [ds for ds in metadata if ds["frame"]["file"]]
+    ds_with_frames = [ds for ds in metadata if ds["frame"]["file_name"]]
     frames_registry = {
-        "frames" + ds["frame"]["file"]: ds["frame"]["sha256sum"]
+        "frames" + ds["frame"]["file_name"]: ds["frame"]["sha256sum"]
         for ds in ds_with_frames
     }
 
-    ds_with_videos = [ds for ds in metadata if ds["video"]["file"]]
+    ds_with_videos = [ds for ds in metadata if ds["video"]["file_name"]]
     videos_registry = {
-        "videos" + ds["video"]["file"]: ds["video"]["sha256sum"]
+        "videos" + ds["video"]["file_name"]: ds["video"]["sha256sum"]
         for ds in ds_with_videos
     }
     return {**poses_registry, **frames_registry, **videos_registry}
