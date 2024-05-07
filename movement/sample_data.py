@@ -30,6 +30,9 @@ DATA_DIR = Path("~", ".movement", "data").expanduser()
 # Create the folder if it doesn't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# File name for the .yaml file in DATA_URL containing dataset metadata
+METADATA_FILE = "metadata.yaml"
+
 
 def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the metadata yaml file.
@@ -137,7 +140,7 @@ def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
 
 
 # Create a download manager for the pose data
-metadata = _fetch_metadata("metadata.yaml")
+metadata = _fetch_metadata(METADATA_FILE, DATA_DIR)
 file_registry = _generate_file_registry(metadata)
 SAMPLE_DATA = pooch.create(
     path=DATA_DIR,
