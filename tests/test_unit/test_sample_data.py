@@ -34,10 +34,9 @@ def valid_sample_datasets():
     }
 
 
-def validate_metadata(metadata: list[dict]) -> None:
+def validate_metadata(metadata: dict[str, dict]) -> None:
     """Assert that the metadata is in the expected format."""
     metadata_fields = [
-        "file_name",
         "sha256sum",
         "source_software",
         "fps",
@@ -48,26 +47,28 @@ def validate_metadata(metadata: list[dict]) -> None:
         "video",
         "note",
     ]
-    check_yaml_msg = "Check the format of the metadata yaml file."
+    check_yaml_msg = "Check the format of the metadata .yaml file."
     assert isinstance(
-        metadata, list
-    ), f"Expected metadata to be a list. {check_yaml_msg}"
+        metadata, dict
+    ), f"Expected metadata to be a dictionary. {check_yaml_msg}"
     assert all(
-        isinstance(file, dict) for file in metadata
-    ), f"Expected metadata entries to be dicts. {check_yaml_msg}"
+        isinstance(ds, str) for ds in metadata
+    ), f"Expected metadata keys to be strings. {check_yaml_msg}"
     assert all(
-        set(file.keys()) == set(metadata_fields) for file in metadata
+        isinstance(val, dict) for val in metadata.values()
+    ), f"Expected metadata values to be dicts. {check_yaml_msg}"
+    assert all(
+        set(val.keys()) == set(metadata_fields) for val in metadata.values()
     ), f"Found issues with the names of medatada fields. {check_yaml_msg}"
 
-    # check that filenames are unique
-    file_names = [file["file_name"] for file in metadata]
-    assert len(file_names) == len(set(file_names))
+    # check that metadata keys (pose file names) are unique
+    assert len(metadata.keys()) == len(set(metadata.keys()))
 
-    # check that the first 3 fields are present and are strings
-    required_fields = metadata_fields[:3]
+    # check that the first 2 fields are present and are strings
+    required_fields = metadata_fields[:2]
     assert all(
-        (isinstance(file[field], str))
-        for file in metadata
+        (isinstance(val[field], str))
+        for val in metadata.values()
         for field in required_fields
     )
 

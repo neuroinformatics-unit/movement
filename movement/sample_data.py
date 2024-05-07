@@ -67,8 +67,10 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     return Path(local_file_path)
 
 
-def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
-    """Download the metadata yaml file and load it as a list of dictionaries.
+def _fetch_metadata(
+    file_name: str, data_dir: Path = DATA_DIR
+) -> dict[str, dict]:
+    """Download the metadata yaml file and load it as a dictionary.
 
     Parameters
     ----------
@@ -80,8 +82,9 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
 
     Returns
     -------
-    list[dict]
-        A list of dictionaries containing metadata for each sample dataset.
+    dict
+        A dictionary containing metadata for each sample dataset, with the
+        dataset name (pose file name) as the key.
 
     """
     local_file_path = Path(data_dir / file_name)
@@ -107,14 +110,14 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
     return metadata
 
 
-def _generate_file_registry(metadata: list[dict]) -> dict[str, str]:
+def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
     """Generate a file registry based on the contents of the metadata.
 
     This includes files containing poses, frames, or entire videos.
 
     Parameters
     ----------
-    metadata : list of dict
+    metadata : dict
         List of dictionaries containing metadata for each sample dataset.
 
     Returns
@@ -123,22 +126,14 @@ def _generate_file_registry(metadata: list[dict]) -> dict[str, str]:
         Dictionary mapping file paths to their SHA-256 checksums.
 
     """
-    poses_registry = {
-        "poses/" + ds["file_name"]: ds["sha256sum"] for ds in metadata
-    }
-
-    ds_with_frames = [ds for ds in metadata if ds["frame"]["file_name"]]
-    frames_registry = {
-        "frames/" + ds["frame"]["file_name"]: ds["frame"]["sha256sum"]
-        for ds in ds_with_frames
-    }
-
-    ds_with_videos = [ds for ds in metadata if ds["video"]["file_name"]]
-    videos_registry = {
-        "videos/" + ds["video"]["file_name"]: ds["video"]["sha256sum"]
-        for ds in ds_with_videos
-    }
-    return {**poses_registry, **frames_registry, **videos_registry}
+    file_registry = {}
+    for ds, val in metadata.items():
+        file_registry[f"poses/{ds}"] = val["sha256sum"]
+        for key in ["video", "frame"]:
+            file_name = val[key]["file_name"]
+            if file_name:
+                file_registry[f"{key}s/{file_name}"] = val[key]["sha256sum"]
+    return file_registry
 
 
 # Create a download manager for the pose data
@@ -161,11 +156,7 @@ def list_datasets() -> list[str]:
         List of filenames for available pose data.
 
     """
-    return [
-        f.split("/")[-1]
-        for f in SAMPLE_DATA.registry
-        if f.startswith("poses/")
-    ]
+    return list(metadata.keys())
 
 
 def fetch_dataset_paths(filename: str) -> dict:
@@ -208,27 +199,24 @@ def fetch_dataset_paths(filename: str) -> dict:
             f"Valid filenames are: {available_pose_files}",
         )
 
-    metadata_ = next(
-        file for file in metadata if file["file_name"] == filename
-    )
+    frame_file_name = metadata[filename]["frame"]["file_name"]
+    video_file_name = metadata[filename]["video"]["file_name"]
 
-    paths = {
+    return {
         "poses": Path(
             SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True)
         ),
-        "frame": None,
-        "video": None,
+        "frame": None
+        if not frame_file_name
+        else Path(
+            SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
+        ),
+        "video": None
+        if not video_file_name
+        else Path(
+            SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
+        ),
     }
-
-    frame_file_name = metadata_["frame"]["file_name"]
-    video_file_name = metadata_["video"]["file_name"]
-
-    if frame_file_name:
-        paths["frame"] = Path(SAMPLE_DATA.fetch(f"frames/{frame_file_name}"))
-    if video_file_name:
-        paths["video"] = Path(SAMPLE_DATA.fetch(f"videos/{video_file_name}"))
-
-    return paths
 
 
 def fetch_dataset(
@@ -266,14 +254,10 @@ def fetch_dataset(
     """
     file_paths = fetch_dataset_paths(filename)
 
-    metadata_ = next(
-        file for file in metadata if file["file_name"] == filename
-    )
-
     ds = load_poses.from_file(
         file_paths["poses"],
-        source_software=metadata_["source_software"],
-        fps=metadata_["fps"],
+        source_software=metadata[filename]["source_software"],
+        fps=metadata[filename]["fps"],
     )
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]
