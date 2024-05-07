@@ -40,9 +40,9 @@ Sample Data
 .. autosummary::
     :toctree: api
 
-    list_sample_data
-    fetch_sample_data_path
-    fetch_sample_data
+    list_datasets
+    fetch_dataset_paths
+    fetch_dataset
 
 Filtering
 ---------

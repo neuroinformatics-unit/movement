@@ -30,12 +30,15 @@ DATA_DIR = Path("~", ".movement", "data").expanduser()
 # Create the folder if it doesn't exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+# File name for the .yaml file in DATA_URL containing dataset metadata
+METADATA_FILE = "metadata.yaml"
+
 
 def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the metadata yaml file.
 
     This function downloads the yaml file containing sample metadata from
-    the *movement* data repository and saves it in the specified directory
+    the ``movement`` data repository and saves it in the specified directory
     with a temporary filename - temp_{file_name} - to avoid overwriting any
     existing files.
 
@@ -67,8 +70,10 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     return Path(local_file_path)
 
 
-def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
-    """Download the metadata yaml file and load it as a list of dictionaries.
+def _fetch_metadata(
+    file_name: str, data_dir: Path = DATA_DIR
+) -> dict[str, dict]:
+    """Download the metadata yaml file and load it as a dictionary.
 
     Parameters
     ----------
@@ -80,8 +85,9 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
 
     Returns
     -------
-    list[dict]
-        A list of dictionaries containing metadata for each sample file.
+    dict
+        A dictionary containing metadata for each sample dataset, with the
+        dataset name (pose file name) as the key.
 
     """
     local_file_path = Path(data_dir / file_name)
@@ -107,66 +113,125 @@ def _fetch_metadata(file_name: str, data_dir: Path = DATA_DIR) -> list[dict]:
     return metadata
 
 
-metadata = _fetch_metadata("poses_files_metadata.yaml")
+def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
+    """Generate a file registry based on the contents of the metadata.
+
+    This includes files containing poses, frames, or entire videos.
+
+    Parameters
+    ----------
+    metadata : dict
+        List of dictionaries containing metadata for each sample dataset.
+
+    Returns
+    -------
+    dict
+        Dictionary mapping file paths to their SHA-256 checksums.
+
+    """
+    file_registry = {}
+    for ds, val in metadata.items():
+        file_registry[f"poses/{ds}"] = val["sha256sum"]
+        for key in ["video", "frame"]:
+            file_name = val[key]["file_name"]
+            if file_name:
+                file_registry[f"{key}s/{file_name}"] = val[key]["sha256sum"]
+    return file_registry
+
 
 # Create a download manager for the pose data
+metadata = _fetch_metadata(METADATA_FILE, DATA_DIR)
+file_registry = _generate_file_registry(metadata)
 SAMPLE_DATA = pooch.create(
-    path=DATA_DIR / "poses",
-    base_url=f"{DATA_URL}/poses/",
+    path=DATA_DIR,
+    base_url=f"{DATA_URL}/",
     retry_if_failed=0,
-    registry={file["file_name"]: file["sha256sum"] for file in metadata},
+    registry=file_registry,
 )
 
 
-def list_sample_data() -> list[str]:
-    """Find available sample pose data in the *movement* data repository.
+def list_datasets() -> list[str]:
+    """Find available sample datasets.
 
     Returns
     -------
     filenames : list of str
-    List of filenames for available pose data.
+        List of filenames for available pose data.
 
     """
-    return list(SAMPLE_DATA.registry.keys())
+    return list(metadata.keys())
 
 
-def fetch_sample_data_path(filename: str) -> Path:
-    """Download sample pose data and return its local filepath.
+def fetch_dataset_paths(filename: str) -> dict:
+    """Get paths to sample pose data and any associated frames or videos.
 
-    The data are downloaded from the *movement* data repository to the user's
+    The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
-    The function returns the path to the downloaded file,
-    not the contents of the file itself.
+    The function returns the paths to the downloaded files.
 
     Parameters
     ----------
     filename : str
-        Name of the file to fetch.
+        Name of the pose file to fetch.
 
     Returns
     -------
-    path : pathlib.Path
-        Path to the downloaded file.
+    paths : dict
+        Dictionary mapping file types to their respective paths. The possible
+        file types are: "poses", "frame", "video". If "frame" or "video" are
+        not available, the corresponding value is None.
+
+    Examples
+    --------
+    >>> from movement.sample_data import fetch_dataset_paths
+    >>> paths = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")
+    >>> poses_path = paths["poses"]
+    >>> frame_path = paths["frame"]
+    >>> video_path = paths["video"]
+
+    See Also
+    --------
+    fetch_dataset
 
     """
-    try:
-        return Path(SAMPLE_DATA.fetch(filename, progressbar=True))
-    except ValueError as error:
+    available_pose_files = list_datasets()
+    if filename not in available_pose_files:
         raise log_error(
             ValueError,
-            f"File '{filename}' is not in the registry. Valid "
-            f"filenames are: {list_sample_data()}",
-        ) from error
+            f"File '{filename}' is not in the registry. "
+            f"Valid filenames are: {available_pose_files}",
+        )
+
+    frame_file_name = metadata[filename]["frame"]["file_name"]
+    video_file_name = metadata[filename]["video"]["file_name"]
+
+    return {
+        "poses": Path(
+            SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True)
+        ),
+        "frame": None
+        if not frame_file_name
+        else Path(
+            SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
+        ),
+        "video": None
+        if not video_file_name
+        else Path(
+            SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
+        ),
+    }
 
 
-def fetch_sample_data(
+def fetch_dataset(
     filename: str,
 ) -> xarray.Dataset:
-    """Download sample pose data and load it as an xarray Dataset.
+    """Load a sample dataset containing pose data.
 
-    The data are downloaded from the *movement* data repository to the user's
+    The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
     This function returns the pose data as an xarray Dataset.
+    If there are any associated frames or videos, these files are also
+    downloaded and the paths are stored as dataset attributes.
 
     Parameters
     ----------
@@ -178,15 +243,26 @@ def fetch_sample_data(
     ds : xarray.Dataset
         Pose data contained in the fetched sample file.
 
+    Examples
+    --------
+    >>> from movement.sample_data import fetch_dataset
+    >>> ds = fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
+    >>> frame_path = ds.video_path
+    >>> video_path = ds.frame_path
+
+    See Also
+    --------
+    fetch_dataset_paths
+
     """
-    file_path = fetch_sample_data_path(filename)
-    file_metadata = next(
-        file for file in metadata if file["file_name"] == filename
-    )
+    file_paths = fetch_dataset_paths(filename)
 
     ds = load_poses.from_file(
-        file_path,
-        source_software=file_metadata["source_software"],
-        fps=file_metadata["fps"],
+        file_paths["poses"],
+        source_software=metadata[filename]["source_software"],
+        fps=metadata[filename]["fps"],
     )
+    ds.attrs["frame_path"] = file_paths["frame"]
+    ds.attrs["video_path"] = file_paths["video"]
+
     return ds

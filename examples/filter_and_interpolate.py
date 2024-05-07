@@ -15,7 +15,7 @@ from movement.filtering import filter_by_confidence, interpolate_over_time
 # Load a sample dataset
 # ---------------------
 
-ds = sample_data.fetch_sample_data("DLC_single-wasp.predictions.h5")
+ds = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds)
 
 # %%

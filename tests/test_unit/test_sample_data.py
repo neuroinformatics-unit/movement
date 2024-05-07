@@ -7,58 +7,68 @@ import pytest
 from requests.exceptions import RequestException
 from xarray import Dataset
 
-from movement.sample_data import (
-    _fetch_metadata,
-    fetch_sample_data,
-    list_sample_data,
-)
+from movement.sample_data import _fetch_metadata, fetch_dataset, list_datasets
 
 
 @pytest.fixture(scope="module")
-def valid_file_names_with_fps():
-    """Return a dict containing one valid file name and the corresponding fps
-    for each supported pose estimation tool.
+def valid_sample_datasets():
+    """Return a dict mapping valid sample dataset file names to their
+    respective fps values, and associated frame and video file names.
     """
     return {
-        "SLEAP_single-mouse_EPM.analysis.h5": 30,
-        "DLC_single-wasp.predictions.h5": 40,
-        "LP_mouse-face_AIND.predictions.csv": 60,
+        "SLEAP_single-mouse_EPM.analysis.h5": {
+            "fps": 30,
+            "frame_file": "single-mouse_EPM_frame-20sec.png",
+            "video_file": "single-mouse_EPM_video.mp4",
+        },
+        "DLC_single-wasp.predictions.h5": {
+            "fps": 40,
+            "frame_file": "single-wasp_frame-10sec.png",
+            "video_file": None,
+        },
+        "LP_mouse-face_AIND.predictions.csv": {
+            "fps": 60,
+            "frame_file": None,
+            "video_file": None,
+        },
     }
 
 
-def validate_metadata(metadata: list[dict]) -> None:
+def validate_metadata(metadata: dict[str, dict]) -> None:
     """Assert that the metadata is in the expected format."""
     metadata_fields = [
-        "file_name",
         "sha256sum",
         "source_software",
         "fps",
         "species",
         "number_of_individuals",
         "shared_by",
-        "video_frame_file",
+        "frame",
+        "video",
         "note",
     ]
-    check_yaml_msg = "Check the format of the metadata yaml file."
+    check_yaml_msg = "Check the format of the metadata .yaml file."
     assert isinstance(
-        metadata, list
-    ), f"Expected metadata to be a list. {check_yaml_msg}"
+        metadata, dict
+    ), f"Expected metadata to be a dictionary. {check_yaml_msg}"
     assert all(
-        isinstance(file, dict) for file in metadata
-    ), f"Expected metadata entries to be dicts. {check_yaml_msg}"
+        isinstance(ds, str) for ds in metadata
+    ), f"Expected metadata keys to be strings. {check_yaml_msg}"
     assert all(
-        set(file.keys()) == set(metadata_fields) for file in metadata
-    ), f"Expected all metadata entries to have the same keys. {check_yaml_msg}"
+        isinstance(val, dict) for val in metadata.values()
+    ), f"Expected metadata values to be dicts. {check_yaml_msg}"
+    assert all(
+        set(val.keys()) == set(metadata_fields) for val in metadata.values()
+    ), f"Found issues with the names of medatada fields. {check_yaml_msg}"
 
-    # check that filenames are unique
-    file_names = [file["file_name"] for file in metadata]
-    assert len(file_names) == len(set(file_names))
+    # check that metadata keys (pose file names) are unique
+    assert len(metadata.keys()) == len(set(metadata.keys()))
 
-    # check that the first 3 fields are present and are strings
-    required_fields = metadata_fields[:3]
+    # check that the first 2 fields are present and are strings
+    required_fields = metadata_fields[:2]
     assert all(
-        (isinstance(file[field], str))
-        for file in metadata
+        (isinstance(val[field], str))
+        for val in metadata.values()
         for field in required_fields
     )
 
@@ -76,7 +86,7 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
     fails, it will try to load an existing local file. If neither succeeds,
     an error is raised.
     """
-    metadata_file_name = "poses_files_metadata.yaml"
+    metadata_file_name = "metadata.yaml"
     local_file_path = tmp_path / metadata_file_name
 
     with patch("movement.sample_data.DATA_DIR", tmp_path):
@@ -105,19 +115,24 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
             validate_metadata(metadata)
 
 
-def test_list_sample_data(valid_file_names_with_fps):
-    assert isinstance(list_sample_data(), list)
-    assert all(
-        file in list_sample_data() for file in valid_file_names_with_fps
-    )
+def test_list_datasets(valid_sample_datasets):
+    assert isinstance(list_datasets(), list)
+    assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
-def test_fetch_sample_data(valid_file_names_with_fps):
+def test_fetch_dataset(valid_sample_datasets):
     # test with valid files
-    for file, fps in valid_file_names_with_fps.items():
-        ds = fetch_sample_data(file)
-        assert isinstance(ds, Dataset) and ds.fps == fps
+    for sample_name, sample in valid_sample_datasets.items():
+        ds = fetch_dataset(sample_name)
+        assert isinstance(ds, Dataset)
+
+        assert ds.attrs["fps"] == sample["fps"]
+
+        if sample["frame_file"]:
+            assert ds.attrs["frame_path"].name == sample["frame_file"]
+        if sample["video_file"]:
+            assert ds.attrs["video_path"].name == sample["video_file"]
 
     # Test with an invalid file
     with pytest.raises(ValueError):
-        fetch_sample_data("nonexistent_file")
+        fetch_dataset("nonexistent_file")
