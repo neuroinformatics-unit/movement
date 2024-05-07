@@ -24,7 +24,8 @@ def df():
 )
 def test_columns_to_categorical_codes(df, cols):
     """Test that the passed columns are converted to categorical codes
-    ordered by appearance."""
+    ordered by appearance.
+    """
     new_df = columns_to_categorical_codes(df, cols)
     for col in df.columns:
         if col in cols:

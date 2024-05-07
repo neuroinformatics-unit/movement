@@ -62,7 +62,8 @@ class Loader(QWidget):
     def create_file_path_widget(self):
         """Create a line edit and browse button for selecting the file path.
         This allows the user to either browse the file system,
-        or type the path directly into the line edit."""
+        or type the path directly into the line edit.
+        """
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
         self.browse_button = QPushButton("browse")

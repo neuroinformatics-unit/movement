@@ -39,7 +39,8 @@ class TestNapariConvert:
         self, ds_name, request, caplog
     ):
         """Test that NaN confidence values are replaced with zeros.
-        Also checks that a warning is logged when NaNs are found."""
+        Also checks that a warning is logged when NaNs are found.
+        """
         ds = request.getfixturevalue(ds_name)
         nan_coords = (
             ds["confidence"].where(ds["confidence"].isnull(), drop=True).coords
@@ -61,8 +62,8 @@ class TestNapariConvert:
     @pytest.mark.parametrize("ds_name", datasets_to_test)
     def test_ds_to_napari_tracks(self, ds_name, request):
         """Test that the conversion from xarray dataset to napari tracks
-        returns the expected data and properties."""
-
+        returns the expected data and properties.
+        """
         ds = request.getfixturevalue(ds_name)
         n_frames = ds.sizes["time"]
         n_individuals = ds.sizes["individuals"]

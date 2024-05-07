@@ -43,7 +43,8 @@ class PointsStyle(LayerStyle):
     @staticmethod
     def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
         """Sample n equally-spaced colors from a napari colormap,
-        including the endpoints."""
+        including the endpoints.
+        """
         cmap = ensure_colormap(cmap_name)
         samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
         return [tuple(cmap.colors[i]) for i in samples]

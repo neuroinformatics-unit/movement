@@ -13,7 +13,8 @@ def columns_to_categorical_codes(
 ) -> pd.DataFrame:
     """Convert columns in a DataFrame to ordered categorical codes. The codes
     are integers corresponding to the unique values in the column,
-    ordered by appearance."""
+    ordered by appearance.
+    """
     new_df = df.copy()
     for col in cols:
         cat_dtype = pd.api.types.CategoricalDtype(
