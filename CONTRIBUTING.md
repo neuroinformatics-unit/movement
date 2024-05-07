@@ -293,7 +293,7 @@ stored in the `poses` folder. For some of these files, we also host
 the associated video file (in the `videos` folder) and/or a single
 video frame (in the `frames`) folder. These can be used to develop and
 test visualisations, e.g. overlaying pose data on video frames.
-The `metadata.yaml` file hold metadata for each sample dataset,
+The `metadata.yaml` file holds metadata for each sample dataset,
 including information on data provenance as well as the mapping between pose data files and related
 video/frame files.
 
