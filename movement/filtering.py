@@ -185,6 +185,17 @@ def median_filter(ds: xr.Dataset, window_length: int) -> xr.Dataset:
         The provided dataset (ds), where pose tracks have been smoothed
         using a median filter with the provided parameters.
 
+    Notes
+    -----
+    This function is not robust to the presence of NaNs in the input
+    dataset - whenever one or more NaNs is present in the filter
+    window, a NaN is returned to the output array. As a result, any
+    stretch of NaNs present in the input dataset will be propagated
+    proportionally to the size of the window (specifically, by
+    ``floor(window_length/2)``). Additionally, this filter introduces
+    new NaNs at each edge of the input array (i.e. in the first and
+    last ``floor(window_length/2)`` frames).
+
     """
     ds_smoothed = ds.copy()
 
@@ -232,6 +243,17 @@ def savgol_filter(
     ds_smoothed : xarray.Dataset
         The provided dataset (ds), where pose tracks have been smoothed
         using a Savitzky-Golay filter with the provided parameters.
+
+    Notes
+    -----
+    This function is not robust to the presence of NaNs in the input
+    dataset - whenever one or more NaNs is present in the filter
+    window, a NaN is returned to the output array. As a result, any
+    stretch of NaNs present in the input dataset will be propagated
+    proportionally to the size of the window (specifically, by
+    ``floor(window_length/2)``). Note that, unlike
+    ``movement.filtering.median_filter()``, this function does not
+    introduce new NaNs at the beginning and end of the input array.
 
     """
     assert "axis" not in kwargs, "The ``axis`` argument may not be overridden."
