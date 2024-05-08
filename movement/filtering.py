@@ -168,9 +168,7 @@ def filter_by_confidence(
 
 
 @log_to_attrs
-def median_filter(
-    ds: Union[xr.Dataset, xr.DataArray], window_length: int, **kwargs
-) -> xr.Dataset:
+def median_filter(ds: xr.Dataset, window_length: int) -> xr.Dataset:
     """Smooths pose tracks by applying a median filter over time.
 
     Parameters
@@ -180,9 +178,6 @@ def median_filter(
     window_length : int
         The size of the filter window. Window length is interpreted
         as being in the input dataset's time unit.
-    **kwargs : dict
-        Additional keyword arguments are passed to scipy.ndimage.median_filter.
-        Note that the ``axis`` keyword argument may not be overridden.
 
     Returns
     -------
@@ -191,8 +186,6 @@ def median_filter(
         using a median filter with the provided parameters.
 
     """
-    assert "axes" not in kwargs, "The ``axes`` argument may not be overridden."
-
     ds_smoothed = ds.copy()
 
     if ds.time_unit == "seconds":
@@ -211,7 +204,7 @@ def median_filter(
 
 @log_to_attrs
 def savgol_filter(
-    ds: Union[xr.Dataset, xr.DataArray],
+    ds: xr.Dataset,
     window_length: int,
     polyorder: int = 2,
     **kwargs,
@@ -227,7 +220,8 @@ def savgol_filter(
         as being in the input dataset's time unit.
     polyorder : int
         The order of the polynomial used to fit the samples. Must be
-        less than ``window_length``.
+        less than ``window_length``. By default, a ``polyorder`` of
+        2 is used.
     **kwargs : dict
         Additional keyword arguments are passed to scipy.signal.savgol_filter.
         Note that the ``axis`` keyword argument may not be overridden.
