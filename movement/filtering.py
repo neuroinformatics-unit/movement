@@ -254,7 +254,7 @@ def savgol_filter(
         axis=0,
         **kwargs,
     )
-    position_smoothed_da = ds.air.copy(data=position_smoothed)
+    position_smoothed_da = ds.position.copy(data=position_smoothed)
 
     ds_smoothed.update({"position": position_smoothed_da})
 
