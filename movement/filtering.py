@@ -6,7 +6,7 @@ from functools import wraps
 from typing import Union
 
 import xarray as xr
-from scipy import ndimage, signal
+from scipy import signal
 
 
 def log_to_attrs(func):
@@ -196,13 +196,13 @@ def median_filter(
     ds_smoothed = ds.copy()
 
     if ds.time_unit == "seconds":
-        window_length = window_length * ds.fps
+        window_length = int(window_length * ds.fps)
 
     ds_smoothed.update(
         {
-            "position": ndimage.median_filter(
-                ds.position, size=window_length, axes=0, **kwargs
-            )
+            "position": ds.position.rolling(
+                time=window_length, center=True
+            ).median(skipna=True)
         }
     )
 
@@ -245,18 +245,17 @@ def savgol_filter(
     ds_smoothed = ds.copy()
 
     if ds.time_unit == "seconds":
-        window_length = window_length * ds.fps
+        window_length = int(window_length * ds.fps)
 
-    ds_smoothed.update(
-        {
-            "position": signal.savgol_filter(
-                ds.position,
-                window_length,
-                polyorder,
-                axis=0,
-                **kwargs,
-            )
-        }
+    position_smoothed = signal.savgol_filter(
+        ds.position,
+        window_length,
+        polyorder,
+        axis=0,
+        **kwargs,
     )
+    position_smoothed_da = ds.air.copy(data=position_smoothed)
+
+    ds_smoothed.update({"position": position_smoothed_da})
 
     return ds_smoothed

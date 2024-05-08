@@ -88,7 +88,7 @@ def test_median_filter(sample_dataset):
     the function successfully receives the input data and
     returns a different xr.Dataset with the correct dimensions.
     """
-    ds_smoothed = median_filter(sample_dataset)
+    ds_smoothed = median_filter(sample_dataset, 1)
 
     # Test whether filter received and returned correct data
     assert isinstance(ds_smoothed, xr.Dataset) and ~(
@@ -99,12 +99,14 @@ def test_median_filter(sample_dataset):
 
 def test_savgol_filter(sample_dataset):
     """Tests for the ``savgol_filter()`` function.
-    Checks that ... .
+    Checks that the function successfully receives the input
+    data and returns a different xr.Dataset with the correct
+    dimensions.
     """
-    ds_smoothed = savgol_filter(sample_dataset)
+    ds_smoothed = savgol_filter(sample_dataset, 1)
 
     # Test whether filter received and returned correct data
-    assert isinstance(ds_smoothed, xr.Dataset)
+    assert isinstance(ds_smoothed, xr.Dataset) and ~(
+        ds_smoothed == sample_dataset
+    )
     assert ds_smoothed.position.shape == sample_dataset.position.shape
-
-    # TODO: Test that NaNs are not propagated
