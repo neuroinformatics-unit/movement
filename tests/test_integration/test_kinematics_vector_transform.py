@@ -27,7 +27,7 @@ class TestKinematicsVectorTransform:
         """
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            data = getattr(ds.move, kinematic_property)
+            data = getattr(ds.move, f"compute_{kinematic_property}")()
             pol_data = vector.cart2pol(data)
             cart_data = vector.pol2cart(pol_data)
             xr.testing.assert_allclose(cart_data, data)
