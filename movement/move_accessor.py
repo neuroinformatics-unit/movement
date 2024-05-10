@@ -18,7 +18,21 @@ xr.set_options(keep_attrs=True)
 class MovementDataset:
     """A movement-specicific xarray Dataset accessor.
 
-    The xarray Dataset contains the following expected dimensions:
+    Predicted poses over time (pose tracks) are represented in ``movement``
+    as and :py:class:`xarray.Dataset` object - a multi-dimensional,
+    in-memory array database. Loading functions structure the dataset in
+    a ``movement``-specific way, and we refer to such objects as
+    'movemen datasets'. A movement dataset is nothing other than a
+    :py:class:`xarray.Dataset` with a specific structure and metadata, and
+    some added functionality, which is provided in this class.
+
+    You can think of each dataset as a multi-dimensional
+    :py:class:`pandas.DataFrame` or as a :py:class:`numpy.ndarray` with
+    labelled axes. In ``xarray`` terminology, each axis is called a dimension
+    (``dim``), while the labelled "ticks" along each axis are called
+    coordinates (``coords``).
+
+    A movement dataset contains the following expected dimensions:
         - ``time``: the number of frames in the video
         - ``individuals``: the number of individuals in the video
         - ``keypoints``: the number of keypoints in the skeleton
@@ -27,35 +41,50 @@ class MovementDataset:
     Appropriate coordinate labels are assigned to each dimension:
     list of unique names (str) for ``individuals`` and ``keypoints``,
     ['x','y',('z')] for ``space``. The coordinates of the ``time`` dimension
-    are in seconds if ``fps`` is provided, otherwise they are in frame numbers.
+    are in seconds if ``fps`` is provided during loading,
+    otherwise they are in frame numbers (increasing integers starting from 0).
 
-    The dataset contains two expected data variables (xarray DataArrays):
-        - ``position``: with shape (``time``, ``individuals``,
-          ``keypoints``, ``space``)
-        - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)
+    Right after loading a movement dataset, it contains the following
+    two data variable stored as :py:class:`xarray.DataArray` objects:
+    - ``position``: the 2D or 3D coordinates of the keypoints over time,
+    with shape (``time``, ``individuals``, ``keypoints``, ``space``)
+    - ``confidence``: the confidence scores of the keypoints over time
+    with shape (``time``, ``individuals``, ``keypoints``)
 
-    When accessing a ``.move`` property (e.g. ``displacement``, ``velocity``,
-    ``acceleration``) for the first time, the property is computed and stored
-    as a data variable with the same name in the dataset. The ``.move``
-    accessor can be omitted in subsequent accesses, i.e.
-    ``ds.move.displacement`` and ``ds.displacement`` will return the same data
-    variable.
+    Grouping data variables together in a single dataset makes it easier to
+    keep track of the relationships between them, and makes sense when they
+    share some common dimensions (as is the case here).
 
-    The dataset may also contain following attributes as metadata:
-        - ``fps``: the number of frames per second in the video
-        - ``time_unit``: the unit of the ``time`` coordinates, frames or
-          seconds
-        - ``source_software``: the software from which the poses were loaded
-        - ``source_file``: the file from which the poses were
-          loaded
+    Other related data that do not constitute arrays but instead take the form
+    of key-value pairs can be stored as attributes - i.e. inside the specially
+    designated ``attrs`` dictionary. Right after loading a movement dataset,
+    the following attributes are stored:
+    - ``fps``: the number of frames per second in the video
+    - ``time_unit``: the unit of the ``time`` coordinates, frames or
+        seconds
+    - ``source_software``: the software from which the poses were loaded
+    - ``source_file``: the file from which the poses were
+        loaded
+
+    Some of the sample dataset provided with the ``movement`` package
+    may also possess additional attributes, such as:
+    - ``video_path``: the path to the video file corresponding to the poses
+    - ``frame_path``: the path to a single still frame from the video
+
+    All data variables and attributes can be conveniently accessed and
+    manipulated using ``xarray``'s built-in interface, for example
+    ``ds.position`` or ``ds.fps``.
+
+    Methods/properties that extend the standard xarray functionality are
+    are defined in this class and can ve accessed via the ``.move`` accessor,
+    e.g. ``ds.move.validate()``.
+
+
 
     Notes
     -----
     Using an accessor is the recommended way to extend xarray objects.
     See [1]_ for more details.
-
-    Methods/properties that are specific to this class can be accessed via
-    the ``.move`` accessor, e.g. ``ds.move.validate()``.
 
 
     References
