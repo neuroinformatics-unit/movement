@@ -18,7 +18,7 @@ from movement.io.validators import (
     ValidPosesDataset,
 )
 from movement.logging import log_error, log_warning
-from movement.move_accessor import MoveAccessor
+from movement.move_accessor import MovementDataset
 
 logger = logging.getLogger(__name__)
 
@@ -576,7 +576,7 @@ def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = MoveAccessor.dim_names
+    DIM_NAMES = MovementDataset.dim_names
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={

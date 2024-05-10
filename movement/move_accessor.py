@@ -15,7 +15,7 @@ xr.set_options(keep_attrs=True)
 
 
 @xr.register_dataset_accessor("move")
-class MoveAccessor:
+class MovementDataset:
     """A movement-specicific xarray Dataset accessor.
 
     The xarray Dataset contains the following expected dimensions:
@@ -79,7 +79,7 @@ class MoveAccessor:
     )
 
     def __init__(self, ds: xr.Dataset):
-        """Initialize the MoveAccessor."""
+        """Initialize the MovementDataset."""
         self._obj = ds
 
     def __getattr__(self, name: str) -> xr.DataArray:

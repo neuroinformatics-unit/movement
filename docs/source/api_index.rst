@@ -77,7 +77,7 @@ Move Accessor
 .. autosummary::
     :toctree: api
 
-    MoveAccessor
+    MovementDataset
 
 Logging
 -------

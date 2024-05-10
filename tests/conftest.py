@@ -12,7 +12,7 @@ import pytest
 import xarray as xr
 
 from movement.logging import configure_logging
-from movement.move_accessor import MoveAccessor
+from movement.move_accessor import MovementDataset
 from movement.sample_data import fetch_dataset_paths, list_datasets
 
 
@@ -245,7 +245,7 @@ def valid_position_array():
 @pytest.fixture
 def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = MoveAccessor.dim_names
+    dim_names = MovementDataset.dim_names
     # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
