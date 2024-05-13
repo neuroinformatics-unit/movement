@@ -19,7 +19,7 @@ Each file is prefixed with the name of the pose estimation software package
 that was used to generate it - either "DLC", "SLEAP", or "LP".
 
 To load one of the sample datasets into `movement`, you can use the
-```sample_data.fetch_dataset()``` function:
+{func}`movement.sample_data.fetch_dataset()` function:
 
 ```python
 ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")

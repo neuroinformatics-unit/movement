@@ -19,7 +19,7 @@ software packages. It does not support the training or labelling of the data.
 ## Loading pose tracks
 
 The loading functionalities are provided by the
-`movement.io.load_poses` module, which can be imported as follows:
+{mod}`movement.io.load_poses` module, which can be imported as follows:
 
 ```python
 from movement.io import load_poses
@@ -92,7 +92,7 @@ included with the package.
 
 (target-saving)=
 ## Saving pose tracks
-[movement datasets](target-dataset) can be save to disk in a variety of
+[movement datasets](target-dataset) can be saved to disk in a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 

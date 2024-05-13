@@ -10,9 +10,10 @@ with pandas-style indexing and labelling.
 So, a `movement` dataset is simply an {class}`xarray.Dataset` with a specific
 structure to represent pose tracks, associated confidence scores and relevant
 metadata. Each dataset consists of **data variables**, **dimensions**,
-**coordinates** and **attributes**. In the next section, we will describe the
-structure of a `movemen` dataset in more detail.
+**coordinates** and **attributes**.
 
+In the next section, we will describe the
+structure of a `movement` dataset in some detail.
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
 
