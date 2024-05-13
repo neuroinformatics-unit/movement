@@ -10,21 +10,21 @@ A Python toolbox for analysing body movements across space and time, to aid the 
 :link: getting_started/index
 :link-type: doc
 
-Install and try it out.
+Installation, first steps and key concepts.
 :::
 
 :::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
 :link: examples/index
 :link-type: doc
 
-Example use cases.
+A gallery of examples using movement.
 :::
 
 :::{grid-item-card} {fas}`comments;sd-text-primary` Join the movement
 :link: community/index
 :link-type: doc
 
-Get in touch and contribute.
+How to get in touch and contribute.
 :::
 ::::
 
