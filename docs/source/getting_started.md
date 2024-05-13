@@ -52,6 +52,11 @@ Please see the [contributing guide](target-contributing) for more information.
 
 ::::
 
+To verify that the installation was successful, you can run the following command:
+
+```sh
+movement info
+```
 
 ## Loading data
 You can load predicted pose tracks from the pose estimation software packages
