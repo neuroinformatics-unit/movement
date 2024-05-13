@@ -59,6 +59,9 @@ dev = [
   "types-requests",
 ]
 
+[project.scripts]
+movement = "movement.cli_entrypoint:main"
+
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
