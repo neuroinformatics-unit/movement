@@ -57,11 +57,12 @@ Please see the [contributing guide](target-contributing) for more information.
 
 ## Check the installation
 
-To check that the package is installed correctly, you can run the following
-command in your terminal (with the `movement-env` activated):
+To verify that the installation was successful, you can run the following
+command (with the `movement-env` activated):
 
 ```sh
-python -c "import movement; print(movement.__version__)"
+movement info
 ```
 
-This should print the version number of the installed `movement` package.
+You should see a printout including the version numbers of `movement`
+and some of its dependencies.
