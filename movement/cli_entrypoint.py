@@ -40,8 +40,8 @@ ASCII_ART = """
 def main() -> None:
     """Entrypoint for the CLI."""
     parser = argparse.ArgumentParser(prog="movement")
-    subparsers = parser.add_subparsers(dest="command", title="subcommands")
-    # Add 'info' sub-command
+    subparsers = parser.add_subparsers(dest="command", title="commands")
+    # Add 'info' command
     info_parser = subparsers.add_parser(
         "info", help="output diagnostic information about the environment"
     )
