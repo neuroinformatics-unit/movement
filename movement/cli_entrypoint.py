@@ -65,6 +65,7 @@ def info() -> None:
         f"     xarray: {xr.__version__}\n"
         f"     pandas: {pd.__version__}\n"
         f"     Platform: {platform.platform()}\n"
+        f"     System: {platform.system()} {platform.release()}\n"
     )
 
 
