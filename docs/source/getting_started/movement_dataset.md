@@ -23,7 +23,7 @@ To learn more about `xarray` data structures in general, see the relevant
 
 You can always inspect the structure of a `movement` dataset `ds` by simply
 printing it:
-```{code-block} python
+```python
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 print(ds)
 ```
@@ -90,7 +90,7 @@ and use the built-in [plotting methods](xarray:user-guide/plotting.html).
 As an example, here's how you can use the `sel` method to select subsets of
 data:
 
-```{code-block} python
+```python
 # select the first 100 seconds of data
 ds_sel = ds.sel(time=slice(0, 100))
 
@@ -108,7 +108,7 @@ ds_sel = ds.sel(
 Such selections can also be applied to the **data variables**,
 returning an {class}`xarray.DataArray` rather than an {class}`xarray.Dataset`:
 
-```{code-block} python
+```python
 position = ds.position.sel(individuals="individual1", keypoints="snout")
 ```
 
@@ -122,7 +122,7 @@ underlying {class}`xarray.Dataset` object. To avoid conflicts with `xarray`'s
 built-in methods, `movement`-specific methods are accessed using the
 `move` keyword, for example:
 
-```{code-block} python
+```python
 # compute position derivatives for all individuals and keypoints across time
 velocity = ds.move.compute_velocity()
 acceleration = ds.move.compute_acceleration()
@@ -137,7 +137,7 @@ add these or other new **data variables** to the `movement` dataset for
 convenience, which can be done by simply assigning them to the dataset
 with an appropriate name:
 
-```{code-block} python
+```python
 ds["velocity"] = velocity
 ds["acceleration"] = acceleration
 # henceforth accessible as ds.velocity and ds.acceleration
@@ -145,7 +145,7 @@ ds["acceleration"] = acceleration
 
 Custom **attributes** can also be added to the dataset:
 
-```{code-block} python
+```python
 ds.attrs["my_custom_attribute"] = "my_custom_value"
 # henceforth accessible as ds.my_custom_attribute
 ```
