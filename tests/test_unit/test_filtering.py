@@ -82,6 +82,27 @@ def test_median_filter(sample_dataset, window_size):
     assert ds_smoothed.position.shape == sample_dataset.position.shape
 
 
+def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
+    """Test nan behavior of the ``median_filter()`` function. The
+    ``valid_poses_dataset_with_nan`` dataset (fixture defined in conftest.py)
+    contains NaN values in all keypoints of the first individual at times
+    3, 7, and 8 (0-indexed, 10 total timepoints).
+    The median filter should propagate NaNs within the windows of the filter,
+    but it should not introduce any NaNs for the second individual.
+    """
+    ds_smoothed = median_filter(valid_poses_dataset_with_nan, 3)
+    # There should be NaNs at 7 timepoints for the first individual
+    # all except for timepoints 0, 1 and 5
+    assert helpers.count_nans(ds_smoothed) == 7
+    assert (
+        ~ds_smoothed.position.isel(individuals=0, time=[0, 1, 5])
+        .isnull()
+        .any()
+    )
+    # The second individual should not contain any NaNs
+    assert ~ds_smoothed.position.sel(individuals="ind2").isnull().any()
+
+
 @pytest.mark.parametrize("window_length", [0.2, 1, 4, 12])
 @pytest.mark.parametrize("polyorder", [1, 2, 3])
 def test_savgol_filter(sample_dataset, window_length, polyorder):
@@ -123,15 +144,15 @@ def test_savgol_filter_kwargs_override(sample_dataset, override_kwargs):
         assert isinstance(ds_smoothed, xr.Dataset)
 
 
-def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
-    """Test nan behavior of the ``median_filter()`` function. The
+def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
+    """Test nan behavior of the ``savgol_filter()`` function. The
     ``valid_poses_dataset_with_nan`` dataset (fixture defined in conftest.py)
     contains NaN values in all keypoints of the first individual at times
     3, 7, and 8 (0-indexed, 10 total timepoints).
     The median filter should propagate NaNs within the windows of the filter,
     but it should not introduce any NaNs for the second individual.
     """
-    ds_smoothed = median_filter(valid_poses_dataset_with_nan, 3)
+    ds_smoothed = savgol_filter(valid_poses_dataset_with_nan, 3, polyorder=2)
     # There should be NaNs at 7 timepoints for the first individual
     # all except for timepoints 0, 1 and 5
     assert helpers.count_nans(ds_smoothed) == 7
