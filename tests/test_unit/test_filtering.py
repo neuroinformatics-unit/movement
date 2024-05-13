@@ -149,8 +149,8 @@ def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     ``valid_poses_dataset_with_nan`` dataset (fixture defined in conftest.py)
     contains NaN values in all keypoints of the first individual at times
     3, 7, and 8 (0-indexed, 10 total timepoints).
-    The median filter should propagate NaNs within the windows of the filter,
-    but it should not introduce any NaNs for the second individual.
+    The Savitzky-Golay filter should propagate NaNs within the windows of
+    the filter, but it should not introduce any NaNs for the second individual.
     """
     ds_smoothed = savgol_filter(valid_poses_dataset_with_nan, 3, polyorder=2)
     # There should be NaNs at 7 timepoints for the first individual
