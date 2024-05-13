@@ -12,12 +12,12 @@ from movement.cli_entrypoint import main
         (
             ["movement", "info"],
             does_not_raise("Platform: "),
-        ),  # valid arg
+        ),  # Valid arg
         (
             ["movement", "invalid"],
             pytest.raises(SystemExit),
-        ),  # invalid arg
-        (["movement"], does_not_raise("usage: movement")),  # empty arg
+        ),  # Invalid arg
+        (["movement"], does_not_raise("usage: movement")),  # Empty arg
     ],
 )
 def test_entrypoint_command(command, expected_exception):
