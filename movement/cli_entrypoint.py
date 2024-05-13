@@ -1,7 +1,7 @@
-"""CLI entrypoint for the movement package."""
+"""CLI entrypoint for the ``movement`` package."""
 
+import argparse
 import platform
-import sys
 
 import numpy as np
 import pandas as pd
@@ -39,12 +39,24 @@ ASCII_ART = """
 
 def main() -> None:
     """Entrypoint for the CLI."""
-    if len(sys.argv) != 2 or sys.argv[1] != "info":
-        print(
-            "Invalid command.",
-            "Please use 'movement info' to get information.",
-        )
-        return
+    parser = argparse.ArgumentParser(prog="movement")
+    subparsers = parser.add_subparsers(dest="command", title="subcommands")
+    # Add 'info' sub-command
+    info_parser = subparsers.add_parser(
+        "info", help="output diagnostic information about the environment"
+    )
+    info_parser.set_defaults(func=info)
+
+    args = parser.parse_args()
+    if args.command is None:
+        help_message = parser.format_help()
+        print(help_message)
+    else:
+        args.func()
+
+
+def info() -> None:
+    """Output diagnostic information."""
     print(
         f"{ASCII_ART}\n"
         f"     movement: {movement.__version__}\n"
