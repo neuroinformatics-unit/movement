@@ -7,7 +7,7 @@ A Python toolbox for analysing body movements across space and time, to aid the 
 :gutter: 3
 
 :::{grid-item-card} {fas}`rocket;sd-text-primary` Getting Started
-:link: getting_started
+:link: getting_started/index
 :link-type: doc
 
 Install and try it out.
@@ -46,7 +46,7 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :maxdepth: 2
 :hidden:
 
-getting_started
+getting_started/index
 examples/index
 community/index
 api_index
