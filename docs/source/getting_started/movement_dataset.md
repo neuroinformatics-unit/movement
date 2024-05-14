@@ -3,7 +3,7 @@
 
 When you load predicted pose tracks into `movement`, they are represented
 as an {class}`xarray.Dataset` object, which is a container for multiple data
-arrays. Each array is in turn represented as a {class}`xarray.DataArray`
+arrays. Each array is in turn represented as an {class}`xarray.DataArray`
 object, which you can think of as a multi-dimensional {class}`numpy.ndarray`
 with pandas-style indexing and labelling.
 
@@ -29,7 +29,7 @@ ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 print(ds)
 ```
 If you are working in a Jupyter notebook, you can also view an interactive
-representation of the dataset by simply typing its name - e.g. `ds` - in a cell.
+representation of the dataset by typing its name - e.g. `ds` - in a cell.
 
 ### Dimensions and coordinates
 In `xarray` [terminology](xarray:user-guide/plotting.html),

@@ -96,7 +96,7 @@ included with the package.
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
-First import the `movement.io.save_poses` module:
+First import the {mod}`movement.io.save_poses` module:
 
 ```python
 from movement.io import save_poses
