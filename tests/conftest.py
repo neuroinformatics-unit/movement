@@ -343,9 +343,11 @@ class Helpers:
         )
         return n_nans
 
+    @staticmethod
     def count_nan_repeats(ds):
-        """Count the number of NaN repeats in the x coordinate timeseries
-        of the first keypoint of the first individual in the dataset.
+        """Count the number of continuous stretches of NaNs in the
+        x coordinate timeseries of the first keypoint of the first individual
+        in the dataset.
         """
         x = ds.position.isel(individuals=0, keypoints=0, space=0).values
         repeats = []
