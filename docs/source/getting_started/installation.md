@@ -12,7 +12,7 @@ but the same commands will also work with `mamba`/`micromamba`.
 :::
 
 First, create and activate an environment with some prerequisites.
-You can call your environment whatever you like, we've used "movement-env".
+You can call your environment whatever you like, we've used `movement-env`.
 
 ```sh
 conda create -n movement-env -c conda-forge python=3.10 pytables
