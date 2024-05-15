@@ -326,3 +326,48 @@ def invalid_poses_dataset(request):
 def kinematic_property(request):
     """Return a kinematic property."""
     return request.param
+
+
+class Helpers:
+    """Generic helper methods for ``movement`` testing modules."""
+
+    @staticmethod
+    def count_nans(ds):
+        """Count NaNs in the x coordinate timeseries of the first keypoint
+        of the first individual in the dataset.
+        """
+        n_nans = np.count_nonzero(
+            np.isnan(
+                ds.position.isel(individuals=0, keypoints=0, space=0).values
+            )
+        )
+        return n_nans
+
+    @staticmethod
+    def count_nan_repeats(ds):
+        """Count the number of continuous stretches of NaNs in the
+        x coordinate timeseries of the first keypoint of the first individual
+        in the dataset.
+        """
+        x = ds.position.isel(individuals=0, keypoints=0, space=0).values
+        repeats = []
+        running_count = 1
+        for i in range(len(x)):
+            if i != len(x) - 1:
+                if np.isnan(x[i]) and np.isnan(x[i + 1]):
+                    running_count += 1
+                elif np.isnan(x[i]):
+                    repeats.append(running_count)
+                    running_count = 1
+                else:
+                    running_count = 1
+            elif np.isnan(x[i]):
+                repeats.append(running_count)
+                running_count = 1
+        return len(repeats)
+
+
+@pytest.fixture
+def helpers():
+    """Return an instance of the ``Helpers`` class."""
+    return Helpers
