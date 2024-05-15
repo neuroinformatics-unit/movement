@@ -32,7 +32,7 @@ If you are working in a Jupyter notebook, you can also view an interactive
 representation of the dataset by typing its name - e.g. `ds` - in a cell.
 
 ### Dimensions and coordinates
-In `xarray` [terminology](xarray:user-guide/plotting.html),
+In `xarray` [terminology](xarray:user-guide/terminology.html),
 each axis is called a **dimension** (`dim`), while
 the labelled "ticks" along each axis are called **coordinates** (`coords`).
 
