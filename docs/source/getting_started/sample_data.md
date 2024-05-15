@@ -18,17 +18,17 @@ This will print a list of file names containing sample pose data.
 Each file is prefixed with the name of the pose estimation software package
 that was used to generate it - either "DLC", "SLEAP", or "LP".
 
-To load one of the sample datasets into `movement`, you can use the
+To load one of the sample datasets, you can use the
 {func}`movement.sample_data.fetch_dataset()` function:
 
 ```python
 ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
 ```
-This function loads the sample pose data into `movement` as a
+This function loads the sample pose data as a
 [movement dataset](target-dataset). Some sample datasets may also have an
 associated video file (the video based on which the poses were predicted)
 or a single frame extracted from that video. These files are not directly
-loaded into `movement`, but their paths can be accessed as dataset attributes:
+loaded into the `movement` dataset, but their paths can be accessed as dataset attributes:
 
 ```python
 ds.frame_path

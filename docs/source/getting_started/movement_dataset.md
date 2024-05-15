@@ -43,8 +43,8 @@ A `movement` dataset has the following **dimensions**:
 - `space`: the number of spatial dimensions, either two (2D) or three (3D)
 
 Appropriate **coordinates** are assigned to each **dimension**.
-- `individuals` are labelled with a list of unique names (str), e.g. `mouse1`, `mouse2`, etc.
-- `keypoints` are likewise labelled with a list of unique body part names (str), e.g. `snout`, `right_ear`, etc.
+- `individuals` are labelled with a list of unique names, e.g. `mouse1`, `mouse2`, etc.
+- `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc.
 - `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D).
 - `time` is labelled in seconds if `fps` is provided, otherwise the **coordinates** are expressed in frames (ascending 0-indexed integers).
 
@@ -66,7 +66,7 @@ designated `attrs` dictionary. Right after loading a `movement` dataset,
 the following **attributes** are stored:
 - `fps`: the number of frames per second in the video
 - `time_unit`: the unit of the `time` **coordinates**, frames or seconds
-- `source_software`: the software from which the poses were loaded
+- `source_software`: the software from which the poses were output
 - `source_file`: the path to the file from which the poses were loaded
 
 Some of the [sample datasets](target-sample-data) provided with

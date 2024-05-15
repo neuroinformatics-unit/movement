@@ -7,7 +7,7 @@
 `movement` can load pose tracks from various pose estimation frameworks.
 Currently, these include:
 - [DeepLabCut](dlc:)
-- [SLEAP](sleap:),
+- [SLEAP](sleap:)
 - [LightingPose](lp:)
 
 :::{warning}
@@ -31,7 +31,7 @@ Depending on the source sofrware, one of the following functions can be used.
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis .h5 files](sleap:tutorials/analysis):
+Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
@@ -44,7 +44,7 @@ ds = load_poses.from_file(
 
 :::{tab-item} DeepLabCut
 
-Load from DeepLabCut (DLC) .h5 files:
+Load from DeepLabCut files (.h5):
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 
@@ -69,7 +69,7 @@ ds = load_poses.from_dlc_df(df, fps=30)
 
 :::{tab-item} LightningPose
 
-Load from LightningPose (LP) .csv files:
+Load from LightningPose files (.csv):
 ```python
 ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 
@@ -92,7 +92,7 @@ included with the package.
 
 (target-saving)=
 ## Saving pose tracks
-[movement datasets](target-dataset) can be saved to disk in a variety of
+[movement datasets](target-dataset) can be saved as a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
@@ -135,18 +135,18 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv")
 
 The {func}`movement.io.save_poses.to_dlc_file` function also accepts
 a `split_individuals` boolean argument. If set to `True`, the function will
-split the data into single-animal DeepLabCut-style files.
+save the data as separate single-animal DeepLabCut-style files.
 
 ::::
 
 ::::{tab-item} LightningPose
 
-Save to LightningPose (LP) files (.csv).
+Save to LightningPose files (.csv).
 ```python
 save_poses.to_lp_file(ds, "/path/to/file.csv")
 ```
 :::{note}
-Because LP saves pose estimation outputs in the same format as single-animal
+Because LightningPose saves pose estimation outputs in the same format as single-animal
 DeepLabCut projects, the above command is equivalent to:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)

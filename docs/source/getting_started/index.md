@@ -13,7 +13,7 @@ concept in the package.
 
 ```{toctree}
 :maxdepth: 2
-:caption: Contents:
+:caption: Contents
 
 installation
 input_output
