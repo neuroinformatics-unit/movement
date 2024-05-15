@@ -44,6 +44,10 @@ ds = load_poses.from_file(
 
 You can also load from SLEAP .slp files in the same way, but there are caveats
 to that approach (see notes in {func}`movement.io.load_poses.from_sleap_file`).
+
+```python
+ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
+```
 :::
 
 :::{tab-item} DeepLabCut
@@ -62,12 +66,6 @@ You may also load .csv files
 (assuming they are formatted as DeepLabCut expects them):
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
-```
-
-If you have already imported the data into a {class}`pandas.DataFrame` named
-`df` you can convert it to a movement dataset with:
-```python
-ds = load_poses.from_dlc_df(df, fps=30)
 ```
 :::
 
