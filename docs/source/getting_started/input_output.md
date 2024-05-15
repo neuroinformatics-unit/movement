@@ -31,7 +31,8 @@ Depending on the source sofrware, one of the following functions can be used.
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5):
+Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5, recommended),
+or from .slp files (experimental):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
@@ -40,6 +41,9 @@ ds = load_poses.from_file(
     "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
 )
 ```
+
+You can also load from SLEAP .slp files in the same way, but there are caveats
+to that approach (see notes in {func}`movement.io.load_poses.from_sleap_file`).
 :::
 
 :::{tab-item} DeepLabCut
