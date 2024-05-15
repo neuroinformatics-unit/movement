@@ -1,0 +1,6 @@
+﻿movement.sample\_data.fetch\_dataset\_paths
+===========================================
+
+.. currentmodule:: movement.sample_data
+
+.. autofunction:: fetch_dataset_paths

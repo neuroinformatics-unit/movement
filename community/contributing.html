@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -140,7 +140,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -277,7 +277,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -478,6 +478,7 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p>Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.</p></li>
 <li><p>If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.</p></li>
 <li><p>Respond to review comments and implement any requested changes.</p></li>
+<li><p>One of the maintainers will approve the PR and add it to the <a class="reference external" href="https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta/">merge queue</a>.</p></li>
 <li><p>Success 🎉 !! Your PR will be (squash-)merged into the <em>main</em> branch.</p></li>
 </ul>
 </section>
@@ -488,15 +489,13 @@ We recommend, and adhere, to the following conventions:</p>
 <h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h3>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a> does a number of jobs, including enforcing PEP8 and sorting imports</p></li>
-<li><p><a class="reference external" href="https://black.readthedocs.io/en/stable/">black</a> for auto-formatting</p></li>
-<li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy</a> as a static type checker</p></li>
+<li><p><a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a> does a number of jobs, including code linting and auto-formatting.</p></li>
+<li><p><a class="reference external" href="https://mypy.readthedocs.io/en/stable/index.html">mypy</a> as a static type checker.</p></li>
 <li><p><a class="reference external" href="https://github.com/mgedmin/check-manifest">check-manifest</a> to ensure that the right files are included in the pip package.</p></li>
 <li><p><a class="reference external" href="https://github.com/codespell-project/codespell">codespell</a> to check for common misspellings.</p></li>
 </ul>
 <p>These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>.
-black<span class="w"> </span>./
 mypy<span class="w"> </span>-p<span class="w"> </span>movement
 check-manifest
 codespell
@@ -507,7 +506,23 @@ codespell
 pre-commit<span class="w"> </span>run<span class="w"> </span>-a<span class="w">  </span><span class="c1"># for all files in the repository</span>
 </pre></div>
 </div>
-<p>For docstrings, we adhere to the  <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
+<p>Some problems will be automatically fixed by the hooks. In this case, you should
+stage the auto-fixed changes and run the hooks again:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
+pre-commit<span class="w"> </span>run
+</pre></div>
+</div>
+<p>If a problem cannot be auto-fixed, the corresponding tool will provide
+information on what the issue is and how to fix it. For example, <code class="docutils literal notranslate"><span class="pre">ruff</span></code> might
+output something like:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>movement/io/load_poses.py:551:80:<span class="w"> </span>E501<span class="w"> </span>Line<span class="w"> </span>too<span class="w"> </span>long<span class="w"> </span><span class="o">(</span><span class="m">90</span><span class="w"> </span>&gt;<span class="w"> </span><span class="m">79</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>This pinpoints the problem to a single code line and a specific <a class="reference external" href="https://docs.astral.sh/ruff/rules/">ruff rule</a> violation.
+Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">E501</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">E501</span></code> with the code of the rule you want to ignore.</p>
+<p>For docstrings, we adhere to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
+Make sure to provide docstrings for all public functions, classes, and methods.
+This is important as it allows for <a class="reference internal" href="#updating-the-api-reference">automatic generation of the API reference</a>.</p>
 </section>
 <section id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h3>
@@ -669,15 +684,20 @@ To refresh the documentation, after making changes, remove the <code class="docu
 </section>
 <section id="sample-data">
 <h2>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h2>
-<p>We maintain some sample data to be used for testing, examples and tutorials on an
+<p>We maintain some sample datasets to be used for testing, examples and tutorials on an
 <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">external data repository</a>.
 Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/#">GIN</a> and is maintained
 by the <a class="reference external" href="https://www.g-node.org/">German Neuroinformatics Node</a>.
 GIN has a GitHub-like interface and git-like
 <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">CLI</a> functionalities.</p>
 <p>Currently, the data repository contains sample pose estimation data files
-stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder. Metadata for these files, including information
-about their provenance, is stored in the <code class="docutils literal notranslate"><span class="pre">poses_files_metadata.yaml</span></code> file.</p>
+stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder. For some of these files, we also host
+the associated video file (in the <code class="docutils literal notranslate"><span class="pre">videos</span></code> folder) and/or a single
+video frame (in the <code class="docutils literal notranslate"><span class="pre">frames</span></code>) folder. These can be used to develop and
+test visualisations, e.g. overlaying pose data on video frames.
+The <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> file holds metadata for each sample dataset,
+including information on data provenance as well as the mapping between pose data files and related
+video/frame files.</p>
 <section id="fetching-data">
 <h3>Fetching data<a class="headerlink" href="#fetching-data" title="Permalink to this heading">#</a></h3>
 <p>To fetch the data from GIN, we use the <a class="reference external" href="https://www.fatiando.org/pooch/latest/index.html">pooch</a>
@@ -688,9 +708,9 @@ like verification of sha256 hashes and decompression of archives.</p>
 The most important parts of this module are:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">SAMPLE_DATA</span></code> download manager object.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">list_sample_data()</span></code> function, which returns a list of the available files in the data repository.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_sample_data_path()</span></code> function, which downloads a file (if not already cached locally) and returns the local path to it.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_sample_data()</span></code> function, which downloads a file and loads it into movement directly, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">list_datasets()</span></code> function, which returns a list of the available pose datasets (file names of the pose data files).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code> function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">video</span></code>. If the relevant files are not already cached locally, they will be downloaded.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function, which downloads the files associated with a given sample dataset (same as <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code>) and additionally loads the pose data into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object. The local paths to the associated video and frame files are stored as dataset attributes, with names <code class="docutils literal notranslate"><span class="pre">video_path</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_path</span></code>, respectively.</p></li>
 </ol>
 <p>By default, the downloaded files are stored in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> folder.
 This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.sample_data.py</span></code> module.</p>
@@ -704,12 +724,33 @@ To add a new file, you will need to:</p>
 <li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a> (if not already)</p></li>
 <li><p>Download the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> and set it up with your GIN credentials, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal.</p></li>
 <li><p>Clone the movement data repository to your local machine, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code> in a terminal.</p></li>
-<li><p>Add your new files to <code class="docutils literal notranslate"><span class="pre">/movement-test-data/poses/</span></code>.</p></li>
-<li><p>Determine the sha256 checksum hash of each new file by running <code class="docutils literal notranslate"><span class="pre">sha256sum</span> <span class="pre">&lt;filename&gt;</span></code> in a terminal. Alternatively, you can use <code class="docutils literal notranslate"><span class="pre">pooch</span></code> to do this for you: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">hash</span> <span class="pre">=</span> <span class="pre">pooch.file_hash('/path/to/file');</span> <span class="pre">print(hash)&quot;</span></code>. If you wish to generate a text file containing the hashes of all the files in a given folder, you can use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">pooch;</span> <span class="pre">pooch.make_registry('/path/to/folder',</span> <span class="pre">'sha256_registry.txt')</span></code>.</p></li>
-<li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">poses_files_metadata.yaml</span></code>, including their sha256 hashes.</p></li>
-<li><p>Commit your changes using <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>.</p></li>
+<li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
+<li><p>Determine the sha256 checksum hash of each new file by running <code class="docutils literal notranslate"><span class="pre">sha256sum</span> <span class="pre">&lt;filename&gt;</span></code> in a terminal. For convenience, we’ve included a <code class="docutils literal notranslate"><span class="pre">get_sha256_hashes.py</span></code> script in the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. If you run this from the root of the data repository, within a Python environment with <code class="docutils literal notranslate"><span class="pre">movement</span></code> installed, it will calculate the sha256 hashes for all files in the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, and <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders and write them to files named <code class="docutils literal notranslate"><span class="pre">poses_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">videos_hashes.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">frames_hashes.txt</span></code>, respectively.</p></li>
+<li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code>, including their sha256 hashes you’ve calculated. See the example entry below for guidance.</p></li>
+<li><p>Commit a specific file with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">.</span></code> to commit all changes.</p></li>
 <li><p>Upload the committed changes to the GIN repository by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Latest changes to the repository can be pulled via <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code>. <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> will synchronise the latest changes bidirectionally.</p></li>
 </ol>
+</section>
+<section id="metadata-yaml-example-entry">
+<h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#metadata-yaml-example-entry" title="Permalink to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">  </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a&quot;</span>
+<span class="w">  </span><span class="nt">source_software</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SLEAP&quot;</span>
+<span class="w">  </span><span class="nt">fps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
+<span class="w">  </span><span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mouse&quot;</span>
+<span class="w">  </span><span class="nt">number_of_individuals</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">shared_by</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Chang</span><span class="nv"> </span><span class="s">Huan</span><span class="nv"> </span><span class="s">Lo&quot;</span>
+<span class="w">    </span><span class="nt">affiliation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Sainsbury</span><span class="nv"> </span><span class="s">Wellcome</span><span class="nv"> </span><span class="s">Centre,</span><span class="nv"> </span><span class="s">UCL&quot;</span>
+<span class="w">  </span><span class="nt">frame</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three-mice_Aeon_frame-5sec.png&quot;</span>
+<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;889e1bbee6cb23eb6d52820748123579acbd0b2a7265cf72a903dabb7fcc3d1a&quot;</span>
+<span class="w">  </span><span class="nt">video</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three-mice_Aeon_video.avi&quot;</span>
+<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bc7406442c90467f11a982fd6efd85258ec5ec7748228b245caf0358934f0e7d&quot;</span>
+<span class="w">  </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;All</span><span class="nv"> </span><span class="s">labels</span><span class="nv"> </span><span class="s">were</span><span class="nv"> </span><span class="s">proofread</span><span class="nv"> </span><span class="s">(user-defined)</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">considered</span><span class="nv"> </span><span class="s">ground</span><span class="nv"> </span><span class="s">truth.</span><span class="nv"> </span><span class="s">It</span><span class="nv"> </span><span class="s">was</span><span class="nv"> </span><span class="s">exported</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">.slp</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">same</span><span class="nv"> </span><span class="s">prefix.&quot;</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>
@@ -786,6 +827,7 @@ To add a new file, you will need to:</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fetching-data">Fetching data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-data">Adding new data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#metadata-yaml-example-entry"><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry</a></li>
 </ul>
 </li>
 </ul>

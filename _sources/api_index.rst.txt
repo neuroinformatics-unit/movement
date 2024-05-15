@@ -32,7 +32,7 @@ Input/Output
     ValidFile
     ValidHDF5
     ValidPosesCSV
-    ValidPoseTracks
+    ValidPosesDataset
 
 Sample Data
 -----------
@@ -40,9 +40,9 @@ Sample Data
 .. autosummary::
     :toctree: api
 
-    list_sample_data
-    fetch_sample_data_path
-    fetch_sample_data
+    list_datasets
+    fetch_dataset_paths
+    fetch_dataset
 
 Filtering
 ---------
@@ -64,13 +64,20 @@ Analysis
     compute_velocity
     compute_acceleration
 
-Move Accessor
--------------
+.. currentmodule:: movement.utils.vector
+.. autosummary::
+    :toctree: api
+
+    cart2pol
+    pol2cart
+
+MovementDataset
+---------------
 .. currentmodule:: movement.move_accessor
 .. autosummary::
     :toctree: api
 
-    MoveAccessor
+    MovementDataset
 
 Logging
 -------

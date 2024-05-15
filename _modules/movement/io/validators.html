@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/design-tabs.js?v=36754332"></script>
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -137,7 +137,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -272,7 +272,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -404,7 +404,9 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for movement.io.validators</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="sd">&quot;&quot;&quot;`attrs` classes for validating file paths and data structures.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
@@ -445,6 +447,7 @@ document.write(`
 <span class="sd">        If the file exists when `expected_permission` is &#39;w&#39;.</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If the file does not have one of the expected suffix(es).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
@@ -455,7 +458,7 @@ document.write(`
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">path_is_not_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the path does not point to a directory.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the path does not point to a directory.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                 <span class="ne">IsADirectoryError</span><span class="p">,</span>
@@ -464,8 +467,10 @@ document.write(`
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">file_exists_when_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the file exists (or not) depending on the expected</span>
-<span class="sd">        usage (read and/or write).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file exists (or not) as needed.</span>
+
+<span class="sd">        This depends on the expected usage (read and/or write).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
@@ -479,8 +484,10 @@ document.write(`
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">file_has_access_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the file has the expected access permission(s).</span>
-<span class="sd">        Raises a PermissionError if not.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file has the expected access permission(s).</span>
+
+<span class="sd">        Raises a PermissionError if not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">file_is_readable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">)</span>
         <span class="n">parent_is_writeable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_is_readable</span><span class="p">):</span>
@@ -498,14 +505,13 @@ document.write(`
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">file_has_expected_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures that the file has one of the expected suffix(es).&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>  <span class="c1"># list is not empty</span>
-            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">,</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected file with suffix(es) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;but got suffix </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">,</span>
-                <span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file has one of the expected suffix(es).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected file with suffix(es) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but got suffix </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> instead.&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ValidHDF5"><a class="viewcode-back" href="../../../api/movement.io.validators.ValidHDF5.html#movement.io.validators.ValidHDF5">[docs]</a><span class="nd">@define</span>
@@ -525,6 +531,7 @@ document.write(`
 <span class="sd">    ValueError</span>
 <span class="sd">        If the file is not in HDF5 format or if it does not contain the</span>
 <span class="sd">        expected datasets.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
@@ -558,30 +565,32 @@ document.write(`
 
 <div class="viewcode-block" id="ValidPosesCSV"><a class="viewcode-back" href="../../../api/movement.io.validators.ValidPosesCSV.html#movement.io.validators.ValidPosesCSV">[docs]</a><span class="nd">@define</span>
 <span class="k">class</span> <span class="nc">ValidPosesCSV</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating CSV files that contain pose estimation outputs.</span>
-<span class="sd">    in DeepLabCut format.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DLC-style .csv files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    path : pathlib.Path</span>
-<span class="sd">        Path to the CSV file.</span>
+<span class="sd">        Path to the .csv file.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If the CSV file does not contain the expected DeepLabCut index column</span>
+<span class="sd">        If the .csv file does not contain the expected DeepLabCut index column</span>
 <span class="sd">        levels among its top rows.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">csv_file_contains_expected_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the CSV file contains the expected index column levels</span>
-<span class="sd">        among its top rows.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the .csv file contains the expected index column levels.</span>
+
+<span class="sd">        These are to be found among the top 4 rows of the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">expected_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">top4_row_starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
 
             <span class="k">if</span> <span class="n">top4_row_starts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
@@ -594,14 +603,13 @@ document.write(`
             <span class="k">if</span> <span class="n">top4_row_starts</span> <span class="o">!=</span> <span class="n">expected_levels</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">,</span>
-                    <span class="s2">&quot;CSV header rows do not match the known format for &quot;</span>
+                    <span class="s2">&quot;.csv header rows do not match the known format for &quot;</span>
                     <span class="s2">&quot;DeepLabCut pose estimation output files.&quot;</span><span class="p">,</span>
                 <span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to coerce the value into a list of strings.</span>
-<span class="sd">    Otherwise, raise a ValueError.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to coerce the value into a list of strings.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">log_warning</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Invalid value (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). Expected a list of strings. &quot;</span>
@@ -647,17 +655,17 @@ document.write(`
         <span class="p">)</span>
 
 
-<div class="viewcode-block" id="ValidPoseTracks"><a class="viewcode-back" href="../../../api/movement.io.validators.ValidPoseTracks.html#movement.io.validators.ValidPoseTracks">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">ValidPoseTracks</span><span class="p">:</span>
+<div class="viewcode-block" id="ValidPosesDataset"><a class="viewcode-back" href="../../../api/movement.io.validators.ValidPosesDataset.html#movement.io.validators.ValidPosesDataset">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ValidPosesDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating pose tracking data imported from a file.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    tracks_array : np.ndarray</span>
+<span class="sd">    position_array : np.ndarray</span>
 <span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints, n_space)</span>
-<span class="sd">        containing the pose tracks. It will be converted to a</span>
-<span class="sd">        `xarray.DataArray` object named &quot;pose_tracks&quot;.</span>
-<span class="sd">    scores_array : np.ndarray, optional</span>
+<span class="sd">        containing the poses. It will be converted to a</span>
+<span class="sd">        `xarray.DataArray` object named &quot;position&quot;.</span>
+<span class="sd">    confidence_array : np.ndarray, optional</span>
 <span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints) containing</span>
 <span class="sd">        the point-wise confidence scores. It will be converted to a</span>
 <span class="sd">        `xarray.DataArray` object named &quot;confidence&quot;.</span>
@@ -673,13 +681,14 @@ document.write(`
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        Frames per second of the video. Defaults to None.</span>
 <span class="sd">    source_software : str, optional</span>
-<span class="sd">        Name of the software from which the pose tracks were loaded.</span>
+<span class="sd">        Name of the software from which the poses were loaded.</span>
 <span class="sd">        Defaults to None.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Define class attributes</span>
-    <span class="n">tracks_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
-    <span class="n">scores_array</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">position_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">confidence_array</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">individual_names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_list_of_str</span><span class="p">),</span>
@@ -700,8 +709,8 @@ document.write(`
     <span class="p">)</span>
 
     <span class="c1"># Add validators</span>
-    <span class="nd">@tracks_array</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span> <span class="nf">_validate_tracks_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@position_array</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span> <span class="nf">_validate_position_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
@@ -716,15 +725,16 @@ document.write(`
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="nd">@scores_array</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span> <span class="nf">_validate_scores_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@confidence_array</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span> <span class="nf">_validate_confidence_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">_ensure_type_ndarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">expected_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">expected_shape</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;Expected `</span><span class="si">{</span><span class="n">attribute</span><span class="si">}</span><span class="s2">` to have shape &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="nd">@individual_names</span><span class="o">.</span><span class="n">validator</span>
@@ -733,24 +743,27 @@ document.write(`
             <span class="c1"># LightningPose only supports a single individual</span>
             <span class="n">_validate_list_length</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">_validate_list_length</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">_validate_list_length</span><span class="p">(</span>
+                <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
 
     <span class="nd">@keypoint_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">_validate_keypoint_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">_validate_list_length</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">_validate_list_length</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None)&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scores_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
             <span class="p">)</span>
             <span class="n">log_warning</span><span class="p">(</span>
-                <span class="s2">&quot;Scores array was not provided. Setting to an array of NaNs.&quot;</span>
+                <span class="s2">&quot;Confidence array was not provided.&quot;</span>
+                <span class="s2">&quot;Setting to an array of NaNs.&quot;</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;individual_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="sa">f</span><span class="s2">&quot;individual_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="n">log_warning</span><span class="p">(</span>
                 <span class="s2">&quot;Individual names were not provided. &quot;</span>
@@ -758,7 +771,7 @@ document.write(`
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracks_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="sa">f</span><span class="s2">&quot;keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="n">log_warning</span><span class="p">(</span>
                 <span class="s2">&quot;Keypoint names were not provided. &quot;</span>

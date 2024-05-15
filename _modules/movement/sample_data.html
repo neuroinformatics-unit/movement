@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/design-tabs.js?v=36754332"></script>
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -137,7 +137,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -272,7 +272,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -436,11 +436,17 @@ document.write(`
 <span class="c1"># Create the folder if it doesn&#39;t exist</span>
 <span class="n">DATA_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+<span class="c1"># File name for the .yaml file in DATA_URL containing dataset metadata</span>
+<span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;metadata.yaml&quot;</span>
+
 
 <span class="k">def</span> <span class="nf">_download_metadata_file</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the yaml file containing sample metadata from the *movement*</span>
-<span class="sd">    data repository and save it in the specified directory with a temporary</span>
-<span class="sd">    filename - temp_{file_name} - to avoid overwriting any existing files.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the metadata yaml file.</span>
+
+<span class="sd">    This function downloads the yaml file containing sample metadata from</span>
+<span class="sd">    the ``movement`` data repository and saves it in the specified directory</span>
+<span class="sd">    with a temporary filename - temp_{file_name} - to avoid overwriting any</span>
+<span class="sd">    existing files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -454,6 +460,7 @@ document.write(`
 <span class="sd">    -------</span>
 <span class="sd">    path : pathlib.Path</span>
 <span class="sd">        Path to the downloaded file.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
         <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -469,9 +476,10 @@ document.write(`
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_fetch_metadata</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the yaml file containing metadata from the *movement* sample</span>
-<span class="sd">    data repository and load it as a list of dictionaries.</span>
+<span class="k">def</span> <span class="nf">_fetch_metadata</span><span class="p">(</span>
+    <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the metadata yaml file and load it as a dictionary.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -483,10 +491,11 @@ document.write(`
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list[dict]</span>
-<span class="sd">        A list of dictionaries containing metadata for each sample file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary containing metadata for each sample dataset, with the</span>
+<span class="sd">        dataset name (pose file name) as the key.</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">file_name</span><span class="p">)</span>
     <span class="n">failed_msg</span> <span class="o">=</span> <span class="s2">&quot;Failed to download the newest sample metadata file.&quot;</span>
 
@@ -505,69 +514,130 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span><span class="n">RequestException</span><span class="p">,</span> <span class="n">failed_msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc_info</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_file</span><span class="p">:</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">metadata_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metadata</span>
 
 
-<span class="n">metadata</span> <span class="o">=</span> <span class="n">_fetch_metadata</span><span class="p">(</span><span class="s2">&quot;poses_files_metadata.yaml&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_generate_file_registry</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a file registry based on the contents of the metadata.</span>
+
+<span class="sd">    This includes files containing poses, frames, or entire videos.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metadata : dict</span>
+<span class="sd">        List of dictionaries containing metadata for each sample dataset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary mapping file paths to their SHA-256 checksums.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_registry</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">ds</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;poses/</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">&quot;sha256sum&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">]:</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="p">:</span>
+                <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">s/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;sha256sum&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">file_registry</span>
+
 
 <span class="c1"># Create a download manager for the pose data</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">_fetch_metadata</span><span class="p">(</span><span class="n">METADATA_FILE</span><span class="p">,</span> <span class="n">DATA_DIR</span><span class="p">)</span>
+<span class="n">file_registry</span> <span class="o">=</span> <span class="n">_generate_file_registry</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
 <span class="n">SAMPLE_DATA</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">path</span><span class="o">=</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
-    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/poses/&quot;</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">DATA_DIR</span><span class="p">,</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
     <span class="n">retry_if_failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">registry</span><span class="o">=</span><span class="p">{</span><span class="n">file</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]:</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;sha256sum&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">},</span>
+    <span class="n">registry</span><span class="o">=</span><span class="n">file_registry</span><span class="p">,</span>
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="list_sample_data"><a class="viewcode-back" href="../../api/movement.sample_data.list_sample_data.html#movement.sample_data.list_sample_data">[docs]</a><span class="k">def</span> <span class="nf">list_sample_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find available sample pose data in the *movement* data repository.</span>
+<div class="viewcode-block" id="list_datasets"><a class="viewcode-back" href="../../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">[docs]</a><span class="k">def</span> <span class="nf">list_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find available sample datasets.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    filenames : list of str</span>
-<span class="sd">        List of filenames for available pose data.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+<span class="sd">        List of filenames for available pose data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="fetch_sample_data_path"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_sample_data_path.html#movement.sample_data.fetch_sample_data_path">[docs]</a><span class="k">def</span> <span class="nf">fetch_sample_data_path</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download sample pose data from the *movement* data repository and return</span>
-<span class="sd">    its local filepath.</span>
+<div class="viewcode-block" id="fetch_dataset_paths"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths">[docs]</a><span class="k">def</span> <span class="nf">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get paths to sample pose data and any associated frames or videos.</span>
 
-<span class="sd">    The data are downloaded to the user&#39;s local machine the first time they are</span>
-<span class="sd">    used and are stored in a local cache directory. The function returns the</span>
-<span class="sd">    path to the downloaded file, not the contents of the file itself.</span>
+<span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
+<span class="sd">    local machine upon first use and are stored in a local cache directory.</span>
+<span class="sd">    The function returns the paths to the downloaded files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filename : str</span>
-<span class="sd">        Name of the file to fetch.</span>
+<span class="sd">        Name of the pose file to fetch.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    path : pathlib.Path</span>
-<span class="sd">        Path to the downloaded file.</span>
+<span class="sd">    paths : dict</span>
+<span class="sd">        Dictionary mapping file types to their respective paths. The possible</span>
+<span class="sd">        file types are: &quot;poses&quot;, &quot;frame&quot;, &quot;video&quot;. If &quot;frame&quot; or &quot;video&quot; are</span>
+<span class="sd">        not available, the corresponding value is None.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset_paths</span>
+<span class="sd">    &gt;&gt;&gt; paths = fetch_dataset_paths(&quot;DLC_single-mouse_EPM.predictions.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; poses_path = paths[&quot;poses&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; frame_path = paths[&quot;frame&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; video_path = paths[&quot;video&quot;]</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    fetch_dataset</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+    <span class="n">available_pose_files</span> <span class="o">=</span> <span class="n">list_datasets</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_pose_files</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; is not in the registry. Valid &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;filenames are: </span><span class="si">{</span><span class="n">list_sample_data</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">)</span></div>
+            <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; is not in the registry. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Valid filenames are: </span><span class="si">{</span><span class="n">available_pose_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">frame_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
+    <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;poses&quot;</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;poses/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_file_name</span>
+        <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;frames/</span><span class="si">{</span><span class="n">frame_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">video_file_name</span>
+        <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">),</span>
+    <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="fetch_sample_data"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_sample_data.html#movement.sample_data.fetch_sample_data">[docs]</a><span class="k">def</span> <span class="nf">fetch_sample_data</span><span class="p">(</span>
+<div class="viewcode-block" id="fetch_dataset"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset">[docs]</a><span class="k">def</span> <span class="nf">fetch_dataset</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and return sample pose data from the *movement* data</span>
-<span class="sd">    repository.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a sample dataset containing pose data.</span>
 
-<span class="sd">    The data are downloaded to the user&#39;s local machine the first time they are</span>
-<span class="sd">    used and are stored in a local cache directory. Returns sample pose data as</span>
-<span class="sd">    an xarray Dataset.</span>
+<span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
+<span class="sd">    local machine upon first use and are stored in a local cache directory.</span>
+<span class="sd">    This function returns the pose data as an xarray Dataset.</span>
+<span class="sd">    If there are any associated frames or videos, these files are also</span>
+<span class="sd">    downloaded and the paths are stored as dataset attributes.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -578,18 +648,29 @@ document.write(`
 <span class="sd">    -------</span>
 <span class="sd">    ds : xarray.Dataset</span>
 <span class="sd">        Pose data contained in the fetched sample file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">fetch_sample_data_path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">file_metadata</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
-        <span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">metadata</span> <span class="k">if</span> <span class="n">file</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">filename</span>
-    <span class="p">)</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
+<span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(&quot;DLC_single-mouse_EPM.predictions.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; frame_path = ds.video_path</span>
+<span class="sd">    &gt;&gt;&gt; video_path = ds.frame_path</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    fetch_dataset_paths</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span>
-        <span class="n">source_software</span><span class="o">=</span><span class="n">file_metadata</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
-        <span class="n">fps</span><span class="o">=</span><span class="n">file_metadata</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>
+        <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">],</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>
     <span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;video_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span>
+
     <span class="k">return</span> <span class="n">ds</span></div>
 </pre></div>
 

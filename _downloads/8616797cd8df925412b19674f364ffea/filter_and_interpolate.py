@@ -1,5 +1,4 @@
-"""
-Filtering and interpolation
+"""Filtering and interpolation
 ============================
 
 Filter out points with low confidence scores and interpolate over
@@ -16,7 +15,7 @@ from movement.filtering import filter_by_confidence, interpolate_over_time
 # Load a sample dataset
 # ---------------------
 
-ds = sample_data.fetch_sample_data("DLC_single-wasp.predictions.h5")
+ds = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds)
 
 # %%
@@ -28,14 +27,12 @@ print(ds)
 # Visualise the pose tracks
 # -------------------------
 
-pose_tracks = ds.pose_tracks.sel(individuals="individual_0")
-pose_tracks.plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
-)
+position = ds.position.sel(individuals="individual_0")
+position.plot.line(x="time", row="keypoints", hue="space", aspect=2, size=2.5)
 
 # %%
 # We can see that the pose tracks contain some implausible "jumps", such
-# as the the big shift in the final second, and the "spikes" of the stinger
+# as the big shift in the final second, and the "spikes" of the stinger
 # near the 14th second. Perhaps we can get rid of those based on the model's
 # reported confidence scores?
 
@@ -62,7 +59,7 @@ confidence.plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
-# to the implausible jumps and spikes we had seen in the pose tracks.
+# to the implausible jumps and spikes we had seen in the position.
 # We can use that to our advantage.
 
 
@@ -70,7 +67,7 @@ confidence.plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # Filter out points with low confidence
 # -------------------------------------
 # We can filter out points with confidence scores below a certain threshold.
-# Here, we use ``threshold=0.6``. Points in the ``pose tracks`` data variable
+# Here, we use ``threshold=0.6``. Points in the ``position`` data variable
 # with confidence scores below this threshold will be converted to NaN.
 # The ``print_report`` argument, which is True by default, reports the number
 # of NaN values in the dataset before and after the filtering operation.
@@ -79,10 +76,10 @@ ds_filtered = filter_by_confidence(ds, threshold=0.6, print_report=True)
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
-# ``pose_tracks`` data variable. Let's visualise the filtered pose tracks.
+# ``position`` data variable. Let's visualise the filtered data.
 
-pose_tracks_filtered = ds_filtered.pose_tracks.sel(individuals="individual_0")
-pose_tracks_filtered.plot.line(
+position_filtered = ds_filtered.position.sel(individuals="individual_0")
+position_filtered.plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -109,10 +106,10 @@ ds_interpolated = interpolate_over_time(
 # We see that all NaN values have disappeared, meaning that all gaps were
 # indeed shorter than 1 second. Let's visualise the interpolated pose tracks
 
-pose_tracks_interpolated = ds_interpolated.pose_tracks.sel(
+position_interpolated = ds_interpolated.position.sel(
     individuals="individual_0"
 )
-pose_tracks_interpolated.plot.line(
+position_interpolated.plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 

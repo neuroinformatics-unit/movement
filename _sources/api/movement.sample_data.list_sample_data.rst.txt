@@ -1,6 +1,0 @@
-﻿movement.sample\_data.list\_sample\_data
-========================================
-
-.. currentmodule:: movement.sample_data
-
-.. autofunction:: list_sample_data

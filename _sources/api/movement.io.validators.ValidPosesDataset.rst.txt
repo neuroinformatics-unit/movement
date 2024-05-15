@@ -1,0 +1,33 @@
+﻿movement.io.validators.ValidPosesDataset
+========================================
+
+.. currentmodule:: movement.io.validators
+
+.. autoclass:: ValidPosesDataset
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ValidPosesDataset.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ValidPosesDataset.position_array
+      ~ValidPosesDataset.confidence_array
+      ~ValidPosesDataset.individual_names
+      ~ValidPosesDataset.keypoint_names
+      ~ValidPosesDataset.fps
+      ~ValidPosesDataset.source_software
+   
+   

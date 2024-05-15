@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/design-tabs.js?v=36754332"></script>
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -137,7 +137,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -272,7 +272,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -404,18 +404,23 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for movement.filtering</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for filtering and interpolating pose tracks in xarray datasets.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+
+<span class="kn">from</span> <span class="nn">movement.logging</span> <span class="kn">import</span> <span class="n">log_error</span>
 
 
 <span class="k">def</span> <span class="nf">log_to_attrs</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Decorator that logs the operation performed by the wrapped function</span>
-<span class="sd">    and appends the log entry to the xarray.Dataset&#39;s &quot;log&quot; attribute.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log the operation performed by the wrapped function.</span>
+
+<span class="sd">    This decorator appends log entries to the xarray.Dataset&#39;s &quot;log&quot; attribute.</span>
 <span class="sd">    For the decorator to work, the wrapped function must accept an</span>
 <span class="sd">    xarray.Dataset as its first argument and return an xarray.Dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -433,7 +438,7 @@ document.write(`
 
         <span class="c1"># Append the log entry to the result&#39;s attributes</span>
         <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;attrs&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="s2">&quot;log&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;log&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
                 <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;log&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;log&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_entry</span><span class="p">)</span>
 
@@ -443,28 +448,28 @@ document.write(`
 
 
 <div class="viewcode-block" id="report_nan_values"><a class="viewcode-back" href="../../api/movement.filtering.report_nan_values.html#movement.filtering.report_nan_values">[docs]</a><span class="k">def</span> <span class="nf">report_nan_values</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">ds_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dataset&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Report the number and percentage of points that are NaN for each individual</span>
-<span class="sd">    and each keypoint in the provided dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report the number and percentage of points that are NaN.</span>
+
+<span class="sd">    Numbers are reported for each individual and keypoint in the dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        Dataset containing position, confidence scores, and metadata.</span>
 <span class="sd">    ds_label : str</span>
 <span class="sd">        Label to identify the dataset in the report. Default is &quot;dataset&quot;.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Compile the report</span>
     <span class="n">nan_report</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Missing points (marked as NaN) in </span><span class="si">{</span><span class="n">ds_label</span><span class="si">}</span><span class="s2">:&quot;</span>
     <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
         <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">Individual: </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-            <span class="c1"># Get the track for the current individual and keypoint</span>
-            <span class="n">track_</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">ind</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="n">kp</span><span class="p">)</span>
+            <span class="c1"># Get the position track for the current individual and keypoint</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">ind</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="n">kp</span><span class="p">)</span>
             <span class="c1"># A point is considered NaN if any of its space coordinates are NaN</span>
-            <span class="n">n_nans</span> <span class="o">=</span> <span class="n">track_</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="s2">&quot;space&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-            <span class="n">n_points</span> <span class="o">=</span> <span class="n">track_</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">n_nans</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="s2">&quot;space&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">n_points</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">size</span>
             <span class="n">percent_nans</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">n_nans</span> <span class="o">/</span> <span class="n">n_points</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="si">{</span><span class="n">kp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">n_nans</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_points</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent_nans</span><span class="si">}</span><span class="s2">%)&quot;</span>
 
@@ -483,13 +488,12 @@ document.write(`
     <span class="n">max_gap</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Fill in NaN values by interpolating over the time dimension.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in NaN values by interpolating over the time dimension.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        Dataset containing position, confidence scores, and metadata.</span>
 <span class="sd">    method : str</span>
 <span class="sd">        String indicating which method to use for interpolation.</span>
 <span class="sd">        Default is ``linear``. See documentation for</span>
@@ -506,12 +510,13 @@ document.write(`
 <span class="sd">    ds_interpolated : xr.Dataset</span>
 <span class="sd">        The provided dataset (ds), where NaN values have been</span>
 <span class="sd">        interpolated over using the parameters provided.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds_interpolated</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">poses_interpolated</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span>
+    <span class="n">position_interpolated</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span>
         <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="n">max_gap</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span>
     <span class="p">)</span>
-    <span class="n">ds_interpolated</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;pose_tracks&quot;</span><span class="p">:</span> <span class="n">poses_interpolated</span><span class="p">})</span>
+    <span class="n">ds_interpolated</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_interpolated</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
         <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;input dataset&quot;</span><span class="p">)</span>
         <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds_interpolated</span><span class="p">,</span> <span class="s2">&quot;interpolated dataset&quot;</span><span class="p">)</span>
@@ -524,14 +529,15 @@ document.write(`
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Drop all points where the associated confidence value falls below a</span>
-<span class="sd">    user-defined threshold.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop all points below a certain confidence threshold.</span>
+
+<span class="sd">    Position points with an associated confidence value below the threshold are</span>
+<span class="sd">    converted to NaN.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        Dataset containing position, confidence scores, and metadata.</span>
 <span class="sd">    threshold : float</span>
 <span class="sd">        The confidence threshold below which datapoints are filtered.</span>
 <span class="sd">        A default value of ``0.6`` is used. See notes for more information.</span>
@@ -544,7 +550,7 @@ document.write(`
 <span class="sd">    ds_thresholded : xarray.Dataset</span>
 <span class="sd">        The provided dataset (ds), where points with a confidence</span>
 <span class="sd">        value below the user-defined threshold have been converted</span>
-<span class="sd">        to NaNs</span>
+<span class="sd">        to NaNs.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -556,16 +562,174 @@ document.write(`
 <span class="sd">    datasets and does not have the same meaning across pose estimation</span>
 <span class="sd">    frameworks. We advise users to inspect the confidence values</span>
 <span class="sd">    in their dataset and adjust the threshold accordingly.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ds_thresholded</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">ds_thresholded</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;pose_tracks&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)}</span>
+        <span class="p">{</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)}</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
         <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;input dataset&quot;</span><span class="p">)</span>
         <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds_thresholded</span><span class="p">,</span> <span class="s2">&quot;filtered dataset&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_thresholded</span></div>
+
+
+<span class="nd">@log_to_attrs</span>
+<span class="k">def</span> <span class="nf">median_filter</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">window_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">min_periods</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth pose tracks by applying a median filter over time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing position, confidence scores, and metadata.</span>
+<span class="sd">    window_length : int</span>
+<span class="sd">        The size of the filter window. Window length is interpreted</span>
+<span class="sd">        as being in the input dataset&#39;s time unit, which can be inspected</span>
+<span class="sd">        with ``ds.time_unit``.</span>
+<span class="sd">    min_periods : int</span>
+<span class="sd">        Minimum number of observations in window required to have a value</span>
+<span class="sd">        (otherwise result is NaN). The default, None, is equivalent to</span>
+<span class="sd">        setting ``min_periods`` equal to the size of the window.</span>
+<span class="sd">        This argument is directly  passed to the ``min_periods`` parameter of</span>
+<span class="sd">        ``xarray.DataArray.rolling``.</span>
+<span class="sd">    print_report : bool</span>
+<span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
+<span class="sd">        before and after filtering. Default is ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_smoothed : xarray.Dataset</span>
+<span class="sd">        The provided dataset (ds), where pose tracks have been smoothed</span>
+<span class="sd">        using a median filter with the provided parameters.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    By default, whenever one or more NaNs are present in the filter window,</span>
+<span class="sd">    a NaN is returned to the output array. As a result, any</span>
+<span class="sd">    stretch of NaNs present in the input dataset will be propagated</span>
+<span class="sd">    proportionally to the size of the window in frames  (specifically, by</span>
+<span class="sd">    ``floor(window_length/2)``). To control this behaviour, the</span>
+<span class="sd">    ``min_periods`` option can be used to specify the minimum number of</span>
+<span class="sd">    non-NaN values required in the window to compute a result. For example,</span>
+<span class="sd">    setting ``min_periods=1`` will result in the filter returning NaNs</span>
+<span class="sd">    only when all values in the window are NaN, since 1 non-NaN value</span>
+<span class="sd">    is sufficient to compute the median.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ds_smoothed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Express window length (and its half) in frames</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span><span class="p">:</span>
+        <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length</span> <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+
+    <span class="n">half_window</span> <span class="o">=</span> <span class="n">window_length</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="n">ds_smoothed</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>  <span class="c1"># Pad the edges to avoid NaNs</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">half_window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">rolling</span><span class="p">(</span>  <span class="c1"># Take rolling windows across time</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">window_length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="n">min_periods</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">median</span><span class="p">(</span>  <span class="c1"># Compute the median of each window</span>
+                <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">isel</span><span class="p">(</span>  <span class="c1"># Remove the padded edges</span>
+                <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">half_window</span><span class="p">,</span> <span class="o">-</span><span class="n">half_window</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
+        <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;input dataset&quot;</span><span class="p">)</span>
+        <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds_smoothed</span><span class="p">,</span> <span class="s2">&quot;filtered dataset&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_smoothed</span>
+
+
+<span class="nd">@log_to_attrs</span>
+<span class="k">def</span> <span class="nf">savgol_filter</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">window_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">polyorder</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth pose tracks by applying a Savitzky-Golay filter over time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing position, confidence scores, and metadata.</span>
+<span class="sd">    window_length : int</span>
+<span class="sd">        The size of the filter window. Window length is interpreted</span>
+<span class="sd">        as being in the input dataset&#39;s time unit, which can be inspected</span>
+<span class="sd">        with ``ds.time_unit``.</span>
+<span class="sd">    polyorder : int</span>
+<span class="sd">        The order of the polynomial used to fit the samples. Must be</span>
+<span class="sd">        less than ``window_length``. By default, a ``polyorder`` of</span>
+<span class="sd">        2 is used.</span>
+<span class="sd">    print_report : bool</span>
+<span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
+<span class="sd">        before and after filtering. Default is ``True``.</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        Additional keyword arguments are passed to scipy.signal.savgol_filter.</span>
+<span class="sd">        Note that the ``axis`` keyword argument may not be overridden.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_smoothed : xarray.Dataset</span>
+<span class="sd">        The provided dataset (ds), where pose tracks have been smoothed</span>
+<span class="sd">        using a Savitzky-Golay filter with the provided parameters.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Uses the ``scipy.signal.savgol_filter`` function to apply a Savitzky-Golay</span>
+<span class="sd">    filter to the input dataset&#39;s ``position`` variable.</span>
+<span class="sd">    See the scipy documentation for more information on that function.</span>
+<span class="sd">    Whenever one or more NaNs are present in a filter window of the</span>
+<span class="sd">    input dataset, a NaN is returned to the output array. As a result, any</span>
+<span class="sd">    stretch of NaNs present in the input dataset will be propagated</span>
+<span class="sd">    proportionally to the size of the window in frames (specifically, by</span>
+<span class="sd">    ``floor(window_length/2)``). Note that, unlike</span>
+<span class="sd">    ``movement.filtering.median_filter()``, there is no ``min_periods``</span>
+<span class="sd">    option to control this behaviour.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;axis&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">,</span> <span class="s2">&quot;The &#39;axis&#39; argument may not be overridden.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">ds_smoothed</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span><span class="p">:</span>
+        <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">window_length</span> <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+
+    <span class="n">position_smoothed</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+        <span class="n">window_length</span><span class="p">,</span>
+        <span class="n">polyorder</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">position_smoothed_da</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">position_smoothed</span><span class="p">)</span>
+
+    <span class="n">ds_smoothed</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_smoothed_da</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
+        <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;input dataset&quot;</span><span class="p">)</span>
+        <span class="n">report_nan_values</span><span class="p">(</span><span class="n">ds_smoothed</span><span class="p">,</span> <span class="s2">&quot;filtered dataset&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_smoothed</span>
 </pre></div>
 
                 </article>

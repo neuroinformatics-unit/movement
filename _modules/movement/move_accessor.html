@@ -40,7 +40,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../_static/design-tabs.js?v=36754332"></script>
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -137,7 +137,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -272,7 +272,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started.html">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -404,13 +404,15 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for movement.move_accessor</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ClassVar</span>
+<span></span><span class="sd">&quot;&quot;&quot;Accessor for extending xarray.Dataset objects.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">ClassVar</span>
 
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">movement.analysis</span> <span class="kn">import</span> <span class="n">kinematics</span>
-<span class="kn">from</span> <span class="nn">movement.io.validators</span> <span class="kn">import</span> <span class="n">ValidPoseTracks</span>
+<span class="kn">from</span> <span class="nn">movement.io.validators</span> <span class="kn">import</span> <span class="n">ValidPosesDataset</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -418,54 +420,24 @@ document.write(`
 <span class="n">xr</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MoveAccessor"><a class="viewcode-back" href="../../api/movement.move_accessor.MoveAccessor.html#movement.move_accessor.MoveAccessor">[docs]</a><span class="nd">@xr</span><span class="o">.</span><span class="n">register_dataset_accessor</span><span class="p">(</span><span class="s2">&quot;move&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MoveAccessor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An accessor that extends an xarray Dataset by implementing</span>
-<span class="sd">    `movement`-specific properties and methods.</span>
+<div class="viewcode-block" id="MovementDataset"><a class="viewcode-back" href="../../api/movement.move_accessor.MovementDataset.html#movement.move_accessor.MovementDataset">[docs]</a><span class="nd">@xr</span><span class="o">.</span><span class="n">register_dataset_accessor</span><span class="p">(</span><span class="s2">&quot;move&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MovementDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An :py:class:`xarray.Dataset` accessor for pose tracking data.</span>
 
-<span class="sd">    The xarray Dataset contains the following expected dimensions:</span>
-<span class="sd">        - ``time``: the number of frames in the video</span>
-<span class="sd">        - ``individuals``: the number of individuals in the video</span>
-<span class="sd">        - ``keypoints``: the number of keypoints in the skeleton</span>
-<span class="sd">        - ``space``: the number of spatial dimensions, either 2 or 3</span>
+<span class="sd">    A ``movement`` dataset is an :py:class:`xarray.Dataset` with a specific</span>
+<span class="sd">    structure to represent pose tracks, associated confidence scores and</span>
+<span class="sd">    relevant metadata.</span>
 
-<span class="sd">    Appropriate coordinate labels are assigned to each dimension:</span>
-<span class="sd">    list of unique names (str) for ``individuals`` and ``keypoints``,</span>
-<span class="sd">    [&#39;x&#39;,&#39;y&#39;,(&#39;z&#39;)] for ``space``. The coordinates of the ``time`` dimension</span>
-<span class="sd">    are in seconds if ``fps`` is provided, otherwise they are in frame numbers.</span>
+<span class="sd">    Methods/properties that extend the standard ``xarray`` functionality are</span>
+<span class="sd">    defined in this class. To avoid conflicts with ``xarray``&#39;s namespace,</span>
+<span class="sd">    ``movement``-specific methods are accessed using the ``move`` keyword,</span>
+<span class="sd">    for example ``ds.move.validate()`` (see [1]_ for more details).</span>
 
-<span class="sd">    The dataset contains two expected data variables (xarray DataArrays):</span>
-<span class="sd">        - ``pose_tracks``: with shape (``time``, ``individuals``,</span>
-<span class="sd">          ``keypoints``, ``space``)</span>
-<span class="sd">        - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)</span>
-
-<span class="sd">    When accessing a ``.move`` property (e.g. ``displacement``, ``velocity``,</span>
-<span class="sd">    ``acceleration``) for the first time, the property is computed and stored</span>
-<span class="sd">    as a data variable with the same name in the dataset. The ``.move``</span>
-<span class="sd">    accessor can be omitted in subsequent accesses, i.e.</span>
-<span class="sd">    ``ds.move.displacement`` and ``ds.displacement`` will return the same data</span>
-<span class="sd">    variable.</span>
-
-<span class="sd">    The dataset may also contain following attributes as metadata:</span>
-<span class="sd">        - ``fps``: the number of frames per second in the video</span>
-<span class="sd">        - ``time_unit``: the unit of the ``time`` coordinates, frames or</span>
-<span class="sd">          seconds</span>
-<span class="sd">        - ``source_software``: the software from which the pose tracks were</span>
-<span class="sd">          loaded</span>
-<span class="sd">        - ``source_file``: the file from which the pose tracks were</span>
-<span class="sd">          loaded</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    Using an accessor is the recommended way to extend xarray objects.</span>
-<span class="sd">    See [1]_ for more details.</span>
-
-<span class="sd">    Methods/properties that are specific to this class can be accessed via</span>
-<span class="sd">    the ``.move`` accessor, e.g. ``ds.move.validate()``.</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] https://docs.xarray.dev/en/stable/internals/extending-xarray.html</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Names of the expected dimensions in the dataset</span>
@@ -478,65 +450,56 @@ document.write(`
 
     <span class="c1"># Names of the expected data variables in the dataset</span>
     <span class="n">var_names</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;pose_tracks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">,</span>
         <span class="s2">&quot;confidence&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-<div class="viewcode-block" id="MoveAccessor.__init__"><a class="viewcode-back" href="../../api/movement.move_accessor.MoveAccessor.html#movement.move_accessor.MoveAccessor.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="MovementDataset.__init__"><a class="viewcode-back" href="../../api/movement.move_accessor.MovementDataset.html#movement.move_accessor.MovementDataset.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the MovementDataset.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span> <span class="o">=</span> <span class="n">ds</span></div>
 
-    <span class="k">def</span> <span class="nf">_compute_property</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="nb">property</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">compute_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a kinematic property and store it in the dataset.</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Forward requested but undefined attributes to relevant modules.</span>
+
+<span class="sd">        This method currently only forwards kinematic property computation</span>
+<span class="sd">        to the respective functions in the ``kinematics``  module.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        property : str</span>
-<span class="sd">            The name of the property to compute.</span>
-<span class="sd">        compute_function : Callable[[xarray.DataArray], xarray.DataArray]</span>
-<span class="sd">            The function to compute the property.</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the attribute to get.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        xarray.DataArray</span>
-<span class="sd">            The computed property.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">property</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">:</span>
-            <span class="n">pose_tracks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_function</span><span class="p">(</span><span class="n">pose_tracks</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span>
+<span class="sd">            The computed attribute value.</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">displacement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the displacement between consecutive positions</span>
-<span class="sd">        of each keypoint for each individual across time.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_property</span><span class="p">(</span>
-            <span class="s2">&quot;displacement&quot;</span><span class="p">,</span> <span class="n">kinematics</span><span class="o">.</span><span class="n">compute_displacement</span>
-        <span class="p">)</span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the attribute does not exist.</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the velocity between consecutive positions</span>
-<span class="sd">        of each keypoint for each individual across time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_property</span><span class="p">(</span><span class="s2">&quot;velocity&quot;</span><span class="p">,</span> <span class="n">kinematics</span><span class="o">.</span><span class="n">compute_velocity</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">acceleration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the acceleration between consecutive positions</span>
-<span class="sd">        of each keypoint for each individual across time.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_property</span><span class="p">(</span>
-            <span class="s2">&quot;acceleration&quot;</span><span class="p">,</span> <span class="n">kinematics</span><span class="o">.</span><span class="n">compute_acceleration</span>
-        <span class="p">)</span>
+        <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;compute_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">kinematics</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">kinematics</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; object has no attribute &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">method</span>
 
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the PoseTracks dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the dataset.</span>
+
+<span class="sd">        This method checks if the dataset contains the expected dimensions,</span>
+<span class="sd">        data variables, and metadata attributes. It also ensures that the</span>
+<span class="sd">        dataset contains valid poses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">source_software</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source_software&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -550,16 +513,16 @@ document.write(`
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Missing required data variables: </span><span class="si">{</span><span class="n">missing_vars</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-            <span class="n">ValidPoseTracks</span><span class="p">(</span>
-                <span class="n">tracks_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">scores_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ValidPosesDataset</span><span class="p">(</span>
+                <span class="n">position_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">confidence_array</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                 <span class="n">individual_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                 <span class="n">keypoint_names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dim_names</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                 <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
                 <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;The dataset does not contain valid pose tracks.&quot;</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;The dataset does not contain valid poses.&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
 </pre></div>

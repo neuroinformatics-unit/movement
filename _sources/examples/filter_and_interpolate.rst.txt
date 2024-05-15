@@ -11,12 +11,11 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_filter_and_interpolate.py>`
-        to download the full example code or to run this example in your browser via Binder
+        to download the full example code. or to run this example in your browser via Binder
 
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_filter_and_interpolate.py:
-
 
 Filtering and interpolation
 ============================
@@ -24,12 +23,12 @@ Filtering and interpolation
 Filter out points with low confidence scores and interpolate over
 missing values.
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-12
+.. GENERATED FROM PYTHON SOURCE LINES 9-11
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-15
+.. GENERATED FROM PYTHON SOURCE LINES 11-14
 
 .. code-block:: Python
 
@@ -43,17 +42,17 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 16-18
+.. GENERATED FROM PYTHON SOURCE LINES 15-17
 
 Load a sample dataset
 ---------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-22
+.. GENERATED FROM PYTHON SOURCE LINES 17-21
 
 .. code-block:: Python
 
 
-    ds = sample_data.fetch_sample_data("DLC_single-wasp.predictions.h5")
+    ds = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
     print(ds)
 
 
@@ -72,37 +71,37 @@ Load a sample dataset
       * keypoints    (keypoints) <U7 56B 'head' 'stinger'
       * space        (space) <U1 8B 'x' 'y'
     Data variables:
-        pose_tracks  (time, individuals, keypoints, space) float64 35kB 1.086e+03...
+        position     (time, individuals, keypoints, space) float64 35kB 1.086e+03...
         confidence   (time, individuals, keypoints) float64 17kB 0.05305 ... 0.0
     Attributes:
         fps:              40.0
         time_unit:        seconds
         source_software:  DeepLabCut
         source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+        frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...
+        video_path:       None
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-26
+.. GENERATED FROM PYTHON SOURCE LINES 22-25
 
 We can see that this dataset contains the 2D pose tracks and confidence
 scores for a single wasp, generated with DeepLabCut. There are 2 keypoints:
 "head" and "stinger".
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-30
+.. GENERATED FROM PYTHON SOURCE LINES 27-29
 
 Visualise the pose tracks
 -------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-36
+.. GENERATED FROM PYTHON SOURCE LINES 29-33
 
 .. code-block:: Python
 
 
-    pose_tracks = ds.pose_tracks.sel(individuals="individual_0")
-    pose_tracks.plot.line(
-        x="time", row="keypoints", hue="space", aspect=2, size=2.5
-    )
+    position = ds.position.sel(individuals="individual_0")
+    position.plot.line(x="time", row="keypoints", hue="space", aspect=2, size=2.5)
 
 
 
@@ -118,18 +117,18 @@ Visualise the pose tracks
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cdc155150>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca8518af10>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-41
+.. GENERATED FROM PYTHON SOURCE LINES 34-38
 
 We can see that the pose tracks contain some implausible "jumps", such
-as the the big shift in the final second, and the "spikes" of the stinger
+as the big shift in the final second, and the "spikes" of the stinger
 near the 14th second. Perhaps we can get rid of those based on the model's
 reported confidence scores?
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-53
+.. GENERATED FROM PYTHON SOURCE LINES 40-50
 
 Visualise confidence scores
 ---------------------------
@@ -142,7 +141,7 @@ it's always a good idea to inspect the actual confidence values in the data.
 
 Let's first look at a histogram of the confidence scores.
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-55
+.. GENERATED FROM PYTHON SOURCE LINES 50-52
 
 .. code-block:: Python
 
@@ -172,13 +171,13 @@ Let's first look at a histogram of the confidence scores.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-59
+.. GENERATED FROM PYTHON SOURCE LINES 53-56
 
 Based on the above histogram, we can confirm that the confidence scores
 indeed range between 0 and 1, with most values closer to 1. Now let's see how
 they evolve over time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-63
+.. GENERATED FROM PYTHON SOURCE LINES 56-60
 
 .. code-block:: Python
 
@@ -200,27 +199,27 @@ they evolve over time.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cdc18fa10>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca852cd790>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-67
+.. GENERATED FROM PYTHON SOURCE LINES 61-64
 
 Encouragingly, some of the drops in confidence scores do seem to correspond
-to the implausible jumps and spikes we had seen in the pose tracks.
+to the implausible jumps and spikes we had seen in the position.
 We can use that to our advantage.
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-77
+.. GENERATED FROM PYTHON SOURCE LINES 67-74
 
 Filter out points with low confidence
 -------------------------------------
 We can filter out points with confidence scores below a certain threshold.
-Here, we use ``threshold=0.6``. Points in the ``pose tracks`` data variable
+Here, we use ``threshold=0.6``. Points in the ``position`` data variable
 with confidence scores below this threshold will be converted to NaN.
 The ``print_report`` argument, which is True by default, reports the number
 of NaN values in the dataset before and after the filtering operation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-80
+.. GENERATED FROM PYTHON SOURCE LINES 74-77
 
 .. code-block:: Python
 
@@ -249,18 +248,18 @@ of NaN values in the dataset before and after the filtering operation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-83
+.. GENERATED FROM PYTHON SOURCE LINES 78-80
 
 We can see that the filtering operation has introduced NaN values in the
-``pose_tracks`` data variable. Let's visualise the filtered pose tracks.
+``position`` data variable. Let's visualise the filtered data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-89
+.. GENERATED FROM PYTHON SOURCE LINES 80-86
 
 .. code-block:: Python
 
 
-    pose_tracks_filtered = ds_filtered.pose_tracks.sel(individuals="individual_0")
-    pose_tracks_filtered.plot.line(
+    position_filtered = ds_filtered.position.sel(individuals="individual_0")
+    position_filtered.plot.line(
         x="time", row="keypoints", hue="space", aspect=2, size=2.5
     )
 
@@ -278,17 +277,17 @@ We can see that the filtering operation has introduced NaN values in the
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cdc14ea50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca874f2e50>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-93
+.. GENERATED FROM PYTHON SOURCE LINES 87-90
 
 Here we can see that gaps have appeared in the pose tracks, some of which
 are over the implausible jumps and spikes we had seen earlier. Moreover,
 most gaps seem to be brief, lasting < 1 second.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-103
+.. GENERATED FROM PYTHON SOURCE LINES 92-100
 
 Interpolate over missing values
 -------------------------------
@@ -299,7 +298,7 @@ Setting ``max_gap=None`` would interpolate over all gaps, regardless of
 their length, which should be used with caution as it can introduce
 spurious data. The ``print_report`` argument acts as described above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-108
+.. GENERATED FROM PYTHON SOURCE LINES 100-105
 
 .. code-block:: Python
 
@@ -330,20 +329,20 @@ spurious data. The ``print_report`` argument acts as described above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-111
+.. GENERATED FROM PYTHON SOURCE LINES 106-108
 
 We see that all NaN values have disappeared, meaning that all gaps were
 indeed shorter than 1 second. Let's visualise the interpolated pose tracks
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-119
+.. GENERATED FROM PYTHON SOURCE LINES 108-116
 
 .. code-block:: Python
 
 
-    pose_tracks_interpolated = ds_interpolated.pose_tracks.sel(
+    position_interpolated = ds_interpolated.position.sel(
         individuals="individual_0"
     )
-    pose_tracks_interpolated.plot.line(
+    position_interpolated.plot.line(
         x="time", row="keypoints", hue="space", aspect=2, size=2.5
     )
 
@@ -361,11 +360,11 @@ indeed shorter than 1 second. Let's visualise the interpolated pose tracks
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cda9bd190>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca87380150>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-128
+.. GENERATED FROM PYTHON SOURCE LINES 117-125
 
 Log of processing steps
 -----------------------
@@ -376,7 +375,7 @@ performed are saved in the ``log`` attribute of the dataset.
 This is useful for keeping track of the processing steps that have been
 applied to the data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-131
+.. GENERATED FROM PYTHON SOURCE LINES 125-128
 
 .. code-block:: Python
 
@@ -391,8 +390,8 @@ applied to the data.
 
  .. code-block:: none
 
-    {'operation': 'filter_by_confidence', 'datetime': '2024-03-19 13:52:18.334669', 'threshold': 0.6, 'print_report': True}
-    {'operation': 'interpolate_over_time', 'datetime': '2024-03-19 13:52:19.880981', 'method': 'linear', 'max_gap': 1, 'print_report': True}
+    {'operation': 'filter_by_confidence', 'datetime': '2024-05-15 08:49:30.096092', 'threshold': 0.6, 'print_report': True}
+    {'operation': 'interpolate_over_time', 'datetime': '2024-05-15 08:49:31.516639', 'method': 'linear', 'max_gap': 1, 'print_report': True}
 
 
 
@@ -400,7 +399,7 @@ applied to the data.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.547 seconds)
+   **Total running time of the script:** (0 minutes 3.417 seconds)
 
 
 .. _sphx_glr_download_examples_filter_and_interpolate.py:

@@ -11,24 +11,23 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_load_and_explore_poses.py>`
-        to download the full example code or to run this example in your browser via Binder
+        to download the full example code. or to run this example in your browser via Binder
 
 .. rst-class:: sphx-glr-example-title
 
 .. _sphx_glr_examples_load_and_explore_poses.py:
 
-
 Load and explore pose tracks
-============================
+===============================
 
 Load and explore an example dataset of pose tracks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
+.. GENERATED FROM PYTHON SOURCE LINES 8-10
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-16
+.. GENERATED FROM PYTHON SOURCE LINES 10-15
 
 .. code-block:: Python
 
@@ -44,19 +43,43 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 17-20
+.. GENERATED FROM PYTHON SOURCE LINES 16-21
 
-Fetch an example dataset
-------------------------
-Print a list of available datasets:
+Define the file path
+--------------------
+This should be a file output by one of our supported pose estimation
+frameworks (e.g., DeepLabCut, SLEAP), containing predicted pose tracks.
+For example, the path could be something like:
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-24
+.. GENERATED FROM PYTHON SOURCE LINES 21-25
 
 .. code-block:: Python
 
 
-    for file_name in sample_data.list_sample_data():
-        print(file_name)
+    # uncomment and edit the following line to point to your own local file
+    # file_path = "/path/to/my/data.h5"
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 26-28
+
+For the sake of this example, we will use the path to one of
+the sample datasets provided with ``movement``.
+
+.. GENERATED FROM PYTHON SOURCE LINES 28-34
+
+.. code-block:: Python
+
+
+    file_path = sample_data.fetch_dataset_paths(
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+    )["poses"]
+    print(file_path)
 
 
 
@@ -66,51 +89,17 @@ Print a list of available datasets:
 
  .. code-block:: none
 
-    DLC_single-mouse_EPM.predictions.h5
-    DLC_single-wasp.predictions.csv
-    DLC_single-wasp.predictions.h5
-    DLC_two-mice.predictions.csv
-    LP_mouse-face_AIND.predictions.csv
-    LP_mouse-twoview_AIND.predictions.csv
-    SLEAP_single-mouse_EPM.analysis.h5
-    SLEAP_single-mouse_EPM.predictions.slp
-    SLEAP_three-mice_Aeon_mixed-labels.analysis.h5
-    SLEAP_three-mice_Aeon_mixed-labels.predictions.slp
-    SLEAP_three-mice_Aeon_proofread.analysis.h5
-    SLEAP_three-mice_Aeon_proofread.predictions.slp
-    SLEAP_two-mice_social-interaction.analysis.h5
-    SLEAP_two-mice_social-interaction.predictions.slp
+    /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon_proofread.analysis.h5
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-28
+.. GENERATED FROM PYTHON SOURCE LINES 35-37
 
-Fetch the path to an example dataset.
-Feel free to replace this with the path to your own dataset.
-e.g., ``file_path = "/path/to/my/data.h5"``)
+Load the data into movement
+---------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 28-32
-
-.. code-block:: Python
-
-    file_path = sample_data.fetch_sample_data_path(
-        "SLEAP_three-mice_Aeon_proofread.analysis.h5"
-    )
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 33-35
-
-Load the dataset
-----------------
-
-.. GENERATED FROM PYTHON SOURCE LINES 35-39
+.. GENERATED FROM PYTHON SOURCE LINES 37-41
 
 .. code-block:: Python
 
@@ -134,7 +123,7 @@ Load the dataset
       * keypoints    (keypoints) <U8 32B 'centroid'
       * space        (space) <U1 8B 'x' 'y'
     Data variables:
-        pose_tracks  (time, individuals, keypoints, space) float32 14kB 770.3 ......
+        position     (time, individuals, keypoints, space) float32 14kB 770.3 ......
         confidence   (time, individuals, keypoints) float32 7kB nan nan ... nan nan
     Attributes:
         fps:              50.0
@@ -145,17 +134,17 @@ Load the dataset
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-43
+.. GENERATED FROM PYTHON SOURCE LINES 42-45
 
 The loaded dataset contains two data variables:
-``pose_tracks`` and ``confidence``.
-To get the pose tracks:
+``position`` and ``confidence``.
+To get the position data:
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-45
+.. GENERATED FROM PYTHON SOURCE LINES 45-47
 
 .. code-block:: Python
 
-    pose_tracks = ds.pose_tracks
+    position = ds.position
 
 
 
@@ -164,7 +153,7 @@ To get the pose tracks:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-51
+.. GENERATED FROM PYTHON SOURCE LINES 48-53
 
 Select and plot data with xarray
 --------------------------------
@@ -172,12 +161,12 @@ You can use the ``sel`` method to index into ``xarray`` objects.
 For example, we can get a ``DataArray`` containing only data
 for a single keypoint of the first individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-55
+.. GENERATED FROM PYTHON SOURCE LINES 53-57
 
 .. code-block:: Python
 
 
-    da = pose_tracks.sel(individuals="AEON3B_NTP", keypoints="centroid")
+    da = position.sel(individuals="AEON3B_NTP", keypoints="centroid")
     print(da)
 
 
@@ -188,7 +177,7 @@ for a single keypoint of the first individual:
 
  .. code-block:: none
 
-    <xarray.DataArray 'pose_tracks' (time: 601, space: 2)> Size: 5kB
+    <xarray.DataArray 'position' (time: 601, space: 2)> Size: 5kB
     770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
@@ -199,12 +188,12 @@ for a single keypoint of the first individual:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-58
+.. GENERATED FROM PYTHON SOURCE LINES 58-60
 
 We could plot the x, y coordinates of this keypoint over time,
 using ``xarray``'s built-in plotting methods:
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 60-62
 
 .. code-block:: Python
 
@@ -224,21 +213,21 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cde6d8810>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca875b7310>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-63
+.. GENERATED FROM PYTHON SOURCE LINES 63-65
 
 Similarly we could plot the same keypoint's x, y coordinates
 for all individuals:
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-67
+.. GENERATED FROM PYTHON SOURCE LINES 65-69
 
 .. code-block:: Python
 
 
-    da = pose_tracks.sel(keypoints="centroid")
+    da = position.sel(keypoints="centroid")
     da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
 
@@ -255,11 +244,11 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x735cde28be10>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fca87707d10>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 68-73
+.. GENERATED FROM PYTHON SOURCE LINES 70-75
 
 Trajectory plots
 ----------------
@@ -267,7 +256,7 @@ We are not limited to ``xarray``'s built-in plots.
 For example, we can use ``matplotlib`` to plot trajectories
 (using scatter plots):
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-87
+.. GENERATED FROM PYTHON SOURCE LINES 75-89
 
 .. code-block:: Python
 
@@ -299,14 +288,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x735cdc054610>
+    <matplotlib.colorbar.Colorbar object at 0x7fca8511cdd0>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.739 seconds)
+   **Total running time of the script:** (0 minutes 0.719 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

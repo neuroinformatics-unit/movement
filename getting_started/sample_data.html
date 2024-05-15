@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.move_accessor.MoveAccessor &#8212; movement</title>
+    <title>Sample data &#8212; movement</title>
   
   
   
@@ -41,18 +41,18 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.move_accessor.MoveAccessor';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.move_accessor.MoveAccessor.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/sample_data';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/getting_started/sample_data.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.logging.configure_logging" href="movement.logging.configure_logging.html" />
-    <link rel="prev" title="movement.analysis.kinematics.compute_acceleration" href="movement.analysis.kinematics.compute_acceleration.html" />
+    <link rel="next" title="The movement dataset" href="movement_dataset.html" />
+    <link rel="prev" title="Input/Output" href="input_output.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -139,8 +139,8 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
                         Getting Started
                       </a>
                     </li>
@@ -160,7 +160,7 @@
                     </li>
                 
 
-                    <li class="nav-item current active">
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../api_index.html">
                         API Reference
                       </a>
@@ -276,8 +276,8 @@ document.write(`
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
                         Getting Started
                       </a>
                     </li>
@@ -297,7 +297,7 @@ document.write(`
                     </li>
                 
 
-                    <li class="nav-item current active">
+                    <li class="nav-item">
                       <a class="nav-link nav-internal" href="../api_index.html">
                         API Reference
                       </a>
@@ -361,47 +361,12 @@ document.write(`
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_file.html">movement.io.load_poses.from_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">movement.io.load_poses.from_sleap_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html">movement.io.load_poses.from_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_df.html">movement.io.load_poses.from_dlc_df</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">movement.io.load_poses.from_lp_file</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">movement.io.save_poses.to_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html">movement.io.save_poses.to_dlc_df</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">movement.io.save_poses.to_lp_file</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidFile.html">movement.io.validators.ValidFile</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidHDF5.html">movement.io.validators.ValidHDF5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPoseTracks.html">movement.io.validators.ValidPoseTracks</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.list_sample_data.html">movement.sample_data.list_sample_data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.fetch_sample_data_path.html">movement.sample_data.fetch_sample_data_path</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.fetch_sample_data.html">movement.sample_data.fetch_sample_data</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">movement.filtering.filter_by_confidence</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">movement.filtering.interpolate_over_time</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.filtering.report_nan_values.html">movement.filtering.report_nan_values</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_displacement.html">movement.analysis.kinematics.compute_displacement</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_velocity.html">movement.analysis.kinematics.compute_velocity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_acceleration.html">movement.analysis.kinematics.compute_acceleration</a></li>
-</ul>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.move_accessor.MoveAccessor</a></li>
-</ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="movement.logging.configure_logging.html">movement.logging.configure_logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.logging.log_error.html">movement.logging.log_error</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.logging.log_warning.html">movement.logging.log_warning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Sample data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement dataset</a></li>
 </ul>
 </div>
 </nav></div>
@@ -440,9 +405,9 @@ document.write(`
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API Reference</a></li>
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Getting Started</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">movement.mov...</li>
+    <li class="breadcrumb-item active" aria-current="page">Sample data</li>
   </ul>
 </nav>
 </div>
@@ -459,102 +424,41 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="movement-move-accessor-moveaccessor">
-<h1>movement.move_accessor.MoveAccessor<a class="headerlink" href="#movement-move-accessor-moveaccessor" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="movement.move_accessor.MoveAccessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.move_accessor.</span></span><span class="sig-name descname"><span class="pre">MoveAccessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/move_accessor.html#MoveAccessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.move_accessor.MoveAccessor" title="Permalink to this definition">#</a></dt>
-<dd><p>An accessor that extends an xarray Dataset by implementing
-<cite>movement</cite>-specific properties and methods.</p>
-<dl class="simple">
-<dt>The xarray Dataset contains the following expected dimensions:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: the number of frames in the video</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>: the number of individuals in the video</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code>: the number of keypoints in the skeleton</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>: the number of spatial dimensions, either 2 or 3</p></li>
-</ul>
-</dd>
-</dl>
-<p>Appropriate coordinate labels are assigned to each dimension:
-list of unique names (str) for <code class="docutils literal notranslate"><span class="pre">individuals</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>,
-[‘x’,’y’,(‘z’)] for <code class="docutils literal notranslate"><span class="pre">space</span></code>. The coordinates of the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension
-are in seconds if <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, otherwise they are in frame numbers.</p>
-<dl class="simple">
-<dt>The dataset contains two expected data variables (xarray DataArrays):</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pose_tracks</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>,
-<code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>)</p></li>
-</ul>
-</dd>
-</dl>
-<p>When accessing a <code class="docutils literal notranslate"><span class="pre">.move</span></code> property (e.g. <code class="docutils literal notranslate"><span class="pre">displacement</span></code>, <code class="docutils literal notranslate"><span class="pre">velocity</span></code>,
-<code class="docutils literal notranslate"><span class="pre">acceleration</span></code>) for the first time, the property is computed and stored
-as a data variable with the same name in the dataset. The <code class="docutils literal notranslate"><span class="pre">.move</span></code>
-accessor can be omitted in subsequent accesses, i.e.
-<code class="docutils literal notranslate"><span class="pre">ds.move.displacement</span></code> and <code class="docutils literal notranslate"><span class="pre">ds.displacement</span></code> will return the same data
-variable.</p>
-<dl class="simple">
-<dt>The dataset may also contain following attributes as metadata:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">fps</span></code>: the number of frames per second in the video</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">time_unit</span></code>: the unit of the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates, frames or
-seconds</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">source_software</span></code>: the software from which the pose tracks were
-loaded</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">source_file</span></code>: the file from which the pose tracks were
-loaded</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>Using an accessor is the recommended way to extend xarray objects.
-See <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> for more details.</p>
-<p>Methods/properties that are specific to this class can be accessed via
-the <code class="docutils literal notranslate"><span class="pre">.move</span></code> accessor, e.g. <code class="docutils literal notranslate"><span class="pre">ds.move.validate()</span></code>.</p>
-<p class="rubric">References</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p><a class="reference external" href="https://docs.xarray.dev/en/stable/internals/extending-xarray.html">https://docs.xarray.dev/en/stable/internals/extending-xarray.html</a></p>
-</aside>
-</aside>
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.move_accessor.MoveAccessor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/move_accessor.html#MoveAccessor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.move_accessor.MoveAccessor.__init__" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+  <section class="tex2jax_ignore mathjax_ignore" id="sample-data">
+<span id="target-sample-data"></span><h1>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">movement</span></code> includes some sample data files that you can use to
+try out the package. These files contain predicted pose tracks from
+various <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported formats</span></a>.</p>
+<p>You can list the available sample data files using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
 
-<p class="rubric">Methods</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement.move_accessor.MoveAccessor.__init__" title="movement.move_accessor.MoveAccessor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(ds)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code>()</p></td>
-<td><p>Validate the PoseTracks dataset.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Attributes</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">acceleration</span></code></p></td>
-<td><p>Return the acceleration between consecutive positions of each keypoint for each individual across time.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dim_names</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">displacement</span></code></p></td>
-<td><p>Return the displacement between consecutive positions of each keypoint for each individual across time.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">var_names</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">velocity</span></code></p></td>
-<td><p>Return the velocity between consecutive positions of each keypoint for each individual across time.</p></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<span class="n">file_names</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">file_names</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will print a list of file names containing sample pose data.
+Each file is prefixed with the name of the pose estimation software package
+that was used to generate it - either “DLC”, “SLEAP”, or “LP”.</p>
+<p>To load one of the sample datasets, you can use the
+<a class="reference internal" href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.sample_data.fetch_dataset()</span></code></a> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function loads the sample pose data as a
+<a class="reference internal" href="movement_dataset.html#target-dataset"><span class="std std-ref">movement dataset</span></a>. Some sample datasets may also have an
+associated video file (the video based on which the poses were predicted)
+or a single frame extracted from that video. These files are not directly
+loaded into the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset, but their paths can be accessed as dataset attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">frame_path</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">video_path</span>
+</pre></div>
+</div>
+<p>If the value of one of these attributes is <code class="docutils literal notranslate"><span class="pre">None</span></code>, it means that the
+associated file is not available for the sample dataset.</p>
+<p>Under the hood, the first time you call the <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function,
+it will download the corresponding files to your local machine and cache them
+in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> directory. On subsequent calls, the data are directly
+loaded from the local cache.</p>
 </section>
 
 
@@ -568,20 +472,20 @@ the <code class="docutils literal notranslate"><span class="pre">.move</span></c
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.analysis.kinematics.compute_acceleration.html"
+       href="input_output.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.analysis.kinematics.compute_acceleration</p>
+        <p class="prev-next-title">Input/Output</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.logging.configure_logging.html"
+       href="movement_dataset.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.logging.configure_logging</p>
+        <p class="prev-next-title">The movement dataset</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -596,24 +500,9 @@ the <code class="docutils literal notranslate"><span class="pre">.move</span></c
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.move_accessor.MoveAccessor"><code class="docutils literal notranslate"><span class="pre">MoveAccessor</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.move_accessor.MoveAccessor.__init__"><code class="docutils literal notranslate"><span class="pre">MoveAccessor.__init__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.move_accessor.MoveAccessor.rst.txt">
+    <a href="../_sources/getting_started/sample_data.md.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

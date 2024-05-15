@@ -5,7 +5,7 @@
 Examples
 ========
 
-Below is a gallery of examples using `movement`.
+Below is a gallery of examples using ``movement``.
 
 
 
@@ -13,6 +13,7 @@ Below is a gallery of examples using `movement`.
 
     <div class="sphx-glr-thumbnails">
 
+.. thumbnail-parent-div-open
 
 .. raw:: html
 
@@ -61,9 +62,11 @@ Below is a gallery of examples using `movement`.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics</div>
+      <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics.</div>
     </div>
 
+
+.. thumbnail-parent-div-close
 
 .. raw:: html
 

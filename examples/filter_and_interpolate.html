@@ -41,7 +41,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=8810cfe0"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -51,7 +51,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Compute and visualise kinematics" href="compute_kinematics.html" />
+    <link rel="next" title="Compute and visualise kinematics." href="compute_kinematics.html" />
     <link rel="prev" title="Load and explore pose tracks" href="load_and_explore_poses.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.15</p>
+    <p class="title logo__title">movement v0.0.16</p>
   
 </a></div>
     
@@ -140,7 +140,7 @@
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -277,7 +277,7 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
                     <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started.html">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
                         Getting Started
                       </a>
                     </li>
@@ -364,7 +364,7 @@ document.write(`
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="load_and_explore_poses.html">Load and explore pose tracks</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Filtering and interpolation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
 </ul>
 </div>
 </nav></div>
@@ -425,7 +425,7 @@ document.write(`
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
 <p><a class="reference internal" href="#sphx-glr-download-examples-filter-and-interpolate-py"><span class="std std-ref">Go to the end</span></a>
-to download the full example code or to run this example in your browser via Binder</p>
+to download the full example code. or to run this example in your browser via Binder</p>
 </div>
 <section class="sphx-glr-example-title" id="filtering-and-interpolation">
 <span id="sphx-glr-examples-filter-and-interpolate-py"></span><h1>Filtering and interpolation<a class="headerlink" href="#filtering-and-interpolation" title="Permalink to this heading">#</a></h1>
@@ -440,7 +440,7 @@ missing values.</p>
 </section>
 <section id="load-a-sample-dataset">
 <h2>Load a sample dataset<a class="headerlink" href="#load-a-sample-dataset" title="Permalink to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_sample_data</span><span class="p">(</span><span class="s2">&quot;DLC_single-wasp.predictions.h5&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span><span class="s2">&quot;DLC_single-wasp.predictions.h5&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -452,13 +452,15 @@ Coordinates:
   * keypoints    (keypoints) &lt;U7 56B &#39;head&#39; &#39;stinger&#39;
   * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
 Data variables:
-    pose_tracks  (time, individuals, keypoints, space) float64 35kB 1.086e+03...
+    position     (time, individuals, keypoints, space) float64 35kB 1.086e+03...
     confidence   (time, individuals, keypoints) float64 17kB 0.05305 ... 0.0
 Attributes:
     fps:              40.0
     time_unit:        seconds
     source_software:  DeepLabCut
     source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+    frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...
+    video_path:       None
 </pre></div>
 </div>
 <p>We can see that this dataset contains the 2D pose tracks and confidence
@@ -467,17 +469,15 @@ scores for a single wasp, generated with DeepLabCut. There are 2 keypoints:
 </section>
 <section id="visualise-the-pose-tracks">
 <h2>Visualise the pose tracks<a class="headerlink" href="#visualise-the-pose-tracks" title="Permalink to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">)</span>
-<span class="n">pose_tracks</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
-<span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">)</span>
+<span class="n">position</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x735cdc155150&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca8518af10&gt;
 </pre></div>
 </div>
 <p>We can see that the pose tracks contain some implausible “jumps”, such
-as the the big shift in the final second, and the “spikes” of the stinger
+as the big shift in the final second, and the “spikes” of the stinger
 near the 14th second. Perhaps we can get rid of those based on the model’s
 reported confidence scores?</p>
 </section>
@@ -509,17 +509,17 @@ they evolve over time.</p>
 <span class="n">confidence</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x735cdc18fa10&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca852cd790&gt;
 </pre></div>
 </div>
 <p>Encouragingly, some of the drops in confidence scores do seem to correspond
-to the implausible jumps and spikes we had seen in the pose tracks.
+to the implausible jumps and spikes we had seen in the position.
 We can use that to our advantage.</p>
 </section>
 <section id="filter-out-points-with-low-confidence">
 <h2>Filter out points with low confidence<a class="headerlink" href="#filter-out-points-with-low-confidence" title="Permalink to this heading">#</a></h2>
 <p>We can filter out points with confidence scores below a certain threshold.
-Here, we use <code class="docutils literal notranslate"><span class="pre">threshold=0.6</span></code>. Points in the <code class="docutils literal notranslate"><span class="pre">pose</span> <span class="pre">tracks</span></code> data variable
+Here, we use <code class="docutils literal notranslate"><span class="pre">threshold=0.6</span></code>. Points in the <code class="docutils literal notranslate"><span class="pre">position</span></code> data variable
 with confidence scores below this threshold will be converted to NaN.
 The <code class="docutils literal notranslate"><span class="pre">print_report</span></code> argument, which is True by default, reports the number
 of NaN values in the dataset before and after the filtering operation.</p>
@@ -538,14 +538,14 @@ Missing points (marked as NaN) in filtered dataset:
 </pre></div>
 </div>
 <p>We can see that the filtering operation has introduced NaN values in the
-<code class="docutils literal notranslate"><span class="pre">pose_tracks</span></code> data variable. Let’s visualise the filtered pose tracks.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks_filtered</span> <span class="o">=</span> <span class="n">ds_filtered</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">)</span>
-<span class="n">pose_tracks_filtered</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+<code class="docutils literal notranslate"><span class="pre">position</span></code> data variable. Let’s visualise the filtered data.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">position_filtered</span> <span class="o">=</span> <span class="n">ds_filtered</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">)</span>
+<span class="n">position_filtered</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x735cdc14ea50&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca874f2e50&gt;
 </pre></div>
 </div>
 <p>Here we can see that gaps have appeared in the pose tracks, some of which
@@ -578,15 +578,15 @@ Missing points (marked as NaN) in interpolated dataset:
 </div>
 <p>We see that all NaN values have disappeared, meaning that all gaps were
 indeed shorter than 1 second. Let’s visualise the interpolated pose tracks</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">pose_tracks_interpolated</span> <span class="o">=</span> <span class="n">ds_interpolated</span><span class="o">.</span><span class="n">pose_tracks</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">position_interpolated</span> <span class="o">=</span> <span class="n">ds_interpolated</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
     <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span>
 <span class="p">)</span>
-<span class="n">pose_tracks_interpolated</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+<span class="n">position_interpolated</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x735cda9bd190&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca87380150&gt;
 </pre></div>
 </div>
 </section>
@@ -602,11 +602,11 @@ applied to the data.</p>
     <span class="nb">print</span><span class="p">(</span><span class="n">log_entry</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;operation&#39;: &#39;filter_by_confidence&#39;, &#39;datetime&#39;: &#39;2024-03-19 13:52:18.334669&#39;, &#39;threshold&#39;: 0.6, &#39;print_report&#39;: True}
-{&#39;operation&#39;: &#39;interpolate_over_time&#39;, &#39;datetime&#39;: &#39;2024-03-19 13:52:19.880981&#39;, &#39;method&#39;: &#39;linear&#39;, &#39;max_gap&#39;: 1, &#39;print_report&#39;: True}
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;operation&#39;: &#39;filter_by_confidence&#39;, &#39;datetime&#39;: &#39;2024-05-15 08:49:30.096092&#39;, &#39;threshold&#39;: 0.6, &#39;print_report&#39;: True}
+{&#39;operation&#39;: &#39;interpolate_over_time&#39;, &#39;datetime&#39;: &#39;2024-05-15 08:49:31.516639&#39;, &#39;method&#39;: &#39;linear&#39;, &#39;max_gap&#39;: 1, &#39;print_report&#39;: True}
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.547 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.417 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-filter-and-interpolate-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/filter_and_interpolate.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" width="150px" /></a>
@@ -646,7 +646,7 @@ applied to the data.</p>
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Compute and visualise kinematics</p>
+        <p class="prev-next-title">Compute and visualise kinematics.</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
