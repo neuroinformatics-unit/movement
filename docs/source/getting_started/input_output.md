@@ -6,9 +6,9 @@
 (target-supported-formats)=
 `movement` can load pose tracks from various pose estimation frameworks.
 Currently, these include:
-- [DeepLabCut](dlc:)
-- [SLEAP](sleap:)
-- [LightingPose](lp:)
+- [DeepLabCut](dlc:) (DLC)
+- [SLEAP](sleap:) (SLEAP)
+- [LightingPose](lp:) (LP)
 
 :::{warning}
 `movement` only deals with the predicted pose tracks output by these
