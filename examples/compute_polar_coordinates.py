@@ -98,7 +98,7 @@ fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
 # we can see that in the head trajectory plot.
 
 # %%
-# Visualise the head vector
+# Visualise head vector
 # ---------------------------
 # To check our computation of the head vector, it is easier to plot only a
 # subset of the data. We can focus on the trajectory of the head when the
@@ -182,27 +182,21 @@ fig.show()
 
 
 # %%
-# Quiver plot of unit head vector with vectors always at 0,0
-# -------------------------------------------
-# like [compass](https://uk.mathworks.com/help/matlab/ref/compass.html) plot
-# in matlab
-
-
+# Express head vector in polar coordinates
+# -------------------------------------------------------------
 # Link to polar:
 # a convenient way to work with vectors orientations in 2D is
 # with polar coordinates....
-# theta is the angle with the x-axis ("bottom side" of the image OJO)
-# How can we visualise how the head vector changes in time?
-
-# %%
-# Express head vector in polar coordinates
-# -------------------------------------------------------------
-
 head_vector_pol = cart2pol(head_vector)
 
+# Explain rho and theta, and in our case
+# rho: norm; here distance between midpoint btw ears and snout per frame
+# theta: angle of the vector wrt x positive, increasing from xpositive to y
+# positive (cloclwise) and ranging from -pi to pi
+
 
 # %%
-# Rho histogram
+# Rho histogram for the full data
 # -------------------------------------------------------------
 # rho should be approx constant -- check our assumption
 fig, ax = plt.subplots(1, 1)
@@ -214,28 +208,8 @@ np.nanmedian(head_vector_pol[:, 0, 0])
 np.nanmean(head_vector_pol[:, 0, 0])
 
 # %%
-# Polar plot
-# -------------------------------------------------------------
-# python polar plot: https://www.geeksforgeeks.org/plotting-polar-curves-in-python/
-# shows how the vector changes in time, in a coordinate system that is parallel
-# to the world cs and moves with the head
-# overlay on quiver plot?
-
-fig = plt.figure()
-ax = fig.add_subplot(projection="polar")
-ax.scatter(
-    head_vector_pol.sel(
-        individuals=mouse_name, space_pol="phi"
-    ),  # suggest to name theta by default? (matplotlib uses theta)
-    head_vector_pol.sel(individuals=mouse_name, space_pol="rho"),
-    c=head_vector_pol.time,
-    cmap="viridis",
-    s=5,
-    alpha=0.5,
-)
-
-
-# %%
+# Theta histogram for the full dataset
+# -------------------------------------
 
 fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
@@ -265,14 +239,62 @@ counts, bins = np.histogram(
 )
 
 # Plot the histogram as a bar plot
-bin_width_rad = np.diff(bins)
+bin_width_rad = np.deg2rad(bin_width_deg)  # np.diff(bins)
 bars = ax.bar(bins[:-1], counts, width=bin_width_rad, align="edge")
 
 # Optionally, customize the plot (e.g., title, labels)
 ax.set_title("Theta histogram")
-ax.set_theta_direction(1)  # set direction counterclockwise
+ax.set_theta_direction(-1)  # set direction clockwise
 ax.set_theta_offset(0)  # set zero at the left
+
+# %%
+# The theta circular histogram shows that the head vector appears at a variety
+# of orientations in this clip. The histogram counts peak at 90deg and 270deg,
+# which is consistent with the animal spending more time in the vertical
+# arm of the maze, walking along it with its head looking forward.
+
+# change tick labels to match the theta values?
+# Could also do the body vector and compare the two arms... maybe more evident
+
+# %%
+# Polar plot of head unit vector in selected time window
+# -------------------------------------------------------------
+# python polar plot: https://www.geeksforgeeks.org/plotting-polar-curves-in-python/
+# shows how the vector changes in time, in a coordinate system that is parallel
+# to the world cs and moves with the head
+# overlay on quiver plot?
+
+theta = head_vector_pol.sel(
+    individuals=mouse_name,
+    space_pol="phi",
+    time=time_window,
+).values
+
+fig = plt.figure()
+ax = fig.add_subplot(projection="polar")
+sc = ax.scatter(
+    theta,
+    np.ones_like(theta),
+    c=time_window,
+    cmap="viridis",
+    s=50,
+)
+ax.set_theta_direction(-1)  # set direction counterclockwise
+ax.set_theta_offset(0)  # set zero at the left
+cax = fig.colorbar(
+    sc,
+    ax=ax,
+    label=f"time ({ds.attrs['time_unit']})",
+    ticks=list(time_window)[0::2],
+)
+
+
+# Note that
+# - angles are measured from x-positive in counterclockwise direction
+# - values are in radians and wrapped from -pi to pi (but expressed in the plot
+#  from 0 to 360 deg)
 
 
 # %%
 # mention also the inverse? (pol2cart)
+# suggest to name theta by default? (matplotlib uses theta)
