@@ -1,21 +1,19 @@
-"""Compute polar coordinates for 2D data.
-====================================
+"""Express 2D vectors in polar coordinates
+============================================
 
-Compute ....
+Compute a vector representing head direction and express it in polar
+coordinates.
 """
 
 # %%
 # Imports
 # -------
 
-import numpy as np
-
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
-# %matplotlib ipympl
-# widget
+# %matplotlib widget
+import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.patches import Rectangle
 
 from movement.io import load_poses
 from movement.utils.vector import cart2pol  # norm missing?
@@ -23,12 +21,13 @@ from movement.utils.vector import cart2pol  # norm missing?
 # %%
 # Load sample dataset
 # ------------------------
-# First, we load an example dataset. In this case, we will use
-# ``SLEAP_single-mouse_EPM.predictions``.
+# In this tutorial, we will use a sample dataset with a single individual and
+# six keypoints.
+
+
 # ds = sample_data.fetch_dataset(
 #     "SLEAP_single-mouse_EPM.predictions.slp",
 # )
-
 # ------------------ replace after train
 ds = load_poses.from_file(
     "/Users/sofia/.movement/data/poses/SLEAP_single-mouse_EPM.predictions.slp",
@@ -37,18 +36,15 @@ ds = load_poses.from_file(
 # -----------------------------
 
 print(ds)
-# %%
-# The metadata shows that the dataset contains data for one individual
-# ('track_0')
-# and 6 keypoints
+print("-----------------------------")
 print(f"Individuals: {ds.individuals.values}")
 print(f"Keypoints: {ds.keypoints.values}")
 
 
 # %%
-# The loaded dataset ``ds`` contains two data variables:
-# ``position`` and ``confidence``. In this tutorial, we will use the
-# ``position`` data array:
+# The loaded dataset ``ds`` contains two data variables:``position`` and
+# ``confidence``. Both are stored as data arrays. In this tutorial, we will
+# use only ``position``:
 position = ds.position
 
 
@@ -60,23 +56,26 @@ position = ds.position
 # We define the head vector as the vector from the midpoint between the ears
 # to the snout.
 
+# compute the midpoint between the ears
 midpoint_ears = 0.5 * (
     position.sel(keypoints="left_ear") + position.sel(keypoints="right_ear")
-)  # returns a view?
-head_vector = (
-    position.sel(keypoints="snout") - midpoint_ears
-)  # why does it have snout?
+)
 
-head_vector.drop_vars("keypoints")
+# compute the head vector
+head_vector = position.sel(keypoints="snout") - midpoint_ears
+head_vector.drop_vars("keypoints")  # drop the keypoints dimension
 
-# %% Visualise the head trajectory
-# ---------------------
-# We can plot the data to check our computation
+# %%
+# Visualise the head trajectory
+# ---------------------------------
+# We can plot the data to check that our computation of the head vector is
+# correct.
+#
+# We can start by plotting the trajectory of the midpoint between the ears.
+
 fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
+mouse_name = ds.individuals.values[0]  # 'track_0'
 
-# plot midpoint ears full trajectory: the mouse is moving on a elevated
-# platform maze
 sc = ax.scatter(
     midpoint_ears.sel(individuals=mouse_name, space="x"),
     midpoint_ears.sel(individuals=mouse_name, space="y"),
@@ -90,54 +89,35 @@ ax.axis("equal")
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.invert_yaxis()
-ax.set_title(f"Midpoint between the ears ({mouse_name})")
+ax.set_title(f"Head trajectory ({mouse_name})")
 fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
 
 # %%
-# Area of focus in space and time
-# ---------------------
-# Create a Rectangle patch
-xmin, ymin = 600, 665
-x_delta, y_delta = 125, 100
-rect = Rectangle(
-    (xmin, ymin),
-    x_delta,
-    y_delta,
-    linewidth=1,
-    edgecolor="r",
-    facecolor="none",
-)
-
-# Add the patch to the Axes
-ax.add_patch(rect)
-
-# time window in red
-time_window = range(1650, 1670)  # frames
-# bool_x_in_box = (midpoint_ears[:,0,0] >= xmin) & (midpoint_ears[:,0,0]
-# <= xmin+x_delta + 1)
-# bool_y_in_box = (midpoint_ears[:,0,1] >= ymin) &( midpoint_ears[:,0,1]
-# <= ymin+y_delta + 1)
-sc = ax.scatter(
-    midpoint_ears.sel(
-        individuals=mouse_name, time=time_window, space="x"
-    ),  # .where(bool_x_in_box),
-    midpoint_ears.sel(
-        individuals=mouse_name, time=time_window, space="y"
-    ),  # .where(bool_y_in_box),
-    s=15,
-    c="r",
-    marker="o",
-)
+# In this dataset the mouse is moving on an
+# [Elevated Plus Maze](https://en.wikipedia.org/wiki/Elevated_plus_maze) and
+# we can see that in the head trajectory plot.
 
 # %%
-# Plot zoomed in head vector
-# ---------------------
-# plot midpoint ears: small time window and zoom in
+# Visualise the head vector
+# ---------------------------
+# To check our computation of the head vector, it is easier to plot only a
+# subset of the data. We can focus on the trajectory of the head when the
+# mouse is within a small rectangular area, and within a certain time window.
+
+# area of interest
+xmin, ymin = 600, 665  # pixels
+x_delta, y_delta = 125, 100  # pixels
+
+# time window
+time_window = range(1650, 1670)  # frames
+
+# %%
+# For that subset of the data, we now plot the head vector.
+
 fig, ax = plt.subplots(1, 1)
 mouse_name = ds.individuals.values[0]
 
-
-# midpoint ears
+# plot midpoint between the ears and color based on time
 sc = ax.scatter(
     midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
     midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
@@ -147,7 +127,7 @@ sc = ax.scatter(
     marker="*",
 )
 
-# snout
+# plot snout and color based on time
 sc = ax.scatter(
     position.sel(
         individuals=mouse_name, space="x", time=time_window, keypoints="snout"
@@ -161,7 +141,7 @@ sc = ax.scatter(
     marker="o",
 )
 
-# head vector
+# plot the computed head vector
 ax.quiver(
     midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
     midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
@@ -185,61 +165,21 @@ ax.set_title(f"Zoomed in to check ({mouse_name})")
 ax.invert_yaxis()
 fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
 
-# %% In relation to other keypoints
-
-# plot 'snout', 'left_ear', 'right_ear' keypoints for the middle frame
-middle_frame = int(np.median(time_window))
-
-ax.quiver(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=middle_frame),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=middle_frame),
-    head_vector.sel(individuals=mouse_name, space="x", time=middle_frame),
-    head_vector.sel(individuals=mouse_name, space="y", time=middle_frame),
-    angles="xy",
-    scale=1,
-    scale_units="xy",
-    headwidth=7,
-    headlength=9,
-    headaxislength=9,
-    color="r",
+ax.legend(
+    [
+        "midpoint_ears",
+        "snout",
+        "head_vector",
+    ],
+    loc="best",
 )
 
-# plot 'snout', 'left_ear', 'right_ear' keypoints for the middle frame
-sc = ax.scatter(
-    position.sel(
-        individuals=mouse_name, space="x", time=middle_frame
-    ),  # , keypoints=['snout', 'left_ear', 'right_ear']),
-    position.sel(
-        individuals=mouse_name, space="y", time=middle_frame
-    ),  # , keypoints=['snout', 'left_ear', 'right_ear']),
-    s=205,
-    c="r",
-    marker=".",
-)
+fig.show()
 
-for kpt in position.keypoints.values:
-    ax.text(
-        1.005
-        * position.sel(
-            individuals=mouse_name, space="x", time=middle_frame, keypoints=kpt
-        ),
-        1.005
-        * position.sel(
-            individuals=mouse_name, space="y", time=middle_frame, keypoints=kpt
-        ),
-        kpt,
-        c="r",
-    )
+# %%
+# From the plot we can confirm the head vector goes from the midpoint between
+# the ears to the snout, as we defined it.
 
-# ax.legend(
-#     [
-#         'midpoint_ears',
-#         'snout',
-#         'head_vector', f'head_vector (frame={middle_frame})',
-# f'keypoints (frame={middle_frame})'
-#     ],
-#     loc='best'
-# )
 
 # %%
 # Quiver plot of unit head vector with vectors always at 0,0
