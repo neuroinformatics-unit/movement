@@ -120,6 +120,7 @@ per-file-ignores = { "tests/*" = [
   "D205", # missing blank line between summary and description
   "D103", # missing docstring in public function
 ], "examples/*" = [
+  "B018", # Found useless expression
   "D400", # first line should end with a period.
   "D415", # first line should end with a period, question mark...
   "D205", # missing blank line between summary and description
