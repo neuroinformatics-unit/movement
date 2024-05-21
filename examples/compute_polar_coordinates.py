@@ -355,8 +355,8 @@ fig.show()
 # the head of the mouse moved from right to left.
 
 # %%
-# ``movement`` also provides a convenience function to transform a vector
-# in polar coordinates back to cartesian.
+# ``movement`` also provides a ``pol2cart`` convenience function to transform
+# a vector in polar coordinates back to cartesian.
 head_vector_cart = pol2cart(head_vector_polar)
 
 print(head_vector_cart)
