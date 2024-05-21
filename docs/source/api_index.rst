@@ -71,13 +71,13 @@ Analysis
     cart2pol
     pol2cart
 
-Move Accessor
--------------
+MovementDataset
+---------------
 .. currentmodule:: movement.move_accessor
 .. autosummary::
     :toctree: api
 
-    MoveAccessor
+    MovementDataset
 
 Logging
 -------

@@ -11,8 +11,8 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+from movement import MovementDataset
 from movement.logging import configure_logging
-from movement.move_accessor import MoveAccessor
 from movement.sample_data import fetch_dataset_paths, list_datasets
 
 
@@ -245,7 +245,7 @@ def valid_position_array():
 @pytest.fixture
 def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = MoveAccessor.dim_names
+    dim_names = MovementDataset.dim_names
     # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
@@ -326,3 +326,48 @@ def invalid_poses_dataset(request):
 def kinematic_property(request):
     """Return a kinematic property."""
     return request.param
+
+
+class Helpers:
+    """Generic helper methods for ``movement`` testing modules."""
+
+    @staticmethod
+    def count_nans(ds):
+        """Count NaNs in the x coordinate timeseries of the first keypoint
+        of the first individual in the dataset.
+        """
+        n_nans = np.count_nonzero(
+            np.isnan(
+                ds.position.isel(individuals=0, keypoints=0, space=0).values
+            )
+        )
+        return n_nans
+
+    @staticmethod
+    def count_nan_repeats(ds):
+        """Count the number of continuous stretches of NaNs in the
+        x coordinate timeseries of the first keypoint of the first individual
+        in the dataset.
+        """
+        x = ds.position.isel(individuals=0, keypoints=0, space=0).values
+        repeats = []
+        running_count = 1
+        for i in range(len(x)):
+            if i != len(x) - 1:
+                if np.isnan(x[i]) and np.isnan(x[i + 1]):
+                    running_count += 1
+                elif np.isnan(x[i]):
+                    repeats.append(running_count)
+                    running_count = 1
+                else:
+                    running_count = 1
+            elif np.isnan(x[i]):
+                repeats.append(running_count)
+                running_count = 1
+        return len(repeats)
+
+
+@pytest.fixture
+def helpers():
+    """Return an instance of the ``Helpers`` class."""
+    return Helpers

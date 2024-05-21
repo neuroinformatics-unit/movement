@@ -2,8 +2,8 @@ import pytest
 import xarray as xr
 
 
-class TestMoveAccessor:
-    """Test suite for the move_accessor module."""
+class TestMovementDataset:
+    """Test suite for the MovementDataset class."""
 
     def test_compute_kinematics_with_valid_dataset(
         self, valid_poses_dataset, kinematic_property

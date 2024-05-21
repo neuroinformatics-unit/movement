@@ -1,4 +1,4 @@
-"""Accessors for extending xarray objects."""
+"""Accessor for extending xarray.Dataset objects."""
 
 import logging
 from typing import ClassVar
@@ -15,47 +15,17 @@ xr.set_options(keep_attrs=True)
 
 
 @xr.register_dataset_accessor("move")
-class MoveAccessor:
-    """A movement-specicific xarray Dataset accessor.
+class MovementDataset:
+    """An :py:class:`xarray.Dataset` accessor for pose tracking data.
 
-    The xarray Dataset contains the following expected dimensions:
-        - ``time``: the number of frames in the video
-        - ``individuals``: the number of individuals in the video
-        - ``keypoints``: the number of keypoints in the skeleton
-        - ``space``: the number of spatial dimensions, either 2 or 3
+    A ``movement`` dataset is an :py:class:`xarray.Dataset` with a specific
+    structure to represent pose tracks, associated confidence scores and
+    relevant metadata.
 
-    Appropriate coordinate labels are assigned to each dimension:
-    list of unique names (str) for ``individuals`` and ``keypoints``,
-    ['x','y',('z')] for ``space``. The coordinates of the ``time`` dimension
-    are in seconds if ``fps`` is provided, otherwise they are in frame numbers.
-
-    The dataset contains two expected data variables (xarray DataArrays):
-        - ``position``: with shape (``time``, ``individuals``,
-          ``keypoints``, ``space``)
-        - ``confidence``: with shape (``time``, ``individuals``, ``keypoints``)
-
-    When accessing a ``.move`` property (e.g. ``displacement``, ``velocity``,
-    ``acceleration``) for the first time, the property is computed and stored
-    as a data variable with the same name in the dataset. The ``.move``
-    accessor can be omitted in subsequent accesses, i.e.
-    ``ds.move.displacement`` and ``ds.displacement`` will return the same data
-    variable.
-
-    The dataset may also contain following attributes as metadata:
-        - ``fps``: the number of frames per second in the video
-        - ``time_unit``: the unit of the ``time`` coordinates, frames or
-          seconds
-        - ``source_software``: the software from which the poses were loaded
-        - ``source_file``: the file from which the poses were
-          loaded
-
-    Notes
-    -----
-    Using an accessor is the recommended way to extend xarray objects.
-    See [1]_ for more details.
-
-    Methods/properties that are specific to this class can be accessed via
-    the ``.move`` accessor, e.g. ``ds.move.validate()``.
+    Methods/properties that extend the standard ``xarray`` functionality are
+    defined in this class. To avoid conflicts with ``xarray``'s namespace,
+    ``movement``-specific methods are accessed using the ``move`` keyword,
+    for example ``ds.move.validate()`` (see [1]_ for more details).
 
 
     References
@@ -79,7 +49,7 @@ class MoveAccessor:
     )
 
     def __init__(self, ds: xr.Dataset):
-        """Initialize the MoveAccessor."""
+        """Initialize the MovementDataset."""
         self._obj = ds
 
     def __getattr__(self, name: str) -> xr.DataArray:

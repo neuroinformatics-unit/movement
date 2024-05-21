@@ -11,6 +11,7 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
+from movement import MovementDataset
 from movement.io.validators import (
     ValidFile,
     ValidHDF5,
@@ -18,7 +19,6 @@ from movement.io.validators import (
     ValidPosesDataset,
 )
 from movement.logging import log_error, log_warning
-from movement.move_accessor import MoveAccessor
 
 logger = logging.getLogger(__name__)
 
@@ -576,7 +576,7 @@ def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = MoveAccessor.dim_names
+    DIM_NAMES = MovementDataset.dim_names
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
