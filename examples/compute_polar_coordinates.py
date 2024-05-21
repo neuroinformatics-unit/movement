@@ -208,35 +208,10 @@ print(head_vector_polar)
 # the positive x-axis to the vector is anti-clockwise.
 
 # %%
-# A vector in polar coordinates is represented by two values: ``rho`` and
-# ``phi``. ``rho`` is the norm (length) of the vector, and ``phi`` is
-# the angle between the vector and the positive x-axis.
-#
-# ``phi`` values are expressed in radians and range from -``pi`` to ``pi``
-# (following the [atan2](https://en.wikipedia.org/wiki/Atan2) convention).
-# In our coordinate system, this means ``phi`` will be
-# positive when the shortest path from the positive x-axis to the vector is
-# clockwise.
-#
-# ![fig_head_vector_polar.png](resources/fig_theta_positive.png)
-#
-# Conversely, ``phi`` will be negative if the shortest path from
-# the positive x-axis to the vector is anti-clockwise.
-#
-# ![fig_head_vector_polar.png](resources/fig_theta_negative.png)
-#
-# For our head vector, ``rho`` represents the distance from the
-# midpoint between the ears to the snout, and ``phi`` the orientation of
-# the head vector. In the example head vector below, the ``phi`` value would
-# be negative.
-#
-# ![fig_head_vector_polar.png](resources/fig_head_vector_polar.png)
-
-
-# %%
 # Histogram of ``rho`` values
 # ----------------------------
-# We would expect ``rho`` to be approximately constant in our data. We can
+# Since ``rho`` is the distance between the ears' midpoint and the snout,
+# we would expect ``rho`` to be approximately constant in this data. We can
 # check this by plotting a histogram of its values across the whole clip.
 
 fig, ax = plt.subplots(1, 1)
@@ -278,8 +253,8 @@ fig.show()
 
 # %%
 # We can see that there is some spread in the value of ``rho`` in this
-# dataset. This may be due to noise in the detection of the head keypoints.
-
+# dataset. This may be due to noise in the detection of the head keypoints,
+# or due to the mouse tipping its snout upwards during the recording.
 
 # %%
 # Histogram of ``phi`` values
@@ -291,7 +266,7 @@ fig.show()
 bin_width_deg = 5  # width of the bins in degrees
 n_bins = int(360 / bin_width_deg)
 
-# remove NaN values from the ``phi`` data
+# remove NaN values from the phi data
 bool_not_nan = (
     ~np.isnan(
         head_vector_polar.sel(individuals=mouse_name, space_pol="phi").values
@@ -316,7 +291,7 @@ bars = ax.bar(bins[:-1], counts, width=bin_width_rad, align="edge")
 
 ax.set_title("phi histogram")
 ax.set_theta_direction(-1)  # set direction clockwise
-ax.set_theta_offset(0)  # set zero at the left
+ax.set_theta_offset(0)  # set zero at the right
 
 # set xticks to match the phi values in degrees
 n_xtick_edges = 9
@@ -330,12 +305,10 @@ fig.show()
 
 # %%
 # The ``phi`` circular histogram shows that the head vector appears at a
-# variety of orientations in this dataset. The histogram counts peak at 90deg
-# and 270deg, which is consistent with the animal spending more time in the
-# vertical arm of the maze, walking along it with its head looking forward.
+# variety of orientations in this dataset.
 
 # %%
-# Polar plot of the head vector in a time window
+# Polar plot of the head vector within a time window
 # ---------------------------------------------------
 # We can also use a polar plot to represent the head vector in time,
 # in a coordinate system centred at the head of the mouse. Again,
@@ -348,7 +321,7 @@ phi = head_vector_polar.sel(
     time=time_window,
 ).values
 
-# plot tip of the head vector in time within that window
+# plot tip of the head vector within that window, and color based on time
 fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 sc = ax.scatter(
@@ -359,7 +332,7 @@ sc = ax.scatter(
     s=50,
 )
 ax.set_theta_direction(-1)  # set direction counterclockwise
-ax.set_theta_offset(0)  # set zero at the left
+ax.set_theta_offset(0)  # set zero at the right
 cax = fig.colorbar(
     sc,
     ax=ax,
@@ -383,9 +356,7 @@ fig.show()
 
 # %%
 # ``movement`` also provides a convenience function to transform a vector
-# in polar coordinates back to cartesian
+# in polar coordinates back to cartesian.
 head_vector_cart = pol2cart(head_vector_polar)
 
-head_vector_cart.head()
-
-# %%
+print(head_vector_cart)
