@@ -15,25 +15,20 @@ coordinates.
 import numpy as np
 from matplotlib import pyplot as plt
 
+from movement import sample_data
 from movement.io import load_poses
-from movement.utils.vector import cart2pol  # norm missing?
+from movement.utils.vector import cart2pol, pol2cart
 
 # %%
 # Load sample dataset
 # ------------------------
-# In this tutorial, we will use a sample dataset with a single individual and
-# six keypoints.
+# In this tutorial, we will use a sample dataset with a single individual
+# (a mouse) and six keypoints.
 
-
-# ds = sample_data.fetch_dataset(
-#     "SLEAP_single-mouse_EPM.predictions.slp",
-# )
-# ------------------ replace after train
-ds = load_poses.from_file(
-    "/Users/sofia/.movement/data/poses/SLEAP_single-mouse_EPM.predictions.slp",
-    source_software="SLEAP",
-)
-# -----------------------------
+ds_path = sample_data.fetch_dataset_paths(
+    "SLEAP_single-mouse_EPM.analysis.h5"
+)["poses"]
+ds = load_poses.from_sleap_file(ds_path, fps=None)  # force time_unit = frames
 
 print(ds)
 print("-----------------------------")
@@ -51,10 +46,10 @@ position = ds.position
 # %%
 # Compute head vector
 # ---------------------
-# To demonstrate how polar coordinates can be useful in behaviour analyses, we
-# will compute the head vector of the mouse.
-# We define the head vector as the vector from the midpoint between the ears
-# to the snout.
+# To demonstrate how polar coordinates can be useful in behavioural analyses,
+# we will compute the head vector of the mouse.
+#
+# We define it as the vector from the midpoint between the ears to the snout.
 
 # compute the midpoint between the ears
 midpoint_ears = 0.5 * (
@@ -63,7 +58,9 @@ midpoint_ears = 0.5 * (
 
 # compute the head vector
 head_vector = position.sel(keypoints="snout") - midpoint_ears
-head_vector.drop_vars("keypoints")  # drop the keypoints dimension
+
+# drop the keypoints dimension
+head_vector = head_vector.drop_vars("keypoints")
 
 # %%
 # Visualise the head trajectory
@@ -71,10 +68,11 @@ head_vector.drop_vars("keypoints")  # drop the keypoints dimension
 # We can plot the data to check that our computation of the head vector is
 # correct.
 #
-# We can start by plotting the trajectory of the midpoint between the ears.
+# We can start by plotting the trajectory of the midpoint between the ears. We
+# will refer to this as the head trajectory.
 
 fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]  # 'track_0'
+mouse_name = ds.individuals.values[0]
 
 sc = ax.scatter(
     midpoint_ears.sel(individuals=mouse_name, space="x"),
@@ -91,17 +89,18 @@ ax.set_ylabel("y (pixels)")
 ax.invert_yaxis()
 ax.set_title(f"Head trajectory ({mouse_name})")
 fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
+fig.show()
 
 # %%
-# In this dataset the mouse is moving on an
-# [Elevated Plus Maze](https://en.wikipedia.org/wiki/Elevated_plus_maze) and
-# we can see that in the head trajectory plot.
+# We can see that the majority of the head trajectory data is within a
+# cruciform shape. This is because the dataset is of a mouse moving on an
+# [Elevated Plus Maze](https://en.wikipedia.org/wiki/Elevated_plus_maze).
 
 # %%
-# Visualise head vector
+# Visualise the head vector
 # ---------------------------
-# To check our computation of the head vector, it is easier to plot only a
-# subset of the data. We can focus on the trajectory of the head when the
+# To visually check our computation of the head vector, it is easier to select
+# a subset of the data. We can focus on the trajectory of the head when the
 # mouse is within a small rectangular area, and within a certain time window.
 
 # area of interest
@@ -111,13 +110,14 @@ x_delta, y_delta = 125, 100  # pixels
 # time window
 time_window = range(1650, 1670)  # frames
 
+
 # %%
 # For that subset of the data, we now plot the head vector.
 
 fig, ax = plt.subplots(1, 1)
 mouse_name = ds.individuals.values[0]
 
-# plot midpoint between the ears and color based on time
+# plot midpoint between the ears, and color based on time
 sc = ax.scatter(
     midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
     midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
@@ -127,7 +127,7 @@ sc = ax.scatter(
     marker="*",
 )
 
-# plot snout and color based on time
+# plot snout, and color based on time
 sc = ax.scatter(
     position.sel(
         individuals=mouse_name, space="x", time=time_window, keypoints="snout"
@@ -182,99 +182,178 @@ fig.show()
 
 
 # %%
-# Express head vector in polar coordinates
+# Express the head vector in polar coordinates
 # -------------------------------------------------------------
-# Link to polar:
-# a convenient way to work with vectors orientations in 2D is
-# with polar coordinates....
-head_vector_pol = cart2pol(head_vector)
+# A convenient way to inspect the orientation of a vector in 2D is by
+# expressing it in polar coordinates. We can do this with the vector function
+# ``cart2pol``:
+head_vector_polar = cart2pol(head_vector)
 
-# Explain rho and theta, and in our case
-# rho: norm; here distance between midpoint btw ears and snout per frame
-# theta: angle of the vector wrt x positive, increasing from xpositive to y
-# positive (cloclwise) and ranging from -pi to pi
+print(head_vector_polar)
+
+# %%
+# Notice how the resulting array has a ``space_pol`` dimension with two
+# coordinates: ``rho`` and ``phi``. These are the polar coordinates of the
+# head vector.
+#
+# The coordinate ``rho`` is the norm (length) of the vector. In our case, the
+# distance from the midpoint between the ears to the snout. The coordinate
+# ``phi`` is the orientation of the head vector relative to the positive
+# x-axis, and ranges from -``pi`` to ``pi``
+# (following the [atan2](https://en.wikipedia.org/wiki/Atan2) convention).
+#
+# In our coordinate system, ``phi`` will be
+# positive if the shortest path from the positive x-axis to the vector is
+# clockwise. Conversely, ``phi`` will be negative if the shortest path from
+# the positive x-axis to the vector is anti-clockwise.
+
+# %%
+# A vector in polar coordinates is represented by two values: ``rho`` and
+# ``phi``. ``rho`` is the norm (length) of the vector, and ``phi`` is
+# the angle between the vector and the positive x-axis.
+#
+# ``phi`` values are expressed in radians and range from -``pi`` to ``pi``
+# (following the [atan2](https://en.wikipedia.org/wiki/Atan2) convention).
+# In our coordinate system, this means ``phi`` will be
+# positive when the shortest path from the positive x-axis to the vector is
+# clockwise.
+#
+# ![fig_head_vector_polar.png](resources/fig_theta_positive.png)
+#
+# Conversely, ``phi`` will be negative if the shortest path from
+# the positive x-axis to the vector is anti-clockwise.
+#
+# ![fig_head_vector_polar.png](resources/fig_theta_negative.png)
+#
+# For our head vector, ``rho`` represents the distance from the
+# midpoint between the ears to the snout, and ``phi`` the orientation of
+# the head vector. In the example head vector below, the ``phi`` value would
+# be negative.
+#
+# ![fig_head_vector_polar.png](resources/fig_head_vector_polar.png)
 
 
 # %%
-# Rho histogram for the full data
-# -------------------------------------------------------------
-# rho should be approx constant -- check our assumption
+# Histogram of ``rho`` values
+# ----------------------------
+# We would expect ``rho`` to be approximately constant in our data. We can
+# check this by plotting a histogram of its values across the whole clip.
+
 fig, ax = plt.subplots(1, 1)
-# ax.plot(head_vector_pol[:,0,0])
-# ax.plot(head_vector_pol[:,0,1])
 
-ax.hist(head_vector_pol[:, 0, 0], bins=50)
-np.nanmedian(head_vector_pol[:, 0, 0])
-np.nanmean(head_vector_pol[:, 0, 0])
+rho_data = head_vector_polar.sel(individuals=mouse_name, space_pol="rho")
+
+# compute and plot histogram
+ax.hist(
+    rho_data,
+    bins=50,
+)
+
+# add mean
+ax.axvline(
+    x=np.nanmean(rho_data),
+    c="b",
+    linestyle="--",
+)
+
+
+# add median
+ax.axvline(
+    x=np.nanmedian(rho_data),
+    c="r",
+    linestyle="-",
+)
+
+# add legend
+ax.legend(
+    [
+        f"mean = {np.nanmean(rho_data):.2f} pixels",
+        f"median = {np.nanmedian(rho_data):.2f} pixels",
+    ],
+    loc="best",
+)
+ax.set_ylabel("count")
+ax.set_xlabel(r"$\rho$" + " (pixels)")
+fig.show()
 
 # %%
-# Theta histogram for the full dataset
-# -------------------------------------
+# We can see that there is some spread in the value of ``rho`` in this
+# dataset. This may be due to noise in the detection of the head keypoints.
 
+
+# %%
+# Histogram of ``phi`` values
+# -------------------------------------
+# We can also explore which ``phi`` values are most common in the dataset with
+# a circular histogram.
+
+# compute number of bins
+bin_width_deg = 5  # width of the bins in degrees
+n_bins = int(360 / bin_width_deg)
+
+# remove NaN values from the ``phi`` data
+bool_not_nan = (
+    ~np.isnan(
+        head_vector_polar.sel(individuals=mouse_name, space_pol="phi").values
+    ),
+)
+
+# compute histogram
+counts, bins = np.histogram(
+    head_vector_polar.sel(individuals=mouse_name, space_pol="phi").values[
+        bool_not_nan
+    ],
+    bins=np.linspace(-np.pi, np.pi, n_bins + 1),
+)
+
+
+# plot histogram as a bar plot in polar projection
 fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 
-
-# Create a histogram
-# Number of bins
-
-bin_width_deg = 5  # deg
-num_bins = int(360 / bin_width_deg)
-
-# Histogram of theta
-slc_not_nan = (
-    ~np.isnan(
-        head_vector_pol.sel(individuals=mouse_name, space_pol="phi").values
-    ),
-)
-counts, bins = np.histogram(
-    head_vector_pol.sel(individuals=mouse_name, space_pol="phi").values[
-        slc_not_nan
-    ],
-    bins=np.linspace(-np.pi, np.pi, num_bins + 1),
-    # np.linspace(-np.pi-np.deg2rad(bin_width/2),
-    # np.pi+np.deg2rad(bin_width/2), num_bins+1),
-    # weights=head_vector_pol.sel(individuals=mouse_name,
-    # space_pol="rho").values[slc_not_nan]
-)
-
-# Plot the histogram as a bar plot
-bin_width_rad = np.deg2rad(bin_width_deg)  # np.diff(bins)
+bin_width_rad = np.deg2rad(bin_width_deg)
 bars = ax.bar(bins[:-1], counts, width=bin_width_rad, align="edge")
 
-# Optionally, customize the plot (e.g., title, labels)
-ax.set_title("Theta histogram")
+ax.set_title("phi histogram")
 ax.set_theta_direction(-1)  # set direction clockwise
 ax.set_theta_offset(0)  # set zero at the left
 
+# set xticks to match the phi values in degrees
+n_xtick_edges = 9
+ax.set_xticks(np.linspace(0, 2 * np.pi, n_xtick_edges)[:-1])
+xticks_in_deg = (
+    list(range(0, 180 + 45, 45)) + list(range(0, -180, -45))[-1:0:-1]
+)
+ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
+
+fig.show()
+
 # %%
-# The theta circular histogram shows that the head vector appears at a variety
-# of orientations in this clip. The histogram counts peak at 90deg and 270deg,
-# which is consistent with the animal spending more time in the vertical
-# arm of the maze, walking along it with its head looking forward.
-
-# change tick labels to match the theta values?
-# Could also do the body vector and compare the two arms... maybe more evident
+# The ``phi`` circular histogram shows that the head vector appears at a
+# variety of orientations in this dataset. The histogram counts peak at 90deg
+# and 270deg, which is consistent with the animal spending more time in the
+# vertical arm of the maze, walking along it with its head looking forward.
 
 # %%
-# Polar plot of head unit vector in selected time window
-# -------------------------------------------------------------
-# python polar plot: https://www.geeksforgeeks.org/plotting-polar-curves-in-python/
-# shows how the vector changes in time, in a coordinate system that is parallel
-# to the world cs and moves with the head
-# overlay on quiver plot?
+# Polar plot of the head vector in a time window
+# ---------------------------------------------------
+# We can also use a polar plot to represent the head vector in time,
+# in a coordinate system centred at the head of the mouse. Again,
+# this will be easier to visualise if we focus on a smaller time window.
 
-theta = head_vector_pol.sel(
+# select phi values within a time window
+phi = head_vector_polar.sel(
     individuals=mouse_name,
     space_pol="phi",
     time=time_window,
 ).values
 
+# plot tip of the head vector in time within that window
 fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 sc = ax.scatter(
-    theta,
-    np.ones_like(theta),
+    phi,
+    np.ones_like(phi),
     c=time_window,
     cmap="viridis",
     s=50,
@@ -288,13 +367,25 @@ cax = fig.colorbar(
     ticks=list(time_window)[0::2],
 )
 
+# set xticks to match the phi values in degrees
+n_xtick_edges = 9
+ax.set_xticks(np.linspace(0, 2 * np.pi, n_xtick_edges)[:-1])
+xticks_in_deg = (
+    list(range(0, 180 + 45, 45)) + list(range(0, -180, -45))[-1:0:-1]
+)
+ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
 
-# Note that
-# - angles are measured from x-positive in counterclockwise direction
-# - values are in radians and wrapped from -pi to pi (but expressed in the plot
-#  from 0 to 360 deg)
-
+fig.show()
 
 # %%
-# mention also the inverse? (pol2cart)
-# suggest to name theta by default? (matplotlib uses theta)
+# The polar plot shows how in this small time window of 20 frames,
+# the head of the mouse moved from right to left.
+
+# %%
+# ``movement`` also provides a convenience function to transform a vector
+# in polar coordinates back to cartesian
+head_vector_cart = pol2cart(head_vector_polar)
+
+head_vector_cart.head()
+
+# %%
