@@ -94,7 +94,7 @@ fig.show()
 # %%
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
-# [Elevated Plus Maze](https://en.wikipedia.org/wiki/Elevated_plus_maze).
+# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze/>`_
 
 # %%
 # Visualise the head vector
@@ -200,7 +200,7 @@ print(head_vector_polar)
 # distance from the midpoint between the ears to the snout. The coordinate
 # ``phi`` is the orientation of the head vector relative to the positive
 # x-axis, and ranges from -``pi`` to ``pi``
-# (following the [atan2](https://en.wikipedia.org/wiki/Atan2) convention).
+# (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
 # In our coordinate system, ``phi`` will be
 # positive if the shortest path from the positive x-axis to the vector is
