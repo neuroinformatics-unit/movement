@@ -4,7 +4,7 @@
 Compute a vector representing head direction and express it in polar
 coordinates.
 """
-
+# sphinx_gallery_thumbnail_number = 4
 # %%
 # Imports
 # -------
@@ -196,10 +196,10 @@ print(head_vector_polar)
 # coordinates: ``rho`` and ``phi``. These are the polar coordinates of the
 # head vector.
 #
-# The coordinate ``rho`` is the norm (length) of the vector. In our case, the
-# distance from the midpoint between the ears to the snout. The coordinate
-# ``phi`` is the orientation of the head vector relative to the positive
-# x-axis, and ranges from -``pi`` to ``pi``
+# The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
+# In our case, the distance from the midpoint between the ears to the snout.
+# The coordinate ``phi`` is the orientation of the head vector relative to the
+# positive x-axis, and ranges from -``pi`` to ``pi``
 # (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
 # In our coordinate system, ``phi`` will be
