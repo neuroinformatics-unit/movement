@@ -94,7 +94,7 @@ fig.show()
 # %%
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
-# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze/>`_
+# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_
 
 # %%
 # Visualise the head vector
