@@ -52,14 +52,16 @@ position = ds.position
 # We define it as the vector from the midpoint between the ears to the snout.
 
 # compute the midpoint between the ears
-midpoint_ears = 0.5 * (
-    position.sel(keypoints="left_ear") + position.sel(keypoints="right_ear")
+midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
+    dim="keypoints"
 )
 
 # compute the head vector
 head_vector = position.sel(keypoints="snout") - midpoint_ears
 
 # drop the keypoints dimension
+# (otherwise the `head_vector` data array retains a `snout` keypoint from the
+# operation above)
 head_vector = head_vector.drop_vars("keypoints")
 
 # %%
