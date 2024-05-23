@@ -9,16 +9,24 @@
 
 A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
-> [!Note]
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
-
-- [Overview](#overview)
-- [Status](#status)
-- [Join the movement](#join-the-movement)
-- [License](#license)
-- [Package template](#package-template)
 
 ![](docs/source/_static/movement_overview.png)
+
+## Quick install
+
+First, create and activate a conda environment with the required dependencies:
+```
+conda create -n movement-env -c conda-forge python=3.10 pytables
+conda activate movement-env
+```
+
+Then install the `movement` package:
+```
+pip install movement
+```
+
+> [!Note]
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/getting_started/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 ## Overview
 
