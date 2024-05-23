@@ -249,17 +249,13 @@ print(head_vector_polar)
 
 fig, ax = plt.subplots(1, 1)
 
+# plot histogram using xarray's built-in histogram function
 rho_data = head_vector_polar.sel(individuals=mouse_name, space_pol="rho")
-
-# compute and plot histogram
-ax.hist(
-    rho_data,
-    bins=50,
-)
+rho_data.plot.hist(bins=50, ax=ax)
 
 # add mean
 ax.axvline(
-    x=np.nanmean(rho_data),
+    x=rho_data.mean().values,
     c="b",
     linestyle="--",
 )
@@ -267,7 +263,7 @@ ax.axvline(
 
 # add median
 ax.axvline(
-    x=np.nanmedian(rho_data),
+    x=rho_data.median().values,
     c="r",
     linestyle="-",
 )
@@ -301,27 +297,19 @@ fig.show()
 bin_width_deg = 5  # width of the bins in degrees
 n_bins = int(360 / bin_width_deg)
 
-# remove NaN values from the phi data
-head_vector_polar_no_nan = head_vector_polar.sel(
-    individuals=mouse_name, space_pol="phi"
-).dropna(dim="time")
-
-# compute histogram
-counts, bins = np.histogram(
-    head_vector_polar_no_nan,
-    bins=np.linspace(-np.pi, np.pi, n_bins + 1),
-)
-
-# plot histogram as a bar plot in polar projection
+# initialise figure with polar projection
 fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 
-bin_width_rad = np.deg2rad(bin_width_deg)
-bars = ax.bar(bins[:-1], counts, width=bin_width_rad, align="edge")
+# plot histogram using xarray's built-in histogram function
+head_vector_polar.sel(individuals=mouse_name, space_pol="phi").plot.hist(
+    bins=np.linspace(-np.pi, np.pi, n_bins + 1), ax=ax
+)
 
 ax.set_title("phi histogram")
 ax.set_theta_direction(-1)  # set direction clockwise
 ax.set_theta_offset(0)  # set zero at the right
+ax.set_xlabel("")  # remove default x-label from xarray's plot.hist()
 
 # set xticks to match the phi values in degrees
 n_xtick_edges = 9
