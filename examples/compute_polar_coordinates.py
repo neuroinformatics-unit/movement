@@ -198,9 +198,14 @@ ax.set_xlim(xmin, xmin + x_delta)
 ax.set_ylim(ymin, ymin + y_delta)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in to check ({mouse_name})")
+ax.set_title(f"Zoomed in head vector ({mouse_name})")
 ax.invert_yaxis()
-fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
+fig.colorbar(
+    sc,
+    ax=ax,
+    label=f"time ({ds.attrs['time_unit']})",
+    ticks=list(time_window)[0::2],
+)
 
 ax.legend(
     [
