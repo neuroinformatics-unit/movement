@@ -302,20 +302,15 @@ bin_width_deg = 5  # width of the bins in degrees
 n_bins = int(360 / bin_width_deg)
 
 # remove NaN values from the phi data
-bool_not_nan = (
-    ~np.isnan(
-        head_vector_polar.sel(individuals=mouse_name, space_pol="phi").values
-    ),
-)
+head_vector_polar_no_nan = head_vector_polar.sel(
+    individuals=mouse_name, space_pol="phi"
+).dropna(dim="time")
 
 # compute histogram
 counts, bins = np.histogram(
-    head_vector_polar.sel(individuals=mouse_name, space_pol="phi").values[
-        bool_not_nan
-    ],
+    head_vector_polar_no_nan,
     bins=np.linspace(-np.pi, np.pi, n_bins + 1),
 )
-
 
 # plot histogram as a bar plot in polar projection
 fig = plt.figure()
