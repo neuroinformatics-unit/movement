@@ -341,7 +341,8 @@ fig.show()
 # Polar plot of the head vector within a time window
 # ---------------------------------------------------
 # We can also use a polar plot to represent the head vector in time,
-# in a coordinate system centred at the head of the mouse. Again,
+# in a coordinate system always parallel to the pixel coordinate system
+# but centred at the midpoint between the mouse's ears. Again,
 # this will be easier to visualise if we focus on a smaller time window.
 
 # select phi values within a time window
@@ -356,7 +357,7 @@ fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 sc = ax.scatter(
     phi,
-    np.ones_like(phi),
+    np.ones_like(phi),  # assign a constant value rho=1 for visualization
     c=time_window,
     cmap="viridis",
     s=50,
@@ -381,8 +382,11 @@ ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
 fig.show()
 
 # %%
+# In the polar plot above, the midpoint between the ears is at the centre of
+# the plot. The tip of the head vector (the `snout`) is represented with
+# color markers at a constant `rho` value of 1. Markers are colored by frame.
 # The polar plot shows how in this small time window of 20 frames,
-# the head of the mouse moved from right to left.
+# the head of the mouse turned clockwise.
 
 # %%
 # Convert polar coordinates to cartesian
