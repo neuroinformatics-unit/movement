@@ -27,7 +27,7 @@ Pose estimation tools, such as [DeepLabCut](https://www.mackenziemathislab.org/d
 movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
 We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple individuals.
 
-Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmap.html).
+Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmaps.html).
 
 ## Status
 > [!Warning]
