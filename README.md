@@ -9,11 +9,6 @@
 
 A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
-- [Overview](#overview)
-- [Status](#status)
-- [Join the movement](#join-the-movement)
-- [License](#license)
-- [Package template](#package-template)
 
 ![](docs/source/_static/movement_overview.png)
 
