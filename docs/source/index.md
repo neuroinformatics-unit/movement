@@ -37,7 +37,7 @@ Pose estimation tools, such as [DeepLabCut](dlc:) and [SLEAP](sleap:) are now co
 movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
 We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple individuals.
 
-Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmap).
+Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmaps).
 
 ```{include} /snippets/status-warning.md
 ```

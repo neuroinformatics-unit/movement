@@ -9,7 +9,7 @@
 
 At its core, movement handles trajectories of *keypoints*, which are specific body parts of an *individual*. An individual's posture or *pose* is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms *pose tracks*. In neuroscience, these tracks are typically extracted from video data using software like [DeepLabCut](dlc:) or [SLEAP](sleap:).
 
-With movement, our vision is to present a **consistent interface for pose tracks** and to **analyze them using modular and accessible tools**. We aim to accommodate data from a range of pose estimation packages, in **2D or 3D**, tracking **single or multiple individuals**. The focus will be on providing functionalities for data cleaning, visualisation and motion quantification (see the [Roadmap](target-roadmap) for details).
+With movement, our vision is to present a **consistent interface for pose tracks** and to **analyze them using modular and accessible tools**. We aim to accommodate data from a range of pose estimation packages, in **2D or 3D**, tracking **single or multiple individuals**. The focus will be on providing functionalities for data cleaning, visualisation and motion quantification (see the [Roadmap](target-roadmaps) for details).
 
 While movement is not designed for behaviour classification or action segmentation, it may extract features useful for these tasks. We are planning to develop separate packages for this purpose, which will be compatible with movement and the existing ecosystem of related tools.
 
