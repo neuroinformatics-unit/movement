@@ -41,7 +41,7 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions,
         since one of these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP" or "LightningPose"
+    source_software : "DeepLabCut", "SLEAP", "LightningPose" or "VIA-tracks".
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -57,6 +57,7 @@ def from_file(
     movement.io.load_poses.from_dlc_file
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
+    movement.io.load_poses.from_via_tracks_file
 
     """
     if source_software == "DeepLabCut":
@@ -65,6 +66,8 @@ def from_file(
         return from_sleap_file(file_path, fps)
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
+    elif source_software == "VIA-tracks":
+        return from_via_tracks_file(file_path, fps)
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -273,6 +276,60 @@ def from_dlc_file(
     )
 
 
+def from_via_tracks_file(
+    file_path: Union[Path, str], fps: Optional[float] = None
+) -> xr.Dataset:
+    """Load VIA tracks file into an xarray Dataset.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the file containing the VIA tracks, in .csv format.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the `time` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing the bounding boxes' tracks, confidence scores, and
+        metadata.
+
+    Notes
+    -----
+    TODO: csv files, confidence scores and include references
+
+    References
+    ----------
+    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_via_tracks_file("path/to/file.csv", fps=30)
+
+    """
+    # Validate the file
+    file = ValidFile(
+        file_path, expected_permission="r", expected_suffix=[".csv"]
+    )
+
+    # Validate specific file format AND load 'valid data' as dict
+    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # dict
+    logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
+
+    # Initialize an xarray dataset from the dictionary
+    ds = _from_valid_data(valid_data)
+
+    # Add metadata as attrs
+    ds.attrs["source_software"] = "VIA-tracks"
+    ds.attrs["source_file"] = file.path.as_posix()
+
+    logger.info(f"Loaded bounding boxes' tracks from {file.path}:")
+    logger.info(ds)
+    return ds
+
+
 def _from_lp_or_dlc_file(
     file_path: Union[Path, str],
     source_software: Literal["LightningPose", "DeepLabCut"],
@@ -414,6 +471,29 @@ def _load_from_sleap_labels_file(
         fps=fps,
         source_software="SLEAP",
     )
+
+
+def _load_from_via_tracks_file(
+    file_path: Path, fps: Optional[float]
+):  # -> ValidPosesDataset:
+    """Load and validate data from a VIA tracks file.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the VIA tracks file containing bounding boxes' tracks.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the `time` coordinates will be in frame units.
+
+    Returns
+    -------
+    movement.io.tracks_validators.ValidPosesDataset
+        The validated bounding boxes' tracks and confidence scores.
+
+    """
+    pass
+    return
 
 
 def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
