@@ -4,7 +4,7 @@
 Compute a vector representing head direction and express it in polar
 coordinates.
 """
-# sphinx_gallery_thumbnail_number = 4
+# sphinx_gallery_thumbnail_number = 5
 # %%
 # Imports
 # -------
