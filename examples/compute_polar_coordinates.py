@@ -4,7 +4,6 @@
 Compute a vector representing head direction and express it in polar
 coordinates.
 """
-# sphinx_gallery_thumbnail_number = 5
 # %%
 # Imports
 # -------
@@ -295,6 +294,8 @@ fig.show()
 # -------------------------------------
 # We can also explore which ``phi`` values are most common in the dataset with
 # a circular histogram.
+
+# sphinx_gallery_thumbnail_number = 5
 
 # compute number of bins
 bin_width_deg = 5  # width of the bins in degrees
