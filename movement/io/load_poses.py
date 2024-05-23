@@ -307,7 +307,7 @@ def _from_lp_or_dlc_file(
 
     # Load the DLC poses into a DataFrame
     if file.path.suffix == ".csv":
-        df = _parse_dlc_csv_to_df(file.path)
+        df = _load_df_from_dlc_csv(file.path)
     else:  # file.path.suffix == ".h5"
         df = _load_df_from_dlc_h5(file.path)
 
@@ -484,7 +484,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     return tracks
 
 
-def _parse_dlc_csv_to_df(file_path: Path) -> pd.DataFrame:
+def _load_df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
     """Parse a DeepLabCut-style .csv file into a pandas DataFrame.
 
     If poses are loaded from a DeepLabCut .csv file, the DataFrame
