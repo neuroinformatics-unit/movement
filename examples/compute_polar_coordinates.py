@@ -96,7 +96,39 @@ fig.show()
 # %%
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
-# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_
+# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
+# We can indeed verify this is the case by overlaying the head trajectory on
+# the sample frame of the dataset.
+
+# read sample frame
+frame_path = sample_data.fetch_dataset_paths(
+    "SLEAP_single-mouse_EPM.analysis.h5"
+)["frame"]
+im = plt.imread(frame_path)
+
+
+# plot sample frame
+fig, ax = plt.subplots(1, 1)
+ax.imshow(im)
+
+# plot head trajectory with semi-transparent markers
+sc = ax.scatter(
+    midpoint_ears.sel(individuals=mouse_name, space="x"),
+    midpoint_ears.sel(individuals=mouse_name, space="y"),
+    s=15,
+    c=midpoint_ears.time,
+    cmap="viridis",
+    marker="o",
+    alpha=0.05,  # transparency
+)
+
+ax.axis("equal")
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.invert_yaxis()
+ax.set_title(f"Head trajectory ({mouse_name})")
+
+fig.show()
 
 # %%
 # Visualise the head vector
