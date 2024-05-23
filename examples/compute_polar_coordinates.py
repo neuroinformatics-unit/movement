@@ -65,7 +65,7 @@ head_vector = head_vector.drop_vars("keypoints")
 
 # %%
 # Visualise the head trajectory
-# ---------------------------------
+# --------------------------------------
 # We can plot the data to check that our computation of the head vector is
 # correct.
 #
@@ -96,8 +96,8 @@ fig.show()
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
 # `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
-# We can indeed verify this is the case by overlaying the head trajectory on
-# the sample frame of the dataset.
+# We can actually verify this is the case by overlaying the head
+# trajectory on the sample frame of the dataset.
 
 # read sample frame
 frame_path = sample_data.fetch_dataset_paths(
@@ -130,18 +130,22 @@ ax.set_title(f"Head trajectory ({mouse_name})")
 fig.show()
 
 # %%
+# The overlaid plot suggests the mouse spends most of its time in the
+# covered arms of the maze.
+
+# %%
 # Visualise the head vector
 # ---------------------------
 # To visually check our computation of the head vector, it is easier to select
 # a subset of the data. We can focus on the trajectory of the head when the
-# mouse is within a small rectangular area, and within a certain time window.
+# mouse is within a small rectangular area and time window.
 
 # area of interest
 xmin, ymin = 600, 665  # pixels
 x_delta, y_delta = 125, 100  # pixels
 
 # time window
-time_window = range(1650, 1670)  # frames
+time_window = range(1650, 1671)  # frames
 
 
 # %%
@@ -251,7 +255,7 @@ fig, ax = plt.subplots(1, 1)
 
 # plot histogram using xarray's built-in histogram function
 rho_data = head_vector_polar.sel(individuals=mouse_name, space_pol="rho")
-rho_data.plot.hist(bins=50, ax=ax)
+rho_data.plot.hist(bins=50, ax=ax, edgecolor="lightgray", linewidth=0.5)
 
 # add mean
 ax.axvline(
@@ -277,7 +281,7 @@ ax.legend(
     loc="best",
 )
 ax.set_ylabel("count")
-ax.set_xlabel(r"$\rho$" + " (pixels)")
+ax.set_xlabel("rho (pixels)")
 fig.show()
 
 # %%
@@ -306,6 +310,7 @@ head_vector_polar.sel(individuals=mouse_name, space_pol="phi").plot.hist(
     bins=np.linspace(-np.pi, np.pi, n_bins + 1), ax=ax
 )
 
+# axes settings
 ax.set_title("phi histogram")
 ax.set_theta_direction(-1)  # set direction clockwise
 ax.set_theta_offset(0)  # set zero at the right
@@ -328,10 +333,11 @@ fig.show()
 # %%
 # Polar plot of the head vector within a time window
 # ---------------------------------------------------
-# We can also use a polar plot to represent the head vector in time,
-# in a coordinate system always parallel to the pixel coordinate system
-# but centred at the midpoint between the mouse's ears. Again,
-# this will be easier to visualise if we focus on a smaller time window.
+# We can also use a polar plot to represent the head vector in time. This way
+# we can visualise the head vector in a coordinate system that translates with
+# the mouse but is always  parallel to the pixel coordinate system.
+# Again, this will be easier to visualise if we focus on a
+# small time window.
 
 # select phi values within a time window
 phi = head_vector_polar.sel(
@@ -350,6 +356,8 @@ sc = ax.scatter(
     cmap="viridis",
     s=50,
 )
+
+# axes settings
 ax.set_theta_direction(-1)  # set direction counterclockwise
 ax.set_theta_offset(0)  # set zero at the right
 cax = fig.colorbar(
@@ -371,10 +379,10 @@ fig.show()
 
 # %%
 # In the polar plot above, the midpoint between the ears is at the centre of
-# the plot. The tip of the head vector (the `snout`) is represented with
-# color markers at a constant `rho` value of 1. Markers are colored by frame.
+# the plot. The tip of the head vector (the ``snout``) is represented with
+# color markers at a constant ``rho`` value of 1. Markers are colored by frame.
 # The polar plot shows how in this small time window of 20 frames,
-# the head of the mouse turned clockwise.
+# the head of the mouse turned anti-clockwise.
 
 # %%
 # Convert polar coordinates to cartesian
@@ -384,3 +392,7 @@ fig.show()
 head_vector_cart = pol2cart(head_vector_polar)
 
 print(head_vector_cart)
+
+# %%
+# Note that the resulting `head_vector_cart` array has a ``space`` dimension
+# with two coordinates: ``x`` and ``y``.
