@@ -124,7 +124,8 @@ sc = ax.scatter(
 ax.axis("equal")
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
-ax.invert_yaxis()
+# No need to invert the y-axis now, since the image is plotted
+# using a pixel coordinate system with origin on the top left of the image
 ax.set_title(f"Head trajectory ({mouse_name})")
 
 fig.show()
