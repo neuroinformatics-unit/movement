@@ -104,6 +104,8 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
+    'remove_config_comments': True, 
+    # do not render config params set as # sphinx_gallery_config [= value]
 }
 
 # -- Options for HTML output -------------------------------------------------
