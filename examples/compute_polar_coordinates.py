@@ -318,7 +318,7 @@ head_vector_polar.sel(individuals=mouse_name, space_pol="phi").plot.hist(
 
 # axes settings
 ax.set_title("phi histogram")
-ax.set_theta_direction(-1)  # set direction clockwise
+ax.set_theta_direction(-1)  # theta increases in clockwise direction
 ax.set_theta_offset(0)  # set zero at the right
 ax.set_xlabel("")  # remove default x-label from xarray's plot.hist()
 
@@ -364,7 +364,7 @@ sc = ax.scatter(
 )
 
 # axes settings
-ax.set_theta_direction(-1)  # set direction counterclockwise
+ax.set_theta_direction(-1)  # theta increases in clockwise direction
 ax.set_theta_offset(0)  # set zero at the right
 cax = fig.colorbar(
     sc,
