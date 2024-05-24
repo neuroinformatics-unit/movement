@@ -117,7 +117,7 @@ Visualise the pose tracks
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fca8518af10>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd60f305e50>
 
 
 
@@ -199,7 +199,7 @@ they evolve over time.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fca852cd790>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd60f305e50>
 
 
 
@@ -277,7 +277,7 @@ We can see that the filtering operation has introduced NaN values in the
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fca874f2e50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd60f4f41d0>
 
 
 
@@ -360,7 +360,7 @@ indeed shorter than 1 second. Let's visualise the interpolated pose tracks
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fca87380150>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fd60ef60050>
 
 
 
@@ -390,8 +390,8 @@ applied to the data.
 
  .. code-block:: none
 
-    {'operation': 'filter_by_confidence', 'datetime': '2024-05-15 08:49:30.096092', 'threshold': 0.6, 'print_report': True}
-    {'operation': 'interpolate_over_time', 'datetime': '2024-05-15 08:49:31.516639', 'method': 'linear', 'max_gap': 1, 'print_report': True}
+    {'operation': 'filter_by_confidence', 'datetime': '2024-05-24 12:20:25.845947', 'threshold': 0.6, 'print_report': True}
+    {'operation': 'interpolate_over_time', 'datetime': '2024-05-24 12:20:27.251923', 'method': 'linear', 'max_gap': 1, 'print_report': True}
 
 
 
@@ -399,7 +399,7 @@ applied to the data.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.417 seconds)
+   **Total running time of the script:** (0 minutes 3.411 seconds)
 
 
 .. _sphx_glr_download_examples_filter_and_interpolate.py:

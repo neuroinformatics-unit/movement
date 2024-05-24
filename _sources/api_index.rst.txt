@@ -51,8 +51,11 @@ Filtering
     :toctree: api
 
     filter_by_confidence
+    median_filter
+    savgol_filter
     interpolate_over_time
     report_nan_values
+
 
 Analysis
 -----------

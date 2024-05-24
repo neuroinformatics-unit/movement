@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'community/contributing';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/community/contributing.html" />
@@ -52,7 +52,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Related projects" href="related-projects.html" />
-    <link rel="prev" title="Roadmap" href="roadmap.html" />
+    <link rel="prev" title="Roadmaps" href="roadmaps.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -363,7 +363,7 @@ document.write(`
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="mission-scope.html">Mission &amp; Scope</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmaps.html">Roadmaps</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">How to Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="related-projects.html">Related projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
@@ -425,11 +425,11 @@ document.write(`
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
-<span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this heading">#</a></h1>
+<span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading">#</a></h1>
 <section id="contributing-code">
-<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Permalink to this heading">#</a></h2>
+<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Link to this heading">#</a></h2>
 <section id="creating-a-development-environment">
-<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Permalink to this heading">#</a></h3>
+<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Link to this heading">#</a></h3>
 <p>It is recommended to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
 or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> to create a
 development environment for movement. In the following we assume you have
@@ -455,7 +455,7 @@ required for development.</p>
 </div>
 </section>
 <section id="pull-requests">
-<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">#</a></h3>
+<h3>Pull requests<a class="headerlink" href="#pull-requests" title="Link to this heading">#</a></h3>
 <p>In all cases, please submit code to the main repository via a pull request (PR).
 We recommend, and adhere, to the following conventions:</p>
 <ul class="simple">
@@ -484,9 +484,9 @@ We recommend, and adhere, to the following conventions:</p>
 </section>
 </section>
 <section id="development-guidelines">
-<h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Permalink to this heading">#</a></h2>
+<h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">#</a></h2>
 <section id="formatting-and-pre-commit-hooks">
-<h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Permalink to this heading">#</a></h3>
+<h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Link to this heading">#</a></h3>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/astral-sh/ruff">ruff</a> does a number of jobs, including code linting and auto-formatting.</p></li>
@@ -525,7 +525,7 @@ Make sure to provide docstrings for all public functions, classes, and methods.
 This is important as it allows for <a class="reference internal" href="#updating-the-api-reference">automatic generation of the API reference</a>.</p>
 </section>
 <section id="testing">
-<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">#</a></h3>
+<h3>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h3>
 <p>We use <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a> for testing and aim for
 ~100% test coverage (as far as is reasonable).
 All new features should be tested.
@@ -536,7 +536,7 @@ We store several sample datasets in an external data repository.
 See <a class="reference internal" href="#sample-data">sample data</a> for more information.</p>
 </section>
 <section id="continuous-integration">
-<h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Permalink to this heading">#</a></h3>
+<h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">#</a></h3>
 <p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions#">GitHub actions</a>.
 This will usually include linting, testing and deployment.</p>
 <p>A GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/test_and_deploy.yml</span></code>) has been set up to run (on each push/PR):</p>
@@ -547,7 +547,7 @@ This will usually include linting, testing and deployment.</p>
 </ul>
 </section>
 <section id="versioning-and-releases">
-<h3>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Permalink to this heading">#</a></h3>
+<h3>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Link to this heading">#</a></h3>
 <p>We use <a class="reference external" href="https://semver.org/">semantic versioning</a>, which includes <code class="docutils literal notranslate"><span class="pre">MAJOR</span></code>.<code class="docutils literal notranslate"><span class="pre">MINOR</span></code>.<code class="docutils literal notranslate"><span class="pre">PATCH</span></code> version numbers:</p>
 <ul class="simple">
 <li><p>PATCH = small bugfix</p></li>
@@ -571,7 +571,7 @@ The version number is automatically determined from the latest tag on the <em>ma
 </section>
 </section>
 <section id="contributing-documentation">
-<h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Permalink to this heading">#</a></h2>
+<h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Link to this heading">#</a></h2>
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
 <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement.neuroinformatics.dev</span></a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
@@ -587,7 +587,7 @@ The build job is triggered on each PR, ensuring that the documentation build is 
 The deployment job is only triggered whenever a tag is pushed to the <em>main</em> branch,
 ensuring that the documentation is published in sync with each PyPI release.</p>
 <section id="editing-the-documentation">
-<h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this heading">#</a></h3>
+<h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
 <p>To edit the documentation, first clone the repository, and install movement in a
 <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
 <p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
@@ -596,7 +596,7 @@ following the <a class="reference internal" href="#pull-requests">same guideline
 Make sure that the header levels in your <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are incremented
 consistently (H1 &gt; H2 &gt; H3, etc.) without skipping any levels.</p>
 <section id="adding-new-pages">
-<h4>Adding new pages<a class="headerlink" href="#adding-new-pages" title="Permalink to this heading">#</a></h4>
+<h4>Adding new pages<a class="headerlink" href="#adding-new-pages" title="Link to this heading">#</a></h4>
 <p>If you create a new documentation source file (e.g. <code class="docutils literal notranslate"><span class="pre">my_new_file.md</span></code> or <code class="docutils literal notranslate"><span class="pre">my_new_file.rst</span></code>),
 you will need to add it to the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive in <code class="docutils literal notranslate"><span class="pre">index.md</span></code>
 for it to be included in the documentation website:</p>
@@ -609,7 +609,7 @@ my_new_file
 </div>
 </section>
 <section id="adding-external-links">
-<h4>Adding external links<a class="headerlink" href="#adding-external-links" title="Permalink to this heading">#</a></h4>
+<h4>Adding external links<a class="headerlink" href="#adding-external-links" title="Link to this heading">#</a></h4>
 <p>If you are adding references to an external link (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/issues/1</span></code>) in a <code class="docutils literal notranslate"><span class="pre">.md</span></code> file, you will need to check if a matching URL scheme (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/</span></code>) is defined in <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>. If it is, the following <code class="docutils literal notranslate"><span class="pre">[](scheme:loc)</span></code> syntax will be converted to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues/1">full URL</a> during the build process:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>[<span class="nt">link text</span>](<span class="na">movement-github:issues/1</span>)
 </pre></div>
@@ -618,7 +618,7 @@ my_new_file
 </section>
 </section>
 <section id="updating-the-api-reference">
-<h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Permalink to this heading">#</a></h3>
+<h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Link to this heading">#</a></h3>
 <p>If your PR introduces new public-facing functions, classes, or methods,
 make sure to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> page, so that they are
 included in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>,
@@ -637,7 +637,7 @@ e.g.:</p>
 that follow the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.</p>
 </section>
 <section id="updating-the-examples">
-<h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Permalink to this heading">#</a></h3>
+<h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Link to this heading">#</a></h3>
 <p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/">sphinx-gallery</a>
 to create the <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">examples</span></a>.
 To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
@@ -652,7 +652,7 @@ examples are run. See the relevant section of the
 <a class="reference external" href="https://mybinder.readthedocs.io/en/latest/using/config_files.html">binder documentation</a>.</p>
 </section>
 <section id="building-the-documentation-locally">
-<h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Permalink to this heading">#</a></h3>
+<h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Link to this heading">#</a></h3>
 <p>We recommend that you build and view the documentation website locally, before you push it.
 To do so, first install the requirements for building the documentation:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
@@ -683,7 +683,7 @@ To refresh the documentation, after making changes, remove the <code class="docu
 </section>
 </section>
 <section id="sample-data">
-<h2>Sample data<a class="headerlink" href="#sample-data" title="Permalink to this heading">#</a></h2>
+<h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
 <p>We maintain some sample datasets to be used for testing, examples and tutorials on an
 <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">external data repository</a>.
 Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/#">GIN</a> and is maintained
@@ -699,7 +699,7 @@ The <code class="docutils literal notranslate"><span class="pre">metadata.yaml</
 including information on data provenance as well as the mapping between pose data files and related
 video/frame files.</p>
 <section id="fetching-data">
-<h3>Fetching data<a class="headerlink" href="#fetching-data" title="Permalink to this heading">#</a></h3>
+<h3>Fetching data<a class="headerlink" href="#fetching-data" title="Link to this heading">#</a></h3>
 <p>To fetch the data from GIN, we use the <a class="reference external" href="https://www.fatiando.org/pooch/latest/index.html">pooch</a>
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
@@ -716,7 +716,7 @@ The most important parts of this module are:</p>
 This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.sample_data.py</span></code> module.</p>
 </section>
 <section id="adding-new-data">
-<h3>Adding new data<a class="headerlink" href="#adding-new-data" title="Permalink to this heading">#</a></h3>
+<h3>Adding new data<a class="headerlink" href="#adding-new-data" title="Link to this heading">#</a></h3>
 <p>Only core movement developers may add new files to the external data repository.
 To add a new file, you will need to:</p>
 <ol class="arabic simple">
@@ -732,7 +732,7 @@ To add a new file, you will need to:</p>
 </ol>
 </section>
 <section id="metadata-yaml-example-entry">
-<h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#metadata-yaml-example-entry" title="Permalink to this heading">#</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#metadata-yaml-example-entry" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">  </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a&quot;</span>
 <span class="w">  </span><span class="nt">source_software</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SLEAP&quot;</span>
@@ -766,12 +766,12 @@ To add a new file, you will need to:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="roadmap.html"
+       href="roadmaps.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Roadmap</p>
+        <p class="prev-next-title">Roadmaps</p>
       </div>
     </a>
     <a class="right-next"
@@ -864,7 +864,7 @@ To add a new file, you will need to:</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

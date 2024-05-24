@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/input_output';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/getting_started/input_output.html" />
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -425,9 +425,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="input-output">
-<span id="target-io"></span><h1>Input/Output<a class="headerlink" href="#input-output" title="Permalink to this heading">#</a></h1>
+<span id="target-io"></span><h1>Input/Output<a class="headerlink" href="#input-output" title="Link to this heading">#</a></h1>
 <section id="supported-formats">
-<span id="target-formats"></span><h2>Supported formats<a class="headerlink" href="#supported-formats" title="Permalink to this heading">#</a></h2>
+<span id="target-formats"></span><h2>Supported formats<a class="headerlink" href="#supported-formats" title="Link to this heading">#</a></h2>
 <p id="target-supported-formats"><code class="docutils literal notranslate"><span class="pre">movement</span></code> can load pose tracks from various pose estimation frameworks.
 Currently, these include:</p>
 <ul class="simple">
@@ -442,7 +442,7 @@ software packages. It does not support the training or labelling of the data.</p
 </div>
 </section>
 <section id="loading-pose-tracks">
-<span id="target-loading"></span><h2>Loading pose tracks<a class="headerlink" href="#loading-pose-tracks" title="Permalink to this heading">#</a></h2>
+<span id="target-loading"></span><h2>Loading pose tracks<a class="headerlink" href="#loading-pose-tracks" title="Link to this heading">#</a></h2>
 <p>The loading functionalities are provided by the
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
@@ -451,7 +451,7 @@ software packages. It does not support the training or labelling of the data.</p
 <p>Depending on the source sofrware, one of the following functions can be used.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-0">
+<label class="sd-tab-label" for="sd-tab-item-0">
 SLEAP</label><div class="sd-tab-content docutils">
 <p>Load from <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> (.h5, recommended),
 or from .slp files (experimental):</p>
@@ -470,7 +470,7 @@ to that approach (see notes in <a class="reference internal" href="../api/moveme
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-1">
+<label class="sd-tab-label" for="sd-tab-item-1">
 DeepLabCut</label><div class="sd-tab-content docutils">
 <p>Load from DeepLabCut files (.h5):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -488,7 +488,7 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-2">
+<label class="sd-tab-label" for="sd-tab-item-2">
 LightningPose</label><div class="sd-tab-content docutils">
 <p>Load from LightningPose files (.csv):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_lp_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -509,7 +509,7 @@ for more information on data structure.</p>
 included with the package.</p>
 </section>
 <section id="saving-pose-tracks">
-<span id="target-saving"></span><h2>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Permalink to this heading">#</a></h2>
+<span id="target-saving"></span><h2>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="movement_dataset.html#target-dataset"><span class="std std-ref">movement datasets</span></a> can be saved as a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP-style analysis files</a> (.h5).</p>
@@ -520,7 +520,7 @@ formats, including DeepLabCut-style files (.h5 or .csv) and
 <p>Then, depending on the desired format, use one of the following functions:</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-3">
+<label class="sd-tab-label" for="sd-tab-item-3">
 SLEAP</label><div class="sd-tab-content docutils">
 <p>Save to SLEAP-style analysis files (.h5):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>
@@ -539,7 +539,7 @@ each attribute and data variable represents, see the
 </div>
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-4">
+<label class="sd-tab-label" for="sd-tab-item-4">
 DeepLabCut</label><div class="sd-tab-content docutils">
 <p>Save to DeepLabCut-style files (.h5 or .csv):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>  <span class="c1"># preferred format</span>
@@ -551,7 +551,7 @@ a <code class="docutils literal notranslate"><span class="pre">split_individuals
 save the data as separate single-animal DeepLabCut-style files.</p>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
-</input><label class="sd-tab-label" for="sd-tab-item-5">
+<label class="sd-tab-label" for="sd-tab-item-5">
 LightningPose</label><div class="sd-tab-content docutils">
 <p>Save to LightningPose files (.csv).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
@@ -653,7 +653,7 @@ DeepLabCut projects, the above command is equivalent to:</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

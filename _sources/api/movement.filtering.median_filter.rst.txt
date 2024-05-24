@@ -1,0 +1,6 @@
+﻿movement.filtering.median\_filter
+=================================
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: median_filter

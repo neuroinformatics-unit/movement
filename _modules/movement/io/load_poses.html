@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -33,17 +33,17 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/load_poses';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/load_poses.html" />
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -429,7 +429,9 @@ document.write(`
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="from_file"><a class="viewcode-back" href="../../../api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">[docs]</a><span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
+<div class="viewcode-block" id="from_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">[docs]</a>
+<span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -477,7 +479,10 @@ document.write(`
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="from_dlc_df"><a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_df.html#movement.io.load_poses.from_dlc_df">[docs]</a><span class="k">def</span> <span class="nf">from_dlc_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+
+<div class="viewcode-block" id="from_dlc_df">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_df.html#movement.io.load_poses.from_dlc_df">[docs]</a>
+<span class="k">def</span> <span class="nf">from_dlc_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.</span>
 
 <span class="sd">    Parameters</span>
@@ -536,7 +541,10 @@ document.write(`
     <span class="k">return</span> <span class="n">_from_valid_data</span><span class="p">(</span><span class="n">valid_data</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="from_sleap_file"><a class="viewcode-back" href="../../../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file">[docs]</a><span class="k">def</span> <span class="nf">from_sleap_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="from_sleap_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file">[docs]</a>
+<span class="k">def</span> <span class="nf">from_sleap_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load pose tracking data from a SLEAP file into an xarray Dataset.</span>
@@ -616,7 +624,10 @@ document.write(`
     <span class="k">return</span> <span class="n">ds</span></div>
 
 
-<div class="viewcode-block" id="from_lp_file"><a class="viewcode-back" href="../../../api/movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file">[docs]</a><span class="k">def</span> <span class="nf">from_lp_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="from_lp_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file">[docs]</a>
+<span class="k">def</span> <span class="nf">from_lp_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load pose tracking data from a LightningPose (LP) output file.</span>
@@ -645,7 +656,10 @@ document.write(`
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="from_dlc_file"><a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file">[docs]</a><span class="k">def</span> <span class="nf">from_dlc_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="from_dlc_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file">[docs]</a>
+<span class="k">def</span> <span class="nf">from_dlc_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">fps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load pose tracking data from a DeepLabCut (DLC) output file.</span>
@@ -677,6 +691,7 @@ document.write(`
     <span class="k">return</span> <span class="n">_from_lp_or_dlc_file</span><span class="p">(</span>
         <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span>
     <span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_from_lp_or_dlc_file</span><span class="p">(</span>
@@ -713,7 +728,7 @@ document.write(`
 
     <span class="c1"># Load the DLC poses into a DataFrame</span>
     <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">_parse_dlc_csv_to_df</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">_load_df_from_dlc_csv</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># file.path.suffix == &quot;.h5&quot;</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">_load_df_from_dlc_h5</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
@@ -890,7 +905,7 @@ document.write(`
     <span class="k">return</span> <span class="n">tracks</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_dlc_csv_to_df</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_load_df_from_dlc_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a DeepLabCut-style .csv file into a pandas DataFrame.</span>
 
 <span class="sd">    If poses are loaded from a DeepLabCut .csv file, the DataFrame</span>
@@ -1044,7 +1059,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

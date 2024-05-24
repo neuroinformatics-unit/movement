@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.vector.cart2pol';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.vector.cart2pol.html" />
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -387,6 +387,8 @@ document.write(`
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">movement.filtering.filter_by_confidence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.median_filter.html">movement.filtering.median_filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.savgol_filter.html">movement.filtering.savgol_filter</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">movement.filtering.interpolate_over_time</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.filtering.report_nan_values.html">movement.filtering.report_nan_values</a></li>
 </ul>
@@ -464,10 +466,10 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="movement-utils-vector-cart2pol">
-<h1>movement.utils.vector.cart2pol<a class="headerlink" href="#movement-utils-vector-cart2pol" title="Permalink to this heading">#</a></h1>
+<h1>movement.utils.vector.cart2pol<a class="headerlink" href="#movement-utils-vector-cart2pol" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.utils.vector.cart2pol">
-<span class="sig-prename descclassname"><span class="pre">movement.utils.vector.</span></span><span class="sig-name descname"><span class="pre">cart2pol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/vector.html#cart2pol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.vector.cart2pol" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.utils.vector.</span></span><span class="sig-name descname"><span class="pre">cart2pol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/vector.html#cart2pol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.vector.cart2pol" title="Link to this definition">#</a></dt>
 <dd><p>Transform Cartesian coordinates to polar.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -569,7 +571,7 @@ and <code class="docutils literal notranslate"><span class="pre">phi</span></cod
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/load_and_explore_poses';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/load_and_explore_poses.html" />
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -428,10 +428,10 @@ document.write(`
 to download the full example code. or to run this example in your browser via Binder</p>
 </div>
 <section class="sphx-glr-example-title" id="load-and-explore-pose-tracks">
-<span id="sphx-glr-examples-load-and-explore-poses-py"></span><h1>Load and explore pose tracks<a class="headerlink" href="#load-and-explore-pose-tracks" title="Permalink to this heading">#</a></h1>
+<span id="sphx-glr-examples-load-and-explore-poses-py"></span><h1>Load and explore pose tracks<a class="headerlink" href="#load-and-explore-pose-tracks" title="Link to this heading">#</a></h1>
 <p>Load and explore an example dataset of pose tracks.</p>
 <section id="imports">
-<h2>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h2>
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 
 <span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
@@ -440,7 +440,7 @@ to download the full example code. or to run this example in your browser via Bi
 </div>
 </section>
 <section id="define-the-file-path">
-<h2>Define the file path<a class="headerlink" href="#define-the-file-path" title="Permalink to this heading">#</a></h2>
+<h2>Define the file path<a class="headerlink" href="#define-the-file-path" title="Link to this heading">#</a></h2>
 <p>This should be a file output by one of our supported pose estimation
 frameworks (e.g., DeepLabCut, SLEAP), containing predicted pose tracks.
 For example, the path could be something like:</p>
@@ -461,7 +461,7 @@ the sample datasets provided with <code class="docutils literal notranslate"><sp
 </div>
 </section>
 <section id="load-the-data-into-movement">
-<h2>Load the data into movement<a class="headerlink" href="#load-the-data-into-movement" title="Permalink to this heading">#</a></h2>
+<h2>Load the data into movement<a class="headerlink" href="#load-the-data-into-movement" title="Link to this heading">#</a></h2>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
@@ -491,7 +491,7 @@ To get the position data:</p>
 </div>
 </section>
 <section id="select-and-plot-data-with-xarray">
-<h2>Select and plot data with xarray<a class="headerlink" href="#select-and-plot-data-with-xarray" title="Permalink to this heading">#</a></h2>
+<h2>Select and plot data with xarray<a class="headerlink" href="#select-and-plot-data-with-xarray" title="Link to this heading">#</a></h2>
 <p>You can use the <code class="docutils literal notranslate"><span class="pre">sel</span></code> method to index into <code class="docutils literal notranslate"><span class="pre">xarray</span></code> objects.
 For example, we can get a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> containing only data
 for a single keypoint of the first individual:</p>
@@ -513,7 +513,7 @@ using <code class="docutils literal notranslate"><span class="pre">xarray</span>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca875b7310&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fd611938990&gt;
 </pre></div>
 </div>
 <p>Similarly we could plot the same keypoint’s x, y coordinates
@@ -522,12 +522,12 @@ for all individuals:</p>
 <span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fca87707d10&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fd61165cad0&gt;
 </pre></div>
 </div>
 </section>
 <section id="trajectory-plots">
-<h2>Trajectory plots<a class="headerlink" href="#trajectory-plots" title="Permalink to this heading">#</a></h2>
+<h2>Trajectory plots<a class="headerlink" href="#trajectory-plots" title="Link to this heading">#</a></h2>
 <p>We are not limited to <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plots.
 For example, we can use <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> to plot trajectories
 (using scatter plots):</p>
@@ -546,10 +546,10 @@ For example, we can use <code class="docutils literal notranslate"><span class="
 <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (sec)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fca8511cdd0&gt;
+<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory of AEON3B_TP1" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fd60f4fa750&gt;
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.719 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.665 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-explore-poses-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/load_and_explore_poses.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" width="150px" /></a>
@@ -650,7 +650,7 @@ For example, we can use <code class="docutils literal notranslate"><span class="
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -33,17 +33,17 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/save_poses';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/save_poses.html" />
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -480,7 +480,9 @@ document.write(`
         <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="to_dlc_df"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_df</span><span class="p">(</span>
+<div class="viewcode-block" id="to_dlc_df">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df">[docs]</a>
+<span class="k">def</span> <span class="nf">to_dlc_df</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an xarray dataset to DeepLabCut-style pandas DataFrame(s).</span>
@@ -554,7 +556,10 @@ document.write(`
         <span class="k">return</span> <span class="n">df_all</span></div>
 
 
-<div class="viewcode-block" id="to_dlc_file"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a><span class="k">def</span> <span class="nf">to_dlc_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="to_dlc_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a>
+<span class="k">def</span> <span class="nf">to_dlc_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">split_individuals</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
@@ -627,7 +632,10 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="to_lp_file"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_lp_file.html#movement.io.save_poses.to_lp_file">[docs]</a><span class="k">def</span> <span class="nf">to_lp_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="to_lp_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_lp_file.html#movement.io.save_poses.to_lp_file">[docs]</a>
+<span class="k">def</span> <span class="nf">to_lp_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -660,7 +668,10 @@ document.write(`
     <span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="to_sleap_analysis_file"><a class="viewcode-back" href="../../../api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file">[docs]</a><span class="k">def</span> <span class="nf">to_sleap_analysis_file</span><span class="p">(</span>
+
+<div class="viewcode-block" id="to_sleap_analysis_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file">[docs]</a>
+<span class="k">def</span> <span class="nf">to_sleap_analysis_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset to a SLEAP-style .h5 analysis file.</span>
@@ -758,6 +769,7 @@ document.write(`
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
@@ -876,7 +888,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

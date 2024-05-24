@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -33,17 +33,17 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/logging';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/logging.html" />
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -417,7 +417,9 @@ document.write(`
 <span class="n">DEFAULT_LOG_DIRECTORY</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.movement&quot;</span>
 
 
-<div class="viewcode-block" id="configure_logging"><a class="viewcode-back" href="../../api/movement.logging.configure_logging.html#movement.logging.configure_logging">[docs]</a><span class="k">def</span> <span class="nf">configure_logging</span><span class="p">(</span>
+<div class="viewcode-block" id="configure_logging">
+<a class="viewcode-back" href="../../api/movement.logging.configure_logging.html#movement.logging.configure_logging">[docs]</a>
+<span class="k">def</span> <span class="nf">configure_logging</span><span class="p">(</span>
     <span class="n">log_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
     <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">,</span>
     <span class="n">log_directory</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_LOG_DIRECTORY</span><span class="p">,</span>
@@ -475,7 +477,10 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="log_error"><a class="viewcode-back" href="../../api/movement.logging.log_error.html#movement.logging.log_error">[docs]</a><span class="k">def</span> <span class="nf">log_error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="log_error">
+<a class="viewcode-back" href="../../api/movement.logging.log_error.html#movement.logging.log_error">[docs]</a>
+<span class="k">def</span> <span class="nf">log_error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Log an error message and return the Exception.</span>
 
 <span class="sd">    Parameters</span>
@@ -498,7 +503,10 @@ document.write(`
     <span class="k">return</span> <span class="n">error</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="log_warning"><a class="viewcode-back" href="../../api/movement.logging.log_warning.html#movement.logging.log_warning">[docs]</a><span class="k">def</span> <span class="nf">log_warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="log_warning">
+<a class="viewcode-back" href="../../api/movement.logging.log_warning.html#movement.logging.log_warning">[docs]</a>
+<span class="k">def</span> <span class="nf">log_warning</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Log a warning message.</span>
 
 <span class="sd">    Parameters</span>
@@ -511,6 +519,7 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
 </pre></div>
 
                 </article>
@@ -551,7 +560,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

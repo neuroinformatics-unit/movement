@@ -2,13 +2,13 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Roadmap &#8212; movement</title>
+    <title>movement.filtering.savgol_filter &#8212; movement</title>
   
   
   
@@ -34,25 +34,25 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'community/roadmap';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/community/roadmap.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.filtering.savgol_filter';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.filtering.savgol_filter.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How to Contribute" href="contributing.html" />
-    <link rel="prev" title="Mission &amp; Scope" href="mission-scope.html" />
+    <link rel="next" title="movement.filtering.interpolate_over_time" href="movement.filtering.interpolate_over_time.html" />
+    <link rel="prev" title="movement.filtering.median_filter" href="movement.filtering.median_filter.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -153,14 +153,14 @@
                     </li>
                 
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="index.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
                         Community
                       </a>
                     </li>
                 
 
-                    <li class="nav-item">
+                    <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../api_index.html">
                         API Reference
                       </a>
@@ -290,14 +290,14 @@ document.write(`
                     </li>
                 
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="index.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../community/index.html">
                         Community
                       </a>
                     </li>
                 
 
-                    <li class="nav-item">
+                    <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../api_index.html">
                         API Reference
                       </a>
@@ -361,12 +361,53 @@ document.write(`
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="mission-scope.html">Mission &amp; Scope</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">How to Contribute</a></li>
-<li class="toctree-l1"><a class="reference internal" href="related-projects.html">Related projects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_file.html">movement.io.load_poses.from_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">movement.io.load_poses.from_sleap_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html">movement.io.load_poses.from_dlc_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_df.html">movement.io.load_poses.from_dlc_df</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">movement.io.load_poses.from_lp_file</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">movement.io.save_poses.to_dlc_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html">movement.io.save_poses.to_dlc_df</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">movement.io.save_poses.to_lp_file</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidFile.html">movement.io.validators.ValidFile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidHDF5.html">movement.io.validators.ValidHDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesDataset.html">movement.io.validators.ValidPosesDataset</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.list_datasets.html">movement.sample_data.list_datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.fetch_dataset_paths.html">movement.sample_data.fetch_dataset_paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.sample_data.fetch_dataset.html">movement.sample_data.fetch_dataset</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">movement.filtering.filter_by_confidence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.median_filter.html">movement.filtering.median_filter</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.filtering.savgol_filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">movement.filtering.interpolate_over_time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.filtering.report_nan_values.html">movement.filtering.report_nan_values</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_displacement.html">movement.analysis.kinematics.compute_displacement</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_velocity.html">movement.analysis.kinematics.compute_velocity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.analysis.kinematics.compute_acceleration.html">movement.analysis.kinematics.compute_acceleration</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.utils.vector.cart2pol.html">movement.utils.vector.cart2pol</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.utils.vector.pol2cart.html">movement.utils.vector.pol2cart</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.move_accessor.MovementDataset.html">movement.move_accessor.MovementDataset</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.logging.configure_logging.html">movement.logging.configure_logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.logging.log_error.html">movement.logging.log_error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.logging.log_warning.html">movement.logging.log_warning</a></li>
 </ul>
 </div>
 </nav></div>
@@ -405,9 +446,9 @@ document.write(`
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Community</a></li>
+    <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Roadmap</li>
+    <li class="breadcrumb-item active" aria-current="page">movement.fil...</li>
   </ul>
 </nav>
 </div>
@@ -424,36 +465,49 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="roadmap">
-<span id="target-roadmap"></span><h1>Roadmap<a class="headerlink" href="#roadmap" title="Permalink to this heading">#</a></h1>
-<p>The roadmap outlines <strong>current development priorities</strong> and aims to <strong>guide core developers</strong> and to <strong>encourage community contributions</strong>. It is a living document and will be updated as the project evolves.</p>
-<p>The roadmap is <strong>not meant to limit</strong> movement features, as we are open to suggestions and contributions. Join our <a class="reference external" href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement">Zulip chat</a> to share your ideas. We will take community demand and feedback into account when planning future releases.</p>
-<section id="long-term-vision">
-<h2>Long-term vision<a class="headerlink" href="#long-term-vision" title="Permalink to this heading">#</a></h2>
-<p>The following features are being considered for the first stable version <code class="docutils literal notranslate"><span class="pre">v1.0</span></code>.</p>
-<ul class="simple">
-<li><p><strong>Import/Export pose tracks from/to diverse formats</strong>. We aim to interoperate with leading tools for animal pose estimation and behaviour classification, and to enable conversions between their formats.</p></li>
-<li><p><strong>Standardise the representation of pose tracks</strong>. We represent pose tracks as <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/data-structures.html#">xarray data structures</a> to allow for labelled dimensions and performant processing.</p></li>
-<li><p><strong>Interactively visualise pose tracks</strong>. We are considering <a class="reference external" href="https://napari.org/dev/">napari</a> as a visualisation and GUI framework.</p></li>
-<li><p><strong>Clean pose tracks</strong>, including, but not limited to, handling of missing values, filtering, smoothing, and resampling.</p></li>
-<li><p><strong>Derive kinematic variables</strong> like velocity, acceleration, joint angles, etc., focusing on those prevalent in neuroscience.</p></li>
-<li><p><strong>Integrate spatial data about the animal’s environment</strong> for combined analysis with pose tracks. This covers regions of interest (ROIs) such as the arena in which the animal is moving and the location of objects within it.</p></li>
-<li><p><strong>Define and transform coordinate systems</strong>. Coordinates can be relative to the camera, environment, or the animal itself (egocentric).</p></li>
+  <section id="movement-filtering-savgol-filter">
+<h1>movement.filtering.savgol_filter<a class="headerlink" href="#movement-filtering-savgol-filter" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.filtering.savgol_filter">
+<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">savgol_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polyorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#savgol_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.savgol_filter" title="Link to this definition">#</a></dt>
+<dd><p>Smooth pose tracks by applying a Savitzky-Golay filter over time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>xarray.Dataset</em>) – Dataset containing position, confidence scores, and metadata.</p></li>
+<li><p><strong>window_length</strong> (<em>int</em>) – The size of the filter window. Window length is interpreted
+as being in the input dataset’s time unit, which can be inspected
+with <code class="docutils literal notranslate"><span class="pre">ds.time_unit</span></code>.</p></li>
+<li><p><strong>polyorder</strong> (<em>int</em>) – The order of the polynomial used to fit the samples. Must be
+less than <code class="docutils literal notranslate"><span class="pre">window_length</span></code>. By default, a <code class="docutils literal notranslate"><span class="pre">polyorder</span></code> of
+2 is used.</p></li>
+<li><p><strong>print_report</strong> (<em>bool</em>) – Whether to print a report on the number of NaNs in the dataset
+before and after filtering. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Additional keyword arguments are passed to scipy.signal.savgol_filter.
+Note that the <code class="docutils literal notranslate"><span class="pre">axis</span></code> keyword argument may not be overridden.</p></li>
 </ul>
-</section>
-<section id="short-term-milestone-v0-1">
-<h2>Short-term milestone - <code class="docutils literal notranslate"><span class="pre">v0.1</span></code><a class="headerlink" href="#short-term-milestone-v0-1" title="Permalink to this heading">#</a></h2>
-<p>We plan to release version <code class="docutils literal notranslate"><span class="pre">v0.1</span></code> of movement in early 2024, providing a minimal set of features to demonstrate the project’s potential and to gather feedback from users. At minimum, it should include:</p>
-<ul class="contains-task-list simple">
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Ability to import pose tracks from <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a>, <a class="reference external" href="https://sleap.ai/#">SLEAP</a> and <a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightningPose</a> into a common <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> structure.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> At least one function for cleaning the pose tracks.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Ability to compute velocity and acceleration from pose tracks.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Public website with <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">documentation</span></a>.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Package released on <a class="reference external" href="https://pypi.org/project/movement/">PyPI</a>.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Package released on <a class="reference external" href="https://conda-forge.org/">conda-forge</a>.</p></li>
-<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Ability to visualise pose tracks using <a class="reference external" href="https://napari.org/dev/">napari</a>. We aim to represent pose tracks via napari’s <a class="reference external" href="https://napari.org/dev/howtos/layers/points">Points</a> and <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks">Tracks</a> layers and overlay them on video frames.</p></li>
-</ul>
-</section>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ds_smoothed</strong> – The provided dataset (ds), where pose tracks have been smoothed
+using a Savitzky-Golay filter with the provided parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>xarray.Dataset</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Uses the <code class="docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter</span></code> function to apply a Savitzky-Golay
+filter to the input dataset’s <code class="docutils literal notranslate"><span class="pre">position</span></code> variable.
+See the scipy documentation for more information on that function.
+Whenever one or more NaNs are present in a filter window of the
+input dataset, a NaN is returned to the output array. As a result, any
+stretch of NaNs present in the input dataset will be propagated
+proportionally to the size of the window in frames (specifically, by
+<code class="docutils literal notranslate"><span class="pre">floor(window_length/2)</span></code>). Note that, unlike
+<code class="docutils literal notranslate"><span class="pre">movement.filtering.median_filter()</span></code>, there is no <code class="docutils literal notranslate"><span class="pre">min_periods</span></code>
+option to control this behaviour.</p>
+</dd></dl>
+
 </section>
 
 
@@ -467,20 +521,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="mission-scope.html"
+       href="movement.filtering.median_filter.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Mission &amp; Scope</p>
+        <p class="prev-next-title">movement.filtering.median_filter</p>
       </div>
     </a>
     <a class="right-next"
-       href="contributing.html"
+       href="movement.filtering.interpolate_over_time.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How to Contribute</p>
+        <p class="prev-next-title">movement.filtering.interpolate_over_time</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -502,15 +556,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-term-vision">Long-term vision</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#short-term-milestone-v0-1">Short-term milestone - <code class="docutils literal notranslate"><span class="pre">v0.1</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.filtering.savgol_filter"><code class="docutils literal notranslate"><span class="pre">savgol_filter()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/community/roadmap.md.txt">
+    <a href="../_sources/api/movement.filtering.savgol_filter.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
@@ -538,7 +591,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

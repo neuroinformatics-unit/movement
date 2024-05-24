@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/compute_kinematics';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/compute_kinematics.html" />
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -428,11 +428,11 @@ document.write(`
 to download the full example code. or to run this example in your browser via Binder</p>
 </div>
 <section class="sphx-glr-example-title" id="compute-and-visualise-kinematics">
-<span id="sphx-glr-examples-compute-kinematics-py"></span><h1>Compute and visualise kinematics.<a class="headerlink" href="#compute-and-visualise-kinematics" title="Permalink to this heading">#</a></h1>
+<span id="sphx-glr-examples-compute-kinematics-py"></span><h1>Compute and visualise kinematics.<a class="headerlink" href="#compute-and-visualise-kinematics" title="Link to this heading">#</a></h1>
 <p>Compute displacement, velocity and acceleration data on an example dataset and
 visualise the results.</p>
 <section id="imports">
-<h2>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h2>
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="c1"># For interactive plots: install ipympl with `pip install ipympl` and uncomment</span>
@@ -445,7 +445,7 @@ visualise the results.</p>
 </div>
 </section>
 <section id="load-sample-dataset">
-<h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Permalink to this heading">#</a></h2>
+<h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Link to this heading">#</a></h2>
 <p>First, we load an example dataset. In this case, we select the
 <code class="docutils literal notranslate"><span class="pre">SLEAP_three-mice_Aeon_proofread</span></code> sample data.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
@@ -488,7 +488,7 @@ To compute displacement, velocity and acceleration, we will need the
 </div>
 </section>
 <section id="visualise-the-data">
-<h2>Visualise the data<a class="headerlink" href="#visualise-the-data" title="Permalink to this heading">#</a></h2>
+<h2>Visualise the data<a class="headerlink" href="#visualise-the-data" title="Link to this heading">#</a></h2>
 <p>First, let’s visualise the trajectories of the mice in the XY plane,
 colouring them by individual.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -549,7 +549,7 @@ taken from the data array. In our case, <code class="docutils literal notranslat
 and the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> coordinates of the <code class="docutils literal notranslate"><span class="pre">position</span></code> are in pixels.</p>
 </section>
 <section id="compute-displacement">
-<h2>Compute displacement<a class="headerlink" href="#compute-displacement" title="Permalink to this heading">#</a></h2>
+<h2>Compute displacement<a class="headerlink" href="#compute-displacement" title="Link to this heading">#</a></h2>
 <p>We can start off by computing the distance travelled by the mice along
 their trajectories.
 For this, we can use the <code class="docutils literal notranslate"><span class="pre">compute_displacement</span></code> method of the
@@ -622,7 +622,7 @@ we focus on the mouse <code class="docutils literal notranslate"><span class="pr
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fca78d5cdd0&gt;
+<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fd602fcfb90&gt;
 </pre></div>
 </div>
 <p>Notice that this figure is not very useful as a visual check:
@@ -675,7 +675,7 @@ the plot above:</p>
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fca78cc36d0&gt;
+<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fd602e72750&gt;
 </pre></div>
 </div>
 <p>Now we can visually verify that indeed the displacement vector
@@ -702,7 +702,7 @@ mouse along its trajectory.</p>
 </div>
 </section>
 <section id="compute-velocity">
-<h2>Compute velocity<a class="headerlink" href="#compute-velocity" title="Permalink to this heading">#</a></h2>
+<h2>Compute velocity<a class="headerlink" href="#compute-velocity" title="Link to this heading">#</a></h2>
 <p>We can easily compute the velocity vectors for all individuals in our data
 array:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">velocity</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">move</span><span class="o">.</span><span class="n">compute_velocity</span><span class="p">()</span>
@@ -778,7 +778,7 @@ use a quiver plot:</p>
 (<code class="docutils literal notranslate"><span class="pre">scale=2</span></code>) for easier visualisation.</p>
 </section>
 <section id="compute-acceleration">
-<h2>Compute acceleration<a class="headerlink" href="#compute-acceleration" title="Permalink to this heading">#</a></h2>
+<h2>Compute acceleration<a class="headerlink" href="#compute-acceleration" title="Link to this heading">#</a></h2>
 <p>We can compute the acceleration of the data with an equivalent method:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">accel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">move</span><span class="o">.</span><span class="n">compute_acceleration</span><span class="p">()</span>
 </pre></div>
@@ -823,7 +823,7 @@ We can also represent this for each individual.</p>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.345 seconds)</p>
+<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.362 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-kinematics-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_kinematics.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" width="150px" /></a>
@@ -925,7 +925,7 @@ We can also represent this for each individual.</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

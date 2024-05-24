@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script src="_static/documentation_options.js?v=63b572e7"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/index.html" />
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -381,7 +381,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="movement">
-<span id="target-movement"></span><h1>movement<a class="headerlink" href="#movement" title="Permalink to this heading">#</a></h1>
+<span id="target-movement"></span><h1>movement<a class="headerlink" href="#movement" title="Link to this heading">#</a></h1>
 <p>A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.</p>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
 <div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-3 sd-g-3 sd-g-xs-3 sd-g-sm-3 sd-g-md-3 sd-g-lg-3 docutils">
@@ -392,7 +392,7 @@ document.write(`
 <span class="fas fa-rocket sd-text-primary"></span> Getting Started</div>
 <p class="sd-card-text">Installation, first steps and key concepts.</p>
 </div>
-<a class="sd-stretched-link reference internal" href="getting_started/index.html"><span class="doc"></span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="getting_started/index.html"><span class="doc">Getting Started</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
@@ -401,7 +401,7 @@ document.write(`
 <span class="fas fa-chalkboard-user sd-text-primary"></span> Examples</div>
 <p class="sd-card-text">A gallery of examples using movement.</p>
 </div>
-<a class="sd-stretched-link reference internal" href="examples/index.html"><span class="doc"></span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="examples/index.html"><span class="doc">Examples</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
@@ -410,17 +410,17 @@ document.write(`
 <span class="fas fa-comments sd-text-primary"></span> Join the movement</div>
 <p class="sd-card-text">How to get in touch and contribute.</p>
 </div>
-<a class="sd-stretched-link reference internal" href="community/index.html"><span class="doc"></span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="community/index.html"><span class="doc">Community</span></a></div>
 </div>
 </div>
 </div>
 <p><img alt="" src="_images/movement_overview.png" /></p>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
 <p>Pose estimation tools, such as <a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> and <a class="reference external" href="https://sleap.ai/#">SLEAP</a> are now commonplace when processing video data of animal behaviour. There is not yet a standardised, easy-to-use way to process the <em>pose tracks</em> produced from these software packages.</p>
 <p>movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
 We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple individuals.</p>
-<p>Find out more on our <a class="reference internal" href="community/mission-scope.html#target-mission"><span class="std std-ref">mission and scope</span></a> statement and our <a class="reference internal" href="community/roadmap.html#target-roadmap"><span class="std std-ref">roadmap</span></a>.</p>
+<p>Find out more on our <a class="reference internal" href="community/mission-scope.html#target-mission"><span class="std std-ref">mission and scope</span></a> statement and our <a class="reference internal" href="community/roadmaps.html#target-roadmaps"><span class="std std-ref">roadmap</span></a>.</p>
 <div class="warning admonition">
 <p class="admonition-title">Status</p>
 <p>The package is currently in early development and the interface is subject to change. Feel free to play around and provide feedback.</p>
@@ -502,7 +502,7 @@ We aim to support a range of pose estimation packages, along with 2D or 3D track
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

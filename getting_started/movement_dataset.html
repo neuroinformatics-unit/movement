@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../" >
 
   <head>
     <meta charset="utf-8" />
@@ -34,17 +34,17 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/movement_dataset';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/getting_started/movement_dataset.html" />
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -425,7 +425,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="the-movement-dataset">
-<span id="target-dataset"></span><h1>The movement dataset<a class="headerlink" href="#the-movement-dataset" title="Permalink to this heading">#</a></h1>
+<span id="target-dataset"></span><h1>The movement dataset<a class="headerlink" href="#the-movement-dataset" title="Link to this heading">#</a></h1>
 <p>When you load predicted pose tracks into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, they are represented
 as an <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object, which is a container for multiple data
 arrays. Each array is in turn represented as an <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code>
@@ -440,7 +440,7 @@ structure of a <code class="docutils literal notranslate"><span class="pre">move
 To learn more about <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data structures in general, see the relevant
 <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/data-structures.html#">documentation</a>.</p>
 <section id="dataset-structure">
-<h2>Dataset structure<a class="headerlink" href="#dataset-structure" title="Permalink to this heading">#</a></h2>
+<h2>Dataset structure<a class="headerlink" href="#dataset-structure" title="Link to this heading">#</a></h2>
 <p><img alt="" src="../_images/dataset_structure.png" /></p>
 <p>You can always inspect the structure of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> by simply
 printing it:</p>
@@ -451,7 +451,7 @@ printing it:</p>
 <p>If you are working in a Jupyter notebook, you can also view an interactive
 representation of the dataset by typing its name - e.g. <code class="docutils literal notranslate"><span class="pre">ds</span></code> - in a cell.</p>
 <section id="dimensions-and-coordinates">
-<h3>Dimensions and coordinates<a class="headerlink" href="#dimensions-and-coordinates" title="Permalink to this heading">#</a></h3>
+<h3>Dimensions and coordinates<a class="headerlink" href="#dimensions-and-coordinates" title="Link to this heading">#</a></h3>
 <p>In <code class="docutils literal notranslate"><span class="pre">xarray</span></code> <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/terminology.html#">terminology</a>,
 each axis is called a <strong>dimension</strong> (<code class="docutils literal notranslate"><span class="pre">dim</span></code>), while
 the labelled “ticks” along each axis are called <strong>coordinates</strong> (<code class="docutils literal notranslate"><span class="pre">coords</span></code>).</p>
@@ -471,7 +471,7 @@ the labelled “ticks” along each axis are called <strong>coordinates</strong>
 </ul>
 </section>
 <section id="data-variables">
-<h3>Data variables<a class="headerlink" href="#data-variables" title="Permalink to this heading">#</a></h3>
+<h3>Data variables<a class="headerlink" href="#data-variables" title="Link to this heading">#</a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset contains two <strong>data variables</strong> stored as <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> objects:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D or 3D locations of the keypoints over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>).</p></li>
@@ -482,7 +482,7 @@ keep track of the relationships between them, and makes sense when they
 share some common <strong>dimensions</strong> (as is the case here).</p>
 </section>
 <section id="attributes">
-<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">#</a></h3>
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h3>
 <p>Related metadata that do not constitute arrays but instead take the form
 of key-value pairs can be stored as <strong>attributes</strong> - i.e. inside the specially
 designated <code class="docutils literal notranslate"><span class="pre">attrs</span></code> dictionary. Right after loading a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset,
@@ -502,9 +502,9 @@ the <code class="docutils literal notranslate"><span class="pre">movement</span>
 </section>
 </section>
 <section id="working-with-movement-datasets">
-<h2>Working with movement datasets<a class="headerlink" href="#working-with-movement-datasets" title="Permalink to this heading">#</a></h2>
+<h2>Working with movement datasets<a class="headerlink" href="#working-with-movement-datasets" title="Link to this heading">#</a></h2>
 <section id="using-xarrays-built-in-functionality">
-<h3>Using xarray’s built-in functionality<a class="headerlink" href="#using-xarrays-built-in-functionality" title="Permalink to this heading">#</a></h3>
+<h3>Using xarray’s built-in functionality<a class="headerlink" href="#using-xarrays-built-in-functionality" title="Link to this heading">#</a></h3>
 <p>Since a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset is an <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> consisting of
 <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> objects, you can use all of <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s intuitive interface
 and rich built-in functionalities for data manipulation and analysis.
@@ -538,7 +538,7 @@ returning an <code class="xref py py-class docutils literal notranslate"><span c
 </div>
 </section>
 <section id="accessing-movement-specific-functionality">
-<h3>Accessing movement-specific functionality<a class="headerlink" href="#accessing-movement-specific-functionality" title="Permalink to this heading">#</a></h3>
+<h3>Accessing movement-specific functionality<a class="headerlink" href="#accessing-movement-specific-functionality" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> extends <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s functionality with a number of convenience
 methods that are specific to the structure of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset, as
 described above. The additional functionality is implemented in the
@@ -553,7 +553,7 @@ built-in methods, <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="modifying-movement-datasets">
-<h3>Modifying movement datasets<a class="headerlink" href="#modifying-movement-datasets" title="Permalink to this heading">#</a></h3>
+<h3>Modifying movement datasets<a class="headerlink" href="#modifying-movement-datasets" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">velocity</span></code> and <code class="docutils literal notranslate"><span class="pre">acceleration</span></code> produced in the above example are also
 <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> objects, with the same <strong>dimensions</strong> as the
 original <code class="docutils literal notranslate"><span class="pre">position</span></code> <strong>data variable</strong>. In some cases, you may wish to
@@ -666,7 +666,7 @@ with an appropriate name:</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">

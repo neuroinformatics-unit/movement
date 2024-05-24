@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -33,17 +33,17 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=bfe8458a"></script>
-    <script src="../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
-    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/sample_data';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/sample_data.html" />
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.16</p>
+    <p class="title logo__title">movement v0.0.17</p>
   
 </a></div>
     
@@ -556,7 +556,9 @@ document.write(`
 <span class="p">)</span>
 
 
-<div class="viewcode-block" id="list_datasets"><a class="viewcode-back" href="../../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">[docs]</a><span class="k">def</span> <span class="nf">list_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="list_datasets">
+<a class="viewcode-back" href="../../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">[docs]</a>
+<span class="k">def</span> <span class="nf">list_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find available sample datasets.</span>
 
 <span class="sd">    Returns</span>
@@ -568,7 +570,10 @@ document.write(`
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="fetch_dataset_paths"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths">[docs]</a><span class="k">def</span> <span class="nf">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="fetch_dataset_paths">
+<a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get paths to sample pose data and any associated frames or videos.</span>
 
 <span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
@@ -628,7 +633,10 @@ document.write(`
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="fetch_dataset"><a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset">[docs]</a><span class="k">def</span> <span class="nf">fetch_dataset</span><span class="p">(</span>
+
+<div class="viewcode-block" id="fetch_dataset">
+<a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_dataset</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a sample dataset containing pose data.</span>
@@ -672,6 +680,7 @@ document.write(`
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;video_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">ds</span></div>
+
 </pre></div>
 
                 </article>
@@ -712,7 +721,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
     <br/>
     </p>
     <p class="theme-version">
