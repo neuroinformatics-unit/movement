@@ -1,7 +1,7 @@
-"""Smoothing
-============
+"""Smooth pose tracks
+=====================
 
-Smoothing pose tracks using median and Savitzky-Golay filters.
+Smooth pose tracks using median or Savitzky-Golay filters.
 """
 
 # %%
