@@ -80,7 +80,6 @@ def from_numpy(
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],
     ...     fps=30,
-    ...     source_software="DeepLabCut",
     ... )
 
     """
