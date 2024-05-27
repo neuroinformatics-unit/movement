@@ -1,7 +1,7 @@
 """Smooth pose tracks
 =====================
 
-Smooth pose tracks using median or Savitzky-Golay filters.
+Smooth pose tracks using the median and Savitzky-Golay filters.
 """
 
 # %%
@@ -19,12 +19,12 @@ from movement.filtering import (
 )
 
 # %%
-# Load some sample datasets
-# -------------------------
+# Load a sample dataset
+# ---------------------
 # Let's load a sample dataset and print it to inspect its contents.
-#   Note that if you are running this notebook interactively, you can simply
-#   type the variable name (here ``ds_wasp``) in a cell to get an interactive
-#   display of the dataset's contents.
+# Note that if you are running this notebook interactively, you can simply
+# type the variable name (here ``ds_wasp``) in a cell to get an interactive
+# display of the dataset's contents.
 
 ds_wasp = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds_wasp)
@@ -253,11 +253,59 @@ plot_raw_and_smooth_timeseries_and_psd(
     keypoint="stinger",
 )
 # %%
-# This example shows two important limitations of the Savitzky-Golay filter:
+# This example shows two important limitations of the Savitzky-Golay filter.
 # Firstly, it can introduce "wiggles" around sharp boundaries. For
 # example, focus on what happens around the sudden drop in position
 # during the final second. Secondly, the PSD appears to have large periodic
 # drops in power at certain frequencies. Both of these effects vary with the
 # choice of ``window_length`` and ``polyorder``. You can read more about these
-# and other limitations in
+# and other limitations of the Savitzky-Golay filter in
 # `this paper <https://pubs.acs.org/doi/10.1021/acsmeasuresciau.1c00054>`_.
+
+
+# %%
+# Combining multiple smoothing filters
+# ------------------------------------
+# You can also combine multiple smoothing filters by applying them
+# sequentially. For example, we can first apply the median filter with a small
+# ``window_length`` to remove spikes and then apply the Savitzky-Golay filter
+# with a larger ``window_length`` to further smooth the data.
+# Between the two filters, we can interpolate over small gaps to avoid the
+# excessive proliferation of NaN values. Let's try this on the mouse dataset.
+# First, let's apply the median filter.
+
+ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
+
+# %%
+# Next, let's linearly interpolate over gaps smaller than 1 second.
+
+ds_mouse_medfilt_interp = interpolate_over_time(ds_mouse_medfilt, max_gap=1)
+
+# %%
+# Finally, let's apply the Savitzky-Golay filter.
+
+ds_mouse_medfilt_interp_savgol = savgol_filter(
+    ds_mouse_medfilt_interp, window_length=0.4, polyorder=2
+)
+
+# %%
+# A record of all applied operations is stored in the dataset's ``log``
+# attribute. Let's inpsect it to summarise what we've done.
+
+for entry in ds_mouse_medfilt_interp_savgol.log:
+    print(entry)
+
+# %%
+# Now let's visualise the difference between the raw data and the final
+# smoothed result.
+
+plot_raw_and_smooth_timeseries_and_psd(
+    ds_mouse,
+    ds_mouse_medfilt_interp_savgol,
+    keypoint="snout",
+    time_range=slice(0, 80),
+)
+
+# %%
+# Feel free to play around with the parameters of the applied filters and to
+# also look at other keypoints and time ranges.
