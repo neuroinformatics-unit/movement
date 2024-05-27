@@ -125,7 +125,11 @@ def from_file(
         )
 
 
-def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
+def from_dlc_df(
+    df: pd.DataFrame,
+    fps: Optional[float] = None,
+    source_software: Optional[str] = "DeepLabCut",
+) -> xr.Dataset:
     """Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.
 
     Parameters
@@ -136,6 +140,10 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
+    source_software : str, optional
+        Name of the pose estimation software from which the data originate.
+        Defaults to "DeepLabCut", but other values can be supplied (because
+        other software may also output data in the same format).
 
     Returns
     -------
@@ -180,6 +188,7 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
+        source_software=source_software,
     )
     return _from_valid_data(valid_data)
 
@@ -367,17 +376,10 @@ def _from_lp_or_dlc_file(
 
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
-    ds = from_dlc_df(df=df, fps=fps)
+    ds = from_dlc_df(df=df, fps=fps, source_software=source_software)
 
     # Add metadata as attrs
-    ds.attrs["source_software"] = source_software
     ds.attrs["source_file"] = file.path.as_posix()
-
-    # If source_software="LightningPose", we need to re-validate (because the
-    # validation call in from_dlc_df was run with source_software="DeepLabCut")
-    # This rerun enforces a single individual for LightningPose datasets.
-    if source_software == "LightningPose":
-        ds.move.validate()
 
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
@@ -648,7 +650,7 @@ def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         attrs={
             "fps": data.fps,
             "time_unit": time_unit,
-            "source_software": None,
+            "source_software": data.source_software,
             "source_file": None,
         },
     )

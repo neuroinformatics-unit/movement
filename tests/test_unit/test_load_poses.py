@@ -175,12 +175,17 @@ class TestLoadPoses:
         ds = load_poses.from_dlc_file(file_path)
         self.assert_dataset(ds, file_path, "DeepLabCut")
 
-    def test_load_from_dlc_df(self, dlc_style_df):
+    @pytest.mark.parametrize(
+        "source_software", ["DeepLabCut", "LightningPose", None]
+    )
+    def test_load_from_dlc_df(self, dlc_style_df, source_software):
         """Test that loading pose tracks from a valid DLC-style DataFrame
         returns a proper Dataset.
         """
-        ds = load_poses.from_dlc_df(dlc_style_df)
-        self.assert_dataset(ds)
+        ds = load_poses.from_dlc_df(
+            dlc_style_df, source_software=source_software
+        )
+        self.assert_dataset(ds, expected_source_software=source_software)
 
     def test_load_from_dlc_file_csv_or_h5_file_returns_same(self):
         """Test that loading pose tracks from DLC .csv and .h5 files
@@ -274,3 +279,26 @@ class TestLoadPoses:
             with patch(software_to_loader[source_software]) as mock_loader:
                 load_poses.from_file("some_file", source_software, fps)
                 mock_loader.assert_called_with("some_file", fps)
+
+    @pytest.mark.parametrize("source_software", [None, "SLEAP"])
+    def test_from_numpy_valid(
+        self,
+        valid_position_array,
+        source_software,
+    ):
+        """Test that loading pose tracks from a multi-animal numpy array
+        with valid parameters returns a proper Dataset.
+        """
+        valid_position = valid_position_array("multi_individual_array")
+        rng = np.random.default_rng(seed=42)
+        valid_confidence = rng.random(valid_position.shape[:-1])
+
+        ds = load_poses.from_numpy(
+            valid_position,
+            valid_confidence,
+            individual_names=["mouse1", "mouse2"],
+            keypoint_names=["snout", "tail"],
+            fps=None,
+            source_software=source_software,
+        )
+        self.assert_dataset(ds, expected_source_software=source_software)
