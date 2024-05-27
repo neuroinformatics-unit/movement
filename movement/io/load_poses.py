@@ -23,6 +23,60 @@ from movement.logging import log_error, log_warning
 logger = logging.getLogger(__name__)
 
 
+def from_numpy(
+    position_array: np.ndarray,
+    confidence_array: np.ndarray,
+    individual_names: Optional[list[str]] = None,
+    keypoint_names: Optional[list[str]] = None,
+    fps: Optional[float] = None,
+    source_software: Optional[str] = None,
+) -> xr.Dataset:
+    """Create a ``movement`` dataset from NumPy arrays.
+
+    Parameters
+    ----------
+    position_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        the point-wise confidence scores. It will be converted to a
+        :py:class:`xarray.DataArray` object named "confidence".
+        If None (default), the scores will be set to an array of NaNs.
+    individual_names : list of str, optional
+        List of unique names for the individuals in the video. If None
+        (default), the individuals will be named "individual_0",
+        "individual_1", etc.
+    keypoint_names : list of str, optional
+        List of unique names for the keypoints in the skeleton. If None
+        (default), the keypoints will be named "keypoint_0", "keypoint_1",
+        etc.
+    fps : float, optional
+        Frames per second of the video. Defaults to None, in which case
+        the time coordinates will be in frame numbers.
+    source_software : str, optional
+        Name of the pose estimation software from which the data originate.
+        Defaults to None.
+
+    Returns
+    -------
+    xarray.Dataset
+        A ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    """
+    valid_data = ValidPosesDataset(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=fps,
+        source_software=source_software,
+    )
+    return _from_valid_data(valid_data)
+
+
 def from_file(
     file_path: Union[Path, str],
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
