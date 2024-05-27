@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def from_numpy(
     position_array: np.ndarray,
-    confidence_array: Optional[np.ndarray],
+    confidence_array: Optional[np.ndarray] = None,
     individual_names: Optional[list[str]] = None,
     keypoint_names: Optional[list[str]] = None,
     fps: Optional[float] = None,
