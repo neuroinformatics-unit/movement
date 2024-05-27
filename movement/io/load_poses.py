@@ -182,7 +182,7 @@ def from_dlc_df(
         (-1, len(individual_names), len(keypoint_names), 3)
     )
 
-    valid_data = ValidPosesDataset(
+    return from_numpy(
         position_array=tracks_with_scores[:, :, :, :-1],
         confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
@@ -190,7 +190,6 @@ def from_dlc_df(
         fps=fps,
         source_software=source_software,
     )
-    return _from_valid_data(valid_data)
 
 
 def from_sleap_file(
@@ -256,16 +255,11 @@ def from_sleap_file(
 
     # Load and validate data
     if file.path.suffix == ".h5":
-        valid_data = _load_from_sleap_analysis_file(file.path, fps=fps)
+        ds = _load_from_sleap_analysis_file(file.path, fps=fps)
     else:  # file.path.suffix == ".slp"
-        valid_data = _load_from_sleap_labels_file(file.path, fps=fps)
-    logger.debug(f"Validated pose tracks from {file.path}.")
-
-    # Initialize an xarray dataset from the dictionary
-    ds = _from_valid_data(valid_data)
+        ds = _load_from_sleap_labels_file(file.path, fps=fps)
 
     # Add metadata as attrs
-    ds.attrs["source_software"] = "SLEAP"
     ds.attrs["source_file"] = file.path.as_posix()
 
     logger.info(f"Loaded pose tracks from {file.path}:")
@@ -388,8 +382,8 @@ def _from_lp_or_dlc_file(
 
 def _load_from_sleap_analysis_file(
     file_path: Path, fps: Optional[float]
-) -> ValidPosesDataset:
-    """Load and validate data from a SLEAP analysis file.
+) -> xr.Dataset:
+    """Validate and load data from a SLEAP analysis file.
 
     Parameters
     ----------
@@ -401,8 +395,8 @@ def _load_from_sleap_analysis_file(
 
     Returns
     -------
-    movement.io.tracks_validators.ValidPosesDataset
-        The validated pose tracks and confidence scores.
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
 
     """
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
@@ -423,7 +417,7 @@ def _load_from_sleap_analysis_file(
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f:
             scores = f["point_scores"][:].transpose((2, 0, 1))
-        return ValidPosesDataset(
+        return from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),
             individual_names=individual_names,
@@ -435,8 +429,8 @@ def _load_from_sleap_analysis_file(
 
 def _load_from_sleap_labels_file(
     file_path: Path, fps: Optional[float]
-) -> ValidPosesDataset:
-    """Load and validate data from a SLEAP labels file.
+) -> xr.Dataset:
+    """Validate and load data from a SLEAP labels file.
 
     Parameters
     ----------
@@ -448,8 +442,8 @@ def _load_from_sleap_labels_file(
 
     Returns
     -------
-    movement.io.tracks_validators.ValidPosesDataset
-        The validated pose tracks and confidence scores.
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
 
     """
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
@@ -462,7 +456,7 @@ def _load_from_sleap_labels_file(
             "Assuming single-individual dataset and assigning "
             "default individual name."
         )
-    return ValidPosesDataset(
+    return from_numpy(
         position_array=tracks_with_scores[:, :, :, :-1],
         confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
