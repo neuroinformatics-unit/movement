@@ -62,8 +62,26 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        A ``movement`` dataset containing the pose tracks, confidence scores,
+        Dataset containing the pose tracks, confidence scores,
         and associated metadata.
+
+    Examples
+    --------
+    Create random position data for two individuals, ``Alice`` and ``Bob``,
+    with three keypoints each: ``snout``, ``centre``, and ``tail_base``.
+    These are tracked in 2D space over 100 frames, at 30 fps.
+    The confidence scores are set to 1 for all points.
+
+    >>> import numpy as np
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_numpy(
+    ...     position_array=np.random.rand((100, 2, 3, 2)),
+    ...     confidence_array=np.ones((100, 2, 3)),
+    ...     individual_names=["Alice", "Bob"],
+    ...     keypoint_names=["snout", "centre", "tail_base"],
+    ...     fps=30,
+    ...     source_software="DeepLabCut",
+    ... )
 
     """
     valid_data = ValidPosesDataset(

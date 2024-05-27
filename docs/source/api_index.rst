@@ -10,6 +10,7 @@ Input/Output
 .. autosummary::
     :toctree: api
 
+    from_numpy
     from_file
     from_sleap_file
     from_dlc_file
