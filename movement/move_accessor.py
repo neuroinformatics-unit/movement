@@ -1,11 +1,13 @@
 """Accessor for extending :py:class:`xarray.Dataset` objects."""
 
 import logging
+import operator
 from typing import ClassVar
 
 import xarray as xr
 
 from movement.analysis import kinematics
+from movement.filtering import log_to_attrs, report_nan_values2
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidPosesDataset
 
@@ -135,3 +137,99 @@ class MovementDataset:
         except Exception as e:
             error_msg = "The dataset does not contain valid poses. " + str(e)
             raise log_error(ValueError, error_msg) from e
+
+
+@xr.register_dataarray_accessor("move")
+class MovementDataArray:
+    """An :py:class:`xarray.DataArray` accessor for pose tracking data.
+
+    A ``movement`` data array is an :py:class:`xarray.DataArray` with a
+    specific ... (to be completed).
+    """
+
+    # List of allowed operator names
+    ALLOWED_OPERATORS: ClassVar[list] = ["lt", "le", "eq", "ne", "ge", "gt"]
+
+    def __init__(self, da: xr.DataArray):
+        """Initialize the MovementDataArray."""
+        self._obj = da
+
+    def __getattr__(self, name: str) -> xr.DataArray:
+        """Forward requested but undefined attributes to relevant modules.
+
+        This method currently only forwards filtering operations
+        to the respective object comparison functions in Python's
+        ``operator`` module.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute to get.
+
+        Returns
+        -------
+        xarray.DataArray
+            The computed attribute value.
+
+        Raises
+        ------
+        AttributeError
+            If the attribute does not exist.
+
+        """
+
+        def method(*args, **kwargs):
+            operator_name = name.split("_")[1]
+            if name.startswith("filter_") and (
+                operator_name in self.ALLOWED_OPERATORS
+            ):
+                return self._filter_comparator(
+                    *args,
+                    comparator_name=operator_name,
+                    **kwargs,
+                )
+            raise AttributeError(
+                f"'{self.__class__.__name__}' object has no attribute '{name}'"
+            )
+
+        return method
+
+    @log_to_attrs
+    def _filter_comparator(
+        self,
+        other: xr.DataArray,
+        comparator_name: str,
+        threshold: float = 0.6,
+        print_report: bool = True,
+    ) -> xr.DataArray:
+        """Element-wise comparisons between two data arrays.
+
+        Parameters
+        ----------
+        other : xarray.DataArray
+            The data array to filter with.
+        threshold : float
+            The threshold with which datapoints are compared and filtered.
+            Default is ``0.6``.
+        comparator_name : str
+            The name of the comparison operator. This can be one of
+            ``["lt", "le", "eq", "ne", "gt", "ge"]``.
+        print_report : bool
+            Whether to print a report on the number of NaNs in the dataset
+            before and after filtering. Default is ``True``.
+
+        Returns
+        -------
+        xarray.DataArray
+            A data array where points with ``other`` value below the
+            ``threshold`` have been converted to NaNs.
+
+        """
+        da = self._obj
+        # Get the comparison operator
+        comparator = getattr(operator, comparator_name)
+        da_thresholded = da.where(comparator(other, threshold))
+        if print_report:
+            report_nan_values2(da)
+            report_nan_values2(da_thresholded)
+        return da_thresholded
