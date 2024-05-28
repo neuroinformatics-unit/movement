@@ -74,6 +74,38 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     return None
 
 
+def report_nan_values2(da: xr.DataArray):
+    """Report the number and percentage of points that are NaN.
+
+    Numbers are reported for each individual and keypoint in the dataset.
+
+    Parameters
+    ----------
+    da : xarray.Dataset
+        Dataset containing pose tracks, confidence scores, and metadata.
+
+    """
+    # Compile the report
+    nan_report = f"\nMissing points (marked as NaN) in {da.name}"
+    for ind in da.individuals.values:
+        nan_report += f"\n\tIndividual: {ind}"
+        for kp in da.keypoints.values:
+            # Get the position track for the current individual and keypoint
+            position = da.sel(individuals=ind, keypoints=kp)
+            # A point is considered NaN if any of its space coordinates are NaN
+            n_nans = position.isnull().any(["space"]).sum(["time"]).item()
+            n_points = position.time.size
+            percent_nans = round((n_nans / n_points) * 100, 1)
+            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
+
+    # Write nan report to logger
+    logger = logging.getLogger(__name__)
+    logger.info(nan_report)
+    # Also print the report to the console
+    print(nan_report)
+    return None
+
+
 @log_to_attrs
 def interpolate_over_time(
     ds: xr.Dataset,
