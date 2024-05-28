@@ -17,6 +17,7 @@ from movement.io.validators import (
     ValidHDF5,
     ValidPosesCSV,
     ValidPosesDataset,
+    ValidVIAtracksCSV,
 )
 from movement.logging import log_error, log_warning
 
@@ -315,10 +316,11 @@ def from_via_tracks_file(
     )
 
     # Validate specific file format AND load 'valid data' as dict
-    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # dict
+    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # dict #TODO
     logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
 
     # Initialize an xarray dataset from the dictionary
+    # TODO dataset with datarrays: bbox_position, bbox_shape, bbox_confidence
     ds = _from_valid_data(valid_data)
 
     # Add metadata as attrs
@@ -492,7 +494,13 @@ def _load_from_via_tracks_file(
         The validated bounding boxes' tracks and confidence scores.
 
     """
+    # validate specific file (csv)
+    file = ValidVIAtracksCSV(file_path)
+    print(file)
+
+    # Return a ValidBboxesDataset
     pass
+
     return
 
 
