@@ -31,7 +31,7 @@ Input/Output
 
     ValidFile
     ValidHDF5
-    ValidPosesCSV
+    ValidDeepLabCutCSV
     ValidPosesDataset
 
 Sample Data
