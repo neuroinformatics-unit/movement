@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 
 from movement.io.validators import (
+    ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
-    ValidPosesCSV,
     ValidPosesDataset,
 )
 
@@ -124,7 +124,7 @@ class TestValidators:
         """Test that invalid CSV files raise the appropriate errors."""
         file_path = request.getfixturevalue(invalid_input)
         with expected_exception:
-            ValidPosesCSV(file_path)
+            ValidDeepLabCutCSV(file_path)
 
     @pytest.mark.parametrize(
         "invalid_position_array",

@@ -158,7 +158,7 @@ class ValidHDF5:
 
 
 @define
-class ValidPosesCSV:
+class ValidDeepLabCutCSV:
     """Class for validating DLC-style .csv files.
 
     Parameters

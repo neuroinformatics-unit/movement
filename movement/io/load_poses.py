@@ -13,9 +13,9 @@ from sleap_io.model.labels import Labels
 
 from movement import MovementDataset
 from movement.io.validators import (
+    ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
-    ValidPosesCSV,
     ValidPosesDataset,
 )
 from movement.logging import log_error, log_warning
@@ -503,7 +503,7 @@ def _load_df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
         DeepLabCut-style DataFrame with multi-index columns.
 
     """
-    file = ValidPosesCSV(file_path)
+    file = ValidDeepLabCutCSV(file_path)
 
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
     with open(file.path) as f:
