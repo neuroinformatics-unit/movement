@@ -13,6 +13,7 @@ from sleap_io.model.labels import Labels
 
 from movement import MovementDataset
 from movement.io.validators import (
+    ValidBboxesDataset,
     ValidFile,
     ValidHDF5,
     ValidPosesCSV,
@@ -131,7 +132,7 @@ def from_dlc_df(df: pd.DataFrame, fps: Optional[float] = None) -> xr.Dataset:
         keypoint_names=keypoint_names,
         fps=fps,
     )
-    return _from_valid_data(valid_data)
+    return _poses_ds_from_valid_data(valid_data)
 
 
 def from_sleap_file(
@@ -203,7 +204,7 @@ def from_sleap_file(
     logger.debug(f"Validated pose tracks from {file.path}.")
 
     # Initialize an xarray dataset from the dictionary
-    ds = _from_valid_data(valid_data)
+    ds = _poses_ds_from_valid_data(valid_data)
 
     # Add metadata as attrs
     ds.attrs["source_software"] = "SLEAP"
@@ -315,13 +316,13 @@ def from_via_tracks_file(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
 
-    # Validate specific file format AND load 'valid data' as dict
-    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # dict #TODO
+    # Validate specific file format AND populate 'valid data' class
+    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # TODO
     logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
 
-    # Initialize an xarray dataset from the dictionary
+    # Initialize an xarray dataset from the valid_data class
     # TODO dataset with datarrays: bbox_position, bbox_shape, bbox_confidence
-    ds = _from_valid_data(valid_data)
+    ds = _bboxes_ds_from_valid_data(valid_data)
 
     # Add metadata as attrs
     ds.attrs["source_software"] = "VIA-tracks"
@@ -477,8 +478,10 @@ def _load_from_sleap_labels_file(
 
 def _load_from_via_tracks_file(
     file_path: Path, fps: Optional[float]
-):  # -> ValidPosesDataset:
+) -> ValidBboxesDataset:
     """Load and validate data from a VIA tracks file.
+
+    Return a ValidBboxesDataset instance.
 
     Parameters
     ----------
@@ -494,14 +497,71 @@ def _load_from_via_tracks_file(
         The validated bounding boxes' tracks and confidence scores.
 
     """
-    # validate specific file (csv)
+    # validate specific csv file (checks header)
     file = ValidVIAtracksCSV(file_path)
-    print(file)
+    file.path.as_posix()
+
+    # extract relevant data from file
+    df = pd.read_csv(file_path, sep=",", header=0)
+    print(df)
+
+    # # frame number
+    # # extract from filename
+    # pattern = r"_(0\d*)\."  # frame number is between "_" and ".", and led
+    # by at least one zero
+    # list_frame_numbers = [
+    #     int(re.search(pattern, f).group(1)) for f in df.filename
+    # ]
+    # frame_numbers_array = np.array(list_frame_numbers)
+
+    # # Extract x,y,w,h of bboxes
+    # list_bbox_xy, list_bbox_wh, list_bbox_ID = [], [], []
+    # for _, row in df.iterrows():
+    #     shape_attributes = ast.literal_eval(row.region_shape_attributes)
+    #     region_attributes = ast.literal_eval(row.region_attributes)
+
+    #     # Check shape is a rectangle
+    #     assert shape_attributes["name"] == "rect"
+
+    #     # extract bbox x,y coordinates
+    #     list_bbox_xy.append(
+    #         (
+    #             shape_attributes["x"],
+    #             shape_attributes["y"],
+    #         )
+    #     )
+
+    #     # extract width and height
+    #     list_bbox_wh.append(
+    #         (
+    #             region_attributes["width"],
+    #             region_attributes["height"],
+    #         )
+    #     )
+
+    #     # extract ID
+    #     list_bbox_ID.append(int(region_attributes["track"]))
+
+    # bbox_xy_array = np.array(list_bbox_xy)
+    # bbox_wh_array = np.array(list_bbox_wh)
+    # # bbox_ID_array = np.array(list_bbox_ID)
+
+    # list_unique_bbox_ID = list(set(list_bbox_ID))
 
     # Return a ValidBboxesDataset
-    pass
-
-    return
+    # - centroid_position_array: (n_frames, n_unique_IDs, n_space)
+    # ---> centroid position
+    # - shape_array: (n_frames, n_unique_IDs, n_space) ----> width, height
+    # - IDs: list of unique IDs
+    # - confidence_array: (n_frames, n_individuals, n_keypoints)
+    return ValidBboxesDataset(
+        centroid_position_array=np.zeros((2, 2, 2, 2)),
+        shape_array=np.zeros((2, 2, 2, 2)),
+        IDs=[1, 2, 3, 4],  # [str(id) for id in list_unique_bbox_ID],
+        confidence_array=np.zeros((2, 2, 2, 2)),
+        fps=fps,
+        source_software="VIA-tracks",
+    )
 
 
 def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
@@ -640,7 +700,7 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
+def _poses_ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """Convert already validated pose tracking data to an xarray Dataset.
 
     Parameters
@@ -677,6 +737,56 @@ def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.individual_names,
             DIM_NAMES[2]: data.keypoint_names,
+            DIM_NAMES[3]: ["x", "y", "z"][:n_space],
+        },
+        attrs={
+            "fps": data.fps,
+            "time_unit": time_unit,
+            "source_software": None,
+            "source_file": None,
+        },
+    )
+
+
+def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
+    """Convert already validated bboxes tracking data to an xarray Dataset.
+
+    Parameters
+    ----------
+    data : movement.io.tracks_validators.ValidPosesDataset
+        The validated data object.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
+
+    """
+    n_frames = data.centroid_position_array.shape[0]
+    n_space = data.centroid_position_array.shape[-1]
+
+    # Create the time coordinate, depending on the value of fps
+    time_coords = np.arange(n_frames, dtype=int)
+    time_unit = "frames"
+    if data.fps is not None:
+        time_coords = time_coords / data.fps
+        time_unit = "seconds"
+
+    DIM_NAMES = MovementDataset.dim_names
+    # Convert data to an xarray.Dataset
+    return xr.Dataset(
+        data_vars={
+            "centroid_position": xr.DataArray(
+                data.centroid_position_array, dims=DIM_NAMES
+            ),
+            "shape": xr.DataArray(data.confidence_array, dims=DIM_NAMES[:-1]),
+            "confidence": xr.DataArray(
+                data.confidence_array, dims=DIM_NAMES[:-1]
+            ),
+        },
+        coords={
+            DIM_NAMES[0]: time_coords,
+            DIM_NAMES[1]: data.IDs,
             DIM_NAMES[3]: ["x", "y", "z"][:n_space],
         },
         attrs={
