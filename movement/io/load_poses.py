@@ -91,7 +91,7 @@ def from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    return _from_valid_data(valid_data)
+    return _ds_from_valid_data(valid_data)
 
 
 def from_file(
@@ -272,9 +272,9 @@ def from_sleap_file(
 
     # Load and validate data
     if file.path.suffix == ".h5":
-        ds = _load_from_sleap_analysis_file(file.path, fps=fps)
+        ds = _ds_from_sleap_analysis_file(file.path, fps=fps)
     else:  # file.path.suffix == ".slp"
-        ds = _load_from_sleap_labels_file(file.path, fps=fps)
+        ds = _ds_from_sleap_labels_file(file.path, fps=fps)
 
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
@@ -381,9 +381,9 @@ def _from_lp_or_dlc_file(
 
     # Load the DLC poses into a DataFrame
     if file.path.suffix == ".csv":
-        df = _load_df_from_dlc_csv(file.path)
+        df = _df_from_dlc_csv(file.path)
     else:  # file.path.suffix == ".h5"
-        df = _load_df_from_dlc_h5(file.path)
+        df = _df_from_dlc_h5(file.path)
 
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
@@ -397,7 +397,7 @@ def _from_lp_or_dlc_file(
     return ds
 
 
-def _load_from_sleap_analysis_file(
+def _ds_from_sleap_analysis_file(
     file_path: Path, fps: Optional[float]
 ) -> xr.Dataset:
     """Validate and load data from a SLEAP analysis file.
@@ -444,7 +444,7 @@ def _load_from_sleap_analysis_file(
         )
 
 
-def _load_from_sleap_labels_file(
+def _ds_from_sleap_labels_file(
     file_path: Path, fps: Optional[float]
 ) -> xr.Dataset:
     """Validate and load data from a SLEAP labels file.
@@ -551,7 +551,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     return tracks
 
 
-def _load_df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
+def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
     """Parse a DeepLabCut-style .csv file into a pandas DataFrame.
 
     If poses are loaded from a DeepLabCut .csv file, the DataFrame
@@ -598,7 +598,7 @@ def _load_df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
+def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     """Load data from a DeepLabCut .h5 file into a pandas DataFrame.
 
     Parameters
@@ -619,7 +619,7 @@ def _load_df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
+def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """Convert already validated pose tracking data to an xarray Dataset.
 
     Parameters
