@@ -1,5 +1,6 @@
 """Functions for loading pose tracking data from various frameworks."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Literal, Optional, Union
@@ -678,3 +679,102 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "source_file": None,
         },
     )
+
+
+def from_mmp_file(
+    file_path: Union[Path, str], fps: Optional[float] = None
+) -> xr.Dataset:
+    """Load pose tracking data from a JSON file with multiple individuals.
+
+    This function expects JSON data in the following format:
+    [
+        {
+            "frame_id": int,
+            "instances": [
+                {
+                    "keypoints": list[list[float]],
+                    "keypoint_scores": list[float],
+                    "bbox": list[float],
+                    "bbox_score": float
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the JSON file containing the pose tracking data.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the 'time' coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the pose tracks, confidence scores, and metadata.
+
+    """
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".json"],
+    )
+
+    # file = ValidMMPoseJSON(file_path)
+
+    with open(file.path) as f:
+        data = json.load(f)
+
+    all_tracks = []
+    all_scores = []
+    n_keypoints = len(
+        data[0]["instances"][0]["keypoints"]
+    )  # Keypoints in the first instance of the first frame
+
+    for _, frame in enumerate(data):
+        # Initialize arrays for this frame's tracks and scores
+        n_individuals = len(frame["instances"])
+        frame_tracks = np.full(
+            (n_individuals, n_keypoints, 2), np.nan, dtype=np.float32
+        )
+        frame_scores = np.full(
+            (n_individuals, n_keypoints), np.nan, dtype=np.float32
+        )
+
+        for i, instance in enumerate(frame["instances"]):
+            frame_tracks[i] = np.array(instance["keypoints"])[:, :2]  # (x, y)
+            frame_scores[i] = instance["keypoint_scores"]
+
+        all_tracks.append(frame_tracks)
+        all_scores.append(frame_scores)
+
+    # Stack the frames to get a 3D array
+    tracks_array = np.stack(all_tracks, axis=0)
+    scores_array = np.stack(all_scores, axis=0)
+
+    keypoint_names = [
+        f"keypoint_{i}" for i in range(n_keypoints)
+    ]  # Use pre-calculated keypoint names
+
+    # Create ValidPosesDataset and convert to xarray.Dataset
+    valid_data = ValidPosesDataset(
+        position_array=tracks_array,
+        confidence_array=scores_array,
+        individual_names=[
+            f"individual_{i}" for i in range(tracks_array.shape[1])
+        ],
+        keypoint_names=keypoint_names,
+        fps=fps,
+    )
+    ds = _from_valid_data(valid_data)
+
+    # Metadata
+    ds.attrs["source_software"] = "JSON"
+    ds.attrs["source_file"] = file.path.as_posix()
+
+    logger.info(f"Loaded pose tracks from {file.path}:")
+    logger.info(ds)
+    return ds
