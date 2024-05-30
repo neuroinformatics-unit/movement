@@ -32,7 +32,7 @@ df_file.columns
 pattern = r"_(0\d*)\.\w+$"  # before: r"_(0\d*)\."
 
 list_frame_numbers = [
-    re.search(pattern, f).group(1)  # type: ignore
+    int(re.search(pattern, f).group(1))  # type: ignore
     if re.search(pattern, f)
     else np.nan
     for f in df_file["filename"]
