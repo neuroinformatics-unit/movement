@@ -108,8 +108,6 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
-    "reference_url": {"movement": None},
-    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image  
     "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
