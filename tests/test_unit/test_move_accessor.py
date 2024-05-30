@@ -35,31 +35,3 @@ class TestMovementDataset:
         """Test that invalid accessor method calls raise an AttributeError."""
         with pytest.raises(AttributeError):
             getattr(valid_poses_dataset.move, method)()
-
-
-class TestMovementDataArray:
-    """Test suite for the MovementDataArray class."""
-
-    @pytest.mark.parametrize(
-        "comparator", ["lt", "le", "eq", "ne", "ge", "gt"]
-    )
-    def test_filter_with_valid_dataarray(
-        self, valid_poses_dataset, comparator
-    ):
-        """Test that filtering a valid pose data array returns an
-        instance of xr.DataArray.
-        """
-        position = valid_poses_dataset.position
-        confidence = valid_poses_dataset.confidence
-        result = getattr(position.move, f"filter_{comparator}")(confidence)
-        assert isinstance(result, xr.DataArray)
-
-    @pytest.mark.parametrize(
-        "method", ["filter_invalid_comparator", "do_something"]
-    )
-    def test_invalid_method(self, valid_poses_dataset, method):
-        """Test that calling an invalid method raises an AttributeError."""
-        with pytest.raises(AttributeError):
-            position = valid_poses_dataset.position
-            confidence = valid_poses_dataset.confidence
-            getattr(position.move, method)(confidence)

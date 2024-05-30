@@ -1,3 +1,5 @@
+from importlib import import_module
+
 import pytest
 import xarray as xr
 
@@ -163,3 +165,27 @@ def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     )
     # The second individual should not contain any NaNs
     assert ~ds_smoothed.position.sel(individuals="ind2").isnull().any()
+
+
+@pytest.mark.parametrize(
+    "method", ["filter_invalid_comparator", "do_something"]
+)
+def test_invalid_method(valid_poses_dataset, method):
+    """Test that calling an invalid method raises an AttributeError."""
+    with pytest.raises(AttributeError):
+        filtering = import_module("movement.filtering")
+        position = valid_poses_dataset.position
+        confidence = valid_poses_dataset.confidence
+        getattr(filtering, method)(position, confidence)
+
+
+@pytest.mark.parametrize("comparator", ["lt", "le", "eq", "ne", "ge", "gt"])
+def test_filter_with_valid_dataarray(valid_poses_dataset, comparator):
+    """Test that filtering a valid pose data array returns an
+    instance of xr.DataArray.
+    """
+    filtering = import_module("movement.filtering")
+    position = valid_poses_dataset.position
+    confidence = valid_poses_dataset.confidence
+    result = getattr(filtering, f"filter_{comparator}")(position, confidence)
+    assert isinstance(result, xr.DataArray)

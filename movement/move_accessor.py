@@ -1,13 +1,11 @@
 """Accessor for extending xarray.Dataset objects."""
 
 import logging
-import operator
 from typing import ClassVar
 
 import xarray as xr
 
 from movement.analysis import kinematics
-from movement.filtering import log_to_attrs, report_nan_values2
 from movement.io.validators import ValidPosesDataset
 from movement.logging import log_error
 
