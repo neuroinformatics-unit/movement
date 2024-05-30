@@ -14,17 +14,18 @@ Input/Output
     from_file
     from_sleap_file
     from_dlc_file
-    from_dlc_style_df
     from_lp_file
+    from_dlc_style_df
 
 .. currentmodule:: movement.io.save_poses
 .. autosummary::
     :toctree: api
 
     to_dlc_file
-    to_dlc_df
-    to_sleap_analysis_file
     to_lp_file
+    to_sleap_analysis_file
+    to_dlc_style_df
+
 
 .. currentmodule:: movement.io.validators
 .. autosummary::
