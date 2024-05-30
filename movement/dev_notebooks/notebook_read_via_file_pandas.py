@@ -3,6 +3,7 @@
 # imports
 import ast
 import re
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -28,12 +29,14 @@ df_file.columns
 # improve this;
 
 # frame number is between "_" and ".", led by at least one zero, followed by extension
-pattern = r"_(0\d*\).\w+$"  # before: r"_(0\d*)\."
+pattern = r"_(0\d*)\.\w+$"  # before: r"_(0\d*)\."
 
-list_frame_numbers = []
-for f in df_file.filename:
-    if re.search(pattern, f):
-        list_frame_numbers.append(int(re.search(pattern, f).group(1)))  # type: ignore
+list_frame_numbers = [
+    re.search(pattern, f).group(1)  # type: ignore
+    if re.search(pattern, f)
+    else np.nan
+    for f in df_file["filename"]
+]
 
 list_unique_frames = list(set(list_frame_numbers))
 
@@ -170,11 +173,112 @@ def _int_region_attributes_to_numpy(
     return bbox_attr_array
 
 
-# %%%%%%%%%
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Refactor further
+
+
+def _via_attribute_column_to_numpy(
+    df: pd.DataFrame,
+    via_attribute_column_name: str,
+    list_attributes: list[str],
+    cast_fn: Callable = float,
+) -> np.ndarray:
+    """
+    Convert the selected values from a VIA attribute column to a float numpy array.
+
+    Arrays will have at least 1 column (no 0-rank numpy arrays).
+    If several values, these are passed as columns
+    axis 0 is rows of df
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The pandas DataFrame containing the data.
+    via_attribute_column_name : str
+        The name of the column that holds values as literal dictionaries.
+    list_attributes : list[str]
+        The list of keys whose values we want to extract from the literal dictionaries.
+    cast_fn : type, optional
+        The type function to cast the values to, by default float.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array of floats representing the extracted attribute values.
+
+    """
+    # initialise list
+    list_bbox_attr = []
+
+    # iterate through rows
+    for _, row in df.iterrows():
+        # extract attributes from the column of interest
+        list_bbox_attr.append(
+            tuple(
+                cast_fn(ast.literal_eval(row[via_attribute_column_name])[reg])
+                for reg in list_attributes
+            )
+        )
+
+    # convert to numpy array
+    bbox_attr_array = np.array(list_bbox_attr)
+
+    return bbox_attr_array
+
+
+def _via_attribute_column_to_numpy_floats(
+    df: pd.DataFrame,
+    via_attribute_column_name: str,
+    list_attributes: list[str],
+    # type_fn: type = float()
+) -> np.ndarray:
+    """
+    Convert the selected values from a VIA attribute column to a float numpy array.
+
+    Arrays will have at least 1 column (no 0-rank numpy arrays).
+    If several values, these are passed as columns
+    axis 0 is rows of df
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The pandas DataFrame containing the data.
+    via_attribute_column_name : str
+        The name of the column that holds values as literal dictionaries.
+    list_attributes : list[str]
+        The list of keys whose values we want to extract from the literal dictionaries.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array of floats representing the extracted attribute values.
+
+    """
+    # initialise list
+    list_bbox_attr = []
+
+    # iterate through rows
+    for _, row in df.iterrows():
+        # extract attributes from the column of interest
+        list_bbox_attr.append(
+            tuple(
+                float(ast.literal_eval(row[via_attribute_column_name])[reg])
+                for reg in list_attributes
+            )
+        )
+
+    # convert to numpy array
+    bbox_attr_array = np.array(list_bbox_attr)
+
+    return bbox_attr_array
+
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # To recycle as tests
 df = pd.read_csv(file_path, sep=",", header=0)
 
 bbox_xy_arr = _float_region_shape_attributes_to_numpy(df, ["x", "y"])
+
 print(np.all(np.equal(bbox_xy_arr, bbox_xy_array)))
 
 bbox_wh_arr = _float_region_shape_attributes_to_numpy(df, ["width", "height"])
@@ -184,5 +288,29 @@ bbox_x_arr = _float_region_shape_attributes_to_numpy(df, ["x"])
 print(np.all(np.equal(bbox_x_arr, bbox_xy_array[:, 0].reshape(-1, 1))))
 
 bbox_ID_arr = _int_region_attributes_to_numpy(df, ["track"])
+print(np.all(np.equal(bbox_ID_arr, bbox_ID_array)))
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# To recycle as tests
+df = pd.read_csv(file_path, sep=",", header=0)
+
+bbox_xy_arr = _via_attribute_column_to_numpy(
+    df, "region_shape_attributes", ["x", "y"], float
+)
+print(np.all(np.equal(bbox_xy_arr, bbox_xy_array)))
+
+bbox_wh_arr = _via_attribute_column_to_numpy(
+    df, "region_shape_attributes", ["width", "height"], float
+)
+print(np.all(np.equal(bbox_wh_arr, bbox_wh_array)))
+
+bbox_x_arr = _via_attribute_column_to_numpy(
+    df, "region_shape_attributes", ["x"], float
+)
+print(np.all(np.equal(bbox_x_arr, bbox_xy_array[:, 0].reshape(-1, 1))))
+
+bbox_ID_arr = _via_attribute_column_to_numpy(
+    df, "region_attributes", ["track"], int
+)
 print(np.all(np.equal(bbox_ID_arr, bbox_ID_array)))
 # %%
