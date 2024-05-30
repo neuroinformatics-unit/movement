@@ -62,7 +62,7 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores,
+        ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Examples
@@ -99,18 +99,15 @@ def from_file(
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: Optional[float] = None,
 ) -> xr.Dataset:
-    """Load pose tracking data from any supported file format.
-
-    Data can be loaded from a DeepLabCut (DLC), LightningPose (LP) or
-    SLEAP output file into an xarray Dataset.
+    """Create a ``movement`` dataset from any supported file.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
         Path to the file containing predicted poses. The file format must
         be among those supported by the ``from_dlc_file()``,
-        ``from_slp_file()`` or ``from_lp_file()`` functions,
-        since one of these functions will be called internally, based on
+        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
+        these functions will be called internally, based on
         the value of ``source_software``.
     source_software : "DeepLabCut", "SLEAP" or "LightningPose"
         The source software of the file.
@@ -121,13 +118,21 @@ def from_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     See Also
     --------
     movement.io.load_poses.from_dlc_file
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_file(
+    ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
+    ... )
 
     """
     if source_software == "DeepLabCut":
@@ -147,7 +152,7 @@ def from_dlc_style_df(
     fps: Optional[float] = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
-    """Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.
+    """Create a ``movement`` dataset from a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
@@ -160,12 +165,13 @@ def from_dlc_style_df(
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
-        (because it uses the same dataframe format).
+        (because they the same DataFrame format).
 
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     Notes
     -----
@@ -212,7 +218,7 @@ def from_dlc_style_df(
 def from_sleap_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a SLEAP file into an xarray Dataset.
+    """Create a ``movement`` dataset from a SLEAP file.
 
     Parameters
     ----------
@@ -227,7 +233,8 @@ def from_sleap_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     Notes
     -----
@@ -287,12 +294,12 @@ def from_sleap_file(
 def from_lp_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a LightningPose (LP) output file.
+    """Create a ``movement`` dataset from a LightningPose file.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the LP predicted poses, in .csv format.
+        Path to the file containing the predicted poses, in .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the `time` coordinates will be in frame numbers.
@@ -300,7 +307,8 @@ def from_lp_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     Examples
     --------
@@ -316,12 +324,12 @@ def from_lp_file(
 def from_dlc_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a DeepLabCut (DLC) output file.
+    """Create a ``movement`` dataset from a DeepLabCut file.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC predicted poses, either in .h5
+        Path to the file containing the predicted poses, either in .h5
         or .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -330,7 +338,8 @@ def from_dlc_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     See Also
     --------
@@ -352,12 +361,12 @@ def _from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: Optional[float] = None,
 ) -> xr.Dataset:
-    """Load data from DeepLabCut (DLC) or LightningPose (LP) output files.
+    """Create a ``movement`` dataset from a LightningPose or DeepLabCut file.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the DLC predicted poses, either in .h5
+        Path to the file containing the predicted poses, either in .h5
         or .csv format.
     source_software : {'LightningPose', 'DeepLabCut'}
         The source software of the file.
@@ -368,7 +377,8 @@ def _from_lp_or_dlc_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     """
     expected_suffix = [".csv"]
@@ -379,7 +389,7 @@ def _from_lp_or_dlc_file(
         file_path, expected_permission="r", expected_suffix=expected_suffix
     )
 
-    # Load the DLC poses into a DataFrame
+    # Load the DeepLabCut poses into a DataFrame
     if file.path.suffix == ".csv":
         df = _df_from_dlc_csv(file.path)
     else:  # file.path.suffix == ".h5"
@@ -400,7 +410,7 @@ def _from_lp_or_dlc_file(
 def _ds_from_sleap_analysis_file(
     file_path: Path, fps: Optional[float]
 ) -> xr.Dataset:
-    """Validate and load data from a SLEAP analysis file.
+    """Create a ``movement`` dataset from a SLEAP analysis (.h5) file.
 
     Parameters
     ----------
@@ -413,7 +423,8 @@ def _ds_from_sleap_analysis_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     """
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
@@ -447,7 +458,7 @@ def _ds_from_sleap_analysis_file(
 def _ds_from_sleap_labels_file(
     file_path: Path, fps: Optional[float]
 ) -> xr.Dataset:
-    """Validate and load data from a SLEAP labels file.
+    """Create a ``movement`` dataset from a SLEAP labels (.slp) file.
 
     Parameters
     ----------
@@ -460,7 +471,8 @@ def _ds_from_sleap_labels_file(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     """
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
@@ -484,9 +496,9 @@ def _ds_from_sleap_labels_file(
 
 
 def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
-    """Convert a SLEAP `Labels` object to a NumPy array.
+    """Convert a SLEAP ``Labels`` object to a NumPy array.
 
-    The output array contains pose tracks with point-wise confidence scores.
+    The output array contains pose tracks and point-wise confidence scores.
 
     Parameters
     ----------
@@ -552,17 +564,17 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
 
 
 def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
-    """Parse a DeepLabCut-style .csv file into a pandas DataFrame.
+    """Create a DeepLabCut-style DataFrame from a .csv file.
 
-    If poses are loaded from a DeepLabCut .csv file, the DataFrame
+    If poses are loaded from a DeepLabCut-style .csv file, the DataFrame
     lacks the multi-index columns that are present in the .h5 file. This
-    function parses the .csv file to a pandas DataFrame with multi-index
-    columns, i.e. the same format as in the .h5 file.
+    function parses the .csv file to DataFrame with multi-index columns,
+    i.e. the same format as in the .h5 file.
 
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the DeepLabCut-style .csv file.
+        Path to the DeepLabCut-style .csv file containing pose tracks.
 
     Returns
     -------
@@ -587,7 +599,7 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
     column_tuples = list(zip(*[line[1:] for line in header_lines]))
     columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
 
-    # Import the DLC poses as a DataFrame
+    # Import the DeepLabCut poses as a DataFrame
     df = pd.read_csv(
         file.path,
         skiprows=len(header_lines),
@@ -599,7 +611,7 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
 
 
 def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
-    """Load data from a DeepLabCut .h5 file into a pandas DataFrame.
+    """Create a DeepLabCut-style DataFrame from a .h5 file.
 
     Parameters
     ----------
@@ -609,7 +621,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     Returns
     -------
     pandas.DataFrame
-        DeepLabCut-style Dataframe.
+        DeepLabCut-style DataFrame with multi-index columns.
 
     """
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
@@ -620,7 +632,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
 
 
 def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
-    """Convert already validated pose tracking data to an xarray Dataset.
+    """Create a ``movement`` dataset from validated pose tracking data.
 
     Parameters
     ----------
@@ -630,7 +642,8 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
 
     """
     n_frames = data.position_array.shape[0]
