@@ -142,10 +142,10 @@ def from_file(
         )
 
 
-def from_dlc_df(
+def from_dlc_style_df(
     df: pd.DataFrame,
     fps: Optional[float] = None,
-    source_software: Optional[str] = "DeepLabCut",
+    source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
     """Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.
 
@@ -159,8 +159,8 @@ def from_dlc_df(
         the `time` coordinates will be in frame numbers.
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
-        Defaults to "DeepLabCut", but other values can be supplied (because
-        other software may also output data in the same format).
+        Defaults to "DeepLabCut", but it can also be "LightningPose"
+        (because it uses the same dataframe format).
 
     Returns
     -------
@@ -178,7 +178,7 @@ def from_dlc_df(
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_file : Load pose tracks directly from file.
+    movement.io.load_poses.from_dlc_file
 
     """
     # read names of individuals and keypoints from the DataFrame
@@ -334,7 +334,7 @@ def from_dlc_file(
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_df : Load pose tracks from a DataFrame.
+    movement.io.load_poses.from_dlc_style_df
 
     Examples
     --------
@@ -387,7 +387,7 @@ def _from_lp_or_dlc_file(
 
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
-    ds = from_dlc_df(df=df, fps=fps, source_software=source_software)
+    ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
 
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()

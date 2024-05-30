@@ -19,7 +19,7 @@ class TestPosesIO:
         """Test that loading pose tracks from a DLC-style DataFrame and
         converting back to a DataFrame returns the same data values.
         """
-        ds = load_poses.from_dlc_df(dlc_style_df)
+        ds = load_poses.from_dlc_style_df(dlc_style_df)
         df = save_poses.to_dlc_df(ds, split_individuals=False)
         np.testing.assert_allclose(df.values, dlc_style_df.values)
 
