@@ -274,3 +274,21 @@ class TestLoadPoses:
             with patch(software_to_loader[source_software]) as mock_loader:
                 load_poses.from_file("some_file", source_software, fps)
                 mock_loader.assert_called_with("some_file", fps)
+
+    def test_from_multi_view(self):
+        """Test that the from_file() function delegates to the correct
+        loader function according to the source_software.
+        """
+        view_names = ["view_0", "view_1"]
+        file_path_dict = {
+            view: POSE_DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+            for view in view_names
+        }
+
+        multi_view_ds = load_poses.from_multi_view(
+            file_path_dict, source_software="DeepLabCut"
+        )
+
+        assert isinstance(multi_view_ds, xr.Dataset)
+        assert "view" in multi_view_ds.dims
+        assert multi_view_ds.view.values.tolist() == view_names
