@@ -1,6 +1,7 @@
 """Filter and interpolate  pose tracks in ``movement`` datasets."""
 
 import logging
+import operator
 from datetime import datetime
 from functools import wraps
 
@@ -8,6 +9,9 @@ import xarray as xr
 from scipy import signal
 
 from movement.utils.logging import log_error
+
+# List of allowed operator names
+ALLOWED_OPERATORS = ["lt", "le", "eq", "ne", "ge", "gt"]
 
 
 def log_to_attrs(func):
@@ -74,15 +78,50 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
     return None
 
 
+def generate_nan_report(
+    da: xr.DataArray, keypoint: str, individual: Optional[str] = None
+) -> str:
+    """Generate nan value report for a given individual and keypoint.
+
+    This function calculates the number and percentage of NaN points for a
+    given individual and keypoint.
+    A keypoint is considered NaN if any of its space coordinates are NaN.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        DataArray containing pose tracks and metadata.
+    keypoint : str
+        The name of the keypoint for which to generate the report.
+    individual : str, optional
+        The name of the individual for which to generate the report.
+
+    Returns
+    -------
+    str
+        A string containing the report.
+
+    """
+    position = (
+        da.sel(individuals=individual, keypoints=keypoint)
+        if individual
+        else da.sel(keypoints=keypoint)
+    )
+    n_nans = position.isnull().any(["space"]).sum(["time"]).item()
+    n_points = position.time.size
+    percent_nans = round((n_nans / n_points) * 100, 1)
+    return f"\n\t\t{keypoint}: {n_nans}/{n_points} ({percent_nans}%)"
+
+
 def report_nan_values2(da: xr.DataArray):
-    """Report the number and percentage of points that are NaN.
+    """Report the number and percentage of keypoints that are NaN.
 
     Numbers are reported for each individual and keypoint in the dataset.
 
     Parameters
     ----------
-    da : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+    da : xarray.DataArray
+        The input data containing pose tracks and metadata.
 
     """
     # Compile the report
@@ -90,20 +129,12 @@ def report_nan_values2(da: xr.DataArray):
     for ind in da.individuals.values:
         nan_report += f"\n\tIndividual: {ind}"
         for kp in da.keypoints.values:
-            # Get the position track for the current individual and keypoint
-            position = da.sel(individuals=ind, keypoints=kp)
-            # A point is considered NaN if any of its space coordinates are NaN
-            n_nans = position.isnull().any(["space"]).sum(["time"]).item()
-            n_points = position.time.size
-            percent_nans = round((n_nans / n_points) * 100, 1)
-            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
-
+            nan_report += generate_nan_report(da, kp, individual=ind)
     # Write nan report to logger
     logger = logging.getLogger(__name__)
     logger.info(nan_report)
     # Also print the report to the console
     print(nan_report)
-    return None
 
 
 @log_to_attrs
@@ -355,3 +386,84 @@ def savgol_filter(
         report_nan_values(ds_smoothed, "filtered dataset")
 
     return ds_smoothed
+
+
+def __getattr__(name: str) -> xr.DataArray:
+    """Forward requested but undefined attributes to relevant modules.
+
+    This method currently only forwards filtering operations
+    to the respective object comparison functions in Python's
+    ``operator`` module.
+
+    Parameters
+    ----------
+    name : str
+        The name of the attribute to get.
+
+    Returns
+    -------
+    xarray.DataArray
+        The computed attribute value.
+
+    Raises
+    ------
+    AttributeError
+        If the attribute does not exist.
+
+    """
+
+    def method(*args, **kwargs):
+        operator_name = name.split("_")[1]
+        if name.startswith("filter_") and (operator_name in ALLOWED_OPERATORS):
+            return _filter_comparator(
+                *args,
+                comparator_name=operator_name,
+                **kwargs,
+            )
+        raise AttributeError(
+            f"module '{__name__}' object has no attribute '{name}'"
+        )
+
+    return method
+
+
+@log_to_attrs
+def _filter_comparator(
+    da: xr.DataArray,
+    other: xr.DataArray,
+    comparator_name: str,
+    threshold: float = 0.6,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Filter the data array based on another data array and a threshold.
+
+    Parameters
+    ----------
+    da: xarray.DataArray
+        The data array to be filtered.
+    other : xarray.DataArray
+        The data array to filter with.
+    threshold : float
+        The threshold with which datapoints are compared and filtered.
+        Default is ``0.6``.
+    comparator_name : str
+        The name of the comparison operator. This can be one of
+        ``["lt", "le", "eq", "ne", "gt", "ge"]``.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after filtering. Default is ``True``.
+
+    Returns
+    -------
+    xarray.DataArray
+        A data array where points with ``other`` value below the
+        ``threshold`` have been converted to NaNs.
+
+    """
+    # Get the comparison operator
+    comparator = getattr(operator, comparator_name)
+    da_thresholded = da.where(comparator(other, threshold))
+    if print_report:
+        report_nan_values2(da)
+        report_nan_values2(da_thresholded)
+    return da_thresholded

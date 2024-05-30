@@ -1,7 +1,6 @@
 """Accessor for extending :py:class:`xarray.Dataset` objects."""
 
 import logging
-import operator
 from typing import ClassVar
 
 import xarray as xr
