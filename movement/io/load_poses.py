@@ -316,7 +316,7 @@ def from_lp_file(
     >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
 
     """
-    return _from_lp_or_dlc_file(
+    return _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
 
@@ -351,12 +351,12 @@ def from_dlc_file(
     >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
 
     """
-    return _from_lp_or_dlc_file(
+    return _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="DeepLabCut", fps=fps
     )
 
 
-def _from_lp_or_dlc_file(
+def _ds_from_lp_or_dlc_file(
     file_path: Union[Path, str],
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: Optional[float] = None,
