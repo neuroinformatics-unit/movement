@@ -99,7 +99,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
     ax[0].set_title("Time Domain")
     ax[0].legend()
 
-    ax[1].set_ylabel("PSD (dB/Hz)")
+    ax[1].set_ylabel("PSD (px$^2$/Hz)")
     ax[1].set_xlabel("Frequency (Hz)")
     ax[1].set_title("Frequency Domain")
     ax[1].legend()
