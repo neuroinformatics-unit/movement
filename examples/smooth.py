@@ -131,17 +131,17 @@ plot_raw_and_smooth_timeseries_and_psd(
 # We see that the median filter has removed the "spikes" present around the
 # 14 second mark in the raw data. However, it has not dealt the big shift
 # occurring during the final second. In the frequency domain, we can see that
-# the filter has reduced the power in the high frequencies, without
-# affecting the very low frequency components.
+# the filter has reduced the power in the high-frequency components, without
+# affecting the low frequency components.
 #
 # This illustrates what the median filter is good at: removing brief "spikes"
 # (e.g. a keypoint abruptly jumping to a different location for a frame or two)
-# and high frequency "jitter" (often present due to pose estimation
+# and high-frequency "jitter" (often present due to pose estimation
 # working on a per-frame basis).
 
 # %%
 # Choosing parameters for the median filter
-# -----------------------------------------
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # You can control the behaviour of :py:func:`movement.filtering.median_filter`
 # via two parameters: ``window_length`` and ``min_periods``.
 # To better understand the effect of these parameters, let's use a
@@ -160,25 +160,25 @@ print(ds_mouse)
 ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1)
 
 # %%
-# The report informs us that the raw data contains NaN values, particularly
-# for the ``snout`` and ``tail_end`` keypoints. After filtering, the number of
+# The report informs us that the raw data contains NaN values, most of which
+# occur at the ``snout`` and ``tail_end`` keypoints. After filtering, the number of
 # NaNs has increased. This is because the default behaviour of the median
 # filter is to propagate NaN values, i.e. if any value in the rolling window is
 # NaN, the output will also be NaN.
 #
 # To modify this behaviour, you can set the value of the ``min_periods``
 # parameter to an integer value. This parameter determines the minimum number
-# of non-NaN values in the window for the output to be non-NaN.
+# of non-NaN values required in the window for the output to be non-NaN.
 # For example, setting ``min_periods=2`` means that two non-NaN values in the
 # window are sufficient for the median to be calculated. Let's try this.
 
 ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
 
 # %%
-# We see that this time the number of NaN values has not increased after
-# filtering. Instead, it has even decreased by a bit across keypoints.
+# We see that this time the number of NaN values has decreased 
+# across all keypoints.
 # Let's visualise the effects of the median filter in the time and frequency
-# domains. Here we focus on a 80 second time range for the ``snout`` keypoint.
+# domains. Here we focus on the first 80 seconds for the ``snout`` keypoint.
 # You can adjust the ``keypoint`` and ``time_range`` arguments to explore other
 # parts of the data.
 
@@ -187,12 +187,12 @@ plot_raw_and_smooth_timeseries_and_psd(
 )
 
 # %%
-# The smoothing has reduced high-frequency content but the
+# The smoothing once again reduces the power of high-frequency components, but the
 # resulting time series stays quite close to the raw data.
 #
 # What happens if we increase the ``window_length`` to 2 seconds?
 
-ds_mouse_medfilt = median_filter(ds_mouse, window_length=1, min_periods=2)
+ds_mouse_medfilt = median_filter(ds_mouse, window_length=2, min_periods=2)
 
 # %%
 # The number of NaN values has decreased even further. That's because the
@@ -224,14 +224,14 @@ plot_raw_and_smooth_timeseries_and_psd(
 # ``window_length``, and the value of the polynomial at the center of the
 # window is used as the output value.
 #
-# Let's try it on the mouse dataset first.
+# Let's try it on the mouse dataset.
 
 ds_mouse_savgol = savgol_filter(ds_mouse, window_length=0.2, polyorder=2)
 
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
-# for the same reason as with the median filter (in it's default mode), i.e.
+# for the same reason as with the median filter (in its default mode), i.e.
 # if there is at least one NaN value in the window, the output will be NaN.
 # Unlike the median filter, the Savitzky-Golay filter does not provide a
 # ``min_periods`` parameter to control this behaviour. Let's visualise the
@@ -241,8 +241,11 @@ plot_raw_and_smooth_timeseries_and_psd(
     ds_mouse, ds_mouse_savgol, keypoint="snout", time_range=slice(0, 80)
 )
 # %%
-# We indeed see that high-frequencies have been reduced but the gaps of missing
-# values have increase in extent. Now let's take a look at the wasp dataset.
+# Once again, the power of high-frequency components has been reduced, but more missing
+# values have been introduced. 
+
+# %%
+# Now let's take a look at the wasp dataset.
 
 ds_wasp_savgol = savgol_filter(ds_wasp, window_length=0.2, polyorder=2)
 
@@ -254,10 +257,10 @@ plot_raw_and_smooth_timeseries_and_psd(
 )
 # %%
 # This example shows two important limitations of the Savitzky-Golay filter.
-# Firstly, it can introduce "wiggles" around sharp boundaries. For
+# First, the filter can introduce artefacts around sharp boundaries. For
 # example, focus on what happens around the sudden drop in position
-# during the final second. Secondly, the PSD appears to have large periodic
-# drops in power at certain frequencies. Both of these effects vary with the
+# during the final second. Second, the PSD appears to have large periodic
+# drops at certain frequencies. Both of these effects vary with the
 # choice of ``window_length`` and ``polyorder``. You can read more about these
 # and other limitations of the Savitzky-Golay filter in
 # `this paper <https://pubs.acs.org/doi/10.1021/acsmeasuresciau.1c00054>`_.
@@ -268,7 +271,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 # ------------------------------------
 # You can also combine multiple smoothing filters by applying them
 # sequentially. For example, we can first apply the median filter with a small
-# ``window_length`` to remove spikes and then apply the Savitzky-Golay filter
+# ``window_length`` to remove "spikes" and then apply the Savitzky-Golay filter
 # with a larger ``window_length`` to further smooth the data.
 # Between the two filters, we can interpolate over small gaps to avoid the
 # excessive proliferation of NaN values. Let's try this on the mouse dataset.
@@ -290,7 +293,7 @@ ds_mouse_medfilt_interp_savgol = savgol_filter(
 
 # %%
 # A record of all applied operations is stored in the dataset's ``log``
-# attribute. Let's inpsect it to summarise what we've done.
+# attribute. Let's inspect it to summarise what we've done.
 
 for entry in ds_mouse_medfilt_interp_savgol.log:
     print(entry)
