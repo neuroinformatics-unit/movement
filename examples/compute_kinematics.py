@@ -2,7 +2,7 @@
 """Compute and visualise kinematics.
 ====================================
 
-Compute displacement, velocity and acceleration data on an example dataset and
+Compute displacement, velocity and acceleration, and
 visualise the results.
 """
 
