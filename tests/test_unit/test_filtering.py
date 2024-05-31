@@ -1,14 +1,16 @@
-from importlib import import_module
-
 import pytest
 import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
+    filter_by_confidence_da,
     interpolate_over_time,
+    interpolate_over_time_da,
     log_to_attrs,
     median_filter,
+    median_filter_da,
     savgol_filter,
+    savgol_filter_da,
 )
 from movement.sample_data import fetch_dataset
 
@@ -167,25 +169,88 @@ def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     assert ~ds_smoothed.position.sel(individuals="ind2").isnull().any()
 
 
-@pytest.mark.parametrize(
-    "method", ["filter_invalid_comparator", "do_something"]
-)
-def test_invalid_method(valid_poses_dataset, method):
-    """Test that calling an invalid method raises an AttributeError."""
-    with pytest.raises(AttributeError):
-        filtering = import_module("movement.filtering")
-        position = valid_poses_dataset.position
-        confidence = valid_poses_dataset.confidence
-        getattr(filtering, method)(position, confidence)
-
-
-@pytest.mark.parametrize("comparator", ["lt", "le", "eq", "ne", "ge", "gt"])
-def test_filter_with_valid_dataarray(valid_poses_dataset, comparator):
-    """Test that filtering a valid pose data array returns an
-    instance of xr.DataArray.
+@pytest.mark.parametrize("window_size", [2, 4, 12])
+def test_median_filter_da(sample_dataset, window_size):
+    """Test that applying the median filter returns
+    a different xr.DataArray than the input data.
     """
-    filtering = import_module("movement.filtering")
-    position = valid_poses_dataset.position
-    confidence = valid_poses_dataset.confidence
-    result = getattr(filtering, f"filter_{comparator}")(position, confidence)
-    assert isinstance(result, xr.DataArray)
+    data = sample_dataset.position
+    data_smoothed = median_filter_da(data, window_size)
+    assert isinstance(data_smoothed, xr.DataArray) and not (
+        data_smoothed.equals(data)
+    )
+
+
+def test_median_filter_with_nans_da(valid_poses_dataset_with_nan):
+    """Test nan behaviour of the median filter. The input data
+    contains NaN values in all keypoints of the first individual at times
+    3, 7, and 8 (0-indexed, 10 total timepoints).
+    The median filter should propagate NaNs within the windows of the filter,
+    but it should not introduce any NaNs for the second individual.
+    """
+    data = valid_poses_dataset_with_nan.position
+    data_smoothed = median_filter_da(data, 3)
+    # There should be 28 NaNs in total for the first individual, i.e.
+    # at 7 timepoints, 2 keypoints, 2 space dimensions
+    # all except for timepoints 0, 1 and 5
+    assert data_smoothed.isnull().sum().item() == 28
+    assert not (
+        data_smoothed.isel(individuals=0, time=[0, 1, 5]).isnull().any()
+    )
+    assert not data_smoothed.isel(individuals=1).isnull().any()
+
+
+@pytest.mark.parametrize("window_length, polyorder", [(2, 1), (4, 2), (12, 3)])
+def test_savgol_filter_da(sample_dataset, window_length, polyorder):
+    """Test that applying the Savitzky-Golay filter returns
+    a different xr.DataArray than the input data.
+    """
+    data = sample_dataset.position
+    data_smoothed = savgol_filter_da(data, window_length, polyorder=polyorder)
+
+    # Test whether filter received and returned correct data
+    assert isinstance(data_smoothed, xr.DataArray) and not (
+        data_smoothed.equals(data)
+    )
+
+
+def test_median_equals(sample_dataset):
+    """Test that the median_filter methods are equal."""
+    data = sample_dataset.position
+    sample_dataset["time_unit"] = "frames"
+    ds_result = median_filter(sample_dataset, window_length=2).position
+    da_result = median_filter_da(data, window_length=2)
+    del da_result.attrs["log"]
+    xr.testing.assert_allclose(ds_result, da_result)
+
+
+def test_savgol_equals(sample_dataset):
+    """Test that the savgol_filter methods are equal."""
+    data = sample_dataset.position
+    sample_dataset["time_unit"] = "frames"
+    ds_result = savgol_filter(
+        sample_dataset, window_length=2, polyorder=1
+    ).position
+    da_result = savgol_filter_da(data, window_length=2, polyorder=1)
+    del da_result.attrs["log"]
+    xr.testing.assert_allclose(ds_result, da_result)
+
+
+def test_conf_equals(sample_dataset):
+    """Test that the savgol_filter methods are equal."""
+    data = sample_dataset.position
+    confidence = sample_dataset.confidence
+    sample_dataset["time_unit"] = "frames"
+    ds_result = filter_by_confidence(sample_dataset).position
+    da_result = filter_by_confidence_da(data, confidence)
+    del da_result.attrs["log"]
+    xr.testing.assert_allclose(ds_result, da_result)
+
+
+def test_interpolate_equals(valid_poses_dataset_with_nan):
+    """Test that the interpolate_over_time methods are equal."""
+    data = valid_poses_dataset_with_nan.position
+    ds_result = interpolate_over_time(valid_poses_dataset_with_nan).position
+    da_result = interpolate_over_time_da(data)
+    del da_result.attrs["log"]
+    xr.testing.assert_allclose(ds_result, da_result)
