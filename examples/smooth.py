@@ -175,7 +175,7 @@ ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1)
 ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
 
 # %%
-# We see that this time the number of NaN values has decreased 
+# We see that this time the number of NaN values has decreased
 # across all keypoints.
 # Let's visualise the effects of the median filter in the time and frequency
 # domains. Here we focus on the first 80 seconds for the ``snout`` keypoint.
@@ -242,7 +242,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 )
 # %%
 # Once again, the power of high-frequency components has been reduced, but more missing
-# values have been introduced. 
+# values have been introduced.
 
 # %%
 # Now let's take a look at the wasp dataset.
