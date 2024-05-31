@@ -161,10 +161,10 @@ ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1)
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
-# occur at the ``snout`` and ``tail_end`` keypoints. After filtering, the number of
-# NaNs has increased. This is because the default behaviour of the median
-# filter is to propagate NaN values, i.e. if any value in the rolling window is
-# NaN, the output will also be NaN.
+# occur at the ``snout`` and ``tail_end`` keypoints. After filtering, the
+# number of NaNs has increased. This is because the default behaviour of the
+# median filter is to propagate NaN values, i.e. if any value in the rolling
+# window is NaN, the output will also be NaN.
 #
 # To modify this behaviour, you can set the value of the ``min_periods``
 # parameter to an integer value. This parameter determines the minimum number
@@ -187,8 +187,8 @@ plot_raw_and_smooth_timeseries_and_psd(
 )
 
 # %%
-# The smoothing once again reduces the power of high-frequency components, but the
-# resulting time series stays quite close to the raw data.
+# The smoothing once again reduces the power of high-frequency components, but
+# the resulting time series stays quite close to the raw data.
 #
 # What happens if we increase the ``window_length`` to 2 seconds?
 
@@ -241,8 +241,8 @@ plot_raw_and_smooth_timeseries_and_psd(
     ds_mouse, ds_mouse_savgol, keypoint="snout", time_range=slice(0, 80)
 )
 # %%
-# Once again, the power of high-frequency components has been reduced, but more missing
-# values have been introduced.
+# Once again, the power of high-frequency components has been reduced, but more
+# missing values have been introduced.
 
 # %%
 # Now let's take a look at the wasp dataset.
