@@ -409,9 +409,8 @@ class ValidBboxesDataset:
     # Required attributes
     centroid_position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
-    IDs: Optional[list[str]] = field(
-        converter=converters.optional(_list_of_str),
-    )
+    IDs: list[str] = field(converter=_list_of_str)
+    # force into list of strings if not
 
     # Optional attributes
     confidence_array: Optional[np.ndarray] = field(default=None)
