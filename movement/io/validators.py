@@ -463,15 +463,15 @@ class ValidBboxesDataset:
             attribute, value, self.centroid_position_array.shape[1]
         )
 
-        # check IDs are strings of the expected format (id_integer)
+        # check IDs are strings of the expected format `id_<integer>`)
         regexp_pattern = r"id_\d+$"
-        list_pattern_matches = [
+        list_bools_pattern = [
             bool(re.fullmatch(regexp_pattern, value_i)) for value_i in value
         ]
-        if not all(list_pattern_matches):
+        if not all(list_bools_pattern):
             IDs_wrong_format = [
                 value[k]
-                for k, bool_k in enumerate(list_pattern_matches)
+                for k, bool_k in enumerate(list_bools_pattern)
                 if not bool_k
             ]
             raise log_error(
@@ -480,7 +480,24 @@ class ValidBboxesDataset:
                 f"Expected 'id_<integer>', but got {IDs_wrong_format} ",
             )
 
-        # check IDs refer to 1-based numbers
+        # check IDs are 1-based
+        list_IDs_as_integers = [
+            _extract_integer_from_ID_str(value_i) for value_i in value
+        ]
+        list_bools_IDs_1_based = [
+            ID_int >= 1 for ID_int in list_IDs_as_integers
+        ]
+        if not all(list_bools_IDs_1_based):
+            IDs_wrong_format = [
+                value[k]
+                for k, bool_k in enumerate(list_bools_IDs_1_based)
+                if not bool_k
+            ]
+            raise log_error(
+                ValueError,
+                f"IDs provided are not 1-based: {IDs_wrong_format}. ",
+                "Please provide IDs that start from 1.",
+            )
 
         # check IDs are unique
         if len(value) != len(set(value)):
@@ -520,3 +537,11 @@ class ValidBboxesDataset:
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
+
+
+def _extract_integer_from_ID_str(ID_str: str) -> Optional[int]:
+    match = re.fullmatch(r"id_(\d+)$", ID_str)
+    if match:
+        return int(match.group(1))
+    else:
+        return None
