@@ -530,7 +530,9 @@ class ValidBboxesDataset:
         # if confidence_array is None, set it to an array of NaNs
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                (self.position_array.shape[:-1]), np.nan, dtype="float32"
+                (self.centroid_position_array.shape[:-1]),
+                np.nan,
+                dtype="float32",
             )
             log_warning(
                 "Confidence array was not provided."
