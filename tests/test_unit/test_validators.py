@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from movement.io.validators import (
+    ValidBboxesDataset,
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
@@ -231,3 +232,49 @@ class TestValidators:
                 assert ds.source_software == source_software
             else:
                 assert ds.source_software is None
+
+    @pytest.mark.parametrize(
+        "invalid_centroid_position_array",
+        [
+            None,  # invalid, argument is non-optional
+            [1, 2, 3],  # not an ndarray
+            np.zeros((10, 2)),  # not 3d
+            np.zeros((10, 2, 3)),  # last dim not 2
+        ],
+    )
+    def test_bboxes_dataset_validator_with_invalid_centroid_position_array(
+        self, invalid_centroid_position_array
+    ):
+        """Test that invalid centroid position arrays raise an error."""
+        with pytest.raises(ValueError):
+            ValidBboxesDataset(
+                centroid_position_array=invalid_centroid_position_array,
+                shape_array=np.zeros((10, 2, 2)),
+                IDs=["id_" + str(id) for id in [1, 2, 3, 4]],
+            )
+
+    @pytest.mark.parametrize(
+        "invalid_shape_array",
+        [
+            None,  # invalid, argument is non-optional
+            [1, 2, 3],  # not an ndarray
+            np.zeros((10, 2)),  # not 3d
+            np.zeros((10, 2, 3)),  # last dim not 2
+        ],
+    )
+    def test_bboxes_dataset_validator_with_invalid_shape_array(
+        self, invalid_shape_array
+    ):
+        """Test that invalid shape arrays raise an error."""
+        with pytest.raises(ValueError):
+            ValidBboxesDataset(
+                centroid_position_array=np.zeros((10, 2, 2)),
+                shape_array=invalid_shape_array,
+                IDs=["id_" + str(id) for id in [1, 2, 3, 4]],
+            )
+
+    # def test_bboxes_dataset_validator_with_invalid_ID_array():
+    #     pass
+
+    # def test_bboxes_dataset_validator_confidence_array():
+    #     pass
