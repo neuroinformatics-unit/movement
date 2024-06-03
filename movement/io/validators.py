@@ -1,6 +1,7 @@
 """`attrs` classes for validating file paths and data structures."""
 
 import os
+import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
@@ -389,8 +390,9 @@ class ValidBboxesDataset:
         height (extension along the y-axis). It will be converted to a
         `xarray.DataArray` object named "shape".
     IDs : list of str
-        List of unique, 1-based IDs for the tracked bounding boxes in the
-        video.
+        List IDs for the tracked bounding boxes in the video. Each ID is a
+        unique string in the format `id_<N>`, where <N> is an integer from 1
+        to Inf.
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the bounding boxes confidence scores. It will be converted to a
@@ -461,9 +463,26 @@ class ValidBboxesDataset:
             attribute, value, self.centroid_position_array.shape[1]
         )
 
-        # TODO: check also 1-based ID numbers?
+        # check IDs are strings of the expected format (id_integer)
+        regexp_pattern = r"id_\d+$"
+        for value_i in value:
+            if not bool(re.fullmatch(regexp_pattern, value_i)):
+                raise log_error(
+                    ValueError,
+                    "At least one ID does not fit the expected format. ",
+                    f"Expected 'id_<integer>', but got {value_i} ",
+                )
 
-        # TODO: check also for uniqueness?
+        # check IDs refer to 1-based numbers
+
+        # check IDs are unique
+        if len(value) != len(set(value)):
+            raise log_error(
+                ValueError,
+                "IDs passed to the dataset are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique.",
+            )
 
     # validator for confidence array
     @confidence_array.validator
