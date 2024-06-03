@@ -239,13 +239,13 @@ def _set_fps_to_none_if_invalid(fps: Optional[float]) -> Optional[float]:
 
 
 def _validate_list_length(
-    attribute: str, value: Optional[list], expected_length: int
+    attribute, value: Optional[list], expected_length: int
 ):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
         raise log_error(
             ValueError,
-            f"Expected `{attribute}` to have length {expected_length}, "
+            f"Expected `{attribute.name}` to have length {expected_length}, "
             f"but got {len(value)}.",
         )
 
@@ -308,14 +308,14 @@ class ValidPosesDataset:
         if value.ndim != 4:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute}` to have 4 dimensions, "
+                f"Expected `{attribute.name}` to have 4 dimensions, "
                 f"but got {value.ndim}.",
             )
         if value.shape[-1] not in [2, 3]:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute}` to have 2 or 3 spatial dimensions, "
-                f"but got {value.shape[-1]}.",
+                f"Expected `{attribute.name}` to have 2 or 3 spatial "
+                f"dimensions, but got {value.shape[-1]}.",
             )
 
     @confidence_array.validator
@@ -326,7 +326,7 @@ class ValidPosesDataset:
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
-                    f"Expected `{attribute}` to have shape "
+                    f"Expected `{attribute.name}` to have shape "
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
@@ -520,7 +520,7 @@ class ValidBboxesDataset:
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
-                    f"Expected `{attribute}` to have shape "
+                    f"Expected `{attribute.name}` to have shape "
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
