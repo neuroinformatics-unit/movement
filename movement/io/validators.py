@@ -465,13 +465,20 @@ class ValidBboxesDataset:
 
         # check IDs are strings of the expected format (id_integer)
         regexp_pattern = r"id_\d+$"
-        for value_i in value:
-            if not bool(re.fullmatch(regexp_pattern, value_i)):
-                raise log_error(
-                    ValueError,
-                    "At least one ID does not fit the expected format. ",
-                    f"Expected 'id_<integer>', but got {value_i} ",
-                )
+        list_pattern_matches = [
+            bool(re.fullmatch(regexp_pattern, value_i)) for value_i in value
+        ]
+        if not all(list_pattern_matches):
+            IDs_wrong_format = [
+                value[k]
+                for k, bool_k in enumerate(list_pattern_matches)
+                if not bool_k
+            ]
+            raise log_error(
+                ValueError,
+                "At least one ID does not fit the expected format. ",
+                f"Expected 'id_<integer>', but got {IDs_wrong_format} ",
+            )
 
         # check IDs refer to 1-based numbers
 
