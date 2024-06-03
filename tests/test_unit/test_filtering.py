@@ -1,3 +1,5 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
 
@@ -9,6 +11,7 @@ from movement.filtering import (
     log_to_attrs,
     median_filter,
     median_filter_da,
+    report_nan_values2,
     savgol_filter,
     savgol_filter_da,
 )
@@ -212,6 +215,54 @@ def test_savgol_filter_da(sample_dataset, window_length, polyorder):
     assert isinstance(data_smoothed, xr.DataArray) and not (
         data_smoothed.equals(data)
     )
+
+
+@pytest.mark.parametrize(
+    "override_kwargs",
+    [
+        {"mode": "nearest"},
+        {"axis": 1},
+        {"mode": "nearest", "axis": 1},
+    ],
+)
+def test_savgol_filter_kwargs_override_da(sample_dataset, override_kwargs):
+    """Test that overriding keyword arguments in the Savitzky-Golay filter
+    works, except for the ``axis`` argument, which should raise a ValueError.
+    """
+    expected_exception = (
+        pytest.raises(ValueError)
+        if "axis" in override_kwargs
+        else does_not_raise()
+    )
+    with expected_exception:
+        savgol_filter_da(sample_dataset.position, 5, **override_kwargs)
+
+
+def test_savgol_filter_with_nans_da(valid_poses_dataset_with_nan):
+    """Test nan behaviour of the Savitzky-Golay filter. The input data
+    contains NaN values in all keypoints of the first individual at times
+    3, 7, and 8 (0-indexed, 10 total timepoints).
+    The Savitzky-Golay filter should propagate NaNs within the windows of
+    the filter, but it should not introduce any NaNs for the second individual.
+    """
+    data = valid_poses_dataset_with_nan.position
+    data_smoothed = savgol_filter_da(data, 3, polyorder=2)
+    # There should be 28 NaNs in total for the first individual, i.e.
+    # at 7 timepoints, 2 keypoints, 2 space dimensions
+    # all except for timepoints 0, 1 and 5
+    assert data_smoothed.isnull().sum().item() == 28
+    assert not (
+        data_smoothed.isel(individuals=0, time=[0, 1, 5]).isnull().any()
+    )
+    assert not data_smoothed.isel(individuals=1).isnull().any()
+
+
+def test_report_nan_values(capsys, valid_poses_dataset_with_nan):
+    """Test that the correct number of NaN values are reported."""
+    data = valid_poses_dataset_with_nan.position
+    report_nan_values2(data)
+    out, _ = capsys.readouterr()
+    assert data.name in out
 
 
 def test_median_equals(sample_dataset):
