@@ -323,21 +323,40 @@ class TestValidators:
 
     # @pytest.mark.foo
     @pytest.mark.parametrize(
-        "invalid_ID_list",
+        "invalid_ID_list, log_message",
         [
-            None,  # invalid, argument is non-optional
-            [1, 2, 3],  # length doesn't match centroid_position_array.shape[1]
-            [1, 2],  # IDs not in the expected format
-            ["id_0", "id_2"],  # some IDs are not 1-based
-            [1, 1, 2, 3],  # some IDs are not unique
+            (
+                None,
+                "Invalid value (None). Expected a list of strings.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                "Expected `IDs` to have length 2, but got 3.",
+            ),  # length doesn't match centroid_position_array.shape[1]
+            (
+                [1, 2],
+                "At least one ID does not fit the expected format. "
+                "Expected 'id_<integer>', but got ['1', '2'] ",
+            ),  # IDs not in the expected format
+            (
+                ["id_0", "id_2"],
+                "IDs provided are not 1-based: ['id_0']. "
+                "Please provide IDs that start from 1.",
+            ),  # some IDs are not 1-based
+            (
+                ["id_1", "id_1"],
+                "IDs passed to the dataset are not unique. "
+                "There are 2 elements in the list, but "
+                "only 1 are unique.",
+            ),  # some IDs are not unique
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_ID_array(
-        self, invalid_ID_list, request
+        self, invalid_ID_list, log_message, request
     ):
         """Test that invalid ID arrays raise an error."""
         # TODO: can I check the error is raised where I expect it?
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
                 centroid_position_array=request.getfixturevalue(
                     "valid_bboxes_inputs"
@@ -347,6 +366,7 @@ class TestValidators:
                 ],
                 IDs=invalid_ID_list,
             )
+        assert str(excinfo.value) == log_message
 
     # @pytest.mark.foo
     @pytest.mark.parametrize(
