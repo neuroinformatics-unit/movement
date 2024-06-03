@@ -475,7 +475,7 @@ class ValidBboxesDataset:
             ]
             raise log_error(
                 ValueError,
-                "At least one ID does not fit the expected format. ",
+                "At least one ID does not fit the expected format. "
                 f"Expected 'id_<integer>', but got {IDs_wrong_format} ",
             )
 
@@ -494,7 +494,7 @@ class ValidBboxesDataset:
             ]
             raise log_error(
                 ValueError,
-                f"IDs provided are not 1-based: {IDs_wrong_format}. ",
+                f"IDs provided are not 1-based: {IDs_wrong_format}. "
                 "Please provide IDs that start from 1.",
             )
 
