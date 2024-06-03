@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 
 def from_file(
     file_path: Union[Path, str],
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_software: Literal[
+        "DeepLabCut", "SLEAP", "LightningPose", "VIA-tracks"
+    ],
     fps: Optional[float] = None,
 ) -> xr.Dataset:
     """Load pose tracking data from any supported file format.
@@ -318,7 +320,8 @@ def from_via_tracks_file(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
 
-    # Validate specific file format AND populate 'valid data' class
+    # Validate specific file format AND populate the 'valid data' class
+    # TODO: this will be numpy arrays!
     valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # TODO
     logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
 
@@ -878,6 +881,8 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         Dataset containing the pose tracks, confidence scores, and metadata.
 
     """
+    # TODO: a lot of common code with pose ds, can we combine/refactor?
+
     n_frames = data.centroid_position_array.shape[0]
     n_space = data.centroid_position_array.shape[-1]
 
@@ -889,13 +894,14 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         time_unit = "seconds"
 
     DIM_NAMES = MovementDataset.dim_names
+
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
             "centroid_position": xr.DataArray(
                 data.centroid_position_array, dims=DIM_NAMES
             ),
-            "shape": xr.DataArray(data.confidence_array, dims=DIM_NAMES[:-1]),
+            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES[:-1]),
             "confidence": xr.DataArray(
                 data.confidence_array, dims=DIM_NAMES[:-1]
             ),
@@ -903,7 +909,7 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.IDs,
-            DIM_NAMES[3]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[3]: ["x", "y", "z"][:n_space],  # TODO: w, h?
         },
         attrs={
             "fps": data.fps,
