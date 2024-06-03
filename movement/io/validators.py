@@ -481,7 +481,7 @@ class ValidBboxesDataset:
 
         # check IDs are 1-based
         list_IDs_as_integers = [
-            _extract_integer_from_ID_str(value_i) for value_i in value
+            self._extract_integer_from_ID_str(value_i) for value_i in value
         ]
         list_bools_IDs_1_based = [
             ID_int >= 1 for ID_int in list_IDs_as_integers
@@ -539,10 +539,9 @@ class ValidBboxesDataset:
                 "Setting to an array of NaNs."
             )
 
-
-def _extract_integer_from_ID_str(ID_str: str) -> Optional[int]:
-    match = re.fullmatch(r"id_(\d+)$", ID_str)
-    if match:
-        return int(match.group(1))
-    else:
-        return None
+    def _extract_integer_from_ID_str(self, ID_str: str) -> Optional[int]:
+        match = re.fullmatch(r"id_(\d+)$", ID_str)
+        if match:
+            return int(match.group(1))
+        else:
+            return None
