@@ -20,11 +20,11 @@ class ValidFile:
     ----------
     path : str or pathlib.Path
         Path to the file.
-    expected_permission : {'r', 'w', 'rw'}
-        Expected access permission(s) for the file. If 'r', the file is
-        expected to be readable. If 'w', the file is expected to be writable.
-        If 'rw', the file is expected to be both readable and writable.
-        Default: 'r'.
+    expected_permission : {"r", "w", "rw"}
+        Expected access permission(s) for the file. If "r", the file is
+        expected to be readable. If "w", the file is expected to be writable.
+        If "rw", the file is expected to be both readable and writable.
+        Default: "r".
     expected_suffix : list of str
         Expected suffix(es) for the file. If an empty list (default), this
         check is skipped.
@@ -36,9 +36,9 @@ class ValidFile:
     PermissionError
         If the file does not have the expected access permission(s).
     FileNotFoundError
-        If the file does not exist when `expected_permission` is 'r' or 'rw'.
+        If the file does not exist when `expected_permission` is "r" or "rw".
     FileExistsError
-        If the file exists when `expected_permission` is 'w'.
+        If the file exists when `expected_permission` is "w".
     ValueError
         If the file does not have one of the expected suffix(es).
 
@@ -70,7 +70,7 @@ class ValidFile:
                 raise log_error(
                     FileNotFoundError, f"File {value} does not exist."
                 )
-        else:  # expected_permission is 'w'
+        else:  # expected_permission is "w"
             if value.exists():
                 raise log_error(
                     FileExistsError, f"File {value} already exists."
@@ -158,8 +158,8 @@ class ValidHDF5:
 
 
 @define
-class ValidPosesCSV:
-    """Class for validating DLC-style .csv files.
+class ValidDeepLabCutCSV:
+    """Class for validating DeepLabCut-style .csv files.
 
     Parameters
     ----------
@@ -307,18 +307,16 @@ def _validate_list_length(
 
 @define(kw_only=True)
 class ValidPosesDataset:
-    """Class for validating pose tracking data imported from a file.
+    """Class for validating data intended for a ``movement`` dataset.
 
     Attributes
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_keypoints, n_space)
-        containing the poses. It will be converted to a
-        `xarray.DataArray` object named "position".
+        containing the poses.
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
-        the point-wise confidence scores. It will be converted to a
-        `xarray.DataArray` object named "confidence".
+        the point-wise confidence scores.
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
