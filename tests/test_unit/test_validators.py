@@ -71,6 +71,22 @@ class TestValidators:
         """
         return request.param
 
+    @pytest.fixture
+    def valid_bboxes_inputs(self):
+        """Return a dictionary with valid inputs for a ValidBboxesDataset."""
+        # valid array for centroid_position or shape;
+        valid_bbox_array = np.zeros(
+            (10, 2, 2)
+        )  # (n_frames, n_unique_IDs, n_space)
+
+        return {
+            "centroid_position_array": valid_bbox_array,
+            "shape_array": valid_bbox_array,
+            "IDs": [
+                "id_" + str(id) for id in range(valid_bbox_array.shape[1])
+            ],
+        }
+
     @pytest.mark.parametrize(
         "invalid_input, expected_exception",
         [
@@ -243,14 +259,16 @@ class TestValidators:
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_centroid_position_array(
-        self, invalid_centroid_position_array
+        self, invalid_centroid_position_array, request
     ):
         """Test that invalid centroid position arrays raise an error."""
         with pytest.raises(ValueError):
             ValidBboxesDataset(
                 centroid_position_array=invalid_centroid_position_array,
-                shape_array=np.zeros((10, 2, 2)),
-                IDs=["id_" + str(id) for id in [1, 2]],
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
+                IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
 
     @pytest.mark.parametrize(
@@ -263,14 +281,16 @@ class TestValidators:
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_shape_array(
-        self, invalid_shape_array
+        self, invalid_shape_array, request
     ):
         """Test that invalid shape arrays raise an error."""
         with pytest.raises(ValueError):
             ValidBboxesDataset(
-                centroid_position_array=np.zeros((10, 2, 2)),
+                centroid_position_array=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["centroid_position_array"],
                 shape_array=invalid_shape_array,
-                IDs=["id_" + str(id) for id in [1, 2]],
+                IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
 
     @pytest.mark.parametrize(
@@ -284,16 +304,18 @@ class TestValidators:
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_ID_array(
-        self, invalid_ID_list
+        self, invalid_ID_list, request
     ):
         """Test that invalid ID arrays raise an error."""
         # TODO: can I check the error is raised where I expect it?
         with pytest.raises(ValueError):
             ValidBboxesDataset(
-                centroid_position_array=np.zeros(
-                    (10, 2, 2)
-                ),  #  (n_frames, n_unique_IDs, n_space)
-                shape_array=np.zeros((10, 2, 2)),
+                centroid_position_array=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["centroid_position_array"],
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
                 IDs=invalid_ID_list,
             )
 
