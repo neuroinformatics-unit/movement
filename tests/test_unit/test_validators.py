@@ -248,7 +248,6 @@ class TestValidators:
             else:
                 assert ds.source_software is None
 
-    # @pytest.mark.foo
     @pytest.mark.parametrize(
         "invalid_centroid_position_array, log_message",
         [
@@ -286,21 +285,33 @@ class TestValidators:
             )
         assert str(excinfo.value) == log_message
 
-    # @pytest.mark.foo
     @pytest.mark.parametrize(
-        "invalid_shape_array",
+        "invalid_shape_array, log_message",
         [
-            None,  # invalid, argument is non-optional
-            [1, 2, 3],  # not an ndarray
-            np.zeros((10, 2)),  # not 3d
-            np.zeros((10, 2, 3)),  # last dim not 2
+            (
+                None,
+                f"Expected a numpy array, but got {type(None)}.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray
+            (
+                np.zeros((10, 2)),
+                "Expected `shape_array` to have 3 dimensions, " "but got 2.",
+            ),  # not 3d
+            (
+                np.zeros((10, 2, 3)),
+                "Expected `shape_array` to have 2 spatial "
+                "coordinates, but got 3.",
+            ),  # last dim not 2
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_shape_array(
-        self, invalid_shape_array, request
+        self, invalid_shape_array, log_message, request
     ):
         """Test that invalid shape arrays raise an error."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
                 centroid_position_array=request.getfixturevalue(
                     "valid_bboxes_inputs"
@@ -308,6 +319,7 @@ class TestValidators:
                 shape_array=invalid_shape_array,
                 IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
+        assert str(excinfo.value) == log_message
 
     # @pytest.mark.foo
     @pytest.mark.parametrize(
