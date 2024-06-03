@@ -13,19 +13,19 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9c66c473" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
-    <script src="../../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../../_static/documentation_options.js?v=8bafd125"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,27 +59,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -101,12 +97,17 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
@@ -122,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.17</p>
+    <p class="title logo__title">movement v0.0.18</p>
   
 </a></div>
     
@@ -136,33 +137,33 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -267,39 +268,42 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
+          
+          
+            <div class="navbar-item">
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -360,13 +364,13 @@ document.write(`
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -375,7 +379,7 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -428,11 +432,11 @@ document.write(`
 <span class="sd">    ----------</span>
 <span class="sd">    path : str or pathlib.Path</span>
 <span class="sd">        Path to the file.</span>
-<span class="sd">    expected_permission : {&#39;r&#39;, &#39;w&#39;, &#39;rw&#39;}</span>
-<span class="sd">        Expected access permission(s) for the file. If &#39;r&#39;, the file is</span>
-<span class="sd">        expected to be readable. If &#39;w&#39;, the file is expected to be writable.</span>
-<span class="sd">        If &#39;rw&#39;, the file is expected to be both readable and writable.</span>
-<span class="sd">        Default: &#39;r&#39;.</span>
+<span class="sd">    expected_permission : {&quot;r&quot;, &quot;w&quot;, &quot;rw&quot;}</span>
+<span class="sd">        Expected access permission(s) for the file. If &quot;r&quot;, the file is</span>
+<span class="sd">        expected to be readable. If &quot;w&quot;, the file is expected to be writable.</span>
+<span class="sd">        If &quot;rw&quot;, the file is expected to be both readable and writable.</span>
+<span class="sd">        Default: &quot;r&quot;.</span>
 <span class="sd">    expected_suffix : list of str</span>
 <span class="sd">        Expected suffix(es) for the file. If an empty list (default), this</span>
 <span class="sd">        check is skipped.</span>
@@ -444,9 +448,9 @@ document.write(`
 <span class="sd">    PermissionError</span>
 <span class="sd">        If the file does not have the expected access permission(s).</span>
 <span class="sd">    FileNotFoundError</span>
-<span class="sd">        If the file does not exist when `expected_permission` is &#39;r&#39; or &#39;rw&#39;.</span>
+<span class="sd">        If the file does not exist when `expected_permission` is &quot;r&quot; or &quot;rw&quot;.</span>
 <span class="sd">    FileExistsError</span>
-<span class="sd">        If the file exists when `expected_permission` is &#39;w&#39;.</span>
+<span class="sd">        If the file exists when `expected_permission` is &quot;w&quot;.</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If the file does not have one of the expected suffix(es).</span>
 
@@ -478,7 +482,7 @@ document.write(`
                 <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
                 <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># expected_permission is &#39;w&#39;</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># expected_permission is &quot;w&quot;</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
                     <span class="ne">FileExistsError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> already exists.&quot;</span>
@@ -569,11 +573,11 @@ document.write(`
 
 
 
-<div class="viewcode-block" id="ValidPosesCSV">
-<a class="viewcode-back" href="../../../api/movement.io.validators.ValidPosesCSV.html#movement.io.validators.ValidPosesCSV">[docs]</a>
+<div class="viewcode-block" id="ValidDeepLabCutCSV">
+<a class="viewcode-back" href="../../../api/movement.io.validators.ValidDeepLabCutCSV.html#movement.io.validators.ValidDeepLabCutCSV">[docs]</a>
 <span class="nd">@define</span>
-<span class="k">class</span> <span class="nc">ValidPosesCSV</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DLC-style .csv files.</span>
+<span class="k">class</span> <span class="nc">ValidDeepLabCutCSV</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DeepLabCut-style .csv files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -668,18 +672,16 @@ document.write(`
 <a class="viewcode-back" href="../../../api/movement.io.validators.ValidPosesDataset.html#movement.io.validators.ValidPosesDataset">[docs]</a>
 <span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ValidPosesDataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating pose tracking data imported from a file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating data intended for a ``movement`` dataset.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    position_array : np.ndarray</span>
 <span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints, n_space)</span>
-<span class="sd">        containing the poses. It will be converted to a</span>
-<span class="sd">        `xarray.DataArray` object named &quot;position&quot;.</span>
+<span class="sd">        containing the poses.</span>
 <span class="sd">    confidence_array : np.ndarray, optional</span>
 <span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints) containing</span>
-<span class="sd">        the point-wise confidence scores. It will be converted to a</span>
-<span class="sd">        `xarray.DataArray` object named &quot;confidence&quot;.</span>
+<span class="sd">        the point-wise confidence scores.</span>
 <span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
 <span class="sd">    individual_names : list of str, optional</span>
 <span class="sd">        List of unique names for the individuals in the video. If None</span>
@@ -797,7 +799,7 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
 </div>
@@ -806,8 +808,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"></div>
               
             
           </div>
@@ -820,8 +820,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -835,7 +835,7 @@ document.write(`
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.2.
+    0.15.3.
     </p></div>
       
     </div>

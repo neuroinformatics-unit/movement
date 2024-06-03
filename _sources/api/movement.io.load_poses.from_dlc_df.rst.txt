@@ -1,6 +1,0 @@
-﻿movement.io.load\_poses.from\_dlc\_df
-=====================================
-
-.. currentmodule:: movement.io.load_poses
-
-.. autofunction:: from_dlc_df

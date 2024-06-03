@@ -14,19 +14,19 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=9c66c473" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
@@ -37,11 +37,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
-    <script src="../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../_static/documentation_options.js?v=8bafd125"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -51,8 +51,8 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.io.save_poses.to_dlc_df" href="movement.io.save_poses.to_dlc_df.html" />
-    <link rel="prev" title="movement.io.load_poses.from_lp_file" href="movement.io.load_poses.from_lp_file.html" />
+    <link rel="next" title="movement.io.save_poses.to_lp_file" href="movement.io.save_poses.to_lp_file.html" />
+    <link rel="prev" title="movement.io.load_poses.from_dlc_style_df" href="movement.io.load_poses.from_dlc_style_df.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -62,27 +62,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -104,12 +100,17 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
@@ -125,7 +126,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.17</p>
+    <p class="title logo__title">movement v0.0.18</p>
   
 </a></div>
     
@@ -139,33 +140,33 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -249,9 +250,9 @@ document.write(`
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
       <span class="fa-solid fa-outdent"></span>
-    </label>
+    </button>
   
 </div>
 
@@ -272,39 +273,42 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
+          
+          
+            <div class="navbar-item">
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -362,22 +366,23 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">movement.io.load_poses.from_numpy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_file.html">movement.io.load_poses.from_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">movement.io.load_poses.from_sleap_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html">movement.io.load_poses.from_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_df.html">movement.io.load_poses.from_dlc_df</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">movement.io.load_poses.from_lp_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.load_poses.from_dlc_style_df.html">movement.io.load_poses.from_dlc_style_df</a></li>
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">movement.io.save_poses.to_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html">movement.io.save_poses.to_dlc_df</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">movement.io.save_poses.to_lp_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">movement.io.save_poses.to_dlc_style_df</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidFile.html">movement.io.validators.ValidFile</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidHDF5.html">movement.io.validators.ValidHDF5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidDeepLabCutCSV.html">movement.io.validators.ValidDeepLabCutCSV</a></li>
 <li class="toctree-l1"><a class="reference internal" href="movement.io.validators.ValidPosesDataset.html">movement.io.validators.ValidPosesDataset</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -422,13 +427,13 @@ document.write(`
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -437,7 +442,7 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -470,37 +475,36 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.save_poses.to_dlc_file">
 <span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_individuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_file" title="Link to this definition">#</a></dt>
-<dd><p>Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.</p>
+<dd><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to DeepLabCut file(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<em>xarray.Dataset</em>) – Dataset containing pose tracks, confidence scores, and metadata.</p></li>
-<li><p><strong>file_path</strong> (<em>pathlib.Path</em><em> or </em><em>str</em>) – Path to the file to save the DLC poses to. The file extension
+<li><p><strong>ds</strong> (<em>xarray.Dataset</em>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing pose tracks, confidence scores,
+and associated metadata.</p></li>
+<li><p><strong>file_path</strong> (<em>pathlib.Path</em><em> or </em><em>str</em>) – Path to the file to save the poses to. The file extension
 must be either .h5 (recommended) or .csv.</p></li>
-<li><p><strong>split_individuals</strong> (<em>bool</em><em> or </em><em>&quot;auto&quot;</em><em>, </em><em>optional</em>) – <p>Whether to save individuals to separate files or to the same file.</p>
-<p>If True, each individual will be saved to a separate file,
-formatted as in a single-animal DeepLabCut project - i.e. without
-the “individuals” column level. The individual’s name will be appended
-to the file path, just before the file extension, i.e.
-“/path/to/filename_individual1.h5”.</p>
-<p>If False, all individuals will be saved to the same file,
-formatted as in a multi-animal DeepLabCut project - i.e. the columns
-will include the “individuals” level. The file path will not be
-modified.</p>
-<p>If “auto” the argument’s value is determined based on the number of
-individuals in the dataset: True if there is only one, and
-False if there are more than one. This is the default.</p>
-</p></li>
+<li><p><strong>split_individuals</strong> (<em>bool</em><em> or </em><em>&quot;auto&quot;</em><em>, </em><em>optional</em>) – Whether to save individuals to separate files or to the same file
+(see Notes). Defaults to “auto”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> is True, each individual will be saved to a
+separate file, formatted as in a single-animal DeepLabCut project
+(without the “individuals” column level). The individual’s name will be
+appended to the file path, just before the file extension, e.g.
+“/path/to/filename_individual1.h5”. If False, all individuals will be
+saved to the same file, formatted as in a multi-animal DeepLabCut project
+(with the “individuals” column level). The file path will not be modified.
+If “auto”, the argument’s value is determined based on the number of
+individuals in the dataset: True if there is only one, False otherwise.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df" title="movement.io.save_poses.to_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_df</span></code></a></dt><dd><p>Convert an xarray dataset containing pose tracks into a single DeepLabCut-style pandas DataFrame or a dictionary of DataFrames per individual.</p>
+<dt><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df" title="movement.io.save_poses.to_dlc_style_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_style_df</span></code></a></dt><dd><p>Convert dataset to DeepLabCut-style DataFrame(s).</p>
 </dd>
 </dl>
 </div>
@@ -521,24 +525,24 @@ False if there are more than one. This is the default.</p>
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.io.load_poses.from_lp_file.html"
+       href="movement.io.load_poses.from_dlc_style_df.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.io.load_poses.from_lp_file</p>
+        <p class="prev-next-title">movement.io.load_poses.from_dlc_style_df</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.io.save_poses.to_dlc_df.html"
+       href="movement.io.save_poses.to_lp_file.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.io.save_poses.to_dlc_df</p>
+        <p class="prev-next-title">movement.io.save_poses.to_lp_file</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -586,8 +590,8 @@ False if there are more than one. This is the default.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -601,7 +605,7 @@ False if there are more than one. This is the default.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.2.
+    0.15.3.
     </p></div>
       
     </div>

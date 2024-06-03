@@ -14,19 +14,19 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=9c66c473" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
@@ -37,11 +37,11 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
-    <script src="_static/documentation_options.js?v=63b572e7"></script>
+    <script src="_static/documentation_options.js?v=8bafd125"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -51,7 +51,7 @@
     <link rel="icon" href="_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="movement.io.load_poses.from_file" href="api/movement.io.load_poses.from_file.html" />
+    <link rel="next" title="movement.io.load_poses.from_numpy" href="api/movement.io.load_poses.from_numpy.html" />
     <link rel="prev" title="License" href="community/license.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -62,27 +62,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -104,12 +100,17 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
@@ -125,7 +126,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.17</p>
+    <p class="title logo__title">movement v0.0.18</p>
   
 </a></div>
     
@@ -139,33 +140,33 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="#">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -249,9 +250,9 @@ document.write(`
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
       <span class="fa-solid fa-outdent"></span>
-    </label>
+    </button>
   
 </div>
 
@@ -272,39 +273,42 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
+          
+          
+            <div class="navbar-item">
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item current active">
-                      <a class="nav-link nav-internal" href="#">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -362,22 +366,23 @@ document.write(`
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_numpy.html">movement.io.load_poses.from_numpy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_file.html">movement.io.load_poses.from_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_sleap_file.html">movement.io.load_poses.from_sleap_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_dlc_file.html">movement.io.load_poses.from_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_dlc_df.html">movement.io.load_poses.from_dlc_df</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_lp_file.html">movement.io.load_poses.from_lp_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/movement.io.load_poses.from_dlc_style_df.html">movement.io.load_poses.from_dlc_style_df</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_dlc_file.html">movement.io.save_poses.to_dlc_file</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_dlc_df.html">movement.io.save_poses.to_dlc_df</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_lp_file.html">movement.io.save_poses.to_lp_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_sleap_analysis_file.html">movement.io.save_poses.to_sleap_analysis_file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/movement.io.save_poses.to_dlc_style_df.html">movement.io.save_poses.to_dlc_style_df</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.validators.ValidFile.html">movement.io.validators.ValidFile</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.validators.ValidHDF5.html">movement.io.validators.ValidHDF5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/movement.io.validators.ValidPosesCSV.html">movement.io.validators.ValidPosesCSV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/movement.io.validators.ValidDeepLabCutCSV.html">movement.io.validators.ValidDeepLabCutCSV</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/movement.io.validators.ValidPosesDataset.html">movement.io.validators.ValidPosesDataset</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -422,13 +427,13 @@ document.write(`
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -437,7 +442,7 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -464,44 +469,55 @@ document.write(`
                   
   <section id="api-reference">
 <span id="target-api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
-<section id="input-output">
-<h2>Input/Output<a class="headerlink" href="#input-output" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<section id="load-poses">
+<h2>Load poses<a class="headerlink" href="#load-poses" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file" title="movement.io.load_poses.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a>(file_path, source_software[, fps])</p></td>
-<td><p>Load pose tracking data from any supported file format.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy" title="movement.io.load_poses.from_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_numpy</span></code></a>(position_array[, ...])</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from NumPy arrays.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_sleap_file</span></code></a>(file_path[, fps])</p></td>
-<td><p>Load pose tracking data from a SLEAP file into an xarray Dataset.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file" title="movement.io.load_poses.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a>(file_path, source_software[, fps])</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from any supported file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_file</span></code></a>(file_path[, fps])</p></td>
-<td><p>Load pose tracking data from a DeepLabCut (DLC) output file.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_sleap_file</span></code></a>(file_path[, fps])</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a SLEAP file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_dlc_df.html#movement.io.load_poses.from_dlc_df" title="movement.io.load_poses.from_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_df</span></code></a>(df[, fps])</p></td>
-<td><p>Create an xarray.Dataset from a DeepLabCut-style pandas DataFrame.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_file</span></code></a>(file_path[, fps])</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a DeepLabCut file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file" title="movement.io.load_poses.from_lp_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_lp_file</span></code></a>(file_path[, fps])</p></td>
-<td><p>Load pose tracking data from a LightningPose (LP) output file.</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a LightningPose file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.from_dlc_style_df.html#movement.io.load_poses.from_dlc_style_df" title="movement.io.load_poses.from_dlc_style_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dlc_style_df</span></code></a>(df[, fps, source_software])</p></td>
+<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a DeepLabCut-style DataFrame.</p></td>
 </tr>
 </tbody>
 </table>
-<table class="autosummary longtable table autosummary">
+</div>
+</section>
+<section id="save-poses">
+<h2>Save poses<a class="headerlink" href="#save-poses" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_file</span></code></a>(ds, file_path[, split_individuals])</p></td>
-<td><p>Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df" title="movement.io.save_poses.to_dlc_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_df</span></code></a>(ds[, split_individuals])</p></td>
-<td><p>Convert an xarray dataset to DeepLabCut-style pandas DataFrame(s).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file" title="movement.io.save_poses.to_sleap_analysis_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_sleap_analysis_file</span></code></a>(ds, file_path)</p></td>
-<td><p>Save the xarray dataset to a SLEAP-style .h5 analysis file.</p></td>
+<td><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to DeepLabCut file(s).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_lp_file.html#movement.io.save_poses.to_lp_file" title="movement.io.save_poses.to_lp_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_lp_file</span></code></a>(ds, file_path)</p></td>
-<td><p>Save the xarray dataset to a LightningPose-style .csv file (see Notes).</p></td>
+<td><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to a LightningPose file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file" title="movement.io.save_poses.to_sleap_analysis_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_sleap_analysis_file</span></code></a>(ds, file_path)</p></td>
+<td><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to a SLEAP analysis file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df" title="movement.io.save_poses.to_dlc_style_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dlc_style_df</span></code></a>(ds[, split_individuals])</p></td>
+<td><p>Convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to DeepLabCut-style DataFrame(s).</p></td>
 </tr>
 </tbody>
 </table>
-<table class="autosummary longtable table autosummary">
+</div>
+</section>
+<section id="validators">
+<h2>Validators<a class="headerlink" href="#validators" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.validators.ValidFile.html#movement.io.validators.ValidFile" title="movement.io.validators.ValidFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidFile</span></code></a>(path, *[, expected_permission, ...])</p></td>
 <td><p>Class for validating file paths.</p></td>
@@ -509,18 +525,19 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.validators.ValidHDF5.html#movement.io.validators.ValidHDF5" title="movement.io.validators.ValidHDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidHDF5</span></code></a>(path, *[, expected_datasets])</p></td>
 <td><p>Class for validating HDF5 files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.validators.ValidPosesCSV.html#movement.io.validators.ValidPosesCSV" title="movement.io.validators.ValidPosesCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidPosesCSV</span></code></a>(path)</p></td>
-<td><p>Class for validating DLC-style .csv files.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.validators.ValidDeepLabCutCSV.html#movement.io.validators.ValidDeepLabCutCSV" title="movement.io.validators.ValidDeepLabCutCSV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidDeepLabCutCSV</span></code></a>(path)</p></td>
+<td><p>Class for validating DeepLabCut-style .csv files.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.validators.ValidPosesDataset.html#movement.io.validators.ValidPosesDataset" title="movement.io.validators.ValidPosesDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a>(*, position_array[, ...])</p></td>
-<td><p>Class for validating pose tracking data imported from a file.</p></td>
+<td><p>Class for validating data intended for a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="sample-data">
 <h2>Sample Data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets" title="movement.sample_data.list_datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_datasets</span></code></a>()</p></td>
 <td><p>Find available sample datasets.</p></td>
@@ -533,10 +550,11 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="filtering">
 <h2>Filtering<a class="headerlink" href="#filtering" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_by_confidence</span></code></a>(ds[, threshold, ...])</p></td>
 <td><p>Drop all points below a certain confidence threshold.</p></td>
@@ -555,10 +573,11 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="analysis">
 <h2>Analysis<a class="headerlink" href="#analysis" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.analysis.kinematics.compute_displacement.html#movement.analysis.kinematics.compute_displacement" title="movement.analysis.kinematics.compute_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_displacement</span></code></a>(data)</p></td>
 <td><p>Compute displacement between consecutive positions.</p></td>
@@ -571,7 +590,8 @@ document.write(`
 </tr>
 </tbody>
 </table>
-<table class="autosummary longtable table autosummary">
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cart2pol</span></code></a>(data)</p></td>
 <td><p>Transform Cartesian coordinates to polar.</p></td>
@@ -581,20 +601,22 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="movementdataset">
 <h2>MovementDataset<a class="headerlink" href="#movementdataset" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.move_accessor.MovementDataset.html#movement.move_accessor.MovementDataset" title="movement.move_accessor.MovementDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MovementDataset</span></code></a>(ds)</p></td>
 <td><p>An <code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> accessor for pose tracking data.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 <section id="logging">
 <h2>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h2>
-<table class="autosummary longtable table autosummary">
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.logging.configure_logging.html#movement.logging.configure_logging" title="movement.logging.configure_logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_logging</span></code></a>([log_level, logger_name, ...])</p></td>
 <td><p>Configure the logging module.</p></td>
@@ -607,6 +629,7 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</div>
 </section>
 </section>
 
@@ -617,7 +640,7 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
     <a class="left-prev"
@@ -630,11 +653,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="api/movement.io.load_poses.from_file.html"
+       href="api/movement.io.load_poses.from_numpy.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.io.load_poses.from_file</p>
+        <p class="prev-next-title">movement.io.load_poses.from_numpy</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -656,9 +679,9 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-output">Input/Output</a><ul class="nav section-nav flex-column">
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-poses">Load poses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#save-poses">Save poses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validators">Validators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filtering">Filtering</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis">Analysis</a><ul class="nav section-nav flex-column">
@@ -691,8 +714,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -706,7 +729,7 @@ document.write(`
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.2.
+    0.15.3.
     </p></div>
       
     </div>

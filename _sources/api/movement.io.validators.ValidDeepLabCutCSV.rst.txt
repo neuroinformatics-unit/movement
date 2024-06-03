@@ -1,0 +1,29 @@
+﻿movement.io.validators.ValidDeepLabCutCSV
+=========================================
+
+.. currentmodule:: movement.io.validators
+
+.. autoclass:: ValidDeepLabCutCSV
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ValidDeepLabCutCSV.__init__
+      ~ValidDeepLabCutCSV.csv_file_contains_expected_levels
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ValidDeepLabCutCSV.path
+   
+   

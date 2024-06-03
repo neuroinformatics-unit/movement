@@ -1,6 +1,0 @@
-﻿movement.io.save\_poses.to\_dlc\_df
-===================================
-
-.. currentmodule:: movement.io.save_poses
-
-.. autofunction:: to_dlc_df

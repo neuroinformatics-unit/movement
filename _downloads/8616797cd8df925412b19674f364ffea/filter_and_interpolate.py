@@ -1,5 +1,5 @@
-"""Filtering and interpolation
-============================
+"""Drop outliers and interpolate
+================================
 
 Filter out points with low confidence scores and interpolate over
 missing values.

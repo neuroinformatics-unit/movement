@@ -13,19 +13,19 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9c66c473" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
@@ -36,11 +36,11 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
-    <script src="../../../_static/documentation_options.js?v=63b572e7"></script>
+    <script src="../../../_static/documentation_options.js?v=8bafd125"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,27 +59,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -101,12 +97,17 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
@@ -122,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.17</p>
+    <p class="title logo__title">movement v0.0.18</p>
   
 </a></div>
     
@@ -136,33 +137,33 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -267,39 +268,42 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
+          
+          
+            <div class="navbar-item">
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../examples/index.html">
-                        Examples
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../community/index.html">
-                        Community
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../../api_index.html">
-                        API Reference
-                      </a>
-                    </li>
-                
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -360,13 +364,13 @@ document.write(`
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -375,7 +379,7 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -421,15 +425,18 @@ document.write(`
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an xarray dataset to DLC-style multi-index pandas DataFrame.</span>
+<span class="k">def</span> <span class="nf">_ds_to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 <span class="sd">    columns : pandas.MultiIndex</span>
-<span class="sd">        DLC-style multi-index columns</span>
+<span class="sd">        DeepLabCut-style multi-index columns</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -463,7 +470,7 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a filepath, will save the dataframe as either a .h5 or .csv.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the dataframe as either a .h5 or .csv depending on the file path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -480,22 +487,22 @@ document.write(`
         <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="to_dlc_df">
-<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_df.html#movement.io.save_poses.to_dlc_df">[docs]</a>
-<span class="k">def</span> <span class="nf">to_dlc_df</span><span class="p">(</span>
+<div class="viewcode-block" id="to_dlc_style_df">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df">[docs]</a>
+<span class="k">def</span> <span class="nf">to_dlc_style_df</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an xarray dataset to DeepLabCut-style pandas DataFrame(s).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 <span class="sd">    split_individuals : bool, optional</span>
-<span class="sd">        If True, return a dictionary of pandas DataFrames per individual,</span>
-<span class="sd">        with individual names as keys and DataFrames as values.</span>
-<span class="sd">        If False, return a single pandas DataFrame for all individuals.</span>
-<span class="sd">        Default is False.</span>
+<span class="sd">        If True, return a dictionary of DataFrames per individual, with</span>
+<span class="sd">        individual names as keys. If False (default), return a single</span>
+<span class="sd">        DataFrame for all individuals (see Notes).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -515,8 +522,7 @@ document.write(`
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    to_dlc_file : Save the xarray dataset containing pose tracks directly</span>
-<span class="sd">        to a DeepLabCut-style .h5 or .csv file.</span>
+<span class="sd">    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_validate_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
@@ -536,7 +542,7 @@ document.write(`
                 <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
             <span class="p">)</span>
 
-            <span class="n">df</span> <span class="o">=</span> <span class="n">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">individual_data</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">individual_data</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
             <span class="n">df_dict</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -550,9 +556,9 @@ document.write(`
             <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
         <span class="p">)</span>
 
-        <span class="n">df_all</span> <span class="o">=</span> <span class="n">_xarray_to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted poses dataset to DLC-style DataFrame.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted poses dataset to DeepLabCut-style DataFrame.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_all</span></div>
 
 
@@ -564,35 +570,35 @@ document.write(`
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">split_individuals</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to DeepLabCut file(s).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 <span class="sd">    file_path : pathlib.Path or str</span>
-<span class="sd">        Path to the file to save the DLC poses to. The file extension</span>
+<span class="sd">        Path to the file to save the poses to. The file extension</span>
 <span class="sd">        must be either .h5 (recommended) or .csv.</span>
 <span class="sd">    split_individuals : bool or &quot;auto&quot;, optional</span>
-<span class="sd">        Whether to save individuals to separate files or to the same file.\n</span>
-<span class="sd">        If True, each individual will be saved to a separate file,</span>
-<span class="sd">        formatted as in a single-animal DeepLabCut project - i.e. without</span>
-<span class="sd">        the &quot;individuals&quot; column level. The individual&#39;s name will be appended</span>
-<span class="sd">        to the file path, just before the file extension, i.e.</span>
-<span class="sd">        &quot;/path/to/filename_individual1.h5&quot;.\n</span>
-<span class="sd">        If False, all individuals will be saved to the same file,</span>
-<span class="sd">        formatted as in a multi-animal DeepLabCut project - i.e. the columns</span>
-<span class="sd">        will include the &quot;individuals&quot; level. The file path will not be</span>
-<span class="sd">        modified.\n</span>
-<span class="sd">        If &quot;auto&quot; the argument&#39;s value is determined based on the number of</span>
-<span class="sd">        individuals in the dataset: True if there is only one, and</span>
-<span class="sd">        False if there are more than one. This is the default.</span>
+<span class="sd">        Whether to save individuals to separate files or to the same file</span>
+<span class="sd">        (see Notes). Defaults to &quot;auto&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If ``split_individuals`` is True, each individual will be saved to a</span>
+<span class="sd">    separate file, formatted as in a single-animal DeepLabCut project</span>
+<span class="sd">    (without the &quot;individuals&quot; column level). The individual&#39;s name will be</span>
+<span class="sd">    appended to the file path, just before the file extension, e.g.</span>
+<span class="sd">    &quot;/path/to/filename_individual1.h5&quot;. If False, all individuals will be</span>
+<span class="sd">    saved to the same file, formatted as in a multi-animal DeepLabCut project</span>
+<span class="sd">    (with the &quot;individuals&quot; column level). The file path will not be modified.</span>
+<span class="sd">    If &quot;auto&quot;, the argument&#39;s value is determined based on the number of</span>
+<span class="sd">    individuals in the dataset: True if there is only one, False otherwise.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    to_dlc_df : Convert an xarray dataset containing pose tracks into a single</span>
-<span class="sd">        DeepLabCut-style pandas DataFrame or a dictionary of DataFrames</span>
-<span class="sd">        per individual.</span>
+<span class="sd">    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -616,7 +622,7 @@ document.write(`
 
     <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
         <span class="c1"># split the dataset into a dictionary of dataframes per individual</span>
-        <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="c1"># the key is the individual&#39;s name</span>
@@ -626,7 +632,7 @@ document.write(`
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># convert the dataset to a single dataframe for all individuals</span>
-        <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
@@ -639,28 +645,29 @@ document.write(`
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset to a LightningPose-style .csv file (see Notes).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a LightningPose file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 <span class="sd">    file_path : pathlib.Path or str</span>
-<span class="sd">        Path to the .csv file to save the poses to.</span>
+<span class="sd">        Path to the file to save the poses to. File extension must be .csv.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    LightningPose saves pose estimation outputs as .csv files, using the same</span>
 <span class="sd">    format as single-animal DeepLabCut projects. Therefore, under the hood,</span>
-<span class="sd">    this function calls ``to_dlc_file`` with ``split_individuals=True``. This</span>
-<span class="sd">    setting means that each individual is saved to a separate file, with</span>
-<span class="sd">    the individual&#39;s name appended to the file path, just before the file</span>
-<span class="sd">    extension, i.e. &quot;/path/to/filename_individual1.csv&quot;.</span>
+<span class="sd">    this function calls :py:func:`movement.io.save_poses.to_dlc_file`</span>
+<span class="sd">    with ``split_individuals=True``. This setting means that each individual</span>
+<span class="sd">    is saved to a separate file, with the individual&#39;s name appended to the</span>
+<span class="sd">    file path, just before the file extension,</span>
+<span class="sd">    i.e. &quot;/path/to/filename_individual1.csv&quot;.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    to_dlc_file : Save the xarray dataset containing pose tracks to a</span>
-<span class="sd">        DeepLabCut-style .h5 or .csv file.</span>
+<span class="sd">    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">])</span>
@@ -674,14 +681,15 @@ document.write(`
 <span class="k">def</span> <span class="nf">to_sleap_analysis_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the xarray dataset to a SLEAP-style .h5 analysis file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a SLEAP analysis file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 <span class="sd">    file_path : pathlib.Path or str</span>
-<span class="sd">        Path to the file to save the poses to. The file extension must be .h5.</span>
+<span class="sd">        Path to the file to save the poses to. File extension must be .h5.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -773,12 +781,13 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove tracks that are completely unoccupied in the xarray dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove tracks that are completely unoccupied from the dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xarray.Dataset</span>
-<span class="sd">        Dataset containing pose tracks, confidence scores, and metadata.</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -830,7 +839,7 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">_validate_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input dataset is an xarray Dataset with valid poses.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input as a proper ``movement`` dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -840,7 +849,7 @@ document.write(`
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If `ds` is not an xarray Dataset with valid poses.</span>
+<span class="sd">        If `ds` is not an a valid ``movement`` dataset.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
@@ -856,7 +865,7 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
 </div>
@@ -865,8 +874,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"></div>
               
             
           </div>
@@ -879,8 +886,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -894,7 +901,7 @@ document.write(`
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.2.
+    0.15.3.
     </p></div>
       
     </div>

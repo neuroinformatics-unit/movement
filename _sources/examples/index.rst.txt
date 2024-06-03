@@ -45,13 +45,30 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Filtering and interpolation</div>
+      <div class="sphx-glr-thumbnail-title">Drop outliers and interpolate</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration data on an example dataset and visualise the re...">
+    <div class="sphx-glr-thumbcontainer" tooltip="Smooth pose tracks using the median and Savitzky-Golay filters.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_smooth_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_smooth.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Smooth pose tracks</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration, and visualise the results.">
 
 .. only:: html
 
@@ -63,6 +80,23 @@ Below is a gallery of examples using ``movement``.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics.</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute a vector representing head direction and express it in polar coordinates.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_compute_polar_coordinates_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_compute_polar_coordinates.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Express 2D vectors in polar coordinates</div>
     </div>
 
 
@@ -78,7 +112,9 @@ Below is a gallery of examples using ``movement``.
 
    /examples/load_and_explore_poses
    /examples/filter_and_interpolate
+   /examples/smooth
    /examples/compute_kinematics
+   /examples/compute_polar_coordinates
 
 
 .. only:: html
