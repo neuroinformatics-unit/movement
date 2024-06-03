@@ -369,3 +369,128 @@ class ValidPosesDataset:
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
+
+
+@define(kw_only=True)
+class ValidBboxesDataset:
+    """Class for validating bounding boxes data for a ``movement`` dataset.
+
+    We consider 2D bounding boxes only.
+
+    Attributes
+    ----------
+    centroid_position_array : np.ndarray
+        Array of shape (n_frames, n_unique_IDs, n_space)
+        containing the bounding boxes' centroid positions. It will be
+        converted to a `xarray.DataArray` object named "centroid_position".
+    shape_array : np.ndarray
+        Array of shape (n_frames, n_unique_IDs, n_space)
+        containing the bounding boxes' width (extension along the x-axis) and
+        height (extension along the y-axis). It will be converted to a
+        `xarray.DataArray` object named "shape".
+    IDs : list of str
+        List of unique, 1-based IDs for the tracked bounding boxes in the
+        video.
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        the bounding boxes confidence scores. It will be converted to a
+        `xarray.DataArray` object named "confidence". If None (default), the
+        scores will be set to an array of NaNs.
+    fps : float, optional
+        Frames per second of the video. Defaults to None.
+    source_software : str, optional
+        Name of the software from which the bounding boxes were loaded.
+        Defaults to None.
+
+    """
+
+    # Required attributes
+    centroid_position_array: np.ndarray = field()
+    shape_array: np.ndarray = field()
+    IDs: Optional[list[str]] = field(
+        converter=converters.optional(_list_of_str),
+    )
+
+    # Optional attributes
+    confidence_array: Optional[np.ndarray] = field(default=None)
+    fps: Optional[float] = field(
+        default=None,
+        converter=converters.pipe(  # type: ignore
+            converters.optional(float), _set_fps_to_none_if_invalid
+        ),
+    )
+    source_software: Optional[str] = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(str)),
+    )
+
+    # validators for centroid_position_array and shape_array
+    @centroid_position_array.validator
+    @shape_array.validator
+    def _validate_centroid_position_and_shape_arrays(self, attribute, value):
+        # check value is a numpy array
+        _ensure_type_ndarray(value)
+
+        # check number of dimensions
+        n_expected_dimensions = 3  # (n_frames, n_unique_IDs, n_space)
+        if value.ndim != n_expected_dimensions:
+            raise log_error(
+                ValueError,
+                f"Expected `{attribute}` to have "
+                f"{n_expected_dimensions} dimensions, "
+                f"but got {value.ndim}.",
+            )
+
+        # check spatial dimension has 2 coordinates
+        # - for the centroid_position_array the coordinates are x,y
+        # - for the shape_array the coordinates are width, height
+        n_expected_spatial_coordinates = 2
+        if value.shape[-1] != n_expected_spatial_coordinates:
+            raise log_error(
+                ValueError,
+                f"Expected `{attribute}` to have 2 spatial coordinates, "
+                f"but got {value.shape[-1]}.",
+            )
+
+    # validator for bboxes IDs
+    @IDs.validator
+    def _validate_IDs(self, attribute, value):
+        # check the total number of unique IDs matches those in
+        # centroid_position_array
+        _validate_list_length(
+            attribute, value, self.centroid_position_array.shape[1]
+        )
+
+        # TODO: check also 1-based ID numbers?
+
+        # TODO: check also for uniqueness?
+
+    # validator for confidence array
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
+        # check only if a confidence array is passed
+        if value is not None:
+            # check value is a numpy array
+            _ensure_type_ndarray(value)
+
+            # check shape of confidence array matches centroid_position_array
+            expected_shape = self.centroid_position_array.shape[:-1]
+            if value.shape != expected_shape:
+                raise log_error(
+                    ValueError,
+                    f"Expected `{attribute}` to have shape "
+                    f"{expected_shape}, but got {value.shape}.",
+                )
+
+    # define default values
+    def __attrs_post_init__(self):
+        """Assign default values to optional attributes (if None)."""
+        # if confidence_array is None, set it to an array of NaNs
+        if self.confidence_array is None:
+            self.confidence_array = np.full(
+                (self.position_array.shape[:-1]), np.nan, dtype="float32"
+            )
+            log_warning(
+                "Confidence array was not provided."
+                "Setting to an array of NaNs."
+            )
