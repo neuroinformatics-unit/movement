@@ -250,7 +250,7 @@ class TestValidators:
             ValidBboxesDataset(
                 centroid_position_array=invalid_centroid_position_array,
                 shape_array=np.zeros((10, 2, 2)),
-                IDs=["id_" + str(id) for id in [1, 2, 3, 4]],
+                IDs=["id_" + str(id) for id in [1, 2]],
             )
 
     @pytest.mark.parametrize(
@@ -270,7 +270,7 @@ class TestValidators:
             ValidBboxesDataset(
                 centroid_position_array=np.zeros((10, 2, 2)),
                 shape_array=invalid_shape_array,
-                IDs=["id_" + str(id) for id in [1, 2, 3, 4]],
+                IDs=["id_" + str(id) for id in [1, 2]],
             )
 
     @pytest.mark.parametrize(
@@ -297,5 +297,35 @@ class TestValidators:
                 IDs=invalid_ID_list,
             )
 
-    # def test_bboxes_dataset_validator_confidence_array():
-    #     pass
+    @pytest.mark.parametrize(
+        "confidence_array, expected_exception",
+        [
+            (
+                np.ones((10, 3, 2)),
+                pytest.raises(ValueError),
+            ),  # will not match position_array shape
+            (
+                [1, 2, 3],
+                pytest.raises(ValueError),
+            ),  # not an ndarray, should raise ValueError
+            (
+                None,
+                does_not_raise(),
+            ),  # valid, should default to array of NaNs
+        ],
+    )
+    def test_bboxes_dataset_validator_confidence_array(
+        self,
+        confidence_array,
+        expected_exception,
+    ):
+        """Test that invalid confidence arrays raise the appropriate errors."""
+        with expected_exception:
+            poses = ValidBboxesDataset(
+                centroid_position_array=np.zeros((10, 2, 2)),
+                shape_array=np.zeros((10, 2, 2)),
+                IDs=["id_" + str(id) for id in [1, 2]],
+                confidence_array=confidence_array,
+            )
+            if confidence_array is None:
+                assert np.all(np.isnan(poses.confidence_array))
