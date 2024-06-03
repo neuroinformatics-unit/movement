@@ -273,8 +273,29 @@ class TestValidators:
                 IDs=["id_" + str(id) for id in [1, 2, 3, 4]],
             )
 
-    # def test_bboxes_dataset_validator_with_invalid_ID_array():
-    #     pass
+    @pytest.mark.parametrize(
+        "invalid_ID_list",
+        [
+            None,  # invalid, argument is non-optional
+            [1, 2, 3],  # length doesn't match centroid_position_array.shape[1]
+            [1, 2],  # IDs not in the expected format
+            ["id_0", "id_2"],  # some IDs are not 1-based
+            [1, 1, 2, 3],  # some IDs are not unique
+        ],
+    )
+    def test_bboxes_dataset_validator_with_invalid_ID_array(
+        self, invalid_ID_list
+    ):
+        """Test that invalid ID arrays raise an error."""
+        # TODO: can I check the error is raised where I expect it?
+        with pytest.raises(ValueError):
+            ValidBboxesDataset(
+                centroid_position_array=np.zeros(
+                    (10, 2, 2)
+                ),  #  (n_frames, n_unique_IDs, n_space)
+                shape_array=np.zeros((10, 2, 2)),
+                IDs=invalid_ID_list,
+            )
 
     # def test_bboxes_dataset_validator_confidence_array():
     #     pass
