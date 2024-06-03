@@ -321,7 +321,6 @@ class TestValidators:
             )
         assert str(excinfo.value) == log_message
 
-    # @pytest.mark.foo
     @pytest.mark.parametrize(
         "invalid_ID_list, log_message",
         [
@@ -368,36 +367,39 @@ class TestValidators:
             )
         assert str(excinfo.value) == log_message
 
-    # @pytest.mark.foo
     @pytest.mark.parametrize(
-        "confidence_array, expected_exception",
+        "confidence_array, expected_exception, log_message",
         [
             (
                 np.ones((10, 3, 2)),
                 pytest.raises(ValueError),
+                "Expected `confidence_array` to have shape (10, 2), "
+                "but got (10, 3, 2).",
             ),  # will not match position_array shape
             (
                 [1, 2, 3],
                 pytest.raises(ValueError),
+                f"Expected a numpy array, but got {type(list())}.",
             ),  # not an ndarray, should raise ValueError
             (
                 None,
                 does_not_raise(),
+                "",
             ),  # valid, should default to array of NaNs
         ],
     )
     def test_bboxes_dataset_validator_confidence_array(
-        self,
-        confidence_array,
-        expected_exception,
+        self, confidence_array, expected_exception, log_message
     ):
         """Test that invalid confidence arrays raise the appropriate errors."""
-        with expected_exception:
+        with expected_exception as excinfo:
             poses = ValidBboxesDataset(
                 centroid_position_array=np.zeros((10, 2, 2)),
                 shape_array=np.zeros((10, 2, 2)),
                 IDs=["id_" + str(id) for id in [1, 2]],
                 confidence_array=confidence_array,
             )
-            if confidence_array is None:
-                assert np.all(np.isnan(poses.confidence_array))
+        if confidence_array is None:
+            assert np.all(np.isnan(poses.confidence_array))
+        else:
+            assert str(excinfo.value) == log_message
