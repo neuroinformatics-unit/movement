@@ -437,7 +437,7 @@ class ValidBboxesDataset:
         if value.ndim != n_expected_dimensions:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute}` to have "
+                f"Expected `{attribute.name}` to have "
                 f"{n_expected_dimensions} dimensions, "
                 f"but got {value.ndim}.",
             )
@@ -449,7 +449,7 @@ class ValidBboxesDataset:
         if value.shape[-1] != n_expected_spatial_coordinates:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute}` to have 2 spatial coordinates, "
+                f"Expected `{attribute.name}` to have 2 spatial coordinates, "
                 f"but got {value.shape[-1]}.",
             )
 

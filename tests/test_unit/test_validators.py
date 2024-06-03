@@ -75,9 +75,8 @@ class TestValidators:
     def valid_bboxes_inputs(self):
         """Return a dictionary with valid inputs for a ValidBboxesDataset."""
         # valid array for centroid_position or shape;
-        valid_bbox_array = np.zeros(
-            (10, 2, 2)
-        )  # (n_frames, n_unique_IDs, n_space)
+        n_frames, n_unique_IDs, n_space = (10, 2, 2)
+        valid_bbox_array = np.zeros((n_frames, n_unique_IDs, n_space))
 
         return {
             "centroid_position_array": valid_bbox_array,
@@ -249,20 +248,35 @@ class TestValidators:
             else:
                 assert ds.source_software is None
 
+    # @pytest.mark.foo
     @pytest.mark.parametrize(
-        "invalid_centroid_position_array",
+        "invalid_centroid_position_array, log_message",
         [
-            None,  # invalid, argument is non-optional
-            [1, 2, 3],  # not an ndarray
-            np.zeros((10, 2)),  # not 3d
-            np.zeros((10, 2, 3)),  # last dim not 2
+            (
+                None,
+                f"Expected a numpy array, but got {type(None)}.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray
+            (
+                np.zeros((10, 2)),
+                "Expected `centroid_position_array` to have 3 dimensions, "
+                "but got 2.",
+            ),  # not 3d
+            (
+                np.zeros((10, 2, 3)),
+                "Expected `centroid_position_array` to have 2 spatial "
+                "coordinates, but got 3.",
+            ),  # last dim not 2
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_centroid_position_array(
-        self, invalid_centroid_position_array, request
+        self, invalid_centroid_position_array, log_message, request
     ):
         """Test that invalid centroid position arrays raise an error."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
                 centroid_position_array=invalid_centroid_position_array,
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
@@ -270,7 +284,9 @@ class TestValidators:
                 ],
                 IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
+        assert str(excinfo.value) == log_message
 
+    # @pytest.mark.foo
     @pytest.mark.parametrize(
         "invalid_shape_array",
         [
@@ -293,6 +309,7 @@ class TestValidators:
                 IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
 
+    # @pytest.mark.foo
     @pytest.mark.parametrize(
         "invalid_ID_list",
         [
@@ -319,6 +336,7 @@ class TestValidators:
                 IDs=invalid_ID_list,
             )
 
+    # @pytest.mark.foo
     @pytest.mark.parametrize(
         "confidence_array, expected_exception",
         [
