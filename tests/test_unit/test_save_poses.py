@@ -98,12 +98,12 @@ class TestSavePoses:
             ),  # valid dataset
         ],
     )
-    def test_to_dlc_df(self, ds, expected_exception):
+    def test_to_dlc_style_df(self, ds, expected_exception):
         """Test that converting a valid/invalid xarray dataset to
         a DeepLabCut-style pandas DataFrame returns the expected result.
         """
         with expected_exception as e:
-            df = save_poses.to_dlc_df(ds, split_individuals=False)
+            df = save_poses.to_dlc_style_df(ds, split_individuals=False)
             if e is None:  # valid input
                 assert isinstance(df, pd.DataFrame)
                 assert isinstance(df.columns, pd.MultiIndex)
@@ -163,15 +163,15 @@ class TestSavePoses:
         ],
         indirect=["valid_poses_dataset"],
     )
-    def test_to_dlc_df_split_individuals(
+    def test_to_dlc_style_df_split_individuals(
         self,
         valid_poses_dataset,
         split_individuals,
     ):
         """Test that the `split_individuals` argument affects the behaviour
-        of the `to_dlc_df` function as expected.
+        of the `to_dlc_style_df` function as expected.
         """
-        df = save_poses.to_dlc_df(valid_poses_dataset, split_individuals)
+        df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
         # Get the names of the individuals in the dataset
         ind_names = valid_poses_dataset.individuals.values
         if split_individuals is False:

@@ -4,27 +4,33 @@ API Reference
 =============
 
 
-Input/Output
-------------
+Load poses
+----------
 .. currentmodule:: movement.io.load_poses
 .. autosummary::
     :toctree: api
 
+    from_numpy
     from_file
     from_sleap_file
     from_dlc_file
-    from_dlc_df
     from_lp_file
+    from_dlc_style_df
+
+Save poses
+----------
 
 .. currentmodule:: movement.io.save_poses
 .. autosummary::
     :toctree: api
 
     to_dlc_file
-    to_dlc_df
-    to_sleap_analysis_file
     to_lp_file
+    to_sleap_analysis_file
+    to_dlc_style_df
 
+Validators
+----------
 .. currentmodule:: movement.io.validators
 .. autosummary::
     :toctree: api
@@ -58,7 +64,7 @@ Filtering
 
 
 Analysis
------------
+--------
 .. currentmodule:: movement.analysis.kinematics
 .. autosummary::
     :toctree: api
