@@ -74,8 +74,8 @@ class TestValidators:
     @pytest.fixture
     def valid_bboxes_inputs(self):
         """Return a dictionary with valid inputs for a ValidBboxesDataset."""
-        # valid array for position or shape;
         n_frames, n_unique_IDs, n_space = (10, 2, 2)
+        # valid array for position or shape
         valid_bbox_array = np.zeros((n_frames, n_unique_IDs, n_space))
 
         return {
@@ -398,6 +398,11 @@ class TestValidators:
                 confidence_array=confidence_array,
             )
         if confidence_array is None:
-            assert np.all(np.isnan(poses.confidence_array))
+            assert np.all(
+                np.isnan(poses.confidence_array)
+            )  # assert it is a NaN array
+            assert (
+                poses.confidence_array.shape == poses.position_array.shape[:-1]
+            )  # assert shape matches position array
         else:
             assert str(excinfo.value) == log_message
