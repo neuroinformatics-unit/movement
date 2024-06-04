@@ -7,20 +7,34 @@ from movement.io.validators.datasets import ValidPosesDataset
 
 
 @pytest.mark.parametrize(
-    "invalid_position_array",
+    "invalid_position_array, log_message",
     [
-        None,  # invalid, argument is non-optional
-        [1, 2, 3],  # not an ndarray
-        np.zeros((10, 2, 3)),  # not 4d
-        np.zeros((10, 2, 3, 4)),  # last dim not 2 or 3
+        (
+            None,
+            f"Expected a numpy array, but got {type(None)}.",
+        ),  # invalid, argument is non-optional
+        (
+            [1, 2, 3],
+            f"Expected a numpy array, but got {type(list())}.",
+        ),  # not an ndarray
+        (
+            np.zeros((10, 2, 3)),
+            "Expected `position_array` to have 4 dimensions, but got 3.",
+        ),  # not 4d
+        (
+            np.zeros((10, 2, 3, 4)),
+            "Expected `position_array` to have 2 or 3 "
+            "spatial dimensions, but got 4.",
+        ),  # last dim not 2 or 3
     ],
 )
 def test_poses_dataset_validator_with_invalid_position_array(
-    invalid_position_array,
+    invalid_position_array, log_message
 ):
     """Test that invalid position arrays raise the appropriate errors."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as excinfo:
         ValidPosesDataset(position_array=invalid_position_array)
+    assert str(excinfo.value) == log_message
 
 
 @pytest.mark.parametrize(
