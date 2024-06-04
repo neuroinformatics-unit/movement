@@ -381,18 +381,18 @@ class ValidBboxesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_unique_IDs, n_space)
+        Array of shape (n_frames, n_unique_individual_names, n_space)
         containing the bounding boxes' centroid positions. It will be
         converted to a `xarray.DataArray` object named "position".
     shape_array : np.ndarray
-        Array of shape (n_frames, n_unique_IDs, n_space)
+        Array of shape (n_frames, n_unique_individual_names, n_space)
         containing the bounding boxes' width (extension along the x-axis) and
         height (extension along the y-axis). It will be converted to a
         `xarray.DataArray` object named "shape".
-    IDs : list of str
-        List IDs for the tracked bounding boxes in the video. Each ID is a
-        unique string in the format `id_<N>`, where <N> is an integer from 1
-        to Inf.
+    individual_names : list of str
+        List individual_names for the tracked bounding boxes in the video.
+        Each ID is a unique string in the format `id_<N>`, where <N> is an
+        integer from 1 to Inf.
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the bounding boxes confidence scores. It will be converted to a
@@ -409,7 +409,7 @@ class ValidBboxesDataset:
     # Required attributes
     position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
-    IDs: list[str] = field(converter=_list_of_str)
+    individual_names: list[str] = field(converter=_list_of_str)
     # force into list of strings if not
 
     # Optional attributes
@@ -433,7 +433,9 @@ class ValidBboxesDataset:
         _ensure_type_ndarray(value)
 
         # check number of dimensions
-        n_expected_dimensions = 3  # (n_frames, n_unique_IDs, n_space)
+        n_expected_dimensions = (
+            3  # (n_frames, n_unique_individual_names, n_space)
+        )
         if value.ndim != n_expected_dimensions:
             raise log_error(
                 ValueError,
@@ -453,15 +455,15 @@ class ValidBboxesDataset:
                 f"but got {value.shape[-1]}.",
             )
 
-    # validator for bboxes IDs
-    @IDs.validator
-    def _validate_IDs(self, attribute, value):
-        # check the total number of unique IDs matches those in
+    # validator for bboxes individual_names
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        # check the total number of unique individual_names matches those in
         # position_array
         _validate_list_length(attribute, value, self.position_array.shape[1])
 
-        # Check IDs are strings of the expected format `id_<integer>`) and
-        # extract the ID numbers from the ID strings
+        # Check individual_names are strings of the expected format
+        # `id_<integer>`) and extract the ID numbers from the strings
         list_IDs_as_integers = [
             self._check_ID_str_and_extract_int(value_i) for value_i in value
         ]
@@ -484,16 +486,17 @@ class ValidBboxesDataset:
             ]
             raise log_error(
                 ValueError,
-                "Some of the IDs provided are not 1-based: "
+                "Some of the individual_names provided are not 1-based: "
                 f"{list_wrong_ID_str}. \n"
-                "Please provide IDs whose numbering starts from 1.",
+                "Please provide individual_names whose numbering starts "
+                "from 1.",
             )
 
         # check IDs are unique
         if len(value) != len(set(value)):
             raise log_error(
                 ValueError,
-                "IDs passed to the dataset are not unique. "
+                "individual_names passed to the dataset are not unique. "
                 f"There are {len(value)} elements in the list, but "
                 f"only {len(set(value))} are unique.",
             )

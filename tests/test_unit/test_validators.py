@@ -81,7 +81,7 @@ class TestValidators:
         return {
             "position_array": valid_bbox_array,
             "shape_array": valid_bbox_array,
-            "IDs": [
+            "individual_names": [
                 "id_" + str(id) for id in range(valid_bbox_array.shape[1])
             ],
         }
@@ -281,7 +281,9 @@ class TestValidators:
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "shape_array"
                 ],
-                IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
             )
         assert str(excinfo.value) == log_message
 
@@ -317,7 +319,9 @@ class TestValidators:
                     "position_array"
                 ],
                 shape_array=invalid_shape_array,
-                IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
             )
         assert str(excinfo.value) == log_message
 
@@ -330,7 +334,7 @@ class TestValidators:
             ),  # invalid, argument is non-optional
             (
                 [1, 2, 3],
-                "Expected `IDs` to have length 2, but got 3.",
+                "Expected `individual_names` to have length 2, but got 3.",
             ),  # length doesn't match position_array.shape[1]
             (
                 [1, 2],
@@ -341,18 +345,20 @@ class TestValidators:
             ),  # IDs not in the expected format
             (
                 ["id_0", "id_2"],
-                "Some of the IDs provided are not 1-based: ['id_0']. \n"
-                "Please provide IDs whose numbering starts from 1.",
+                "Some of the individual_names provided "
+                "are not 1-based: ['id_0']. \n"
+                "Please provide individual_names whose "
+                "numbering starts from 1.",
             ),  # some IDs are not 1-based
             (
                 ["id_1", "id_1"],
-                "IDs passed to the dataset are not unique. "
+                "individual_names passed to the dataset are not unique. "
                 "There are 2 elements in the list, but "
                 "only 1 are unique.",
             ),  # some IDs are not unique
         ],
     )
-    def test_bboxes_dataset_validator_with_invalid_ID_array(
+    def test_bboxes_dataset_validator_with_invalid_individual_names(
         self, invalid_ID_list, log_message, request
     ):
         """Test that invalid ID arrays raise an error."""
@@ -365,7 +371,7 @@ class TestValidators:
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "shape_array"
                 ],
-                IDs=invalid_ID_list,
+                individual_names=invalid_ID_list,
             )
         assert str(excinfo.value) == log_message
 
@@ -398,7 +404,7 @@ class TestValidators:
             poses = ValidBboxesDataset(
                 position_array=np.zeros((10, 2, 2)),
                 shape_array=np.zeros((10, 2, 2)),
-                IDs=["id_" + str(id) for id in [1, 2]],
+                individual_names=["id_" + str(id) for id in [1, 2]],
                 confidence_array=confidence_array,
             )
         if confidence_array is None:
