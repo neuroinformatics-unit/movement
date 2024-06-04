@@ -390,14 +390,20 @@ class TestValidators:
         ],
     )
     def test_bboxes_dataset_validator_confidence_array(
-        self, confidence_array, expected_exception, log_message
+        self, confidence_array, expected_exception, log_message, request
     ):
         """Test that invalid confidence arrays raise the appropriate errors."""
         with expected_exception as excinfo:
             poses = ValidBboxesDataset(
-                position_array=np.zeros((10, 2, 2)),
-                shape_array=np.zeros((10, 2, 2)),
-                individual_names=["id_" + str(id) for id in [1, 2]],
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
                 confidence_array=confidence_array,
             )
         if confidence_array is None:
