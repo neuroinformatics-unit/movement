@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.io.validators import ValidFile
+from movement.io.validators.files import ValidFile
 from movement.logging import log_error
 
 logger = logging.getLogger(__name__)
