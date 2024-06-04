@@ -472,6 +472,7 @@ class ValidBboxesDataset:
         _validate_list_length(attribute, value, self.position_array.shape[1])
 
         # check IDs are unique
+        # (IDs should be unique per frame)
         if len(value) != len(set(value)):
             raise log_error(
                 ValueError,
@@ -480,20 +481,20 @@ class ValidBboxesDataset:
                 f"only {len(set(value))} are unique.",
             )
 
-        # Check individual_names are strings of the expected format
-        # `id_<integer>`) and extract the ID numbers from the strings
-        list_IDs_as_integers = [
-            self._check_ID_str_and_extract_int(value_i) for value_i in value
-        ]
+        # # Check individual_names are strings of the expected format
+        # # `id_<integer>`) and extract the ID numbers from the strings
+        # list_IDs_as_integers = [
+        #     self._check_ID_str_and_extract_int(value_i) for value_i in value
+        # ]
 
-        # if None in list: some elements don't match the expected pattern
-        if None in list_IDs_as_integers:
-            raise log_error(
-                ValueError,
-                "At least one ID does not fit the expected "
-                "format. Expected strings in the format 'id_<integer>' "
-                f"but got: {value}\n",
-            )
+        # # if None in list: some elements don't match the expected pattern
+        # if None in list_IDs_as_integers:
+        #     raise log_error(
+        #         ValueError,
+        #         "At least one ID does not fit the expected "
+        #         "format. Expected strings in the format 'id_<integer>' "
+        #         f"but got: {value}\n",
+        #     )
 
         # # --------------------
         # # check IDs are 1-based ----> this is a file validator requirement

@@ -336,13 +336,13 @@ class TestValidators:
                 [1, 2, 3],
                 "Expected `individual_names` to have length 2, but got 3.",
             ),  # length doesn't match position_array.shape[1]
-            (
-                [1, 2],
-                "At least one ID does not fit the expected format. "
-                "Expected strings in the format "
-                "'id_<integer>' but got: ['1', '2']\n"
-                "",
-            ),  # IDs not in the expected format
+            # (
+            #     [1, 2],
+            #     "At least one ID does not fit the expected format. "
+            #     "Expected strings in the format "
+            #     "'id_<integer>' but got: ['1', '2']\n"
+            #     "",
+            # ),  # IDs not in the expected format
             # (
             #     ["id_0", "id_2"],
             #     "Some of the individual_names provided "
