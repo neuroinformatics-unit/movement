@@ -769,7 +769,7 @@ def from_mmp_file(
         keypoint_names=keypoint_names,
         fps=fps,
     )
-    ds = _from_valid_data(valid_data)
+    ds = _ds_from_valid_data(valid_data)
 
     # Metadata
     ds.attrs["source_software"] = "JSON"
