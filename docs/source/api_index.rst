@@ -35,7 +35,9 @@ Validators - Files
 .. autosummary::
     :toctree: api
 
-    ValidPosesDataset
+    ValidFile
+    ValidHDF5
+    ValidDeepLabCutCSV
 
 Validators - Datasets
 ----------------------
