@@ -398,7 +398,8 @@ class ValidBboxesDataset:
         If None (default), bounding boxes are assigned unique IDs per frame,
         in the format of `id_<N>`, where <N> is an integer from 1 to Inf.
     fps : float, optional
-        Frames per second of the video. Defaults to None.
+        Frames per second defining the sampling rate of the data.
+        Defaults to None.
     source_software : str, optional
         Name of the software from which the bounding boxes were loaded.
         Defaults to None.
@@ -428,7 +429,7 @@ class ValidBboxesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
-    # validators for position_array and shape_array
+    # Validators
     @position_array.validator
     @shape_array.validator
     def _validate_position_and_shape_arrays(self, attribute, value):
@@ -449,7 +450,7 @@ class ValidBboxesDataset:
             )
 
     # validator for bboxes individual_names
-    # (only if input is not None)
+    # (only checked if input is not None)
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
         if value is not None:
@@ -503,7 +504,6 @@ class ValidBboxesDataset:
             )
         # if no individual_names are provided for the tracked boxes:
         # assign them unique IDs per frame, starting with 1 ("id_1")
-        # position_array.shape = (n_frames, n_unique_individual_names, n_space)
         if self.individual_names is None:
             self.individual_names = [
                 f"id_{i+1}" for i in range(self.position_array.shape[1])
