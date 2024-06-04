@@ -395,11 +395,8 @@ class ValidBboxesDataset:
         confidence scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of individual_names for the tracked bounding boxes in the video.
-        If None (default), all bounding boxes will be labelled "id_1".
-        ------------------------- ---> remove
-        Each ID is a unique string in the format `id_<N>`, where <N> is an
-        integer from 1 to Inf.
-        ------------------------- ---> remove
+        If None (default), bounding boxes are assigned unique IDs per frame,
+        in the format of `id_<N>`, where <N> is an integer from 1 to Inf.
     fps : float, optional
         Frames per second of the video. Defaults to None.
     source_software : str, optional
