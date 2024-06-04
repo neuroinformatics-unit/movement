@@ -326,54 +326,47 @@ class TestValidators:
         assert str(excinfo.value) == log_message
 
     @pytest.mark.parametrize(
-        "invalid_ID_list, log_message",
+        "list_individual_names, expected_exception, log_message",
         [
             (
                 None,
-                "Invalid value (None). Expected a list of strings.",
-            ),  # invalid, argument is non-optional
+                does_not_raise(),
+                "",
+            ),  # valid, should default to unique IDs per frame
             (
                 [1, 2, 3],
+                pytest.raises(ValueError),
                 "Expected `individual_names` to have length 2, but got 3.",
             ),  # length doesn't match position_array.shape[1]
-            # (
-            #     [1, 2],
-            #     "At least one ID does not fit the expected format. "
-            #     "Expected strings in the format "
-            #     "'id_<integer>' but got: ['1', '2']\n"
-            #     "",
-            # ),  # IDs not in the expected format
-            # (
-            #     ["id_0", "id_2"],
-            #     "Some of the individual_names provided "
-            #     "are not 1-based: ['id_0']. \n"
-            #     "Please provide individual_names whose "
-            #     "numbering starts from 1.",
-            # ),  # some IDs are not 1-based
             (
                 ["id_1", "id_1"],
+                pytest.raises(ValueError),
                 "individual_names passed to the dataset are not unique. "
                 "There are 2 elements in the list, but "
                 "only 1 are unique.",
             ),  # some IDs are not unique
         ],
     )
-    def test_bboxes_dataset_validator_with_invalid_individual_names(
-        self, invalid_ID_list, log_message, request
+    def test_bboxes_dataset_validator_individual_names(
+        self, list_individual_names, expected_exception, log_message, request
     ):
-        """Test that invalid ID arrays raise an error."""
-        # TODO: can I check the error is raised where I expect it?
-        with pytest.raises(ValueError) as excinfo:
-            ValidBboxesDataset(
+        """Test individual_names inputs."""
+        with expected_exception as excinfo:
+            ds = ValidBboxesDataset(
                 position_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "position_array"
                 ],
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "shape_array"
                 ],
-                individual_names=invalid_ID_list,
+                individual_names=list_individual_names,
             )
-        assert str(excinfo.value) == log_message
+        if list_individual_names is None:
+            # check IDs are unique per frame
+            assert len(ds.individual_names) == len(set(ds.individual_names))
+            assert ds.position_array.shape[1] == len(ds.individual_names)
+        else:
+            assert str(excinfo.value) == log_message
 
     @pytest.mark.parametrize(
         "confidence_array, expected_exception, log_message",

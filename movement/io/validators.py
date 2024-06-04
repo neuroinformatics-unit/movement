@@ -465,53 +465,60 @@ class ValidBboxesDataset:
             )
 
     # validator for bboxes individual_names
+    # (only if input is not None)
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
-        # check the total number of unique individual_names matches those in
-        # position_array
-        _validate_list_length(attribute, value, self.position_array.shape[1])
-
-        # check IDs are unique
-        # (IDs should be unique per frame)
-        if len(value) != len(set(value)):
-            raise log_error(
-                ValueError,
-                "individual_names passed to the dataset are not unique. "
-                f"There are {len(value)} elements in the list, but "
-                f"only {len(set(value))} are unique.",
+        if value is not None:
+            # check the total elements in individual_names matches those in
+            # position_array
+            _validate_list_length(
+                attribute, value, self.position_array.shape[1]
             )
 
-        # # Check individual_names are strings of the expected format
-        # # `id_<integer>`) and extract the ID numbers from the strings
-        # list_IDs_as_integers = [
-        #     self._check_ID_str_and_extract_int(value_i) for value_i in value
-        # ]
+            # check elements in individual_names are unique
+            # (combined with the requirement above, we are enforcing
+            # unique IDs per frame)
+            if len(value) != len(set(value)):
+                raise log_error(
+                    ValueError,
+                    "individual_names passed to the dataset are not unique. "
+                    f"There are {len(value)} elements in the list, but "
+                    f"only {len(set(value))} are unique.",
+                )
 
-        # # if None in list: some elements don't match the expected pattern
-        # if None in list_IDs_as_integers:
-        #     raise log_error(
-        #         ValueError,
-        #         "At least one ID does not fit the expected "
-        #         "format. Expected strings in the format 'id_<integer>' "
-        #         f"but got: {value}\n",
-        #     )
+            # # Check individual_names are strings of the expected format
+            # # `id_<integer>`) and extract the ID numbers from the strings
+            # list_IDs_as_integers = [
+            #     self._check_ID_str_and_extract_int(value_i)
+            #     for value_i in value
+            # ]
 
-        # # --------------------
-        # # check IDs are 1-based ----> this is a file validator requirement
-        # if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
-        #     list_wrong_ID_str = [
-        #         value_i
-        #         for ID_int, value_i in zip(list_IDs_as_integers, value)
-        #         if not (ID_int >= 1)
-        #     ]
-        #     raise log_error(
-        #         ValueError,
-        #         "Some of the individual_names provided are not 1-based: "
-        #         f"{list_wrong_ID_str}. \n"
-        #         "Please provide individual_names whose numbering starts "
-        #         "from 1.",
-        #     )
-        # # --------------------
+            # # if None in list: some elements don't match the expected pattern
+            # if None in list_IDs_as_integers:
+            #     raise log_error(
+            #         ValueError,
+            #         "At least one ID does not fit the expected "
+            #         "format. Expected strings in the format 'id_<integer>' "
+            #         f"but got: {value}\n",
+            #     )
+
+            # # --------------------
+            # # check IDs are 1-based
+            # ----> this is a file validator requirement
+            # if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
+            #     list_wrong_ID_str = [
+            #         value_i
+            #         for ID_int, value_i in zip(list_IDs_as_integers, value)
+            #         if not (ID_int >= 1)
+            #     ]
+            #     raise log_error(
+            #         ValueError,
+            #         "Some of the individual_names provided are not 1-based: "
+            #         f"{list_wrong_ID_str}. \n"
+            #         "Please provide individual_names whose numbering starts "
+            #         "from 1.",
+            #     )
+            # # --------------------
 
     # validator for confidence array
     @confidence_array.validator
