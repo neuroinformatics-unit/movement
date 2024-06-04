@@ -130,5 +130,5 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
     """
     if "time" not in data.dims:
         raise log_error(
-            ValueError, "Input data must contain 'time' as a dimension."
+            AttributeError, "Input data must contain 'time' as a dimension."
         )
