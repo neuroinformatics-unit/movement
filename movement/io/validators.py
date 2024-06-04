@@ -462,40 +462,33 @@ class ValidBboxesDataset:
             attribute, value, self.centroid_position_array.shape[1]
         )
 
-        # check IDs are strings of the expected format `id_<integer>`)
-        regexp_pattern = r"id_\d+$"
-        list_bools_pattern = [
-            bool(re.fullmatch(regexp_pattern, value_i)) for value_i in value
+        # Check IDs are strings of the expected format `id_<integer>`) and
+        # extract the ID numbers from the ID strings
+        list_IDs_as_integers = [
+            self._check_ID_str_and_extract_int(value_i) for value_i in value
         ]
-        if not all(list_bools_pattern):
-            IDs_wrong_format = [
-                value[k]
-                for k, bool_k in enumerate(list_bools_pattern)
-                if not bool_k
-            ]
+
+        # we have None for elements that don't match the expected pattern
+        if None in list_IDs_as_integers:
             raise log_error(
                 ValueError,
-                "At least one ID does not fit the expected format. "
-                f"Expected 'id_<integer>', but got {IDs_wrong_format} ",
+                "At least one ID does not fit the expected "
+                "format. Expected strings in the format 'id_<integer>' "
+                f"but got: {value}\n",
             )
 
         # check IDs are 1-based
-        list_IDs_as_integers = [
-            self._extract_integer_from_ID_str(value_i) for value_i in value
-        ]
-        list_bools_IDs_1_based = [
-            ID_int >= 1 for ID_int in list_IDs_as_integers
-        ]
-        if not all(list_bools_IDs_1_based):
-            IDs_wrong_format = [
-                value[k]
-                for k, bool_k in enumerate(list_bools_IDs_1_based)
-                if not bool_k
+        if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
+            list_wrong_ID_str = [
+                value_i
+                for ID_int, value_i in zip(list_IDs_as_integers, value)
+                if not (ID_int >= 1)
             ]
             raise log_error(
                 ValueError,
-                f"IDs provided are not 1-based: {IDs_wrong_format}. "
-                "Please provide IDs that start from 1.",
+                "Some of the IDs provided are not 1-based: "
+                f"{list_wrong_ID_str}. \n"
+                "Please provide IDs whose numbering starts from 1.",
             )
 
         # check IDs are unique
@@ -539,9 +532,21 @@ class ValidBboxesDataset:
                 "Setting to an array of NaNs."
             )
 
-    def _extract_integer_from_ID_str(self, ID_str: str) -> Optional[int]:
+    def _check_ID_str_and_extract_int(self, ID_str: str) -> Optional[int]:
+        """Check if the ID string.
+
+        The function checks the ID string is of the expected format
+        (`id_<integer>`). If there is a match, it casts the number to an
+        integer. If there is no match, it returns None.
+        """
+        # check if there is a full-match of the pattern
         match = re.fullmatch(r"id_(\d+)$", ID_str)
+
+        # if full match: cast to integer
+        # if there is a match, the group is always made of digits
+        # which can always be cast to integer
         if match:
             return int(match.group(1))
+        # if no match: return None
         else:
             return None
