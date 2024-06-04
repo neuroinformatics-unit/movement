@@ -259,11 +259,6 @@ class TestValidators:
                 [1, 2, 3],
                 f"Expected a numpy array, but got {type(list())}.",
             ),  # not an ndarray
-            # (
-            #     np.zeros((10, 2)),
-            #     "Expected `position_array` to have 3 dimensions, "
-            #     "but got 2.",
-            # ),  # not 3d
             (
                 np.zeros((10, 2, 3)),
                 "Expected `position_array` to have 2 spatial "
@@ -298,15 +293,11 @@ class TestValidators:
                 [1, 2, 3],
                 f"Expected a numpy array, but got {type(list())}.",
             ),  # not an ndarray
-            # (
-            #     np.zeros((10, 2)),
-            #     "Expected `shape_array` to have 3 dimensions, " "but got 2.",
-            # ),  # not 3d
             (
                 np.zeros((10, 2, 3)),
                 "Expected `shape_array` to have 2 spatial "
                 "coordinates, but got 3.",
-            ),  # last dim not 2
+            ),  # last dim (spatial) not 2
         ],
     )
     def test_bboxes_dataset_validator_with_invalid_shape_array(
