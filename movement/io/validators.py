@@ -380,10 +380,10 @@ class ValidBboxesDataset:
 
     Attributes
     ----------
-    centroid_position_array : np.ndarray
+    position_array : np.ndarray
         Array of shape (n_frames, n_unique_IDs, n_space)
         containing the bounding boxes' centroid positions. It will be
-        converted to a `xarray.DataArray` object named "centroid_position".
+        converted to a `xarray.DataArray` object named "position".
     shape_array : np.ndarray
         Array of shape (n_frames, n_unique_IDs, n_space)
         containing the bounding boxes' width (extension along the x-axis) and
@@ -407,7 +407,7 @@ class ValidBboxesDataset:
     """
 
     # Required attributes
-    centroid_position_array: np.ndarray = field()
+    position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
     IDs: list[str] = field(converter=_list_of_str)
     # force into list of strings if not
@@ -425,10 +425,10 @@ class ValidBboxesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
-    # validators for centroid_position_array and shape_array
-    @centroid_position_array.validator
+    # validators for position_array and shape_array
+    @position_array.validator
     @shape_array.validator
-    def _validate_centroid_position_and_shape_arrays(self, attribute, value):
+    def _validate_position_and_shape_arrays(self, attribute, value):
         # check value is a numpy array
         _ensure_type_ndarray(value)
 
@@ -443,7 +443,7 @@ class ValidBboxesDataset:
             )
 
         # check spatial dimension has 2 coordinates
-        # - for the centroid_position_array the coordinates are x,y
+        # - for the position_array the coordinates are x,y
         # - for the shape_array the coordinates are width, height
         n_expected_spatial_coordinates = 2
         if value.shape[-1] != n_expected_spatial_coordinates:
@@ -457,10 +457,8 @@ class ValidBboxesDataset:
     @IDs.validator
     def _validate_IDs(self, attribute, value):
         # check the total number of unique IDs matches those in
-        # centroid_position_array
-        _validate_list_length(
-            attribute, value, self.centroid_position_array.shape[1]
-        )
+        # position_array
+        _validate_list_length(attribute, value, self.position_array.shape[1])
 
         # Check IDs are strings of the expected format `id_<integer>`) and
         # extract the ID numbers from the ID strings
@@ -508,8 +506,8 @@ class ValidBboxesDataset:
             # check value is a numpy array
             _ensure_type_ndarray(value)
 
-            # check shape of confidence array matches centroid_position_array
-            expected_shape = self.centroid_position_array.shape[:-1]
+            # check shape of confidence array matches position_array
+            expected_shape = self.position_array.shape[:-1]
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
@@ -523,7 +521,7 @@ class ValidBboxesDataset:
         # if confidence_array is None, set it to an array of NaNs
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                (self.centroid_position_array.shape[:-1]),
+                (self.position_array.shape[:-1]),
                 np.nan,
                 dtype="float32",
             )

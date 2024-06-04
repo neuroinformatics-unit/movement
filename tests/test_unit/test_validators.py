@@ -74,12 +74,12 @@ class TestValidators:
     @pytest.fixture
     def valid_bboxes_inputs(self):
         """Return a dictionary with valid inputs for a ValidBboxesDataset."""
-        # valid array for centroid_position or shape;
+        # valid array for position or shape;
         n_frames, n_unique_IDs, n_space = (10, 2, 2)
         valid_bbox_array = np.zeros((n_frames, n_unique_IDs, n_space))
 
         return {
-            "centroid_position_array": valid_bbox_array,
+            "position_array": valid_bbox_array,
             "shape_array": valid_bbox_array,
             "IDs": [
                 "id_" + str(id) for id in range(valid_bbox_array.shape[1])
@@ -249,7 +249,7 @@ class TestValidators:
                 assert ds.source_software is None
 
     @pytest.mark.parametrize(
-        "invalid_centroid_position_array, log_message",
+        "invalid_position_array, log_message",
         [
             (
                 None,
@@ -261,23 +261,23 @@ class TestValidators:
             ),  # not an ndarray
             (
                 np.zeros((10, 2)),
-                "Expected `centroid_position_array` to have 3 dimensions, "
+                "Expected `position_array` to have 3 dimensions, "
                 "but got 2.",
             ),  # not 3d
             (
                 np.zeros((10, 2, 3)),
-                "Expected `centroid_position_array` to have 2 spatial "
+                "Expected `position_array` to have 2 spatial "
                 "coordinates, but got 3.",
             ),  # last dim not 2
         ],
     )
-    def test_bboxes_dataset_validator_with_invalid_centroid_position_array(
-        self, invalid_centroid_position_array, log_message, request
+    def test_bboxes_dataset_validator_with_invalid_position_array(
+        self, invalid_position_array, log_message, request
     ):
         """Test that invalid centroid position arrays raise an error."""
         with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
-                centroid_position_array=invalid_centroid_position_array,
+                position_array=invalid_position_array,
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "shape_array"
                 ],
@@ -313,9 +313,9 @@ class TestValidators:
         """Test that invalid shape arrays raise an error."""
         with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
-                centroid_position_array=request.getfixturevalue(
-                    "valid_bboxes_inputs"
-                )["centroid_position_array"],
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
                 shape_array=invalid_shape_array,
                 IDs=request.getfixturevalue("valid_bboxes_inputs")["IDs"],
             )
@@ -331,7 +331,7 @@ class TestValidators:
             (
                 [1, 2, 3],
                 "Expected `IDs` to have length 2, but got 3.",
-            ),  # length doesn't match centroid_position_array.shape[1]
+            ),  # length doesn't match position_array.shape[1]
             (
                 [1, 2],
                 "At least one ID does not fit the expected format. "
@@ -359,9 +359,9 @@ class TestValidators:
         # TODO: can I check the error is raised where I expect it?
         with pytest.raises(ValueError) as excinfo:
             ValidBboxesDataset(
-                centroid_position_array=request.getfixturevalue(
-                    "valid_bboxes_inputs"
-                )["centroid_position_array"],
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
                 shape_array=request.getfixturevalue("valid_bboxes_inputs")[
                     "shape_array"
                 ],
@@ -396,7 +396,7 @@ class TestValidators:
         """Test that invalid confidence arrays raise the appropriate errors."""
         with expected_exception as excinfo:
             poses = ValidBboxesDataset(
-                centroid_position_array=np.zeros((10, 2, 2)),
+                position_array=np.zeros((10, 2, 2)),
                 shape_array=np.zeros((10, 2, 2)),
                 IDs=["id_" + str(id) for id in [1, 2]],
                 confidence_array=confidence_array,
