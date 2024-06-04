@@ -335,12 +335,14 @@ class TestValidators:
             (
                 [1, 2],
                 "At least one ID does not fit the expected format. "
-                "Expected 'id_<integer>', but got ['1', '2'] ",
+                "Expected strings in the format "
+                "'id_<integer>' but got: ['1', '2']\n"
+                "",
             ),  # IDs not in the expected format
             (
                 ["id_0", "id_2"],
-                "IDs provided are not 1-based: ['id_0']. "
-                "Please provide IDs that start from 1.",
+                "Some of the IDs provided are not 1-based: ['id_0']. \n"
+                "Please provide IDs whose numbering starts from 1.",
             ),  # some IDs are not 1-based
             (
                 ["id_1", "id_1"],
