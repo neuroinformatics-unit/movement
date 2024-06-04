@@ -343,13 +343,13 @@ class TestValidators:
                 "'id_<integer>' but got: ['1', '2']\n"
                 "",
             ),  # IDs not in the expected format
-            (
-                ["id_0", "id_2"],
-                "Some of the individual_names provided "
-                "are not 1-based: ['id_0']. \n"
-                "Please provide individual_names whose "
-                "numbering starts from 1.",
-            ),  # some IDs are not 1-based
+            # (
+            #     ["id_0", "id_2"],
+            #     "Some of the individual_names provided "
+            #     "are not 1-based: ['id_0']. \n"
+            #     "Please provide individual_names whose "
+            #     "numbering starts from 1.",
+            # ),  # some IDs are not 1-based
             (
                 ["id_1", "id_1"],
                 "individual_names passed to the dataset are not unique. "

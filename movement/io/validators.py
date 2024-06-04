@@ -479,20 +479,22 @@ class ValidBboxesDataset:
                 f"but got: {value}\n",
             )
 
-        # check IDs are 1-based
-        if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
-            list_wrong_ID_str = [
-                value_i
-                for ID_int, value_i in zip(list_IDs_as_integers, value)
-                if not (ID_int >= 1)
-            ]
-            raise log_error(
-                ValueError,
-                "Some of the individual_names provided are not 1-based: "
-                f"{list_wrong_ID_str}. \n"
-                "Please provide individual_names whose numbering starts "
-                "from 1.",
-            )
+        # # --------------------
+        # # check IDs are 1-based ----> this is a file validator requirement
+        # if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
+        #     list_wrong_ID_str = [
+        #         value_i
+        #         for ID_int, value_i in zip(list_IDs_as_integers, value)
+        #         if not (ID_int >= 1)
+        #     ]
+        #     raise log_error(
+        #         ValueError,
+        #         "Some of the individual_names provided are not 1-based: "
+        #         f"{list_wrong_ID_str}. \n"
+        #         "Please provide individual_names whose numbering starts "
+        #         "from 1.",
+        #     )
+        # # --------------------
 
         # check IDs are unique
         if len(value) != len(set(value)):
