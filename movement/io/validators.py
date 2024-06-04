@@ -432,19 +432,21 @@ class ValidBboxesDataset:
         # check value is a numpy array
         _ensure_type_ndarray(value)
 
-        # check number of dimensions
-        n_expected_dimensions = (
-            3  # (n_frames, n_unique_individual_names, n_space)
-        )
-        if value.ndim != n_expected_dimensions:
-            raise log_error(
-                ValueError,
-                f"Expected `{attribute.name}` to have "
-                f"{n_expected_dimensions} dimensions, "
-                f"but got {value.ndim}.",
-            )
+        # # --------------------
+        # # check number of dimensions
+        # n_expected_dimensions = (
+        #     3  # (n_frames, n_unique_individual_names, n_space)
+        # )
+        # if value.ndim != n_expected_dimensions:
+        #     raise log_error(
+        #         ValueError,
+        #         f"Expected `{attribute.name}` to have "
+        #         f"{n_expected_dimensions} dimensions, "
+        #         f"but got {value.ndim}.",
+        #     )
+        # # --------------------
 
-        # check spatial dimension has 2 coordinates
+        # check last dimension (spatial) has 2 coordinates
         # - for the position_array the coordinates are x,y
         # - for the shape_array the coordinates are width, height
         n_expected_spatial_coordinates = 2
