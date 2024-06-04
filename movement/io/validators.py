@@ -1,7 +1,6 @@
 """`attrs` classes for validating file paths and data structures."""
 
 import os
-import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
@@ -439,19 +438,7 @@ class ValidBboxesDataset:
         # check value is a numpy array
         _ensure_type_ndarray(value)
 
-        # # --------------------
-        # # check number of dimensions
-        # n_expected_dimensions = (
-        #     3  # (n_frames, n_unique_individual_names, n_space)
-        # )
-        # if value.ndim != n_expected_dimensions:
-        #     raise log_error(
-        #         ValueError,
-        #         f"Expected `{attribute.name}` to have "
-        #         f"{n_expected_dimensions} dimensions, "
-        #         f"but got {value.ndim}.",
-        #     )
-        # # --------------------
+        # NOTE: we do not check the number of dimensions are 3
 
         # check last dimension (spatial) has 2 coordinates
         # - for the position_array the coordinates are x,y
@@ -485,40 +472,6 @@ class ValidBboxesDataset:
                     f"There are {len(value)} elements in the list, but "
                     f"only {len(set(value))} are unique.",
                 )
-
-            # # Check individual_names are strings of the expected format
-            # # `id_<integer>`) and extract the ID numbers from the strings
-            # list_IDs_as_integers = [
-            #     self._check_ID_str_and_extract_int(value_i)
-            #     for value_i in value
-            # ]
-
-            # # if None in list: some elements don't match the expected pattern
-            # if None in list_IDs_as_integers:
-            #     raise log_error(
-            #         ValueError,
-            #         "At least one ID does not fit the expected "
-            #         "format. Expected strings in the format 'id_<integer>' "
-            #         f"but got: {value}\n",
-            #     )
-
-            # # --------------------
-            # # check IDs are 1-based
-            # ----> this is a file validator requirement
-            # if not all([ID_int >= 1 for ID_int in list_IDs_as_integers]):
-            #     list_wrong_ID_str = [
-            #         value_i
-            #         for ID_int, value_i in zip(list_IDs_as_integers, value)
-            #         if not (ID_int >= 1)
-            #     ]
-            #     raise log_error(
-            #         ValueError,
-            #         "Some of the individual_names provided are not 1-based: "
-            #         f"{list_wrong_ID_str}. \n"
-            #         "Please provide individual_names whose numbering starts "
-            #         "from 1.",
-            #     )
-            # # --------------------
 
     # validator for confidence array
     @confidence_array.validator
@@ -564,22 +517,3 @@ class ValidBboxesDataset:
                 f"Setting to {self.individual_names}.\n"
                 "(1-based IDs that are unique per frame)"
             )
-
-    def _check_ID_str_and_extract_int(self, ID_str: str) -> Optional[int]:
-        """Check if the ID string.
-
-        The function checks the ID string is of the expected format
-        (`id_<integer>`). If there is a match, it casts the number to an
-        integer. If there is no match, it returns None.
-        """
-        # check if there is a full-match of the pattern
-        match = re.fullmatch(r"id_(\d+)$", ID_str)
-
-        # if full match: cast to integer
-        if match:
-            return int(match.group(1))
-            # Note: if there is a match, the group is always made of digits
-            # which can always be cast to integer
-        # if no match: return None
-        else:
-            return None
