@@ -389,15 +389,18 @@ class ValidBboxesDataset:
         containing the bounding boxes' width (extension along the x-axis) and
         height (extension along the y-axis). It will be converted to a
         `xarray.DataArray` object named "shape".
-    individual_names : list of str
-        List individual_names for the tracked bounding boxes in the video.
-        Each ID is a unique string in the format `id_<N>`, where <N> is an
-        integer from 1 to Inf.
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the bounding boxes confidence scores. It will be converted to a
         `xarray.DataArray` object named "confidence". If None (default), the
-        scores will be set to an array of NaNs.
+        confidence scores will be set to an array of NaNs.
+    individual_names : list of str, optional
+        List of individual_names for the tracked bounding boxes in the video.
+        If None (default), all bounding boxes will be labelled "id_1".
+        ------------------------- ---> remove
+        Each ID is a unique string in the format `id_<N>`, where <N> is an
+        integer from 1 to Inf.
+        ------------------------- ---> remove
     fps : float, optional
         Frames per second of the video. Defaults to None.
     source_software : str, optional
@@ -409,11 +412,15 @@ class ValidBboxesDataset:
     # Required attributes
     position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
-    individual_names: list[str] = field(converter=_list_of_str)
-    # force into list of strings if not
 
     # Optional attributes
     confidence_array: Optional[np.ndarray] = field(default=None)
+    individual_names: Optional[list[str]] = field(
+        default=None,
+        converter=converters.optional(
+            _list_of_str
+        ),  # force into list of strings if not
+    )
     fps: Optional[float] = field(
         default=None,
         converter=converters.pipe(  # type: ignore
@@ -464,13 +471,22 @@ class ValidBboxesDataset:
         # position_array
         _validate_list_length(attribute, value, self.position_array.shape[1])
 
+        # check IDs are unique
+        if len(value) != len(set(value)):
+            raise log_error(
+                ValueError,
+                "individual_names passed to the dataset are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique.",
+            )
+
         # Check individual_names are strings of the expected format
         # `id_<integer>`) and extract the ID numbers from the strings
         list_IDs_as_integers = [
             self._check_ID_str_and_extract_int(value_i) for value_i in value
         ]
 
-        # we have None for elements that don't match the expected pattern
+        # if None in list: some elements don't match the expected pattern
         if None in list_IDs_as_integers:
             raise log_error(
                 ValueError,
@@ -495,15 +511,6 @@ class ValidBboxesDataset:
         #         "from 1.",
         #     )
         # # --------------------
-
-        # check IDs are unique
-        if len(value) != len(set(value)):
-            raise log_error(
-                ValueError,
-                "individual_names passed to the dataset are not unique. "
-                f"There are {len(value)} elements in the list, but "
-                f"only {len(set(value))} are unique.",
-            )
 
     # validator for confidence array
     @confidence_array.validator
@@ -536,6 +543,19 @@ class ValidBboxesDataset:
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
+        # if no individual_names are provided for the tracked boxes:
+        # assign them unique IDs per frame, starting with 1 ("id_1")
+        # position_array.shape = (n_frames, n_unique_individual_names, n_space)
+        if self.individual_names is None:
+            self.individual_names = [
+                f"id_{i+1}" for i in range(self.position_array.shape[1])
+            ]
+            log_warning(
+                "Individual names for the bounding boxes "
+                "were not provided. "
+                f"Setting to {self.individual_names}.\n"
+                "(1-based IDs that are unique per frame)"
+            )
 
     def _check_ID_str_and_extract_int(self, ID_str: str) -> Optional[int]:
         """Check if the ID string.
@@ -548,10 +568,10 @@ class ValidBboxesDataset:
         match = re.fullmatch(r"id_(\d+)$", ID_str)
 
         # if full match: cast to integer
-        # if there is a match, the group is always made of digits
-        # which can always be cast to integer
         if match:
             return int(match.group(1))
+            # Note: if there is a match, the group is always made of digits
+            # which can always be cast to integer
         # if no match: return None
         else:
             return None
