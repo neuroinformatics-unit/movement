@@ -82,7 +82,7 @@ class MovementDataset:
             ):
                 error_msg = (
                     f"'{self.__class__.__name__}' object has "
-                    "no attribute '{name}'"
+                    f"no attribute '{name}'"
                 )
                 raise log_error(AttributeError, error_msg)
             if not hasattr(self._obj, "position"):
