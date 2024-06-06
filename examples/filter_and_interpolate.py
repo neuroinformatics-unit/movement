@@ -27,8 +27,10 @@ print(ds)
 # Visualise the pose tracks
 # -------------------------
 
-position = ds.position.sel(individuals="individual_0")
-position.plot.line(x="time", row="keypoints", hue="space", aspect=2, size=2.5)
+position = ds.position
+position.squeeze().plot.line(
+    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+)
 
 # %%
 # We can see that the pose tracks contain some implausible "jumps", such
@@ -47,15 +49,15 @@ position.plot.line(x="time", row="keypoints", hue="space", aspect=2, size=2.5)
 # it's always a good idea to inspect the actual confidence values in the data.
 #
 # Let's first look at a histogram of the confidence scores.
-ds.confidence.plot.hist(bins=20)
+confidence = ds.confidence.sel(individuals="individual_0")
+confidence.squeeze().plot.hist(bins=20)
 
 # %%
 # Based on the above histogram, we can confirm that the confidence scores
 # indeed range between 0 and 1, with most values closer to 1. Now let's see how
 # they evolve over time.
 
-confidence = ds.confidence.sel(individuals="individual_0")
-confidence.plot.line(x="time", row="keypoints", aspect=2, size=2.5)
+confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -67,19 +69,20 @@ confidence.plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # Filter out points with low confidence
 # -------------------------------------
 # We can filter out points with confidence scores below a certain threshold.
-# Here, we use ``threshold=0.6``. Points in the ``position`` data variable
-# with confidence scores below this threshold will be converted to NaN.
-# The ``print_report`` argument, which is True by default, reports the number
-# of NaN values in the dataset before and after the filtering operation.
+# Here, we use the default ``threshold=0.6``. Points in the ``position``
+# data variable with confidence scores below this threshold will be converted
+# to NaN. The ``print_report`` argument, which is True by default, reports the
+# number of NaN values in the dataset before and after the filtering operation.
 
-ds_filtered = filter_by_confidence(ds, threshold=0.6, print_report=True)
+position_filtered = filter_by_confidence(
+    position, confidence=confidence, threshold=0.6, print_report=True
+)
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
 # ``position`` data variable. Let's visualise the filtered data.
 
-position_filtered = ds_filtered.position.sel(individuals="individual_0")
-position_filtered.plot.line(
+position_filtered.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -93,23 +96,20 @@ position_filtered.plot.line(
 # -------------------------------
 # We can interpolate over the gaps we've introduced in the pose tracks.
 # Here we use the default linear interpolation method and ``max_gap=1``,
-# meaning that we will only interpolate over gaps of 1 second or shorter.
+# meaning that we will only interpolate over gaps of 1 observation.
 # Setting ``max_gap=None`` would interpolate over all gaps, regardless of
 # their length, which should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-ds_interpolated = interpolate_over_time(
-    ds_filtered, method="linear", max_gap=1, print_report=True
+position_interpolated = interpolate_over_time(
+    position_filtered, method="linear", max_gap=1, print_report=True
 )
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
 # indeed shorter than 1 second. Let's visualise the interpolated pose tracks
 
-position_interpolated = ds_interpolated.position.sel(
-    individuals="individual_0"
-)
-position_interpolated.plot.line(
+position_interpolated.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -119,9 +119,9 @@ position_interpolated.plot.line(
 # So, far we've processed the pose tracks first by filtering out points with
 # low confidence scores, and then by interpolating over missing values.
 # The order of these operations and the parameters with which they were
-# performed are saved in the ``log`` attribute of the dataset.
+# performed are saved in the ``log`` attribute of the data array.
 # This is useful for keeping track of the processing steps that have been
 # applied to the data.
 
-for log_entry in ds_interpolated.log:
+for log_entry in position_interpolated.log:
     print(log_entry)
