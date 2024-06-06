@@ -199,7 +199,7 @@ def interpolate_over_time(
 @log_to_attrs
 def median_filter(
     data: xr.DataArray,
-    window_length: int,
+    window: int,
     min_periods: int | None = None,
     print_report: bool = True,
 ) -> xr.DataArray:
@@ -209,7 +209,7 @@ def median_filter(
     ----------
     data : xarray.DataArray
         The input data to be smoothed.
-    window_length : int
+    window : int
         The size of the filter window, representing the fixed number
         of observations used for each window.
     min_periods : int
@@ -233,7 +233,7 @@ def median_filter(
     a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window  (specifically, by
-    ``floor(window_length/2)``). To control this behaviour, the
+    ``floor(window/2)``). To control this behaviour, the
     ``min_periods`` option can be used to specify the minimum number of
     non-NaN values required in the window to compute a result. For example,
     setting ``min_periods=1`` will result in the filter returning NaNs
@@ -241,13 +241,13 @@ def median_filter(
     is sufficient to compute the median.
 
     """
-    half_window = window_length // 2
+    half_window = window // 2
     data_smoothed = (
         data.pad(  # Pad the edges to avoid NaNs
             time=half_window, mode="reflect"
         )
         .rolling(  # Take rolling windows across time
-            time=window_length, center=True, min_periods=min_periods
+            time=window, center=True, min_periods=min_periods
         )
         .median(  # Compute the median of each window
             skipna=True
@@ -267,7 +267,7 @@ def median_filter(
 @log_to_attrs
 def savgol_filter(
     data: xr.DataArray,
-    window_length: int,
+    window: int,
     polyorder: int = 2,
     print_report: bool = True,
     **kwargs,
@@ -278,12 +278,12 @@ def savgol_filter(
     ----------
     data : xarray.DataArray
         The input data to be smoothed.
-    window_length : int
+    window : int
         The size of the filter window, representing the fixed number
         of observations used for each window.
     polyorder : int
         The order of the polynomial used to fit the samples. Must be
-        less than ``window_length``. By default, a ``polyorder`` of
+        less than ``window``. By default, a ``polyorder`` of
         2 is used.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
@@ -308,7 +308,7 @@ def savgol_filter(
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window (specifically, by
-    ``floor(window_length/2)``). Note that, unlike
+    ``floor(window/2)``). Note that, unlike
     ``movement.filtering.median_filter()``, there is no ``min_periods``
     option to control this behaviour.
 
@@ -320,7 +320,7 @@ def savgol_filter(
     data_smoothed = data.copy()
     data_smoothed.values = signal.savgol_filter(
         data,
-        window_length,
+        window,
         polyorder,
         axis=0,
         **kwargs,

@@ -74,7 +74,7 @@ def test_median_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
     but it should not introduce any NaNs for the second individual.
     """
     data = valid_poses_dataset_with_nan.position
-    data_smoothed = median_filter(data, window_length=3)
+    data_smoothed = median_filter(data, window=3)
     # All points of the first individual are converted to NaNs except
     # at timepoints 0, 1, and 5.
     assert not (
@@ -86,15 +86,13 @@ def test_median_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
     assert not data_smoothed.isel(individuals=1).isnull().any()
 
 
-@pytest.mark.parametrize("window_length, polyorder", [(2, 1), (4, 2)])
-def test_savgol_filter_da(
-    valid_poses_dataset_with_nan, window_length, polyorder
-):
+@pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
+def test_savgol_filter_da(valid_poses_dataset_with_nan, window, polyorder):
     """Test that applying the Savitzky-Golay filter returns
     a different xr.DataArray than the input data.
     """
     data = valid_poses_dataset_with_nan.position
-    data_smoothed = savgol_filter(data, window_length, polyorder=polyorder)
+    data_smoothed = savgol_filter(data, window, polyorder=polyorder)
     del data_smoothed.attrs["log"]
     assert isinstance(data_smoothed, xr.DataArray) and not (
         data_smoothed.equals(data)
@@ -109,7 +107,7 @@ def test_savgol_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
     the filter, but it should not introduce any NaNs for the second individual.
     """
     data = valid_poses_dataset_with_nan.position
-    data_smoothed = savgol_filter(data, window_length=3, polyorder=2)
+    data_smoothed = savgol_filter(data, window=3, polyorder=2)
     # There should be 28 NaNs in total for the first individual, i.e.
     # at 7 timepoints, 2 keypoints, 2 space dimensions
     # all except for timepoints 0, 1 and 5
@@ -142,7 +140,7 @@ def test_savgol_filter_kwargs_override_da(
     with expected_exception:
         savgol_filter(
             valid_poses_dataset_with_nan.position,
-            window_length=3,
+            window=3,
             **override_kwargs,
         )
 
