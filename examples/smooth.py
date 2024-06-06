@@ -67,7 +67,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
     fig, ax = plt.subplots(2, 1, figsize=(10, 6))
 
     for ds, color, label in zip(
-        [ds_raw, ds_smooth], ["k", "r"], ["raw", "smooth"]
+        [ds_raw, ds_smooth], ["k", "r"], ["raw", "smooth"], strict=False
     ):
         # plot position time series
         pos = ds.position.sel(**selection)
