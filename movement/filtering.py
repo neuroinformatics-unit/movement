@@ -13,9 +13,10 @@ from movement.utils.logging import log_error
 def log_to_attrs(func):
     """Log the operation performed by the wrapped function.
 
-    This decorator appends log entries to the dataset's ``log``
+    This decorator appends log entries to the data's ``log``
     attribute. The wrapped function must accept an ``xarray.Dataset``
-    as its first argument and return an ``xarray.Dataset``.
+    or ``xarray.DataArray`` as its first argument and return an
+    ``xarray.Dataset`` or ``xarray.DataArray``.
     """
 
     @wraps(func)
@@ -103,6 +104,96 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
     logger.info(nan_report)
     # Also print the report to the console
     print(nan_report)
+
+
+@log_to_attrs
+def filter_by_confidence(
+    data: xr.DataArray,
+    confidence: xr.DataArray,
+    threshold: float = 0.6,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Drop data points below a certain confidence threshold.
+
+    Data points with an associated confidence value below the threshold are
+    converted to NaN.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to be filtered.
+    confidence : xarray.DataArray
+        The data array containing confidence scores to filter by.
+    threshold : float
+        The confidence threshold below which datapoints are filtered.
+        A default value of ``0.6`` is used. See notes for more information.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after filtering. Default is ``True``.
+
+    Returns
+    -------
+    data_filtered : xarray.DataArray
+        The data where points with a confidence value below the
+        user-defined threshold have been converted to NaNs.
+
+    Notes
+    -----
+    The point-wise confidence values reported by various pose estimation
+    frameworks are not standardised, and the range of values can vary.
+    For example, DeepLabCut reports a likelihood value between 0 and 1, whereas
+    the point confidence reported by SLEAP can range above 1.
+    Therefore, the default threshold value will not be appropriate for all
+    datasets and does not have the same meaning across pose estimation
+    frameworks. We advise users to inspect the confidence values
+    in their dataset and adjust the threshold accordingly.
+
+    """
+    data_filtered = data.where(confidence >= threshold)
+    if print_report:
+        report_nan_values(data, "input")
+        report_nan_values(data_filtered, "output")
+    return data_filtered
+
+
+@log_to_attrs
+def interpolate_over_time(
+    data: xr.DataArray,
+    method: str = "linear",
+    max_gap: int | None = None,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Fill in NaN values by interpolating over the time dimension.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to be interpolated.
+    method : str
+        String indicating which method to use for interpolation.
+        Default is ``linear``. See documentation for
+        ``xarray.DataArray.interpolate_na`` for complete list of options.
+    max_gap :
+        Maximum size of gap, a continuous sequence of NaNs,
+        that will be filled. The default value is ``None`` (no limit).
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after interpolation. Default is ``True``.
+
+    Returns
+    -------
+    data_interpolated : xr.DataArray
+        The data where NaN values have been interpolated over
+        using the parameters provided.
+
+    """
+    data_interpolated = data.interpolate_na(
+        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
+    )
+    if print_report:
+        report_nan_values(data, "input")
+        report_nan_values(data_interpolated, "output")
+    return data_interpolated
 
 
 @log_to_attrs
@@ -238,93 +329,3 @@ def savgol_filter(
         report_nan_values(data, "input")
         report_nan_values(data_smoothed, "output")
     return data_smoothed
-
-
-@log_to_attrs
-def filter_by_confidence(
-    data: xr.DataArray,
-    confidence: xr.DataArray,
-    threshold: float = 0.6,
-    print_report: bool = True,
-) -> xr.DataArray:
-    """Drop data points below a certain confidence threshold.
-
-    Data points with an associated confidence value below the threshold are
-    converted to NaN.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to be filtered.
-    confidence : xarray.DataArray
-        The data array containing confidence scores to filter by.
-    threshold : float
-        The confidence threshold below which datapoints are filtered.
-        A default value of ``0.6`` is used. See notes for more information.
-    print_report : bool
-        Whether to print a report on the number of NaNs in the dataset
-        before and after filtering. Default is ``True``.
-
-    Returns
-    -------
-    data_filtered : xarray.DataArray
-        The data where points with a confidence value below the
-        user-defined threshold have been converted to NaNs.
-
-    Notes
-    -----
-    The point-wise confidence values reported by various pose estimation
-    frameworks are not standardised, and the range of values can vary.
-    For example, DeepLabCut reports a likelihood value between 0 and 1, whereas
-    the point confidence reported by SLEAP can range above 1.
-    Therefore, the default threshold value will not be appropriate for all
-    datasets and does not have the same meaning across pose estimation
-    frameworks. We advise users to inspect the confidence values
-    in their dataset and adjust the threshold accordingly.
-
-    """
-    data_filtered = data.where(confidence >= threshold)
-    if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_filtered, "output")
-    return data_filtered
-
-
-@log_to_attrs
-def interpolate_over_time(
-    data: xr.DataArray,
-    method: str = "linear",
-    max_gap: int | None = None,
-    print_report: bool = True,
-) -> xr.DataArray:
-    """Fill in NaN values by interpolating over the time dimension.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to be interpolated.
-    method : str
-        String indicating which method to use for interpolation.
-        Default is ``linear``. See documentation for
-        ``xarray.DataArray.interpolate_na`` for complete list of options.
-    max_gap :
-        Maximum size of gap, a continuous sequence of NaNs,
-        that will be filled. The default value is ``None`` (no limit).
-    print_report : bool
-        Whether to print a report on the number of NaNs in the dataset
-        before and after interpolation. Default is ``True``.
-
-    Returns
-    -------
-    data_interpolated : xr.DataArray
-        The data where NaN values have been interpolated over
-        using the parameters provided.
-
-    """
-    data_interpolated = data.interpolate_na(
-        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
-    )
-    if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_interpolated, "output")
-    return data_interpolated
