@@ -21,14 +21,12 @@ def sample_dataset():
     return load_poses.from_dlc_file(ds_path)
 
 
-@pytest.mark.parametrize("window_length", [3, 5, 6, 13])
-def test_nan_propagation_through_filters(
-    sample_dataset, window_length, helpers
-):
+@pytest.mark.parametrize("window", [3, 5, 6, 13])
+def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     """Tests NaN propagation when passing a DataArray through
     multiple filters sequentially. For the ``median_filter``
     and ``savgol_filter``, the number of NaNs is expected to increase
-    at most by the filter's window length minus one (``window_length - 1``)
+    at most by the filter's window length minus one (``window - 1``)
     multiplied by the number of consecutive NaNs in the input data.
     """
     # Introduce nans via filter_by_confidence
@@ -42,9 +40,9 @@ def test_nan_propagation_through_filters(
     n_consecutive_nans = helpers.count_consecutive_nans(data_confilt)
     # Apply median filter and check that
     # it doesn't introduce too many or too few NaNs
-    data_medfilt = median_filter(data_confilt, window_length)
+    data_medfilt = median_filter(data_confilt, window)
     n_nans_medfilt = helpers.count_nans(data_medfilt)
-    max_nans_increase = (window_length - 1) * n_consecutive_nans
+    max_nans_increase = (window - 1) * n_consecutive_nans
     assert (
         n_nans_medfilt <= n_nans_confilt + max_nans_increase
     ), "Median filter introduced more NaNs than expected."
@@ -55,9 +53,9 @@ def test_nan_propagation_through_filters(
 
     # Apply savgol filter and check that
     # it doesn't introduce too many or too few NaNs
-    data_savgol = savgol_filter(data_medfilt, window_length, polyorder=2)
+    data_savgol = savgol_filter(data_medfilt, window, polyorder=2)
     n_nans_savgol = helpers.count_nans(data_savgol)
-    max_nans_increase = (window_length - 1) * n_consecutive_nans
+    max_nans_increase = (window - 1) * n_consecutive_nans
     assert (
         n_nans_savgol <= n_nans_medfilt + max_nans_increase
     ), "Savgol filter introduced more NaNs than expected."
