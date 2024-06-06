@@ -33,9 +33,11 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     data = sample_dataset.position
     confidence = sample_dataset.confidence
     data_confilt = filter_by_confidence(data, confidence)
+    expected_n_nans = 13136
     n_nans_confilt = helpers.count_nans(data_confilt)
-    assert n_nans_confilt == 13136, (
-        f"Expected 6568 NaNs in filtered data, " f"got: {n_nans_confilt}"
+    assert n_nans_confilt == expected_n_nans, (
+        f"Expected {expected_n_nans} NaNs in filtered data, "
+        f"got: {n_nans_confilt}"
     )
     n_consecutive_nans = helpers.count_consecutive_nans(data_confilt)
     # Apply median filter and check that
