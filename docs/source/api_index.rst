@@ -87,6 +87,9 @@ MovementDataset
     :toctree: api
 
     MovementDataset
+    MovementDataset.validate
+    MovementDataset.kinematics_wrapper
+    MovementDataset.filtering_wrapper
 
 Logging
 -------
