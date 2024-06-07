@@ -1,4 +1,7 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
+import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
@@ -18,12 +21,14 @@ def sample_dataset():
     ds_path = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")[
         "poses"
     ]
-    return load_poses.from_dlc_file(ds_path)
+    ds = load_poses.from_dlc_file(ds_path)
+    ds["velocity"] = ds.move.compute_velocity()
+    return ds
 
 
 @pytest.mark.parametrize("window", [3, 5, 6, 13])
 def test_nan_propagation_through_filters(sample_dataset, window, helpers):
-    """Tests NaN propagation when passing a DataArray through
+    """Test NaN propagation when passing a DataArray through
     multiple filters sequentially. For the ``median_filter``
     and ``savgol_filter``, the number of NaNs is expected to increase
     at most by the filter's window length minus one (``window - 1``)
@@ -68,3 +73,45 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     # Interpolate data (without max_gap) to eliminate all NaNs
     data_interp = interpolate_over_time(data_savgol)
     assert helpers.count_nans(data_interp) == 0
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "filter_by_confidence",
+        "interpolate_over_time",
+        "median_filter",
+        "savgol_filter",
+    ],
+)
+@pytest.mark.parametrize(
+    "data_vars, expected_exception",
+    [
+        (None, does_not_raise(xr.DataArray)),
+        (["position", "velocity"], does_not_raise(dict)),
+        (["vlocity"], pytest.raises(RuntimeError)),  # Does not exist
+    ],
+)
+def test_accessor_filter_method(
+    sample_dataset, method, data_vars, expected_exception
+):
+    """Test that filtering methods in the ``move`` accessor
+    return the expected data type and structure, with the
+    expected ``log`` attribute added by the filtering methods
+    if valid data variables are passed, otherwise
+    raise an exception.
+    """
+    with expected_exception as expected_type:
+        if method in ["median_filter", "savgol_filter"]:
+            # supply required "window" argument
+            result = getattr(sample_dataset.move, method)(
+                data_vars=data_vars, window=3
+            )
+        else:
+            result = getattr(sample_dataset.move, method)(data_vars=data_vars)
+        assert isinstance(result, expected_type)
+        if isinstance(result, xr.DataArray):
+            assert hasattr(result, "log")
+        elif isinstance(result, dict):
+            assert set(result.keys()) == set(data_vars)
+            assert all(hasattr(value, "log") for value in result.values())
