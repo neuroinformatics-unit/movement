@@ -124,7 +124,7 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
 
     Raises
     ------
-    ValueError
+    AttributeError
         If the input data does not contain a ``time`` dimension.
 
     """
