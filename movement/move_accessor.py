@@ -168,10 +168,29 @@ class MovementDataset:
 
         Raises
         ------
-        AttributeError
-            If the required data variables are not present in the dataset.
         RuntimeError
             If the requested function fails to execute.
+
+        Examples
+        --------
+        Apply a median filter to the ``position`` data variable and
+        store this back into the Dataset ``ds``.
+        If ``data_vars`` is not supplied, the filter will be applied to
+        the ``position`` data variable by default.
+
+        >>> filtered_position = ds.move.median_filter(window=3)
+        >>> ds.update({"position": filtered_position})
+
+        Apply a Savitzky-Golay filter to both the ``position`` and
+        ``velocity`` data variables and store these back into the
+        Dataset ``ds``. ``filtered_data`` is a dictionary, where the keys
+        are the data variable names and the values are the filtered
+        DataArrays.
+
+        >>> filtered_data = ds.move.savgol_filter(
+        ...     window=3, data_vars=["position", "velocity"]
+        ... )
+        >>> ds.update(filtered_data)
 
         """
         ds = self._obj
