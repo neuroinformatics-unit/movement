@@ -133,7 +133,7 @@ def filter_by_confidence(
 
     Returns
     -------
-    data_filtered : xarray.DataArray
+    xarray.DataArray
         The data where points with a confidence value below the
         user-defined threshold have been converted to NaNs.
 
@@ -163,7 +163,12 @@ def interpolate_over_time(
     max_gap: int | None = None,
     print_report: bool = True,
 ) -> xr.DataArray:
-    """Fill in NaN values by interpolating over the time dimension.
+    """Fill in NaN values by interpolating over the ``time`` dimension.
+
+    This method uses ``xarray.DataArray.interpolate_na`` under the
+    hood and passes the ``method`` and ``max_gap`` parameters to it.
+    See the documentation for ``xarray.DataArray.interpolate_na``
+    for more details on these parameters.
 
     Parameters
     ----------
@@ -171,20 +176,33 @@ def interpolate_over_time(
         The input data to be interpolated.
     method : str
         String indicating which method to use for interpolation.
-        Default is ``linear``. See documentation for
-        ``xarray.DataArray.interpolate_na`` for complete list of options.
+        Default is ``linear``.
     max_gap :
-        Maximum size of gap, a continuous sequence of NaNs,
-        that will be filled. The default value is ``None`` (no limit).
+        Maximum size of gap, a continuous sequence of NaNs, in the
+        ``time`` dimension that will be filled. The default value is
+        ``None`` (no limit).
+        Gap length is defined as the difference between the ``time``
+        coordinate values at the first data point after a gap and the
+        last value before a gap.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``True``.
 
     Returns
     -------
-    data_interpolated : xr.DataArray
+    xr.DataArray
         The data where NaN values have been interpolated over
         using the parameters provided.
+
+    Notes
+    -----
+    The ``max_gap`` parameter behaves differently depending on whether
+    the ``time`` dimension is in "frames" or "seconds". If the time unit
+    is in "frames", the ``max_gap`` parameter is interpreted as the
+    maximum number of consecutive frames of NaNs to interpolate over.
+    If the time unit is in "seconds", the ``max_gap`` parameter is
+    interpreted as the maximum number of seconds of consecutive NaNs
+    to interpolate over.
 
     """
     data_interpolated = data.interpolate_na(
@@ -224,7 +242,7 @@ def median_filter(
 
     Returns
     -------
-    data_smoothed : xarray.DataArray
+    xarray.DataArray
         The data smoothed using a median filter with the provided parameters.
 
     Notes
@@ -295,7 +313,7 @@ def savgol_filter(
 
     Returns
     -------
-    data_smoothed : xarray.DataArray
+    xarray.DataArray
         The data smoothed using a Savitzky-Golay filter with the
         provided parameters.
 
@@ -309,7 +327,7 @@ def savgol_filter(
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window (specifically, by
     ``floor(window/2)``). Note that, unlike
-    ``movement.filtering.median_filter()``, there is no ``min_periods``
+    :py:func:`movement.filtering.median_filter()`, there is no ``min_periods``
     option to control this behaviour.
 
     """

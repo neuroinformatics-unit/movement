@@ -40,7 +40,7 @@ def test_interpolate_over_time(valid_poses_dataset_with_nan, helpers):
 
 
 def test_filter_by_confidence(valid_poses_dataset, helpers):
-    """Tests that points below the default 0.6 confidence threshold
+    """Test that points below the default 0.6 confidence threshold
     is converted to NaN.
     """
     data = valid_poses_dataset.position
