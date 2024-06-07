@@ -32,14 +32,14 @@ def test_log_to_attrs(valid_poses_dataset):
     )
 
 
-def test_interpolate_over_time_da(valid_poses_dataset_with_nan, helpers):
+def test_interpolate_over_time(valid_poses_dataset_with_nan, helpers):
     """Test that the number of NaNs decreases after interpolating over time."""
     data = valid_poses_dataset_with_nan.position
     data_interp = interpolate_over_time(data)
     assert helpers.count_nans(data_interp) < helpers.count_nans(data)
 
 
-def test_filter_by_confidence_da(valid_poses_dataset, helpers):
+def test_filter_by_confidence(valid_poses_dataset, helpers):
     """Tests that points below the default 0.6 confidence threshold
     is converted to NaN.
     """
@@ -54,7 +54,7 @@ def test_filter_by_confidence_da(valid_poses_dataset, helpers):
 
 
 @pytest.mark.parametrize("window_size", [2, 4])
-def test_median_filter_da(valid_poses_dataset_with_nan, window_size):
+def test_median_filter(valid_poses_dataset_with_nan, window_size):
     """Test that applying the median filter returns
     a different xr.DataArray than the input data.
     """
@@ -66,7 +66,7 @@ def test_median_filter_da(valid_poses_dataset_with_nan, window_size):
     )
 
 
-def test_median_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
+def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     """Test NaN behaviour of the median filter. The input data
     contains NaNs in all keypoints of the first individual at timepoints
     3, 7, and 8 (0-indexed, 10 total timepoints). The median filter
@@ -87,7 +87,7 @@ def test_median_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
 
 
 @pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
-def test_savgol_filter_da(valid_poses_dataset_with_nan, window, polyorder):
+def test_savgol_filter(valid_poses_dataset_with_nan, window, polyorder):
     """Test that applying the Savitzky-Golay filter returns
     a different xr.DataArray than the input data.
     """
@@ -99,7 +99,7 @@ def test_savgol_filter_da(valid_poses_dataset_with_nan, window, polyorder):
     )
 
 
-def test_savgol_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
+def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     """Test NaN behaviour of the Savitzky-Golay filter. The input data
     contains NaN values in all keypoints of the first individual at times
     3, 7, and 8 (0-indexed, 10 total timepoints).
@@ -126,7 +126,7 @@ def test_savgol_filter_with_nans_da(valid_poses_dataset_with_nan, helpers):
         {"mode": "nearest", "axis": 1},
     ],
 )
-def test_savgol_filter_kwargs_override_da(
+def test_savgol_filter_kwargs_override(
     valid_poses_dataset_with_nan, override_kwargs
 ):
     """Test that overriding keyword arguments in the Savitzky-Golay filter
