@@ -23,12 +23,7 @@ class TestMovementDataset:
         """Test that computing a kinematic property of an invalid
         pose dataset via accessor methods raises the appropriate error.
         """
-        expected_exception = (
-            ValueError
-            if isinstance(invalid_poses_dataset, xr.Dataset)
-            else AttributeError
-        )
-        with pytest.raises(expected_exception):
+        with pytest.raises(AttributeError):
             getattr(
                 invalid_poses_dataset.move, f"compute_{kinematic_property}"
             )()
