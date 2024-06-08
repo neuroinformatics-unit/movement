@@ -22,6 +22,8 @@ dependencies = [
   "sleap-io",
   "xarray[accel,viz]",
   "PyYAML",
+  "pynwb",
+  "ndx-pose>=0.2",
 ]
 
 classifiers = [
@@ -59,7 +61,6 @@ dev = [
   "types-PyYAML",
   "types-requests",
 ]
-nwb = ["pynwb", "ndx-pose"]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
