@@ -27,6 +27,8 @@ dependencies = [
   "pyvideoreader>=0.5.3",  # since switching to depend on openCV-headless
   "qt-niu",  # needed for collapsible widgets
   "loguru",
+  "pynwb",
+  "ndx-pose>=0.2",
 ]
 
 classifiers = [
@@ -74,7 +76,6 @@ dev = [
   "pytest-qt",
   "movement[napari]",
 ]
-nwb = ["pynwb", "ndx-pose"]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
