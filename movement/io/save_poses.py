@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal
 
 import h5py
 import numpy as np
@@ -15,15 +15,18 @@ from movement.logging import log_error
 logger = logging.getLogger(__name__)
 
 
-def _xarray_to_dlc_df(ds: xr.Dataset, columns: pd.MultiIndex) -> pd.DataFrame:
-    """Convert an xarray dataset to DLC-style multi-index pandas DataFrame.
+def _ds_to_dlc_style_df(
+    ds: xr.Dataset, columns: pd.MultiIndex
+) -> pd.DataFrame:
+    """Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     columns : pandas.MultiIndex
-        DLC-style multi-index columns
+        DeepLabCut-style multi-index columns
 
     Returns
     -------
@@ -57,7 +60,7 @@ def _auto_split_individuals(ds: xr.Dataset) -> bool:
 
 
 def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
-    """Given a filepath, will save the dataframe as either a .h5 or .csv.
+    """Save the dataframe as either a .h5 or .csv depending on the file path.
 
     Parameters
     ----------
@@ -74,20 +77,20 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         df.to_hdf(filepath, key="df_with_missing")
 
 
-def to_dlc_df(
+def to_dlc_style_df(
     ds: xr.Dataset, split_individuals: bool = False
-) -> Union[pd.DataFrame, dict[str, pd.DataFrame]]:
-    """Convert an xarray dataset to DeepLabCut-style pandas DataFrame(s).
+) -> pd.DataFrame | dict[str, pd.DataFrame]:
+    """Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     split_individuals : bool, optional
-        If True, return a dictionary of pandas DataFrames per individual,
-        with individual names as keys and DataFrames as values.
-        If False, return a single pandas DataFrame for all individuals.
-        Default is False.
+        If True, return a dictionary of DataFrames per individual, with
+        individual names as keys. If False (default), return a single
+        DataFrame for all individuals (see Notes).
 
     Returns
     -------
@@ -107,8 +110,7 @@ def to_dlc_df(
 
     See Also
     --------
-    to_dlc_file : Save the xarray dataset containing pose tracks directly
-        to a DeepLabCut-style .h5 or .csv file.
+    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.
 
     """
     _validate_dataset(ds)
@@ -128,7 +130,7 @@ def to_dlc_df(
                 [scorer, bodyparts, coords], names=index_levels
             )
 
-            df = _xarray_to_dlc_df(individual_data, columns)
+            df = _ds_to_dlc_style_df(individual_data, columns)
             df_dict[individual] = df
 
         logger.info(
@@ -142,46 +144,46 @@ def to_dlc_df(
             [scorer, individuals, bodyparts, coords], names=index_levels
         )
 
-        df_all = _xarray_to_dlc_df(ds, columns)
+        df_all = _ds_to_dlc_style_df(ds, columns)
 
-        logger.info("Converted poses dataset to DLC-style DataFrame.")
+        logger.info("Converted poses dataset to DeepLabCut-style DataFrame.")
         return df_all
 
 
 def to_dlc_file(
     ds: xr.Dataset,
-    file_path: Union[str, Path],
-    split_individuals: Union[bool, Literal["auto"]] = "auto",
+    file_path: str | Path,
+    split_individuals: bool | Literal["auto"] = "auto",
 ) -> None:
-    """Save the xarray dataset to a DeepLabCut-style .h5 or .csv file.
+    """Save a ``movement`` dataset to DeepLabCut file(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     file_path : pathlib.Path or str
-        Path to the file to save the DLC poses to. The file extension
+        Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
     split_individuals : bool or "auto", optional
-        Whether to save individuals to separate files or to the same file.\n
-        If True, each individual will be saved to a separate file,
-        formatted as in a single-animal DeepLabCut project - i.e. without
-        the "individuals" column level. The individual's name will be appended
-        to the file path, just before the file extension, i.e.
-        "/path/to/filename_individual1.h5".\n
-        If False, all individuals will be saved to the same file,
-        formatted as in a multi-animal DeepLabCut project - i.e. the columns
-        will include the "individuals" level. The file path will not be
-        modified.\n
-        If "auto" the argument's value is determined based on the number of
-        individuals in the dataset: True if there is only one, and
-        False if there are more than one. This is the default.
+        Whether to save individuals to separate files or to the same file
+        (see Notes). Defaults to "auto".
+
+    Notes
+    -----
+    If ``split_individuals`` is True, each individual will be saved to a
+    separate file, formatted as in a single-animal DeepLabCut project
+    (without the "individuals" column level). The individual's name will be
+    appended to the file path, just before the file extension, e.g.
+    "/path/to/filename_individual1.h5". If False, all individuals will be
+    saved to the same file, formatted as in a multi-animal DeepLabCut project
+    (with the "individuals" column level). The file path will not be modified.
+    If "auto", the argument's value is determined based on the number of
+    individuals in the dataset: True if there is only one, False otherwise.
 
     See Also
     --------
-    to_dlc_df : Convert an xarray dataset containing pose tracks into a single
-        DeepLabCut-style pandas DataFrame or a dictionary of DataFrames
-        per individual.
+    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).
 
     Examples
     --------
@@ -205,7 +207,7 @@ def to_dlc_file(
 
     if split_individuals:
         # split the dataset into a dictionary of dataframes per individual
-        df_dict = to_dlc_df(ds, split_individuals=True)
+        df_dict = to_dlc_style_df(ds, split_individuals=True)
 
         for key, df in df_dict.items():
             # the key is the individual's name
@@ -215,7 +217,7 @@ def to_dlc_file(
             logger.info(f"Saved poses for individual {key} to {file.path}.")
     else:
         # convert the dataset to a single dataframe for all individuals
-        df_all = to_dlc_df(ds, split_individuals=False)
+        df_all = to_dlc_style_df(ds, split_individuals=False)
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
         logger.info(f"Saved poses dataset to {file.path}.")
@@ -223,30 +225,31 @@ def to_dlc_file(
 
 def to_lp_file(
     ds: xr.Dataset,
-    file_path: Union[str, Path],
+    file_path: str | Path,
 ) -> None:
-    """Save the xarray dataset to a LightningPose-style .csv file (see Notes).
+    """Save a ``movement`` dataset to a LightningPose file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     file_path : pathlib.Path or str
-        Path to the .csv file to save the poses to.
+        Path to the file to save the poses to. File extension must be .csv.
 
     Notes
     -----
     LightningPose saves pose estimation outputs as .csv files, using the same
     format as single-animal DeepLabCut projects. Therefore, under the hood,
-    this function calls ``to_dlc_file`` with ``split_individuals=True``. This
-    setting means that each individual is saved to a separate file, with
-    the individual's name appended to the file path, just before the file
-    extension, i.e. "/path/to/filename_individual1.csv".
+    this function calls :py:func:`movement.io.save_poses.to_dlc_file`
+    with ``split_individuals=True``. This setting means that each individual
+    is saved to a separate file, with the individual's name appended to the
+    file path, just before the file extension,
+    i.e. "/path/to/filename_individual1.csv".
 
     See Also
     --------
-    to_dlc_file : Save the xarray dataset containing pose tracks to a
-        DeepLabCut-style .h5 or .csv file.
+    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
@@ -254,17 +257,16 @@ def to_lp_file(
     to_dlc_file(ds, file.path, split_individuals=True)
 
 
-def to_sleap_analysis_file(
-    ds: xr.Dataset, file_path: Union[str, Path]
-) -> None:
-    """Save the xarray dataset to a SLEAP-style .h5 analysis file.
+def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
+    """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
     file_path : pathlib.Path or str
-        Path to the file to save the poses to. The file extension must be .h5.
+        Path to the file to save the poses to. File extension must be .h5.
 
     Notes
     -----
@@ -355,12 +357,13 @@ def to_sleap_analysis_file(
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
-    """Remove tracks that are completely unoccupied in the xarray dataset.
+    """Remove tracks that are completely unoccupied from the dataset.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        Dataset containing pose tracks, confidence scores, and metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
 
     Returns
     -------
@@ -373,7 +376,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
 
 
 def _validate_file_path(
-    file_path: Union[str, Path], expected_suffix: list[str]
+    file_path: str | Path, expected_suffix: list[str]
 ) -> ValidFile:
     """Validate the input file path.
 
@@ -412,7 +415,7 @@ def _validate_file_path(
 
 
 def _validate_dataset(ds: xr.Dataset) -> None:
-    """Validate the input dataset is an xarray Dataset with valid poses.
+    """Validate the input as a proper ``movement`` dataset.
 
     Parameters
     ----------
@@ -422,7 +425,7 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     Raises
     ------
     ValueError
-        If `ds` is not an xarray Dataset with valid poses.
+        If `ds` is not an a valid ``movement`` dataset.
 
     """
     if not isinstance(ds, xr.Dataset):

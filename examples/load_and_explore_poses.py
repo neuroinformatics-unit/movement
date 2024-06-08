@@ -1,5 +1,5 @@
 """Load and explore pose tracks
-============================
+===============================
 
 Load and explore an example dataset of pose tracks.
 """
@@ -13,24 +13,27 @@ from movement import sample_data
 from movement.io import load_poses
 
 # %%
-# Fetch an example dataset
-# ------------------------
-# Print a list of available datasets:
+# Define the file path
+# --------------------
+# This should be a file output by one of our supported pose estimation
+# frameworks (e.g., DeepLabCut, SLEAP), containing predicted pose tracks.
+# For example, the path could be something like:
 
-for file_name in sample_data.list_sample_data():
-    print(file_name)
+# uncomment and edit the following line to point to your own local file
+# file_path = "/path/to/my/data.h5"
 
 # %%
-# Fetch the path to an example dataset.
-# Feel free to replace this with the path to your own dataset.
-# e.g., ``file_path = "/path/to/my/data.h5"``)
-file_path = sample_data.fetch_sample_data_path(
+# For the sake of this example, we will use the path to one of
+# the sample datasets provided with ``movement``.
+
+file_path = sample_data.fetch_dataset_paths(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
-)
+)["poses"]
+print(file_path)
 
 # %%
-# Load the dataset
-# ----------------
+# Load the data into movement
+# ---------------------------
 
 ds = load_poses.from_sleap_file(file_path, fps=50)
 print(ds)

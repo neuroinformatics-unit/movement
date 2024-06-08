@@ -104,6 +104,8 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
+    'remove_config_comments': True, 
+    # do not render config params set as # sphinx_gallery_config [= value]
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -163,6 +165,10 @@ linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
+]
+# A list of regular expressions that match URIs that should not be checked
+linkcheck_ignore = [
+    "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
 ]
 
 myst_url_schemes = {

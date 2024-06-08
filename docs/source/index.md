@@ -7,24 +7,24 @@ A Python toolbox for analysing body movements across space and time, to aid the 
 :gutter: 3
 
 :::{grid-item-card} {fas}`rocket;sd-text-primary` Getting Started
-:link: getting_started
+:link: getting_started/index
 :link-type: doc
 
-Install and try it out.
+Installation, first steps and key concepts.
 :::
 
 :::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
 :link: examples/index
 :link-type: doc
 
-Example use cases.
+A gallery of examples using movement.
 :::
 
 :::{grid-item-card} {fas}`comments;sd-text-primary` Join the movement
 :link: community/index
 :link-type: doc
 
-Get in touch and contribute.
+How to get in touch and contribute.
 :::
 ::::
 
@@ -37,7 +37,7 @@ Pose estimation tools, such as [DeepLabCut](dlc:) and [SLEAP](sleap:) are now co
 movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
 We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple individuals.
 
-Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmap).
+Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmaps).
 
 ```{include} /snippets/status-warning.md
 ```
@@ -46,7 +46,7 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :maxdepth: 2
 :hidden:
 
-getting_started
+getting_started/index
 examples/index
 community/index
 api_index

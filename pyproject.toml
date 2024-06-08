@@ -6,7 +6,7 @@ authors = [
 ]
 description = "Analysis of body movement"
 readme = "README.md"
-requires-python = ">=3.9.0"
+requires-python = ">=3.10.0"
 dynamic = ["version"]
 
 license = { text = "BSD-3-Clause" }
@@ -24,12 +24,12 @@ dependencies = [
 ]
 
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent",
   "License :: OSI Approved :: BSD License",
 ]
@@ -59,6 +59,9 @@ dev = [
   "types-requests",
 ]
 nwb = ["pynwb", "ndx-pose"]
+
+[project.scripts]
+movement = "movement.cli_entrypoint:main"
 
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
@@ -118,6 +121,8 @@ per-file-ignores = { "tests/*" = [
   "D205", # missing blank line between summary and description
   "D103", # missing docstring in public function
 ], "examples/*" = [
+  "B018", # Found useless expression
+  "D103", # Missing docstring in public function
   "D400", # first line should end with a period.
   "D415", # first line should end with a period, question mark...
   "D205", # missing blank line between summary and description
@@ -125,12 +130,6 @@ per-file-ignores = { "tests/*" = [
 
 [tool.ruff.format]
 docstring-code-format = true # Also format code in docstrings
-
-[tool.cibuildwheel]
-build = "cp39-* cp310-* cp311-*"
-
-[tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
 
 [tool.codespell]
 skip = '.git,.tox'
@@ -140,14 +139,14 @@ check-hidden = true
 legacy_tox_ini = """
 [tox]
 requires = tox-conda
-envlist = py{39,310,311}
+envlist = py{310,311,312}
 isolated_build = True
 
 [gh-actions]
 python =
-    3.9: py39
     3.10: py310
     3.11: py311
+    3.12: py312
 
 [testenv]
 conda_deps =

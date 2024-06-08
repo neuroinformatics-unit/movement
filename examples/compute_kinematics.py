@@ -2,7 +2,7 @@
 """Compute and visualise kinematics.
 ====================================
 
-Compute displacement, velocity and acceleration data on an example dataset and
+Compute displacement, velocity and acceleration, and
 visualise the results.
 """
 
@@ -24,7 +24,7 @@ from movement import sample_data
 # ------------------------
 # First, we load an example dataset. In this case, we select the
 # ``SLEAP_three-mice_Aeon_proofread`` sample data.
-ds = sample_data.fetch_sample_data(
+ds = sample_data.fetch_dataset(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5",
 )
 
@@ -52,7 +52,9 @@ position = ds.position
 # colouring them by individual.
 
 fig, ax = plt.subplots(1, 1)
-for mouse_name, col in zip(position.individuals.values, ["r", "g", "b"]):
+for mouse_name, col in zip(
+    position.individuals.values, ["r", "g", "b"], strict=False
+):
     ax.plot(
         position.sel(individuals=mouse_name, space="x"),
         position.sel(individuals=mouse_name, space="y"),
@@ -78,7 +80,7 @@ for mouse_name, col in zip(position.individuals.values, ["r", "g", "b"]):
 # %%
 # We can also color the data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
-for mouse_name, ax in zip(position.individuals.values, axes):
+for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     sc = ax.scatter(
         position.sel(individuals=mouse_name, space="x"),
         position.sel(individuals=mouse_name, space="y"),
@@ -117,8 +119,9 @@ plt.gcf().show()
 # ---------------------
 # We can start off by computing the distance travelled by the mice along
 # their trajectories.
-# For this, we can use the ``displacement`` method of the ``move`` accessor.
-displacement = ds.move.displacement
+# For this, we can use the ``compute_displacement`` method of the
+# ``move`` accessor.
+displacement = ds.move.compute_displacement()
 
 # %%
 # This method will return a data array equivalent to the ``position`` one,
@@ -133,14 +136,6 @@ displacement = ds.move.displacement
 import movement.analysis.kinematics as kin
 
 displacement_kin = kin.compute_displacement(position)
-
-# %%
-# However, we encourage our users to familiarise themselves with the ``move``
-# accessor, since it has a very interesting advantage: if we use
-# ``ds.move.displacement`` to compute the displacement data array, it
-# will be automatically added to the ``ds`` dataset. This is very
-# convenient for later analyses!
-# See further details in :ref:`target-access-kinematics`.
 
 # %%
 # The ``displacement`` data array holds, for a given individual and keypoint
@@ -277,7 +272,7 @@ print(
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
 # array:
-velocity = ds.move.velocity
+velocity = ds.move.compute_velocity()
 
 # %%
 # The ``velocity`` method will return a data array equivalent to the
@@ -304,7 +299,7 @@ plt.gcf().show()
 # %%
 # We can also visualise the speed, as the norm of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(velocity.individuals.values, axes):
+for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
     # compute the norm of the velocity vector for one mouse
     speed_one_mouse = np.linalg.norm(
         velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
@@ -358,13 +353,13 @@ fig.show()
 # Compute acceleration
 # ---------------------
 # We can compute the acceleration of the data with an equivalent method:
-accel = ds.move.acceleration
+accel = ds.move.compute_acceleration()
 
 # %%
 # and plot of the components of the acceleration vector ``ax``, ``ay`` per
 # individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # plot x-component of acceleration vector
     ax.plot(
         accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
@@ -386,7 +381,7 @@ fig.tight_layout()
 # acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # compute norm of the acceleration vector for one mouse
     accel_one_mouse = np.linalg.norm(
         accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
@@ -399,30 +394,3 @@ for mouse_name, ax in zip(accel.individuals.values, axes):
     ax.set_xlabel("time (s)")
     ax.set_ylabel("accel (px/s**2)")
 fig.tight_layout()
-
-
-# %%
-# .. _target-access-kinematics:
-#
-# Accessing pre-computed kinematic variables
-# ------------------------------------------
-# Once each kinematic variable has been computed via the ``move`` accessor,
-# (e.g. by calling ``ds.move.velocity``), the resulting data array will
-# also be available as a dataset property, (e.g. as ``ds.velocity``).
-# Since we've already computed ``displacement``, ``velocity`` and
-# ``acceleration`` above, they should be listed among the data arrays
-# contained in the dataset:
-print(ds)
-
-# %%
-# Indeed we see that in addition to the original data arrays ``position``
-# and ``confidence``, the ``ds`` dataset now also contains data arrays called
-# ``displacement``, ``velocity`` and ``acceleration``.
-
-print(ds.displacement)
-
-# %%
-print(ds.velocity)
-
-# %%
-print(ds.acceleration)

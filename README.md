@@ -1,3 +1,4 @@
+[![Python Version](https://img.shields.io/pypi/pyversions/movement.svg)](https://pypi.org/project/movement)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-orange.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ![CI](https://img.shields.io/github/actions/workflow/status/neuroinformatics-unit/movement/test_and_deploy.yml?label=CI)
 [![codecov](https://codecov.io/gh/neuroinformatics-unit/movement/branch/main/graph/badge.svg?token=P8CCH3TI8K)](https://codecov.io/gh/neuroinformatics-unit/movement)
@@ -9,16 +10,24 @@
 
 A Python toolbox for analysing body movements across space and time, to aid the study of animal behaviour in neuroscience.
 
-> [!Note]
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [installation instructions](https://movement.neuroinformatics.dev/getting_started.html#installation) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
-
-- [Overview](#overview)
-- [Status](#status)
-- [Join the movement](#join-the-movement)
-- [License](#license)
-- [Package template](#package-template)
 
 ![](docs/source/_static/movement_overview.png)
+
+## Quick install
+
+First, create and activate a conda environment with the required dependencies:
+```
+conda create -n movement-env -c conda-forge python=3.10 pytables
+conda activate movement-env
+```
+
+Then install the `movement` package:
+```
+pip install movement
+```
+
+> [!Note]
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/getting_started/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 ## Overview
 
@@ -27,7 +36,7 @@ Pose estimation tools, such as [DeepLabCut](https://www.mackenziemathislab.org/d
 movement aims to provide a consistent modular interface to analyse pose tracks, allowing steps such as data cleaning, visualisation and motion quantification.
 We aim to support a range of pose estimation packages, along with 2D or 3D tracking of single or multiple individuals.
 
-Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmap.html).
+Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmaps.html).
 
 ## Status
 > [!Warning]
