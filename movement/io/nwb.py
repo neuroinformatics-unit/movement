@@ -7,6 +7,7 @@ import numpy as np
 import pynwb
 import xarray as xr
 
+from movement.io.save_poses import _validate_file_path
 from movement.logging import log_error
 
 
@@ -271,6 +272,7 @@ def convert_nwb_to_movement(
 
     datasets = []
     for path in nwb_filepaths:
+        _validate_file_path(path, expected_suffix=[".nwb"])
         with pynwb.NWBHDF5IO(path, mode="r") as io:
             nwbfile = io.read()
             pose_estimation = nwbfile.processing["behavior"]["PoseEstimation"]
