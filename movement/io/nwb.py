@@ -11,13 +11,12 @@ def _create_pose_and_skeleton_objects(
     pose_estimation_kwargs: dict | None = None,
     skeleton_kwargs: dict | None = None,
 ) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
-    """Creates PoseEstimation and Skeletons objects from a movement xarray
-    dataset.
+    """Create PoseEstimation and Skeletons objects from a movement dataset.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Movement dataset containing the data to be converted to NWB.
+        movement dataset containing the data to be converted to NWB.
     subject : str
         Name of the subject to be converted.
     pose_estimation_series_kwargs : dict, optional
