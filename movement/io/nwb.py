@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 import ndx_pose
 import numpy as np
 import pynwb
@@ -9,9 +7,9 @@ import xarray as xr
 def _create_pose_and_skeleton_objects(
     ds: xr.Dataset,
     subject: str,
-    pose_estimation_series_kwargs: Optional[dict] = None,
-    pose_estimation_kwargs: Optional[dict] = None,
-    skeleton_kwargs: Optional[dict] = None,
+    pose_estimation_series_kwargs: dict | None = None,
+    pose_estimation_kwargs: dict | None = None,
+    skeleton_kwargs: dict | None = None,
 ) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
     """Creates PoseEstimation and Skeletons objects from a movement xarray
     dataset.
@@ -109,11 +107,11 @@ def _create_pose_and_skeleton_objects(
 
 
 def convert_movement_to_nwb(
-    nwbfiles: Union[list[pynwb.NWBFile], pynwb.NWBFile],
+    nwbfiles: list[pynwb.NWBFile] | pynwb.NWBFile,
     ds: xr.Dataset,
-    pose_estimation_series_kwargs: Optional[dict] = None,
-    pose_estimation_kwargs: Optional[dict] = None,
-    skeletons_kwargs: Optional[dict] = None,
+    pose_estimation_series_kwargs: dict | None = None,
+    pose_estimation_kwargs: dict | None = None,
+    skeletons_kwargs: dict | None = None,
 ):
     if isinstance(nwbfiles, pynwb.NWBFile):
         nwbfiles = [nwbfiles]
@@ -124,7 +122,9 @@ def convert_movement_to_nwb(
             "NWB requires one file per individual."
         )
 
-    for nwbfile, subject in zip(nwbfiles, ds.individuals.to_numpy()):
+    for nwbfile, subject in zip(
+        nwbfiles, ds.individuals.to_numpy(), strict=False
+    ):
         pose_estimation, skeletons = _create_pose_and_skeleton_objects(
             ds.sel(individuals=subject),
             subject,
@@ -156,7 +156,7 @@ def _convert_pse(
     keypoint: str,
     subject_name: str,
     source_software: str,
-    source_file: Optional[str] = None,
+    source_file: str | None = None,
 ):
     attrs = {
         "fps": int(np.median(1 / np.diff(pes.timestamps))),
