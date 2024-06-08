@@ -1,7 +1,13 @@
+"""Functions to convert movement data to and from NWB format."""
+
+from pathlib import Path
+
 import ndx_pose
 import numpy as np
 import pynwb
 import xarray as xr
+
+from movement.logging import log_error
 
 
 def _create_pose_and_skeleton_objects(
@@ -11,14 +17,14 @@ def _create_pose_and_skeleton_objects(
     pose_estimation_kwargs: dict | None = None,
     skeleton_kwargs: dict | None = None,
 ) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
-    """Create PoseEstimation and Skeletons objects from a movement dataset.
+    """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         movement dataset containing the data to be converted to NWB.
     subject : str
-        Name of the subject to be converted.
+        Name of the subject (individual) to be converted.
     pose_estimation_series_kwargs : dict, optional
         PoseEstimationSeries keyword arguments. See ndx_pose, by default None
     pose_estimation_kwargs : dict, optional
@@ -107,25 +113,48 @@ def _create_pose_and_skeleton_objects(
 
 def convert_movement_to_nwb(
     nwbfiles: list[pynwb.NWBFile] | pynwb.NWBFile,
-    ds: xr.Dataset,
+    movement_dataset: xr.Dataset,
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
     skeletons_kwargs: dict | None = None,
-):
+) -> None:
+    """Convert a ``movement`` dataset to the ndx-pose extension format for NWB.
+
+    Parameters
+    ----------
+    nwbfiles : list[pynwb.NWBFile] | pynwb.NWBFile
+        NWBFile object(s) to which the data will be added.
+    movement_dataset : xr.Dataset
+        ``movement`` dataset containing the data to be converted to NWB.
+    pose_estimation_series_kwargs : dict, optional
+        PoseEstimationSeries keyword arguments. See ndx_pose, by default None
+    pose_estimation_kwargs : dict, optional
+        PoseEstimation keyword arguments. See ndx_pose, by default None
+    skeletons_kwargs : dict, optional
+        Skeleton keyword arguments. See ndx_pose, by default None
+
+    Raises
+    ------
+    ValueError
+        If the number of NWBFiles is not equal to the number of individuals
+        in the dataset.
+
+    """
     if isinstance(nwbfiles, pynwb.NWBFile):
         nwbfiles = [nwbfiles]
 
-    if len(nwbfiles) != len(ds.individuals):
-        raise ValueError(
+    if len(nwbfiles) != len(movement_dataset.individuals):
+        raise log_error(
+            ValueError,
             "Number of NWBFiles must be equal to the number of individuals. "
-            "NWB requires one file per individual."
+            "NWB requires one file per individual.",
         )
 
     for nwbfile, subject in zip(
-        nwbfiles, ds.individuals.to_numpy(), strict=False
+        nwbfiles, movement_dataset.individuals.to_numpy(), strict=False
     ):
         pose_estimation, skeletons = _create_pose_and_skeleton_objects(
-            ds.sel(individuals=subject),
+            movement_dataset.sel(individuals=subject),
             subject,
             pose_estimation_series_kwargs,
             pose_estimation_kwargs,
@@ -150,35 +179,56 @@ def convert_movement_to_nwb(
             print("PoseEstimation already exists. Skipping...")
 
 
-def _convert_pse(
-    pes: ndx_pose.PoseEstimationSeries,
+def _convert_pose_estimation_series(
+    pose_estimation_series: ndx_pose.PoseEstimationSeries,
     keypoint: str,
     subject_name: str,
     source_software: str,
     source_file: str | None = None,
-):
+) -> xr.Dataset:
+    """Convert to single-keypoint, single-individual ``movement`` dataset.
+
+    Parameters
+    ----------
+    pose_estimation_series : ndx_pose.PoseEstimationSeries
+        PoseEstimationSeries NWB object to be converted.
+    keypoint : str
+        Name of the keypoint - body part.
+    subject_name : str
+        Name of the subject (individual).
+    source_software : str
+        Name of the software used to estimate the pose.
+    source_file : Optional[str], optional
+        File from which the data was extracted, by default None
+
+    Returns
+    -------
+    movement_dataset : xr.Dataset
+        ``movement`` compatible dataset containing the pose estimation data.
+
+    """
     attrs = {
-        "fps": int(np.median(1 / np.diff(pes.timestamps))),
-        "time_units": pes.timestamps_unit,
+        "fps": np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
+        "time_units": pose_estimation_series.timestamps_unit,
         "source_software": source_software,
         "source_file": source_file,
     }
-    n_space_dims = pes.data.shape[1]
+    n_space_dims = pose_estimation_series.data.shape[1]
     space_dims = ["x", "y", "z"]
 
     return xr.Dataset(
         data_vars={
             "position": (
                 ["time", "individuals", "keypoints", "space"],
-                pes.data[:, np.newaxis, np.newaxis, :],
+                pose_estimation_series.data[:, np.newaxis, np.newaxis, :],
             ),
             "confidence": (
                 ["time", "individuals", "keypoints"],
-                pes.confidence[:, np.newaxis, np.newaxis],
+                pose_estimation_series.confidence[:, np.newaxis, np.newaxis],
             ),
         },
         coords={
-            "time": pes.timestamps,
+            "time": pose_estimation_series.timestamps,
             "individuals": [subject_name],
             "keypoints": [keypoint],
             "space": space_dims[:n_space_dims],
@@ -187,7 +237,22 @@ def _convert_pse(
     )
 
 
-def convert_nwb_to_movement(nwb_filepaths: list[str]) -> xr.Dataset:
+def convert_nwb_to_movement(
+    nwb_filepaths: list[str] | list[Path],
+) -> xr.Dataset:
+    """Convert a list of NWB files to a single ``movement`` dataset.
+
+    Parameters
+    ----------
+    nwb_filepaths : Union[list[str], list[Path]]
+        List of paths to NWB files to be converted.
+
+    Returns
+    -------
+    movement_ds : xr.Dataset
+        ``movement`` dataset containing the pose estimation data.
+
+    """
     datasets = []
     for path in nwb_filepaths:
         with pynwb.NWBHDF5IO(path, mode="r") as io:
@@ -200,7 +265,7 @@ def convert_nwb_to_movement(nwb_filepaths: list[str]) -> xr.Dataset:
 
             for keypoint, pes in pose_estimation_series.items():
                 datasets.append(
-                    _convert_pse(
+                    _convert_pose_estimation_series(
                         pes,
                         keypoint,
                         subject_name=nwbfile.identifier,
