@@ -61,7 +61,6 @@ dev = [
   "types-PyYAML",
   "types-requests",
 ]
-nwb = ["pynwb", "ndx-pose"]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
