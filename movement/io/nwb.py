@@ -111,14 +111,14 @@ def _create_pose_and_skeleton_objects(
     return pose_estimation, skeletons
 
 
-def convert_movement_to_nwb(
+def add_movement_dataset_to_nwb(
     nwbfiles: list[pynwb.NWBFile] | pynwb.NWBFile,
     movement_dataset: xr.Dataset,
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
     skeletons_kwargs: dict | None = None,
 ) -> None:
-    """Convert a ``movement`` dataset to the ndx-pose extension format for NWB.
+    """Add pose estimation data to NWB files for each individual.
 
     Parameters
     ----------
