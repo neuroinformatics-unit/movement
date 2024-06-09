@@ -216,19 +216,28 @@ def _convert_pose_estimation_series(
     n_space_dims = pose_estimation_series.data.shape[1]
     space_dims = ["x", "y", "z"]
 
+    position_array = np.asarray(pose_estimation_series.data)[
+        :, np.newaxis, np.newaxis, :
+    ]
+
+    if getattr(pose_estimation_series, "confidence", None) is None:
+        pose_estimation_series.confidence = np.full(
+            pose_estimation_series.data.shape[0], np.nan
+        )
+    else:
+        confidence_array = np.asarray(pose_estimation_series.confidence)[
+            :, np.newaxis, np.newaxis
+        ]
+
     return xr.Dataset(
         data_vars={
             "position": (
                 ["time", "individuals", "keypoints", "space"],
-                np.asarray(pose_estimation_series.data)[
-                    :, np.newaxis, np.newaxis, :
-                ],
+                position_array,
             ),
             "confidence": (
                 ["time", "individuals", "keypoints"],
-                np.asarray(pose_estimation_series.confidence)[
-                    :, np.newaxis, np.newaxis
-                ],
+                confidence_array,
             ),
         },
         coords={
