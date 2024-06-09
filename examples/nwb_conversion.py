@@ -52,3 +52,4 @@ for file in nwbfiles:
 ds_from_nwb = convert_nwb_to_movement(
     nwb_filepaths=["individual1.nwb", "individual2.nwb"]
 )
+ds_from_nwb
