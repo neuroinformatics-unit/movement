@@ -1,4 +1,4 @@
-"""Functions for saving pose tracking data to various file formats."""
+"""Save pose tracking data from ``movement`` to various file formats."""
 
 import logging
 from pathlib import Path

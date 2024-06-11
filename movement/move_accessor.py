@@ -1,4 +1,4 @@
-"""Accessor for extending xarray.Dataset objects."""
+"""Accessor for extending :py:class:`xarray.Dataset` objects."""
 
 import logging
 from typing import ClassVar
