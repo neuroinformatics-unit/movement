@@ -160,6 +160,13 @@ conda_deps =
     pyqt
 conda_channels =
     conda-forge
+passenv =
+    CI
+    GITHUB_ACTIONS
+    DISPLAY
+    XAUTHORITY
+    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
+    PYVISTA_OFF_SCREEN
 extras =
     dev
 commands =
