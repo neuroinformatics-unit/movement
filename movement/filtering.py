@@ -7,7 +7,7 @@ from functools import wraps
 import xarray as xr
 from scipy import signal
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 def log_to_attrs(func):

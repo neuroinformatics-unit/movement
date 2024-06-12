@@ -12,7 +12,7 @@ import pytest
 import xarray as xr
 
 from movement import MovementDataset
-from movement.logging import configure_logging
+from movement.utils.logging import configure_logging
 from movement.sample_data import fetch_dataset_paths, list_datasets
 
 

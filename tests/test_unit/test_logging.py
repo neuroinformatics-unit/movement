@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from movement.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_warning
 
 log_messages = {
     "DEBUG": "This is a debug message",
