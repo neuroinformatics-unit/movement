@@ -7,27 +7,6 @@ from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 
-def invalid_bboxes_arrays_and_expected_log(array_name: str):
-    """Return a list of tuples containing invalid arrays
-    for `position` and `shape` of a bboxes dataset.
-    """
-    return [
-        (
-            None,
-            f"Expected a numpy array, but got {type(None)}.",
-        ),  # invalid, argument is non-optional
-        (
-            [1, 2, 3],
-            f"Expected a numpy array, but got {type(list())}.",
-        ),  # not an ndarray
-        (
-            np.zeros((10, 2, 3)),
-            f"Expected '{array_name}' to have 2 spatial "
-            "coordinates, but got 3.",
-        ),  # last dim not 2
-    ]
-
-
 class TestValidators:
     """Test suite for the validators module."""
 
@@ -79,6 +58,25 @@ class TestValidators:
             "keypoint_names_expected_exception": pytest.raises(ValueError),
         },  # invalid input
     ]
+
+    invalid_bboxes_arrays_and_expected_log = {
+        ky: [
+            (
+                None,
+                f"Expected a numpy array, but got {type(None)}.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray
+            (
+                np.zeros((10, 2, 3)),
+                f"Expected '{ky}' to have 2 spatial "
+                "coordinates, but got 3.",
+            ),  # last dim not 2
+        ]
+        for ky in ["position_array", "shape_array"]
+    }
 
     @pytest.fixture(params=position_arrays)
     def position_array_params(self, request):
@@ -266,7 +264,7 @@ class TestValidators:
 
     @pytest.mark.parametrize(
         "invalid_position_array, log_message",
-        invalid_bboxes_arrays_and_expected_log("position_array"),
+        invalid_bboxes_arrays_and_expected_log["position_array"],
     )
     def test_bboxes_dataset_validator_with_invalid_position_array(
         self, invalid_position_array, log_message, request
@@ -286,7 +284,7 @@ class TestValidators:
 
     @pytest.mark.parametrize(
         "invalid_shape_array, log_message",
-        invalid_bboxes_arrays_and_expected_log("shape_array"),
+        invalid_bboxes_arrays_and_expected_log["shape_array"],
     )
     def test_bboxes_dataset_validator_with_invalid_shape_array(
         self, invalid_shape_array, log_message, request
@@ -393,5 +391,4 @@ class TestValidators:
                 poses.confidence_array.shape == poses.position_array.shape[:-1]
             )  # assert shape matches position array
         else:
-            assert str(excinfo.value) == log_message
             assert str(excinfo.value) == log_message
