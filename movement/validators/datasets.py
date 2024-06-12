@@ -190,8 +190,8 @@ class ValidBboxesDataset:
         converted to an `xarray.DataArray` object named "position".
     shape_array : np.ndarray
         Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' width (length of the box along the
-        x-axis) and height (length of the box along the y-axis). It will
+        containing the bounding boxes' width (extent along the
+        x-axis) and height (extent along the y-axis). It will
         be converted to a `xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
