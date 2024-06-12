@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:

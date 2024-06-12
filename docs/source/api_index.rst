@@ -97,7 +97,7 @@ MovementDataset
 
 Logging
 -------
-.. currentmodule:: movement.logging
+.. currentmodule:: movement.utils.logging
 .. autosummary::
     :toctree: api
 
