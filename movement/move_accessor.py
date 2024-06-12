@@ -6,8 +6,8 @@ from typing import ClassVar
 import xarray as xr
 
 from movement.analysis import kinematics
-from movement.io.validators import ValidPosesDataset
 from movement.logging import log_error
+from movement.validators.datasets import ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 

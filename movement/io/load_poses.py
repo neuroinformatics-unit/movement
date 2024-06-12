@@ -12,13 +12,9 @@ from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
 from movement import MovementDataset
-from movement.io.validators import (
-    ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
-    ValidPosesDataset,
-)
 from movement.logging import log_error, log_warning
+from movement.validators.datasets import ValidPosesDataset
+from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 logger = logging.getLogger(__name__)
 
