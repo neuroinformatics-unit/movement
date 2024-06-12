@@ -238,14 +238,9 @@ class ValidBboxesDataset:
     @position_array.validator
     @shape_array.validator
     def _validate_position_and_shape_arrays(self, attribute, value):
-        # check value is a numpy array
         _ensure_type_ndarray(value)
 
-        # NOTE: we do not check the number of dimensions are 3
-
         # check last dimension (spatial) has 2 coordinates
-        # - for the position_array the coordinates are x,y
-        # - for the shape_array the coordinates are width, height
         n_expected_spatial_coordinates = 2
         if value.shape[-1] != n_expected_spatial_coordinates:
             raise log_error(
@@ -254,20 +249,16 @@ class ValidBboxesDataset:
                 f"but got {value.shape[-1]}.",
             )
 
-    # validator for bboxes individual_names
-    # (only checked if input is not None)
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
         if value is not None:
-            # check the total elements in individual_names matches those in
-            # position_array
             _validate_list_length(
                 attribute, value, self.position_array.shape[1]
             )
 
-            # check elements in individual_names are unique
-            # (combined with the requirement above, we are enforcing
-            # unique IDs per frame)
+            # check n_individual_names are unique
+            # NOTE: combined with the requirement above, we are enforcing
+            # unique IDs per frame
             if len(value) != len(set(value)):
                 raise log_error(
                     ValueError,
@@ -276,15 +267,11 @@ class ValidBboxesDataset:
                     f"only {len(set(value))} are unique.",
                 )
 
-    # validator for confidence array
     @confidence_array.validator
     def _validate_confidence_array(self, attribute, value):
-        # check only if a confidence array is passed
         if value is not None:
-            # check value is a numpy array
             _ensure_type_ndarray(value)
 
-            # check shape of confidence array matches position_array
             expected_shape = self.position_array.shape[:-1]
             if value.shape != expected_shape:
                 raise log_error(
@@ -293,10 +280,14 @@ class ValidBboxesDataset:
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
-    # define default values
+    # Define defaults
     def __attrs_post_init__(self):
-        """Assign default values to optional attributes (if None)."""
-        # if confidence_array is None, set it to an array of NaNs
+        """Assign default values to optional attributes (if None).
+
+        If no confidence_array is provided, set it to an array of NaNs.
+        If no individual names are provided, assign them unique IDs per frame,
+        starting with 1 ("id_1")
+        """
         if self.confidence_array is None:
             self.confidence_array = np.full(
                 (self.position_array.shape[:-1]),
@@ -307,8 +298,7 @@ class ValidBboxesDataset:
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
-        # if no individual_names are provided for the tracked boxes:
-        # assign them unique IDs per frame, starting with 1 ("id_1")
+
         if self.individual_names is None:
             self.individual_names = [
                 f"id_{i+1}" for i in range(self.position_array.shape[1])
@@ -316,6 +306,6 @@ class ValidBboxesDataset:
             log_warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
-                f"Setting to {self.individual_names}.\n"
-                "(1-based IDs that are unique per frame)"
+                "Setting to 1-based IDs that are unique per frame: \n"
+                f"{self.individual_names}.\n"
             )
