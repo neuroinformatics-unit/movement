@@ -49,7 +49,7 @@ def _validate_list_length(attribute, value: list | None, expected_length: int):
     if (value is not None) and (len(value) != expected_length):
         raise log_error(
             ValueError,
-            f"Expected `{attribute.name}` to have length {expected_length}, "
+            f"Expected '{attribute.name}' to have length {expected_length}, "
             f"but got {len(value)}.",
         )
 
@@ -112,13 +112,13 @@ class ValidPosesDataset:
         if value.ndim != 4:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute.name}` to have 4 dimensions, "
+                f"Expected '{attribute.name}' to have 4 dimensions, "
                 f"but got {value.ndim}.",
             )
         if value.shape[-1] not in [2, 3]:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute.name}` to have 2 or 3 spatial "
+                f"Expected '{attribute.name}' to have 2 or 3 spatial "
                 f"dimensions, but got {value.shape[-1]}.",
             )
 
@@ -130,7 +130,7 @@ class ValidPosesDataset:
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
-                    f"Expected `{attribute.name}` to have shape "
+                    f"Expected '{attribute.name}' to have shape "
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
@@ -178,29 +178,29 @@ class ValidPosesDataset:
 
 @define(kw_only=True)
 class ValidBboxesDataset:
-    """Class for validating bounding boxes data for a ``movement`` dataset.
+    """Class for validating bounding boxes' data for a ``movement`` dataset.
 
     We consider 2D bounding boxes only.
 
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_unique_individual_names, n_space)
+        Array of shape (n_frames, n_individual_names, n_space)
         containing the bounding boxes' centroid positions. It will be
-        converted to a `xarray.DataArray` object named "position".
+        converted to an `xarray.DataArray` object named "position".
     shape_array : np.ndarray
-        Array of shape (n_frames, n_unique_individual_names, n_space)
-        containing the bounding boxes' width (extension along the x-axis) and
-        height (extension along the y-axis). It will be converted to a
-        `xarray.DataArray` object named "shape".
+        Array of shape (n_frames, n_individual_names, n_space)
+        containing the bounding boxes' width (length of the box along the
+        x-axis) and height (length of the box along the y-axis). It will
+        be converted to a `xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
-        the bounding boxes confidence scores. It will be converted to a
+        the bounding boxes' confidence scores. It will be converted to a
         `xarray.DataArray` object named "confidence". If None (default), the
         confidence scores will be set to an array of NaNs.
     individual_names : list of str, optional
-        List of individual_names for the tracked bounding boxes in the video.
-        If None (default), bounding boxes are assigned unique IDs per frame,
+        List of individual names for the tracked bounding boxes in the video.
+        If None (default), bounding boxes are assigned unique names per frame,
         in the format of `id_<N>`, where <N> is an integer from 1 to Inf.
     fps : float, optional
         Frames per second defining the sampling rate of the data.
@@ -250,7 +250,7 @@ class ValidBboxesDataset:
         if value.shape[-1] != n_expected_spatial_coordinates:
             raise log_error(
                 ValueError,
-                f"Expected `{attribute.name}` to have 2 spatial coordinates, "
+                f"Expected '{attribute.name}' to have 2 spatial coordinates, "
                 f"but got {value.shape[-1]}.",
             )
 
@@ -289,7 +289,7 @@ class ValidBboxesDataset:
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,
-                    f"Expected `{attribute.name}` to have shape "
+                    f"Expected '{attribute.name}' to have shape "
                     f"{expected_shape}, but got {value.shape}.",
                 )
 

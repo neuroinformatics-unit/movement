@@ -69,9 +69,9 @@ class TestValidators:
     @pytest.fixture
     def valid_bboxes_inputs(self):
         """Return a dictionary with valid inputs for a ValidBboxesDataset."""
-        n_frames, n_unique_IDs, n_space = (10, 2, 2)
+        n_frames, n_individuals, n_space = (10, 2, 2)
         # valid array for position or shape
-        valid_bbox_array = np.zeros((n_frames, n_unique_IDs, n_space))
+        valid_bbox_array = np.zeros((n_frames, n_individuals, n_space))
 
         return {
             "position_array": valid_bbox_array,
@@ -256,7 +256,7 @@ class TestValidators:
             ),  # not an ndarray
             (
                 np.zeros((10, 2, 3)),
-                "Expected `position_array` to have 2 spatial "
+                "Expected 'position_array' to have 2 spatial "
                 "coordinates, but got 3.",
             ),  # last dim not 2
         ],
@@ -290,7 +290,7 @@ class TestValidators:
             ),  # not an ndarray
             (
                 np.zeros((10, 2, 3)),
-                "Expected `shape_array` to have 2 spatial "
+                "Expected 'shape_array' to have 2 spatial "
                 "coordinates, but got 3.",
             ),  # last dim (spatial) not 2
         ],
@@ -322,7 +322,7 @@ class TestValidators:
             (
                 [1, 2, 3],
                 pytest.raises(ValueError),
-                "Expected `individual_names` to have length 2, but got 3.",
+                "Expected 'individual_names' to have length 2, but got 3.",
             ),  # length doesn't match position_array.shape[1]
             (
                 ["id_1", "id_1"],
@@ -360,7 +360,7 @@ class TestValidators:
             (
                 np.ones((10, 3, 2)),
                 pytest.raises(ValueError),
-                "Expected `confidence_array` to have shape (10, 2), "
+                "Expected 'confidence_array' to have shape (10, 2), "
                 "but got (10, 3, 2).",
             ),  # will not match position_array shape
             (
