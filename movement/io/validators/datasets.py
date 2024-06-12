@@ -26,7 +26,7 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
 
 
 def _ensure_type_ndarray(value: Any) -> None:
-    """Raise ValueError the value is a not numpy array."""
+    """Raise ValueError if the value is not a numpy array."""
     if not isinstance(value, np.ndarray):
         raise log_error(
             ValueError, f"Expected a numpy array, but got {type(value)}."
