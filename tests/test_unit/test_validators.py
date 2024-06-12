@@ -59,6 +59,25 @@ class TestValidators:
         },  # invalid input
     ]
 
+    invalid_bboxes_arrays_and_expected_log = {
+        ky: [
+            (
+                None,
+                f"Expected a numpy array, but got {type(None)}.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray
+            (
+                np.zeros((10, 2, 3)),
+                f"Expected '{ky}' to have 2 spatial "
+                "coordinates, but got 3.",
+            ),  # last dim not 2
+        ]
+        for ky in ["position_array", "shape_array"]
+    }
+
     @pytest.fixture(params=position_arrays)
     def position_array_params(self, request):
         """Return a dictionary containing parameters for testing
@@ -245,21 +264,7 @@ class TestValidators:
 
     @pytest.mark.parametrize(
         "invalid_position_array, log_message",
-        [
-            (
-                None,
-                f"Expected a numpy array, but got {type(None)}.",
-            ),  # invalid, argument is non-optional
-            (
-                [1, 2, 3],
-                f"Expected a numpy array, but got {type(list())}.",
-            ),  # not an ndarray
-            (
-                np.zeros((10, 2, 3)),
-                "Expected 'position_array' to have 2 spatial "
-                "coordinates, but got 3.",
-            ),  # last dim not 2
-        ],
+        invalid_bboxes_arrays_and_expected_log["position_array"],
     )
     def test_bboxes_dataset_validator_with_invalid_position_array(
         self, invalid_position_array, log_message, request
@@ -279,21 +284,7 @@ class TestValidators:
 
     @pytest.mark.parametrize(
         "invalid_shape_array, log_message",
-        [
-            (
-                None,
-                f"Expected a numpy array, but got {type(None)}.",
-            ),  # invalid, argument is non-optional
-            (
-                [1, 2, 3],
-                f"Expected a numpy array, but got {type(list())}.",
-            ),  # not an ndarray
-            (
-                np.zeros((10, 2, 3)),
-                "Expected 'shape_array' to have 2 spatial "
-                "coordinates, but got 3.",
-            ),  # last dim (spatial) not 2
-        ],
+        invalid_bboxes_arrays_and_expected_log["shape_array"],
     )
     def test_bboxes_dataset_validator_with_invalid_shape_array(
         self, invalid_shape_array, log_message, request
