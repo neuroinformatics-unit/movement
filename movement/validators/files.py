@@ -1,4 +1,4 @@
-"""`attrs` classes for validating file paths."""
+"""``attrs`` classes for validating file paths."""
 
 import os
 from pathlib import Path
