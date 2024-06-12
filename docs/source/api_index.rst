@@ -29,15 +29,22 @@ Save poses
     to_sleap_analysis_file
     to_dlc_style_df
 
-Validators
-----------
-.. currentmodule:: movement.io.validators
+Validators - Files
+------------------
+.. currentmodule:: movement.validators.files
 .. autosummary::
     :toctree: api
 
     ValidFile
     ValidHDF5
     ValidDeepLabCutCSV
+
+Validators - Datasets
+----------------------
+.. currentmodule:: movement.validators.datasets
+.. autosummary::
+    :toctree: api
+
     ValidPosesDataset
 
 Sample Data

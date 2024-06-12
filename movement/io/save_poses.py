@@ -2,15 +2,15 @@
 
 import logging
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal
 
 import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.io.validators import ValidFile
 from movement.logging import log_error
+from movement.validators.files import ValidFile
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
 def to_dlc_style_df(
     ds: xr.Dataset, split_individuals: bool = False
-) -> Union[pd.DataFrame, dict[str, pd.DataFrame]]:
+) -> pd.DataFrame | dict[str, pd.DataFrame]:
     """Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).
 
     Parameters
@@ -152,8 +152,8 @@ def to_dlc_style_df(
 
 def to_dlc_file(
     ds: xr.Dataset,
-    file_path: Union[str, Path],
-    split_individuals: Union[bool, Literal["auto"]] = "auto",
+    file_path: str | Path,
+    split_individuals: bool | Literal["auto"] = "auto",
 ) -> None:
     """Save a ``movement`` dataset to DeepLabCut file(s).
 
@@ -225,7 +225,7 @@ def to_dlc_file(
 
 def to_lp_file(
     ds: xr.Dataset,
-    file_path: Union[str, Path],
+    file_path: str | Path,
 ) -> None:
     """Save a ``movement`` dataset to a LightningPose file.
 
@@ -257,9 +257,7 @@ def to_lp_file(
     to_dlc_file(ds, file.path, split_individuals=True)
 
 
-def to_sleap_analysis_file(
-    ds: xr.Dataset, file_path: Union[str, Path]
-) -> None:
+def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
@@ -378,7 +376,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
 
 
 def _validate_file_path(
-    file_path: Union[str, Path], expected_suffix: list[str]
+    file_path: str | Path, expected_suffix: list[str]
 ) -> ValidFile:
     """Validate the input file path.
 
