@@ -1,7 +1,7 @@
 """`attrs` classes for validating data structures."""
 
 from collections.abc import Iterable
-from typing import Any, Optional, Union
+from typing import Any
 
 import numpy as np
 from attrs import converters, define, field, validators
@@ -9,7 +9,7 @@ from attrs import converters, define, field, validators
 from movement.logging import log_error, log_warning
 
 
-def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
+def _list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
         log_warning(
@@ -26,14 +26,14 @@ def _list_of_str(value: Union[str, Iterable[Any]]) -> list[str]:
 
 
 def _ensure_type_ndarray(value: Any) -> None:
-    """Raise ValueError if the value is not a numpy array."""
+    """Raise ValueError the value is a not numpy array."""
     if not isinstance(value, np.ndarray):
         raise log_error(
             ValueError, f"Expected a numpy array, but got {type(value)}."
         )
 
 
-def _set_fps_to_none_if_invalid(fps: Optional[float]) -> Optional[float]:
+def _set_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
         log_warning(
@@ -45,7 +45,7 @@ def _set_fps_to_none_if_invalid(fps: Optional[float]) -> Optional[float]:
 
 
 def _validate_list_length(
-    attribute: str, value: Optional[list], expected_length: int
+    attribute: str, value: list | None, expected_length: int
 ):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
@@ -87,22 +87,22 @@ class ValidPosesDataset:
 
     # Define class attributes
     position_array: np.ndarray = field()
-    confidence_array: Optional[np.ndarray] = field(default=None)
-    individual_names: Optional[list[str]] = field(
+    confidence_array: np.ndarray | None = field(default=None)
+    individual_names: list[str] | None = field(
         default=None,
         converter=converters.optional(_list_of_str),
     )
-    keypoint_names: Optional[list[str]] = field(
+    keypoint_names: list[str] | None = field(
         default=None,
         converter=converters.optional(_list_of_str),
     )
-    fps: Optional[float] = field(
+    fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
             converters.optional(float), _set_fps_to_none_if_invalid
         ),
     )
-    source_software: Optional[str] = field(
+    source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
