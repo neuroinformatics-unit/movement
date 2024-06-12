@@ -3,12 +3,8 @@ from contextlib import nullcontext as does_not_raise
 import numpy as np
 import pytest
 
-from movement.io.validators.datasets import ValidPosesDataset
-from movement.io.validators.files import (
-    ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
-)
+from movement.validators.datasets import ValidPosesDataset
+from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 
 class TestValidators:

@@ -31,7 +31,7 @@ Save poses
 
 Validators - Files
 ------------------
-.. currentmodule:: movement.io.validators.files
+.. currentmodule:: movement.validators.files
 .. autosummary::
     :toctree: api
 
@@ -41,7 +41,7 @@ Validators - Files
 
 Validators - Datasets
 ----------------------
-.. currentmodule:: movement.io.validators.datasets
+.. currentmodule:: movement.validators.datasets
 .. autosummary::
     :toctree: api
 
