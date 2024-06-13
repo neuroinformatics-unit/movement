@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 from attrs import converters, define, field, validators
 
-from movement.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_warning
 
 
 def _list_of_str(value: str | Iterable[Any]) -> list[str]:

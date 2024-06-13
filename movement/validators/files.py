@@ -7,7 +7,7 @@ from typing import Literal
 import h5py
 from attrs import define, field, validators
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 @define
