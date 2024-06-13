@@ -478,15 +478,17 @@ def from_via_tracks_file(
     logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
 
     # Extract numpy arrays to a dict
+    # TODO: get from notebook
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
 
     # Create a dataset from numpy arrays
     # (it creates a ValidBboxesDataset in between)
+    # TODO
     ds = bboxes_from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
-        individual_names=bboxes_arrays["individual_names"],
+        individual_names=bboxes_arrays["individual_names"],  # could be None
         fps=fps,
         source_software="VIA-tracks",
     )
@@ -659,20 +661,15 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
         The validated bounding boxes' tracks and confidence scores.
 
     """
-    # # validate specific csv file (checks header)
-    # # TODO: more checks! e.g. if shape is "rect"?
-    # file = ValidVIAtracksCSV(file_path)
-    # file.path.as_posix()
-
     # Read file as a dataframe with columns the desired data
     # TODO: add confidence with nans if not provided
     df = _load_df_from_via_tracks_file(file_path)
 
+    # Extract numpy arrays -- see notebook
     # ---------------------------------------------------------
     # Compute position_array and shape_array
     list_unique_bbox_IDs = sorted(df.ID.unique().tolist())
     list_unique_frames = sorted(df.frame_number.unique().tolist())
-    # assert 0 not in list_unique_bbox_IDs
 
     list_centroid_arrays, list_shape_arrays = [], []
     for bbox_id in list_unique_bbox_IDs:
@@ -711,19 +708,11 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
     # ---------------------------------------------------------
     # Return dict of arrays
-    # - position_array: (n_frames, n_individual_names, n_space) ----> x, y
-    # - shape_array: (n_frames, n_individual_names, n_space)
-    # ----> width, height
-    # - IDs: list of unique IDs
-    # - TODO: confidence_array: (n_frames, n_individuals, n_keypoints)
-    # TODO: review ID as string; what is more consistent with what we have?
     return {
         "position_array": centroid_array,
         "shape_array": shape_array,
-        "individual_names": ["a", "b", "c"],  # individual_names,
+        "individual_names": ["a", "b", "c"],  # could be None!,
         "confidence_array": np.zeros((2, 2, 2, 2)),  # TODO
-        # "fps"=fps,
-        # "source_software"="VIA-tracks",
     }
 
 
