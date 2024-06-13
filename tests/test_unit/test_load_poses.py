@@ -293,7 +293,7 @@ class TestLoadPoses:
         rng = np.random.default_rng(seed=42)
         valid_confidence = rng.random(valid_position.shape[:-1])
 
-        ds = load_poses.poses_from_numpy(
+        ds = load_poses.from_numpy(
             valid_position,
             valid_confidence,
             individual_names=["mouse1", "mouse2"],
