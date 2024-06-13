@@ -3,7 +3,7 @@ from contextlib import nullcontext as does_not_raise
 import numpy as np
 import pytest
 
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 
@@ -59,12 +59,46 @@ class TestValidators:
         },  # invalid input
     ]
 
+    invalid_bboxes_arrays_and_expected_log = {
+        key: [
+            (
+                None,
+                f"Expected a numpy array, but got {type(None)}.",
+            ),  # invalid, argument is non-optional
+            (
+                [1, 2, 3],
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray
+            (
+                np.zeros((10, 2, 3)),
+                f"Expected '{key}' to have 2 spatial "
+                "coordinates, but got 3.",
+            ),  # last dim not 2
+        ]
+        for key in ["position_array", "shape_array"]
+    }
+
     @pytest.fixture(params=position_arrays)
     def position_array_params(self, request):
         """Return a dictionary containing parameters for testing
         position array keypoint and individual names.
         """
         return request.param
+
+    @pytest.fixture
+    def valid_bboxes_inputs(self):
+        """Return a dictionary with valid inputs for a ValidBboxesDataset."""
+        n_frames, n_individuals, n_space = (10, 2, 2)
+        # valid array for position or shape
+        valid_bbox_array = np.zeros((n_frames, n_individuals, n_space))
+
+        return {
+            "position_array": valid_bbox_array,
+            "shape_array": valid_bbox_array,
+            "individual_names": [
+                "id_" + str(id) for id in range(valid_bbox_array.shape[1])
+            ],
+        }
 
     @pytest.mark.parametrize(
         "invalid_input, expected_exception",
@@ -227,3 +261,134 @@ class TestValidators:
                 assert ds.source_software == source_software
             else:
                 assert ds.source_software is None
+
+    @pytest.mark.parametrize(
+        "invalid_position_array, log_message",
+        invalid_bboxes_arrays_and_expected_log["position_array"],
+    )
+    def test_bboxes_dataset_validator_with_invalid_position_array(
+        self, invalid_position_array, log_message, request
+    ):
+        """Test that invalid centroid position arrays raise an error."""
+        with pytest.raises(ValueError) as excinfo:
+            ValidBboxesDataset(
+                position_array=invalid_position_array,
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
+            )
+        assert str(excinfo.value) == log_message
+
+    @pytest.mark.parametrize(
+        "invalid_shape_array, log_message",
+        invalid_bboxes_arrays_and_expected_log["shape_array"],
+    )
+    def test_bboxes_dataset_validator_with_invalid_shape_array(
+        self, invalid_shape_array, log_message, request
+    ):
+        """Test that invalid shape arrays raise an error."""
+        with pytest.raises(ValueError) as excinfo:
+            ValidBboxesDataset(
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
+                shape_array=invalid_shape_array,
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
+            )
+        assert str(excinfo.value) == log_message
+
+    @pytest.mark.parametrize(
+        "list_individual_names, expected_exception, log_message",
+        [
+            (
+                None,
+                does_not_raise(),
+                "",
+            ),  # valid, should default to unique IDs per frame
+            (
+                [1, 2, 3],
+                pytest.raises(ValueError),
+                "Expected 'individual_names' to have length 2, but got 3.",
+            ),  # length doesn't match position_array.shape[1]
+            (
+                ["id_1", "id_1"],
+                pytest.raises(ValueError),
+                "individual_names passed to the dataset are not unique. "
+                "There are 2 elements in the list, but "
+                "only 1 are unique.",
+            ),  # some IDs are not unique
+        ],
+    )
+    def test_bboxes_dataset_validator_individual_names(
+        self, list_individual_names, expected_exception, log_message, request
+    ):
+        """Test individual_names inputs."""
+        with expected_exception as excinfo:
+            ds = ValidBboxesDataset(
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
+                individual_names=list_individual_names,
+            )
+        if list_individual_names is None:
+            # check IDs are unique per frame
+            assert len(ds.individual_names) == len(set(ds.individual_names))
+            assert ds.position_array.shape[1] == len(ds.individual_names)
+        else:
+            assert str(excinfo.value) == log_message
+
+    @pytest.mark.parametrize(
+        "confidence_array, expected_exception, log_message",
+        [
+            (
+                np.ones((10, 3, 2)),
+                pytest.raises(ValueError),
+                "Expected 'confidence_array' to have shape (10, 2), "
+                "but got (10, 3, 2).",
+            ),  # will not match position_array shape
+            (
+                [1, 2, 3],
+                pytest.raises(ValueError),
+                f"Expected a numpy array, but got {type(list())}.",
+            ),  # not an ndarray, should raise ValueError
+            (
+                None,
+                does_not_raise(),
+                "",
+            ),  # valid, should default to array of NaNs
+        ],
+    )
+    def test_bboxes_dataset_validator_confidence_array(
+        self, confidence_array, expected_exception, log_message, request
+    ):
+        """Test that invalid confidence arrays raise the appropriate errors."""
+        with expected_exception as excinfo:
+            poses = ValidBboxesDataset(
+                position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "position_array"
+                ],
+                shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                    "shape_array"
+                ],
+                individual_names=request.getfixturevalue(
+                    "valid_bboxes_inputs"
+                )["individual_names"],
+                confidence_array=confidence_array,
+            )
+        if confidence_array is None:
+            assert np.all(
+                np.isnan(poses.confidence_array)
+            )  # assert it is a NaN array
+            assert (
+                poses.confidence_array.shape == poses.position_array.shape[:-1]
+            )  # assert shape matches position array
+        else:
+            assert str(excinfo.value) == log_message
