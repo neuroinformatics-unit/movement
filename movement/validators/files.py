@@ -198,3 +198,62 @@ class ValidDeepLabCutCSV:
                     ".csv header rows do not match the known format for "
                     "DeepLabCut pose estimation output files.",
                 )
+
+
+@define
+class ValidVIAtracksCSV:
+    """Class for validating VIA tracks .csv files.
+
+    Parameters
+    ----------
+    path : pathlib.Path or str
+        Path to the .csv file.
+
+    Raises
+    ------
+    ValueError
+        If the .csv file does not contain the expected VIA tracks column
+        levels among its top rows.
+
+    """
+
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def csv_file_contains_expected_levels(self, attribute, value):
+        """Ensure that the .csv file contains the expected VIA tracks columns.
+
+        These should be the header of the file.
+        """
+        # Check all columns output by VIA (even if we don't use them all)
+        expected_levels = [
+            "filename",
+            "file_size",
+            "file_attributes",
+            "region_count",
+            "region_id",
+            "region_shape_attributes",
+            "region_attributes",
+        ]
+
+        with open(value) as f:
+            header = f.readline().strip("\n").split(",")
+
+            if header != expected_levels:
+                raise log_error(
+                    ValueError,
+                    ".csv header row does not match the known format for "
+                    "VIA tracks output files.",
+                )
+
+        # Check if frame number defined in one of: file_attributes OR filename
+        # If defined in file_attributes: check it is defined for all frames
+
+        # Check frame number is a 1-based integer
+
+        # Check region_shape_attributes "name" is "rect"
+
+        # Check all region_attributes have key "track",
+        # (and is a 1-based integer ----> this in validator)
+
+        # Check bboxes IDs exist only once per frame
