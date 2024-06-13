@@ -26,6 +26,15 @@ Then install the `movement` package:
 pip install movement
 ```
 
+If you want to use the graphical user interface (GUI), which is provided via
+a [`napari`](https://napari.org/) plugin, run these commands instead:
+
+```
+conda create -n movement-env -c conda-forge python=3.11 pytables napari pyqt
+conda activate movement-env
+pip install movement[napari]
+```
+
 > [!Note]
 > Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/getting_started/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
