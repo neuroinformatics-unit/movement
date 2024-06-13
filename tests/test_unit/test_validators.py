@@ -60,7 +60,7 @@ class TestValidators:
     ]
 
     invalid_bboxes_arrays_and_expected_log = {
-        ky: [
+        key: [
             (
                 None,
                 f"Expected a numpy array, but got {type(None)}.",
@@ -71,11 +71,11 @@ class TestValidators:
             ),  # not an ndarray
             (
                 np.zeros((10, 2, 3)),
-                f"Expected '{ky}' to have 2 spatial "
+                f"Expected '{key}' to have 2 spatial "
                 "coordinates, but got 3.",
             ),  # last dim not 2
         ]
-        for ky in ["position_array", "shape_array"]
+        for key in ["position_array", "shape_array"]
     }
 
     @pytest.fixture(params=position_arrays)

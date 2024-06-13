@@ -186,17 +186,14 @@ class ValidBboxesDataset:
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' centroid positions. It will be
-        converted to an `xarray.DataArray` object named "position".
+        containing the bounding boxes' centroid positions.
     shape_array : np.ndarray
         Array of shape (n_frames, n_individual_names, n_space)
         containing the bounding boxes' width (extent along the
-        x-axis) and height (extent along the y-axis). It will
-        be converted to a `xarray.DataArray` object named "shape".
+        x-axis) and height (extent along the y-axis).
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
-        the bounding boxes' confidence scores. It will be converted to a
-        `xarray.DataArray` object named "confidence". If None (default), the
+        the bounding boxes' confidence scores. If None (default), the
         confidence scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
