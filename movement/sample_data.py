@@ -15,7 +15,7 @@ import yaml
 from requests.exceptions import RequestException
 
 from movement.io import load_poses
-from movement.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
 

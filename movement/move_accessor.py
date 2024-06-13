@@ -6,7 +6,8 @@ from typing import ClassVar
 import xarray as xr
 
 from movement.analysis import kinematics
-from movement.io.validators import ValidPosesDataset
+from movement.utils.logging import log_error
+from movement.validators.datasets import ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 
@@ -76,14 +77,26 @@ class MovementDataset:
         """
 
         def method(*args, **kwargs):
-            if name.startswith("compute_") and hasattr(kinematics, name):
-                self.validate()
+            if not name.startswith("compute_") or not hasattr(
+                kinematics, name
+            ):
+                error_msg = (
+                    f"'{self.__class__.__name__}' object has "
+                    f"no attribute '{name}'"
+                )
+                raise log_error(AttributeError, error_msg)
+            if not hasattr(self._obj, "position"):
+                raise log_error(
+                    AttributeError,
+                    "Missing required data variables: 'position'",
+                )
+            try:
                 return getattr(kinematics, name)(
                     self._obj.position, *args, **kwargs
                 )
-            raise AttributeError(
-                f"'{self.__class__.__name__}' object has no attribute '{name}'"
-            )
+            except Exception as e:
+                error_msg = f"Failed to evoke '{name}'. "
+                raise log_error(AttributeError, error_msg) from e
 
         return method
 
@@ -116,6 +129,5 @@ class MovementDataset:
                 source_software=source_software,
             )
         except Exception as e:
-            error_msg = "The dataset does not contain valid poses."
-            logger.error(error_msg)
-            raise ValueError(error_msg) from e
+            error_msg = "The dataset does not contain valid poses. " + str(e)
+            raise log_error(ValueError, error_msg) from e

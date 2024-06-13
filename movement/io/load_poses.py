@@ -3,8 +3,9 @@
 import ast
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Literal, Optional, Union
+from typing import Literal
 
 import h5py
 import numpy as np
@@ -14,26 +15,25 @@ from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
 from movement import MovementDataset
-from movement.io.validators import (
-    ValidBboxesDataset,
+from movement.utils.logging import log_error, log_warning
+from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
+from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
-    ValidPosesDataset,
     ValidVIAtracksCSV,
 )
-from movement.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
 
 
 def from_numpy(
     position_array: np.ndarray,
-    confidence_array: Optional[np.ndarray] = None,
-    individual_names: Optional[list[str]] = None,
-    keypoint_names: Optional[list[str]] = None,
-    fps: Optional[float] = None,
-    source_software: Optional[str] = None,
+    confidence_array: np.ndarray | None = None,
+    individual_names: list[str] | None = None,
+    keypoint_names: list[str] | None = None,
+    fps: float | None = None,
+    source_software: str | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from NumPy arrays.
 
@@ -99,11 +99,9 @@ def from_numpy(
 
 
 def from_file(
-    file_path: Union[Path, str],
-    source_software: Literal[
-        "DeepLabCut", "SLEAP", "LightningPose", "VIA-tracks"
-    ],
-    fps: Optional[float] = None,
+    file_path: Path | str,
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from any supported file.
 
@@ -158,7 +156,7 @@ def from_file(
 
 def from_dlc_style_df(
     df: pd.DataFrame,
-    fps: Optional[float] = None,
+    fps: float | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a DeepLabCut-style DataFrame.
@@ -225,7 +223,7 @@ def from_dlc_style_df(
 
 
 def from_sleap_file(
-    file_path: Union[Path, str], fps: Optional[float] = None
+    file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a SLEAP file.
 
@@ -301,7 +299,7 @@ def from_sleap_file(
 
 
 def from_lp_file(
-    file_path: Union[Path, str], fps: Optional[float] = None
+    file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a LightningPose file.
 
@@ -331,7 +329,7 @@ def from_lp_file(
 
 
 def from_dlc_file(
-    file_path: Union[Path, str], fps: Optional[float] = None
+    file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a DeepLabCut file.
 
@@ -366,7 +364,7 @@ def from_dlc_file(
 
 
 def from_via_tracks_file(
-    file_path: Union[Path, str], fps: Optional[float] = None
+    file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
     """Load VIA tracks file into an xarray Dataset.
 
@@ -422,9 +420,9 @@ def from_via_tracks_file(
 
 
 def _ds_from_lp_or_dlc_file(
-    file_path: Union[Path, str],
+    file_path: Path | str,
     source_software: Literal["LightningPose", "DeepLabCut"],
-    fps: Optional[float] = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a LightningPose or DeepLabCut file.
 
@@ -473,7 +471,7 @@ def _ds_from_lp_or_dlc_file(
 
 
 def _ds_from_sleap_analysis_file(
-    file_path: Path, fps: Optional[float]
+    file_path: Path, fps: float | None
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a SLEAP analysis (.h5) file.
 
@@ -521,7 +519,7 @@ def _ds_from_sleap_analysis_file(
 
 
 def _ds_from_sleap_labels_file(
-    file_path: Path, fps: Optional[float]
+    file_path: Path, fps: float | None
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a SLEAP labels (.slp) file.
 
@@ -561,7 +559,7 @@ def _ds_from_sleap_labels_file(
 
 
 def _load_from_via_tracks_file(
-    file_path: Path, fps: Optional[float]
+    file_path: Path, fps: float | None = None
 ) -> ValidBboxesDataset:
     """Load and validate data from a VIA tracks file.
 
@@ -863,7 +861,9 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
 
     # Form multi-index column names from the header lines
     level_names = [line[0] for line in header_lines]
-    column_tuples = list(zip(*[line[1:] for line in header_lines]))
+    column_tuples = list(
+        zip(*[line[1:] for line in header_lines], strict=False)
+    )
     columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
 
     # Import the DeepLabCut poses as a DataFrame

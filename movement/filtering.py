@@ -3,12 +3,11 @@
 import logging
 from datetime import datetime
 from functools import wraps
-from typing import Optional, Union
 
 import xarray as xr
 from scipy import signal
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 def log_to_attrs(func):
@@ -79,9 +78,9 @@ def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
 def interpolate_over_time(
     ds: xr.Dataset,
     method: str = "linear",
-    max_gap: Union[int, None] = None,
+    max_gap: int | None = None,
     print_report: bool = True,
-) -> Union[xr.Dataset, None]:
+) -> xr.Dataset | None:
     """Fill in NaN values by interpolating over the time dimension.
 
     Parameters
@@ -122,7 +121,7 @@ def filter_by_confidence(
     ds: xr.Dataset,
     threshold: float = 0.6,
     print_report: bool = True,
-) -> Union[xr.Dataset, None]:
+) -> xr.Dataset | None:
     """Drop all points below a certain confidence threshold.
 
     Position points with an associated confidence value below the threshold are
@@ -173,7 +172,7 @@ def filter_by_confidence(
 def median_filter(
     ds: xr.Dataset,
     window_length: int,
-    min_periods: Optional[int] = None,
+    min_periods: int | None = None,
     print_report: bool = True,
 ) -> xr.Dataset:
     """Smooth pose tracks by applying a median filter over time.

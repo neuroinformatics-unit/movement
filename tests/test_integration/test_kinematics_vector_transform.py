@@ -16,7 +16,7 @@ class TestKinematicsVectorTransform:
         [
             ("valid_poses_dataset", does_not_raise()),
             ("valid_poses_dataset_with_nan", does_not_raise()),
-            ("missing_dim_dataset", pytest.raises(ValueError)),
+            ("missing_dim_dataset", pytest.raises(AttributeError)),
         ],
     )
     def test_cart_and_pol_transform(

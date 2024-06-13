@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -124,11 +124,11 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
 
     Raises
     ------
-    ValueError
+    AttributeError
         If the input data does not contain a ``time`` dimension.
 
     """
     if "time" not in data.dims:
         raise log_error(
-            ValueError, "Input data must contain 'time' as a dimension."
+            AttributeError, "Input data must contain 'time' as a dimension."
         )
