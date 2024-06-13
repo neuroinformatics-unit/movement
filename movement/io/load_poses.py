@@ -471,11 +471,14 @@ def from_via_tracks_file(
     file = ValidFile(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
+    # Validate specific VIA file
+    # validate specific csv file (checks header)
+    # TODO: more checks! e.g. if shape is "rect"?
+    via_file = ValidVIAtracksCSV(file.path)
+    logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
 
     # Extract numpy arrays to a dict
-    # it also validates specific csv file (checks header)
-    # TODO: more checks! e.g. if shape is "rect"?
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(file.path)
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
 
     # Create a dataset from numpy arrays
     # (it creates a ValidBboxesDataset in between)
@@ -487,13 +490,13 @@ def from_via_tracks_file(
         fps=fps,
         source_software="VIA-tracks",
     )
-    logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
+    logger.debug(f"Validated bounding boxes' tracks from {via_file.path}.")
 
     # Add metadata as attrs
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
-    logger.info(f"Loaded bounding boxes' tracks from {file.path}:")
+    logger.info(f"Loaded bounding boxes' tracks from {via_file.path}:")
     logger.info(ds)
     return ds
 
@@ -658,11 +661,12 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     """
     # # validate specific csv file (checks header)
     # # TODO: more checks! e.g. if shape is "rect"?
-    file = ValidVIAtracksCSV(file_path)
+    # file = ValidVIAtracksCSV(file_path)
+    # file.path.as_posix()
 
     # Read file as a dataframe with columns the desired data
     # TODO: add confidence with nans if not provided
-    df = _load_df_from_via_tracks_file(file.path)
+    df = _load_df_from_via_tracks_file(file_path)
 
     # ---------------------------------------------------------
     # Compute position_array and shape_array
