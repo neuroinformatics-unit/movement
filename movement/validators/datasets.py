@@ -184,18 +184,18 @@ class ValidBboxesDataset:
 
     Attributes
     ----------
-    centroid_position_array : np.ndarray
-        Array of shape (n_frames, n_unique_IDs, n_space)
+    position_array : np.ndarray
+        Array of shape (n_frames, n_individual_names, n_space)
         containing the bounding boxes' centroid positions. It will be
         converted to a `xarray.DataArray` object named "centroid_position".
     shape_array : np.ndarray
-        Array of shape (n_frames, n_unique_IDs, n_space)
+        Array of shape (n_frames, n_individual_names, n_space)
         containing the bounding boxes' width (along x-axis) and height
         (measured along the y-axis). It will be converted to a
         `xarray.DataArray` object named "shape".
-    IDs : list of str
-        List of unique, 1-based IDs for the tracked bounding boxes in the
-        video.  #-----> before: individual_names, NOW REQUIRED
+    individual_names : list of str
+        List of unique, 1-based individual_names for the tracked bounding
+        boxes in the video.  #-----> before: individual_names, NOW REQUIRED
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the bounding boxes confidence scores. It will be converted to a
@@ -210,9 +210,9 @@ class ValidBboxesDataset:
     """
 
     # Required attributes
-    centroid_position_array: np.ndarray = field()
+    position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
-    IDs: list[str] | None = field(
+    individual_names: list[str] | None = field(
         converter=converters.optional(_list_of_str),
     )
 
@@ -229,15 +229,15 @@ class ValidBboxesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
-    # centroid_position_array and shape_array validators
-    @centroid_position_array.validator
+    # position_array and shape_array validators
+    @position_array.validator
     @shape_array.validator
     def _validate_centroid_position_and_shape_arrays(self, attribute, value):
         # check numpy array
         _ensure_type_ndarray(value)
 
         # check number of dimensions
-        n_expected_dimensions = 3  # (n_frames, n_unique_IDs, n_space)
+        n_expected_dimensions = 3  # (n_frames, n_individual_names, n_space)
         if value.ndim != n_expected_dimensions:
             raise log_error(
                 ValueError,
@@ -247,7 +247,7 @@ class ValidBboxesDataset:
             )
 
         # check spatial dimension has 2 coordinates (2D for now only)
-        # for centroid_position_array: x,y
+        # for position_array: x,y
         # for shape_array: width, height
         n_expected_spatial_coordinates = 2
         if value.shape[-1] != n_expected_spatial_coordinates:
@@ -257,14 +257,12 @@ class ValidBboxesDataset:
                 f"but got {value.shape[-1]}.",
             )
 
-    # bboxes IDs validator
-    @IDs.validator
-    def _validate_IDs(self, attribute, value):
-        # check the total number of unique IDs matches those in
-        # centroid_position_array
-        _validate_list_length(
-            attribute, value, self.centroid_position_array.shape[1]
-        )
+    # bboxes individual_names validator
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        # check the total number of unique individual_names matches those in
+        # position_array
+        _validate_list_length(attribute, value, self.position_array.shape[1])
 
         # TODO: check also 1-based ID numbers?
         # TODO: check also for uniqueness?
@@ -276,8 +274,8 @@ class ValidBboxesDataset:
             # check numpy
             _ensure_type_ndarray(value)
 
-            # check shape matches centroid_position_array
-            expected_shape = self.centroid_position_array.shape[:-1]
+            # check shape matches position_array
+            expected_shape = self.position_array.shape[:-1]
             if value.shape != expected_shape:
                 raise log_error(
                     ValueError,

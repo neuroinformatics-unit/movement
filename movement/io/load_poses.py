@@ -27,7 +27,7 @@ from movement.validators.files import (
 logger = logging.getLogger(__name__)
 
 
-def from_numpy(
+def poses_from_numpy(
     position_array: np.ndarray,
     confidence_array: np.ndarray | None = None,
     individual_names: list[str] | None = None,
@@ -35,7 +35,7 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from NumPy arrays.
+    """Create a ``movement`` pose dataset from NumPy arrays.
 
     Parameters
     ----------
@@ -87,7 +87,7 @@ def from_numpy(
     ... )
 
     """
-    valid_data = ValidPosesDataset(
+    valid_pose_data = ValidPosesDataset(
         position_array=position_array,
         confidence_array=confidence_array,
         individual_names=individual_names,
@@ -95,7 +95,78 @@ def from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    return _ds_from_valid_data(valid_data)
+    return _poses_ds_from_valid_data(valid_pose_data)
+
+
+def bboxes_from_numpy(
+    position_array: np.ndarray,
+    shape_array: np.ndarray,
+    confidence_array: np.ndarray | None = None,
+    individual_names: list[str] | None = None,
+    fps: float | None = None,
+    source_software: str | None = None,
+) -> xr.Dataset:
+    """Create a ``movement`` bounding boxes dataset from NumPy arrays.
+
+    Parameters
+    ----------
+    position_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    shape_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_individuals) containing
+        the point-wise confidence scores. It will be converted to a
+        :py:class:`xarray.DataArray` object named "confidence".
+        If None (default), the scores will be set to an array of NaNs.
+    individual_names : list of str, optional
+        List of unique names for the individuals in the video. If None
+        (default), the individuals will be named "id_0",
+        "id_1", etc.
+    fps : float, optional
+        Frames per second of the video. Defaults to None, in which case
+        the time coordinates will be in frame numbers.
+    source_software : str, optional
+        Name of the pose estimation software from which the data originate.
+        Defaults to None.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` bounding boxes dataset containing the boxes tracks,
+        boxes shapes, confidence scores and associated metadata.
+
+    Examples
+    --------
+    Create random position data for two individuals, ``Alice`` and ``Bob``,
+    with three keypoints each: ``snout``, ``centre``, and ``tail_base``.
+    These are tracked in 2D space over 100 frames, at 30 fps.
+    The confidence scores are set to 1 for all points.
+
+    >>> import numpy as np
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_numpy(
+    ...     position_array=np.random.rand((100, 2, 3, 2)),
+    ...     confidence_array=np.ones((100, 2, 3)),
+    ...     individual_names=["Alice", "Bob"],
+    ...     keypoint_names=["snout", "centre", "tail_base"],
+    ...     fps=30,
+    ... )
+
+    """
+    valid_bboxes_data = ValidBboxesDataset(
+        position_array=position_array,
+        shape_array=shape_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        fps=fps,
+        source_software=source_software,
+    )
+    return _bboxes_ds_from_valid_data(valid_bboxes_data)
 
 
 def from_file(
@@ -212,7 +283,7 @@ def from_dlc_style_df(
         (-1, len(individual_names), len(keypoint_names), 3)
     )
 
-    return from_numpy(
+    return poses_from_numpy(
         position_array=tracks_with_scores[:, :, :, :-1],
         confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
@@ -401,14 +472,22 @@ def from_via_tracks_file(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
 
-    # Validate specific file format AND populate the 'valid data' class
-    # TODO: this will be numpy arrays!
-    valid_data = _load_from_via_tracks_file(file.path, fps=fps)  # TODO
-    logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
+    # Extract numpy arrays to a dict
+    # it also validates specific csv file (checks header)
+    # TODO: more checks! e.g. if shape is "rect"?
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(file.path)
 
-    # Initialize an xarray dataset from the valid_data class
-    # TODO dataset with datarrays: bbox_position, bbox_shape, bbox_confidence
-    ds = _bboxes_ds_from_valid_data(valid_data)
+    # Create a dataset from numpy arrays
+    # (it creates a ValidBboxesDataset in between)
+    ds = bboxes_from_numpy(
+        position_array=bboxes_arrays["position_array"],
+        shape_array=bboxes_arrays["shape_array"],
+        confidence_array=bboxes_arrays["confidence_array"],
+        individual_names=bboxes_arrays["individual_names"],
+        fps=fps,
+        source_software="VIA-tracks",
+    )
+    logger.debug(f"Validated bounding boxes' tracks from {file.path}.")
 
     # Add metadata as attrs
     ds.attrs["source_software"] = "VIA-tracks"
@@ -508,7 +587,7 @@ def _ds_from_sleap_analysis_file(
         # and transpose to shape: (n_frames, n_tracks, n_keypoints)
         if "point_scores" in f:
             scores = f["point_scores"][:].transpose((2, 0, 1))
-        return from_numpy(
+        return poses_from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),
             individual_names=individual_names,
@@ -548,7 +627,7 @@ def _ds_from_sleap_labels_file(
             "Assuming single-individual dataset and assigning "
             "default individual name."
         )
-    return from_numpy(
+    return poses_from_numpy(
         position_array=tracks_with_scores[:, :, :, :-1],
         confidence_array=tracks_with_scores[:, :, :, -1],
         individual_names=individual_names,
@@ -558,9 +637,7 @@ def _ds_from_sleap_labels_file(
     )
 
 
-def _load_from_via_tracks_file(
-    file_path: Path, fps: float | None = None
-) -> ValidBboxesDataset:
+def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     """Load and validate data from a VIA tracks file.
 
     Return a ValidBboxesDataset instance.
@@ -579,17 +656,16 @@ def _load_from_via_tracks_file(
         The validated bounding boxes' tracks and confidence scores.
 
     """
-    # validate specific csv file (checks header)
-    # TODO: more checks! e.g. if shape is "rect"?
+    # # validate specific csv file (checks header)
+    # # TODO: more checks! e.g. if shape is "rect"?
     file = ValidVIAtracksCSV(file_path)
-    file.path.as_posix()
 
     # Read file as a dataframe with columns the desired data
     # TODO: add confidence with nans if not provided
     df = _load_df_from_via_tracks_file(file.path)
 
     # ---------------------------------------------------------
-    # Compute centroid_position_array and shape_array
+    # Compute position_array and shape_array
     list_unique_bbox_IDs = sorted(df.ID.unique().tolist())
     list_unique_frames = sorted(df.frame_number.unique().tolist())
     # assert 0 not in list_unique_bbox_IDs
@@ -630,20 +706,21 @@ def _load_from_via_tracks_file(
     shape_array = np.stack(list_shape_arrays, axis=1)
 
     # ---------------------------------------------------------
-    # Return a ValidBboxesDataset
-    # - centroid_position_array: (n_frames, n_unique_IDs, n_space) ----> x, y
-    # - shape_array: (n_frames, n_unique_IDs, n_space) ----> width, height
+    # Return dict of arrays
+    # - position_array: (n_frames, n_individual_names, n_space) ----> x, y
+    # - shape_array: (n_frames, n_individual_names, n_space)
+    # ----> width, height
     # - IDs: list of unique IDs
     # - TODO: confidence_array: (n_frames, n_individuals, n_keypoints)
     # TODO: review ID as string; what is more consistent with what we have?
-    return ValidBboxesDataset(
-        centroid_position_array=centroid_array,
-        shape_array=shape_array,
-        IDs=["id_" + str(id) for id in list_unique_bbox_IDs],
-        confidence_array=np.zeros((2, 2, 2, 2)),  # TODO
-        fps=fps,
-        source_software="VIA-tracks",
-    )
+    return {
+        "position_array": centroid_array,
+        "shape_array": shape_array,
+        "individual_names": ["a", "b", "c"],  # individual_names,
+        "confidence_array": np.zeros((2, 2, 2, 2)),  # TODO
+        # "fps"=fps,
+        # "source_software"="VIA-tracks",
+    }
 
 
 def _load_df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
@@ -758,6 +835,9 @@ def _via_attribute_column_to_numpy(
     bbox_attr_array = np.array(list_bbox_attr)
 
     return bbox_attr_array
+
+
+##################################
 
 
 def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
@@ -898,7 +978,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
+def _poses_ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """Create a ``movement`` dataset from validated pose tracking data.
 
     Parameters
@@ -947,6 +1027,8 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     )
 
 
+############################
+# From valid dataset structure to xr.dataset
 def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     """Convert already validated bboxes tracking data to an xarray Dataset.
 
@@ -963,8 +1045,8 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     """
     # TODO: a lot of common code with pose ds, can we combine/refactor?
 
-    n_frames = data.centroid_position_array.shape[0]
-    n_space = data.centroid_position_array.shape[-1]
+    n_frames = data.position_array.shape[0]
+    n_space = data.position_array.shape[-1]
 
     # Create the time coordinate, depending on the value of fps
     time_coords = np.arange(n_frames, dtype=int)
@@ -978,9 +1060,7 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
-            "centroid_position": xr.DataArray(
-                data.centroid_position_array, dims=DIM_NAMES
-            ),
+            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES[:-1]),
             "confidence": xr.DataArray(
                 data.confidence_array, dims=DIM_NAMES[:-1]
@@ -988,7 +1068,7 @@ def _bboxes_ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: data.IDs,
+            DIM_NAMES[1]: data.individual_names,
             DIM_NAMES[3]: ["x", "y", "z"][:n_space],  # TODO: w, h?
         },
         attrs={

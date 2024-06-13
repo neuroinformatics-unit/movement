@@ -206,7 +206,7 @@ class ValidVIAtracksCSV:
 
     Parameters
     ----------
-    path : pathlib.Path
+    path : pathlib.Path or str
         Path to the .csv file.
 
     Raises
