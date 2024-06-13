@@ -45,7 +45,8 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-napari = ["napari[all]>=0.4.19", "brainglobe-utils[napari]>=0.5"]
+# will change to brainglobe-utils[qt]>=0.6 after release
+napari = ["brainglobe-utils>=0.5", "qtpy", "superqt"]
 dev = [
   "pytest",
   "pytest-cov",
@@ -157,6 +158,7 @@ python =
 [testenv]
 conda_deps =
     pytables
+    napari
     pyqt
 conda_channels =
     conda-forge
