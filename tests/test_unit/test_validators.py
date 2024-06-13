@@ -4,7 +4,12 @@ import numpy as np
 import pytest
 
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
+from movement.validators.files import (
+    ValidDeepLabCutCSV,
+    ValidFile,
+    ValidHDF5,
+    ValidVIAtracksCSV,
+)
 
 
 class TestValidators:
@@ -121,6 +126,35 @@ class TestValidators:
         file_path = request.getfixturevalue(invalid_input)
         with expected_exception:
             ValidDeepLabCutCSV(file_path)
+
+    @pytest.mark.skip(reason="WIP")
+    @pytest.mark.parametrize(
+        "invalid_input, expected_exception",
+        [
+            ("invalid_single_individual_csv_file", pytest.raises(ValueError)),
+            ("invalid_multi_individual_csv_file", pytest.raises(ValueError)),
+        ],
+    )
+    def test_via_tracks_csv_validator_with_invalid_input(
+        self, invalid_input, expected_exception, request
+    ):
+        """Test that invalid VIA tracks CSV files raise the appropriate errors.
+
+        Errors to check:
+        - error if csv header is wrong
+        - error if frame number is not defined in the file
+          (frame number extracted either from the filename or from attributes)
+        - error if extracted frame numbers are not 1-based integers
+        - error if region_shape_attributes "name" is not "rect"
+        - error if not all region_attributes have key "track"
+          (i.e., all regions must have an ID assigned)
+        - error if IDs are unique per frame
+          (i.e., bboxes IDs must exist only once per frame)
+        - error if bboxes IDs are not 1-based integers
+        """
+        file_path = request.getfixturevalue(invalid_input)
+        with expected_exception:
+            ValidVIAtracksCSV(file_path)
 
     @pytest.mark.parametrize(
         "invalid_position_array",
