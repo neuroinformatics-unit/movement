@@ -1,10 +1,13 @@
 """``attrs`` classes for validating file paths."""
 
+import ast
 import os
+import re
 from pathlib import Path
 from typing import Literal
 
 import h5py
+import pandas as pd
 from attrs import define, field, validators
 
 from movement.utils.logging import log_error
@@ -212,8 +215,7 @@ class ValidVIAtracksCSV:
     Raises
     ------
     ValueError
-        If the .csv file does not contain the expected VIA tracks column
-        levels among its top rows.
+        If the .csv file does not match the VIA tracks file requirements.
 
     """
 
@@ -246,14 +248,125 @@ class ValidVIAtracksCSV:
                     "VIA tracks output files.",
                 )
 
-        # Check if frame number defined in one of: file_attributes OR filename
-        # If defined in file_attributes: check it is defined for all frames
+    @path.validator
+    def csv_file_contains_frame_numbers(self, attribute, value):
+        """Check csv file contains frame numbers.
+
+        Check if frame number defined in one of: file_attributes OR filename
+        (log which one)
+        Check frame number is defined for all frames
+        Check frame number is a 1-based integer.
+        """
+        # Read file as dataframe
+        df_file = pd.read_csv(value, sep=",", header=0)
+
+        # Extract file attributes
+        list_file_attrs = [
+            ast.literal_eval(d) for d in df_file.file_attributes
+        ]  # list of dicts
+
+        # check all file attributes are the same
+        assert all([f == list_file_attrs[0] for f in list_file_attrs[1:]])
+
+        # if frame is defined as a file attribute: extract
+        if "frame" in list_file_attrs[0]:
+            list_frame_numbers = [
+                int(
+                    file_attr["frame"]
+                )  # what if it cannot be converted to an int? use try?
+                for file_attr in list_file_attrs
+            ]
+        # else: extract from filename
+        # frame number is expected between "_" and ".",
+        # led by at least one zero, followed by extension
+        else:
+            pattern = r"_(0\d*)\.\w+$"
+            list_frame_numbers = [
+                int(re.search(pattern, f).group(1))  # type: ignore
+                for f in df_file["filename"]
+                if re.search(
+                    pattern, f
+                )  # only added if there is a pattern match
+            ]
+
+        list_unique_frame_numbers = list(set(list_frame_numbers))
+
+        # Check frame numbers are defined for all files
+        assert len(list_unique_frame_numbers) == len(set(df_file.filename))
 
         # Check frame number is a 1-based integer
+        # (we enforce that is integer previously)
+        assert all(
+            [
+                f > 0  # and isinstance(f, int)
+                for f in list_unique_frame_numbers
+            ]
+        )
 
-        # Check region_shape_attributes "name" is "rect"
+    @path.validator
+    def csv_file_contains_boxes(self, attribute, value):
+        """Check csv file contains bounding boxes.
 
-        # Check all region_attributes have key "track",
-        # (and is a 1-based integer ----> this in validator)
+        Check region_shape_attributes "name" is "rect"
+        otherwise shape width and height doesn't make sense
+        """
+        # Read file as dataframe
+        df_file = pd.read_csv(value, sep=",", header=0)
 
-        # Check bboxes IDs exist only once per frame
+        for _, row in df_file.iterrows():
+            assert (
+                ast.literal_eval(row.region_shape_attributes)["name"] == "rect"
+            )
+            assert "x" in ast.literal_eval(row.region_shape_attributes)
+            assert "y" in ast.literal_eval(row.region_shape_attributes)
+            assert "width" in ast.literal_eval(row.region_shape_attributes)
+            assert "height" in ast.literal_eval(row.region_shape_attributes)
+
+    @path.validator
+    def csv_file_contains_1_based_tracks(self, attribute, value):
+        """Check csv file contains 1-based track IDs.
+
+        Check all region_attributes have key "track",
+        Check track IDs are 1-based integers
+        """
+        # Read file as dataframe
+        df_file = pd.read_csv(value, sep=",", header=0)
+
+        # Extract all bounding boxes IDs
+        # as list comprehension?
+        list_bbox_ID = []
+        for _, row in df_file.iterrows():
+            assert "track" in ast.literal_eval(row.region_attributes)
+
+            list_bbox_ID.append(
+                int(ast.literal_eval(row.region_attributes)["track"])
+            )
+
+        # Check all IDs are 1-based integers
+        assert all([f > 0 for f in list_bbox_ID])
+
+    @path.validator
+    def csv_file_contains_unique_track_IDs_per_frame(self, attribute, value):
+        """Check csv file contains unique track IDs per frame.
+
+        Check bboxes IDs exist only once per frame/file
+        """
+        # Read csv file as dataframe
+        df = pd.read_csv(value, sep=",", header=0)
+
+        # Extract subdataframes grouped by filename (frame)
+        list_unique_filenames = list(set(df.filename))
+        for file in list_unique_filenames:
+            # One dataframe for a filename (frame)
+            df_one_file = df.loc[df["filename"] == file]
+
+            # Extract IDs per filename (frame)
+            list_bbox_ID_one_file = [
+                int(ast.literal_eval(row.region_attributes)["track"])
+                for _, row in df_one_file.iterrows()
+            ]
+
+            # Check the IDs are unique per frame
+            assert len(set(list_bbox_ID_one_file)) == len(
+                list_bbox_ID_one_file
+            )
