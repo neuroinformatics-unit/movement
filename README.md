@@ -17,7 +17,7 @@ A Python toolbox for analysing body movements across space and time, to aid the 
 
 First, create and activate a conda environment with the required dependencies:
 ```
-conda create -n movement-env -c conda-forge python=3.10 pytables
+conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
 
