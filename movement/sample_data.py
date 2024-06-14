@@ -162,7 +162,7 @@ def list_datasets() -> list[str]:
     return list(metadata.keys())
 
 
-def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
+def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """Get paths to sample pose data and any associated frames or videos.
 
     The data are downloaded from the ``movement`` data repository to the user's
@@ -173,7 +173,7 @@ def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
     ----------
     filename : str
         Name of the pose file to fetch.
-    video : bool, optional
+    with_video : bool, optional
         Whether to fetch the associated video file (if available). Defaults to
         False, meaning that the video file is not requested and the "video"
         path in the returned dictionary will be None.
@@ -184,7 +184,7 @@ def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
         Dictionary mapping file types to their respective paths. The possible
         file types are: "poses", "frame", "video". A None value for "frame"
         or "video" indicates that the file is either not available or not
-        requested (if ``video=False``).
+        requested (if ``with_video=False``).
 
     Examples
     --------
@@ -193,7 +193,7 @@ def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
 
     >>> from movement.sample_data import fetch_dataset_paths
     >>> paths = fetch_dataset_paths(
-    ...     "DLC_single-mouse_EPM.predictions.h5", fetch_video=True
+    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
     ... )
     >>> poses_path = paths["poses"]
     >>> frame_path = paths["frame"]
@@ -225,7 +225,7 @@ def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
             SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
         ),
         "video": None
-        if (not video_file_name) or not (video)
+        if (not video_file_name) or not (with_video)
         else Path(
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
         ),
@@ -234,7 +234,7 @@ def fetch_dataset_paths(filename: str, video: bool = False) -> dict:
 
 def fetch_dataset(
     filename: str,
-    video: bool = False,
+    with_video: bool = False,
 ) -> xarray.Dataset:
     """Load a sample dataset containing pose data.
 
@@ -248,7 +248,7 @@ def fetch_dataset(
     ----------
     filename : str
         Name of the file to fetch.
-    video : bool, optional
+    with_video : bool, optional
         Whether to fetch the associated video file (if available). Defaults to
         False, meaning that the video file is not requested.
 
@@ -264,7 +264,7 @@ def fetch_dataset(
 
     >>> from movement.sample_data import fetch_dataset
     >>> ds = fetch_dataset(
-        "DLC_single-mouse_EPM.predictions.h5", fetch_video=True
+        "DLC_single-mouse_EPM.predictions.h5", with_video=True
     )
     >>> frame_path = ds.video_path
     >>> video_path = ds.frame_path
@@ -274,7 +274,7 @@ def fetch_dataset(
     fetch_dataset_paths
 
     """
-    file_paths = fetch_dataset_paths(filename, video=video)
+    file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     ds = load_poses.from_file(
         file_paths["poses"],

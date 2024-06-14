@@ -120,11 +120,11 @@ def test_list_datasets(valid_sample_datasets):
     assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
-@pytest.mark.parametrize("video", [True, False])
-def test_fetch_dataset(valid_sample_datasets, video):
+@pytest.mark.parametrize("with_video", [True, False])
+def test_fetch_dataset(valid_sample_datasets, with_video):
     # test with valid files
     for sample_name, sample in valid_sample_datasets.items():
-        ds = fetch_dataset(sample_name, video=video)
+        ds = fetch_dataset(sample_name, with_video=with_video)
         assert isinstance(ds, Dataset)
 
         assert ds.attrs["fps"] == sample["fps"]
@@ -134,7 +134,7 @@ def test_fetch_dataset(valid_sample_datasets, video):
         else:
             assert ds.attrs["frame_path"] is None
 
-        if sample["video_file"] and video:
+        if sample["video_file"] and with_video:
             assert ds.attrs["video_path"].name == sample["video_file"]
         else:
             assert ds.attrs["video_path"] is None
