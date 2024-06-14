@@ -252,56 +252,69 @@ class ValidVIAtracksCSV:
     def csv_file_contains_frame_numbers(self, attribute, value):
         """Check csv file contains frame numbers.
 
-        Check if frame number defined in one of: file_attributes OR filename
+        Check frame number is defined as one of: file_attributes OR filename
         (log which one)
         Check frame number is defined for all frames
         Check frame number is a 1-based integer.
         """
         # Read file as dataframe
-        df_file = pd.read_csv(value, sep=",", header=0)
+        df = pd.read_csv(value, sep=",", header=0)
 
-        # Extract file attributes
-        list_file_attrs = [
-            ast.literal_eval(d) for d in df_file.file_attributes
-        ]  # list of dicts
+        # Extract list of file attributes (dicts)
+        list_file_attrs = [ast.literal_eval(d) for d in df.file_attributes]
 
-        # check all file attributes are the same
-        assert all([f == list_file_attrs[0] for f in list_file_attrs[1:]])
+        # If frame is defined as a file_attribute for all frames: extract
+        list_frame_numbers = []
+        if all(["frame" in k for k in list_file_attrs]):
+            for k_i, k in enumerate(list_file_attrs):
+                try:
+                    list_frame_numbers.append(int(k["frame"]))
+                except Exception as e:
+                    raise log_error(
+                        ValueError,
+                        f"'frame' attribute for file {df.filename.iloc[k_i]} "
+                        f"cannot be cast as an integer. Please review the "
+                        f"file's attributes: {k}.",
+                    ) from e
 
-        # if frame is defined as a file attribute: extract
-        if "frame" in list_file_attrs[0]:
-            list_frame_numbers = [
-                int(
-                    file_attr["frame"]
-                )  # what if it cannot be converted to an int? use try?
-                for file_attr in list_file_attrs
-            ]
-        # else: extract from filename
+        # Else: extract from filename
         # frame number is expected between "_" and ".",
         # led by at least one zero, followed by extension
         else:
             pattern = r"_(0\d*)\.\w+$"
-            list_frame_numbers = [
-                int(re.search(pattern, f).group(1))  # type: ignore
-                for f in df_file["filename"]
-                if re.search(
-                    pattern, f
-                )  # only added if there is a pattern match
-            ]
 
-        list_unique_frame_numbers = list(set(list_frame_numbers))
+            for f in df["filename"]:
+                regex_match = re.search(pattern, f)
+                if regex_match:  # only added if there is a pattern match
+                    list_frame_numbers.append(
+                        int(regex_match.group(1))  # type: ignore
+                        # will always be castable as integer
+                    )
 
         # Check frame numbers are defined for all files
-        assert len(list_unique_frame_numbers) == len(set(df_file.filename))
+        list_unique_frame_numbers = list(set(list_frame_numbers))
+        if len(list_unique_frame_numbers) != len(set(df.filename)):
+            raise log_error(
+                ValueError,
+                "Some filenames have no frame number defined. "
+                "Please review the VIA tracks csv file and ensure a frame "
+                "number is defined for each filename. This can by done via "
+                "a 'frame' file attribute, or by including the frame number "
+                "in the filename. If included in the filename, the frame "
+                "number is expected as a zero-padded integer between an "
+                "underscore '_' and the file extension (e.g. img_00234.png).",
+            )
 
         # Check frame number is a 1-based integer
         # (we enforce that is integer previously)
-        assert all(
-            [
-                f > 0  # and isinstance(f, int)
-                for f in list_unique_frame_numbers
-            ]
-        )
+        # Do we (movement) need it to be 1-based? we dont assume anything
+        if not all([f > 0 for f in list_unique_frame_numbers]):
+            raise log_error(
+                ValueError,
+                "Frame numbers must be 1-based integers. Please review the "
+                "VIA tracks csv file and ensure that all frame numbers are "
+                "1-based integers.",
+            )
 
     @path.validator
     def csv_file_contains_boxes(self, attribute, value):
@@ -313,10 +326,15 @@ class ValidVIAtracksCSV:
         # Read file as dataframe
         df_file = pd.read_csv(value, sep=",", header=0)
 
+        # Check each row contains a bounding box
         for _, row in df_file.iterrows():
-            assert (
-                ast.literal_eval(row.region_shape_attributes)["name"] == "rect"
-            )
+            if ast.literal_eval(row.region_shape_attributes)["name"] != "rect":
+                raise log_error(
+                    ValueError,
+                    "Bounding box shape must be 'rect' but instead got "
+                    f"{ast.literal_eval(row.region_shape_attributes)['name']}",
+                )
+
             assert "x" in ast.literal_eval(row.region_shape_attributes)
             assert "y" in ast.literal_eval(row.region_shape_attributes)
             assert "width" in ast.literal_eval(row.region_shape_attributes)
@@ -327,7 +345,7 @@ class ValidVIAtracksCSV:
         """Check csv file contains 1-based track IDs.
 
         Check all region_attributes have key "track",
-        Check track IDs are 1-based integers
+        Check track IDs are 1-based integers ---do we need 1-based?
         """
         # Read file as dataframe
         df_file = pd.read_csv(value, sep=",", header=0)
