@@ -72,9 +72,14 @@ def test_deeplabcut_csv_validator_with_invalid_input(
     "invalid_input, log_message",
     [
         (
-            "invalid_header",
+            "invalid_header_via_tracks_csv",
             ".csv header row does not match the known format for "
-            "VIA tracks output files.",
+            "VIA tracks output files. "
+            "Expected "
+            "['filename', 'file_size', 'file_attributes', "
+            "'region_count', 'region_id', 'region_shape_attributes', "
+            "'region_attributes'] "
+            "but got ['filename', 'file_size', 'file_attributes'].",
         ),
         (
             "frame_number_as_attribute_not_integer",
