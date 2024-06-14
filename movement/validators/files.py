@@ -261,12 +261,14 @@ class ValidVIAtracksCSV:
         df = pd.read_csv(value, sep=",", header=0)
 
         # Extract list of file attributes (dicts)
-        list_file_attrs = [ast.literal_eval(d) for d in df.file_attributes]
+        file_attributes_dicts = [
+            ast.literal_eval(d) for d in df.file_attributes
+        ]
 
         # If frame is defined as a file_attribute for all frames: extract
         list_frame_numbers = []
-        if all(["frame" in k for k in list_file_attrs]):
-            for k_i, k in enumerate(list_file_attrs):
+        if all(["frame" in d for d in file_attributes_dicts]):
+            for k_i, k in enumerate(file_attributes_dicts):
                 try:
                     list_frame_numbers.append(int(k["frame"]))
                 except Exception as e:
@@ -325,7 +327,7 @@ class ValidVIAtracksCSV:
                     ValueError,
                     f"Bounding box shape must be 'rect' but instead got "
                     f"{ast.literal_eval(row.region_shape_attributes)['name']}"
-                    f"for file {row.filename} (row {row.Index}). ",
+                    f"for file {row.filename} (row {row.Index}, 0-based). ",
                 )
 
             # check geometric parameters for the box are defined
@@ -341,7 +343,7 @@ class ValidVIAtracksCSV:
                     "Expected 'x', 'y', 'width', 'height' to exist as "
                     "'region_shape_attributes', but got "
                     f"{ast.literal_eval(row.region_shape_attributes).keys()}"
-                    f"for file {row.filename} (row {row.index}). ",
+                    f"for file {row.filename} (row {row.Index}, 0-based). ",
                 )
 
             # check track ID is defined
@@ -349,7 +351,7 @@ class ValidVIAtracksCSV:
                 raise log_error(
                     ValueError,
                     f"Bounding box in file {row.filename} and row {row.Index} "
-                    f"does not have a 'track' attribute defined. "
+                    f"(0-based) does not have a 'track' attribute defined. "
                     "Please review the VIA tracks csv file and ensure that "
                     "all bounding boxes have a 'track' field under "
                     "'region_attributes'.",
