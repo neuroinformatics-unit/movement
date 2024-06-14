@@ -120,18 +120,24 @@ def test_list_datasets(valid_sample_datasets):
     assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
-def test_fetch_dataset(valid_sample_datasets):
+@pytest.mark.parametrize("video", [True, False])
+def test_fetch_dataset(valid_sample_datasets, video):
     # test with valid files
     for sample_name, sample in valid_sample_datasets.items():
-        ds = fetch_dataset(sample_name)
+        ds = fetch_dataset(sample_name, video=video)
         assert isinstance(ds, Dataset)
 
         assert ds.attrs["fps"] == sample["fps"]
 
         if sample["frame_file"]:
             assert ds.attrs["frame_path"].name == sample["frame_file"]
-        if sample["video_file"]:
+        else:
+            assert ds.attrs["frame_path"] is None
+
+        if sample["video_file"] and video:
             assert ds.attrs["video_path"].name == sample["video_file"]
+        else:
+            assert ds.attrs["video_path"] is None
 
     # Test with an invalid file
     with pytest.raises(ValueError):
