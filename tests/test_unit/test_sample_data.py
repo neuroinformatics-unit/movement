@@ -16,10 +16,10 @@ def valid_sample_datasets():
     respective fps values, and associated frame and video file names.
     """
     return {
-        "SLEAP_single-mouse_EPM.analysis.h5": {
-            "fps": 30,
-            "frame_file": "single-mouse_EPM_frame-20sec.png",
-            "video_file": "single-mouse_EPM_video.mp4",
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5": {
+            "fps": 50,
+            "frame_file": "three-mice_Aeon_frame-5sec.png",
+            "video_file": "three-mice_Aeon_video.avi",
         },
         "DLC_single-wasp.predictions.h5": {
             "fps": 40,
