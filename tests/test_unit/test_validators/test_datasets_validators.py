@@ -65,7 +65,7 @@ def position_array_params(request):
 
 # Fixtures bbox dataset
 invalid_bboxes_arrays_and_expected_log = {
-    ky: [
+    key: [
         (
             None,
             f"Expected a numpy array, but got {type(None)}.",
@@ -76,10 +76,10 @@ invalid_bboxes_arrays_and_expected_log = {
         ),  # not an ndarray
         (
             np.zeros((10, 2, 3)),
-            f"Expected '{ky}' to have 2 spatial " "coordinates, but got 3.",
+            f"Expected '{key}' to have 2 spatial " "coordinates, but got 3.",
         ),  # last dim not 2
     ]
-    for ky in ["position_array", "shape_array"]
+    for key in ["position_array", "shape_array"]
 }
 
 
