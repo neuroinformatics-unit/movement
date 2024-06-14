@@ -330,6 +330,16 @@ def kinematic_property(request):
     return request.param
 
 
+@pytest.fixture
+def invalid_header_via_tracks_csv(tmp_path):
+    """Return the file path for an invalid VIA tracks csv file."""
+    file_path = tmp_path / "invalid_header_via_tracks_csv.csv"
+    with open(file_path, "w") as f:
+        f.write("filename,file_size,file_attributes\n")
+        f.write("1,2,3")
+    return file_path
+
+
 class Helpers:
     """Generic helper methods for ``movement`` test modules."""
 

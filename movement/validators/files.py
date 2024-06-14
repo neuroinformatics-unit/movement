@@ -245,7 +245,8 @@ class ValidVIAtracksCSV:
                 raise log_error(
                     ValueError,
                     ".csv header row does not match the known format for "
-                    "VIA tracks output files.",
+                    "VIA tracks output files. "
+                    f"Expected {expected_levels} but got {header}.",
                 )
 
     @path.validator
