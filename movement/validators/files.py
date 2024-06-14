@@ -305,63 +305,67 @@ class ValidVIAtracksCSV:
                 "underscore '_' and the file extension (e.g. img_00234.png).",
             )
 
-        # Check frame number is a 1-based integer
-        # (we enforce that is integer previously)
-        # Do we (movement) need it to be 1-based? we dont assume anything
-        if not all([f > 0 for f in list_unique_frame_numbers]):
-            raise log_error(
-                ValueError,
-                "Frame numbers must be 1-based integers. Please review the "
-                "VIA tracks csv file and ensure that all frame numbers are "
-                "1-based integers.",
-            )
-
     @path.validator
-    def csv_file_contains_boxes(self, attribute, value):
-        """Check csv file contains bounding boxes.
+    def csv_file_contains_tracked_bboxes(self, attribute, value):
+        """Check csv file contains tracked bounding boxes.
 
         Check region_shape_attributes "name" is "rect"
-        otherwise shape width and height doesn't make sense
+        Check x,y,width,height are defined for each bounding box
+        Check trackID is defined for each bounding box
+        Check trackID is castable as an integer
         """
         # Read file as dataframe
-        df_file = pd.read_csv(value, sep=",", header=0)
+        df = pd.read_csv(value, sep=",", header=0)
 
         # Check each row contains a bounding box
-        for _, row in df_file.iterrows():
+        for row in df.itertuples():
+            # check annotation is a rectangle
             if ast.literal_eval(row.region_shape_attributes)["name"] != "rect":
                 raise log_error(
                     ValueError,
-                    "Bounding box shape must be 'rect' but instead got "
-                    f"{ast.literal_eval(row.region_shape_attributes)['name']}",
+                    f"Bounding box shape must be 'rect' but instead got "
+                    f"{ast.literal_eval(row.region_shape_attributes)['name']}"
+                    f"for file {row.filename} (row {row.Index}). ",
                 )
 
-            assert "x" in ast.literal_eval(row.region_shape_attributes)
-            assert "y" in ast.literal_eval(row.region_shape_attributes)
-            assert "width" in ast.literal_eval(row.region_shape_attributes)
-            assert "height" in ast.literal_eval(row.region_shape_attributes)
+            # check geometric parameters for the box are defined
+            if not all(
+                [
+                    key in ast.literal_eval(row.region_shape_attributes)
+                    for key in ["x", "y", "width", "height"]
+                ]
+            ):
+                raise log_error(
+                    ValueError,
+                    f"At least one bounding box shape parameter is missing. "
+                    "Expected 'x', 'y', 'width', 'height' to exist as "
+                    "'region_shape_attributes', but got "
+                    f"{ast.literal_eval(row.region_shape_attributes).keys()}"
+                    f"for file {row.filename} (row {row.index}). ",
+                )
 
-    @path.validator
-    def csv_file_contains_1_based_tracks(self, attribute, value):
-        """Check csv file contains 1-based track IDs.
+            # check track ID is defined
+            if "track" not in ast.literal_eval(row.region_attributes):
+                raise log_error(
+                    ValueError,
+                    f"Bounding box in file {row.filename} and row {row.Index} "
+                    f"does not have a 'track' attribute defined. "
+                    "Please review the VIA tracks csv file and ensure that "
+                    "all bounding boxes have a 'track' field under "
+                    "'region_attributes'.",
+                )
 
-        Check all region_attributes have key "track",
-        Check track IDs are 1-based integers ---do we need 1-based?
-        """
-        # Read file as dataframe
-        df_file = pd.read_csv(value, sep=",", header=0)
-
-        # Extract all bounding boxes IDs
-        # as list comprehension?
-        list_bbox_ID = []
-        for _, row in df_file.iterrows():
-            assert "track" in ast.literal_eval(row.region_attributes)
-
-            list_bbox_ID.append(
+            # check track ID is castable as an integer
+            try:
                 int(ast.literal_eval(row.region_attributes)["track"])
-            )
-
-        # Check all IDs are 1-based integers
-        assert all([f > 0 for f in list_bbox_ID])
+            except Exception as e:
+                raise log_error(
+                    ValueError,
+                    "The track ID for the bounding box in file "
+                    f"{row.filename} and row {row.Index} "
+                    "cannot be cast as an integer. "
+                    "Please review the VIA tracks csv file.",
+                ) from e
 
     @path.validator
     def csv_file_contains_unique_track_IDs_per_frame(self, attribute, value):
@@ -372,19 +376,24 @@ class ValidVIAtracksCSV:
         # Read csv file as dataframe
         df = pd.read_csv(value, sep=",", header=0)
 
-        # Extract subdataframes grouped by filename (frame)
+        # Extract subdataframes grouped by filename (aka frame)
         list_unique_filenames = list(set(df.filename))
         for file in list_unique_filenames:
-            # One dataframe for a filename (frame)
-            df_one_file = df.loc[df["filename"] == file]
+            # Compute one dataframe for a filename (frame)
+            df_one_filename = df.loc[df["filename"] == file]
 
-            # Extract IDs per filename (frame)
-            list_bbox_ID_one_file = [
+            # Extract track IDs linked to this filename (frame)
+            list_track_IDs_one_filename = [
                 int(ast.literal_eval(row.region_attributes)["track"])
-                for _, row in df_one_file.iterrows()
+                for row in df_one_filename.itertuples()
             ]
 
             # Check the IDs are unique per frame
-            assert len(set(list_bbox_ID_one_file)) == len(
-                list_bbox_ID_one_file
-            )
+            if len(set(list_track_IDs_one_filename)) != len(
+                list_track_IDs_one_filename
+            ):
+                raise log_error(
+                    ValueError,
+                    "Multiple bounding boxes have the same track ID "
+                    f"in file {file}. Please review the VIA tracks csv file ",
+                )
