@@ -275,7 +275,7 @@ class ValidVIAtracksCSV:
                     raise log_error(
                         ValueError,
                         f"'frame' attribute for file {df.filename.iloc[k_i]} "
-                        f"cannot be cast as an integer. Please review the "
+                        "cannot be cast as an integer. Please review the "
                         f"file's attributes: {k}.",
                     ) from e
 
@@ -292,19 +292,29 @@ class ValidVIAtracksCSV:
                         int(regex_match.group(1))  # type: ignore
                         # will always be castable as integer
                     )
+                else:
+                    raise log_error(
+                        ValueError,
+                        "A frame number could not be extracted for filename "
+                        f"{f}. Please review the VIA tracks csv file. If the "
+                        "frame number is included in the filename, it is "
+                        "expected as a zero-padded integer between an "
+                        "underscore '_' and the file extension "
+                        "(e.g. img_00234.png).",
+                    )
 
-        # Check frame numbers are defined for all files
-        list_unique_frame_numbers = list(set(list_frame_numbers))
-        if len(list_unique_frame_numbers) != len(set(df.filename)):
+        # Check we have as many unique frame numbers as unique files
+        if len(set(list_frame_numbers)) != len(set(df.filename)):
             raise log_error(
                 ValueError,
-                "Some filenames have no frame number defined. "
-                "Please review the VIA tracks csv file and ensure a frame "
-                "number is defined for each filename. This can by done via "
-                "a 'frame' file attribute, or by including the frame number "
-                "in the filename. If included in the filename, the frame "
-                "number is expected as a zero-padded integer between an "
-                "underscore '_' and the file extension (e.g. img_00234.png).",
+                "The number of unique frame numbers does not match the number "
+                "of unique files. Please review the VIA tracks csv file and "
+                "ensure a unique frame number is defined for each filename. "
+                "This can by done via a 'frame' file attribute, or by "
+                "including the frame number in the filename. If included in "
+                "the filename, the frame number is expected as a zero-padded "
+                "integer between an underscore '_' and the file extension "
+                "(e.g. img_00234.png).",
             )
 
     @path.validator
@@ -364,8 +374,9 @@ class ValidVIAtracksCSV:
                 raise log_error(
                     ValueError,
                     "The track ID for the bounding box in file "
-                    f"{row.filename} and row {row.Index} "
-                    "cannot be cast as an integer. "
+                    f"{row.filename} and row {row.Index} is "
+                    f"{ast.literal_eval(row.region_attributes)['track']}"
+                    "which cannot be cast as an integer. "
                     "Please review the VIA tracks csv file.",
                 ) from e
 
@@ -397,5 +408,5 @@ class ValidVIAtracksCSV:
                 raise log_error(
                     ValueError,
                     "Multiple bounding boxes have the same track ID "
-                    f"in file {file}. Please review the VIA tracks csv file ",
+                    f"in file {file}. Please review the VIA tracks csv file.",
                 )
