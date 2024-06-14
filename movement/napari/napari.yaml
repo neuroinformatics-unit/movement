@@ -1,0 +1,10 @@
+name: movement
+display_name: movement
+contributions:
+  commands:
+    - id: movement.make_widget
+      python_name: movement.napari.meta_widget:MovementMetaWidget
+      title: movement
+  widgets:
+    - command: movement.make_widget
+      display_name: movement
