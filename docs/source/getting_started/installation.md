@@ -19,16 +19,6 @@ conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
 
-If you want to use the graphical user interface (GUI), which is provided via
-a [`napari`](napari:) plugin, you'd also need to include `napari` and `pyqt`
-in the environment:
-
-```sh
-conda create -n movement-env -c conda-forge python=3.11 pytables napari pyqt
-conda activate movement-env
-```
-
-
 ## Install the package
 
 Then install the `movement` package as described below.
@@ -53,13 +43,13 @@ pip install --upgrade movement
 To install the package including the GUI (napari plugin) from PyPI:
 
 ```sh
-pip install movement[napari]
+pip install "movement[napari]"
 ```
 If you have an older version of `movement` installed in the same environment,
 you can update to the latest version with:
 
 ```sh
-pip install --upgrade movement[napari]
+pip install --upgrade "movement[napari]"
 ```
 :::
 
@@ -70,7 +60,7 @@ and then run from inside the repository:
 
 ```sh
 pip install -e .[dev]  # works on most shells
-pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
+pip install -e ".[dev]"  # works on zsh (the default shell on macOS)
 ```
 
 This will install the package in editable mode, including all `dev` dependencies.

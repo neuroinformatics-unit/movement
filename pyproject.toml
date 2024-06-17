@@ -45,8 +45,9 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-# will change to brainglobe-utils[qt]>=0.6 after release
 napari = [
+  "napari[all]>=0.4.19",
+  # the rest will be replaced by brainglobe-utils[qt]>=0.6 after release
   "brainglobe-atlasapi>=2.0.7",
   "brainglobe-utils>=0.5",
   "qtpy",
@@ -163,8 +164,6 @@ python =
 [testenv]
 conda_deps =
     pytables
-    napari>=0.4.19
-    pyqt
 conda_channels =
     conda-forge
 passenv =
