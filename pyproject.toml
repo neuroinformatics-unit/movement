@@ -163,7 +163,7 @@ python =
 [testenv]
 conda_deps =
     pytables
-    napari
+    napari>=0.4.19
     pyqt
 conda_channels =
     conda-forge
