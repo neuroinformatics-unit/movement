@@ -1,7 +1,7 @@
 import pytest
 from qtpy.QtWidgets import QPushButton, QWidget
 
-from movement.napari.meta_widget import MovementMetaWidget
+from movement.napari._meta_widget import MovementMetaWidget
 
 
 @pytest.fixture
