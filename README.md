@@ -21,9 +21,16 @@ conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
 
-Then install the `movement` package:
+Then install the core `movement` package:
 ```
 pip install movement
+```
+
+If you want to use the graphical user interface (GUI), which is provided via
+a [`napari`](https://napari.org/) plugin, run this command instead:
+
+```
+pip install "movement[napari]"
 ```
 
 > [!Note]
