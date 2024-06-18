@@ -67,7 +67,6 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ValidDeepLabCutCSV(file_path)
 
 
-# @pytest.mark.skip("Fixtures not implemented yet")
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [
@@ -137,11 +136,12 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "as an integer. "
             "Please review the VIA tracks csv file.",
         ),
-        # (
-        #     "track_ids_not_unique_per_frame",
-        #     "Multiple bounding boxes have the same track ID "
-        #     "in file bla.csv. Please review the VIA tracks csv file.",
-        # ),
+        (
+            "track_ids_not_unique_per_frame",
+            "04.09.2023-04-Right_RE_test_frame_01.png: "
+            "multiple bounding boxes in this file have the same track ID. "
+            "Please review the VIA tracks csv file.",
+        ),
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_input(

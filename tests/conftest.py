@@ -545,6 +545,37 @@ def track_id_not_castable_as_int(
     return file_path
 
 
+@pytest.fixture
+def track_ids_not_unique_per_frame(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with a track ID
+    that appears twice in the same frame.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+        f.write("\n")
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
+            '"{""track"":""71""}"'  # same track ID as the previous row
+        )
+    return file_path
+
+
 class Helpers:
     """Generic helper methods for ``movement`` test modules."""
 
