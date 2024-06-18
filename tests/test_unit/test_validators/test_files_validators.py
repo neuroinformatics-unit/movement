@@ -67,7 +67,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ValidDeepLabCutCSV(file_path)
 
 
-@pytest.mark.skip("Fixtures not implemented yet")
+# @pytest.mark.skip("Fixtures not implemented yet")
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [
@@ -130,13 +130,13 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "under 'region_attributes'. "
             "Please review the VIA tracks csv file.",
         ),
-        # (
-        #     "track_id_not_castable_as_int",
-        #     "The track ID for the bounding box in file "
-        #     "bla.csv and row 0 is 'patata', which "
-        #     "cannot be cast as an integer. "
-        #     "Please review the VIA tracks csv file.",
-        # ),
+        (
+            "track_id_not_castable_as_int",
+            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
+            "the track ID for the bounding box cannot be cast "
+            "as an integer. "
+            "Please review the VIA tracks csv file.",
+        ),
         # (
         #     "track_ids_not_unique_per_frame",
         #     "Multiple bounding boxes have the same track ID "

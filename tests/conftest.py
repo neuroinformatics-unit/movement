@@ -370,7 +370,7 @@ def frame_number_in_file_attribute_not_integer(
             '"{""clip"":123, ""frame"":""FOO""}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
     return file_path
@@ -391,7 +391,7 @@ def frame_number_in_filename_wrong_pattern(
             '"{""clip"":123}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
     return file_path
@@ -412,7 +412,7 @@ def more_frame_numbers_than_filenames(
             '"{""clip"":123, ""frame"":24}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
         f.write("\n")
@@ -422,7 +422,7 @@ def more_frame_numbers_than_filenames(
             '"{""clip"":123, ""frame"":25}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
     return file_path
@@ -443,7 +443,7 @@ def less_frame_numbers_than_filenames(
             '"{""clip"":123, ""frame"":24}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
         f.write("\n")
@@ -453,7 +453,7 @@ def less_frame_numbers_than_filenames(
             '"{""clip"":123, ""frame"":24}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
     return file_path
@@ -495,7 +495,7 @@ def region_shape_attribute_missing_x(
             '"{""clip"":123}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
         )
     return file_path
@@ -516,8 +516,29 @@ def region_attribute_missing_track(
             '"{""clip"":123}",'
             "1,"
             "0,"
-            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
             '"{""foo"":""71""}"'
+        )
+    return file_path
+
+
+@pytest.fixture
+def track_id_not_castable_as_int(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with a track ID
+    attribute not castable as an integer.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+            '"{""track"":""FOO""}"'
         )
     return file_path
 
