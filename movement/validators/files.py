@@ -210,7 +210,7 @@ class ValidVIAtracksCSV:
     Parameters
     ----------
     path : pathlib.Path or str
-        Path to the .csv file.
+        Path to the VIA tracks .csv file.
 
     Raises
     ------
@@ -223,11 +223,7 @@ class ValidVIAtracksCSV:
 
     @path.validator
     def csv_file_contains_expected_levels(self, attribute, value):
-        """Ensure that the .csv file contains the expected VIA tracks columns.
-
-        These should be the header of the file.
-        """
-        # Check all columns output by VIA (even if we don't use them all)
+        """Ensure the VIA tracks .csv file contains the expected header."""
         expected_levels = [
             "filename",
             "file_size",
@@ -250,15 +246,20 @@ class ValidVIAtracksCSV:
                 )
 
     @path.validator
-    def csv_file_contains_frame_numbers(self, attribute, value):
-        """Check csv file contains frame numbers.
+    def csv_file_contains_valid_frame_numbers(self, attribute, value):
+        """Ensure that the VIA tracks csv file contains valid frame numbers.
 
-        Check frame number is defined as one of: file_attributes OR filename
-        (log which one)
-        Check frame number is defined for all frames
-        Check frame number is a 1-based integer.
+        This involves:
+        - Checking that frame numbers are defined as a `file_attributes` or
+          encoded in the image file `filename`.
+        - Checking the frame number can be cast as an integer.
+        - Checking that there are as many unique frame numbers as unique image
+          files.
+
+        If the frame number is included as part of the image file name, it is
+        expected as an integer led by at least one zero, between "_" and ".",
+        followed by the file extension.
         """
-        # Read file as dataframe
         df = pd.read_csv(value, sep=",", header=0)
 
         # Extract list of file attributes (dicts)
@@ -266,7 +267,8 @@ class ValidVIAtracksCSV:
             ast.literal_eval(d) for d in df.file_attributes
         ]
 
-        # If frame is defined as a file_attribute for all frames: extract
+        # If 'frame' is a file_attribute for all frames:
+        # extract frame number
         list_frame_numbers = []
         if all(["frame" in d for d in file_attributes_dicts]):
             for k_i, k in enumerate(file_attributes_dicts):
@@ -280,18 +282,16 @@ class ValidVIAtracksCSV:
                         f"Please review the file attributes: {k}.",
                     ) from e
 
-        # Else: extract from filename
-        # frame number is expected between "_" and ".",
-        # led by at least one zero, followed by extension
+        # else: extract frame number from filename.
         else:
             pattern = r"_(0\d*)\.\w+$"
 
             for f_i, f in enumerate(df["filename"]):
                 regex_match = re.search(pattern, f)
-                if regex_match:  # only added if there is a pattern match
+                if regex_match:  # if there is a pattern match
                     list_frame_numbers.append(
                         int(regex_match.group(1))  # type: ignore
-                        # will always be castable as integer
+                        # the match will always be castable as integer
                     )
                 else:
                     raise log_error(
@@ -304,34 +304,34 @@ class ValidVIAtracksCSV:
                         "(e.g. img_00234.png).",
                     )
 
-        # Check we have as many unique frame numbers as unique files
+        # Check we have as many unique frame numbers as unique image files
         if len(set(list_frame_numbers)) != len(df.filename.unique()):
             raise log_error(
                 ValueError,
                 "The number of unique frame numbers does not match the number "
-                "of unique files. Please review the VIA tracks csv file and "
-                "ensure a unique frame number is defined for each file. ",
+                "of unique image files. Please review the VIA tracks csv file "
+                "and ensure a unique frame number is defined for each file. ",
             )
 
     @path.validator
     def csv_file_contains_tracked_bboxes(self, attribute, value):
-        """Check csv file contains tracked bounding boxes.
+        """Ensure that the VIA tracks csv contains tracked bounding boxes.
 
-        Check region_shape_attributes "name" is "rect"
-        Check x,y,width,height are defined for each bounding box
-        Check trackID is defined for each bounding box
-        Check trackID is castable as an integer
+        This involves:
+        - Checking that the bounding boxes are defined as rectangles.
+        - Checking that the bounding boxes have all geometric parameters
+          (["x", "y", "width", "height"]).
+        - Checking that the bounding boxes have a track ID defined.
+        - Checking that the track ID can be cast as an integer.
         """
-        # Read file as dataframe
         df = pd.read_csv(value, sep=",", header=0)
 
-        # Check each row contains a bounding box
         for row in df.itertuples():
-            # extract region shape and regular attributes
             row_region_shape_attrs = ast.literal_eval(
                 row.region_shape_attributes
             )
             row_region_attrs = ast.literal_eval(row.region_attributes)
+
             # check annotation is a rectangle
             if row_region_shape_attrs["name"] != "rect":
                 raise log_error(
@@ -383,26 +383,21 @@ class ValidVIAtracksCSV:
     def csv_file_contains_unique_track_IDs_per_filename(
         self, attribute, value
     ):
-        """Check csv file contains unique track IDs per filename.
+        """Ensure the VIA tracks csv contains unique track IDs per filename.
 
-        Check bboxes IDs exist only once per frame/file
+        It check bounding boxes IDs are only defined once per image file.
         """
-        # Read csv file as dataframe
         df = pd.read_csv(value, sep=",", header=0)
 
-        # Extract subdataframes grouped by filename
         list_unique_filenames = list(set(df.filename))
         for file in list_unique_filenames:
-            # Compute one dataframe for a filename
             df_one_filename = df.loc[df["filename"] == file]
 
-            # Extract track IDs linked to this filename
             list_track_IDs_one_filename = [
                 int(ast.literal_eval(row.region_attributes)["track"])
                 for row in df_one_filename.itertuples()
             ]
 
-            # Check the IDs are unique per frame
             if len(set(list_track_IDs_one_filename)) != len(
                 list_track_IDs_one_filename
             ):
