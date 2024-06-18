@@ -38,6 +38,7 @@ Validators - Files
     ValidFile
     ValidHDF5
     ValidDeepLabCutCSV
+    ValidVIAtracksCSV
 
 Validators - Datasets
 ----------------------
