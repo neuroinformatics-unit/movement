@@ -83,20 +83,20 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "frame_number_in_file_attribute_not_integer",
-            "04.09.2023-04-Right_RE_test_frame_00000001.png: "
+            "04.09.2023-04-Right_RE_test_frame_A.png: "
             "'frame' file attribute cannot be cast as an integer. "
             "Please review the file attributes: "
             "{'clip': 123, 'frame': 'FOO'}.",
         ),
-        # (
-        #     "frame_number_as_filename_wrong_pattern",
-        #     "A frame number could not be extracted for filename "
-        #     "bla.png. Please review the VIA tracks csv file. If the "
-        #     "frame number is included in the filename, it is "
-        #     "expected as a zero-padded integer between an "
-        #     "underscore '_' and the file extension "
-        #     "(e.g. img_00234.png).",
-        # ),
+        (
+            "frame_number_in_filename_wrong_pattern",
+            "04.09.2023-04-Right_RE_test_frame_1.png: "
+            "a frame number could not be extracted from the filename. "
+            "If included in the filename, the frame number is "
+            "expected as a zero-padded integer between an "
+            "underscore '_' and the file extension "
+            "(e.g. img_00234.png).",
+        ),
         # (
         #     "frame_numbers_do_not_match_filenames",
         #     "The number of unique frame numbers does not match the number "
