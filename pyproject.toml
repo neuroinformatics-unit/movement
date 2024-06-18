@@ -21,6 +21,8 @@ dependencies = [
   "sleap-io",
   "xarray[accel,viz]",
   "PyYAML",
+  "pynwb",
+  "ndx-pose>=0.2",
 ]
 
 classifiers = [
