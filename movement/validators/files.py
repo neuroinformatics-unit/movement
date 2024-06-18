@@ -296,11 +296,11 @@ class ValidVIAtracksCSV:
                 else:
                     raise log_error(
                         ValueError,
-                        "A frame number could not be extracted for filename "
-                        f"{f}. Please review the VIA tracks csv file. If the "
-                        "frame number is included in the filename, it is "
-                        "expected as a zero-padded integer between an "
-                        "underscore '_' and the file extension "
+                        f"{f}: "
+                        "a frame number could not be extracted from the "
+                        "filename. If included in the filename, the frame "
+                        "number is expected as a zero-padded integer between "
+                        "an underscore '_' and the file extension "
                         "(e.g. img_00234.png).",
                     )
 
