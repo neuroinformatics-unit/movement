@@ -67,7 +67,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ValidDeepLabCutCSV(file_path)
 
 
-@pytest.mark.skip("Fixtures not implemented yet")
+# @pytest.mark.skip("Fixtures not implemented yet")
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [
@@ -83,63 +83,65 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "frame_number_in_file_attribute_not_integer",
-            "04.09.2023-04-Right_RE_test_frame_A.png: "
+            "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
             "'frame' file attribute cannot be cast as an integer. "
             "Please review the file attributes: "
             "{'clip': 123, 'frame': 'FOO'}.",
         ),
         (
             "frame_number_in_filename_wrong_pattern",
-            "04.09.2023-04-Right_RE_test_frame_1.png: "
+            "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
             "a frame number could not be extracted from the filename. "
             "If included in the filename, the frame number is "
             "expected as a zero-padded integer between an "
             "underscore '_' and the file extension "
             "(e.g. img_00234.png).",
         ),
-        # (
-        #     "frame_numbers_do_not_match_filenames",
-        #     "The number of unique frame numbers does not match the number "
-        #     "of unique files. Please review the VIA tracks csv file and "
-        #     "ensure a unique frame number is defined for each filename. "
-        #     "This can by done via a 'frame' file attribute, or by "
-        #     "including the frame number in the filename. If included in "
-        #     "the filename, the frame number is expected as a zero-padded "
-        #     "integer between an underscore '_' and the file extension "
-        #     "(e.g. img_00234.png).",
-        # ),
-        # (
-        #     "region_shape_attributes_name_not_rect",
-        #     "Bounding box shape must be 'rect' but instead got "
-        #     "'patata' for file 'bla.csv' (row 0, 0-based).",
-        # ),
+        (
+            "more_frame_numbers_than_filenames",
+            "The number of unique frame numbers does not match the number "
+            "of unique files. Please review the VIA tracks csv file and "
+            "ensure a unique frame number is defined for each file. ",
+        ),
+        (
+            "less_frame_numbers_than_filenames",
+            "The number of unique frame numbers does not match the number "
+            "of unique files. Please review the VIA tracks csv file and "
+            "ensure a unique frame number is defined for each file. ",
+        ),
+        (
+            "region_shape_attribute_not_rect",
+            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
+            "bounding box shape must be 'rect' (rectangular) "
+            "but instead got 'circle'.",
+        ),
         # (
         #     "region_shape_attributes_missing_x",
         #     "At least one bounding box shape parameter is missing. "
         #     "Expected 'x', 'y', 'width', 'height' to exist as "
         #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0, 0-based).,",
+        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
         # ),
         # (
         #     "region_shape_attributes_missing_y",
         #     "At least one bounding box shape parameter is missing. "
         #     "Expected 'x', 'y', 'width', 'height' to exist as "
         #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0, 0-based).,",
+        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
         # ),
         # (
         #     "region_shape_attributes_missing_width",
         #     "At least one bounding box shape parameter is missing. "
         #     "Expected 'x', 'y', 'width', 'height' to exist as "
         #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0, 0-based).,",
+        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
         # ),
         # (
         #     "region_shape_attributes_missing_height",
         #     "At least one bounding box shape parameter is missing. "
         #     "Expected 'x', 'y', 'width', 'height' to exist as "
         #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0, 0-based).,",
+        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
         # ),
         # (
         #     "region_attributes_missing_track",
