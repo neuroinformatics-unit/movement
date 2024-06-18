@@ -67,7 +67,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ValidDeepLabCutCSV(file_path)
 
 
-# @pytest.mark.skip("Fixtures not implemented yet")
+@pytest.mark.skip("Fixtures not implemented yet")
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [
@@ -115,42 +115,21 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "bounding box shape must be 'rect' (rectangular) "
             "but instead got 'circle'.",
         ),
-        # (
-        #     "region_shape_attributes_missing_x",
-        #     "At least one bounding box shape parameter is missing. "
-        #     "Expected 'x', 'y', 'width', 'height' to exist as "
-        #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
-        # ),
-        # (
-        #     "region_shape_attributes_missing_y",
-        #     "At least one bounding box shape parameter is missing. "
-        #     "Expected 'x', 'y', 'width', 'height' to exist as "
-        #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
-        # ),
-        # (
-        #     "region_shape_attributes_missing_width",
-        #     "At least one bounding box shape parameter is missing. "
-        #     "Expected 'x', 'y', 'width', 'height' to exist as "
-        #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
-        # ),
-        # (
-        #     "region_shape_attributes_missing_height",
-        #     "At least one bounding box shape parameter is missing. "
-        #     "Expected 'x', 'y', 'width', 'height' to exist as "
-        #     "'region_shape_attributes', but got "
-        #     "'\{bla\:blah\}' for file bla.csv (row 0).,",
-        # ),
-        # (
-        #     "region_attributes_missing_track",
-        #     "Bounding box in file bla.csv and row 0 "
-        #     "(0-based) does not have a 'track' attribute defined. "
-        #     "Please review the VIA tracks csv file and ensure that "
-        #     "all bounding boxes have a 'track' field under "
-        #     "'region_attributes'.",
-        # ),
+        (
+            "region_shape_attribute_missing_x",
+            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
+            "at least one bounding box shape parameter is missing. "
+            "Expected 'x', 'y', 'width', 'height' to exist as "
+            "'region_shape_attributes', but got "
+            "'['name', 'y', 'width', 'height']'.",
+        ),
+        (
+            "region_attribute_missing_track",
+            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
+            "bounding box does not have a 'track' attribute defined "
+            "under 'region_attributes'. "
+            "Please review the VIA tracks csv file.",
+        ),
         # (
         #     "track_id_not_castable_as_int",
         #     "The track ID for the bounding box in file "

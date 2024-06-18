@@ -482,6 +482,48 @@ def region_shape_attribute_not_rect(
     return file_path
 
 
+@pytest.fixture
+def region_shape_attribute_missing_x(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with invalid shape in
+    region_shape_attributes.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:  # append to the file
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+    return file_path
+
+
+@pytest.fixture
+def region_attribute_missing_track(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with missing track
+    attribute in region_attributes.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""foo"":""71""}"'
+        )
+    return file_path
+
+
 class Helpers:
     """Generic helper methods for ``movement`` test modules."""
 
