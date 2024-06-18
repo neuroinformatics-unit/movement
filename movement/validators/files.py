@@ -379,35 +379,37 @@ class ValidVIAtracksCSV:
                     "as an integer. Please review the VIA tracks csv file.",
                 ) from e
 
-    # -------------------#
-    # @path.validator
-    # def csv_file_contains_unique_track_IDs_per_frame(self, attribute, value):
-    #     """Check csv file contains unique track IDs per frame.
+    @path.validator
+    def csv_file_contains_unique_track_IDs_per_filename(
+        self, attribute, value
+    ):
+        """Check csv file contains unique track IDs per filename.
 
-    #     Check bboxes IDs exist only once per frame/file
-    #     """
-    #     # Read csv file as dataframe
-    #     df = pd.read_csv(value, sep=",", header=0)
+        Check bboxes IDs exist only once per frame/file
+        """
+        # Read csv file as dataframe
+        df = pd.read_csv(value, sep=",", header=0)
 
-    #     # Extract subdataframes grouped by filename (aka frame)
-    #     list_unique_filenames = list(set(df.filename))
-    #     for file in list_unique_filenames:
-    #         # Compute one dataframe for a filename (frame)
-    #         df_one_filename = df.loc[df["filename"] == file]
+        # Extract subdataframes grouped by filename
+        list_unique_filenames = list(set(df.filename))
+        for file in list_unique_filenames:
+            # Compute one dataframe for a filename
+            df_one_filename = df.loc[df["filename"] == file]
 
-    #         # Extract track IDs linked to this filename (frame)
-    #         list_track_IDs_one_filename = [
-    #             int(ast.literal_eval(row.region_attributes)["track"])
-    #             for row in df_one_filename.itertuples()
-    #         ]
+            # Extract track IDs linked to this filename
+            list_track_IDs_one_filename = [
+                int(ast.literal_eval(row.region_attributes)["track"])
+                for row in df_one_filename.itertuples()
+            ]
 
-    #         # Check the IDs are unique per frame
-    #         if len(set(list_track_IDs_one_filename)) != len(
-    #             list_track_IDs_one_filename
-    #         ):
-    #             raise log_error(
-    #                 ValueError,
-    #                 "Multiple bounding boxes have the same track ID "
-    #                 f"in file {file}. "
-    #                 "Please review the VIA tracks csv file.",
-    #             )
+            # Check the IDs are unique per frame
+            if len(set(list_track_IDs_one_filename)) != len(
+                list_track_IDs_one_filename
+            ):
+                raise log_error(
+                    ValueError,
+                    f"{file}: "
+                    "multiple bounding boxes in this file "
+                    "have the same track ID. "
+                    "Please review the VIA tracks csv file.",
+                )
