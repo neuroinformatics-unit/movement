@@ -275,7 +275,7 @@ class ValidVIAtracksCSV:
                 except Exception as e:
                     raise log_error(
                         ValueError,
-                        f"{df.filename.iloc[k_i]}: "
+                        f"{df.filename.iloc[k_i]} (row {k_i}): "
                         "'frame' file attribute cannot be cast as an integer. "
                         f"Please review the file attributes: {k}.",
                     ) from e
@@ -286,7 +286,7 @@ class ValidVIAtracksCSV:
         else:
             pattern = r"_(0\d*)\.\w+$"
 
-            for f in df["filename"]:
+            for f_i, f in enumerate(df["filename"]):
                 regex_match = re.search(pattern, f)
                 if regex_match:  # only added if there is a pattern match
                     list_frame_numbers.append(
@@ -296,7 +296,7 @@ class ValidVIAtracksCSV:
                 else:
                     raise log_error(
                         ValueError,
-                        f"{f}: "
+                        f"{f} (row {f_i}): "
                         "a frame number could not be extracted from the "
                         "filename. If included in the filename, the frame "
                         "number is expected as a zero-padded integer between "
@@ -310,80 +310,75 @@ class ValidVIAtracksCSV:
                 ValueError,
                 "The number of unique frame numbers does not match the number "
                 "of unique files. Please review the VIA tracks csv file and "
-                "ensure a unique frame number is defined for each filename. "
-                "This can by done via a 'frame' file attribute, or by "
-                "including the frame number in the filename. If included in "
-                "the filename, the frame number is expected as a zero-padded "
-                "integer between an underscore '_' and the file extension "
-                "(e.g. img_00234.png).",
+                "ensure a unique frame number is defined for each file. ",
             )
 
-    # @path.validator
-    # def csv_file_contains_tracked_bboxes(self, attribute, value):
-    #     """Check csv file contains tracked bounding boxes.
+    @path.validator
+    def csv_file_contains_tracked_bboxes(self, attribute, value):
+        """Check csv file contains tracked bounding boxes.
 
-    #     Check region_shape_attributes "name" is "rect"
-    #     Check x,y,width,height are defined for each bounding box
-    #     Check trackID is defined for each bounding box
-    #     Check trackID is castable as an integer
-    #     """
-    #     # Read file as dataframe
-    #     df = pd.read_csv(value, sep=",", header=0)
+        Check region_shape_attributes "name" is "rect"
+        Check x,y,width,height are defined for each bounding box
+        Check trackID is defined for each bounding box
+        Check trackID is castable as an integer
+        """
+        # Read file as dataframe
+        df = pd.read_csv(value, sep=",", header=0)
 
-    #     # Check each row contains a bounding box
-    #     for row in df.itertuples():
-    #         # check annotation is a rectangle
-    #         if ast.literal_eval(row.region_shape_attributes)["name"]
-    # != "rect":
-    #             raise log_error(
-    #                 ValueError,
-    #                 f"Bounding box shape must be 'rect' but instead got "
-    #                 f"{ast.literal_eval(row.region_shape_attributes)
-    # ['name']}"
-    #                 f"for file {row.filename} (row {row.Index}, 0-based). ",
-    #             )
+        # Check each row contains a bounding box
+        for row in df.itertuples():
+            # check annotation is a rectangle
+            if ast.literal_eval(row.region_shape_attributes)["name"] != "rect":
+                raise log_error(
+                    ValueError,
+                    f"{row.filename} (row {row.Index}): "
+                    "bounding box shape must be 'rect' (rectangular) "
+                    "but instead got "
+                    f"'{ast.literal_eval(row.region_shape_attributes)['name']}'.",
+                )
 
-    #         # check geometric parameters for the box are defined
-    #         if not all(
-    #             [
-    #                 key in ast.literal_eval(row.region_shape_attributes)
-    #                 for key in ["x", "y", "width", "height"]
-    #             ]
-    #         ):
-    #             raise log_error(
-    #                 ValueError,
-    #                 f"At least one bounding box shape parameter is missing. "
-    #                 "Expected 'x', 'y', 'width', 'height' to exist as "
-    #                 "'region_shape_attributes', but got "
-    #                 f"{ast.literal_eval(row.region_shape_attributes).keys()}"
-    #                 f"for file {row.filename} (row {row.Index}, 0-based). ",
-    #             )
+            # # check geometric parameters for the box are defined
+            # if not all(
+            #     [
+            #         key in ast.literal_eval(row.region_shape_attributes)
+            #         for key in ["x", "y", "width", "height"]
+            #     ]
+            # ):
+            #     raise log_error(
+            #         ValueError,
+            #         f"At least one bounding box shape parameter is missing. "
+            #         "Expected 'x', 'y', 'width', 'height' to exist as "
+            #         "'region_shape_attributes', but got "
+            #         f"{ast.literal_eval(row.region_shape_attributes).keys()}"
+            #         f"for file {row.filename} (row {row.Index}). ",
+            #     )
 
-    #         # check track ID is defined
-    #         if "track" not in ast.literal_eval(row.region_attributes):
-    #             raise log_error(
-    #                 ValueError,
-    #                 f"Bounding box in file {row.filename} "
-    #                 f"and row {row.Index} "
-    #                 f"(0-based) does not have a 'track' attribute defined. "
-    #                 "Please review the VIA tracks csv file and ensure that "
-    #                 "all bounding boxes have a 'track' field under "
-    #                 "'region_attributes'.",
-    #             )
+            # # check track ID is defined
+            # if "track" not in ast.literal_eval(row.region_attributes):
+            #     raise log_error(
+            #         ValueError,
+            #         f"Bounding box in file {row.filename} "
+            #         f"and row {row.Index} "
+            #         f"(0-based) does not have a 'track' attribute defined. "
+            #         "Please review the VIA tracks csv file and ensure that "
+            #         "all bounding boxes have a 'track' field under "
+            #         "'region_attributes'.",
+            #     )
 
-    #         # check track ID is castable as an integer
-    #         try:
-    #             int(ast.literal_eval(row.region_attributes)["track"])
-    #         except Exception as e:
-    #             raise log_error(
-    #                 ValueError,
-    #                 "The track ID for the bounding box in file "
-    #                 f"{row.filename} and row {row.Index} is "
-    #                 f"{ast.literal_eval(row.region_attributes)['track']}"
-    #                 "which cannot be cast as an integer. "
-    #                 "Please review the VIA tracks csv file.",
-    #             ) from e
+            # # check track ID is castable as an integer
+            # try:
+            #     int(ast.literal_eval(row.region_attributes)["track"])
+            # except Exception as e:
+            #     raise log_error(
+            #         ValueError,
+            #         "The track ID for the bounding box in file "
+            #         f"{row.filename} and row {row.Index} is "
+            #         f"{ast.literal_eval(row.region_attributes)['track']}"
+            #         "which cannot be cast as an integer. "
+            #         "Please review the VIA tracks csv file.",
+            #     ) from e
 
+    # -------------------#
     # @path.validator
     # def csv_file_contains_unique_track_IDs_per_frame(self, attribute, value):
     #     """Check csv file contains unique track IDs per frame.

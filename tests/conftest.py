@@ -383,7 +383,7 @@ def frame_number_in_filename_wrong_pattern(
     via_tracks_csv_with_valid_header,
 ):
     """Return the file path for a VIA tracks csv file with invalid frame
-    number defined as file_attribute.
+    number defined in the frame's filename.
     """
     file_path = via_tracks_csv_with_valid_header
     with open(file_path, "a") as f:  # append to the file
@@ -394,6 +394,89 @@ def frame_number_in_filename_wrong_pattern(
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+    return file_path
+
+
+@pytest.fixture
+def more_frame_numbers_than_filenames(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with more
+    frame numbers than filenames.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:  # append to the file
+        f.write(
+            "04.09.2023-04-Right_RE_test.png,"
+            "26542080,"
+            '"{""clip"":123, ""frame"":24}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+        f.write("\n")
+        f.write(
+            "04.09.2023-04-Right_RE_test.png,"
+            "26542080,"
+            '"{""clip"":123, ""frame"":25}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+    return file_path
+
+
+@pytest.fixture
+def less_frame_numbers_than_filenames(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with with less
+    frame numbers than filenames.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:  # append to the file
+        f.write(
+            "04.09.2023-04-Right_RE_test_A.png,"
+            "26542080,"
+            '"{""clip"":123, ""frame"":24}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+        f.write("\n")
+        f.write(
+            "04.09.2023-04-Right_RE_test_B.png,"
+            "26542080,"
+            '"{""clip"":123, ""frame"":24}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.2366942646654,""y"":393.280914246804,""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+    return file_path
+
+
+@pytest.fixture
+def region_shape_attribute_not_rect(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with invalid shape in
+    region_shape_attributes.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:  # append to the file
+        f.write(
+            "04.09.2023-04-Right_RE_test_frame_01.png,"
+            "26542080,"
+            '"{""clip"":123}",'
+            "1,"
+            "0,"
+            '"{""name"":""circle"",""cx"":1049,""cy"":1006,""r"":125}",'
             '"{""track"":""71""}"'
         )
     return file_path
