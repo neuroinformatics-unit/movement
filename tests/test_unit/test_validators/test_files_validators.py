@@ -99,13 +99,13 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         (
             "more_frame_numbers_than_filenames",
             "The number of unique frame numbers does not match the number "
-            "of unique files. Please review the VIA tracks csv file and "
+            "of unique image files. Please review the VIA tracks csv file and "
             "ensure a unique frame number is defined for each file. ",
         ),
         (
             "less_frame_numbers_than_filenames",
             "The number of unique frame numbers does not match the number "
-            "of unique files. Please review the VIA tracks csv file and "
+            "of unique image files. Please review the VIA tracks csv file and "
             "ensure a unique frame number is defined for each file. ",
         ),
         (

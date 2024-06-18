@@ -330,6 +330,7 @@ def kinematic_property(request):
     return request.param
 
 
+# VIA tracks CSV fixtures
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""
@@ -365,11 +366,11 @@ def frame_number_in_file_attribute_not_integer(
     number defined as file_attribute.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
             "04.09.2023-04-Right_RE_test_frame_A.png,"
             "26542080,"
-            '"{""clip"":123, ""frame"":""FOO""}",'
+            '"{""clip"":123, ""frame"":""FOO""}",'  # frame number is a string
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
@@ -386,9 +387,9 @@ def frame_number_in_filename_wrong_pattern(
     number defined in the frame's filename.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
-            "04.09.2023-04-Right_RE_test_frame_1.png,"
+            "04.09.2023-04-Right_RE_test_frame_1.png,"  # frame not zero-padded
             "26542080,"
             '"{""clip"":123}",'
             "1,"
@@ -407,7 +408,7 @@ def more_frame_numbers_than_filenames(
     frame numbers than filenames.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
             "04.09.2023-04-Right_RE_test.png,"
             "26542080,"
@@ -419,9 +420,9 @@ def more_frame_numbers_than_filenames(
         )
         f.write("\n")
         f.write(
-            "04.09.2023-04-Right_RE_test.png,"
+            "04.09.2023-04-Right_RE_test.png,"  # same filename as previous row
             "26542080,"
-            '"{""clip"":123, ""frame"":25}",'
+            '"{""clip"":123, ""frame"":25}",'  # different frame number
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
@@ -438,7 +439,7 @@ def less_frame_numbers_than_filenames(
     frame numbers than filenames.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
             "04.09.2023-04-Right_RE_test_A.png,"
             "26542080,"
@@ -450,9 +451,9 @@ def less_frame_numbers_than_filenames(
         )
         f.write("\n")
         f.write(
-            "04.09.2023-04-Right_RE_test_B.png,"
+            "04.09.2023-04-Right_RE_test_B.png,"  # different filename
             "26542080,"
-            '"{""clip"":123, ""frame"":24}",'
+            '"{""clip"":123, ""frame"":24}",'  # same frame as previous row
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
@@ -469,7 +470,7 @@ def region_shape_attribute_not_rect(
     region_shape_attributes.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
             "04.09.2023-04-Right_RE_test_frame_01.png,"
             "26542080,"
@@ -478,7 +479,7 @@ def region_shape_attribute_not_rect(
             "0,"
             '"{""name"":""circle"",""cx"":1049,""cy"":1006,""r"":125}",'
             '"{""track"":""71""}"'
-        )
+        )  # annotation of circular shape
     return file_path
 
 
@@ -490,7 +491,7 @@ def region_shape_attribute_missing_x(
     region_shape_attributes.
     """
     file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:  # append to the file
+    with open(file_path, "a") as f:
         f.write(
             "04.09.2023-04-Right_RE_test_frame_01.png,"
             "26542080,"
@@ -519,7 +520,7 @@ def region_attribute_missing_track(
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""foo"":""71""}"'
+            '"{""foo"":""71""}"'  # missing ""track""
         )
     return file_path
 
@@ -540,7 +541,7 @@ def track_id_not_castable_as_int(
             "1,"
             "0,"
             '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""FOO""}"'
+            '"{""track"":""FOO""}"'  # ""track"" not castable as int
         )
     return file_path
 
