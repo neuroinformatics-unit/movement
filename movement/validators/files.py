@@ -368,18 +368,16 @@ class ValidVIAtracksCSV:
                     "Please review the VIA tracks csv file.",
                 )
 
-            # # check track ID is castable as an integer
-            # try:
-            #     int(ast.literal_eval(row.region_attributes)["track"])
-            # except Exception as e:
-            #     raise log_error(
-            #         ValueError,
-            #         "The track ID for the bounding box in file "
-            #         f"{row.filename} and row {row.Index} is "
-            #         f"{ast.literal_eval(row.region_attributes)['track']}"
-            #         "which cannot be cast as an integer. "
-            #         "Please review the VIA tracks csv file.",
-            #     ) from e
+            # check track ID is castable as an integer
+            try:
+                int(row_region_attrs["track"])
+            except Exception as e:
+                raise log_error(
+                    ValueError,
+                    f"{row.filename} (row {row.Index}): "
+                    "the track ID for the bounding box cannot be cast "
+                    "as an integer. Please review the VIA tracks csv file.",
+                ) from e
 
     # -------------------#
     # @path.validator
