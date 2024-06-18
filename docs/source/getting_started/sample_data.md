@@ -14,30 +14,44 @@ file_names = sample_data.list_datasets()
 print(file_names)
 ```
 
-This will print a list of file names containing sample pose data.
+This prints a list of file names containing sample pose data.
 Each file is prefixed with the name of the pose estimation software package
 that was used to generate it - either "DLC", "SLEAP", or "LP".
 
-To load one of the sample datasets, you can use the
+To load one of the sample datasets, use the
 {func}`movement.sample_data.fetch_dataset()` function:
 
 ```python
-ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
+filename = "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+ds = sample_data.fetch_dataset(filename)
 ```
 This function loads the sample pose data as a
 [movement dataset](target-dataset). Some sample datasets may also have an
-associated video file (the video based on which the poses were predicted)
-or a single frame extracted from that video. These files are not directly
-loaded into the `movement` dataset, but their paths can be accessed as dataset attributes:
+associated video file (the video based on which the poses were predicted),
+which you can request by setting `with_video=True`:
 
 ```python
-ds.frame_path
-ds.video_path
+ds = sample_data.fetch_dataset(filename, with_video=True)
 ```
-If the value of one of these attributes is `None`, it means that the
-associated file is not available for the sample dataset.
 
+If available, the video file is downloaded and its path is stored
+in the `video_path` attribute of the dataset (e.g., `ds.video_path`).
+The value of this attribute is `None` if no video file is
+available for this dataset or if you did not request it
+(`with_video=False`, which is the default).
+
+Some datasets may also have an associated frame file, which is a single
+still frame extracted from the video. This can serve as a representative
+image of the video, which could be useful for visualisation (e.g.,
+as a background image for plotting trajectories). If available,
+this file is always downloaded when fetching the dataset,
+and its path is stored in the `frame_path` attribute
+(e.g., `ds.frame_path`). This attribute's value is `None`
+only if no frame file is available for the dataset.
+
+:::{note}
 Under the hood, the first time you call the `fetch_dataset()` function,
-it will download the corresponding files to your local machine and cache them
+it downloads the corresponding files to your local machine and caches them
 in the `~/.movement/data` directory. On subsequent calls, the data are directly
-loaded from the local cache.
+loaded from this local cache.
+:::
