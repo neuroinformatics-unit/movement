@@ -67,12 +67,12 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ValidDeepLabCutCSV(file_path)
 
 
-# @pytest.mark.skip("Fixtures not implemented yet")
+@pytest.mark.skip("Fixtures not implemented yet")
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [
         (
-            "invalid_header_via_tracks_csv",
+            "via_tracks_csv_with_invalid_header",
             ".csv header row does not match the known format for "
             "VIA tracks output files. "
             "Expected "

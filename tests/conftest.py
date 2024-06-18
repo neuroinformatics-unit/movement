@@ -331,7 +331,7 @@ def kinematic_property(request):
 
 
 @pytest.fixture
-def invalid_header_via_tracks_csv(tmp_path):
+def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""
     file_path = tmp_path / "invalid_via_tracks.csv"
     with open(file_path, "w") as f:
@@ -341,11 +341,8 @@ def invalid_header_via_tracks_csv(tmp_path):
 
 
 @pytest.fixture
-def frame_number_in_file_attribute_not_integer(tmp_path):
-    """Return the file path for a VIA tracks csv file with invalid frame
-    number defined as file_attribute.
-    """
-    file_path = tmp_path / "invalid_via_tracks.csv"
+def via_tracks_csv_with_valid_header(tmp_path):
+    file_path = tmp_path / "sample_via_tracks.csv"
     with open(file_path, "w") as f:
         f.write(
             "filename,"
@@ -357,6 +354,18 @@ def frame_number_in_file_attribute_not_integer(tmp_path):
             "region_attributes"
         )
         f.write("\n")
+    return file_path
+
+
+@pytest.fixture
+def frame_number_in_file_attribute_not_integer(
+    via_tracks_csv_with_valid_header,
+):
+    """Return the file path for a VIA tracks csv file with invalid frame
+    number defined as file_attribute.
+    """
+    file_path = via_tracks_csv_with_valid_header
+    with open(file_path, "a") as f:  # append to the file
         f.write(
             "04.09.2023-04-Right_RE_test_frame_00000001.png,"
             "26542080,"
