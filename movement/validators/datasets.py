@@ -221,6 +221,7 @@ class ValidBboxesDataset:
             _list_of_str
         ),  # force into list of strings if not
     )
+    frame_array: np.ndarray | None = field(default=None)
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
@@ -306,4 +307,13 @@ class ValidBboxesDataset:
                 "were not provided. "
                 "Setting to 1-based IDs that are unique per frame: \n"
                 f"{self.individual_names}.\n"
+            )
+
+        if self.frame_array is None:
+            self.frame_array = np.arange(self.position_array.shape[0]).reshape(
+                -1, 1
+            )
+            log_warning(
+                "Confidence array was not provided."
+                "Setting to an array of NaNs."
             )
