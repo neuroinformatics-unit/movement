@@ -209,6 +209,25 @@ def from_via_tracks_file(
 def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     """Extract numpy arrays from a VIA tracks file.
 
+    The numpy arrays are:
+    - position_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    - shape_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    - confidence_array : np.ndarray
+        Array of shape (n_frames, n_individuals) containing
+        the point-wise confidence scores. It will be converted to a
+        :py:class:`xarray.DataArray` object named "confidence".
+        If None (default), the scores will be set to an array of NaNs.
+    - individual_names : list of str
+        List of unique names for the individuals in the video. If None
+        (default), the individuals will be named "id_0",
+        "id_1", etc.
+
     Parameters
     ----------
     file_path : pathlib.Path
@@ -220,129 +239,180 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
         The validated bounding boxes' tracks and confidence scores.
 
     """
-    # Read file as a dataframe with columns the desired data
-    # TODO: add confidence with nans if not provided
-    df = _load_df_from_via_tracks_file(file_path)
-
-    # Extract numpy arrays -- see notebook
-    # ---------------------------------------------------------
-    # Compute position_array and shape_array
-    list_unique_bbox_IDs = sorted(df.ID.unique().tolist())
-    list_unique_frames = sorted(df.frame_number.unique().tolist())
-
-    list_centroid_arrays, list_shape_arrays = [], []
-    for bbox_id in list_unique_bbox_IDs:
-        # Get subset dataframe for one bbox (frane_number, x, y, w, h, ID)
-        df_one_bbox = df.loc[df["ID"] == bbox_id]
-        df_one_bbox = df_one_bbox.sort_values(by="frame_number")
-
-        # Drop rows with same frame_number and ID
-        # (if manual annotation, sometimes the same ID appears >1 in a frame)
-        if len(df_one_bbox.frame_number.unique()) != len(df_one_bbox):
-            print(f"ID {bbox_id} appears more than once in a frame")
-            print("Dropping duplicates")
-            df_one_bbox = df_one_bbox.drop_duplicates(
-                subset=["frame_number", "ID"],  # they may differ in x,y,w,h
-                keep="first",  # or last?
-            )
-
-        # Reindex based on full set of unique frames
-        # (otherwise only the ones for this bbox are in the df)
-        df_one_bbox_reindexed = (
-            df_one_bbox.set_index("frame_number")
-            .reindex(list_unique_frames)
-            .reset_index()
-        )
-
-        # Convert to numpy arrays
-        list_centroid_arrays.append(
-            df_one_bbox_reindexed[["x", "y"]].to_numpy()
-        )
-        list_shape_arrays.append(df_one_bbox_reindexed[["w", "h"]].to_numpy())
-        # TODO: add confidence array
-
-    # Concatenate centroid arrays and shape arrays for all IDs
-    centroid_array = np.stack(list_centroid_arrays, axis=1)
-    shape_array = np.stack(list_shape_arrays, axis=1)
-
-    # ---------------------------------------------------------
-    # Return dict of arrays
-    return {
-        "position_array": centroid_array,
-        "shape_array": shape_array,
-        "individual_names": ["a", "b", "c"],  # could be None!,
-        "confidence_array": np.zeros((2, 2, 2, 2)),  # TODO
-    }
-
-
-def _load_df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
-    """Load a VIA tracks file into a (restructured) pandas DataFrame."""
     # Read file as dataframe
     df_file = pd.read_csv(file_path, sep=",", header=0)
 
-    # Extract frame number
-    # TODO return numpy array?
-    # TODO: improve
-    list_frame_numbers = _extract_frame_number_from_via_tracks_df(df_file)
+    # Extract 2D dataframe from input dataframe
+    df = _reformat_via_tracks_df(df_file)
 
-    # Extract x,y,w,h of bboxes as numpy arrays
-    # TODO: extract confidence if exists
-    bbox_xy_array = _via_attribute_column_to_numpy(
-        df_file, "region_shape_attributes", ["x", "y"], float
-    )
-    bbox_wh_array = _via_attribute_column_to_numpy(
-        df_file, "region_shape_attributes", ["width", "height"], float
-    )
-    bbox_ID_array = _via_attribute_column_to_numpy(
-        df_file, "region_attributes", ["track"], int
+    # ----------------
+    # Get arrays of the right shape
+    # compute indices where ID switches
+    bool_ID_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
+    idcs_ID_switch = (
+        bool_ID_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
     )
 
-    # Make a dataframe with restructured data
-    # TODO: add confidence if exists, otherwise nans
-    return pd.DataFrame(
-        {
-            "frame_number": list_frame_numbers,  # make this a numpy array too?
-            "x": bbox_xy_array[:, 0],
-            "y": bbox_xy_array[:, 1],
-            "w": bbox_wh_array[:, 0],
-            "h": bbox_wh_array[:, 1],
-            "ID": bbox_ID_array[:, :],
-        }
-    )
+    split_arrays = {}
+    for array_str, cols in zip(
+        ["position", "shape", "confidence"],
+        [["x", "y"], ["w", "h"], ["confidence"]],
+        strict=True,
+    ):
+        split_arrays[array_str] = np.split(
+            df[cols].to_numpy(),
+            idcs_ID_switch,  # along axis=0
+        )
+
+    # stack along first axis
+    position_array = np.stack(split_arrays["position"])
+    shape_array = np.stack(split_arrays["shape"])
+    confidence_array = np.stack(split_arrays["confidence"])
+
+    # Return dict of arrays
+    return {
+        "position_array": position_array,  # make this a numpy array too?
+        "shape_array": shape_array,
+        "confidence_array": confidence_array,
+        "individual_names": df.ID.unique(),  # 2D array?
+        "frame_array": df.frame_number.unique,  # 2D array
+    }
 
 
-def _extract_frame_number_from_via_tracks_df(df):
+# TODO! check this
+def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
+    """_summary_.
+
+    Parameters
+    ----------
+    df : _type_
+        _description_
+
+    Returns
+    -------
+    np.ndarray
+        A 2D numpy array containing the frame numbers.
+
+    """
     # Check if frame number is defined as file_attributes, else get from
     # filename
     # return as numpy array?
     # improve this;
 
     # Extract frame number from file_attributes if exists
-    _via_attribute_column_to_numpy(
-        df,
-        via_attribute_column_name="file_attributes",
-        list_attributes=["frame"],  # make this an input with a default?
-        type_fn=int,
+    # Extract list of file attributes (dicts)
+    file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
+
+    if all(["frame" in d for d in file_attributes_dicts]):
+        frame_array = _via_attribute_column_to_numpy(
+            df,
+            via_column_name="file_attributes",
+            list_attributes=["frame"],  # make this an input with a default?
+            cast_fn=int,
+        )
+    else:
+        # Else extract from filename
+        # frame number is between "_" and ".", led by at least one zero,
+        # followed by the file extension
+        pattern = r"_(0\d*)\.\w+$"  # before: r"_(0\d*)\."
+
+        list_frame_numbers = [
+            int(re.search(pattern, f).group(1))  # type: ignore
+            if re.search(pattern, f)
+            else np.nan
+            for f in df["filename"]
+        ]
+
+        frame_array = np.array(list_frame_numbers).reshape(-1, 1)
+
+    return frame_array
+
+
+def _extract_2d_arrays_from_via_tracks_df(df: pd.DataFrame) -> tuple:
+    # frame number array
+    frame_array = _extract_frame_number_from_via_tracks_df(df)  # 2D
+
+    # position 2D array
+    # rows: frames
+    # columns: x,y
+    bbox_position_array = _via_attribute_column_to_numpy(
+        df, "region_shape_attributes", ["x", "y"], float
     )
 
-    # Else extract from filename
-    # frame number is between "_" and ".", led by at least one zero, followed
-    # by extension
-    pattern = r"_(0\d*)\.\w+$"  # before: r"_(0\d*)\."
+    # shape 2D array
+    bbox_shape_array = _via_attribute_column_to_numpy(
+        df, "region_shape_attributes", ["width", "height"], float
+    )
 
-    list_frame_numbers = [
-        int(re.search(pattern, f).group(1))  # type: ignore
-        if re.search(pattern, f)
-        else np.nan
-        for f in df["filename"]
+    # track 2D array
+    bbox_ID_array = _via_attribute_column_to_numpy(
+        df, "region_attributes", ["track"], int
+    )
+
+    # confidence 2D array
+    region_attributes_dicts = [
+        ast.literal_eval(d) for d in df.region_attributes
     ]
+    if all(["confidence" in d for d in region_attributes_dicts]):
+        bbox_confidence_array = _via_attribute_column_to_numpy(
+            df, "region_attributes", ["confidence"], float
+        )
+    else:
+        bbox_confidence_array = np.full(frame_array.shape, np.nan)
 
-    return list_frame_numbers
+    # TODO: return as dict instead
+    return (
+        bbox_position_array,
+        bbox_shape_array,
+        bbox_ID_array,
+        bbox_confidence_array,
+        frame_array,
+    )
+
+
+def _reformat_via_tracks_df(df: pd.DataFrame) -> pd.DataFrame:
+    # Extract 2D arrays from input dataframe
+    (
+        bbox_position_array,
+        bbox_shape_array,
+        bbox_ID_array,
+        bbox_confidence_array,
+        frame_array,
+    ) = _extract_2d_arrays_from_via_tracks_df(df)
+
+    # Make a 2D dataframe
+    df = pd.DataFrame(
+        {
+            "frame_number": frame_array[:, 0],
+            "x": bbox_position_array[:, 0],
+            "y": bbox_position_array[:, 1],
+            "w": bbox_shape_array[:, 0],
+            "h": bbox_shape_array[:, 1],
+            "confidence": bbox_confidence_array[:, 0],
+            "ID": bbox_ID_array[:, 0],
+        }
+    )
+
+    # important!
+    # sort by ID and frame number
+    df = df.sort_values(by=["ID", "frame_number"]).reset_index(drop=True)
+
+    # every ID should have all frames
+    # Fill in empty values with nans
+    multi_index = pd.MultiIndex.from_product(
+        [df.ID.unique(), df.frame_number.unique()],
+        names=["ID", "frame_number"],
+    )
+
+    df = (
+        df.set_index(["ID", "frame_number"]).reindex(multi_index).reset_index()
+    )
+    return df
 
 
 def _via_attribute_column_to_numpy(
     df: pd.DataFrame,
-    via_attribute_column_name: str,
+    via_column_name: str,
     list_attributes: list[str],
     cast_fn: Callable = float,
 ) -> np.ndarray:
@@ -355,19 +425,21 @@ def _via_attribute_column_to_numpy(
     Parameters
     ----------
     df : pd.DataFrame
-        The pandas DataFrame containing the data.
-    via_attribute_column_name : str
-        The name of the column that holds values as literal dictionaries.
+        The pandas DataFrame containing the data from the VIA file.
+    via_column_name : str
+        The name of a column in the VIA file whose values are literal
+        dictionaries (e.g. `file_attributes`, `region_shape_attributes`
+        or `region_attributes`).
     list_attributes : list[str]
         The list of keys whose values we want to extract from the literal
-        dictionaries.
+        dictionaries in the `via_column_name` column.
     cast_fn : type, optional
-        The type function to cast the values to, by default float.
+        The type function to cast the values to. By default `float`.
 
     Returns
     -------
     np.ndarray
-        A numpy array of floats representing the extracted attribute values.
+        A numpy array representing the extracted attribute values.
 
     """
     # initialise list
@@ -378,7 +450,7 @@ def _via_attribute_column_to_numpy(
         # extract attributes from the column of interest
         list_bbox_attr.append(
             tuple(
-                cast_fn(ast.literal_eval(row[via_attribute_column_name])[reg])
+                cast_fn(ast.literal_eval(row[via_column_name])[reg])
                 for reg in list_attributes
             )
         )
