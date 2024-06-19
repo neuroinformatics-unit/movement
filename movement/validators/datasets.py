@@ -314,6 +314,6 @@ class ValidBboxesDataset:
                 -1, 1
             )
             log_warning(
-                "Confidence array was not provided."
-                "Setting to an array of NaNs."
+                "Frame numbers were not provided."
+                "Setting to an array of 0-based integers."
             )
