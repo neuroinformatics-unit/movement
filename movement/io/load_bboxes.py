@@ -73,6 +73,7 @@ def from_numpy(
     shape_array: np.ndarray,
     confidence_array: np.ndarray | None = None,
     individual_names: list[str] | None = None,
+    frame_array: np.ndarray | None = None,
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
@@ -97,6 +98,8 @@ def from_numpy(
         List of unique names for the individuals in the video. If None
         (default), the individuals will be named "id_0",
         "id_1", etc.
+    frame_array : np.ndarray, optional
+        Array of shape (n_frames, 1) containing the frame numbers.
     fps : float, optional
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
@@ -132,7 +135,8 @@ def from_numpy(
         position_array=position_array,
         shape_array=shape_array,
         confidence_array=confidence_array,
-        individual_names=individual_names,
+        individual_names=individual_names,  # list
+        frame_array=frame_array,  # -------------- could be none
         fps=fps,
         source_software=source_software,
     )
@@ -190,7 +194,10 @@ def from_via_tracks_file(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
-        individual_names=bboxes_arrays["individual_names"],  # could be None
+        individual_names=[
+            f"id_{ID}" for ID in bboxes_arrays["individual_names"]
+        ],
+        frame_array=bboxes_arrays["frame_array"],
         fps=fps,
         source_software="VIA-tracks",
     )
@@ -226,6 +233,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
         List of unique names for the individuals in the video. If None
         (default), the individuals will be named "id_0",
         "id_1", etc.
+    - frame_array : np.ndarray
 
     Parameters
     ----------
@@ -448,21 +456,23 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         Dataset containing the pose tracks, confidence scores, and metadata.
 
     """
-    # TODO: a lot of common code with pose ds, can we combine/refactor?
-
-    n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[-1]
 
-    # Create the time coordinate, depending on the value of fps
-    time_coords = np.arange(n_frames, dtype=int)
+    # Create the time coordinate
+    # - if fps is not provided: time_coords will be the provided frame numbers.
+    # - if fps is provided: time_coords will be the time in seconds.
+    time_coords = data.frame_array  # --- this will never be None here;
     time_unit = "frames"
     if data.fps is not None:
+        # Compute frames from the start (first frame is frame 0).
+        # Ignoring type error because `data.frame_array` is not None after
+        # ValidBboxesDataset.__attrs_post_init__()
+        time_coords = np.arange(data.frame_array.shape[0], dtype=int)  # type: ignore
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = MovementDataset.dim_names
-
     # Convert data to an xarray.Dataset
+    DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
@@ -474,12 +484,13 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.individual_names,
-            DIM_NAMES[3]: ["x", "y", "z"][:n_space],  # TODO: w, h?
+            DIM_NAMES[2]: ["x", "y", "z"][:n_space],  # TODO: w, h?
         },
         attrs={
             "fps": data.fps,
             "time_unit": time_unit,
             "source_software": data.source_software,
             "source_file": None,
+            "ds_type": "bboxes",
         },
     )
