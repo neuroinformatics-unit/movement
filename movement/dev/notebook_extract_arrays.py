@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from movement.io.load_bboxes import (
+    _extract_confidence_from_via_tracks_df,
     _extract_frame_number_from_via_tracks_df,
     _via_attribute_column_to_numpy,
 )
@@ -62,20 +63,50 @@ if all(["confidence" in d for d in region_attributes_dicts]):
 else:
     bbox_confidence_array = np.full(frame_array.shape, np.nan)
 print(bbox_confidence_array.shape)
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# %%
 # Make a 2D dataframe
 df = pd.DataFrame(
     {
+        "ID": _via_attribute_column_to_numpy(
+            df_file, "region_attributes", ["track"], int
+        ).squeeze(),
+        "frame_number": _extract_frame_number_from_via_tracks_df(
+            df_file
+        ).squeeze(),
+        "x": _via_attribute_column_to_numpy(
+            df_file, "region_shape_attributes", ["x"], float
+        ).squeeze(),
+        "y": _via_attribute_column_to_numpy(
+            df_file, "region_shape_attributes", ["y"], float
+        ).squeeze(),
+        "w": _via_attribute_column_to_numpy(
+            df_file, "region_shape_attributes", ["width"], float
+        ).squeeze(),
+        "h": _via_attribute_column_to_numpy(
+            df_file, "region_shape_attributes", ["height"], float
+        ).squeeze(),
+        "confidence": _extract_confidence_from_via_tracks_df(
+            df_file
+        ).squeeze(),
+    }
+)
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Make a 2D dataframe
+df_check = pd.DataFrame(
+    {
+        "ID": bbox_ID_array[:, 0],
         "frame_number": frame_array[:, 0],
         "x": bbox_position_array[:, 0],
         "y": bbox_position_array[:, 1],
         "w": bbox_shape_array[:, 0],
         "h": bbox_shape_array[:, 1],
         "confidence": bbox_confidence_array[:, 0],
-        "ID": bbox_ID_array[:, 0],
     }
 )
 
+assert df.equals(df_check)
+
+# %%
 # important!
 # sort by ID and frame number!!!!
 df = df.sort_values(by=["ID", "frame_number"]).reset_index(drop=True)

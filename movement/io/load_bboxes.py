@@ -180,7 +180,7 @@ def from_via_tracks_file(
     via_file = ValidVIAtracksCSV(file.path)
     logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
 
-    # Extract numpy arrays to a dict
+    # Extract numpy arrays of expected shape to a dict
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
 
     # Create a dataset from numpy arrays
@@ -244,13 +244,13 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     # Extract 2D dataframe from input dataframe
     df = _reformat_via_tracks_df(df_file)
 
-    # Compute indices of df where ID switches
+    # Compute indices of the df where ID switches
     bool_ID_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
-    idcs_ID_switch = (
+    indices_ID_switch = (
         bool_ID_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
     )
 
-    # Stack position, shape and confidence arrays
+    # Stack position, shape and confidence arrays along IDs
     map_key_to_columns = {
         "position_array": ["x", "y"],
         "shape_array": ["w", "h"],
@@ -260,12 +260,12 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     for key in map_key_to_columns:
         list_arrays = np.split(
             df[map_key_to_columns[key]].to_numpy(),
-            idcs_ID_switch,  # along axis=0
+            indices_ID_switch,  # along axis=0
         )
 
         array_dict[key] = np.stack(list_arrays)
 
-    # Add remaining arrays
+    # Add remaining arrays to dict
     array_dict["individual_names"] = df["ID"].unique()
     array_dict["frame_array"] = df["frame_number"].unique()
 
@@ -273,86 +273,63 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
 
 def _reformat_via_tracks_df(df: pd.DataFrame) -> pd.DataFrame:
-    # Extract 2D arrays from input dataframe
-    # TODO: return as dict instead
-    (
-        bbox_position_array,
-        bbox_shape_array,
-        bbox_ID_array,
-        bbox_confidence_array,
-        frame_array,
-    ) = _extract_2d_arrays_from_via_tracks_df(df)
-
     # Make a 2D dataframe
     df = pd.DataFrame(
         {
-            "frame_number": frame_array[:, 0],
-            "x": bbox_position_array[:, 0],
-            "y": bbox_position_array[:, 1],
-            "w": bbox_shape_array[:, 0],
-            "h": bbox_shape_array[:, 1],
-            "confidence": bbox_confidence_array[:, 0],
-            "ID": bbox_ID_array[:, 0],
+            "ID": _via_attribute_column_to_numpy(
+                df, "region_attributes", ["track"], int
+            ).squeeze(),
+            "frame_number": _extract_frame_number_from_via_tracks_df(
+                df
+            ).squeeze(),
+            "x": _via_attribute_column_to_numpy(
+                df, "region_shape_attributes", ["x"], float
+            ).squeeze(),
+            "y": _via_attribute_column_to_numpy(
+                df, "region_shape_attributes", ["y"], float
+            ).squeeze(),
+            "w": _via_attribute_column_to_numpy(
+                df, "region_shape_attributes", ["width"], float
+            ).squeeze(),
+            "h": _via_attribute_column_to_numpy(
+                df, "region_shape_attributes", ["height"], float
+            ).squeeze(),
+            "confidence": _extract_confidence_from_via_tracks_df(df).squeeze(),
         }
     )
 
-    # Important!
     # Sort dataframe by ID and frame number
     df = df.sort_values(by=["ID", "frame_number"]).reset_index(drop=True)
 
+    # Fill in with nans
     # Compute desired index: all combinations of ID and frame number
     multi_index = pd.MultiIndex.from_product(
         [df["ID"].unique(), df["frame_number"].unique()],
         names=["ID", "frame_number"],
     )
 
-    # Set index to ID, frame number, fill in values with nans and reset index
+    # Set index to (ID, frame number), fill in values with nans and
+    # reset to original index
     df = (
         df.set_index(["ID", "frame_number"]).reindex(multi_index).reset_index()
     )
     return df
 
 
-def _extract_2d_arrays_from_via_tracks_df(df: pd.DataFrame) -> tuple:
-    # frame number array
-    frame_array = _extract_frame_number_from_via_tracks_df(df)  # 2D
-
-    # position 2D array
-    # rows: frames
-    # columns: x,y
-    bbox_position_array = _via_attribute_column_to_numpy(
-        df, "region_shape_attributes", ["x", "y"], float
-    )
-
-    # shape 2D array
-    bbox_shape_array = _via_attribute_column_to_numpy(
-        df, "region_shape_attributes", ["width", "height"], float
-    )
-
-    # track 2D array
-    bbox_ID_array = _via_attribute_column_to_numpy(
-        df, "region_attributes", ["track"], int
-    )
-
+def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     # confidence 2D array
     region_attributes_dicts = [
         ast.literal_eval(d) for d in df.region_attributes
     ]
+
     if all(["confidence" in d for d in region_attributes_dicts]):
-        bbox_confidence_array = _via_attribute_column_to_numpy(
+        bbox_confidence = _via_attribute_column_to_numpy(
             df, "region_attributes", ["confidence"], float
         )
     else:
-        bbox_confidence_array = np.full(frame_array.shape, np.nan)
+        bbox_confidence = np.full((df.shape[0], 1), np.nan)
 
-    # TODO: return as dict instead
-    return (
-        bbox_position_array,
-        bbox_shape_array,
-        bbox_ID_array,
-        bbox_confidence_array,
-        frame_array,
-    )
+    return bbox_confidence
 
 
 # TODO! check this
