@@ -193,7 +193,7 @@ def from_via_tracks_file(
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
         individual_names=[
-            f"id_{ID}" for ID in bboxes_arrays["individual_names"]
+            f"id_{id}" for id in bboxes_arrays["individual_names"].squeeze()
         ],
         frame_array=bboxes_arrays["frame_array"],
         fps=fps,
@@ -259,11 +259,11 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
             indices_ID_switch,  # indices along axis=0
         )
 
-        array_dict[key] = np.stack(list_arrays)
+        array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
 
     # Add remaining arrays to dict
-    array_dict["individual_names"] = df["ID"].unique()
-    array_dict["frame_array"] = df["frame_number"].unique()
+    array_dict["individual_names"] = df["ID"].unique().reshape(-1, 1)
+    array_dict["frame_array"] = df["frame_number"].unique().reshape(-1, 1)
 
     return array_dict
 
@@ -481,18 +481,23 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         time_unit = "seconds"
 
     # Convert data to an xarray.Dataset
+    # ('time', 'individuals', 'space')
     DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
     n_space = data.position_array.shape[-1]
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES[:-1]),
+            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
                 data.confidence_array, dims=DIM_NAMES[:-1]
             ),
         },
+        # Ignoring type error because `time_coords`
+        # (which is a function of `data.frame_array`)
+        # cannot be None after
+        # ValidBboxesDataset.__attrs_post_init__()
         coords={
-            DIM_NAMES[0]: time_coords,
+            DIM_NAMES[0]: time_coords.squeeze(),  # type: ignore
             DIM_NAMES[1]: data.individual_names,
             DIM_NAMES[2]: ["x", "y", "z"][:n_space],
         },

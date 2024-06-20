@@ -31,6 +31,11 @@ def valid_sample_datasets():
             "frame_file": None,
             "video_file": None,
         },
+        "VIA_multiple-crabs_5-frames_labels.csv": {
+            "fps": None,
+            "frame_file": None,
+            "video_file": None,
+        },
     }
 
 
