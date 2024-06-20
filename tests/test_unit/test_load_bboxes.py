@@ -81,19 +81,14 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
         )
 
 
-@pytest.mark.skip(reason="Not implemented")
-@pytest.mark.parametrize(
-    "source_software", ["SLEAP", "DeepLabCut", "LightningPose", "Unknown"]
-)
+@pytest.mark.parametrize("source_software", ["VIA-tracks", "Unknown"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(self, source_software, fps):
+def test_from_file_delegates_correctly(source_software, fps):
     """Test that the from_file() function delegates to the correct
     loader function according to the source_software.
     """
     software_to_loader = {
-        "SLEAP": "movement.io.load_poses.from_sleap_file",
-        "DeepLabCut": "movement.io.load_poses.from_dlc_file",
-        "LightningPose": "movement.io.load_poses.from_lp_file",
+        "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
     }
 
     if source_software == "Unknown":
