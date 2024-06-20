@@ -53,7 +53,6 @@ def test_load_from_VIA_tracks_file(via_tracks_file):
     assert_dataset(ds, via_tracks_file, "VIA-tracks")
 
 
-@pytest.mark.skip(reason="Not implemented")
 @pytest.mark.parametrize(
     "fps, expected_fps, expected_time_unit",
     [
@@ -64,13 +63,14 @@ def test_load_from_VIA_tracks_file(via_tracks_file):
         (60.0, 60, "seconds"),
     ],
 )
-def test_fps_and_time_coords(self, fps, expected_fps, expected_time_unit):
+def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
     """Test that time coordinates are set according to the provided fps."""
-    ds = load_bboxes.from_sleap_file(
-        DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5"),
+    ds = load_bboxes.from_via_tracks_file(
+        DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
         fps=fps,
     )
     assert ds.time_unit == expected_time_unit
+
     if expected_fps is None:
         assert ds.fps is expected_fps
     else:
