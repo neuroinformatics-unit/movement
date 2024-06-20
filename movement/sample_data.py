@@ -116,7 +116,8 @@ def _fetch_metadata(
 def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
     """Generate a file registry based on the contents of the metadata.
 
-    This includes files containing poses, frames, or entire videos.
+    This includes files containing poses, frames, videos or bounding boxes
+    data.
 
     Parameters
     ----------
@@ -131,7 +132,7 @@ def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
     """
     file_registry = {}
     for ds, val in metadata.items():
-        file_registry[f"poses/{ds}"] = val["sha256sum"]
+        file_registry[f"{val['type']}/{ds}"] = val["sha256sum"]
         for key in ["video", "frame"]:
             file_name = val[key]["file_name"]
             if file_name:
@@ -178,14 +179,15 @@ def fetch_dataset_paths(filename: str) -> dict:
     -------
     paths : dict
         Dictionary mapping file types to their respective paths. The possible
-        file types are: "poses", "frame", "video". If "frame" or "video" are
-        not available, the corresponding value is None.
+        file types are: "poses", "frame", "video" or "bboxes. If "frame" or
+        "video" are not available, the corresponding value is None.
 
     Examples
     --------
     >>> from movement.sample_data import fetch_dataset_paths
     >>> paths = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")
-    >>> poses_path = paths["poses"]
+    >>> poses_path = paths["poses"]  # if the data is "pose" data
+    >>> bboxes_path = paths["poses"]  # if the data is "bboxes" data
     >>> frame_path = paths["frame"]
     >>> video_path = paths["video"]
 
@@ -205,21 +207,42 @@ def fetch_dataset_paths(filename: str) -> dict:
     frame_file_name = metadata[filename]["frame"]["file_name"]
     video_file_name = metadata[filename]["video"]["file_name"]
 
-    return {
-        "poses": Path(
-            SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True)
-        ),
-        "frame": None
+    # add trajectory data
+    # if no type is specified, assume "poses" for backwards compatibility
+    paths_dict: dict[str, Path | None] = {}
+    if ("type" not in metadata[filename]) or (
+        metadata[filename]["type"] == "poses"
+    ):
+        paths_dict = {
+            "poses": Path(
+                SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True)
+            )
+        }
+    elif metadata[filename]["type"] == "bboxes":
+        paths_dict = {
+            "bboxes": Path(
+                SAMPLE_DATA.fetch(f"bboxes/{filename}", progressbar=True)
+            )
+        }
+
+    # add frame and video data if available
+    paths_dict["frame"] = (
+        None
         if not frame_file_name
         else Path(
             SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
-        ),
-        "video": None
+        )
+    )
+
+    paths_dict["video"] = (
+        None
         if not video_file_name
         else Path(
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
-        ),
-    }
+        )
+    )
+
+    return paths_dict
 
 
 def fetch_dataset(
@@ -257,11 +280,20 @@ def fetch_dataset(
     """
     file_paths = fetch_dataset_paths(filename)
 
-    ds = load_poses.from_file(
-        file_paths["poses"],
-        source_software=metadata[filename]["source_software"],
-        fps=metadata[filename]["fps"],
-    )
+    if "poses" in file_paths:
+        ds = load_poses.from_file(
+            file_paths["poses"],
+            source_software=metadata[filename]["source_software"],
+            fps=metadata[filename]["fps"],
+        )
+    elif "bboxes" in file_paths:
+        pass
+        # TO BE IMPLEMENTED IN PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
+        # ds = load_bboxes.from_file(
+        #     file_paths["bboxes"],
+        #     source_software=metadata[filename]["source_software"],
+        #     fps=metadata[filename]["fps"],
+        # )
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]
 
