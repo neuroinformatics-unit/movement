@@ -200,6 +200,8 @@ class ValidBboxesDataset:
         If None (default), bounding boxes are assigned names based on the size
         of the `position_array`. The names will be in the format of `id_<N>`,
         where <N>  is an integer from 1 to `position_array.shape[1]`.
+    frame_array : np.ndarray, optional
+        ...
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
@@ -279,6 +281,20 @@ class ValidBboxesDataset:
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        if value is not None:
+            _ensure_type_ndarray(value)
+
+            # should be a column vector (n_frames, 1)
+            expected_shape = (self.position_array.shape[0], 1)
+            if value.shape != expected_shape:
+                raise log_error(
+                    ValueError,
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}.",
+                )
+
     # Define defaults
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None).
@@ -310,9 +326,8 @@ class ValidBboxesDataset:
             )
 
         if self.frame_array is None:
-            self.frame_array = np.arange(self.position_array.shape[0]).reshape(
-                -1, 1
-            )
+            n_frames = self.position_array.shape[0]
+            self.frame_array = np.arange(n_frames).reshape(-1, 1)
             log_warning(
                 "Frame numbers were not provided."
                 "Setting to an array of 0-based integers."
