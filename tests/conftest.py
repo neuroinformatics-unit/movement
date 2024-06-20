@@ -212,7 +212,7 @@ def dlc_style_df():
 )
 def sleap_file(request):
     """Return the file path for a SLEAP .h5 or .slp file."""
-    return pytest.DATA_PATHS.get(request.param)  # ------------------
+    return pytest.DATA_PATHS.get(request.param)
 
 
 @pytest.fixture
