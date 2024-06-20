@@ -14,7 +14,7 @@ import xarray
 import yaml
 from requests.exceptions import RequestException
 
-from movement.io import load_poses
+from movement.io import load_bboxes, load_poses
 from movement.utils.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
@@ -298,11 +298,11 @@ def fetch_dataset(
     elif "bboxes" in file_paths:
         pass
         # TO BE IMPLEMENTED IN PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
-        # ds = load_bboxes.from_file(
-        #     file_paths["bboxes"],
-        #     source_software=metadata[filename]["source_software"],
-        #     fps=metadata[filename]["fps"],
-        # )
+        ds = load_bboxes.from_file(
+            file_paths["bboxes"],
+            source_software=metadata[filename]["source_software"],
+            fps=metadata[filename]["fps"],
+        )
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]
 
