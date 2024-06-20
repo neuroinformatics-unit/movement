@@ -31,31 +31,32 @@ def from_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing predicted poses. The file format must
-        be among those supported by the ``from_dlc_file()``,
-        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
-        these functions will be called internally, based on
-        the value of ``source_software``.
+        Path to the file containing the tracked bounding boxes. Currently
+        only VIA-tracks .csv files are supported.
     source_software : "VIA-tracks".
-        The source software of the file.
+        The source software of the file. Currently only "VIA-tracks
+        is supported.
     fps : float, optional
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
+        The number of frames per second in the video. If provided, the
+        ``time`` coordinates will be in seconds. If None (default), the
+        ``time`` coordinates will be in frame numbers. If no frame numbers
+        are provided in the file, frame numbers will be assigned based on
+        the position data and starting from 0.
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the tracked bounding boxes, their
-        confidence scores, and associated metadata.
+        ``movement`` dataset containing the position, shape, and confidence
+        scores of the tracked bounding boxes, and associated metadata.
 
     See Also
     --------
-    movement.io.load_poses.from_via_tracks_file
+    movement.io.load_bboxes.from_via_tracks_file
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_file(
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_file(
     ...     "path/to/file.csv", source_software="VIA-tracks", fps=30
     ... )
 
@@ -146,25 +147,25 @@ def from_numpy(
 def from_via_tracks_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Load VIA tracks file into an xarray Dataset.
+    """Load VIA tracks csv file as an xarray Dataset.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the file containing the VIA tracks, in .csv format.
+        Path to the VIA file with the tracked bounding boxes, in .csv format.
     fps : float, optional
-        The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        The number of frames per second in the video.  If provided, the
+        ``time`` coordinates will be in seconds. If None (default), the
+        ``time`` coordinates will be in frame numbers. If no frame numbers
+        are provided in the file, frame numbers will be assigned based on
+        the position data and starting from 0.
 
     Returns
     -------
     xarray.Dataset
-        Dataset containing the bounding boxes' tracks, confidence scores, and
-        metadata.
+        ``movement`` bounding boxes dataset containing the boxes tracks,
+        boxes shapes, confidence scores and associated metadata.
 
-    Notes
-    -----
-    TODO: csv files, confidence scores and include references
 
     References
     ----------
@@ -172,24 +173,21 @@ def from_via_tracks_file(
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_via_tracks_file("path/to/file.csv", fps=30)
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
 
     """
-    # Validate the file
+    # General file validation
     file = ValidFile(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
-    # Validate specific VIA file
+
+    # Specific VIA-file validation
     via_file = ValidVIAtracksCSV(file.path)
     logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
 
-    # Extract numpy arrays of expected shape to a dict
+    # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
-
-    # Create a dataset from numpy arrays
-    # (it creates a ValidBboxesDataset in between)
-    # TODO
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -200,10 +198,9 @@ def from_via_tracks_file(
         frame_array=bboxes_arrays["frame_array"],
         fps=fps,
         source_software="VIA-tracks",
-    )
-    # logger.debug(f"Validated bounding boxes' tracks from {via_file.path}.")
+    )  # it validates the dataset via ValidBboxesDataset
 
-    # Add metadata as attrs
+    # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
@@ -213,52 +210,43 @@ def from_via_tracks_file(
 
 
 def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
-    """Extract numpy arrays from a VIA tracks file.
+    """Extract numpy arrays from the input VIA tracks file.
 
     The numpy arrays are:
-    - position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
-    - shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
-    - confidence_array : np.ndarray
-        Array of shape (n_frames, n_individuals) containing
-        the point-wise confidence scores. It will be converted to a
-        :py:class:`xarray.DataArray` object named "confidence".
+    - position_array (n_frames, n_individuals, n_space):
+        contains the trajectory of the bounding boxes' centroids.
+    - shape_array (n_frames, n_individuals, n_space):
+        contains the shape of the bounding boxes (width and height)
+    - confidence_array (n_frames, n_individuals):
+        contains the confidence score for each bounding box.
         If None (default), the scores will be set to an array of NaNs.
-    - individual_names : list of str
-        List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "id_0",
-        "id_1", etc.
-    - frame_array : np.ndarray
+    - individual_names (n_individuals, 1):
+        contains the integer IDs of the tracked bounding boxes.
+    - frame_array (n_frames, 1):
+        contains the frame numbers.
 
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the VIA tracks file containing bounding boxes' tracks.
+        Path to the VIA tracks file containing the bounding boxes' tracks.
 
     Returns
     -------
     dict
-        The validated bounding boxes' tracks and confidence scores.
+        The validated bounding boxes' arrays.
 
     """
-    # Read file as dataframe
-    df_file = pd.read_csv(file_path, sep=",", header=0)
+    # Extract 2D dataframe from input data
+    # (sort data by ID and frame number and fill with nans)
+    df = _df_from_via_tracks_file(file_path)
 
-    # Extract 2D dataframe from input dataframe
-    df = _reformat_via_tracks_df(df_file)
-
-    # Compute indices of the df where ID switches
+    # Compute indices of the rows where the IDs switch
     bool_ID_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
     indices_ID_switch = (
         bool_ID_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
     )
 
-    # Stack position, shape and confidence arrays along IDs
+    # Stack position, shape and confidence arrays along ID axis
     map_key_to_columns = {
         "position_array": ["x", "y"],
         "shape_array": ["w", "h"],
@@ -268,7 +256,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     for key in map_key_to_columns:
         list_arrays = np.split(
             df[map_key_to_columns[key]].to_numpy(),
-            indices_ID_switch,  # along axis=0
+            indices_ID_switch,  # indices along axis=0
         )
 
         array_dict[key] = np.stack(list_arrays)
@@ -280,41 +268,59 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     return array_dict
 
 
-def _reformat_via_tracks_df(df: pd.DataFrame) -> pd.DataFrame:
-    # Make a 2D dataframe
+def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
+    """Load VIA tracks file as a dataframe.
+
+    Read the VIA tracks file as a pandas dataframe with columns:
+    - ID: the integer ID of the tracked bounding box.
+    - frame_number: the frame number of the tracked bounding box.
+    - x: the x-coordinate of the tracked bounding box centroid.
+    - y: the y-coordinate of the tracked bounding box centroid.
+    - w: the width of the tracked bounding box.
+    - h: the height of the tracked bounding box.
+    - confidence: the confidence score of the tracked bounding box.
+
+    The dataframe is sorted by ID and frame number, and for each ID,
+    empty frames are filled in with NaNs.
+    """
+    # Read VIA tracks file as a pandas dataframe
+    df_file = pd.read_csv(file_path, sep=",", header=0)
+
+    # Format to a 2D dataframe
     df = pd.DataFrame(
         {
             "ID": _via_attribute_column_to_numpy(
-                df, "region_attributes", ["track"], int
+                df_file, "region_attributes", ["track"], int
             ).squeeze(),
             "frame_number": _extract_frame_number_from_via_tracks_df(
-                df
+                df_file
             ).squeeze(),
             "x": _via_attribute_column_to_numpy(
-                df, "region_shape_attributes", ["x"], float
+                df_file, "region_shape_attributes", ["x"], float
             ).squeeze(),
             "y": _via_attribute_column_to_numpy(
-                df, "region_shape_attributes", ["y"], float
+                df_file, "region_shape_attributes", ["y"], float
             ).squeeze(),
             "w": _via_attribute_column_to_numpy(
-                df, "region_shape_attributes", ["width"], float
+                df_file, "region_shape_attributes", ["width"], float
             ).squeeze(),
             "h": _via_attribute_column_to_numpy(
-                df, "region_shape_attributes", ["height"], float
+                df_file, "region_shape_attributes", ["height"], float
             ).squeeze(),
-            "confidence": _extract_confidence_from_via_tracks_df(df).squeeze(),
+            "confidence": _extract_confidence_from_via_tracks_df(
+                df_file
+            ).squeeze(),
         }
     )
 
     # Sort dataframe by ID and frame number
     df = df.sort_values(by=["ID", "frame_number"]).reset_index(drop=True)
 
-    # Fill in with nans
-    # Compute desired index: all combinations of ID and frame number
+    # Fill in empty frames with nans
     multi_index = pd.MultiIndex.from_product(
         [df["ID"].unique(), df["frame_number"].unique()],
         names=["ID", "frame_number"],
-    )
+    )  # desired index: all combinations of ID and frame number
 
     # Set index to (ID, frame number), fill in values with nans and
     # reset to original index
@@ -325,11 +331,26 @@ def _reformat_via_tracks_df(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
-    # confidence 2D array
+    """Extract confidence scores from the VIA tracks input dataframe.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The VIA tracks input dataframe is the one obtained from
+        `df = pd.read_csv(file_path, sep=",", header=0)`.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array of size (n_bboxes, 1) containing the bounding boxes
+        confidence scores.
+
+    """
     region_attributes_dicts = [
         ast.literal_eval(d) for d in df.region_attributes
     ]
 
+    # Check if confidence is defined as a region attribute, else set to NaN
     if all(["confidence" in d for d in region_attributes_dicts]):
         bbox_confidence = _via_attribute_column_to_numpy(
             df, "region_attributes", ["confidence"], float
@@ -340,43 +361,37 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     return bbox_confidence
 
 
-# TODO! check this
 def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
-    """_summary_.
+    """Extract frame numbers from the VIA tracks input dataframe.
 
     Parameters
     ----------
-    df : _type_
-        _description_
+    df : pd.DataFrame
+        The VIA tracks input dataframe is the one obtained from
+        `df = pd.read_csv(file_path, sep=",", header=0)`.
 
     Returns
     -------
     np.ndarray
-        A 2D numpy array containing the frame numbers.
+        A numpy array of size (n_frames, 1) containing the frame numbers.
+        In the VIA tracks file, the frame number is expected to be defined as a
+        'file_attribute' , or encoded in the filename as an integer number led
+        by at least one zero, between "_" and ".", followed by the file
+        extension.
 
     """
-    # Check if frame number is defined as file_attributes, else get from
-    # filename
-    # return as numpy array?
-    # improve this;
-
     # Extract frame number from file_attributes if exists
-    # Extract list of file attributes (dicts)
     file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
-
     if all(["frame" in d for d in file_attributes_dicts]):
         frame_array = _via_attribute_column_to_numpy(
             df,
             via_column_name="file_attributes",
-            list_attributes=["frame"],  # make this an input with a default?
+            list_keys=["frame"],
             cast_fn=int,
         )
+    # Else extract from filename
     else:
-        # Else extract from filename
-        # frame number is between "_" and ".", led by at least one zero,
-        # followed by the file extension
-        pattern = r"_(0\d*)\.\w+$"  # before: r"_(0\d*)\."
-
+        pattern = r"_(0\d*)\.\w+$"
         list_frame_numbers = [
             int(re.search(pattern, f).group(1))  # type: ignore
             if re.search(pattern, f)
@@ -392,24 +407,27 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
 def _via_attribute_column_to_numpy(
     df: pd.DataFrame,
     via_column_name: str,
-    list_attributes: list[str],
+    list_keys: list[str],
     cast_fn: Callable = float,
 ) -> np.ndarray:
-    """Convert values from VIA attribute-type column to a float numpy array.
+    """Convert values from VIA attribute-type column to a numpy array.
 
-    Arrays will have at least 1 column (no 0-rank numpy arrays).
-    If several values, these are passed as columns
-    axis 0 is rows of df
+    In the VIA tracks file, the attribute-type columns are the columns
+    whose name includes the word `attributes` (i.e. `file_attributes`,
+    `region_shape_attributes` or `region_attributes`). These columns hold
+    dictionary data.
 
     Parameters
     ----------
     df : pd.DataFrame
         The pandas DataFrame containing the data from the VIA file.
+        This is the dataframe obtained from running
+        `df = pd.read_csv(file_path, sep=",", header=0)`.
     via_column_name : str
         The name of a column in the VIA file whose values are literal
-        dictionaries (e.g. `file_attributes`, `region_shape_attributes`
+        dictionaries (i.e. `file_attributes`, `region_shape_attributes`
         or `region_attributes`).
-    list_attributes : list[str]
+    list_keys : list[str]
         The list of keys whose values we want to extract from the literal
         dictionaries in the `via_column_name` column.
     cast_fn : type, optional
@@ -418,32 +436,26 @@ def _via_attribute_column_to_numpy(
     Returns
     -------
     np.ndarray
-        A numpy array representing the extracted attribute values.
+        A numpy array holding the extracted values. The rows (axis=0) are the
+        rows of the input dataframe. The columns (axis=1) follow the order of
+        the `list_attributes`.  Arrays will have at least 1 column
+        (no 0-rank numpy arrays).
 
     """
-    # initialise list
     list_bbox_attr = []
-
-    # iterate through rows
     for _, row in df.iterrows():
-        # extract attributes from the column of interest
+        row_dict_data = ast.literal_eval(row[via_column_name])
         list_bbox_attr.append(
-            tuple(
-                cast_fn(ast.literal_eval(row[via_column_name])[reg])
-                for reg in list_attributes
-            )
+            tuple(cast_fn(row_dict_data[reg]) for reg in list_keys)
         )
 
-    # convert to numpy array
     bbox_attr_array = np.array(list_bbox_attr)
 
     return bbox_attr_array
 
 
-# TODO
-# From valid dataset structure to xr.dataset
 def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
-    """Convert already validated bboxes tracking data to an xarray Dataset.
+    """Convert a validated bboxes dataset to an xarray Dataset.
 
     Parameters
     ----------
@@ -452,8 +464,8 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     Returns
     -------
-    xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
+    bounding boxes dataset containing the boxes tracks,
+        boxes shapes, confidence scores and associated metadata.
 
     """
     n_space = data.position_array.shape[-1]
