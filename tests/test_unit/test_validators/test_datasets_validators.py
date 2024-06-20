@@ -333,7 +333,7 @@ def test_bboxes_dataset_validator_confidence_array(
 ):
     """Test that invalid confidence arrays raise the appropriate errors."""
     with expected_exception as excinfo:
-        poses = ValidBboxesDataset(
+        ds = ValidBboxesDataset(
             position_array=request.getfixturevalue("valid_bboxes_inputs")[
                 "position_array"
             ],
@@ -347,10 +347,57 @@ def test_bboxes_dataset_validator_confidence_array(
         )
     if confidence_array is None:
         assert np.all(
-            np.isnan(poses.confidence_array)
+            np.isnan(ds.confidence_array)
         )  # assert it is a NaN array
         assert (
-            poses.confidence_array.shape == poses.position_array.shape[:-1]
+            ds.confidence_array.shape == ds.position_array.shape[:-1]
         )  # assert shape matches position array
+    else:
+        assert str(excinfo.value) == log_message
+
+
+@pytest.mark.parametrize(
+    "frame_array, expected_exception, log_message",
+    [
+        (
+            np.arange(10).reshape(-1, 2),
+            pytest.raises(ValueError),
+            "Expected 'frame_array' to have shape (10, 1), " "but got (5, 2).",
+        ),  # frame_array should be a column vector
+        (
+            [1, 2, 3],
+            pytest.raises(ValueError),
+            f"Expected a numpy array, but got {type(list())}.",
+        ),  # not an ndarray, should raise ValueError
+        (
+            None,
+            does_not_raise(),
+            "",
+        ),  # valid, should return an array of frame numbers starting from 0
+    ],
+)
+def test_bboxes_dataset_validator_frame_array(
+    frame_array, expected_exception, log_message, request
+):
+    """Test that invalid frame arrays raise the appropriate errors."""
+    with expected_exception as excinfo:
+        ds = ValidBboxesDataset(
+            position_array=request.getfixturevalue("valid_bboxes_inputs")[
+                "position_array"
+            ],
+            shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+                "shape_array"
+            ],
+            individual_names=request.getfixturevalue("valid_bboxes_inputs")[
+                "individual_names"
+            ],
+            frame_array=frame_array,
+        )
+
+    if frame_array is None:
+        n_frames = ds.position_array.shape[0]
+        default_frame_array = np.arange(n_frames).reshape(-1, 1)
+        assert np.array_equal(ds.frame_array, default_frame_array)
+        assert ds.frame_array.shape == (ds.position_array.shape[0], 1)
     else:
         assert str(excinfo.value) == log_message
