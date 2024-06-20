@@ -200,6 +200,11 @@ class ValidBboxesDataset:
         If None (default), bounding boxes are assigned names based on the size
         of the `position_array`. The names will be in the format of `id_<N>`,
         where <N>  is an integer from 1 to `position_array.shape[1]`.
+    frame_array : np.ndarray, optional
+        Array of shape (n_frames, 1) containing the frame numbers for which
+        bounding boxes are defined. If None (default), frame numbers will
+        be assigned based on the first dimension of the `position_array`,
+        starting from 0.
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
@@ -221,6 +226,7 @@ class ValidBboxesDataset:
             _list_of_str
         ),  # force into list of strings if not
     )
+    frame_array: np.ndarray | None = field(default=None)
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
@@ -278,13 +284,27 @@ class ValidBboxesDataset:
                     f"{expected_shape}, but got {value.shape}.",
                 )
 
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        if value is not None:
+            _ensure_type_ndarray(value)
+
+            # should be a column vector (n_frames, 1)
+            expected_shape = (self.position_array.shape[0], 1)
+            if value.shape != expected_shape:
+                raise log_error(
+                    ValueError,
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}.",
+                )
+
     # Define defaults
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None).
 
         If no confidence_array is provided, set it to an array of NaNs.
         If no individual names are provided, assign them unique IDs per frame,
-        starting with 1 ("id_1")
+        starting with 0 ("id_0").
         """
         if self.confidence_array is None:
             self.confidence_array = np.full(
@@ -293,17 +313,25 @@ class ValidBboxesDataset:
                 dtype="float32",
             )
             log_warning(
-                "Confidence array was not provided."
+                "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
 
         if self.individual_names is None:
             self.individual_names = [
-                f"id_{i+1}" for i in range(self.position_array.shape[1])
+                f"id_{i}" for i in range(self.position_array.shape[1])
             ]
             log_warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
-                "Setting to 1-based IDs that are unique per frame: \n"
+                "Setting to 0-based IDs that are unique per frame: \n"
                 f"{self.individual_names}.\n"
+            )
+
+        if self.frame_array is None:
+            n_frames = self.position_array.shape[0]
+            self.frame_array = np.arange(n_frames).reshape(-1, 1)
+            log_warning(
+                "Frame numbers were not provided. "
+                "Setting to an array of 0-based integers."
             )

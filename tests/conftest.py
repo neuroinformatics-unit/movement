@@ -23,6 +23,8 @@ def pytest_configure():
     pytest.POSE_DATA_PATHS = {
         file_name: fetch_dataset_paths(file_name)["poses"]
         for file_name in list_datasets()
+        if file_name != "VIA_multiple-crabs_5-frames_labels.csv"
+        # TODO: REMOVE THIS LINE AFTER PR #229 IS MERGED
     }
 
 
