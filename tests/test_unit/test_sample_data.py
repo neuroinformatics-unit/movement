@@ -38,6 +38,7 @@ def validate_metadata(metadata: dict[str, dict]) -> None:
     """Assert that the metadata is in the expected format."""
     metadata_fields = [
         "sha256sum",
+        "type",
         "source_software",
         "fps",
         "species",
@@ -61,7 +62,7 @@ def validate_metadata(metadata: dict[str, dict]) -> None:
         set(val.keys()) == set(metadata_fields) for val in metadata.values()
     ), f"Found issues with the names of medatada fields. {check_yaml_msg}"
 
-    # check that metadata keys (pose file names) are unique
+    # check that metadata keys (file names) are unique
     assert len(metadata.keys()) == len(set(metadata.keys()))
 
     # check that the first 2 fields are present and are strings
