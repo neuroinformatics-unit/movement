@@ -311,6 +311,20 @@ class ValidBboxesDataset:
                     f"Frame numbers in {attribute.name} are not continuous.",
                 )
 
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        if value is not None:
+            _ensure_type_ndarray(value)
+
+            # should be a column vector (n_frames, 1)
+            expected_shape = (self.position_array.shape[0], 1)
+            if value.shape != expected_shape:
+                raise log_error(
+                    ValueError,
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}.",
+                )
+
     # Define defaults
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None).
