@@ -136,8 +136,8 @@ def from_numpy(
         position_array=position_array,
         shape_array=shape_array,
         confidence_array=confidence_array,
-        individual_names=individual_names,  # list
-        frame_array=frame_array,  # -------------- could be none
+        individual_names=individual_names,
+        frame_array=frame_array,
         fps=fps,
         source_software=source_software,
     )

@@ -21,6 +21,26 @@ def via_tracks_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
+@pytest.fixture()
+def valid_from_numpy_inputs():
+    n_frames = 5
+    n_individuals = 86
+    n_space = 2
+    individual_names_array = np.arange(n_individuals).reshape(-1, 1)
+
+    rng = np.random.default_rng(seed=42)
+
+    return {
+        "position_array": rng.random((n_frames, n_individuals, n_space)),
+        "shape_array": rng.random((n_frames, n_individuals, n_space)),
+        "confidence_array": rng.random((n_frames, n_individuals)),
+        "individual_names": [
+            f"id_{id}" for id in individual_names_array.squeeze()
+        ],
+        "frame_array": np.arange(n_frames).reshape(-1, 1),
+    }
+
+
 def assert_dataset(dataset, file_path=None, expected_source_software=None):
     """Assert that the dataset is a proper xarray Dataset."""
     assert isinstance(dataset, xr.Dataset)
@@ -40,6 +60,8 @@ def assert_dataset(dataset, file_path=None, expected_source_software=None):
         assert dataset.sizes[dim] == dataset.position.shape[d + 1]
         assert all([isinstance(s, str) for s in dataset.coords[dim].values])
     assert all([i in dataset.coords["space"] for i in ["x", "y"]])
+
+    # Check the values?
 
     # Check the metadata attributes
     assert (
@@ -110,29 +132,17 @@ def test_from_file_delegates_correctly(source_software, fps):
             mock_loader.assert_called_with("some_file", fps)
 
 
-@pytest.mark.skip(reason="Not implemented yet")
 @pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
 def test_from_numpy_valid(
-    self,
-    valid_position_array,
+    valid_from_numpy_inputs,
     source_software,
 ):
     """Test that loading bounding boxes trajectories from a multi-animal
     numpy array with valid parameters returns a proper Dataset.
     """
-    valid_position = valid_position_array("multi_individual_array")
-    valid_shape = valid_position_array("multi_individual_array")
-    valid_frame = valid_position_array("frame_array")
-    rng = np.random.default_rng(seed=42)
-    valid_confidence = rng.random(valid_position.shape[:-1])
-
     ds = load_bboxes.from_numpy(
-        position_array=valid_position,
-        shape_array=valid_shape,
-        confidence_array=valid_confidence,
-        individual_names=["mouse1", "mouse2"],
-        frame_array=valid_frame,
+        **valid_from_numpy_inputs,
         fps=None,
         source_software=source_software,
     )
-    self.assert_dataset(ds, expected_source_software=source_software)
+    assert_dataset(ds, expected_source_software=source_software)
