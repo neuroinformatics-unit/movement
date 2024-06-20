@@ -304,7 +304,7 @@ class ValidBboxesDataset:
 
         If no confidence_array is provided, set it to an array of NaNs.
         If no individual names are provided, assign them unique IDs per frame,
-        starting with 1 ("id_1")
+        starting with 0 ("id_0").
         """
         if self.confidence_array is None:
             self.confidence_array = np.full(
@@ -319,12 +319,12 @@ class ValidBboxesDataset:
 
         if self.individual_names is None:
             self.individual_names = [
-                f"id_{i+1}" for i in range(self.position_array.shape[1])
+                f"id_{i}" for i in range(self.position_array.shape[1])
             ]
             log_warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
-                "Setting to 1-based IDs that are unique per frame: \n"
+                "Setting to 0-based IDs that are unique per frame: \n"
                 f"{self.individual_names}.\n"
             )
 
