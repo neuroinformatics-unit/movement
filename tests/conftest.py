@@ -212,7 +212,17 @@ def dlc_style_df():
 )
 def sleap_file(request):
     """Return the file path for a SLEAP .h5 or .slp file."""
-    return pytest.DATA_PATHS.get(request.param)  # ------------------
+    return pytest.DATA_PATHS.get(request.param)
+
+
+@pytest.fixture(
+    params=[
+        "VIA_multiple-crabs_5-frames_labels.csv",
+    ]
+)
+def via_tracks_file(request):
+    """Return the file path for a VIA tracks .csv file."""
+    return pytest.DATA_PATHS.get(request.param)
 
 
 @pytest.fixture
