@@ -213,16 +213,6 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
-@pytest.fixture(
-    params=[
-        "VIA_multiple-crabs_5-frames_labels.csv",
-    ]
-)
-def via_tracks_file(request):
-    """Return the file path for a VIA tracks .csv file."""
-    return pytest.DATA_PATHS.get(request.param)
-
-
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
