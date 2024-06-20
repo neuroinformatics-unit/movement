@@ -468,13 +468,10 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         boxes shapes, confidence scores and associated metadata.
 
     """
-    n_space = data.position_array.shape[-1]
-
     # Create the time coordinate
-    # - if fps is not provided: time_coords will be the provided frame numbers.
-    # - if fps is provided: time_coords will be the time in seconds.
-    time_coords = data.frame_array  # --- this will never be None here;
+    time_coords = data.frame_array
     time_unit = "frames"
+    # if fps is provided: time_coords is expressed in seconds.
     if data.fps is not None:
         # Compute frames from the start (first frame is frame 0).
         # Ignoring type error because `data.frame_array` is not None after
@@ -485,6 +482,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     # Convert data to an xarray.Dataset
     DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+    n_space = data.position_array.shape[-1]
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
@@ -496,7 +494,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.individual_names,
-            DIM_NAMES[2]: ["x", "y", "z"][:n_space],  # TODO: w, h?
+            DIM_NAMES[2]: ["x", "y", "z"][:n_space],
         },
         attrs={
             "fps": data.fps,
