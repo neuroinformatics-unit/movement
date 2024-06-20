@@ -289,15 +289,20 @@ def fetch_dataset(
     """
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
-    ds = load_poses.from_file(
-        file_paths["poses"],
-        source_software=metadata[filename]["source_software"],
-        fps=metadata[filename]["fps"],
-    )
-
-    # TODO: Add support for loading bounding boxes data.
-    # Implemented in PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
-
+    if "poses" in file_paths:
+        ds = load_poses.from_file(
+            file_paths["poses"],
+            source_software=metadata[filename]["source_software"],
+            fps=metadata[filename]["fps"],
+        )
+    elif "bboxes" in file_paths:
+        pass
+        # TO BE IMPLEMENTED IN PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
+        # ds = load_bboxes.from_file(
+        #     file_paths["bboxes"],
+        #     source_software=metadata[filename]["source_software"],
+        #     fps=metadata[filename]["fps"],
+        # )
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]
 
