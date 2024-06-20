@@ -313,7 +313,7 @@ class ValidBboxesDataset:
                 dtype="float32",
             )
             log_warning(
-                "Confidence array was not provided."
+                "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
 
@@ -332,6 +332,6 @@ class ValidBboxesDataset:
             n_frames = self.position_array.shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
             log_warning(
-                "Frame numbers were not provided."
+                "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
