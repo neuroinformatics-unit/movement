@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
@@ -16,6 +17,13 @@ def via_tracks_file():
     """Return the file path for a VIA tracks .csv file."""
     via_sample_file_name = "VIA_multiple-crabs_5-frames_labels.csv"
     return pytest.DATA_PATHS.get(via_sample_file_name)
+
+
+@pytest.fixture()
+def df_input_via_tracks_small(via_tracks_file):
+    """Return the first three rows of the VIA tracks file as a dataframe."""
+    df = pd.read_csv(via_tracks_file, sep=",", header=0)
+    return df.loc[:2, :]
 
 
 @pytest.fixture()
@@ -74,12 +82,47 @@ def assert_dataset(dataset, file_path=None, expected_source_software=None):
     assert dataset.fps is None
 
 
-def test_load_from_VIA_tracks_file(via_tracks_file):
+def test_from_VIA_tracks_file(via_tracks_file):
     """Test that loading tracked bounding box data from
     a valid VIA tracks csv file returns a proper Dataset.
     """
     ds = load_bboxes.from_via_tracks_file(via_tracks_file)
     assert_dataset(ds, via_tracks_file, "VIA-tracks")
+
+
+@pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
+@pytest.mark.parametrize("fps", [None, 30, 60.0])
+def test_from_file(source_software, fps):
+    """Test that the from_file() function delegates to the correct
+    loader function according to the source_software.
+    """
+    software_to_loader = {
+        "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
+    }
+
+    if source_software == "Unknown":
+        with pytest.raises(ValueError, match="Unsupported source"):
+            load_bboxes.from_file("some_file", source_software)
+    else:
+        with patch(software_to_loader[source_software]) as mock_loader:
+            load_bboxes.from_file("some_file", source_software, fps)
+            mock_loader.assert_called_with("some_file", fps)
+
+
+@pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
+def test_from_numpy(
+    valid_from_numpy_inputs,
+    source_software,
+):
+    """Test that loading bounding boxes trajectories from a multi-animal
+    numpy array with valid parameters returns a proper Dataset.
+    """
+    ds = load_bboxes.from_numpy(
+        **valid_from_numpy_inputs,
+        fps=None,
+        source_software=source_software,
+    )
+    assert_dataset(ds, expected_source_software=source_software)
 
 
 @pytest.mark.parametrize(
@@ -110,36 +153,62 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
         )
 
 
-@pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
-@pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(source_software, fps):
-    """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
-    """
-    software_to_loader = {
-        "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
-    }
-
-    if source_software == "Unknown":
-        with pytest.raises(ValueError, match="Unsupported source"):
-            load_bboxes.from_file("some_file", source_software)
-    else:
-        with patch(software_to_loader[source_software]) as mock_loader:
-            load_bboxes.from_file("some_file", source_software, fps)
-            mock_loader.assert_called_with("some_file", fps)
-
-
-@pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
-def test_from_numpy_valid(
-    valid_from_numpy_inputs,
-    source_software,
+@pytest.mark.parametrize(
+    "via_column_name, list_keys, cast_fn, expected_attribute_array",
+    [
+        (
+            "file_attributes",
+            ["clip"],
+            int,
+            np.array([123] * 3).reshape(-1, 1),
+        ),
+        (
+            "region_shape_attributes",
+            ["name"],
+            str,
+            np.array(["rect"] * 3).reshape(-1, 1),
+        ),
+        (
+            "region_shape_attributes",
+            ["x", "y"],
+            float,
+            np.array(
+                [
+                    [526.2366942646654, 393.280914246804],
+                    [2565, 468],
+                    [759.6484377108334, 136.60946673708338],
+                ]
+            ).reshape(-1, 2),
+        ),
+        (
+            "region_shape_attributes",
+            ["width", "height"],
+            float,
+            np.array([[46, 38], [41, 30], [29, 25]]).reshape(-1, 2),
+        ),
+        (
+            "region_attributes",
+            ["track"],
+            int,
+            np.array([71, 70, 69]).reshape(-1, 1),
+        ),
+    ],
+)
+def test_via_attribute_column_to_numpy(
+    df_input_via_tracks_small,
+    via_column_name,
+    list_keys,
+    cast_fn,
+    expected_attribute_array,
 ):
-    """Test that loading bounding boxes trajectories from a multi-animal
-    numpy array with valid parameters returns a proper Dataset.
+    """Test that the function correctly extracts the desired data from the VIA
+    attributes.
     """
-    ds = load_bboxes.from_numpy(
-        **valid_from_numpy_inputs,
-        fps=None,
-        source_software=source_software,
+    attribute_array = load_bboxes._via_attribute_column_to_numpy(
+        df=df_input_via_tracks_small,
+        via_column_name=via_column_name,
+        list_keys=list_keys,
+        cast_fn=cast_fn,
     )
-    assert_dataset(ds, expected_source_software=source_software)
+
+    assert np.array_equal(attribute_array, expected_attribute_array)
