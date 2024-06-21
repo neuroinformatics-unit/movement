@@ -11,14 +11,11 @@ from movement import MovementDataset
 from movement.io import load_bboxes
 
 
-@pytest.fixture(
-    params=[
-        "VIA_multiple-crabs_5-frames_labels.csv",
-    ]
-)
-def via_tracks_file(request):
+@pytest.fixture()
+def via_tracks_file():
     """Return the file path for a VIA tracks .csv file."""
-    return pytest.DATA_PATHS.get(request.param)
+    via_sample_file_name = "VIA_multiple-crabs_5-frames_labels.csv"
+    return pytest.DATA_PATHS.get(via_sample_file_name)
 
 
 @pytest.fixture()
