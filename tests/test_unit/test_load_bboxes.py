@@ -21,57 +21,6 @@ def via_tracks_file():
 
 
 @pytest.fixture()
-def df_input_via_tracks_small(via_tracks_file):
-    """Return the first three rows of the VIA tracks file as a dataframe."""
-    df = pd.read_csv(via_tracks_file, sep=",", header=0)
-    return df.loc[:2, :]
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks file
-    and add confidence values to the bounding boxes.
-    """
-    df = df_input_via_tracks_small.copy()
-
-    # get the region_attributes column and convert to dict
-    attributes_dicts = [
-        ast.literal_eval(d)
-        for d in df_input_via_tracks_small["region_attributes"]
-    ]
-
-    # add confidence to the dict
-    for d in attributes_dicts:
-        d.update({"confidence": "0.5"})
-
-    # update the region_attributes column in the dataframe
-    df["region_attributes"] = [str(d) for d in attributes_dicts]
-    return df
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks file
-    and add frame number values to the bounding boxes.
-    """
-    df = df_input_via_tracks_small.copy()
-
-    # get the region_attributes column and convert to dict
-    file_attributes_dicts = [
-        ast.literal_eval(d)
-        for d in df_input_via_tracks_small["file_attributes"]
-    ]
-
-    # add frame numbers to the dict
-    for d in file_attributes_dicts:
-        d.update({"frame": "1"})
-
-    # update the region_attributes column in the dataframe
-    df["file_attributes"] = [str(d) for d in file_attributes_dicts]
-    return df
-
-
-@pytest.fixture()
 def valid_from_numpy_inputs():
     n_frames = 5
     n_individuals = 86
@@ -89,6 +38,58 @@ def valid_from_numpy_inputs():
         ],
         "frame_array": np.arange(n_frames).reshape(-1, 1),
     }
+
+
+@pytest.fixture()
+def df_input_via_tracks_small(via_tracks_file):
+    """Return the first three rows of the VIA tracks file as a dataframe."""
+    df = pd.read_csv(via_tracks_file, sep=",", header=0)
+    return df.loc[:2, :]
+
+
+@pytest.fixture()
+def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks file
+    and add confidence values to the bounding boxes.
+    """
+    df = update_attribute_column(
+        df_input=df_input_via_tracks_small,
+        attribute_column_name="region_attributes",
+        dict_to_append={"confidence": "0.5"},
+    )
+
+    return df
+
+
+@pytest.fixture()
+def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks file
+    and add frame number values to the bounding boxes.
+    """
+    df = update_attribute_column(
+        df_input=df_input_via_tracks_small,
+        attribute_column_name="file_attributes",
+        dict_to_append={"frame": "1"},
+    )
+
+    return df
+
+
+def update_attribute_column(df_input, attribute_column_name, dict_to_append):
+    """Update an attributes column in the dataframe."""
+    # copy the dataframe
+    df = df_input.copy()
+
+    # get the attributes column and convert to dict
+    attributes_dicts = [ast.literal_eval(d) for d in df[attribute_column_name]]
+
+    # update the dict
+    for d in attributes_dicts:
+        d.update(dict_to_append)
+
+    # update the region_attributes column in the dataframe
+    df[attribute_column_name] = [str(d) for d in attributes_dicts]
+    return df
 
 
 def assert_dataset(dataset, file_path=None, expected_source_software=None):
@@ -127,14 +128,6 @@ def assert_dataset(dataset, file_path=None, expected_source_software=None):
     assert dataset.fps is None
 
 
-def test_from_VIA_tracks_file(via_tracks_file):
-    """Test that loading tracked bounding box data from
-    a valid VIA tracks csv file returns a proper Dataset.
-    """
-    ds = load_bboxes.from_via_tracks_file(via_tracks_file)
-    assert_dataset(ds, via_tracks_file, "VIA-tracks")
-
-
 @pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_from_file(source_software, fps):
@@ -154,6 +147,14 @@ def test_from_file(source_software, fps):
             mock_loader.assert_called_with("some_file", fps)
 
 
+def test_from_VIA_tracks_file(via_tracks_file):
+    """Test that loading tracked bounding box data from
+    a valid VIA tracks csv file returns a proper Dataset.
+    """
+    ds = load_bboxes.from_via_tracks_file(via_tracks_file)
+    assert_dataset(ds, via_tracks_file, "VIA-tracks")
+
+
 @pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
 def test_from_numpy(
     valid_from_numpy_inputs,
@@ -168,34 +169,6 @@ def test_from_numpy(
         source_software=source_software,
     )
     assert_dataset(ds, expected_source_software=source_software)
-
-
-@pytest.mark.parametrize(
-    "fps, expected_fps, expected_time_unit",
-    [
-        (None, None, "frames"),
-        (-5, None, "frames"),
-        (0, None, "frames"),
-        (30, 30, "seconds"),
-        (60.0, 60, "seconds"),
-    ],
-)
-def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
-    """Test that time coordinates are set according to the provided fps."""
-    ds = load_bboxes.from_via_tracks_file(
-        DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        fps=fps,
-    )
-    assert ds.time_unit == expected_time_unit
-
-    if expected_fps is None:
-        assert ds.fps is expected_fps
-    else:
-        assert ds.fps == expected_fps
-        np.testing.assert_allclose(
-            ds.coords["time"].data,
-            np.arange(ds.sizes["time"], dtype=int) / ds.attrs["fps"],
-        )
 
 
 @pytest.mark.parametrize(
@@ -264,7 +237,7 @@ def test_via_attribute_column_to_numpy(
     [
         ("df_input_via_tracks_small", np.full((3, 1), np.nan)),
         (
-            "df_input_via_tracks_small_confidence",
+            "df_input_via_tracks_small_with_confidence",
             np.array([0.5, 0.5, 0.5]).reshape(-1, 1),
         ),
     ],
@@ -306,3 +279,31 @@ def test_extract_frame_number_from_via_tracks_df(
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
 
     assert np.array_equal(frame_array, expected_array)
+
+
+@pytest.mark.parametrize(
+    "fps, expected_fps, expected_time_unit",
+    [
+        (None, None, "frames"),
+        (-5, None, "frames"),
+        (0, None, "frames"),
+        (30, 30, "seconds"),
+        (60.0, 60, "seconds"),
+    ],
+)
+def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
+    """Test that time coordinates are set according to the provided fps."""
+    ds = load_bboxes.from_via_tracks_file(
+        DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        fps=fps,
+    )
+    assert ds.time_unit == expected_time_unit
+
+    if expected_fps is None:
+        assert ds.fps is expected_fps
+    else:
+        assert ds.fps == expected_fps
+        np.testing.assert_allclose(
+            ds.coords["time"].data,
+            np.arange(ds.sizes["time"], dtype=int) / ds.attrs["fps"],
+        )
