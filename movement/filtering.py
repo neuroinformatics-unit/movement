@@ -13,9 +13,10 @@ from movement.utils.logging import log_error
 def log_to_attrs(func):
     """Log the operation performed by the wrapped function.
 
-    This decorator appends log entries to the xarray.Dataset's "log" attribute.
-    For the decorator to work, the wrapped function must accept an
-    xarray.Dataset as its first argument and return an xarray.Dataset.
+    This decorator appends log entries to the data's ``log``
+    attribute. The wrapped function must accept an ``xarray.Dataset``
+    or ``xarray.DataArray`` as its first argument and return an
+    ``xarray.Dataset`` or ``xarray.DataArray``.
     """
 
     @wraps(func)
@@ -40,97 +41,89 @@ def log_to_attrs(func):
     return wrapper
 
 
-def report_nan_values(ds: xr.Dataset, ds_label: str = "dataset"):
-    """Report the number and percentage of points that are NaN.
+def generate_nan_report(
+    data: xr.DataArray, keypoint: str, individual: str | None = None
+) -> str:
+    """Generate NaN value report for a given keypoint and individual.
+
+    This function calculates the number and percentage of NaN points
+    for a given keypoint and individual in the input data. A keypoint
+    is considered NaN if any of its ``space`` coordinates are NaN.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing ``keypoints`` and ``individuals``
+        dimensions.
+    keypoint : str
+        The name of the keypoint for which to generate the report.
+    individual : str, optional
+        The name of the individual for which to generate the report.
+
+    Returns
+    -------
+    str
+        A string containing the report.
+
+    """
+    selectedta = (
+        data.sel(individuals=individual, keypoints=keypoint)
+        if individual
+        else data.sel(keypoints=keypoint)
+    )
+    n_nans = selectedta.isnull().any(["space"]).sum(["time"]).item()
+    n_points = selectedta.time.size
+    percent_nans = round((n_nans / n_points) * 100, 1)
+    return f"\n\t\t{keypoint}: {n_nans}/{n_points} ({percent_nans}%)"
+
+
+def report_nan_values(da: xr.DataArray, label: str | None = None):
+    """Report the number and percentage of keypoints that are NaN.
 
     Numbers are reported for each individual and keypoint in the dataset.
 
     Parameters
     ----------
-    ds : xarray.Dataset
-        Dataset containing position, confidence scores, and metadata.
-    ds_label : str
-        Label to identify the dataset in the report. Default is "dataset".
+    da : xarray.DataArray
+        The input data containing pose tracks and metadata.
+    label : str, optional
+        Label to identify the dataset in the report. If not provided,
+        the name of the DataArray is used as the label. Default is None.
 
     """
     # Compile the report
-    nan_report = f"\nMissing points (marked as NaN) in {ds_label}:"
-    for ind in ds.individuals.values:
+    if not label:
+        label = da.name
+    nan_report = f"\nMissing points (marked as NaN) in {label}"
+    for ind in da.individuals.values:
         nan_report += f"\n\tIndividual: {ind}"
-        for kp in ds.keypoints.values:
-            # Get the position track for the current individual and keypoint
-            position = ds.position.sel(individuals=ind, keypoints=kp)
-            # A point is considered NaN if any of its space coordinates are NaN
-            n_nans = position.isnull().any(["space"]).sum(["time"]).item()
-            n_points = position.time.size
-            percent_nans = round((n_nans / n_points) * 100, 1)
-            nan_report += f"\n\t\t{kp}: {n_nans}/{n_points} ({percent_nans}%)"
-
+        for kp in da.keypoints.values:
+            nan_report += generate_nan_report(da, kp, individual=ind)
     # Write nan report to logger
     logger = logging.getLogger(__name__)
     logger.info(nan_report)
     # Also print the report to the console
     print(nan_report)
-    return None
-
-
-@log_to_attrs
-def interpolate_over_time(
-    ds: xr.Dataset,
-    method: str = "linear",
-    max_gap: int | None = None,
-    print_report: bool = True,
-) -> xr.Dataset | None:
-    """Fill in NaN values by interpolating over the time dimension.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset containing position, confidence scores, and metadata.
-    method : str
-        String indicating which method to use for interpolation.
-        Default is ``linear``. See documentation for
-        ``xarray.DataArray.interpolate_na`` for complete list of options.
-    max_gap :
-        The largest time gap of consecutive NaNs (in seconds) that will be
-        interpolated over. The default value is ``None`` (no limit).
-    print_report : bool
-        Whether to print a report on the number of NaNs in the dataset
-        before and after interpolation. Default is ``True``.
-
-    Returns
-    -------
-    ds_interpolated : xr.Dataset
-        The provided dataset (ds), where NaN values have been
-        interpolated over using the parameters provided.
-
-    """
-    ds_interpolated = ds.copy()
-    position_interpolated = ds.position.interpolate_na(
-        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
-    )
-    ds_interpolated.update({"position": position_interpolated})
-    if print_report:
-        report_nan_values(ds, "input dataset")
-        report_nan_values(ds_interpolated, "interpolated dataset")
-    return ds_interpolated
 
 
 @log_to_attrs
 def filter_by_confidence(
-    ds: xr.Dataset,
+    data: xr.DataArray,
+    confidence: xr.DataArray,
     threshold: float = 0.6,
     print_report: bool = True,
-) -> xr.Dataset | None:
-    """Drop all points below a certain confidence threshold.
+) -> xr.DataArray:
+    """Drop data points below a certain confidence threshold.
 
-    Position points with an associated confidence value below the threshold are
+    Data points with an associated confidence value below the threshold are
     converted to NaN.
 
     Parameters
     ----------
-    ds : xarray.Dataset
-        Dataset containing position, confidence scores, and metadata.
+    data : xarray.DataArray
+        The input data to be filtered.
+    confidence : xarray.DataArray
+        The data array containing confidence scores to filter by.
     threshold : float
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
@@ -140,10 +133,9 @@ def filter_by_confidence(
 
     Returns
     -------
-    ds_thresholded : xarray.Dataset
-        The provided dataset (ds), where points with a confidence
-        value below the user-defined threshold have been converted
-        to NaNs.
+    xarray.DataArray
+        The data where points with a confidence value below the
+        user-defined threshold have been converted to NaNs.
 
     Notes
     -----
@@ -157,38 +149,91 @@ def filter_by_confidence(
     in their dataset and adjust the threshold accordingly.
 
     """
-    ds_thresholded = ds.copy()
-    ds_thresholded.update(
-        {"position": ds.position.where(ds.confidence >= threshold)}
+    data_filtered = data.where(confidence >= threshold)
+    if print_report:
+        report_nan_values(data, "input")
+        report_nan_values(data_filtered, "output")
+    return data_filtered
+
+
+@log_to_attrs
+def interpolate_over_time(
+    data: xr.DataArray,
+    method: str = "linear",
+    max_gap: int | None = None,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Fill in NaN values by interpolating over the ``time`` dimension.
+
+    This method uses ``xarray.DataArray.interpolate_na`` under the
+    hood and passes the ``method`` and ``max_gap`` parameters to it.
+    See the documentation for ``xarray.DataArray.interpolate_na``
+    for more details on these parameters.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to be interpolated.
+    method : str
+        String indicating which method to use for interpolation.
+        Default is ``linear``.
+    max_gap :
+        Maximum size of gap, a continuous sequence of NaNs, in the
+        ``time`` dimension that will be filled. The default value is
+        ``None`` (no limit).
+        Gap length is defined as the difference between the ``time``
+        coordinate values at the first data point after a gap and the
+        last value before a gap.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after interpolation. Default is ``True``.
+
+    Returns
+    -------
+    xr.DataArray
+        The data where NaN values have been interpolated over
+        using the parameters provided.
+
+    Notes
+    -----
+    The ``max_gap`` parameter behaves differently depending on whether
+    the ``time`` dimension is in "frames" or "seconds". If the time unit
+    is in "frames", the ``max_gap`` parameter is interpreted as the
+    maximum number of consecutive frames of NaNs to interpolate over.
+    If the time unit is in "seconds", the ``max_gap`` parameter is
+    interpreted as the maximum number of seconds of consecutive NaNs
+    to interpolate over.
+
+    """
+    data_interpolated = data.interpolate_na(
+        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
     )
     if print_report:
-        report_nan_values(ds, "input dataset")
-        report_nan_values(ds_thresholded, "filtered dataset")
-
-    return ds_thresholded
+        report_nan_values(data, "input")
+        report_nan_values(data_interpolated, "output")
+    return data_interpolated
 
 
 @log_to_attrs
 def median_filter(
-    ds: xr.Dataset,
-    window_length: int,
+    data: xr.DataArray,
+    window: int,
     min_periods: int | None = None,
     print_report: bool = True,
-) -> xr.Dataset:
-    """Smooth pose tracks by applying a median filter over time.
+) -> xr.DataArray:
+    """Smooth data by applying a median filter over time.
 
     Parameters
     ----------
-    ds : xarray.Dataset
-        Dataset containing position, confidence scores, and metadata.
-    window_length : int
-        The size of the filter window. Window length is interpreted
-        as being in the input dataset's time unit, which can be inspected
-        with ``ds.time_unit``.
+    data : xarray.DataArray
+        The input data to be smoothed.
+    window : int
+        The size of the filter window, representing the fixed number
+        of observations used for each window.
     min_periods : int
-        Minimum number of observations in window required to have a value
-        (otherwise result is NaN). The default, None, is equivalent to
-        setting ``min_periods`` equal to the size of the window.
+        Minimum number of observations in the window required to have
+        a value (otherwise result is NaN). The default, None, is
+        equivalent to setting ``min_periods`` equal to the size of the window.
         This argument is directly  passed to the ``min_periods`` parameter of
         ``xarray.DataArray.rolling``.
     print_report : bool
@@ -197,17 +242,16 @@ def median_filter(
 
     Returns
     -------
-    ds_smoothed : xarray.Dataset
-        The provided dataset (ds), where pose tracks have been smoothed
-        using a median filter with the provided parameters.
+    xarray.DataArray
+        The data smoothed using a median filter with the provided parameters.
 
     Notes
     -----
     By default, whenever one or more NaNs are present in the filter window,
     a NaN is returned to the output array. As a result, any
-    stretch of NaNs present in the input dataset will be propagated
-    proportionally to the size of the window in frames  (specifically, by
-    ``floor(window_length/2)``). To control this behaviour, the
+    stretch of NaNs present in the input data will be propagated
+    proportionally to the size of the window  (specifically, by
+    ``floor(window/2)``). To control this behaviour, the
     ``min_periods`` option can be used to specify the minimum number of
     non-NaN values required in the window to compute a result. For example,
     setting ``min_periods=1`` will result in the filter returning NaNs
@@ -215,59 +259,49 @@ def median_filter(
     is sufficient to compute the median.
 
     """
-    ds_smoothed = ds.copy()
-
-    # Express window length (and its half) in frames
-    if ds.time_unit == "seconds":
-        window_length = int(window_length * ds.fps)
-
-    half_window = window_length // 2
-
-    ds_smoothed.update(
-        {
-            "position": ds.position.pad(  # Pad the edges to avoid NaNs
-                time=half_window, mode="reflect"
-            )
-            .rolling(  # Take rolling windows across time
-                time=window_length, center=True, min_periods=min_periods
-            )
-            .median(  # Compute the median of each window
-                skipna=True
-            )
-            .isel(  # Remove the padded edges
-                time=slice(half_window, -half_window)
-            )
-        }
+    half_window = window // 2
+    data_smoothed = (
+        data.pad(  # Pad the edges to avoid NaNs
+            time=half_window, mode="reflect"
+        )
+        .rolling(  # Take rolling windows across time
+            time=window, center=True, min_periods=min_periods
+        )
+        .median(  # Compute the median of each window
+            skipna=True
+        )
+        .isel(  # Remove the padded edges
+            time=slice(half_window, -half_window)
+        )
     )
 
     if print_report:
-        report_nan_values(ds, "input dataset")
-        report_nan_values(ds_smoothed, "filtered dataset")
+        report_nan_values(data, "input")
+        report_nan_values(data_smoothed, "output")
 
-    return ds_smoothed
+    return data_smoothed
 
 
 @log_to_attrs
 def savgol_filter(
-    ds: xr.Dataset,
-    window_length: int,
+    data: xr.DataArray,
+    window: int,
     polyorder: int = 2,
     print_report: bool = True,
     **kwargs,
-) -> xr.Dataset:
-    """Smooth pose tracks by applying a Savitzky-Golay filter over time.
+) -> xr.DataArray:
+    """Smooth data by applying a Savitzky-Golay filter over time.
 
     Parameters
     ----------
-    ds : xarray.Dataset
-        Dataset containing position, confidence scores, and metadata.
-    window_length : int
-        The size of the filter window. Window length is interpreted
-        as being in the input dataset's time unit, which can be inspected
-        with ``ds.time_unit``.
+    data : xarray.DataArray
+        The input data to be smoothed.
+    window : int
+        The size of the filter window, representing the fixed number
+        of observations used for each window.
     polyorder : int
         The order of the polynomial used to fit the samples. Must be
-        less than ``window_length``. By default, a ``polyorder`` of
+        less than ``window``. By default, a ``polyorder`` of
         2 is used.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
@@ -279,21 +313,21 @@ def savgol_filter(
 
     Returns
     -------
-    ds_smoothed : xarray.Dataset
-        The provided dataset (ds), where pose tracks have been smoothed
-        using a Savitzky-Golay filter with the provided parameters.
+    xarray.DataArray
+        The data smoothed using a Savitzky-Golay filter with the
+        provided parameters.
 
     Notes
     -----
     Uses the ``scipy.signal.savgol_filter`` function to apply a Savitzky-Golay
-    filter to the input dataset's ``position`` variable.
+    filter to the input data.
     See the scipy documentation for more information on that function.
     Whenever one or more NaNs are present in a filter window of the
-    input dataset, a NaN is returned to the output array. As a result, any
-    stretch of NaNs present in the input dataset will be propagated
-    proportionally to the size of the window in frames (specifically, by
-    ``floor(window_length/2)``). Note that, unlike
-    ``movement.filtering.median_filter()``, there is no ``min_periods``
+    input data, a NaN is returned to the output array. As a result, any
+    stretch of NaNs present in the input data will be propagated
+    proportionally to the size of the window (specifically, by
+    ``floor(window/2)``). Note that, unlike
+    :py:func:`movement.filtering.median_filter()`, there is no ``min_periods``
     option to control this behaviour.
 
     """
@@ -301,25 +335,15 @@ def savgol_filter(
         raise log_error(
             ValueError, "The 'axis' argument may not be overridden."
         )
-
-    ds_smoothed = ds.copy()
-
-    if ds.time_unit == "seconds":
-        window_length = int(window_length * ds.fps)
-
-    position_smoothed = signal.savgol_filter(
-        ds.position,
-        window_length,
+    data_smoothed = data.copy()
+    data_smoothed.values = signal.savgol_filter(
+        data,
+        window,
         polyorder,
         axis=0,
         **kwargs,
     )
-    position_smoothed_da = ds.position.copy(data=position_smoothed)
-
-    ds_smoothed.update({"position": position_smoothed_da})
-
     if print_report:
-        report_nan_values(ds, "input dataset")
-        report_nan_values(ds_smoothed, "filtered dataset")
-
-    return ds_smoothed
+        report_nan_values(data, "input")
+        report_nan_values(data_smoothed, "output")
+    return data_smoothed
