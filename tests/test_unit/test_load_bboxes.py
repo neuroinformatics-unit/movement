@@ -1,5 +1,6 @@
 """Test suite for the load_bboxes module."""
 
+import ast
 from unittest.mock import patch
 
 import numpy as np
@@ -24,6 +25,28 @@ def df_input_via_tracks_small(via_tracks_file):
     """Return the first three rows of the VIA tracks file as a dataframe."""
     df = pd.read_csv(via_tracks_file, sep=",", header=0)
     return df.loc[:2, :]
+
+
+@pytest.fixture()
+def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks file
+    and add confidence values to the bounding boxes.
+    """
+    df = df_input_via_tracks_small.copy()
+
+    # get the region_attributes column and convert to dict
+    attributes_dicts = [
+        ast.literal_eval(d)
+        for d in df_input_via_tracks_small["region_attributes"]
+    ]
+
+    # add confidence to the dict
+    for d in attributes_dicts:
+        d.update({"confidence": "0.5"})
+
+    # update the region_attributes column in the dataframe
+    df["region_attributes"] = [str(d) for d in attributes_dicts]
+    return df
 
 
 @pytest.fixture()
@@ -212,3 +235,26 @@ def test_via_attribute_column_to_numpy(
     )
 
     assert np.array_equal(attribute_array, expected_attribute_array)
+
+
+@pytest.mark.parametrize(
+    "df_input, expected_array",
+    [
+        ("df_input_via_tracks_small", np.full((3, 1), np.nan)),
+        (
+            "df_input_via_tracks_small_confidence",
+            np.array([0.5, 0.5, 0.5]).reshape(-1, 1),
+        ),
+    ],
+)
+def test_extract_confidence_from_via_tracks_df(
+    df_input, expected_array, request
+):
+    """Test that the function correctly extracts the confidence values from
+    the VIA dataframe.
+    """
+    df = request.getfixturevalue(df_input)
+
+    confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
+
+    assert np.array_equal(confidence_array, expected_array, equal_nan=True)
