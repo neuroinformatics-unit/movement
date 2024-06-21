@@ -112,8 +112,6 @@ def assert_dataset(dataset, file_path=None, expected_source_software=None):
         assert all([isinstance(s, str) for s in dataset.coords[dim].values])
     assert all([i in dataset.coords["space"] for i in ["x", "y"]])
 
-    # Check the values?
-
     # Check the metadata attributes
     assert (
         dataset.source_file is None
