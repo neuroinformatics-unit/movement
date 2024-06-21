@@ -256,7 +256,7 @@ class ValidVIATracksCSV:
         - Checking that there are as many unique frame numbers as unique image
         files.
 
-        If the frame number is included as part of the image file name, it is
+        If the frame number is included as part of the image file name, then it is
         expected as an integer led by at least one zero, between "_" and ".",
         followed by the file extension.
         """
