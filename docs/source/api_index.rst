@@ -29,6 +29,16 @@ Save poses
     to_sleap_analysis_file
     to_dlc_style_df
 
+Load tracked bounding boxes
+-----------------------------
+.. currentmodule:: movement.io.load_bboxes
+.. autosummary::
+    :toctree: api
+
+    from_numpy
+    from_file
+    from_via_tracks_file
+
 Validators - Files
 ------------------
 .. currentmodule:: movement.validators.files
@@ -38,6 +48,7 @@ Validators - Files
     ValidFile
     ValidHDF5
     ValidDeepLabCutCSV
+    ValidVIAtracksCSV
 
 Validators - Datasets
 ----------------------
