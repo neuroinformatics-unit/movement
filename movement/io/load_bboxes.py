@@ -156,6 +156,8 @@ def from_via_tracks_file(
     ----------
     file_path : pathlib.Path or str
         Path to the VIA file with the tracked bounding boxes, in .csv format.
+        For more information on the VIA tracks file format, see the VIA
+        tutorial for tracking [1]_.
     fps : float, optional
         The number of frames per second in the video.  If provided, the
         ``time`` coordinates will be in seconds. If None (default), the
