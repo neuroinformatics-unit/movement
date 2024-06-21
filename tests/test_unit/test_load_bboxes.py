@@ -50,6 +50,28 @@ def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
 
 
 @pytest.fixture()
+def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks file
+    and add frame number values to the bounding boxes.
+    """
+    df = df_input_via_tracks_small.copy()
+
+    # get the region_attributes column and convert to dict
+    file_attributes_dicts = [
+        ast.literal_eval(d)
+        for d in df_input_via_tracks_small["file_attributes"]
+    ]
+
+    # add frame numbers to the dict
+    for d in file_attributes_dicts:
+        d.update({"frame": "1"})
+
+    # update the region_attributes column in the dataframe
+    df["file_attributes"] = [str(d) for d in file_attributes_dicts]
+    return df
+
+
+@pytest.fixture()
 def valid_from_numpy_inputs():
     n_frames = 5
     n_individuals = 86
@@ -258,3 +280,29 @@ def test_extract_confidence_from_via_tracks_df(
     confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
 
     assert np.array_equal(confidence_array, expected_array, equal_nan=True)
+
+
+@pytest.mark.parametrize(
+    "df_input, expected_array",
+    [
+        (
+            "df_input_via_tracks_small",
+            np.ones((3, 1)),
+        ),  # extract from filename
+        (
+            "df_input_via_tracks_small_with_frame_number",
+            np.array([1, 1, 1]).reshape(-1, 1),
+        ),  # extract from file_attributes
+    ],
+)
+def test_extract_frame_number_from_via_tracks_df(
+    df_input, expected_array, request
+):
+    """Test that the function correctly extracts the frame number values from
+    the VIA dataframe.
+    """
+    df = request.getfixturevalue(df_input)
+
+    frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
+
+    assert np.array_equal(frame_array, expected_array)
