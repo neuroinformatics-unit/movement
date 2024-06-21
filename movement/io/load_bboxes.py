@@ -19,6 +19,84 @@ from movement.validators.files import ValidFile, ValidVIAtracksCSV
 logger = logging.getLogger(__name__)
 
 
+def from_numpy(
+    position_array: np.ndarray,
+    shape_array: np.ndarray,
+    confidence_array: np.ndarray | None = None,
+    individual_names: list[str] | None = None,
+    frame_array: np.ndarray | None = None,
+    fps: float | None = None,
+    source_software: str | None = None,
+) -> xr.Dataset:
+    """Create a ``movement`` bounding boxes dataset from NumPy arrays.
+
+    Parameters
+    ----------
+    position_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    shape_array : np.ndarray
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the poses. It will be converted to a
+        :py:class:`xarray.DataArray` object named "position".
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_individuals) containing
+        the point-wise confidence scores. It will be converted to a
+        :py:class:`xarray.DataArray` object named "confidence".
+        If None (default), the scores will be set to an array of NaNs.
+    individual_names : list of str, optional
+        List of unique names for the individuals in the video. If None
+        (default), the individuals will be named "id_0",
+        "id_1", etc.
+    frame_array : np.ndarray, optional
+        Array of shape (n_frames, 1) containing the frame numbers. If no frame
+        numbers are supplied (default), the frames will be numbered
+        based on the position_array data and starting from 0.
+    fps : float, optional
+        Frames per second of the video. Defaults to None, in which case
+        the time coordinates will be in frame numbers.
+    source_software : str, optional
+        Name of the pose estimation software from which the data originate.
+        Defaults to None.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` bounding boxes dataset containing the boxes tracks,
+        boxes shapes, confidence scores and associated metadata.
+
+    Examples
+    --------
+    Create random position data for two bounding boxes, ``id_0`` and ``id_1``,
+    with the same width (40 pixels) and height (30 pixels). These are tracked
+    in 2D space for 100 frames, which are numbered from the start frame 1200
+    to the end frame 1299. The confidence score for all bounding boxes is set
+    to 0.5.
+
+    >>> import numpy as np
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=np.random.rand((100, 2, 2)),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ...     confidence_array=np.ones((100, 2)) * 0.5,
+    ...     individual_names=["id_0", "id_1"],
+    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
+    ... )
+
+    """
+    valid_bboxes_data = ValidBboxesDataset(
+        position_array=position_array,
+        shape_array=shape_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        frame_array=frame_array,
+        fps=fps,
+        source_software=source_software,
+    )
+    return _ds_from_valid_data(valid_bboxes_data)
+
+
 def from_file(
     file_path: Path | str,
     source_software: Literal["VIA-tracks"],
@@ -69,81 +147,6 @@ def from_file(
         )
 
 
-def from_numpy(
-    position_array: np.ndarray,
-    shape_array: np.ndarray,
-    confidence_array: np.ndarray | None = None,
-    individual_names: list[str] | None = None,
-    frame_array: np.ndarray | None = None,
-    fps: float | None = None,
-    source_software: str | None = None,
-) -> xr.Dataset:
-    """Create a ``movement`` bounding boxes dataset from NumPy arrays.
-
-    Parameters
-    ----------
-    position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
-    shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
-    confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals) containing
-        the point-wise confidence scores. It will be converted to a
-        :py:class:`xarray.DataArray` object named "confidence".
-        If None (default), the scores will be set to an array of NaNs.
-    individual_names : list of str, optional
-        List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "id_0",
-        "id_1", etc.
-    frame_array : np.ndarray, optional
-        Array of shape (n_frames, 1) containing the frame numbers.
-    fps : float, optional
-        Frames per second of the video. Defaults to None, in which case
-        the time coordinates will be in frame numbers.
-    source_software : str, optional
-        Name of the pose estimation software from which the data originate.
-        Defaults to None.
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` bounding boxes dataset containing the boxes tracks,
-        boxes shapes, confidence scores and associated metadata.
-
-    Examples
-    --------
-    Create random position data for two individuals, ``Alice`` and ``Bob``,
-    with three keypoints each: ``snout``, ``centre``, and ``tail_base``.
-    These are tracked in 2D space over 100 frames, at 30 fps.
-    The confidence scores are set to 1 for all points.
-
-    >>> import numpy as np
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_numpy(
-    ...     position_array=np.random.rand((100, 2, 3, 2)),
-    ...     confidence_array=np.ones((100, 2, 3)),
-    ...     individual_names=["Alice", "Bob"],
-    ...     keypoint_names=["snout", "centre", "tail_base"],
-    ...     fps=30,
-    ... )
-
-    """
-    valid_bboxes_data = ValidBboxesDataset(
-        position_array=position_array,
-        shape_array=shape_array,
-        confidence_array=confidence_array,
-        individual_names=individual_names,
-        frame_array=frame_array,
-        fps=fps,
-        source_software=source_software,
-    )
-    return _ds_from_valid_data(valid_bboxes_data)
-
-
 def from_via_tracks_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
@@ -156,9 +159,7 @@ def from_via_tracks_file(
     fps : float, optional
         The number of frames per second in the video.  If provided, the
         ``time`` coordinates will be in seconds. If None (default), the
-        ``time`` coordinates will be in frame numbers. If no frame numbers
-        are provided in the file, frame numbers will be assigned based on
-        the position data and starting from 0.
+        ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -166,6 +167,12 @@ def from_via_tracks_file(
         ``movement`` bounding boxes dataset containing the boxes tracks,
         boxes shapes, confidence scores and associated metadata.
 
+    Notes
+    -----
+    For each bounding box, its ID specified in the "track" field of the VIA
+    file is expressed as "individual_name" in the xarray.Dataset. The
+    individual names follow the format `id_<N>`, with N being the bounding box
+    ID.
 
     References
     ----------
@@ -193,7 +200,7 @@ def from_via_tracks_file(
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
         individual_names=[
-            f"id_{id}" for id in bboxes_arrays["individual_names"].squeeze()
+            f"id_{id}" for id in bboxes_arrays["ID_array"].squeeze()
         ],
         frame_array=bboxes_arrays["frame_array"],
         fps=fps,
@@ -212,15 +219,15 @@ def from_via_tracks_file(
 def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     """Extract numpy arrays from the input VIA tracks file.
 
-    The numpy arrays are:
+    The extracted numpy arrays are:
     - position_array (n_frames, n_individuals, n_space):
         contains the trajectory of the bounding boxes' centroids.
     - shape_array (n_frames, n_individuals, n_space):
-        contains the shape of the bounding boxes (width and height)
+        contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
         contains the confidence score for each bounding box.
-        If None (default), the scores will be set to an array of NaNs.
-    - individual_names (n_individuals, 1):
+        If no confidence scores are provided, they are set to an array of NaNs.
+    - ID_array (n_individuals, 1):
         contains the integer IDs of the tracked bounding boxes.
     - frame_array (n_frames, 1):
         contains the frame numbers.
@@ -262,7 +269,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
         array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
 
     # Add remaining arrays to dict
-    array_dict["individual_names"] = df["ID"].unique().reshape(-1, 1)
+    array_dict["ID_array"] = df["ID"].unique().reshape(-1, 1)
     array_dict["frame_array"] = df["frame_number"].unique().reshape(-1, 1)
 
     return array_dict
