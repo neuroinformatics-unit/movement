@@ -116,7 +116,7 @@ def _fetch_metadata(
 def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
     """Generate a file registry based on the contents of the metadata.
 
-    This includes files containing poses, frames, videos or bounding boxes
+    This includes files containing poses, frames, videos, or bounding boxes
     data.
 
     Parameters
@@ -179,15 +179,15 @@ def fetch_dataset_paths(filename: str) -> dict:
     -------
     paths : dict
         Dictionary mapping file types to their respective paths. The possible
-        file types are: "poses", "frame", "video" or "bboxes. If "frame" or
-        "video" are not available, the corresponding value is None.
+        file types are: "poses", "frame", "video" or "bboxes". If "frame" or
+        "video" is not available, the corresponding value is None.
 
     Examples
     --------
     >>> from movement.sample_data import fetch_dataset_paths
     >>> paths = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")
     >>> poses_path = paths["poses"]  # if the data is "pose" data
-    >>> bboxes_path = paths["poses"]  # if the data is "bboxes" data
+    >>> bboxes_path = paths["bboxes"]  # if the data is "bboxes" data
     >>> frame_path = paths["frame"]
     >>> video_path = paths["video"]
 
