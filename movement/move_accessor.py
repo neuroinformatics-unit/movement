@@ -28,6 +28,12 @@ class MovementDataset:
     ``movement``-specific methods are accessed using the ``move`` keyword,
     for example ``ds.move.validate()`` (see [1]_ for more details).
 
+    Attributes
+    ----------
+    dim_names : tuple
+        Names of the expected dimensions in the dataset.
+    var_names : tuple
+        Names of the expected data variables in the dataset.
 
     References
     ----------
@@ -35,7 +41,6 @@ class MovementDataset:
 
     """
 
-    # Names of the expected dimensions in the dataset
     dim_names: ClassVar[tuple] = (
         "time",
         "individuals",
@@ -43,7 +48,6 @@ class MovementDataset:
         "space",
     )
 
-    # Names of the expected data variables in the dataset
     var_names: ClassVar[tuple] = (
         "position",
         "confidence",
