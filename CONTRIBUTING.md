@@ -323,9 +323,33 @@ To add a new file, you will need to:
 3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
 5. Add your new files to the `poses`, `videos`, `frames`, and/or `bboxes` folders as appropriate. Follow the existing file naming conventions as closely as possible.
-6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running `sha256sum <filename>` in Ubuntu, or `shasum -a 256 <filename>` in MacOS. For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with `movement` installed, it will calculate the sha256 hashes for all files in the `poses`, `videos`, `frames`, and `bboxes` folders and write them to files named `poses_hashes.txt`, `videos_hashes.txt`, `frames_hashes.txt`, and `bboxes_hashes.txt`, respectively.
+6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
+    ::::{tab-set}
+
+    :::{tab-item} Ubuntu
+      ```bash
+      sha256sum <filename>
+      ```
+    :::
+
+    :::{tab-item} MacOS
+    ```bash
+    shasum -a 256 <filename>
+    ```
+    :::
+
+    :::{tab-item} Windows
+    ```bash
+    certutil -hashfile <filename> SHA256
+    ```
+    :::
+    ::::
+    For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with `movement` installed, it will calculate the sha256 hashes for all files in the `poses`, `videos`, `frames`, and `bboxes` folders and write them to files named `poses_hashes.txt`, `videos_hashes.txt`, `frames_hashes.txt`, and `bboxes_hashes.txt`, respectively.
+
 7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes you've calculated. See the example entry below for guidance.
+
 8. Commit a specific file with `gin commit -m <message> <filename>`, or `gin commit -m <message> .` to commit all changes.
+
 9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
 
 
