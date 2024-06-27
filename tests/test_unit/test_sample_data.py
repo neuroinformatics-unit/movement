@@ -47,6 +47,7 @@ def validate_metadata(metadata: dict[str, dict]) -> None:
         "frame",
         "video",
         "note",
+        "type",
     ]
     check_yaml_msg = "Check the format of the metadata .yaml file."
     assert isinstance(
