@@ -286,14 +286,15 @@ def fetch_dataset(
             source_software=metadata[filename]["source_software"],
             fps=metadata[filename]["fps"],
         )
-    elif "bboxes" in file_paths:
-        pass
-        # TO BE IMPLEMENTED IN PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
-        # ds = load_bboxes.from_file(
-        #     file_paths["bboxes"],
-        #     source_software=metadata[filename]["source_software"],
-        #     fps=metadata[filename]["fps"],
-        # )
+
+    # TODO: to be implemented in PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
+    # elif "bboxes" in file_paths:
+    #     ds = load_bboxes.from_file(
+    #         file_paths["bboxes"],
+    #         source_software=metadata[filename]["source_software"],
+    #         fps=metadata[filename]["fps"],
+    #     )
+
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]
 
