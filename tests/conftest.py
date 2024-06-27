@@ -20,13 +20,11 @@ def pytest_configure():
     """Perform initial configuration for pytest.
     Fetches pose data file paths as a dictionary for tests.
     """
-    pytest.DATA_PATHS = {}
-    for file_name in list_datasets():
-        paths_dict = fetch_dataset_paths(file_name)
-        if "poses" in paths_dict:
-            pytest.DATA_PATHS[file_name] = paths_dict["poses"]
-        elif "bboxes" in paths_dict:
-            pytest.DATA_PATHS[file_name] = paths_dict["bboxes"]
+    pytest.DATA_PATHS = {
+        file_name: paths_dict.get("poses", paths_dict.get("bboxes"))
+        for file_name in list_datasets()
+        if (paths_dict := fetch_dataset_paths(file_name))
+    }
 
 
 @pytest.fixture(autouse=True)
