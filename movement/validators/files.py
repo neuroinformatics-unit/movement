@@ -14,7 +14,7 @@ from movement.utils.logging import log_error
 class ValidFile:
     """Class for validating file paths.
 
-    Parameters
+    Attributes
     ----------
     path : str or pathlib.Path
         Path to the file.
@@ -110,7 +110,7 @@ class ValidFile:
 class ValidHDF5:
     """Class for validating HDF5 files.
 
-    Parameters
+    Attributes
     ----------
     path : pathlib.Path
         Path to the HDF5 file.
@@ -159,7 +159,7 @@ class ValidHDF5:
 class ValidDeepLabCutCSV:
     """Class for validating DeepLabCut-style .csv files.
 
-    Parameters
+    Attributes
     ----------
     path : pathlib.Path
         Path to the .csv file.
