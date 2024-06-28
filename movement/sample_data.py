@@ -206,42 +206,24 @@ def fetch_dataset_paths(filename: str) -> dict:
 
     frame_file_name = metadata[filename]["frame"]["file_name"]
     video_file_name = metadata[filename]["video"]["file_name"]
-
-    # add trajectory data
-    # if no type is specified, assume "poses" for backwards compatibility
-    paths_dict: dict[str, Path | None] = {}
-    if ("type" not in metadata[filename]) or (
-        metadata[filename]["type"] == "poses"
-    ):
-        paths_dict = {
-            "poses": Path(
-                SAMPLE_DATA.fetch(f"poses/{filename}", progressbar=True)
-            )
-        }
-    elif metadata[filename]["type"] == "bboxes":
-        paths_dict = {
-            "bboxes": Path(
-                SAMPLE_DATA.fetch(f"bboxes/{filename}", progressbar=True)
-            )
-        }
-
-    # add frame and video data if available
-    paths_dict["frame"] = (
-        None
+    paths_dict = {
+        "frame": None
         if not frame_file_name
         else Path(
             SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
-        )
-    )
-
-    paths_dict["video"] = (
-        None
+        ),
+        "video": None
         if not video_file_name
         else Path(
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
-        )
+        ),
+    }
+    # Add trajectory data
+    # Assume "poses" if not of type "bboxes"
+    data_type = "bboxes" if metadata[filename]["type"] == "bboxes" else "poses"
+    paths_dict[data_type] = Path(
+        SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
     )
-
     return paths_dict
 
 
