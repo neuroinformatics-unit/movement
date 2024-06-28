@@ -20,10 +20,11 @@ def pytest_configure():
     """Perform initial configuration for pytest.
     Fetches pose data file paths as a dictionary for tests.
     """
-    pytest.POSE_DATA_PATHS = {
-        file_name: fetch_dataset_paths(file_name)["poses"]
-        for file_name in list_datasets()
-    }
+    pytest.DATA_PATHS = {}
+    for file_name in list_datasets():
+        paths_dict = fetch_dataset_paths(file_name)
+        data_path = paths_dict.get("poses") or paths_dict.get("bboxes")
+        pytest.DATA_PATHS[file_name] = data_path
 
 
 @pytest.fixture(autouse=True)
@@ -194,9 +195,7 @@ def new_csv_file(tmp_path):
 @pytest.fixture
 def dlc_style_df():
     """Return a valid DLC-style DataFrame."""
-    return pd.read_hdf(
-        pytest.POSE_DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    )
+    return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
 
 @pytest.fixture(
@@ -211,7 +210,7 @@ def dlc_style_df():
 )
 def sleap_file(request):
     """Return the file path for a SLEAP .h5 or .slp file."""
-    return pytest.POSE_DATA_PATHS.get(request.param)
+    return pytest.DATA_PATHS.get(request.param)
 
 
 @pytest.fixture
