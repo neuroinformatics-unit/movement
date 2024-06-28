@@ -87,7 +87,7 @@ def _fetch_metadata(
     -------
     dict
         A dictionary containing metadata for each sample dataset, with the
-        dataset name (pose file name) as the key.
+        dataset file name as the key.
 
     """
     local_file_path = Path(data_dir / file_name)
@@ -140,7 +140,7 @@ def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
     return file_registry
 
 
-# Create a download manager for the pose data
+# Create a download manager for the sample data
 metadata = _fetch_metadata(METADATA_FILE, DATA_DIR)
 file_registry = _generate_file_registry(metadata)
 SAMPLE_DATA = pooch.create(
@@ -152,19 +152,19 @@ SAMPLE_DATA = pooch.create(
 
 
 def list_datasets() -> list[str]:
-    """Find available sample datasets.
+    """List available sample datasets.
 
     Returns
     -------
     filenames : list of str
-        List of filenames for available pose data.
+        List of filenames for available sample datasets.
 
     """
     return list(metadata.keys())
 
 
 def fetch_dataset_paths(filename: str) -> dict:
-    """Get paths to sample pose data and any associated frames or videos.
+    """Get paths to sample dataset and any associated frames or videos.
 
     The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
@@ -173,7 +173,7 @@ def fetch_dataset_paths(filename: str) -> dict:
     Parameters
     ----------
     filename : str
-        Name of the pose file to fetch.
+        Name of the sample data file to fetch.
 
     Returns
     -------
@@ -196,12 +196,12 @@ def fetch_dataset_paths(filename: str) -> dict:
     fetch_dataset
 
     """
-    available_pose_files = list_datasets()
-    if filename not in available_pose_files:
+    available_data_files = list_datasets()
+    if filename not in available_data_files:
         raise log_error(
             ValueError,
             f"File '{filename}' is not in the registry. "
-            f"Valid filenames are: {available_pose_files}",
+            f"Valid filenames are: {available_data_files}",
         )
 
     frame_file_name = metadata[filename]["frame"]["file_name"]
@@ -230,11 +230,11 @@ def fetch_dataset_paths(filename: str) -> dict:
 def fetch_dataset(
     filename: str,
 ) -> xarray.Dataset:
-    """Load a sample dataset containing pose data.
+    """Load a sample dataset.
 
     The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
-    This function returns the pose data as an xarray Dataset.
+    This function returns the data as an xarray Dataset.
     If there are any associated frames or videos, these files are also
     downloaded and the paths are stored as dataset attributes.
 
@@ -246,7 +246,7 @@ def fetch_dataset(
     Returns
     -------
     ds : xarray.Dataset
-        Pose data contained in the fetched sample file.
+        Data contained in the fetched sample file.
 
     Examples
     --------
