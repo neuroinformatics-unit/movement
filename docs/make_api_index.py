@@ -32,11 +32,12 @@ def make_api_index():
     # Get the header
     with open("./source/_templates/api_index_head.rst") as f:
         api_head = f.read()
-    # Write file for api doc with header + doctree
+    # Write api_index.rst with header + doctree
     with open("./source/api_index.rst", "w") as f:
         f.write("..\n  This file is auto-generated.\n\n")
         f.write(api_head)
         f.write(doctree)
+    print(os.path.abspath("./source/api_index.rst"))
 
 
 if __name__ == "__main__":
