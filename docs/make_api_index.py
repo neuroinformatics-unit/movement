@@ -10,7 +10,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
 
-def make_api_doctree():
+def make_api_index():
     """Create a doctree of all ``movement`` modules."""
     doctree = "\n"
 
@@ -20,16 +20,14 @@ def make_api_doctree():
         for file in sorted(files):
             if file.endswith(".py") and not file.startswith("_"):
                 # Convert file path to module name
-                full = os.path.join(root, file)
-                full = full[:-3].replace(os.sep, ".")
-                full = (".").join(full.split("."))
-                exclude = False
-                for exclude_module in exclude_modules:
-                    if file.startswith(exclude_module):
-                        exclude = True
-                        break
-                if not exclude:
-                    doctree += f"    {full}\n"
+                module_name = os.path.join(root, file)
+                module_name = module_name[:-3].replace(os.sep, ".")
+                # Check if the module should be excluded
+                if not any(
+                    file.startswith(exclude_module)
+                    for exclude_module in exclude_modules
+                ):
+                    doctree += f"    {module_name}\n"
 
     # Get the header
     with open("./source/_templates/api_index_head.rst") as f:
@@ -42,4 +40,4 @@ def make_api_doctree():
 
 
 if __name__ == "__main__":
-    make_api_doctree()
+    make_api_index()
