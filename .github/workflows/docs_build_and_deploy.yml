@@ -27,6 +27,7 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Generate API index
         run: |
           cd docs
