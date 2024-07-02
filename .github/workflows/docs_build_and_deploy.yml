@@ -27,9 +27,48 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
-        with:
-          python-version: 3.11
+    - uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Upgrade pip
+      shell: bash
+      run: |
+        # install pip=>20.1 to use "pip cache dir"
+        python3 -m pip install --upgrade pip
+
+    - name: Get pip cache dir
+      shell: bash
+      id: pip-cache
+      run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      shell: bash
+      run: python3 -m pip install -r ./docs/requirements.txt
+
+    - name: Check links and build documentation
+      shell: bash
+      run: |
+        cd docs
+        make linkcheck
+        make html
+
+    - name: Upload the content for deployment
+      uses: actions/upload-artifact@v4
+      with:
+        name: docs-build
+        path: ./docs/build/
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
