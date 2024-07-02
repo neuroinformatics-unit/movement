@@ -27,6 +27,10 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
+      - name: Generate API index
+        run: |
+          cd docs
+          python make_api_index.py
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
         with:
           python-version: 3.11
