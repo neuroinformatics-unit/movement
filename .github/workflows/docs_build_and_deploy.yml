@@ -57,19 +57,12 @@ jobs:
       shell: bash
       run: python3 -m pip install -r ./docs/requirements.txt
 
-    - name: Check links
+    - name: Check links and build documentation
       shell: bash
-      run: make linkcheck
-
-    - name: Generate API index
       run: |
         cd docs
-        python make_api_index.py
-
-    # needs to have sphinx.ext.githubpages in conf.py extensions list
-    - name: Building documentation
-      shell: bash
-      run: make html
+        make linkcheck
+        make html
 
     - name: Upload the content for deployment
       uses: actions/upload-artifact@v4
