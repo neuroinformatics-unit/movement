@@ -1,4 +1,4 @@
-"""`attrs` classes for validating data structures."""
+"""``attrs`` classes for validating data structures."""
 
 from collections.abc import Iterable
 from typing import Any

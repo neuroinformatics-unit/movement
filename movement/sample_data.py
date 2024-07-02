@@ -1,4 +1,4 @@
-"""Module for fetching and loading sample datasets.
+"""Fetch and load sample datasets.
 
 This module provides functions for fetching and loading sample data used in
 tests, examples, and tutorials. The data are stored in a remote repository

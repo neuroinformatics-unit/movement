@@ -1,4 +1,4 @@
-"""Functions for loading pose tracking data from various frameworks."""
+"""Load pose tracking data from various frameworks into ``movement``."""
 
 import logging
 from pathlib import Path
