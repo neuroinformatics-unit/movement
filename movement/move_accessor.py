@@ -7,7 +7,6 @@ import xarray as xr
 
 from movement import filtering
 from movement.analysis import kinematics
-from movement.filtering import log_to_attrs, report_nan_values2
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidPosesDataset
 
