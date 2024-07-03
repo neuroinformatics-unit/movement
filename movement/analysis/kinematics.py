@@ -1,4 +1,4 @@
-"""Functions for computing kinematic variables."""
+"""Compute kinematic variables like velocity and acceleration."""
 
 import numpy as np
 import xarray as xr
