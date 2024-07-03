@@ -126,6 +126,23 @@ class MovementDataset:
         RuntimeError
             If the requested function fails to execute.
 
+        Examples
+        --------
+        Compute ``displacement`` based on the ``position`` data variable
+        in the Dataset ``ds`` and store the result in ``ds``.
+
+        >>> ds["displacement"] = ds.move.compute_displacement()
+
+        Compute ``velocity`` based on the ``position`` data variable in
+        the Dataset ``ds`` and store the result in ``ds``.
+
+        >>> ds["velocity"] = ds.move.compute_velocity()
+
+        Compute ``acceleration`` based on the ``position`` data variable
+        in the Dataset ``ds`` and store the result in ``ds``.
+
+        >>> ds["acceleration"] = ds.move.compute_acceleration()
+
         """
         try:
             if not hasattr(self._obj, "position"):
@@ -176,13 +193,18 @@ class MovementDataset:
 
         Examples
         --------
-        Apply a median filter to the ``position`` data variable and
-        store this back into the Dataset ``ds``.
-        If ``data_vars`` is not supplied, the filter will be applied to
+        Filter the ``position`` data variable to drop points with
+        ``confidence`` below 0.7 and store the result back into the
+        Dataset ``ds``.
+        Since ``data_vars`` is not supplied, the filter will be applied to
         the ``position`` data variable by default.
 
-        >>> filtered_position = ds.move.median_filter(window=3)
-        >>> ds.update({"position": filtered_position})
+        >>> ds["position"] = ds.move.filter_by_confidence(threshold=0.7)
+
+        Apply a median filter to the ``position`` data variable and
+        store this back into the Dataset ``ds``.
+
+        >>> ds["position"] = ds.move.median_filter(window=3)
 
         Apply a Savitzky-Golay filter to both the ``position`` and
         ``velocity`` data variables and store these back into the
