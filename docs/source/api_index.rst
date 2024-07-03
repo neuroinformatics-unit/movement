@@ -19,6 +19,7 @@ Information on specific functions, classes, and methods.
     movement.analysis.kinematics
     movement.utils.vector
     movement.utils.logging
+    movement.utils.reports
     movement.sample_data
     movement.validators.files
     movement.validators.datasets

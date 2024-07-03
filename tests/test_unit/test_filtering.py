@@ -6,30 +6,9 @@ import xarray as xr
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    log_to_attrs,
     median_filter,
-    report_nan_values,
     savgol_filter,
 )
-
-
-def test_log_to_attrs(valid_poses_dataset):
-    """Test for the ``log_to_attrs()`` decorator. Decorates a mock function and
-    checks that ``attrs`` contains all expected values.
-    """
-
-    @log_to_attrs
-    def fake_func(ds, arg, kwarg=None):
-        return ds
-
-    ds = fake_func(valid_poses_dataset, "test1", kwarg="test2")
-
-    assert "log" in ds.attrs
-    assert ds.attrs["log"][0]["operation"] == "fake_func"
-    assert (
-        ds.attrs["log"][0]["arg_1"] == "test1"
-        and ds.attrs["log"][0]["kwarg"] == "test2"
-    )
 
 
 def test_interpolate_over_time(valid_poses_dataset_with_nan, helpers):
@@ -143,11 +122,3 @@ def test_savgol_filter_kwargs_override(
             window=3,
             **override_kwargs,
         )
-
-
-def test_report_nan_values(capsys, valid_poses_dataset_with_nan):
-    """Test that the correct number of NaN values are reported."""
-    data = valid_poses_dataset_with_nan.position
-    report_nan_values(data)
-    out, _ = capsys.readouterr()
-    assert data.name in out

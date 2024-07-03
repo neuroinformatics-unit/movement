@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_to_attrs, log_warning
 
 log_messages = {
     "DEBUG": "This is a debug message",
@@ -43,3 +43,22 @@ def test_log_warning(caplog):
     log_warning("This is a test warning")
     assert caplog.records[0].message == "This is a test warning"
     assert caplog.records[0].levelname == "WARNING"
+
+
+def test_log_to_attrs(valid_poses_dataset):
+    """Test for the ``log_to_attrs()`` decorator. Decorates a mock function and
+    checks that ``attrs`` contains all expected values.
+    """
+
+    @log_to_attrs
+    def fake_func(ds, arg, kwarg=None):
+        return ds
+
+    ds = fake_func(valid_poses_dataset, "test1", kwarg="test2")
+
+    assert "log" in ds.attrs
+    assert ds.attrs["log"][0]["operation"] == "fake_func"
+    assert (
+        ds.attrs["log"][0]["arg_1"] == "test1"
+        and ds.attrs["log"][0]["kwarg"] == "test2"
+    )

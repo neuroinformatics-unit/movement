@@ -1,6 +1,8 @@
 """Logging utilities for the movement package."""
 
 import logging
+from datetime import datetime
+from functools import wraps
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -105,3 +107,34 @@ def log_warning(message: str, logger_name: str = "movement"):
     """
     logger = logging.getLogger(logger_name)
     logger.warning(message)
+
+
+def log_to_attrs(func):
+    """Log the operation performed by the wrapped function.
+
+    This decorator appends log entries to the data's ``log``
+    attribute. The wrapped function must accept an ``xarray.Dataset``
+    or ``xarray.DataArray`` as its first argument and return an
+    ``xarray.Dataset`` or ``xarray.DataArray``.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+
+        log_entry = {
+            "operation": func.__name__,
+            "datetime": str(datetime.now()),
+            **{f"arg_{i}": arg for i, arg in enumerate(args[1:], start=1)},
+            **kwargs,
+        }
+
+        # Append the log entry to the result's attributes
+        if result is not None and hasattr(result, "attrs"):
+            if "log" not in result.attrs:
+                result.attrs["log"] = []
+            result.attrs["log"].append(log_entry)
+
+        return result
+
+    return wrapper
