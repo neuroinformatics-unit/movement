@@ -66,10 +66,9 @@ def interpolate_over_time(
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
-    This method uses ``xarray.DataArray.interpolate_na`` under the
+    This method uses :py:meth:`xarray.DataArray.interpolate_na` under the
     hood and passes the ``method`` and ``max_gap`` parameters to it.
-    See the documentation for ``xarray.DataArray.interpolate_na``
-    for more details on these parameters.
+    See the xarray documentation for more details on these parameters.
 
     Parameters
     ----------
@@ -136,7 +135,7 @@ def median_filter(
         a value (otherwise result is NaN). The default, None, is
         equivalent to setting ``min_periods`` equal to the size of the window.
         This argument is directly  passed to the ``min_periods`` parameter of
-        ``xarray.DataArray.rolling``.
+        :py:meth:`xarray.DataArray.rolling`.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
         before and after filtering. Default is ``True``.
@@ -208,7 +207,8 @@ def savgol_filter(
         Whether to print a report on the number of NaNs in the dataset
         before and after filtering. Default is ``True``.
     **kwargs : dict
-        Additional keyword arguments are passed to scipy.signal.savgol_filter.
+        Additional keyword arguments are passed to
+        :py:func:`scipy.signal.savgol_filter`.
         Note that the ``axis`` keyword argument may not be overridden.
 
 
@@ -220,9 +220,9 @@ def savgol_filter(
 
     Notes
     -----
-    Uses the ``scipy.signal.savgol_filter`` function to apply a Savitzky-Golay
-    filter to the input data.
-    See the scipy documentation for more information on that function.
+    Uses the :py:func:`scipy.signal.savgol_filter` function to apply a
+    Savitzky-Golay filter to the input data.
+    See the SciPy documentation for more information on that function.
     Whenever one or more NaNs are present in a filter window of the
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated

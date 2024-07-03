@@ -113,9 +113,9 @@ def log_to_attrs(func):
     """Log the operation performed by the wrapped function.
 
     This decorator appends log entries to the data's ``log``
-    attribute. The wrapped function must accept an ``xarray.Dataset``
-    or ``xarray.DataArray`` as its first argument and return an
-    ``xarray.Dataset`` or ``xarray.DataArray``.
+    attribute. The wrapped function must accept an :py:class:`xarray.Dataset`
+    or :py:class:`xarray.DataArray` as its first argument and return an
+    object of the same type.
     """
 
     @wraps(func)

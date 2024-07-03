@@ -62,7 +62,9 @@ class MovementDataset:
         """Forward requested but undefined attributes to relevant modules.
 
         This method currently only forwards kinematic property computation
-        to the respective functions in the ``kinematics``  module.
+        and filtering operations to the respective functions in
+        :py:mod:`movement.analysis.kinematics` and
+        :py:mod:`movement.filtering`.
 
         Parameters
         ----------
@@ -101,7 +103,7 @@ class MovementDataset:
         """Provide convenience method for computing kinematic properties.
 
         This method forwards kinematic property computation
-        to the respective functions in the ``movement.kinematics`` module.
+        to the respective functions in :py:mod:`movement.analysis.kinematics`.
 
         Parameters
         ----------
@@ -119,6 +121,8 @@ class MovementDataset:
 
         Raises
         ------
+        AttributeError
+            If the required ``position`` data variable is missing.
         RuntimeError
             If the requested function fails to execute.
 
@@ -144,7 +148,7 @@ class MovementDataset:
         """Provide convenience method for filtering data variables.
 
         This method forwards filtering and/or smoothing to the respective
-        functions in  the ``movement.filtering`` module. The data variables to
+        functions in :py:mod:`movement.filtering`. The data variables to
         filter can be specified in ``data_vars``. If ``data_vars`` is not
         specified, the ``position`` data variable is selected by default.
 

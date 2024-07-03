@@ -49,7 +49,8 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
     Parameters
     ----------
     da : xarray.DataArray
-        The input data containing pose tracks and metadata.
+        The input data containing ``keypoints`` and ``individuals``
+        dimensions.
     label : str, optional
         Label to identify the dataset in the report. If not provided,
         the name of the DataArray is used as the label. Default is None.
