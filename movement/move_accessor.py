@@ -121,8 +121,6 @@ class MovementDataset:
 
         Raises
         ------
-        AttributeError
-            If the required ``position`` data variable is missing.
         RuntimeError
             If the requested function fails to execute.
 
@@ -145,11 +143,6 @@ class MovementDataset:
 
         """
         try:
-            if not hasattr(self._obj, "position"):
-                raise log_error(
-                    AttributeError,
-                    "Missing required data variable: 'position'",
-                )
             return getattr(kinematics, fn_name)(
                 self._obj.position, *args, **kwargs
             )
