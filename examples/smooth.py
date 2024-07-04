@@ -305,8 +305,8 @@ position_medfilt = median_filter(
 ds_mouse_medfilt_interp_savgol.update({"position": position_medfilt})
 
 # %%
-# Next, let's linearly interpolate over gaps smaller than 1 second.
-position_medfilt_interp = interpolate_over_time(position_medfilt, max_gap=1)
+# Next, let's linearly interpolate over gaps smaller than 1 second (30 frames).
+position_medfilt_interp = interpolate_over_time(position_medfilt, max_gap=30)
 ds_mouse_medfilt_interp_savgol.update({"position": position_medfilt_interp})
 
 # %%

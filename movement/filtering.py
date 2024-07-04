@@ -78,12 +78,9 @@ def interpolate_over_time(
         String indicating which method to use for interpolation.
         Default is ``linear``.
     max_gap : int, optional
-        Maximum size of gap, a continuous sequence of NaNs, in the
-        ``time`` dimension that will be filled. The default value is
-        ``None`` (no limit).
-        Gap length is defined as the difference between the ``time``
-        coordinate values at the first data point after a gap and the
-        last value before a gap.
+        Maximum size of gap, a continuous sequence of NaNs, to fill.
+        The default value is ``None`` (no limit).
+        Gap size is defined as the number of consecutive NaNs.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``True``.
@@ -96,17 +93,18 @@ def interpolate_over_time(
 
     Notes
     -----
-    The ``max_gap`` parameter behaves differently depending on whether
-    the ``time`` dimension is in "frames" or "seconds". If the time unit
-    is in "frames", the ``max_gap`` parameter is interpreted as the
-    maximum number of consecutive frames of NaNs to interpolate over.
-    If the time unit is in "seconds", the ``max_gap`` parameter is
-    interpreted as the maximum number of seconds of consecutive NaNs
-    to interpolate over.
+    The ``max_gap`` parameter differs slightly from that in
+    :py:meth:`xarray.DataArray.interpolate_na`, in which the gap size
+    is defined as the difference between the ``time`` coordinate values
+    at the first data point after a gap and the last value before a gap.
 
     """
     data_interpolated = data.interpolate_na(
-        dim="time", method=method, max_gap=max_gap, fill_value="extrapolate"
+        dim="time",
+        method=method,
+        use_coordinate=False,
+        max_gap=max_gap + 1 if max_gap is not None else None,
+        fill_value="extrapolate",
     )
     if print_report:
         report_nan_values(data, "input")

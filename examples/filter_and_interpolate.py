@@ -70,12 +70,12 @@ confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # -------------------------------------
 # We can filter out points with confidence scores below a certain threshold.
 # Here, we use the default ``threshold=0.6``. Points in the ``position``
-# data variable with confidence scores below this threshold will be converted
+# data variable with ``confidence`` below this threshold will be converted
 # to NaN. The ``print_report`` argument, which is True by default, reports the
 # number of NaN values in the dataset before and after the filtering operation.
 
 position_filtered = filter_by_confidence(
-    position, confidence=confidence, threshold=0.6, print_report=True
+    position, confidence, threshold=0.6, print_report=True
 )
 
 # %%
@@ -95,19 +95,21 @@ position_filtered.squeeze().plot.line(
 # Interpolate over missing values
 # -------------------------------
 # We can interpolate over the gaps we've introduced in the pose tracks.
-# Here we use the default linear interpolation method and ``max_gap=1``,
-# meaning that we will only interpolate over gaps of 1 observation.
+# Here we use the default linear interpolation method ``method=linear``
+# and ``max_gap=40``, meaning that we will only interpolate over gaps of
+# 1 second (40 frames) or less.
 # Setting ``max_gap=None`` would interpolate over all gaps, regardless of
 # their length, which should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
 position_interpolated = interpolate_over_time(
-    position_filtered, method="linear", max_gap=1, print_report=True
+    position_filtered, method="linear", max_gap=40, print_report=True
 )
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
-# indeed shorter than 1 second. Let's visualise the interpolated pose tracks
+# indeed shorter than 1 second.
+# Let's visualise the interpolated pose tracks.
 
 position_interpolated.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
