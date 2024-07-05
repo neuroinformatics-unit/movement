@@ -11,11 +11,33 @@ from movement.filtering import (
 )
 
 
-def test_interpolate_over_time(valid_poses_dataset_with_nan, helpers):
-    """Test that the number of NaNs decreases after interpolating over time."""
-    data = valid_poses_dataset_with_nan.position
-    data_interp = interpolate_over_time(data)
-    assert helpers.count_nans(data_interp) < helpers.count_nans(data)
+@pytest.mark.parametrize(
+    "max_gap, expected_n_nans", [(None, 0), (1, 8), (2, 0)]
+)
+def test_interpolate_over_time(
+    valid_poses_dataset_with_nan, helpers, max_gap, expected_n_nans
+):
+    """Test that the number of NaNs decreases after interpolating
+    over time and that the resulting number of NaNs is as expected
+    for different values of ``max_gap``.
+    """
+    # First dataset with time unit in frames
+    data_in_frames = valid_poses_dataset_with_nan.position
+    # Create second dataset with time unit in seconds
+    data_in_seconds = data_in_frames.copy()
+    data_in_seconds["time"] = data_in_seconds["time"] * 0.1
+    data_interp_frames = interpolate_over_time(data_in_frames, max_gap=max_gap)
+    data_interp_seconds = interpolate_over_time(
+        data_in_seconds, max_gap=max_gap
+    )
+    n_nans_before = helpers.count_nans(data_in_frames)
+    n_nans_after_frames = helpers.count_nans(data_interp_frames)
+    n_nans_after_seconds = helpers.count_nans(data_interp_seconds)
+    # The number of NaNs should be the same for both datasets
+    # as max_gap is based on number of missing observations (NaNs)
+    assert n_nans_after_frames == n_nans_after_seconds
+    assert n_nans_after_frames < n_nans_before
+    assert n_nans_after_frames == expected_n_nans
 
 
 def test_filter_by_confidence(valid_poses_dataset, helpers):

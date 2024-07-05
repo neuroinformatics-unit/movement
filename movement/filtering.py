@@ -78,7 +78,8 @@ def interpolate_over_time(
         String indicating which method to use for interpolation.
         Default is ``linear``.
     max_gap : int, optional
-        Maximum size of gap, a continuous sequence of NaNs, to fill.
+        Maximum size of gap, a continuous sequence of missing observations
+        (represented as NaNs), to fill.
         The default value is ``None`` (no limit).
         Gap size is defined as the number of consecutive NaNs.
     print_report : bool
