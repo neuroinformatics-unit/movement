@@ -9,7 +9,6 @@ missing values.
 # Imports
 # -------
 from movement import sample_data
-from movement.filtering import filter_by_confidence, interpolate_over_time
 
 # %%
 # Load a sample dataset
@@ -19,13 +18,16 @@ ds = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds)
 
 # %%
-# We can see that this dataset contains the 2D pose tracks and confidence
-# scores for a single wasp, generated with DeepLabCut. There are 2 keypoints:
-# "head" and "stinger".
+# We see that the dataset contains the 2D pose tracks and confidence scores
+# for a single wasp, generated with DeepLabCut. The wasp is tracked at two
+# keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
+# lasts for approximately 27 seconds.
 
 # %%
 # Visualise the pose tracks
 # -------------------------
+# Since the data contains only a single wasp, we use ``squeeze()`` to remove
+# the dimension of length 1 from the data (the ``individuals`` dimension).
 
 position = ds.position
 position.squeeze().plot.line(
@@ -48,7 +50,9 @@ position.squeeze().plot.line(
 # estimation frameworks, and their ranges can vary. Therefore,
 # it's always a good idea to inspect the actual confidence values in the data.
 #
-# Let's first look at a histogram of the confidence scores.
+# Let's first look at a histogram of the confidence scores. As before, we use
+# ``squeeze()`` to remove the ``individuals`` dimension from the data.
+
 confidence = ds.confidence.sel(individuals="individual_0")
 confidence.squeeze().plot.hist(bins=20)
 
@@ -68,15 +72,40 @@ confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # %%
 # Filter out points with low confidence
 # -------------------------------------
-# We can filter out points with confidence scores below a certain threshold.
-# Here, we use the default ``threshold=0.6``. Points in the ``position``
-# data variable with ``confidence`` below this threshold will be converted
-# to NaN. The ``print_report`` argument, which is True by default, reports the
-# number of NaN values in the dataset before and after the filtering operation.
+# Using the
+# :py:meth:`filter_by_confidence\
+# <movement.move_accessor.MovementDataset.filtering_wrapper>`
+# method of the ``move`` accessor,
+# we can filter out points with confidence scores below a certain threshold.
+# The default ``threshold=0.6`` will be used when ``threshold`` is not
+# provided.
+# This method will also report the number of NaN values in the dataset before
+# and after the filtering operation by default (``print_report=True``).
 
-position_filtered = filter_by_confidence(
-    position, confidence, threshold=0.6, print_report=True
-)
+position_filtered = ds.move.filter_by_confidence()
+# Equivalent to:
+# position_filtered = ds.move.filter_by_confidence(
+#     threshold=0.6, print_report=True
+# )
+
+# %%
+# .. note::
+#    The ``move`` accessor :py:meth:`filter_by_confidence()\
+#    <movement.move_accessor.MovementDataset.filtering_wrapper>`
+#    method is a convenience method that applies
+#    :py:func:`movement.filtering.filter_by_confidence`,
+#    which takes ``position`` and ``confidence`` as arguments.
+#    The equivalent function call would be:
+#
+#    .. code-block:: python
+#
+#       from movement.filtering import filter_by_confidence
+#
+#       position_filtered = filter_by_confidence(position, confidence)
+#       # Equivalent to:
+#       # position_filtered = filter_by_confidence(
+#       #     position, confidence, threshold=0.6, print_report=True
+#       # )
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
@@ -87,28 +116,56 @@ position_filtered.squeeze().plot.line(
 )
 
 # %%
-# Here we can see that gaps have appeared in the pose tracks, some of which
-# are over the implausible jumps and spikes we had seen earlier. Moreover,
-# most gaps seem to be brief, lasting < 1 second.
+# Here we can see that gaps (consecutive NaNs) have appeared in the
+# pose tracks, some of which are over the implausible jumps and spikes we had
+# seen earlier. Moreover, most gaps seem to be brief,
+# lasting < 1 second (or 40 frames).
 
 # %%
 # Interpolate over missing values
 # -------------------------------
-# We can interpolate over the gaps we've introduced in the pose tracks.
-# Here we use the default linear interpolation method ``method=linear``
-# and ``max_gap=40``, meaning that we will only interpolate over gaps of
-# 1 second (40 frames) or less.
-# Setting ``max_gap=None`` would interpolate over all gaps, regardless of
-# their length, which should be used with caution as it can introduce
+# Using the
+# :py:meth:`interpolate_over_time()\
+# <movement.move_accessor.MovementDataset.filtering_wrapper>`
+# method of the ``move`` accessor,
+# we can interpolate over the gaps we've introduced in the pose tracks.
+# Here we use the default linear interpolation method (``method=linear``)
+# and interpolate over gaps of 40 frames or less (``max_gap=40``).
+# The default ``max_gap=None`` would interpolate over all gaps, regardless of
+# their length, but this should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-position_interpolated = interpolate_over_time(
-    position_filtered, method="linear", max_gap=40, print_report=True
-)
+position_interpolated = ds.move.interpolate_over_time(max_gap=40)
+# Equivalent to:
+# position_interpolated = ds.move.interpolate_over_time(
+#     method="linear", max_gap=40, print_report=True
+# )
+
+# %%
+# .. note::
+#    The ``move`` accessor :py:meth:`interpolate_over_time()\
+#    <movement.move_accessor.MovementDataset.filtering_wrapper>`
+#    is also a convenience method that applies
+#    :py:func:`movement.filtering.interpolate_over_time`
+#    to the ``position`` data variable.
+#    The equivalent function call using the
+#    :py:mod:`movement.filtering` module would be:
+#
+#    .. code-block:: python
+#
+#       from movement.filtering import interpolate_over_time
+#
+#       position_interpolated = interpolate_over_time(
+#           position_filtered, max_gap=40
+#       )
+#       # Equivalent to:
+#       # position_interpolated = interpolate_over_time(
+#       #     position_filtered, method="linear", max_gap=40, print_report=True
+#       # )
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
-# indeed shorter than 1 second.
+# indeed shorter than 40 frames.
 # Let's visualise the interpolated pose tracks.
 
 position_interpolated.squeeze().plot.line(
@@ -127,3 +184,35 @@ position_interpolated.squeeze().plot.line(
 
 for log_entry in position_interpolated.log:
     print(log_entry)
+
+# %%
+# .. tip::
+#    All :py:mod:`movement.filtering` functions are available via the
+#    ``move`` accessor. These ``move`` accessor methods operate on the
+#    ``position`` data variable in the dataset ``ds`` by default.
+#    There is also an additional argument ``data_vars`` that allows us to
+#    specify which data variables in ``ds`` to filter.
+#    When multiple data variable names are specified in ``data_vars``,
+#    the method will return a dictionary with the data variable names as keys
+#    and the filtered DataArrays as values, otherwise it will return a single
+#    DataArray that is the filtered data.
+#    This is useful when we want to apply the same filtering operation to
+#    multiple data variables in ``ds`` at the same time.
+#
+#    .. dropdown:: Example
+#
+#       To filter both ``position`` and ``velocity`` data variables
+#       in ``ds``, based on the confidence scores, we can specify
+#       ``data_vars=["position", "velocity"]`` in the method call.
+#       As the filtered data variables are returned as a dictionary, we can
+#       use the dictionary ``update()`` method to update ``ds`` with the
+#       filtered data variables.
+#
+#       .. code-block:: python
+#
+#           ds["velocity"] = ds.move.compute_velocity()
+#           filtered_data_dict = ds.move.filter_by_confidence(
+#              data_vars=["position", "velocity"]
+#           )
+#           ds.update(filtered_data_dict)
+#

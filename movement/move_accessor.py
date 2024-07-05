@@ -177,7 +177,8 @@ class MovementDataset:
         Returns
         -------
         xarray.DataArray | dict[str, xarray.DataArray]
-            The filtered data variable.
+            The filtered data variable or a dictionary of filtered data
+            variables, if multiple data variables are specified.
 
         Raises
         ------
