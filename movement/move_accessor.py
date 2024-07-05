@@ -153,7 +153,7 @@ class MovementDataset:
             raise log_error(RuntimeError, error_msg) from e
 
     def filtering_wrapper(
-        self, fn_name: str, data_vars: list[str] | None = None, *args, **kwargs
+        self, fn_name: str, *args, data_vars: list[str] | None = None, **kwargs
     ) -> xr.DataArray | dict[str, xr.DataArray]:
         """Provide convenience method for filtering data variables.
 
@@ -166,11 +166,11 @@ class MovementDataset:
         ----------
         fn_name : str
             The name of the filtering function to call.
+        args : tuple
+            Positional arguments to pass to the function.
         data_vars : list[str] | None
             The data variables to apply filtering. If ``None``, the
             ``position`` data variable will be passed by default.
-        args : tuple
-            Positional arguments to pass to the function.
         kwargs : dict
             Keyword arguments to pass to the function.
 
