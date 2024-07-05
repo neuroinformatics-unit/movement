@@ -73,7 +73,7 @@ confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # Filter out points with low confidence
 # -------------------------------------
 # Using the
-# :py:meth:`filter_by_confidence\
+# :py:meth:`filter_by_confidence()\
 # <movement.move_accessor.MovementDataset.filtering_wrapper>`
 # method of the ``move`` accessor,
 # we can filter out points with confidence scores below a certain threshold.
