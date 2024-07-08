@@ -26,7 +26,8 @@ print(ds)
 # %%
 # Visualise the pose tracks
 # -------------------------
-# Since the data contains only a single wasp, we use ``squeeze()`` to remove
+# Since the data contains only a single wasp, we use
+# :py:meth:`xarray.DataArray.squeeze` to remove
 # the dimension of length 1 from the data (the ``individuals`` dimension).
 
 position = ds.position
@@ -51,9 +52,10 @@ position.squeeze().plot.line(
 # it's always a good idea to inspect the actual confidence values in the data.
 #
 # Let's first look at a histogram of the confidence scores. As before, we use
-# ``squeeze()`` to remove the ``individuals`` dimension from the data.
+# :py:meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
+# from the data.
 
-confidence = ds.confidence.sel(individuals="individual_0")
+confidence = ds.confidence
 confidence.squeeze().plot.hist(bins=20)
 
 # %%

@@ -104,7 +104,8 @@ fig.tight_layout()
 
 # %%
 # We can also easily plot the components of the position vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
+# using ``xarray``'s built-in plotting methods. We use
+# :py:meth:`xarray.DataArray.squeeze` to
 # remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
@@ -282,7 +283,8 @@ velocity = ds.move.compute_velocity()
 
 # %%
 # We can plot the components of the velocity vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
+# using ``xarray``'s built-in plotting methods. We use
+# :py:meth:`xarray.DataArray.squeeze` to
 # remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
