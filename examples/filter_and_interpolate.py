@@ -205,8 +205,8 @@ for log_entry in position_interpolated.log:
 #       in ``ds``, based on the confidence scores, we can specify
 #       ``data_vars=["position", "velocity"]`` in the method call.
 #       As the filtered data variables are returned as a dictionary, we can
-#       use the dictionary ``update()`` method to update ``ds`` with the
-#       filtered data variables.
+#       use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+#       with the filtered data variables.
 #
 #       .. code-block:: python
 #
