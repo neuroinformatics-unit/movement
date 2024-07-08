@@ -4,6 +4,8 @@ import logging
 
 import xarray as xr
 
+logger = logging.getLogger(__name__)
+
 
 def calculate_nan_stats(
     data: xr.DataArray, keypoint: str, individual: str | None = None
@@ -65,7 +67,6 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
         for kp in da.keypoints.values:
             nan_report += calculate_nan_stats(da, kp, individual=ind)
     # Write nan report to logger
-    logger = logging.getLogger(__name__)
     logger.info(nan_report)
     # Also print the report to the console
     print(nan_report)
