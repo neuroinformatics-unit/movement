@@ -3,17 +3,11 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 import xarray as xr
 
-from movement.filtering import (
-    filter_by_confidence,
-    interpolate_over_time,
-    median_filter,
-    savgol_filter,
-)
 from movement.io import load_poses
 from movement.sample_data import fetch_dataset_paths
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def sample_dataset():
     """Return a single-animal sample dataset, with time unit in frames.
     This allows us to better control the expected number of NaNs in the tests.
@@ -35,20 +29,24 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     multiplied by the number of consecutive NaNs in the input data.
     """
     # Introduce nans via filter_by_confidence
-    data = sample_dataset.position
-    confidence = sample_dataset.confidence
-    data_confilt = filter_by_confidence(data, confidence)
+    sample_dataset.update(
+        {"position": sample_dataset.move.filter_by_confidence()}
+    )
     expected_n_nans = 13136
-    n_nans_confilt = helpers.count_nans(data_confilt)
+    n_nans_confilt = helpers.count_nans(sample_dataset.position)
     assert n_nans_confilt == expected_n_nans, (
         f"Expected {expected_n_nans} NaNs in filtered data, "
         f"got: {n_nans_confilt}"
     )
-    n_consecutive_nans = helpers.count_consecutive_nans(data_confilt)
+    n_consecutive_nans = helpers.count_consecutive_nans(
+        sample_dataset.position
+    )
     # Apply median filter and check that
     # it doesn't introduce too many or too few NaNs
-    data_medfilt = median_filter(data_confilt, window)
-    n_nans_medfilt = helpers.count_nans(data_medfilt)
+    sample_dataset.update(
+        {"position": sample_dataset.move.median_filter(window)}
+    )
+    n_nans_medfilt = helpers.count_nans(sample_dataset.position)
     max_nans_increase = (window - 1) * n_consecutive_nans
     assert (
         n_nans_medfilt <= n_nans_confilt + max_nans_increase
@@ -56,12 +54,16 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     assert (
         n_nans_medfilt >= n_nans_confilt
     ), "Median filter mysteriously removed NaNs."
-    n_consecutive_nans = helpers.count_consecutive_nans(data_medfilt)
+    n_consecutive_nans = helpers.count_consecutive_nans(
+        sample_dataset.position
+    )
 
     # Apply savgol filter and check that
     # it doesn't introduce too many or too few NaNs
-    data_savgol = savgol_filter(data_medfilt, window, polyorder=2)
-    n_nans_savgol = helpers.count_nans(data_savgol)
+    sample_dataset.update(
+        {"position": sample_dataset.move.savgol_filter(window, polyorder=2)}
+    )
+    n_nans_savgol = helpers.count_nans(sample_dataset.position)
     max_nans_increase = (window - 1) * n_consecutive_nans
     assert (
         n_nans_savgol <= n_nans_medfilt + max_nans_increase
@@ -71,8 +73,10 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     ), "Savgol filter mysteriously removed NaNs."
 
     # Interpolate data (without max_gap) to eliminate all NaNs
-    data_interp = interpolate_over_time(data_savgol)
-    assert helpers.count_nans(data_interp) == 0
+    sample_dataset.update(
+        {"position": sample_dataset.move.interpolate_over_time()}
+    )
+    assert helpers.count_nans(sample_dataset.position) == 0
 
 
 @pytest.mark.parametrize(
@@ -96,9 +100,9 @@ def test_accessor_filter_method(
     sample_dataset, method, data_vars, expected_exception
 ):
     """Test that filtering methods in the ``move`` accessor
-    return the expected data type and structure, with the
-    expected ``log`` attribute added by the filtering methods
-    if valid data variables are passed, otherwise
+    return the expected data type and structure, and the
+    expected ``log`` attribute containing the filtering method
+    applied, if valid data variables are passed, otherwise
     raise an exception.
     """
     with expected_exception as expected_type:
@@ -112,6 +116,11 @@ def test_accessor_filter_method(
         assert isinstance(result, expected_type)
         if isinstance(result, xr.DataArray):
             assert hasattr(result, "log")
+            assert result.log[0]["operation"] == method
         elif isinstance(result, dict):
             assert set(result.keys()) == set(data_vars)
             assert all(hasattr(value, "log") for value in result.values())
+            assert all(
+                value.log[0]["operation"] == method
+                for value in result.values()
+            )
