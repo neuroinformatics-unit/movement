@@ -45,20 +45,27 @@ def test_log_warning(caplog):
     assert caplog.records[0].levelname == "WARNING"
 
 
-def test_log_to_attrs(valid_poses_dataset):
-    """Test for the ``log_to_attrs()`` decorator. Decorates a mock function and
+@pytest.mark.parametrize("input_data", ["dataset", "dataarray"])
+def test_log_to_attrs(input_data, valid_poses_dataset):
+    """Test that the ``log_to_attrs()`` decorator appends
+    log entries to the output data's ``log`` attribute and
     checks that ``attrs`` contains all expected values.
     """
 
     @log_to_attrs
-    def fake_func(ds, arg, kwarg=None):
-        return ds
+    def fake_func(data, arg, kwarg=None):
+        return data
 
-    ds = fake_func(valid_poses_dataset, "test1", kwarg="test2")
+    input_data = (
+        valid_poses_dataset
+        if input_data == "dataset"
+        else valid_poses_dataset.position
+    )
+    output_data = fake_func(input_data, "test1", kwarg="test2")
 
-    assert "log" in ds.attrs
-    assert ds.attrs["log"][0]["operation"] == "fake_func"
+    assert "log" in output_data.attrs
+    assert output_data.attrs["log"][0]["operation"] == "fake_func"
     assert (
-        ds.attrs["log"][0]["arg_1"] == "test1"
-        and ds.attrs["log"][0]["kwarg"] == "test2"
+        output_data.attrs["log"][0]["arg_1"] == "test1"
+        and output_data.attrs["log"][0]["kwarg"] == "test2"
     )
