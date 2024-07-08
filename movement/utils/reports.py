@@ -46,7 +46,7 @@ def calculate_nan_stats(
 def report_nan_values(da: xr.DataArray, label: str | None = None):
     """Report the number and percentage of keypoints that are NaN.
 
-    Numbers are reported for each individual and keypoint in the dataset.
+    Numbers are reported for each individual and keypoint in the data.
 
     Parameters
     ----------
@@ -54,7 +54,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
         The input data containing ``keypoints`` and ``individuals``
         dimensions.
     label : str, optional
-        Label to identify the dataset in the report. If not provided,
+        Label to identify the data in the report. If not provided,
         the name of the DataArray is used as the label. Default is None.
 
     """
