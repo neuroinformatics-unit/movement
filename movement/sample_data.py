@@ -177,7 +177,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     with_video : bool, optional
         Whether to download the associated video file (if available). If set
         to False, the "video" entry in the returned dictionary will be None.
-        Defaults to False. 
+        Defaults to False.
 
     Returns
     -------
@@ -200,13 +200,13 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     >>> poses_path = paths["poses"]
     >>> frame_path = paths["frame"]
     >>> video_path = paths["video"]
-    
+
     If the sample dataset contains bounding boxes instead of
     poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:
-    
+
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
-    
+
 
     See Also
     --------
@@ -263,7 +263,7 @@ def fetch_dataset(
     with_video : bool, optional
         Whether to download the associated video file (if available). If set
         to False, the "video" entry in the returned dictionary will be None.
-        Defaults to False. 
+        Defaults to False.
 
     Returns
     -------

@@ -18,8 +18,8 @@ This prints a list of file names containing sample pose data.
 Each file is prefixed with the name of the pose estimation software package
 that was used to generate it - either "DLC", "SLEAP", or "LP".
 
-To load one of the sample datasets as a  
-[movement dataset](target-dataset), use the  
+To load one of the sample datasets as a
+[movement dataset](target-dataset), use the
 {func}`movement.sample_data.fetch_dataset()` function:
 
 ```python
