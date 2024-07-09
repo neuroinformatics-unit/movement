@@ -1,4 +1,4 @@
-"""Functions for filtering and interpolating pose tracks in xarray datasets."""
+"""Filter and interpolate  pose tracks in ``movement`` datasets."""
 
 import logging
 from datetime import datetime

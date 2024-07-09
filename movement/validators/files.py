@@ -1,4 +1,4 @@
-"""`attrs` classes for validating file paths."""
+"""``attrs`` classes for validating file paths."""
 
 import os
 from pathlib import Path
@@ -14,7 +14,7 @@ from movement.utils.logging import log_error
 class ValidFile:
     """Class for validating file paths.
 
-    Parameters
+    Attributes
     ----------
     path : str or pathlib.Path
         Path to the file.
@@ -49,7 +49,7 @@ class ValidFile:
     expected_suffix: list[str] = field(factory=list, kw_only=True)
 
     @path.validator
-    def path_is_not_dir(self, attribute, value):
+    def _path_is_not_dir(self, attribute, value):
         """Ensure that the path does not point to a directory."""
         if value.is_dir():
             raise log_error(
@@ -58,7 +58,7 @@ class ValidFile:
             )
 
     @path.validator
-    def file_exists_when_expected(self, attribute, value):
+    def _file_exists_when_expected(self, attribute, value):
         """Ensure that the file exists (or not) as needed.
 
         This depends on the expected usage (read and/or write).
@@ -75,7 +75,7 @@ class ValidFile:
                 )
 
     @path.validator
-    def file_has_access_permissions(self, attribute, value):
+    def _file_has_access_permissions(self, attribute, value):
         """Ensure that the file has the expected access permission(s).
 
         Raises a PermissionError if not.
@@ -96,7 +96,7 @@ class ValidFile:
             )
 
     @path.validator
-    def file_has_expected_suffix(self, attribute, value):
+    def _file_has_expected_suffix(self, attribute, value):
         """Ensure that the file has one of the expected suffix(es)."""
         if self.expected_suffix and value.suffix not in self.expected_suffix:
             raise log_error(
@@ -110,7 +110,7 @@ class ValidFile:
 class ValidHDF5:
     """Class for validating HDF5 files.
 
-    Parameters
+    Attributes
     ----------
     path : pathlib.Path
         Path to the HDF5 file.
@@ -130,7 +130,7 @@ class ValidHDF5:
     expected_datasets: list[str] = field(factory=list, kw_only=True)
 
     @path.validator
-    def file_is_h5(self, attribute, value):
+    def _file_is_h5(self, attribute, value):
         """Ensure that the file is indeed in HDF5 format."""
         try:
             with h5py.File(value, "r") as f:
@@ -142,7 +142,7 @@ class ValidHDF5:
             ) from e
 
     @path.validator
-    def file_contains_expected_datasets(self, attribute, value):
+    def _file_contains_expected_datasets(self, attribute, value):
         """Ensure that the HDF5 file contains the expected datasets."""
         if self.expected_datasets:
             with h5py.File(value, "r") as f:
@@ -159,7 +159,7 @@ class ValidHDF5:
 class ValidDeepLabCutCSV:
     """Class for validating DeepLabCut-style .csv files.
 
-    Parameters
+    Attributes
     ----------
     path : pathlib.Path
         Path to the .csv file.
@@ -175,7 +175,7 @@ class ValidDeepLabCutCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def csv_file_contains_expected_levels(self, attribute, value):
+    def _csv_file_contains_expected_levels(self, attribute, value):
         """Ensure that the .csv file contains the expected index column levels.
 
         These are to be found among the top 4 rows of the file.
