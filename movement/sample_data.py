@@ -174,9 +174,9 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     filename : str
         Name of the pose file to fetch.
     with_video : bool, optional
-        Whether to fetch the associated video file (if available). Defaults to
-        False, meaning that the video file is not requested and the "video"
-        path in the returned dictionary will be None.
+        Whether to download the associated video file (if available). If set
+        to False, the "video" entry in the returned dictionary will be None.
+        Defaults to False. 
 
     Returns
     -------
@@ -249,8 +249,9 @@ def fetch_dataset(
     filename : str
         Name of the file to fetch.
     with_video : bool, optional
-        Whether to fetch the associated video file (if available). Defaults to
-        False, meaning that the video file is not requested.
+        Whether to download the associated video file (if available). If set
+        to False, the "video" entry in the returned dictionary will be None.
+        Defaults to False. 
 
     Returns
     -------
