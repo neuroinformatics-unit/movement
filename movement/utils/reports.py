@@ -8,7 +8,9 @@ logger = logging.getLogger(__name__)
 
 
 def calculate_nan_stats(
-    data: xr.DataArray, keypoint: str, individual: str | None = None
+    data: xr.DataArray,
+    keypoint: str | None = None,
+    individual: str | None = None,
 ) -> str:
     """Calculate NaN stats for a given keypoint and individual.
 
@@ -21,10 +23,16 @@ def calculate_nan_stats(
     data : xarray.DataArray
         The input data containing ``keypoints`` and ``individuals``
         dimensions.
-    keypoint : str
+    keypoint : str, optional
         The name of the keypoint for which to generate the report.
+        If ``None``, it is assumed that the input data contains only
+        one keypoint and this keypoint is used.
+        Default is ``None``.
     individual : str, optional
         The name of the individual for which to generate the report.
+        If ``None``, it is assumed that the input data contains only
+        one individual and this individual is used.
+        Default is ``None``.
 
     Returns
     -------
@@ -32,10 +40,13 @@ def calculate_nan_stats(
         A string containing the report.
 
     """
+    selection_criteria = {}
+    if individual is not None:
+        selection_criteria["individuals"] = individual
+    if keypoint is not None:
+        selection_criteria["keypoints"] = keypoint
     selected_data = (
-        data.sel(individuals=individual, keypoints=keypoint)
-        if individual
-        else data.sel(keypoints=keypoint)
+        data.sel(**selection_criteria) if selection_criteria else data
     )
     n_nans = selected_data.isnull().any(["space"]).sum(["time"]).item()
     n_points = selected_data.time.size
@@ -55,17 +66,25 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
         dimensions.
     label : str, optional
         Label to identify the data in the report. If not provided,
-        the name of the DataArray is used as the label. Default is None.
+        the name of the DataArray is used as the label.
+        Default is ``None``.
 
     """
     # Compile the report
-    if not label:
-        label = da.name
+    label = label or da.name
     nan_report = f"\nMissing points (marked as NaN) in {label}"
-    for ind in da.individuals.values:
-        nan_report += f"\n\tIndividual: {ind}"
-        for kp in da.keypoints.values:
-            nan_report += calculate_nan_stats(da, kp, individual=ind)
+    # Check if the data has individuals and keypoints dimensions
+    has_individuals_dim = "individuals" in da.dims
+    has_keypoints_dim = "keypoints" in da.dims
+    # Default values for individuals and keypoints
+    individuals = da.individuals.values if has_individuals_dim else [None]
+    keypoints = da.keypoints.values if has_keypoints_dim else [None]
+
+    for ind in individuals:
+        ind_name = ind if ind is not None else da.individuals.item()
+        nan_report += f"\n\tIndividual: {ind_name}"
+        for kp in keypoints:
+            nan_report += calculate_nan_stats(da, keypoint=kp, individual=ind)
     # Write nan report to logger
     logger.info(nan_report)
     # Also print the report to the console
