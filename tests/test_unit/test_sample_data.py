@@ -16,10 +16,10 @@ def valid_sample_datasets():
     respective fps values, and associated frame and video file names.
     """
     return {
-        "SLEAP_single-mouse_EPM.analysis.h5": {
-            "fps": 30,
-            "frame_file": "single-mouse_EPM_frame-20sec.png",
-            "video_file": "single-mouse_EPM_video.mp4",
+        "SLEAP_three-mice_Aeon_proofread.analysis.h5": {
+            "fps": 50,
+            "frame_file": "three-mice_Aeon_frame-5sec.png",
+            "video_file": "three-mice_Aeon_video.avi",
         },
         "DLC_single-wasp.predictions.h5": {
             "fps": 40,
@@ -121,18 +121,24 @@ def test_list_datasets(valid_sample_datasets):
     assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
-def test_fetch_dataset(valid_sample_datasets):
+@pytest.mark.parametrize("with_video", [True, False])
+def test_fetch_dataset(valid_sample_datasets, with_video):
     # test with valid files
     for sample_name, sample in valid_sample_datasets.items():
-        ds = fetch_dataset(sample_name)
+        ds = fetch_dataset(sample_name, with_video=with_video)
         assert isinstance(ds, Dataset)
 
         assert ds.attrs["fps"] == sample["fps"]
 
         if sample["frame_file"]:
             assert ds.attrs["frame_path"].name == sample["frame_file"]
-        if sample["video_file"]:
+        else:
+            assert ds.attrs["frame_path"] is None
+
+        if sample["video_file"] and with_video:
             assert ds.attrs["video_path"].name == sample["video_file"]
+        else:
+            assert ds.attrs["video_path"] is None
 
     # Test with an invalid file
     with pytest.raises(ValueError):

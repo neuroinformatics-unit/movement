@@ -163,7 +163,7 @@ def list_datasets() -> list[str]:
     return list(metadata.keys())
 
 
-def fetch_dataset_paths(filename: str) -> dict:
+def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """Get paths to sample dataset and any associated frames or videos.
 
     The data are downloaded from the ``movement`` data repository to the user's
@@ -174,22 +174,39 @@ def fetch_dataset_paths(filename: str) -> dict:
     ----------
     filename : str
         Name of the sample data file to fetch.
+    with_video : bool, optional
+        Whether to download the associated video file (if available). If set
+        to False, the "video" entry in the returned dictionary will be None.
+        Defaults to False.
 
     Returns
     -------
     paths : dict
         Dictionary mapping file types to their respective paths. The possible
-        file types are: "poses", "frame", "video" or "bboxes". If "frame" or
-        "video" is not available, the corresponding value is None.
+        file types are: "poses" or "bboxes" (depending on tracking type),
+        "frame", "video". A None value for "frame" or "video" indicates that
+        the file is either not available or not requested
+        (if ``with_video=False``).
 
     Examples
     --------
+    Fetch a sample dataset and get the paths to the file containing the
+    predicted poses, as well as the associated frame and video files:
+
     >>> from movement.sample_data import fetch_dataset_paths
-    >>> paths = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")
-    >>> poses_path = paths["poses"]  # if the data is "pose" data
-    >>> bboxes_path = paths["bboxes"]  # if the data is "bboxes" data
+    >>> paths = fetch_dataset_paths(
+    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    ... )
+    >>> poses_path = paths["poses"]
     >>> frame_path = paths["frame"]
     >>> video_path = paths["video"]
+
+    If the sample dataset contains bounding boxes instead of
+    poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:
+
+    >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
+    >>> bboxes_path = paths["bboxes"]
+
 
     See Also
     --------
@@ -213,7 +230,7 @@ def fetch_dataset_paths(filename: str) -> dict:
             SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
         ),
         "video": None
-        if not video_file_name
+        if (not video_file_name) or not (with_video)
         else Path(
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
         ),
@@ -229,6 +246,7 @@ def fetch_dataset_paths(filename: str) -> dict:
 
 def fetch_dataset(
     filename: str,
+    with_video: bool = False,
 ) -> xarray.Dataset:
     """Load a sample dataset.
 
@@ -242,6 +260,10 @@ def fetch_dataset(
     ----------
     filename : str
         Name of the file to fetch.
+    with_video : bool, optional
+        Whether to download the associated video file (if available). If set
+        to False, the "video" entry in the returned dictionary will be None.
+        Defaults to False.
 
     Returns
     -------
@@ -250,8 +272,13 @@ def fetch_dataset(
 
     Examples
     --------
+    Fetch a sample dataset and get the paths to the associated frame and video
+    files:
+
     >>> from movement.sample_data import fetch_dataset
-    >>> ds = fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
+    >>> ds = fetch_dataset(
+        "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    )
     >>> frame_path = ds.video_path
     >>> video_path = ds.frame_path
 
@@ -260,7 +287,7 @@ def fetch_dataset(
     fetch_dataset_paths
 
     """
-    file_paths = fetch_dataset_paths(filename)
+    file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     ds = load_poses.from_file(
         file_paths["poses"],
