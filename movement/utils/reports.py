@@ -54,7 +54,7 @@ def calculate_nan_stats(
     return f"\n\t\t{keypoint}: {n_nans}/{n_points} ({percent_nans}%)"
 
 
-def report_nan_values(da: xr.DataArray, label: str | None = None):
+def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     """Report the number and percentage of keypoints that are NaN.
 
     Numbers are reported for each individual and keypoint in the data.
@@ -68,6 +68,11 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
         Label to identify the data in the report. If not provided,
         the name of the DataArray is used as the label.
         Default is ``None``.
+
+    Returns
+    -------
+    str
+        A string containing the report.
 
     """
     # Compile the report
@@ -87,5 +92,4 @@ def report_nan_values(da: xr.DataArray, label: str | None = None):
             nan_report += calculate_nan_stats(da, keypoint=kp, individual=ind)
     # Write nan report to logger
     logger.info(nan_report)
-    # Also print the report to the console
-    print(nan_report)
+    return nan_report

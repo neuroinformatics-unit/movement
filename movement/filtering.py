@@ -52,8 +52,8 @@ def filter_by_confidence(
     """
     data_filtered = data.where(confidence >= threshold)
     if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_filtered, "output")
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_filtered, "output"))
     return data_filtered
 
 
@@ -108,8 +108,8 @@ def interpolate_over_time(
         fill_value="extrapolate",
     )
     if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_interpolated, "output")
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_interpolated, "output"))
     return data_interpolated
 
 
@@ -173,11 +173,9 @@ def median_filter(
             time=slice(half_window, -half_window)
         )
     )
-
     if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_smoothed, "output")
-
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_smoothed, "output"))
     return data_smoothed
 
 
@@ -244,6 +242,6 @@ def savgol_filter(
         **kwargs,
     )
     if print_report:
-        report_nan_values(data, "input")
-        report_nan_values(data_smoothed, "output")
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_smoothed, "output"))
     return data_smoothed

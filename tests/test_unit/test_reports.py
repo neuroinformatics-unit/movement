@@ -26,6 +26,6 @@ def test_report_nan_values(
     that the dataset name is included in the report.
     """
     data = data_selection(valid_poses_dataset_with_nan)
-    report_nan_values(data)
-    out, _ = capsys.readouterr()
-    assert data.name in out, "Dataset name should be in the output"
+    assert data.name in report_nan_values(
+        data
+    ), "Dataset name should be in the output"
