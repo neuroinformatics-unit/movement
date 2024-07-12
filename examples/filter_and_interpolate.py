@@ -173,33 +173,31 @@ for log_entry in position_interpolated.log:
     print(log_entry)
 
 # %%
-# .. tip::
-#    All :py:mod:`movement.filtering` functions are available via the
-#    ``move`` accessor. These ``move`` accessor methods operate on the
-#    ``position`` data variable in the dataset ``ds`` by default.
-#    There is also an additional argument ``data_vars`` that allows us to
-#    specify which data variables in ``ds`` to filter.
-#    When multiple data variable names are specified in ``data_vars``,
-#    the method will return a dictionary with the data variable names as keys
-#    and the filtered DataArrays as values, otherwise it will return a single
-#    DataArray that is the filtered data.
-#    This is useful when we want to apply the same filtering operation to
-#    multiple data variables in ``ds`` at the same time.
+# .. _target-example-filtering-multiple-data-variables:
 #
-#    .. dropdown:: Example
+# Filtering multiple data variables
+# ---------------------------------
+# All :py:mod:`movement.filtering` functions are available via the
+# ``move`` accessor. These ``move`` accessor methods operate on the
+# ``position`` data variable in the dataset ``ds`` by default.
+# There is also an additional argument ``data_vars`` that allows us to
+# specify which data variables in ``ds`` to filter.
+# When multiple data variable names are specified in ``data_vars``,
+# the method will return a dictionary with the data variable names as keys
+# and the filtered DataArrays as values, otherwise it will return a single
+# DataArray that is the filtered data.
+# This is useful when we want to apply the same filtering operation to
+# multiple data variables in ``ds`` at the same time.
 #
-#       To filter both ``position`` and ``velocity`` data variables
-#       in ``ds``, based on the confidence scores, we can specify
-#       ``data_vars=["position", "velocity"]`` in the method call.
-#       As the filtered data variables are returned as a dictionary, we can
-#       use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
-#       with the filtered data variables.
-#
-#       .. code-block:: python
-#
-#           ds["velocity"] = ds.move.compute_velocity()
-#           filtered_data_dict = ds.move.filter_by_confidence(
-#              data_vars=["position", "velocity"]
-#           )
-#           ds.update(filtered_data_dict)
-#
+# For instance, to filter both ``position`` and ``velocity`` data variables
+# in ``ds``, based on the confidence scores, we can specify
+# ``data_vars=["position", "velocity"]`` in the method call.
+# As the filtered data variables are returned as a dictionary, we can
+# use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+# with the filtered data variables.
+
+ds["velocity"] = ds.move.compute_velocity()
+filtered_data_dict = ds.move.filter_by_confidence(
+    data_vars=["position", "velocity"]
+)
+ds.update(filtered_data_dict)

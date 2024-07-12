@@ -47,6 +47,7 @@ extensions = [
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
+    "sphinx.ext.autosectionlabel",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -76,6 +77,9 @@ templates_path = ["_templates"]
 autosummary_generate = True
 autodoc_default_flags = ["members", "inherited-members"]
 
+# Prefix section labels with the document name
+autosectionlabel_prefix_document = True
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
@@ -104,7 +108,7 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
-    'remove_config_comments': True, 
+    "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
 

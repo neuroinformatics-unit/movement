@@ -360,3 +360,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Feel free to play around with the parameters of the applied filters and to
 # also look at other keypoints and time ranges.
+
+# %%
+# .. seealso::
+#   :ref:`examples/filter_and_interpolate:Filtering multiple data variables`
+#   in the
+#   :ref:`sphx_glr_examples_filter_and_interpolate.py` example.
