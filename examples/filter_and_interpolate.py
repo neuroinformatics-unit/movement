@@ -30,8 +30,7 @@ print(ds)
 # :py:meth:`xarray.DataArray.squeeze` to remove
 # the dimension of length 1 from the data (the ``individuals`` dimension).
 
-position = ds.position
-position.squeeze().plot.line(
+ds.position.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -55,21 +54,21 @@ position.squeeze().plot.line(
 # :py:meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
 # from the data.
 
-confidence = ds.confidence
-confidence.squeeze().plot.hist(bins=20)
+ds.confidence.squeeze().plot.hist(bins=20)
 
 # %%
 # Based on the above histogram, we can confirm that the confidence scores
 # indeed range between 0 and 1, with most values closer to 1. Now let's see how
 # they evolve over time.
 
-confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
+ds.confidence.squeeze().plot.line(
+    x="time", row="keypoints", aspect=2, size=2.5
+)
 
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
 # to the implausible jumps and spikes we had seen in the position.
 # We can use that to our advantage.
-
 
 # %%
 # Filter out points with low confidence
@@ -83,8 +82,10 @@ confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # provided.
 # This method will also report the number of NaN values in the dataset before
 # and after the filtering operation by default (``print_report=True``).
+# We will use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+# with the filtered ``position``.
 
-position_filtered = ds.move.filter_by_confidence()
+ds.update({"position": ds.move.filter_by_confidence()})
 
 # %%
 # .. note::
@@ -100,13 +101,13 @@ position_filtered = ds.move.filter_by_confidence()
 #
 #       from movement.filtering import filter_by_confidence
 #
-#       position_filtered = filter_by_confidence(position, confidence)
+#       ds.update({"position": filter_by_confidence(position, confidence)})
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
 # ``position`` data variable. Let's visualise the filtered data.
 
-position_filtered.squeeze().plot.line(
+ds.position.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -130,7 +131,7 @@ position_filtered.squeeze().plot.line(
 # their length, but this should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-position_interpolated = ds.move.interpolate_over_time(max_gap=40)
+ds.update({"position": ds.move.interpolate_over_time(max_gap=40)})
 
 # %%
 # .. note::
@@ -146,16 +147,16 @@ position_interpolated = ds.move.interpolate_over_time(max_gap=40)
 #
 #       from movement.filtering import interpolate_over_time
 #
-#       position_interpolated = interpolate_over_time(
+#       ds.update({"position": interpolate_over_time(
 #           position_filtered, max_gap=40
-#       )
+#       )})
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
 # indeed shorter than 40 frames.
 # Let's visualise the interpolated pose tracks.
 
-position_interpolated.squeeze().plot.line(
+ds.position.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
 
@@ -165,16 +166,14 @@ position_interpolated.squeeze().plot.line(
 # So, far we've processed the pose tracks first by filtering out points with
 # low confidence scores, and then by interpolating over missing values.
 # The order of these operations and the parameters with which they were
-# performed are saved in the ``log`` attribute of the data array.
+# performed are saved in the ``log`` attribute of the ``position`` data array.
 # This is useful for keeping track of the processing steps that have been
-# applied to the data.
+# applied to the data. Let's inspect the log entries.
 
-for log_entry in position_interpolated.log:
+for log_entry in ds.position.log:
     print(log_entry)
 
 # %%
-# .. _target-example-filtering-multiple-data-variables:
-#
 # Filtering multiple data variables
 # ---------------------------------
 # All :py:mod:`movement.filtering` functions are available via the
@@ -192,8 +191,8 @@ for log_entry in position_interpolated.log:
 # For instance, to filter both ``position`` and ``velocity`` data variables
 # in ``ds``, based on the confidence scores, we can specify
 # ``data_vars=["position", "velocity"]`` in the method call.
-# As the filtered data variables are returned as a dictionary, we can
-# use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+# As the filtered data variables are returned as a dictionary, we can once
+# again use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered data variables.
 
 ds["velocity"] = ds.move.compute_velocity()
