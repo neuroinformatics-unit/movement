@@ -130,7 +130,8 @@ ds_wasp_smooth.update({"position": ds_wasp_smooth.move.median_filter(window)})
 #    method is a convenience method that applies
 #    :py:func:`movement.filtering.median_filter`
 #    to the ``position`` data variable.
-#    The equivalent function call would be:
+#    The equivalent function call using the
+#    :py:mod:`movement.filtering` module would be:
 #
 #    .. code-block:: python
 #
@@ -339,7 +340,7 @@ ds_mouse_smooth.update(
 
 # %%
 # A record of all applied operations is stored in the ``log`` attribute of the
-# `ds_mouse_smooth.position`` data array. Let's inspect it to summarise
+# ``ds_mouse_smooth.position`` data array. Let's inspect it to summarise
 # what we've done.
 
 for entry in ds_mouse_smooth.position.log:

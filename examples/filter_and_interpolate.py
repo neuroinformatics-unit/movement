@@ -85,10 +85,6 @@ confidence.squeeze().plot.line(x="time", row="keypoints", aspect=2, size=2.5)
 # and after the filtering operation by default (``print_report=True``).
 
 position_filtered = ds.move.filter_by_confidence()
-# Equivalent to:
-# position_filtered = ds.move.filter_by_confidence(
-#     threshold=0.6, print_report=True
-# )
 
 # %%
 # .. note::
@@ -97,17 +93,14 @@ position_filtered = ds.move.filter_by_confidence()
 #    method is a convenience method that applies
 #    :py:func:`movement.filtering.filter_by_confidence`,
 #    which takes ``position`` and ``confidence`` as arguments.
-#    The equivalent function call would be:
+#    The equivalent function call using the
+#    :py:mod:`movement.filtering` module would be:
 #
 #    .. code-block:: python
 #
 #       from movement.filtering import filter_by_confidence
 #
 #       position_filtered = filter_by_confidence(position, confidence)
-#       # Equivalent to:
-#       # position_filtered = filter_by_confidence(
-#       #     position, confidence, threshold=0.6, print_report=True
-#       # )
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
@@ -138,10 +131,6 @@ position_filtered.squeeze().plot.line(
 # spurious data. The ``print_report`` argument acts as described above.
 
 position_interpolated = ds.move.interpolate_over_time(max_gap=40)
-# Equivalent to:
-# position_interpolated = ds.move.interpolate_over_time(
-#     method="linear", max_gap=40, print_report=True
-# )
 
 # %%
 # .. note::
@@ -160,10 +149,6 @@ position_interpolated = ds.move.interpolate_over_time(max_gap=40)
 #       position_interpolated = interpolate_over_time(
 #           position_filtered, max_gap=40
 #       )
-#       # Equivalent to:
-#       # position_interpolated = interpolate_over_time(
-#       #     position_filtered, method="linear", max_gap=40, print_report=True
-#       # )
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
