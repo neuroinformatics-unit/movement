@@ -5,6 +5,7 @@
 [![Code style: Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/format.json)](https://github.com/astral-sh/ruff)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement/topic/Welcome!)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12755724.svg)](https://zenodo.org/doi/10.5281/zenodo.12755724)
 
 # movement
 
@@ -48,6 +49,12 @@ Contributions to movement are absolutely encouraged, whether to fix a bug, devel
 To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
 
 You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement). You can also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
+
+## Citation
+
+If you use `movement` in your work, please cite the following Zenodo DOI:
+
+>Niko Sirmpilatze, Chang Huan Lo, Sofia Miñano, Dhruv Sharma, Brandon D. Peri, Laura Porta, Iván Varela & Adam L. Tyson (2024). neuroinformatics-unit/movement: (2024). Zenodo. https://zenodo.org/doi/10.5281/zenodo.12755724
 
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)
