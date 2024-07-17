@@ -251,17 +251,20 @@ def valid_poses_dataset(valid_position_array, request):
     except AttributeError:
         array_format = "multi_individual_array"
     position_array = valid_position_array(array_format)
-    n_individuals, n_keypoints = position_array.shape[1:3]
+    n_frames, n_individuals, n_keypoints = position_array.shape[:3]
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
             "confidence": xr.DataArray(
-                np.ones(position_array.shape[:-1]),
+                np.repeat(
+                    np.linspace(0.1, 1.0, n_frames),
+                    n_individuals * n_keypoints,
+                ).reshape(position_array.shape[:-1]),
                 dims=dim_names[:-1],
             ),
         },
         coords={
-            "time": np.arange(position_array.shape[0]),
+            "time": np.arange(n_frames),
             "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
             "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
             "space": ["x", "y"],
@@ -328,42 +331,17 @@ def kinematic_property(request):
 
 
 class Helpers:
-    """Generic helper methods for ``movement`` testing modules."""
+    """Generic helper methods for ``movement`` test modules."""
 
     @staticmethod
-    def count_nans(ds):
-        """Count NaNs in the x coordinate timeseries of the first keypoint
-        of the first individual in the dataset.
-        """
-        n_nans = np.count_nonzero(
-            np.isnan(
-                ds.position.isel(individuals=0, keypoints=0, space=0).values
-            )
-        )
-        return n_nans
+    def count_nans(da):
+        """Count number of NaNs in a DataArray."""
+        return da.isnull().sum().item()
 
     @staticmethod
-    def count_nan_repeats(ds):
-        """Count the number of continuous stretches of NaNs in the
-        x coordinate timeseries of the first keypoint of the first individual
-        in the dataset.
-        """
-        x = ds.position.isel(individuals=0, keypoints=0, space=0).values
-        repeats = []
-        running_count = 1
-        for i in range(len(x)):
-            if i != len(x) - 1:
-                if np.isnan(x[i]) and np.isnan(x[i + 1]):
-                    running_count += 1
-                elif np.isnan(x[i]):
-                    repeats.append(running_count)
-                    running_count = 1
-                else:
-                    running_count = 1
-            elif np.isnan(x[i]):
-                repeats.append(running_count)
-                running_count = 1
-        return len(repeats)
+    def count_consecutive_nans(da):
+        """Count occurrences of consecutive NaNs in a DataArray."""
+        return (da.isnull().astype(int).diff("time") == 1).sum().item()
 
 
 @pytest.fixture

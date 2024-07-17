@@ -150,3 +150,10 @@ Custom **attributes** can also be added to the dataset:
 ds.attrs["my_custom_attribute"] = "my_custom_value"
 # henceforth accessible as ds.my_custom_attribute
 ```
+
+To update existing **data variables** in-place, e.g. `position`
+and `velocity`:
+
+```python
+ds.update({"position": position, "velocity": velocity_filtered})
+```
