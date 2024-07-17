@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: movement
+message: >-
+  If you use movement in your work, please cite the following Zenodo DOI
+type: software
+authors:
+  - given-names: Nikoloz
+    family-names: Sirmpilatze
+  - given-names: Chang Huan
+    family-names: Lo
+  - given-names: Sofia
+    family-names: Miñano
+  - given-names: Dhruv
+    family-names: Sharma
+  - given-names: Brandon D.
+    family-names: Peri
+  - given-names: Laura
+    family-names: Porta
+  - given-names: Iván
+    family-names: Varela
+  - given-names: Adam L.
+    family-names: Tyson
+    email: code@adamltyson.com
+repository-code: >-
+  https://github.com/neuroinformatics-unit/movement
+url: 'https://movement.neuroinformatics.dev/'
+abstract: >-
+   Python tools for analysing body movements across space and time.
+license: BSD-3-Clause
+date-released: '2024-007-17'
+doi: 10.5281/zenodo.12755724
+year: 2024
