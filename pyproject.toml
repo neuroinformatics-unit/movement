@@ -35,6 +35,9 @@ classifiers = [
   "License :: OSI Approved :: BSD License",
 ]
 
+# Entry point for napari plugin
+entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
+
 [project.urls]
 "Homepage" = "https://github.com/neuroinformatics-unit/movement"
 "Bug Tracker" = "https://github.com/neuroinformatics-unit/movement/issues"
@@ -43,9 +46,18 @@ classifiers = [
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
+napari = [
+  "napari[all]>=0.4.19",
+  # the rest will be replaced by brainglobe-utils[qt]>=0.6 after release
+  "brainglobe-atlasapi>=2.0.7",
+  "brainglobe-utils>=0.5",
+  "qtpy",
+  "superqt",
+]
 dev = [
   "pytest",
   "pytest-cov",
+  "pytest-mock",
   "coverage",
   "tox",
   "mypy",
@@ -58,6 +70,8 @@ dev = [
   "check-manifest",
   "types-PyYAML",
   "types-requests",
+  "pytest-qt",
+  "movement[napari]",
 ]
 
 [project.scripts]
@@ -156,6 +170,13 @@ conda_deps =
     pytables
 conda_channels =
     conda-forge
+passenv =
+    CI
+    GITHUB_ACTIONS
+    DISPLAY
+    XAUTHORITY
+    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
+    PYVISTA_OFF_SCREEN
 extras =
     dev
 commands =
