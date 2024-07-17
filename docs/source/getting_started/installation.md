@@ -20,6 +20,8 @@ Create and activate an environment with movement installed:
 conda create -n movement-env -c conda-forge movement
 conda activate movement-env
 ```
+This will install all dependencies, including [napari](napari:),
+which provides the GUI for movement.
 :::
 :::{tab-item} Pip
 Create and activate an environment with some prerequisites:
@@ -27,9 +29,14 @@ Create and activate an environment with some prerequisites:
 conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
-Install the latest movement release from PyPI:
+Install the core package from the latest release on PyPI:
 ```sh
 pip install movement
+```
+If you wish to use the GUI, which additionally requires [napari](napari:),
+you should instead run:
+```sh
+pip install movement[napari]
 ```
 :::
 ::::
@@ -44,6 +51,16 @@ movement info
 ```
 You should see a printout including the version numbers of movement
 and some of its dependencies.
+
+To test the GUI installation, you can run:
+
+```sh
+napari -w movement
+```
+
+This should open a new `napari` window with the `movement` plugin loaded
+on the right side.
+
 
 ## Update the package
 To update movement to the latest version, we recommend installing it in a new environment,
