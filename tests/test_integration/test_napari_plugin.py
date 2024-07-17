@@ -1,6 +1,7 @@
 import pytest
 from qtpy.QtWidgets import QPushButton, QWidget
 
+from movement.napari._loader_widget import Loader
 from movement.napari._meta_widget import MovementMetaWidget
 
 
@@ -37,10 +38,24 @@ def test_loader_widget(loader_widget):
     assert loader_widget.layout().rowCount() == 1
 
 
-def test_hello_button(loader_widget, capsys):
-    """Test that the hello button works as expected."""
-    hello_button = loader_widget.findChildren(QPushButton)[0]
-    assert hello_button.text() == "Say hello"
+def test_hello_button_calls_on_hello_clicked(make_napari_viewer_proxy, mocker):
+    """Test that clicking the hello button calls _on_hello_clicked.
+
+    Here we have to create a new Loader widget after mocking the method.
+    We cannot reuse the existing widget fixture because then it would be too
+    late to mock (the widget has already "decided" which method to call).
+    """
+    mock_method = mocker.patch(
+        "movement.napari._loader_widget.Loader._on_hello_clicked"
+    )
+    loader = Loader(make_napari_viewer_proxy)
+    hello_button = loader.findChildren(QPushButton)[0]
     hello_button.click()
+    mock_method.assert_called_once()
+
+
+def test_on_hello_clicked_outputs_message(loader_widget, capsys):
+    """Test that _on_hello_clicked outputs the expected message."""
+    loader_widget._on_hello_clicked()
     captured = capsys.readouterr()
     assert "INFO: Hello, world!" in captured.out
