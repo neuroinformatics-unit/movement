@@ -25,8 +25,8 @@ Then install the `movement` package as described below.
 
 ::::{tab-set}
 
-:::{tab-item} Users
-To get the latest release from PyPI:
+:::{tab-item} Without the GUI
+To install the core package from PyPI:
 
 ```sh
 pip install movement
@@ -39,14 +39,28 @@ pip install --upgrade movement
 ```
 :::
 
-:::{tab-item} Developers
+:::{tab-item} With the GUI
+To install the package including the GUI (napari plugin) from PyPI:
+
+```sh
+pip install "movement[napari]"
+```
+If you have an older version of `movement` installed in the same environment,
+you can update to the latest version with:
+
+```sh
+pip install --upgrade "movement[napari]"
+```
+:::
+
+:::{tab-item} For developers
 To get the latest development version, clone the
 [GitHub repository](movement-github:)
 and then run from inside the repository:
 
 ```sh
 pip install -e .[dev]  # works on most shells
-pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
+pip install -e ".[dev]"  # works on zsh (the default shell on macOS)
 ```
 
 This will install the package in editable mode, including all `dev` dependencies.
@@ -66,3 +80,12 @@ movement info
 
 You should see a printout including the version numbers of `movement`
 and some of its dependencies.
+
+To test the GUI installation, you can run:
+
+```sh
+napari -w movement
+```
+
+This should open a new `napari` window with the `movement` plugin loaded
+on the right side.
