@@ -40,6 +40,10 @@ jobs:
           python-version: "3.11"
 
     steps:
+      # these libraries enable testing on Qt on linux
+      - uses: pyvista/setup-headless-display-action@v2
+        with:
+          qt: true
       - name: Cache Test Data
         uses: actions/cache@v4
         with:
