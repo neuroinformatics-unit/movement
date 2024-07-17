@@ -1,0 +1,6 @@
+calculate\_nan\_stats
+=====================
+
+.. currentmodule:: movement.utils.reports
+
+.. autofunction:: calculate_nan_stats

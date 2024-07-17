@@ -1,5 +1,5 @@
-﻿movement.io.load\_poses.from\_dlc\_style\_df
-============================================
+from\_dlc\_style\_df
+====================
 
 .. currentmodule:: movement.io.load_poses
 

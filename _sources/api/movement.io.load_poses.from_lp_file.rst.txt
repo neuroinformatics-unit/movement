@@ -1,5 +1,5 @@
-﻿movement.io.load\_poses.from\_lp\_file
-======================================
+from\_lp\_file
+==============
 
 .. currentmodule:: movement.io.load_poses
 

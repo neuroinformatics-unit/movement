@@ -1,5 +1,5 @@
-﻿movement.sample\_data.fetch\_dataset
-====================================
+fetch\_dataset
+==============
 
 .. currentmodule:: movement.sample_data
 

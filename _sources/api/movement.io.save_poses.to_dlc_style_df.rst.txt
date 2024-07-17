@@ -1,5 +1,5 @@
-﻿movement.io.save\_poses.to\_dlc\_style\_df
-==========================================
+to\_dlc\_style\_df
+==================
 
 .. currentmodule:: movement.io.save_poses
 

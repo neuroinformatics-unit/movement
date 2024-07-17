@@ -1,0 +1,23 @@
+﻿movement.utils.vector
+=====================
+
+.. rubric:: Description
+
+.. automodule:: movement.utils.vector
+
+.. currentmodule:: movement.utils.vector
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    cart2pol
+    
+    pol2cart
+    
+

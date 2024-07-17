@@ -1,5 +1,5 @@
-﻿movement.utils.vector.pol2cart
-==============================
+pol2cart
+========
 
 .. currentmodule:: movement.utils.vector
 

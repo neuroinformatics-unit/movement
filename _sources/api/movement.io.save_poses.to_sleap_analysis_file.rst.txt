@@ -1,5 +1,5 @@
-﻿movement.io.save\_poses.to\_sleap\_analysis\_file
-=================================================
+to\_sleap\_analysis\_file
+=========================
 
 .. currentmodule:: movement.io.save_poses
 

@@ -1,5 +1,5 @@
-﻿movement.analysis.kinematics.compute\_displacement
-==================================================
+compute\_displacement
+=====================
 
 .. currentmodule:: movement.analysis.kinematics
 

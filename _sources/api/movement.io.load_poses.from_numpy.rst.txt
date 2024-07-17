@@ -1,5 +1,5 @@
-﻿movement.io.load\_poses.from\_numpy
-===================================
+from\_numpy
+===========
 
 .. currentmodule:: movement.io.load_poses
 

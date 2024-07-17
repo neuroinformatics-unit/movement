@@ -1,0 +1,6 @@
+report\_nan\_values
+===================
+
+.. currentmodule:: movement.utils.reports
+
+.. autofunction:: report_nan_values

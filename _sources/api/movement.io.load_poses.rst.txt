@@ -1,0 +1,31 @@
+﻿movement.io.load\_poses
+=======================
+
+.. rubric:: Description
+
+.. automodule:: movement.io.load_poses
+
+.. currentmodule:: movement.io.load_poses
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    from_dlc_file
+    
+    from_dlc_style_df
+    
+    from_file
+    
+    from_lp_file
+    
+    from_numpy
+    
+    from_sleap_file
+    
+

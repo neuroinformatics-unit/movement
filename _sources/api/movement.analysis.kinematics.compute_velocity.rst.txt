@@ -1,5 +1,5 @@
-﻿movement.analysis.kinematics.compute\_velocity
-==============================================
+compute\_velocity
+=================
 
 .. currentmodule:: movement.analysis.kinematics
 

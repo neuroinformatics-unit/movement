@@ -1,5 +1,5 @@
-﻿movement.filtering.savgol\_filter
-=================================
+savgol\_filter
+==============
 
 .. currentmodule:: movement.filtering
 

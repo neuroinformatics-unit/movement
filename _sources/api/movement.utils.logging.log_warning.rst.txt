@@ -1,0 +1,6 @@
+log\_warning
+============
+
+.. currentmodule:: movement.utils.logging
+
+.. autofunction:: log_warning

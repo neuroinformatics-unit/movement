@@ -1,5 +1,5 @@
-﻿movement.filtering.filter\_by\_confidence
-=========================================
+filter\_by\_confidence
+======================
 
 .. currentmodule:: movement.filtering
 

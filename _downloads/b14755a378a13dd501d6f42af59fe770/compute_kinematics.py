@@ -52,7 +52,9 @@ position = ds.position
 # colouring them by individual.
 
 fig, ax = plt.subplots(1, 1)
-for mouse_name, col in zip(position.individuals.values, ["r", "g", "b"]):
+for mouse_name, col in zip(
+    position.individuals.values, ["r", "g", "b"], strict=False
+):
     ax.plot(
         position.sel(individuals=mouse_name, space="x"),
         position.sel(individuals=mouse_name, space="y"),
@@ -78,7 +80,7 @@ for mouse_name, col in zip(position.individuals.values, ["r", "g", "b"]):
 # %%
 # We can also color the data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
-for mouse_name, ax in zip(position.individuals.values, axes):
+for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     sc = ax.scatter(
         position.sel(individuals=mouse_name, space="x"),
         position.sel(individuals=mouse_name, space="y"),
@@ -102,8 +104,9 @@ fig.tight_layout()
 
 # %%
 # We can also easily plot the components of the position vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
-# remove the dimension of length 1 from the data (the keypoints dimension).
+# using ``xarray``'s built-in plotting methods. We use
+# :py:meth:`xarray.DataArray.squeeze` to
+# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
 
@@ -128,7 +131,7 @@ displacement = ds.move.compute_displacement()
 
 # %%
 # Notice that we could also compute the displacement (and all the other
-# kinematic variables) using the kinematics module:
+# kinematic variables) using the :py:mod:`movement.analysis.kinematics` module:
 
 # %%
 import movement.analysis.kinematics as kin
@@ -280,8 +283,9 @@ velocity = ds.move.compute_velocity()
 
 # %%
 # We can plot the components of the velocity vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
-# remove the dimension of length 1 from the data (the keypoints dimension).
+# using ``xarray``'s built-in plotting methods. We use
+# :py:meth:`xarray.DataArray.squeeze` to
+# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
@@ -297,7 +301,7 @@ plt.gcf().show()
 # %%
 # We can also visualise the speed, as the norm of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(velocity.individuals.values, axes):
+for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
     # compute the norm of the velocity vector for one mouse
     speed_one_mouse = np.linalg.norm(
         velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
@@ -357,7 +361,7 @@ accel = ds.move.compute_acceleration()
 # and plot of the components of the acceleration vector ``ax``, ``ay`` per
 # individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # plot x-component of acceleration vector
     ax.plot(
         accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
@@ -379,7 +383,7 @@ fig.tight_layout()
 # acceleration.
 # We can also represent this for each individual.
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes):
+for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # compute norm of the acceleration vector for one mouse
     accel_one_mouse = np.linalg.norm(
         accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),

@@ -1,0 +1,23 @@
+﻿movement.utils.reports
+======================
+
+.. rubric:: Description
+
+.. automodule:: movement.utils.reports
+
+.. currentmodule:: movement.utils.reports
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    calculate_nan_stats
+    
+    report_nan_values
+    
+

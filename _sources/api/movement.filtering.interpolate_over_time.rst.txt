@@ -1,5 +1,5 @@
-﻿movement.filtering.interpolate\_over\_time
-==========================================
+interpolate\_over\_time
+=======================
 
 .. currentmodule:: movement.filtering
 

@@ -1,5 +1,5 @@
-﻿movement.io.load\_poses.from\_sleap\_file
-=========================================
+from\_sleap\_file
+=================
 
 .. currentmodule:: movement.io.load_poses
 

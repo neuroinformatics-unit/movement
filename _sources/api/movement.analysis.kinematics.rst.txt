@@ -1,0 +1,25 @@
+﻿movement.analysis.kinematics
+============================
+
+.. rubric:: Description
+
+.. automodule:: movement.analysis.kinematics
+
+.. currentmodule:: movement.analysis.kinematics
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    compute_acceleration
+    
+    compute_displacement
+    
+    compute_velocity
+    
+

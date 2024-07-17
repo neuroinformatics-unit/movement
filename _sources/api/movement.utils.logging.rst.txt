@@ -1,0 +1,27 @@
+﻿movement.utils.logging
+======================
+
+.. rubric:: Description
+
+.. automodule:: movement.utils.logging
+
+.. currentmodule:: movement.utils.logging
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    configure_logging
+    
+    log_error
+    
+    log_to_attrs
+    
+    log_warning
+    
+

@@ -1,6 +1,0 @@
-﻿movement.filtering.report\_nan\_values
-======================================
-
-.. currentmodule:: movement.filtering
-
-.. autofunction:: report_nan_values

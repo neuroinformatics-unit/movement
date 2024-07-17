@@ -1,5 +1,5 @@
-﻿movement.filtering.median\_filter
-=================================
+median\_filter
+==============
 
 .. currentmodule:: movement.filtering
 

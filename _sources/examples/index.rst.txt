@@ -17,23 +17,6 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Load and explore an example dataset of pose tracks.">
-
-.. only:: html
-
-  .. image:: /examples/images/thumb/sphx_glr_load_and_explore_poses_thumb.png
-    :alt:
-
-  :ref:`sphx_glr_examples_load_and_explore_poses.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Load and explore pose tracks</div>
-    </div>
-
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="Filter out points with low confidence scores and interpolate over missing values.">
 
 .. only:: html
@@ -46,6 +29,23 @@ Below is a gallery of examples using ``movement``.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Drop outliers and interpolate</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Load and explore an example dataset of pose tracks.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_load_and_explore_poses_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_load_and_explore_poses.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load and explore pose tracks</div>
     </div>
 
 
@@ -110,8 +110,8 @@ Below is a gallery of examples using ``movement``.
 .. toctree::
    :hidden:
 
-   /examples/load_and_explore_poses
    /examples/filter_and_interpolate
+   /examples/load_and_explore_poses
    /examples/smooth
    /examples/compute_kinematics
    /examples/compute_polar_coordinates
