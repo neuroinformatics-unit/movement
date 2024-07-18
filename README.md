@@ -54,7 +54,7 @@ You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipc
 
 If you use `movement` in your work, please cite the following Zenodo DOI:
 
-> Nikoloz Sirmpilatze, Chang Huan Lo, Sofia Miñano, Dhruv Sharma, Brandon D. Peri, Laura Porta, Iván Varela & Adam L. Tyson (2024). neuroinformatics-unit/movement. Zenodo. https://zenodo.org/doi/10.5281/zenodo.12755724
+> Nikoloz Sirmpilatze, Chang Huan Lo, Sofía Miñano, Brandon D. Peri, Dhruv Sharma, Laura Porta, Iván Varela & Adam L. Tyson (2024). neuroinformatics-unit/movement. Zenodo. https://zenodo.org/doi/10.5281/zenodo.12755724
 
 ## License
 ⚖️ [BSD 3-Clause](./LICENSE)
