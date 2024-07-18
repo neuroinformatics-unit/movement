@@ -43,11 +43,10 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 ```
 
 ## Citation
-
-If you use `movement` in your work, please cite the following Zenodo DOI:
-
-> Nikoloz Sirmpilatze, Chang Huan Lo, Sofia Miñano, Dhruv Sharma, Brandon D. Peri, Laura Porta, Iván Varela & Adam L. Tyson (2024). neuroinformatics-unit/movement. Zenodo. https://zenodo.org/doi/10.5281/zenodo.12755724
-
+```{include} ../../README.md
+:start-after: '## Citation'
+:end-before: '## License'
+```
 
 ```{toctree}
 :maxdepth: 2
