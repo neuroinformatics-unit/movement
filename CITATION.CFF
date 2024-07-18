@@ -1,11 +1,13 @@
 cff-version: 1.2.0
 title: movement
 message: >-
-  If you use movement in your work, please cite the following Zenodo DOI
+  If you use movement in your work, please cite the following Zenodo DOI.
 type: software
 authors:
   - given-names: Nikoloz
     family-names: Sirmpilatze
+    orcid: 'https://orcid.org/0000-0003-1778-2427'
+    email: niko.sirbiladze@gmail.com
   - given-names: Chang Huan
     family-names: Lo
   - given-names: Sofia
@@ -21,12 +23,21 @@ authors:
   - given-names: Adam L.
     family-names: Tyson
     email: code@adamltyson.com
-repository-code: >-
-  https://github.com/neuroinformatics-unit/movement
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.12755724
+    description: 'A collection of archived snapshots of movement on Zenodo.'
+repository-code: 'https://github.com/neuroinformatics-unit/movement'
 url: 'https://movement.neuroinformatics.dev/'
 abstract: >-
-   Python tools for analysing body movements across space and time.
+  Python tools for analysing body movements across space and time.
+keywords:
+  - behavior
+  - behaviour
+  - kinematics
+  - neuroscience
+  - animal
+  - motion
+  - tracking
+  - pose
 license: BSD-3-Clause
-date-released: '2024-007-17'
-doi: 10.5281/zenodo.12755724
-year: 2024
