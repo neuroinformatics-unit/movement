@@ -37,17 +37,6 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     return fps
 
 
-def _convert_to_column_vector(value: np.ndarray) -> np.ndarray:
-    """Convert an array of shape (n,) or (1, n) to an array of shape (n, 1)."""
-    # Validate the input is an np array
-    _validate_type_ndarray(value)
-
-    # Convert to column vector if necessary
-    if (value.ndim == 1) or (value.ndim == 2 and value.shape[1] != 1):
-        return value.reshape(-1, 1)
-    return value
-
-
 def _validate_type_ndarray(value: Any) -> None:
     """Raise ValueError the value is a not numpy array."""
     if not isinstance(value, np.ndarray):
@@ -224,9 +213,9 @@ class ValidBboxesDataset:
         of the `position_array`. The names will be in the format of `id_<N>`,
         where <N>  is an integer from 1 to `position_array.shape[1]`.
     frame_array : np.ndarray, optional
-        One dimensional array of length n_frames containing the frame numbers
-        for which bounding boxes are defined. If None (default), frame numbers
-        will be assigned based on the first dimension of the `position_array`,
+        Array of shape (n_frames, 1) containing the frame numbers for which
+        bounding boxes are defined. If None (default), frame numbers will
+        be assigned based on the first dimension of the `position_array`,
         starting from 0.
     fps : float, optional
         Frames per second defining the sampling rate of the data.
@@ -249,12 +238,7 @@ class ValidBboxesDataset:
             _convert_to_list_of_str
         ),  # force into list of strings if not
     )
-    frame_array: np.ndarray | None = field(
-        default=None,
-        converter=converters.optional(
-            _convert_to_column_vector
-        ),  # force into column vector
-    )
+    frame_array: np.ndarray | None = field(default=None)
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
@@ -310,12 +294,22 @@ class ValidBboxesDataset:
 
     @frame_array.validator
     def _validate_frame_array(self, attribute, value):
-        # check frames are continuous: exactly one frame number per row
-        if (value is not None) and (not np.all(np.diff(value, axis=0) == 1)):
-            raise log_error(
-                ValueError,
-                f"Frame numbers in {attribute.name} are not continuous.",
+        if value is not None:
+            _validate_type_ndarray(value)
+
+            # should be a column vector (n_frames, 1)
+            _validate_array_shape(
+                attribute,
+                value,
+                expected_shape=(self.position_array.shape[0], 1),
             )
+
+            # check frames are continuous: exactly one frame number per row
+            if not np.all(np.diff(value, axis=0) == 1):
+                raise log_error(
+                    ValueError,
+                    f"Frame numbers in {attribute.name} are not continuous.",
+                )
 
     # Define defaults
     def __attrs_post_init__(self):

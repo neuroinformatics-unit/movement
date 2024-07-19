@@ -361,9 +361,9 @@ def test_bboxes_dataset_validator_confidence_array(
     [
         (
             np.arange(10).reshape(-1, 2),
-            does_not_raise(),
-            "",
-        ),  # frame_array is coerced to a column vector
+            pytest.raises(ValueError),
+            "Expected 'frame_array' to have shape (10, 1), " "but got (5, 2).",
+        ),  # frame_array should be a column vector
         (
             [1, 2, 3],
             pytest.raises(ValueError),
@@ -405,5 +405,4 @@ def test_bboxes_dataset_validator_frame_array(
         assert np.array_equal(ds.frame_array, default_frame_array)
         assert ds.frame_array.shape == (ds.position_array.shape[0], 1)
     else:
-        if log_message:
-            assert str(excinfo.value) == log_message
+        assert str(excinfo.value) == log_message
