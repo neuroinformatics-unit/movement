@@ -33,6 +33,16 @@ def _ensure_type_ndarray(value: Any) -> None:
         )
 
 
+def _ensure_shape(attribute, value: np.ndarray, expected_shape: tuple):
+    """Raise ValueError if the value does not have the expected shape."""
+    if value.shape != expected_shape:
+        raise log_error(
+            ValueError,
+            f"Expected '{attribute.name}' to have shape {expected_shape}, "
+            f"but got {value.shape}.",
+        )
+
+
 def _set_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
@@ -126,13 +136,10 @@ class ValidPosesDataset:
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _ensure_type_ndarray(value)
-            expected_shape = self.position_array.shape[:-1]
-            if value.shape != expected_shape:
-                raise log_error(
-                    ValueError,
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}.",
-                )
+
+            _ensure_shape(
+                attribute, value, expected_shape=self.position_array.shape[:-1]
+            )
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
@@ -276,27 +283,24 @@ class ValidBboxesDataset:
         if value is not None:
             _ensure_type_ndarray(value)
 
-            expected_shape = self.position_array.shape[:-1]
-            if value.shape != expected_shape:
-                raise log_error(
-                    ValueError,
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}.",
-                )
+            _ensure_shape(
+                attribute, value, expected_shape=self.position_array.shape[:-1]
+            )
 
     @frame_array.validator
-    def _validate_frame_array(self, attribute, value):
+    def _validate_frame_array(
+        self, attribute, value
+    ):  # ---- ADD check for contiguous frames
         if value is not None:
             _ensure_type_ndarray(value)
 
             # should be a column vector (n_frames, 1)
-            expected_shape = (self.position_array.shape[0], 1)
-            if value.shape != expected_shape:
-                raise log_error(
-                    ValueError,
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}.",
-                )
+
+            _ensure_shape(
+                attribute,
+                value,
+                expected_shape=(self.position_array.shape[0], 1),
+            )
 
     # Define defaults
     def __attrs_post_init__(self):
