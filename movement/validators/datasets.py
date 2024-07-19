@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 from typing import Any
 
+import attrs
 import numpy as np
 from attrs import converters, define, field, validators
 
@@ -44,7 +45,9 @@ def _validate_type_ndarray(value: Any) -> None:
         )
 
 
-def _validate_array_shape(attribute, value: np.ndarray, expected_shape: tuple):
+def _validate_array_shape(
+    attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+):
     """Raise ValueError if the value does not have the expected shape."""
     if value.shape != expected_shape:
         raise log_error(
@@ -54,7 +57,9 @@ def _validate_array_shape(attribute, value: np.ndarray, expected_shape: tuple):
         )
 
 
-def _validate_list_length(attribute, value: list | None, expected_length: int):
+def _validate_list_length(
+    attribute: attrs.Attribute, value: list | None, expected_length: int
+):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
         raise log_error(
