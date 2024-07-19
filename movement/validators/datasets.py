@@ -293,19 +293,23 @@ class ValidBboxesDataset:
             )
 
     @frame_array.validator
-    def _validate_frame_array(
-        self, attribute, value
-    ):  # ---- ADD check for contiguous frames
+    def _validate_frame_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
 
             # should be a column vector (n_frames, 1)
-
             _validate_array_shape(
                 attribute,
                 value,
                 expected_shape=(self.position_array.shape[0], 1),
             )
+
+            # check frames are continuous: exactly one frame number per row
+            if not np.all(np.diff(value, axis=0) == 1):
+                raise log_error(
+                    ValueError,
+                    f"Frame numbers in {attribute.name} are not continuous.",
+                )
 
     # Define defaults
     def __attrs_post_init__(self):

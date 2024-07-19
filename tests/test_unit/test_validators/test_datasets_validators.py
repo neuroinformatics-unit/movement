@@ -370,6 +370,11 @@ def test_bboxes_dataset_validator_confidence_array(
             f"Expected a numpy array, but got {type(list())}.",
         ),  # not an ndarray, should raise ValueError
         (
+            np.array([1, 2, 3, 4, 6, 7, 8, 9, 10, 11]).reshape(-1, 1),
+            pytest.raises(ValueError),
+            "Frame numbers in frame_array are not continuous.",
+        ),  # frame numbers are not continuous
+        (
             None,
             does_not_raise(),
             "",
