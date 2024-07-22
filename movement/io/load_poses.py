@@ -674,5 +674,6 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "time_unit": time_unit,
             "source_software": data.source_software,
             "source_file": None,
+            "ds_type": "poses",
         },
     )
