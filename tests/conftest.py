@@ -362,7 +362,7 @@ def via_tracks_csv_with_valid_header(tmp_path):
 def frame_number_in_file_attribute_not_integer(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with invalid frame
+    """Return the file path for a VIA tracks .csv file with invalid frame
     number defined as file_attribute.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -383,7 +383,7 @@ def frame_number_in_file_attribute_not_integer(
 def frame_number_in_filename_wrong_pattern(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with invalid frame
+    """Return the file path for a VIA tracks .csv file with invalid frame
     number defined in the frame's filename.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -404,7 +404,7 @@ def frame_number_in_filename_wrong_pattern(
 def more_frame_numbers_than_filenames(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with more
+    """Return the file path for a VIA tracks .csv file with more
     frame numbers than filenames.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -435,7 +435,7 @@ def more_frame_numbers_than_filenames(
 def less_frame_numbers_than_filenames(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with with less
+    """Return the file path for a VIA tracks .csv file with with less
     frame numbers than filenames.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -466,7 +466,7 @@ def less_frame_numbers_than_filenames(
 def region_shape_attribute_not_rect(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with invalid shape in
+    """Return the file path for a VIA tracks .csv file with invalid shape in
     region_shape_attributes.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -487,7 +487,7 @@ def region_shape_attribute_not_rect(
 def region_shape_attribute_missing_x(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with invalid shape in
+    """Return the file path for a VIA tracks .csv file with missing `x` key in
     region_shape_attributes.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -508,7 +508,7 @@ def region_shape_attribute_missing_x(
 def region_attribute_missing_track(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with missing track
+    """Return the file path for a VIA tracks .csv file with missing track
     attribute in region_attributes.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -529,7 +529,7 @@ def region_attribute_missing_track(
 def track_id_not_castable_as_int(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with a track ID
+    """Return the file path for a VIA tracks .csv file with a track ID
     attribute not castable as an integer.
     """
     file_path = via_tracks_csv_with_valid_header
@@ -550,7 +550,7 @@ def track_id_not_castable_as_int(
 def track_ids_not_unique_per_frame(
     via_tracks_csv_with_valid_header,
 ):
-    """Return the file path for a VIA tracks csv file with a track ID
+    """Return the file path for a VIA tracks .csv file with a track ID
     that appears twice in the same frame.
     """
     file_path = via_tracks_csv_with_valid_header

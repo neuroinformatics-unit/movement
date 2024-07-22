@@ -99,14 +99,14 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         (
             "more_frame_numbers_than_filenames",
             "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks csv file and "
-            "ensure a unique frame number is defined for each file. ",
+            "of unique image files. Please review the VIA tracks .csv file "
+            "and ensure a unique frame number is defined for each file. ",
         ),
         (
             "less_frame_numbers_than_filenames",
             "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks csv file and "
-            "ensure a unique frame number is defined for each file. ",
+            "of unique image files. Please review the VIA tracks .csv file "
+            "and ensure a unique frame number is defined for each file. ",
         ),
         (
             "region_shape_attribute_not_rect",
@@ -127,20 +127,20 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "bounding box does not have a 'track' attribute defined "
             "under 'region_attributes'. "
-            "Please review the VIA tracks csv file.",
+            "Please review the VIA tracks .csv file.",
         ),
         (
             "track_id_not_castable_as_int",
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "the track ID for the bounding box cannot be cast "
             "as an integer. "
-            "Please review the VIA tracks csv file.",
+            "Please review the VIA tracks .csv file.",
         ),
         (
             "track_ids_not_unique_per_frame",
             "04.09.2023-04-Right_RE_test_frame_01.png: "
             "multiple bounding boxes in this file have the same track ID. "
-            "Please review the VIA tracks csv file.",
+            "Please review the VIA tracks .csv file.",
         ),
     ],
 )
@@ -150,7 +150,7 @@ def test_via_tracks_csv_validator_with_invalid_input(
     """Test that invalid VIA tracks CSV files raise the appropriate errors.
 
     Errors to check:
-    - error if csv header is wrong
+    - error if .csv header is wrong
     - error if frame number is not defined in the file
         (frame number extracted either from the filename or from attributes)
     - error if extracted frame numbers are not 1-based integers

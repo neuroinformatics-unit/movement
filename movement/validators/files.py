@@ -247,7 +247,7 @@ class ValidVIATracksCSV:
 
     @path.validator
     def csv_file_contains_valid_frame_numbers(self, attribute, value):
-        """Ensure that the VIA tracks csv file contains valid frame numbers.
+        """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
         - Checking that frame numbers are included in `file_attributes` or
@@ -309,13 +309,14 @@ class ValidVIATracksCSV:
             raise log_error(
                 ValueError,
                 "The number of unique frame numbers does not match the number "
-                "of unique image files. Please review the VIA tracks csv file "
-                "and ensure a unique frame number is defined for each file. ",
+                "of unique image files. Please review the VIA tracks .csv "
+                "file and ensure a unique frame number is defined for each "
+                "file. ",
             )
 
     @path.validator
     def csv_file_contains_tracked_bboxes(self, attribute, value):
-        """Ensure that the VIA tracks csv contains tracked bounding boxes.
+        """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
         - Checking that the bounding boxes are defined as rectangles.
@@ -365,7 +366,7 @@ class ValidVIATracksCSV:
                     f"{row.filename} (row {row.Index}): "
                     "bounding box does not have a 'track' attribute defined "
                     "under 'region_attributes'. "
-                    "Please review the VIA tracks csv file.",
+                    "Please review the VIA tracks .csv file.",
                 )
 
             # check track ID is castable as an integer
@@ -376,14 +377,14 @@ class ValidVIATracksCSV:
                     ValueError,
                     f"{row.filename} (row {row.Index}): "
                     "the track ID for the bounding box cannot be cast "
-                    "as an integer. Please review the VIA tracks csv file.",
+                    "as an integer. Please review the VIA tracks .csv file.",
                 ) from e
 
     @path.validator
     def csv_file_contains_unique_track_IDs_per_filename(
         self, attribute, value
     ):
-        """Ensure the VIA tracks csv contains unique track IDs per filename.
+        """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
         It checks that bounding boxes IDs are defined once per image file.
         """
@@ -406,5 +407,5 @@ class ValidVIATracksCSV:
                     f"{file}: "
                     "multiple bounding boxes in this file "
                     "have the same track ID. "
-                    "Please review the VIA tracks csv file.",
+                    "Please review the VIA tracks .csv file.",
                 )
