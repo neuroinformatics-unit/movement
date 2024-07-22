@@ -42,14 +42,14 @@ def valid_from_numpy_inputs():
 
 @pytest.fixture()
 def df_input_via_tracks_small(via_tracks_file):
-    """Return the first three rows of the VIA tracks file as a dataframe."""
+    """Return the first 3 rows of the VIA tracks .csv file as a dataframe."""
     df = pd.read_csv(via_tracks_file, sep=",", header=0)
     return df.loc[:2, :]
 
 
 @pytest.fixture()
 def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks file
+    """Return a dataframe with the first three rows of the VIA tracks .csv file
     and add confidence values to the bounding boxes.
     """
     df = update_attribute_column(
@@ -63,7 +63,7 @@ def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
 
 @pytest.fixture()
 def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks file
+    """Return a dataframe with the first three rows of the VIA tracks .csv file
     and add frame number values to the bounding boxes.
     """
     df = update_attribute_column(
@@ -147,7 +147,7 @@ def test_from_file(source_software, fps):
 
 def test_from_VIA_tracks_file(via_tracks_file):
     """Test that loading tracked bounding box data from
-    a valid VIA tracks csv file returns a proper Dataset.
+    a valid VIA tracks .csv file returns a proper Dataset.
     """
     ds = load_bboxes.from_via_tracks_file(via_tracks_file)
     assert_dataset(ds, via_tracks_file, "VIA-tracks")
@@ -247,7 +247,6 @@ def test_extract_confidence_from_via_tracks_df(
     the VIA dataframe.
     """
     df = request.getfixturevalue(df_input)
-
     confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
 
     assert np.array_equal(confidence_array, expected_array, equal_nan=True)
@@ -273,7 +272,6 @@ def test_extract_frame_number_from_via_tracks_df(
     the VIA dataframe.
     """
     df = request.getfixturevalue(df_input)
-
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
 
     assert np.array_equal(frame_array, expected_array)

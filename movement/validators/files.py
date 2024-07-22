@@ -215,7 +215,7 @@ class ValidVIATracksCSV:
     Raises
     ------
     ValueError
-        If the .csv file does not match the VIA tracks file requirements.
+        If the file does not match the VIA tracks .csv file requirements.
 
     """
 
@@ -241,7 +241,7 @@ class ValidVIATracksCSV:
                 raise log_error(
                     ValueError,
                     ".csv header row does not match the known format for "
-                    "VIA tracks output files. "
+                    "VIA tracks .csv files. "
                     f"Expected {expected_header} but got {header}.",
                 )
 

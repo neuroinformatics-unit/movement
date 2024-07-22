@@ -197,21 +197,22 @@ class ValidBboxesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' centroid positions.
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the tracks of the bounding boxes' centroids.
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' width (extent along the
-        x-axis) and height (extent along the y-axis).
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the shape of the bounding boxes. The shape of a bounding
+        box is its width (extent along the x-axis of the image) and height
+        (extent along the y-axis of the image).
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
-        the bounding boxes' confidence scores. If None (default), the
-        confidence scores will be set to an array of NaNs.
+        Array of shape (n_frames, n_individuals) containing
+        the confidence scores of the bounding boxes. If None (default), the
+        confidence scores are set to an array of NaNs.
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
         of the `position_array`. The names will be in the format of `id_<N>`,
-        where <N>  is an integer from 1 to `position_array.shape[1]`.
+        where <N>  is an integer from 0 to `position_array.shape[1]-1`.
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
@@ -221,7 +222,7 @@ class ValidBboxesDataset:
         Frames per second defining the sampling rate of the data.
         Defaults to None.
     source_software : str, optional
-        Name of the software from which the bounding boxes were loaded.
+        Name of the annotation software that generated the data.
         Defaults to None.
 
     """

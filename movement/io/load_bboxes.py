@@ -34,37 +34,45 @@ def from_numpy(
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
+        containing the tracks of the bounding boxes' centroids.
+        It will be converted to a :py:class:`xarray.DataArray` object
+        named "position".
     shape_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
-        containing the poses. It will be converted to a
+        containing the shape of the bounding boxes. The shape of a bounding
+        box is its width (extent along the x-axis of the image) and height
+        (extent along the y-axis of the image). It will be converted to a
         :py:class:`xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals) containing
-        the point-wise confidence scores. It will be converted to a
-        :py:class:`xarray.DataArray` object named "confidence".
-        If None (default), the scores will be set to an array of NaNs.
+        the confidence scores of the bounding boxes. If None (default), the
+        confidence scores are set to an array of NaNs. It will be converted
+        to a :py:class:`xarray.DataArray` object named "confidence".
     individual_names : list of str, optional
-        List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "id_0",
-        "id_1", etc.
+        List of individual names for the tracked bounding boxes in the video.
+        If None (default), bounding boxes are assigned names based on the size
+        of the `position_array`. The names will be in the format of `id_<N>`,
+        where <N>  is an integer from 0 to `position_array.shape[1]-1` (i.e.,
+        "id_0", "id_1"...).
     frame_array : np.ndarray, optional
-        Array of shape (n_frames, 1) containing the frame numbers. If no frame
-        numbers are supplied (default), the frames will be numbered
-        based on the position_array data and starting from 0.
+        Array of shape (n_frames, 1) containing the frame numbers for which
+        bounding boxes are defined. If None (default), frame numbers will
+        be assigned based on the first dimension of the `position_array`,
+        starting from 0.
     fps : float, optional
-        Frames per second of the video. Defaults to None, in which case
-        the time coordinates will be in frame numbers.
+        The number of frames per second in the video. If provided, the
+        ``time`` coordinates of the resulting ``movement`` dataset will be in
+        seconds. If None (default), the ``time`` coordinates will be in frame
+        numbers.
     source_software : str, optional
-        Name of the pose estimation software from which the data originate.
+        Name of the annotation software that generated the data.
         Defaults to None.
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` bounding boxes dataset containing the boxes tracks,
-        boxes shapes, confidence scores and associated metadata.
+        ``movement`` dataset containing the position, shape, and confidence
+        scores of the tracked bounding boxes, and any associated metadata.
 
     Examples
     --------
@@ -102,9 +110,9 @@ def from_file(
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a supported tracked bboxes file.
+    """Create a ``movement`` bounding boxes dataset from a supported file.
 
-    At the moment, we only support VIA-tracks files.
+    At the moment, we only support VIA-tracks .csv files.
 
     Parameters
     ----------
@@ -112,24 +120,30 @@ def from_file(
         Path to the file containing the tracked bounding boxes. Currently
         only VIA-tracks .csv files are supported.
     source_software : "VIA-tracks".
-        The source software of the file. Currently only "VIA-tracks
-        is supported.
+        The source software of the file. Currently only files from the
+        VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
+        See .
     fps : float, optional
         The number of frames per second in the video. If provided, the
-        ``time`` coordinates will be in seconds. If None (default), the
-        ``time`` coordinates will be in frame numbers. If no frame numbers
-        are provided in the file, frame numbers will be assigned based on
-        the position data and starting from 0.
+        ``time`` coordinates of the resulting ``movement`` dataset will be in
+        seconds. If None (default), the ``time`` coordinates will be in frame
+        numbers. If no frame numbers are provided in the file, frame numbers
+        will be assigned based on the position data and starting from 0.
 
     Returns
     -------
     xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
-        scores of the tracked bounding boxes, and associated metadata.
+        scores of the tracked bounding boxes, and any associated metadata.
 
     See Also
     --------
     movement.io.load_bboxes.from_via_tracks_file
+
+    References
+    ----------
+    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/
+
 
     Examples
     --------
@@ -155,26 +169,27 @@ def from_via_tracks_file(
     Parameters
     ----------
     file_path : pathlib.Path or str
-        Path to the VIA file with the tracked bounding boxes, in .csv format.
-        For more information on the VIA tracks file format, see the VIA
+        Path to the VIA tracks .csv file with the tracked bounding boxes.
+        For more information on the VIA tracks .csv file format, see the VIA
         tutorial for tracking [1]_.
     fps : float, optional
         The number of frames per second in the video.  If provided, the
-        ``time`` coordinates will be in seconds. If None (default), the
-        ``time`` coordinates will be in frame numbers.
+        ``time`` coordinates of the resulting ``movement`` dataset will be in
+        seconds. If None (default), the ``time`` coordinates will be in frame
+        numbers.
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` bounding boxes dataset containing the boxes tracks,
-        boxes shapes, confidence scores and associated metadata.
+        ``movement`` dataset containing the position, shape, and confidence
+        scores of the tracked bounding boxes, and any associated metadata.
 
     Notes
     -----
-    For each bounding box, the ID specified in the "track" field of the VIA
-    file is expressed as "individual_name" in the xarray.Dataset. The
-    individual names follow the format `id_<N>`, with N being the bounding box
-    ID.
+    The bounding boxes' IDs specified in the "track" field of the VIA
+    tracks .csv file are mapped to the "individual_name" column of the
+    ``movement`` dataset. The individual names follow the format `id_<N>`,
+    with N being the bounding box ID.
 
     References
     ----------
@@ -191,9 +206,9 @@ def from_via_tracks_file(
         file_path, expected_permission="r", expected_suffix=[".csv"]
     )
 
-    # Specific VIA-file validation
+    # Specific VIA-tracks .csv file validation
     via_file = ValidVIATracksCSV(file.path)
-    logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
+    logger.debug(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
@@ -213,21 +228,22 @@ def from_via_tracks_file(
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
-    logger.info(f"Loaded bounding boxes' tracks from {via_file.path}:")
+    logger.info(f"Loaded tracks of the bounding boxes from {via_file.path}:")
     logger.info(ds)
     return ds
 
 
 def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
-    """Extract numpy arrays from the input VIA tracks file.
+    """Extract numpy arrays from the input VIA tracks .csv file.
 
-    The extracted numpy arrays are:
+    The extracted numpy arrays are returned in a dictionary with the following
+    keys:
     - position_array (n_frames, n_individuals, n_space):
-        contains the trajectory of the bounding boxes' centroids.
+        contains the trajectories of the bounding boxes' centroids.
     - shape_array (n_frames, n_individuals, n_space):
         contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
-        contains the confidence score for each bounding box.
+        contains the confidence score of each bounding box.
         If no confidence scores are provided, they are set to an array of NaNs.
     - ID_array (n_individuals, 1):
         contains the integer IDs of the tracked bounding boxes.
@@ -237,7 +253,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the VIA tracks file containing the bounding boxes' tracks.
+        Path to the VIA tracks .csv file containing the bounding boxes' tracks.
 
     Returns
     -------
@@ -246,7 +262,8 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
     """
     # Extract 2D dataframe from input data
-    # (sort data by ID and frame number and fill with nans)
+    # (sort data by ID and frame number, and
+    # fill empty frame-ID pairs with nans)
     df = _df_from_via_tracks_file(file_path)
 
     # Compute indices of the rows where the IDs switch
@@ -278,9 +295,9 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
 
 def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
-    """Load VIA tracks file as a dataframe.
+    """Load VIA tracks .csv file as a dataframe.
 
-    Read the VIA tracks file as a pandas dataframe with columns:
+    Read the VIA tracks .csv file as a pandas dataframe with columns:
     - ID: the integer ID of the tracked bounding box.
     - frame_number: the frame number of the tracked bounding box.
     - x: the x-coordinate of the tracked bounding box centroid.
@@ -292,7 +309,7 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
     The dataframe is sorted by ID and frame number, and for each ID,
     empty frames are filled in with NaNs.
     """
-    # Read VIA tracks file as a pandas dataframe
+    # Read VIA tracks .csv file as a pandas dataframe
     df_file = pd.read_csv(file_path, sep=",", header=0)
 
     # Format to a 2D dataframe
@@ -383,10 +400,10 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
     -------
     np.ndarray
         A numpy array of size (n_frames, 1) containing the frame numbers.
-        In the VIA tracks file, the frame number is expected to be defined as a
-        'file_attribute' , or encoded in the filename as an integer number led
-        by at least one zero, between "_" and ".", followed by the file
-        extension.
+        In the VIA tracks .csv file, the frame number is expected to be
+        defined as a 'file_attribute' , or encoded in the filename as an
+        integer number led by at least one zero, between "_" and ".", followed
+        by the file extension.
 
     """
     # Extract frame number from file_attributes if exists
@@ -421,7 +438,7 @@ def _via_attribute_column_to_numpy(
 ) -> np.ndarray:
     """Convert values from VIA attribute-type column to a numpy array.
 
-    In the VIA tracks file, the attribute-type columns are the columns
+    In the VIA tracks .csv file, the attribute-type columns are the columns
     whose name includes the word `attributes` (i.e. `file_attributes`,
     `region_shape_attributes` or `region_attributes`). These columns hold
     dictionary data.
@@ -429,12 +446,12 @@ def _via_attribute_column_to_numpy(
     Parameters
     ----------
     df : pd.DataFrame
-        The pandas DataFrame containing the data from the VIA file.
+        The pandas DataFrame containing the data from the VIA tracks .csv file.
         This is the dataframe obtained from running
         `df = pd.read_csv(file_path, sep=",", header=0)`.
     via_column_name : str
-        The name of a column in the VIA file whose values are literal
-        dictionaries (i.e. `file_attributes`, `region_shape_attributes`
+        The name of a column in the VIA tracks .csv file whose values are
+        literal dictionaries (i.e. `file_attributes`, `region_shape_attributes`
         or `region_attributes`).
     list_keys : list[str]
         The list of keys whose values we want to extract from the literal
