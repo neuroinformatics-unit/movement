@@ -250,7 +250,7 @@ class ValidVIAtracksCSV:
         """Ensure that the VIA tracks csv file contains valid frame numbers.
 
         This involves:
-        - Checking that frame numbers are defined as a `file_attributes` or
+        - Checking that frame numbers are included in `file_attributes` or
           encoded in the image file `filename`.
         - Checking the frame number can be cast as an integer.
         - Checking that there are as many unique frame numbers as unique image
@@ -385,7 +385,7 @@ class ValidVIAtracksCSV:
     ):
         """Ensure the VIA tracks csv contains unique track IDs per filename.
 
-        It check bounding boxes IDs are only defined once per image file.
+        It checks that bounding boxes IDs are defined once per image file.
         """
         df = pd.read_csv(value, sep=",", header=0)
 
