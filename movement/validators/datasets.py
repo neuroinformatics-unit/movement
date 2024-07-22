@@ -3,13 +3,14 @@
 from collections.abc import Iterable
 from typing import Any
 
+import attrs
 import numpy as np
 from attrs import converters, define, field, validators
 
 from movement.utils.logging import log_error, log_warning
 
 
-def _list_of_str(value: str | Iterable[Any]) -> list[str]:
+def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
         log_warning(
@@ -25,15 +26,7 @@ def _list_of_str(value: str | Iterable[Any]) -> list[str]:
         )
 
 
-def _ensure_type_ndarray(value: Any) -> None:
-    """Raise ValueError the value is a not numpy array."""
-    if not isinstance(value, np.ndarray):
-        raise log_error(
-            ValueError, f"Expected a numpy array, but got {type(value)}."
-        )
-
-
-def _set_fps_to_none_if_invalid(fps: float | None) -> float | None:
+def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
         log_warning(
@@ -44,7 +37,29 @@ def _set_fps_to_none_if_invalid(fps: float | None) -> float | None:
     return fps
 
 
-def _validate_list_length(attribute, value: list | None, expected_length: int):
+def _validate_type_ndarray(value: Any) -> None:
+    """Raise ValueError the value is a not numpy array."""
+    if not isinstance(value, np.ndarray):
+        raise log_error(
+            ValueError, f"Expected a numpy array, but got {type(value)}."
+        )
+
+
+def _validate_array_shape(
+    attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+):
+    """Raise ValueError if the value does not have the expected shape."""
+    if value.shape != expected_shape:
+        raise log_error(
+            ValueError,
+            f"Expected '{attribute.name}' to have shape {expected_shape}, "
+            f"but got {value.shape}.",
+        )
+
+
+def _validate_list_length(
+    attribute: attrs.Attribute, value: list | None, expected_length: int
+):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
         raise log_error(
@@ -88,16 +103,16 @@ class ValidPosesDataset:
     confidence_array: np.ndarray | None = field(default=None)
     individual_names: list[str] | None = field(
         default=None,
-        converter=converters.optional(_list_of_str),
+        converter=converters.optional(_convert_to_list_of_str),
     )
     keypoint_names: list[str] | None = field(
         default=None,
-        converter=converters.optional(_list_of_str),
+        converter=converters.optional(_convert_to_list_of_str),
     )
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
-            converters.optional(float), _set_fps_to_none_if_invalid
+            converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
     source_software: str | None = field(
@@ -108,7 +123,7 @@ class ValidPosesDataset:
     # Add validators
     @position_array.validator
     def _validate_position_array(self, attribute, value):
-        _ensure_type_ndarray(value)
+        _validate_type_ndarray(value)
         if value.ndim != 4:
             raise log_error(
                 ValueError,
@@ -125,14 +140,11 @@ class ValidPosesDataset:
     @confidence_array.validator
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
-            _ensure_type_ndarray(value)
-            expected_shape = self.position_array.shape[:-1]
-            if value.shape != expected_shape:
-                raise log_error(
-                    ValueError,
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}.",
-                )
+            _validate_type_ndarray(value)
+
+            _validate_array_shape(
+                attribute, value, expected_shape=self.position_array.shape[:-1]
+            )
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
@@ -200,6 +212,11 @@ class ValidBboxesDataset:
         If None (default), bounding boxes are assigned names based on the size
         of the `position_array`. The names will be in the format of `id_<N>`,
         where <N>  is an integer from 1 to `position_array.shape[1]`.
+    frame_array : np.ndarray, optional
+        Array of shape (n_frames, 1) containing the frame numbers for which
+        bounding boxes are defined. If None (default), frame numbers will
+        be assigned based on the first dimension of the `position_array`,
+        starting from 0.
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
@@ -218,13 +235,14 @@ class ValidBboxesDataset:
     individual_names: list[str] | None = field(
         default=None,
         converter=converters.optional(
-            _list_of_str
+            _convert_to_list_of_str
         ),  # force into list of strings if not
     )
+    frame_array: np.ndarray | None = field(default=None)
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
-            converters.optional(float), _set_fps_to_none_if_invalid
+            converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
     source_software: str | None = field(
@@ -236,7 +254,7 @@ class ValidBboxesDataset:
     @position_array.validator
     @shape_array.validator
     def _validate_position_and_shape_arrays(self, attribute, value):
-        _ensure_type_ndarray(value)
+        _validate_type_ndarray(value)
 
         # check last dimension (spatial) has 2 coordinates
         n_expected_spatial_coordinates = 2
@@ -268,14 +286,29 @@ class ValidBboxesDataset:
     @confidence_array.validator
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
-            _ensure_type_ndarray(value)
+            _validate_type_ndarray(value)
 
-            expected_shape = self.position_array.shape[:-1]
-            if value.shape != expected_shape:
+            _validate_array_shape(
+                attribute, value, expected_shape=self.position_array.shape[:-1]
+            )
+
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        if value is not None:
+            _validate_type_ndarray(value)
+
+            # should be a column vector (n_frames, 1)
+            _validate_array_shape(
+                attribute,
+                value,
+                expected_shape=(self.position_array.shape[0], 1),
+            )
+
+            # check frames are continuous: exactly one frame number per row
+            if not np.all(np.diff(value, axis=0) == 1):
                 raise log_error(
                     ValueError,
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}.",
+                    f"Frame numbers in {attribute.name} are not continuous.",
                 )
 
     # Define defaults
@@ -284,7 +317,7 @@ class ValidBboxesDataset:
 
         If no confidence_array is provided, set it to an array of NaNs.
         If no individual names are provided, assign them unique IDs per frame,
-        starting with 1 ("id_1")
+        starting with 0 ("id_0").
         """
         if self.confidence_array is None:
             self.confidence_array = np.full(
@@ -293,17 +326,25 @@ class ValidBboxesDataset:
                 dtype="float32",
             )
             log_warning(
-                "Confidence array was not provided."
+                "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
 
         if self.individual_names is None:
             self.individual_names = [
-                f"id_{i+1}" for i in range(self.position_array.shape[1])
+                f"id_{i}" for i in range(self.position_array.shape[1])
             ]
             log_warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
-                "Setting to 1-based IDs that are unique per frame: \n"
+                "Setting to 0-based IDs that are unique per frame: \n"
                 f"{self.individual_names}.\n"
+            )
+
+        if self.frame_array is None:
+            n_frames = self.position_array.shape[0]
+            self.frame_array = np.arange(n_frames).reshape(-1, 1)
+            log_warning(
+                "Frame numbers were not provided. "
+                "Setting to an array of 0-based integers."
             )
