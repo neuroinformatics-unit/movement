@@ -283,8 +283,8 @@ def test_extract_frame_number_from_via_tracks_df(
         (None, None, "frames"),
         (-5, None, "frames"),
         (0, None, "frames"),
-        (30, 30, "seconds"),
-        (60.0, 60, "seconds"),
+        (30, 30.0, "seconds"),
+        (60.0, 60.0, "seconds"),
     ],
 )
 def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
@@ -298,8 +298,20 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
     if expected_fps is None:
         assert ds.fps is expected_fps
     else:
+        # check fps
         assert ds.fps == expected_fps
+
+        # check time coordinates
+        ds_in_frames = load_bboxes.from_via_tracks_file(
+            DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+            fps=None,
+        )
         np.testing.assert_allclose(
             ds.coords["time"].data,
-            np.arange(ds.sizes["time"], dtype=int) / ds.attrs["fps"],
+            np.array(
+                [
+                    frame / ds.attrs["fps"]
+                    for frame in ds_in_frames.coords["time"].data
+                ]
+            ),
         )
