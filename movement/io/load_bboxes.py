@@ -39,7 +39,7 @@ def from_numpy(
     shape_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
         containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
+        :py:class:`xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
@@ -150,7 +150,7 @@ def from_file(
 def from_via_tracks_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Load VIA tracks csv file as an xarray Dataset.
+    """Create a ``movement`` dataset from a VIA tracks .csv file.
 
     Parameters
     ----------
@@ -171,7 +171,7 @@ def from_via_tracks_file(
 
     Notes
     -----
-    For each bounding box, its ID specified in the "track" field of the VIA
+    For each bounding box, the ID specified in the "track" field of the VIA
     file is expressed as "individual_name" in the xarray.Dataset. The
     individual names follow the format `id_<N>`, with N being the bounding box
     ID.

@@ -93,7 +93,7 @@ def update_attribute_column(df_input, attribute_column_name, dict_to_append):
 
 
 def assert_dataset(dataset, file_path=None, expected_source_software=None):
-    """Assert that the dataset is a proper xarray Dataset."""
+    """Assert that the dataset is a proper ``movement`` Dataset."""
     assert isinstance(dataset, xr.Dataset)
 
     # Expected variables are present and of right shape/type
