@@ -58,12 +58,15 @@ def from_numpy(
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
         be assigned based on the first dimension of the `position_array`,
-        starting from 0.
+        starting from 0. If a specific array of frame numbers is provided,
+        these need to be consecutive integers.
     fps : float, optional
-        The number of frames per second in the video. If provided, the
-        ``time`` coordinates of the resulting ``movement`` dataset will be in
-        seconds. If None (default), the ``time`` coordinates will be in frame
-        numbers.
+        The video sampling rate. If None (default), the ``time`` coordinates
+        of the resulting ``movement`` dataset will be in frame numbers. If
+        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
+        the ``time`` coordinates are in seconds, they will indicate the
+        elapsed time from the capture of the 0th frame (assumed to be captured
+        at ``time = 0`` seconds).
     source_software : str, optional
         Name of the annotation software that generated the data.
         Defaults to None.
@@ -124,11 +127,12 @@ def from_file(
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
         See .
     fps : float, optional
-        The number of frames per second in the video. If provided, the
-        ``time`` coordinates of the resulting ``movement`` dataset will be in
-        seconds. If None (default), the ``time`` coordinates will be in frame
-        numbers. If no frame numbers are provided in the file, frame numbers
-        will be assigned based on the position data and starting from 0.
+        The video sampling rate. If None (default), the ``time`` coordinates
+        of the resulting ``movement`` dataset will be in frame numbers. If
+        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
+        the ``time`` coordinates are in seconds, they will indicate the
+        elapsed time from the capture of the 0th frame (assumed to be captured
+        at ``time = 0`` seconds).
 
     Returns
     -------
@@ -173,10 +177,12 @@ def from_via_tracks_file(
         For more information on the VIA tracks .csv file format, see the VIA
         tutorial for tracking [1]_.
     fps : float, optional
-        The number of frames per second in the video.  If provided, the
-        ``time`` coordinates of the resulting ``movement`` dataset will be in
-        seconds. If None (default), the ``time`` coordinates will be in frame
-        numbers.
+        The video sampling rate. If None (default), the ``time`` coordinates
+        of the resulting ``movement`` dataset will be in frame numbers. If
+        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
+        the ``time`` coordinates are in seconds, they will indicate the
+        elapsed time from the capture of the 0th frame (assumed to be captured
+        at ``time = 0`` seconds).
 
     Returns
     -------
@@ -493,15 +499,18 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     """
     # Create the time coordinate
-    time_coords = data.frame_array
+    time_coords = data.frame_array.squeeze()  # type: ignore
     time_unit = "frames"
-    # if fps is provided: time_coords is expressed in seconds.-----
-    if data.fps:  # is not None:
-        # Compute frames from the start (first frame is frame 0).
+    # if fps is provided:
+    # time_coords is expressed in seconds, with the time origin
+    # set as frame 0 == time 0 seconds
+    if data.fps:
+        # Compute elapsed time from frame 0.
         # Ignoring type error because `data.frame_array` is not None after
-        # ValidBboxesDataset.__attrs_post_init__()
-        time_coords = np.arange(data.frame_array.shape[0], dtype=int)  # type: ignore
-        time_coords = time_coords / data.fps
+        # ValidBboxesDataset.__attrs_post_init__()  # type: ignore
+        time_coords = np.array(
+            [frame / data.fps for frame in data.frame_array.squeeze()]  # type: ignore
+        )
         time_unit = "seconds"
 
     # Convert data to an xarray.Dataset
@@ -519,9 +528,9 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         # Ignoring type error because `time_coords`
         # (which is a function of `data.frame_array`)
         # cannot be None after
-        # ValidBboxesDataset.__attrs_post_init__()
+        # ValidBboxesDataset.__attrs_post_init__()   # type: ignore
         coords={
-            DIM_NAMES[0]: time_coords.squeeze(),  # type: ignore
+            DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.individual_names,
             DIM_NAMES[2]: ["x", "y", "z"][:n_space],
         },
