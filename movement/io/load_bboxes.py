@@ -317,25 +317,21 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
         {
             "ID": _via_attribute_column_to_numpy(
                 df_file, "region_attributes", ["track"], int
-            ).squeeze(),
-            "frame_number": _extract_frame_number_from_via_tracks_df(
-                df_file
-            ).squeeze(),
+            ),
+            "frame_number": _extract_frame_number_from_via_tracks_df(df_file),
             "x": _via_attribute_column_to_numpy(
                 df_file, "region_shape_attributes", ["x"], float
-            ).squeeze(),
+            ),
             "y": _via_attribute_column_to_numpy(
                 df_file, "region_shape_attributes", ["y"], float
-            ).squeeze(),
+            ),
             "w": _via_attribute_column_to_numpy(
                 df_file, "region_shape_attributes", ["width"], float
-            ).squeeze(),
+            ),
             "h": _via_attribute_column_to_numpy(
                 df_file, "region_shape_attributes", ["height"], float
-            ).squeeze(),
-            "confidence": _extract_confidence_from_via_tracks_df(
-                df_file
-            ).squeeze(),
+            ),
+            "confidence": _extract_confidence_from_via_tracks_df(df_file),
         }
     )
 
@@ -368,7 +364,7 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        A numpy array of size (n_bboxes, 1) containing the bounding boxes
+        A numpy array of size (n_bboxes, ) containing the bounding boxes
         confidence scores.
 
     """
@@ -382,7 +378,7 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
             df, "region_attributes", ["confidence"], float
         )
     else:
-        bbox_confidence = np.full((df.shape[0], 1), np.nan)
+        bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
 
     return bbox_confidence
 
@@ -399,7 +395,7 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
     Returns
     -------
     np.ndarray
-        A numpy array of size (n_frames, 1) containing the frame numbers.
+        A numpy array of size (n_frames, ) containing the frame numbers.
         In the VIA tracks .csv file, the frame number is expected to be
         defined as a 'file_attribute' , or encoded in the filename as an
         integer number led by at least one zero, between "_" and ".", followed
@@ -425,7 +421,7 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
             for f in df["filename"]
         ]
 
-        frame_array = np.array(list_frame_numbers).reshape(-1, 1)
+        frame_array = np.array(list_frame_numbers)
 
     return frame_array
 
@@ -462,10 +458,12 @@ def _via_attribute_column_to_numpy(
     Returns
     -------
     np.ndarray
-        A numpy array holding the extracted values. The rows (axis=0) are the
-        rows of the input dataframe. The columns (axis=1) follow the order of
-        the `list_attributes`.  Arrays will have at least 1 column
-        (no 0-rank numpy arrays).
+        A numpy array holding the extracted values. If `len(list_keys) > 1`
+        the array is two-dimensional with shape `(N, len(list_keys))`, where
+        `N` is the number of rows in the input dataframe `df`. If
+        `len(list_keys) == 1`, the resulting array will be one-dimensional,
+        with shape (N, ). Note that the computed array is squeezed before
+        returning.
 
     """
     list_bbox_attr = []
@@ -477,7 +475,7 @@ def _via_attribute_column_to_numpy(
 
     bbox_attr_array = np.array(list_bbox_attr)
 
-    return bbox_attr_array
+    return bbox_attr_array.squeeze()
 
 
 def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:

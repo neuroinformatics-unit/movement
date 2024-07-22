@@ -176,13 +176,13 @@ def test_from_numpy(
             "file_attributes",
             ["clip"],
             int,
-            np.array([123] * 3).reshape(-1, 1),
+            np.array([123] * 3),  # .reshape(-1, 1),
         ),
         (
             "region_shape_attributes",
             ["name"],
             str,
-            np.array(["rect"] * 3).reshape(-1, 1),
+            np.array(["rect"] * 3),  # .reshape(-1, 1),
         ),
         (
             "region_shape_attributes",
@@ -206,7 +206,7 @@ def test_from_numpy(
             "region_attributes",
             ["track"],
             int,
-            np.array([71, 70, 69]).reshape(-1, 1),
+            np.array([71, 70, 69]),  # .reshape(-1, 1),
         ),
     ],
 )
@@ -233,10 +233,10 @@ def test_via_attribute_column_to_numpy(
 @pytest.mark.parametrize(
     "df_input, expected_array",
     [
-        ("df_input_via_tracks_small", np.full((3, 1), np.nan)),
+        ("df_input_via_tracks_small", np.full((3,), np.nan)),
         (
             "df_input_via_tracks_small_with_confidence",
-            np.array([0.5, 0.5, 0.5]).reshape(-1, 1),
+            np.array([0.5, 0.5, 0.5]),
         ),
     ],
 )
@@ -257,11 +257,11 @@ def test_extract_confidence_from_via_tracks_df(
     [
         (
             "df_input_via_tracks_small",
-            np.ones((3, 1)),
+            np.ones((3,)),
         ),  # extract from filename
         (
             "df_input_via_tracks_small_with_frame_number",
-            np.array([1, 1, 1]).reshape(-1, 1),
+            np.array([1, 1, 1]),
         ),  # extract from file_attributes
     ],
 )
