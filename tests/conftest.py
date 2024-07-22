@@ -500,7 +500,7 @@ def region_shape_attribute_missing_x(
             "0,"
             '"{""name"":""rect"",""y"":393.281,""width"":46,""height"":38}",'
             '"{""track"":""71""}"'
-        )
+        )  # region_shape_attributes is missing ""x"" key
     return file_path
 
 

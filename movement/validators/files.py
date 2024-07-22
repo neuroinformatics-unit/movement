@@ -267,7 +267,7 @@ class ValidVIATracksCSV:
             ast.literal_eval(d) for d in df.file_attributes
         ]
 
-        # If 'frame' is a file_attribute for all frames:
+        # If 'frame' is a file_attribute for all files:
         # extract frame number
         list_frame_numbers = []
         if all(["frame" in d for d in file_attributes_dicts]):
