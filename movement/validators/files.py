@@ -204,7 +204,7 @@ class ValidDeepLabCutCSV:
 
 
 @define
-class ValidVIAtracksCSV:
+class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
 
     Parameters
@@ -222,9 +222,9 @@ class ValidVIAtracksCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def csv_file_contains_expected_levels(self, attribute, value):
+    def csv_file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
-        expected_levels = [
+        expected_header = [
             "filename",
             "file_size",
             "file_attributes",
@@ -237,12 +237,12 @@ class ValidVIAtracksCSV:
         with open(value) as f:
             header = f.readline().strip("\n").split(",")
 
-            if header != expected_levels:
+            if header != expected_header:
                 raise log_error(
                     ValueError,
                     ".csv header row does not match the known format for "
                     "VIA tracks output files. "
-                    f"Expected {expected_levels} but got {header}.",
+                    f"Expected {expected_header} but got {header}.",
                 )
 
     @path.validator

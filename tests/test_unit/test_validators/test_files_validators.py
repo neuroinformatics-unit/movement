@@ -4,7 +4,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
-    ValidVIAtracksCSV,
+    ValidVIATracksCSV,
 )
 
 
@@ -163,6 +163,6 @@ def test_via_tracks_csv_validator_with_invalid_input(
     """
     file_path = request.getfixturevalue(invalid_input)
     with pytest.raises(ValueError) as excinfo:
-        ValidVIAtracksCSV(file_path)
+        ValidVIATracksCSV(file_path)
 
     assert str(excinfo.value) == log_message
