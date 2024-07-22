@@ -320,6 +320,7 @@ class ValidBboxesDataset:
         If no individual names are provided, assign them unique IDs per frame,
         starting with 0 ("id_0").
         """
+        # assign default confidence_array
         if self.confidence_array is None:
             self.confidence_array = np.full(
                 (self.position_array.shape[:-1]),
@@ -331,6 +332,7 @@ class ValidBboxesDataset:
                 "Setting to an array of NaNs."
             )
 
+        # assign default individual_names
         if self.individual_names is None:
             self.individual_names = [
                 f"id_{i}" for i in range(self.position_array.shape[1])
@@ -342,6 +344,7 @@ class ValidBboxesDataset:
                 f"{self.individual_names}.\n"
             )
 
+        # assign default frame_array
         if self.frame_array is None:
             n_frames = self.position_array.shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)

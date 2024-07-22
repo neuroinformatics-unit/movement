@@ -479,12 +479,12 @@ def _via_attribute_column_to_numpy(
 
 
 def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
-    """Convert a validated bboxes dataset to an xarray Dataset.
+    """Convert a validated bounding boxes dataset to an xarray Dataset.
 
     Parameters
     ----------
-    data : movement.io.tracks_validators.ValidPosesDataset
-        The validated data object.
+    data : movement.validators.datasets.ValidBboxesDataset
+        The validated bounding boxes dataset object.
 
     Returns
     -------
@@ -495,8 +495,8 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # Create the time coordinate
     time_coords = data.frame_array
     time_unit = "frames"
-    # if fps is provided: time_coords is expressed in seconds.
-    if data.fps is not None:
+    # if fps is provided: time_coords is expressed in seconds.-----
+    if data.fps:  # is not None:
         # Compute frames from the start (first frame is frame 0).
         # Ignoring type error because `data.frame_array` is not None after
         # ValidBboxesDataset.__attrs_post_init__()
@@ -505,7 +505,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         time_unit = "seconds"
 
     # Convert data to an xarray.Dataset
-    # ('time', 'individuals', 'space')
+    # with dimensions ('time', 'individuals', 'space')
     DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
     n_space = data.position_array.shape[-1]
     return xr.Dataset(
