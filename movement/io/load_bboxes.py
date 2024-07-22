@@ -12,9 +12,9 @@ import pandas as pd
 import xarray as xr
 
 from movement import MovementDataset
-from movement.utils.logging import log_error  # , log_warning
+from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset
-from movement.validators.files import ValidFile, ValidVIAtracksCSV
+from movement.validators.files import ValidFile, ValidVIATracksCSV
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ def from_via_tracks_file(
     )
 
     # Specific VIA-file validation
-    via_file = ValidVIAtracksCSV(file.path)
+    via_file = ValidVIATracksCSV(file.path)
     logger.debug(f"Validated VIA tracks csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
