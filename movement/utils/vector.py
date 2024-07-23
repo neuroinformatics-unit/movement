@@ -82,6 +82,47 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     ).transpose(*dims)
 
 
+def magnitude(data: xr.DataArray) -> xr.DataArray:
+    """Compute the magnitude in space.
+
+    The magnitude is computed as the Euclidean norm of a vector
+    with spatial components ``x`` and ``y`` in Cartesian coordinates.
+    If the input data contains polar coordinates, the magnitude
+    is the same as the radial distance ``rho``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing either ``space`` or ``space_pol``
+        as a dimension.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray representing the magnitude of the vector
+        in space. The output has no spatial dimension.
+
+
+    """
+    if "space" in data.dims:
+        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        return xr.apply_ufunc(
+            np.linalg.norm,
+            data,
+            input_core_dims=[["space"]],
+            kwargs={"axis": -1},
+        )
+    elif "space_pol" in data.dims:
+        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        return data.sel(space_pol="rho", drop=True)
+    else:
+        raise log_error(
+            ValueError,
+            "Input data must contain either 'space' or 'space_pol' "
+            "as dimensions.",
+        )
+
+
 def _validate_dimension_coordinates(
     data: xr.DataArray, required_dim_coords: dict
 ) -> None:
