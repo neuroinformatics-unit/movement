@@ -686,7 +686,7 @@ def from_mmp_file(
 ) -> xr.Dataset:
     """Load pose tracking data from a JSON file with multiple individuals.
 
-    This function expects JSON data in the following format:
+    Path to the .json file containing the pose tracking data.
     [
         {
             "frame_id": int,
