@@ -121,3 +121,29 @@ class TestVector:
         with expected_exception:
             result = vector.pol2cart(ds.pol)
             xr.testing.assert_allclose(result, ds.cart)
+
+    @pytest.mark.parametrize(
+        "ds, expected_exception",
+        [
+            ("cart_pol_dataset", does_not_raise()),
+            ("cart_pol_dataset_with_nan", does_not_raise()),
+            ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
+            (
+                "cart_pol_dataset_missing_cart_coords",
+                pytest.raises(ValueError),
+            ),
+        ],
+    )
+    def test_magnitude(self, ds, expected_exception, request):
+        """Test vector magnitude with known values."""
+        ds = request.getfixturevalue(ds)
+        with expected_exception:
+            result = vector.magnitude(ds.cart)
+            expected = np.sqrt(
+                ds.cart.sel(space="x") ** 2 + ds.cart.sel(space="y") ** 2
+            )
+            xr.testing.assert_allclose(result, expected)
+            # result should be the same from Cartesian and polar coordinates
+            xr.testing.assert_allclose(result, vector.magnitude(ds.pol))
+            # The result should only contain the time dimension.
+            assert result.dims == ("time",)
