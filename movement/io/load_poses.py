@@ -684,7 +684,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 def from_mmp_file(
     file_path: Union[Path, str], fps: Optional[float] = None
 ) -> xr.Dataset:
-    """Load pose tracking data from a JSON file with multiple individuals.
+    """Create a ``movement`` dataset from an MMPose .json file
 
     Path to the .json file containing the pose tracking data.
     [
