@@ -147,3 +147,28 @@ class TestVector:
             xr.testing.assert_allclose(result, vector.magnitude(ds.pol))
             # The result should only contain the time dimension.
             assert result.dims == ("time",)
+
+    @pytest.mark.parametrize(
+        "ds, expected_exception",
+        [
+            ("cart_pol_dataset", does_not_raise()),
+            ("cart_pol_dataset_with_nan", does_not_raise()),
+            ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
+        ],
+    )
+    def test_normalize(self, ds, expected_exception, request):
+        """Test data normalization (division by magnitude)."""
+        ds = request.getfixturevalue(ds)
+        with expected_exception:
+            normalized = vector.normalize(ds.cart)
+            # the normalized data should have the same dimensions as the input
+            assert normalized.dims == ds.cart.dims
+            # the first time point is NaN because the input vector is [0, 0]
+            # (zero-division during normalization).
+            assert normalized.sel(time=0).isnull().all()
+            # the magnitude of the normalized vector should be 1 for all
+            # time points except for the expected NaNs.
+            normalized_mag = vector.magnitude(normalized).values
+            expected_mag = np.ones_like(normalized_mag)
+            expected_mag[normalized.isnull().any("space")] = np.nan
+            np.testing.assert_allclose(normalized_mag, expected_mag)
