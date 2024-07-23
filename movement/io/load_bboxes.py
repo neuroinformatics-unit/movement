@@ -152,6 +152,7 @@ def from_file(
     file_path: Path | str,
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
+    use_frame_numbers_from_file: bool = True,
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
@@ -173,6 +174,13 @@ def from_file(
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
+    use_frame_numbers_from_file : bool, optional
+        If True (default), the frame numbers in the resulting dataset are
+        the same as the ones in the VIA tracks .csv file. This may be useful if
+        the bounding boxes are tracked for a subset of frames in a video,
+        but you want to maintain the start of the full video as the time
+        origin. If False, the frame numbers in the VIA tracks .csv file are
+        instead mapped to a 0-based sequence of consecutive integers.
 
     Returns
     -------
@@ -198,7 +206,11 @@ def from_file(
 
     """
     if source_software == "VIA-tracks":
-        return from_via_tracks_file(file_path, fps)
+        return from_via_tracks_file(
+            file_path,
+            fps,
+            use_frame_numbers_from_file=use_frame_numbers_from_file,
+        )
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -206,7 +218,9 @@ def from_file(
 
 
 def from_via_tracks_file(
-    file_path: Path | str, fps: float | None = None
+    file_path: Path | str,
+    fps: float | None = None,
+    use_frame_numbers_from_file: bool = True,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a VIA tracks .csv file.
 
@@ -223,6 +237,13 @@ def from_via_tracks_file(
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
+    use_frame_numbers_from_file : bool, optional
+        If True (default), the frame numbers in the resulting dataset are
+        the same as the ones in the VIA tracks .csv file. This may be useful if
+        the bounding boxes are tracked for a subset of frames in a video,
+        but you want to maintain the start of the full video as the time
+        origin. If False, the frame numbers in the VIA tracks .csv file are
+        instead mapped to a 0-based sequence of consecutive integers.
 
     Returns
     -------
@@ -265,7 +286,11 @@ def from_via_tracks_file(
         individual_names=[
             f"id_{id}" for id in bboxes_arrays["ID_array"].squeeze()
         ],
-        frame_array=bboxes_arrays["frame_array"],
+        frame_array=(
+            bboxes_arrays["frame_array"]
+            if use_frame_numbers_from_file
+            else None
+        ),
         fps=fps,
         source_software="VIA-tracks",
     )  # it validates the dataset via ValidBboxesDataset

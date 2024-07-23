@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
 
 from movement import MovementDataset
 from movement.io import load_bboxes
@@ -21,7 +20,10 @@ def via_tracks_file():
 
 
 @pytest.fixture()
-def valid_from_numpy_inputs():
+def valid_from_numpy_inputs_required_arrays():
+    """Return a dictionary with valid numpy arrays for the `from_numpy()`
+    loader, excluding the optional `frame_array`.
+    """
     n_frames = 5
     n_individuals = 86
     n_space = 2
@@ -36,8 +38,26 @@ def valid_from_numpy_inputs():
         "individual_names": [
             f"id_{id}" for id in individual_names_array.squeeze()
         ],
-        "frame_array": np.arange(n_frames).reshape(-1, 1),
     }
+
+
+@pytest.fixture()
+def valid_from_numpy_inputs_all_arrays(
+    valid_from_numpy_inputs_required_arrays,
+):
+    """Return a dictionary with valid numpy arrays for the from_numpy() loader,
+    including a `frame_array` that ranges from frame 1 to 5.
+    """
+    n_frames = valid_from_numpy_inputs_required_arrays["position_array"].shape[
+        0
+    ]
+    first_frame_number = 1  # should match sample file
+
+    valid_from_numpy_inputs_required_arrays["frame_array"] = np.arange(
+        first_frame_number, first_frame_number + n_frames
+    ).reshape(-1, 1)
+
+    return valid_from_numpy_inputs_required_arrays
 
 
 @pytest.fixture()
@@ -92,7 +112,9 @@ def update_attribute_column(df_input, attribute_column_name, dict_to_append):
     return df
 
 
-def assert_dataset(dataset, file_path=None, expected_source_software=None):
+def assert_dataset(
+    dataset, file_path=None, expected_source_software=None, expected_fps=None
+):
     """Assert that the dataset is a proper ``movement`` Dataset."""
     assert isinstance(dataset, xr.Dataset)
 
@@ -123,12 +145,38 @@ def assert_dataset(dataset, file_path=None, expected_source_software=None):
         if expected_source_software is None
         else dataset.source_software == expected_source_software
     )
-    assert dataset.fps is None
+    assert (
+        dataset.fps is None
+        if expected_fps is None
+        else dataset.fps == expected_fps
+    )
+
+
+def assert_time_coordinates(ds, fps, start_frame):
+    """Assert that the time coordinates are as expected, depending on
+    fps value and start_frame.
+    """
+    # scale time coordinates with 1/fps if provided
+    scale = 1 / fps if fps else 1
+
+    # assert numpy array of time coordinates
+    np.testing.assert_allclose(
+        ds.coords["time"].data,
+        np.array(
+            [
+                f * scale
+                for f in range(
+                    start_frame, len(ds.coords["time"].data) + start_frame
+                )
+            ]
+        ),
+    )
 
 
 @pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file(source_software, fps):
+@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
+def test_from_file(source_software, fps, use_frame_numbers_from_file):
     """Test that the from_file() function delegates to the correct
     loader function according to the source_software.
     """
@@ -138,35 +186,80 @@ def test_from_file(source_software, fps):
 
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
-            load_bboxes.from_file("some_file", source_software)
+            load_bboxes.from_file(
+                "some_file",
+                source_software,
+                fps,
+                use_frame_numbers_from_file=use_frame_numbers_from_file,
+            )
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
-            load_bboxes.from_file("some_file", source_software, fps)
-            mock_loader.assert_called_with("some_file", fps)
+            load_bboxes.from_file(
+                "some_file",
+                source_software,
+                fps,
+                use_frame_numbers_from_file=use_frame_numbers_from_file,
+            )
+            mock_loader.assert_called_with(
+                "some_file",
+                fps,
+                use_frame_numbers_from_file=use_frame_numbers_from_file,
+            )
 
 
-def test_from_VIA_tracks_file(via_tracks_file):
-    """Test that loading tracked bounding box data from
-    a valid VIA tracks .csv file returns a proper Dataset.
-    """
-    ds = load_bboxes.from_via_tracks_file(via_tracks_file)
-    assert_dataset(ds, via_tracks_file, "VIA-tracks")
-
-
-@pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
-def test_from_numpy(
-    valid_from_numpy_inputs,
-    source_software,
+@pytest.mark.parametrize("fps", [None, 30, 60.0])
+@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
+def test_from_VIA_tracks_file(
+    via_tracks_file, fps, use_frame_numbers_from_file
 ):
-    """Test that loading bounding boxes trajectories from a multi-animal
-    numpy array with valid parameters returns a proper Dataset.
+    """Test that loading tracked bounding box data from
+    a valid VIA tracks .csv file returns a proper Dataset
+    and that the time coordinates are as expected.
     """
+    # run general dataset checks
+    ds = load_bboxes.from_via_tracks_file(
+        via_tracks_file, fps, use_frame_numbers_from_file
+    )
+    assert_dataset(ds, via_tracks_file, "VIA-tracks", fps)
+
+    # check time coordinates are as expected
+    # in sample VIA tracks .csv file frame numbers start from 1
+    start_frame = 1 if use_frame_numbers_from_file else 0
+    assert_time_coordinates(ds, fps, start_frame)
+
+
+@pytest.mark.parametrize(
+    "valid_from_numpy_inputs",
+    [
+        "valid_from_numpy_inputs_required_arrays",
+        "valid_from_numpy_inputs_all_arrays",
+    ],
+)
+@pytest.mark.parametrize("fps", [None, 30, 60.0])
+@pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
+def test_from_numpy(valid_from_numpy_inputs, fps, source_software, request):
+    """Test that loading bounding boxes trajectories from the input
+    numpy arrays returns a proper Dataset.
+    """
+    # get the input arrays
+    from_numpy_inputs = request.getfixturevalue(valid_from_numpy_inputs)
+
+    # run general dataset checks
     ds = load_bboxes.from_numpy(
-        **valid_from_numpy_inputs,
-        fps=None,
+        **from_numpy_inputs,
+        fps=fps,
         source_software=source_software,
     )
-    assert_dataset(ds, expected_source_software=source_software)
+    assert_dataset(
+        ds, expected_source_software=source_software, expected_fps=fps
+    )
+
+    # check time coordinates are as expected
+    if "frame_array" in from_numpy_inputs:
+        start_frame = from_numpy_inputs["frame_array"][0, 0]
+    else:
+        start_frame = 0
+    assert_time_coordinates(ds, fps, start_frame)
 
 
 @pytest.mark.parametrize(
@@ -287,31 +380,42 @@ def test_extract_frame_number_from_via_tracks_df(
         (60.0, 60.0, "seconds"),
     ],
 )
-def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
-    """Test that time coordinates are set according to the provided fps."""
+@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
+def test_fps_and_time_coords(
+    via_tracks_file,
+    fps,
+    expected_fps,
+    expected_time_unit,
+    use_frame_numbers_from_file,
+):
+    """Test that fps conversion is as expected and time coordinates are set
+    according to the expected fps.
+    """
     ds = load_bboxes.from_via_tracks_file(
-        DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        via_tracks_file,
         fps=fps,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
     )
+
+    # load dataset with frame numbers from file
+    ds_in_frames_from_file = load_bboxes.from_via_tracks_file(
+        via_tracks_file,
+        fps=None,
+        use_frame_numbers_from_file=True,
+    )
+
+    # check time unit
     assert ds.time_unit == expected_time_unit
 
+    # check fps is as expected
     if expected_fps is None:
         assert ds.fps is expected_fps
     else:
-        # check fps
         assert ds.fps == expected_fps
 
-        # check time coordinates
-        ds_in_frames = load_bboxes.from_via_tracks_file(
-            DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-            fps=None,
-        )
-        np.testing.assert_allclose(
-            ds.coords["time"].data,
-            np.array(
-                [
-                    frame / ds.attrs["fps"]
-                    for frame in ds_in_frames.coords["time"].data
-                ]
-            ),
-        )
+    # check time coordinates
+    if use_frame_numbers_from_file:
+        start_frame = ds_in_frames_from_file.coords["time"].data[0]
+    else:
+        start_frame = 0
+    assert_time_coordinates(ds, expected_fps, start_frame)
