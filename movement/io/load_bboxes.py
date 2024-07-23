@@ -68,8 +68,7 @@ def from_numpy(
         elapsed time from the capture of the first frame (assumed to be frame
         0).
     source_software : str, optional
-        Name of the annotation software that generated the data.
-        Defaults to None.
+        Name of the software that generated the data. Defaults to None.
 
     Returns
     -------

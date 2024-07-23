@@ -222,8 +222,7 @@ class ValidBboxesDataset:
         Frames per second defining the sampling rate of the data.
         Defaults to None.
     source_software : str, optional
-        Name of the annotation software that generated the data.
-        Defaults to None.
+        Name of the software that generated the data. Defaults to None.
 
     """
 
