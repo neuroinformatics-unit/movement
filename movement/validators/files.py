@@ -14,6 +14,17 @@ from attrs import define, field, validators
 from movement.utils.logging import log_error
 
 
+def _validate_list_of_dicts(input_object):
+    if isinstance(input_object, list):
+        return all(isinstance(item, dict) for item in input_object)
+    return False
+
+
+def _validate_keys_of_dict(input_dict, list_expected_keys):
+    """Check input is a dictionary with expected keys."""
+    return all(key in list_expected_keys for key in input_dict)
+
+
 @define
 class ValidFile:
     """Class for validating file paths.
@@ -413,54 +424,67 @@ class ValidVIATracksCSV:
 
 
 @define
-class ValidMMPJson:
-    """Class for validating MMP tracks .JSON files.
+class ValidMMPoseJson:
+    """Class for validating MMPose .json files.
+
+    We assume the files contain tracked keypoints and bboxes.
 
     Parameters
     ----------
     path : pathlib.Path or str
-        Path to the MMP tracks .JSON file.
+        Path to the MMPose .json file.
 
     Raises
     ------
     ValueError
-        If the .JSON file does not match the MMP tracks file requirements.
+        If the .json file does not match the MMPose .json file requirements.
 
     """
 
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def json_file_contains_expected_levels(self, attribute, value):
-        """Ensure the MMPose json file contains the expected header."""
-        with open(value) as file:
-            list_of_frames = json.load(file)
+    def json_file_contains_expected_nested_dicts(self, attribute, value):
+        """Ensure the .json file contains the expected nested dictionaries."""
 
-        _check_dict_and_keys(value, list_of_frames, ["frame_id", "instances"])
-
-        for frame_dict in list_of_frames:
-            _check_dict_and_keys(
-                value,
-                frame_dict["instances"],
-                ["keypoints", "keypoint_scores", "bbox", "bbox_score"],
-            )
-
-
-def _check_dict_and_keys(value, list_of_dicts, list_of_exp_keys):
-    if isinstance(list_of_dicts, list):
-        for d in list_of_dicts:
-            if not isinstance(d, dict):
+        def _validate_list_of_dicts_and_keys(
+            list_of_dicts, list_expected_keys
+        ):
+            """Check if input is a list of dicts with expected keys."""
+            if not _validate_list_of_dicts(list_of_dicts):
                 raise log_error(
                     ValueError,
-                    f"Expected a list of dictionaries in {value},"
-                    f"but got {type(d)} for {d}",
+                    f"Expected a list of dictionaries "
+                    f"for .json file at {value}, "
+                    f"but got {type(list_of_dicts)}.",
                 )
-            keys = list(d.keys())
-            # assert all([key in list_of_exp_keys for key in keys])
-            for key in keys:
-                if key not in list_of_exp_keys:
-                    raise log_error(
-                        ValueError,
-                        "Expected keys in each frame to be in"
-                        f"{list_of_exp_keys} but got key named {key}",
-                    )
+            else:
+                for d in list_of_dicts:
+                    if not _validate_keys_of_dict(d, list_expected_keys):
+                        raise log_error(
+                            ValueError,
+                            f"Expected keys in .json file at {value}"
+                            f"to be ['frame_id', 'instances'], "
+                            f"but got {d.keys()}",
+                        )
+
+        # Read json data
+        with open(value) as file:
+            list_frame_dicts = json.load(file)
+
+        # Check outer list of dictionaries
+        _validate_list_of_dicts_and_keys(
+            list_frame_dicts,
+            list_expected_keys=["frame_id", "instances"],
+        )
+
+        # Check inner list of dictionaries
+        _validate_list_of_dicts_and_keys(
+            [frame_dict["instances"] for frame_dict in list_frame_dicts],
+            list_expected_keys=[
+                "keypoints",
+                "keypoint_scores",
+                "bbox",
+                "bbox_score",
+            ],
+        )
