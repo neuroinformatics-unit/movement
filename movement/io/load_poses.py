@@ -716,6 +716,7 @@ def from_mmp_file(
     xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
+
     """
     file = ValidFile(
         file_path,
