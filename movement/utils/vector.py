@@ -123,6 +123,31 @@ def magnitude(data: xr.DataArray) -> xr.DataArray:
         )
 
 
+def normalize(data: xr.DataArray) -> xr.DataArray:
+    """Normalize data by the magnitude in space.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing ``space`` as a dimension,
+        with ``x`` and ``y`` in the dimension coordinate.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray representing the normalized data,
+        having the same dimensions as the input data.
+
+    Notes
+    -----
+    Where the input values are 0 for both ``x`` and ``y``, the normalized
+    values will be NaN, because of zero-division.
+
+    """
+    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+    return data / magnitude(data)
+
+
 def _validate_dimension_coordinates(
     data: xr.DataArray, required_dim_coords: dict
 ) -> None:
