@@ -65,8 +65,8 @@ def from_numpy(
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
-        elapsed time from the capture of the 0th frame (assumed to be captured
-        at ``time = 0`` seconds).
+        elapsed time from the capture of the first frame (assumed to be frame
+        0).
     source_software : str, optional
         Name of the annotation software that generated the data.
         Defaults to None.
@@ -88,11 +88,51 @@ def from_numpy(
     >>> import numpy as np
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_numpy(
-    ...     position_array=np.random.rand((100, 2, 2)),
+    ...     position_array=np.random.rand(100, 2, 2),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
     ...     individual_names=["id_0", "id_1"],
     ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
+    ... )
+
+    Create a dataset with the same data as above, but with the time
+    coordinates in seconds. We use a video sampling rate of 60 fps. The time
+    coordinates in the resulting dataset will indicate the elapsed time from
+    the capture of the 0th frame. So for the frames 1200, 1201, 1203,... 1299
+    the corresponding time coordinates in seconds will be 20, 20.0167,
+    20.033,... 21.65 s.
+
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=np.random.rand(100, 2, 2),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ...     confidence_array=np.ones((100, 2)) * 0.5,
+    ...     individual_names=["id_0", "id_1"],
+    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
+    ...     fps=60,
+    ... )
+
+    Create a dataset with the same data as above, but express the time
+    coordinate in frames, and assume the first tracked frame is frame 0.
+    To do this, we simply omit the `frame_array` input argument.
+
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=np.random.rand(100, 2, 2),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ...     confidence_array=np.ones((100, 2)) * 0.5,
+    ...     individual_names=["id_0", "id_1"],
+    ... )
+
+    Create a dataset with the same data as above, but express the time
+    coordinate in seconds, and assume the first tracked frame is captured
+    at time = 0 seconds. To do this, we omit the `frame_array` input argument
+    and pass an `fps` value.
+
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=np.random.rand(100, 2, 2),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ...     confidence_array=np.ones((100, 2)) * 0.5,
+    ...     individual_names=["id_0", "id_1"],
+    ...     fps=60,
     ... )
 
     """
@@ -131,8 +171,8 @@ def from_file(
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
-        elapsed time from the capture of the 0th frame (assumed to be captured
-        at ``time = 0`` seconds).
+        elapsed time from the capture of the first frame (assumed to be frame
+        0).
 
     Returns
     -------
@@ -181,8 +221,8 @@ def from_via_tracks_file(
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
-        elapsed time from the capture of the 0th frame (assumed to be captured
-        at ``time = 0`` seconds).
+        elapsed time from the capture of the first frame (assumed to be frame
+        0).
 
     Returns
     -------
