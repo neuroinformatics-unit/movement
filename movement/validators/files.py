@@ -409,3 +409,22 @@ class ValidVIATracksCSV:
                     "have the same track ID. "
                     "Please review the VIA tracks .csv file.",
                 )
+
+
+@define
+class ValidMMPJson:
+    """Class for validating MMP tracks .JSON files.
+
+    Parameters
+    ----------
+    path : pathlib.Path or str
+        Path to the MMP tracks .JSON file.
+
+    Raises
+    ------
+    ValueError
+        If the .JSON file does not match the MMP tracks file requirements.
+
+    """
+
+    pass
