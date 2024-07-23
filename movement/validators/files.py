@@ -1,6 +1,7 @@
 """``attrs`` classes for validating file paths."""
 
 import ast
+import json
 import os
 import re
 from pathlib import Path
@@ -427,4 +428,19 @@ class ValidMMPJson:
 
     """
 
-    pass
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def json_file_contains_expected_levels(self, attribute, value):
+        """Ensure the MMPose json file contains the expected header."""
+        with open(value) as file:
+            data = json.load(file)
+
+        # data should be a list of dicts
+        if not isinstance(data, list):
+            raise log_error(
+                ValueError,
+                f"Expected a list of dictionaries in {value}.",
+            )
+
+        # [d for d in data if not isinstance(d, dict)]
