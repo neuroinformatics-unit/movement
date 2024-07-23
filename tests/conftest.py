@@ -1,5 +1,6 @@
 """Fixtures and configurations applied to the entire test suite."""
 
+import json
 import logging
 import os
 from pathlib import Path
@@ -330,7 +331,240 @@ def kinematic_property(request):
     return request.param
 
 
+# --------------------------
+# MMPose tracks JSON fixtures
+# --------------------------
+@pytest.fixture
+def mmpose_tracks_valid_list_of_dicts():
+    # two bboxes with 5 kpts each detected at frames 60 and 61
+    return [
+        {
+            "frame_id": 60,
+            "instances": [
+                {
+                    "keypoints": [
+                        [709.0703133205473, 211.20538115360597],
+                        [707.9860667110634, 204.1207656032306],
+                        [712.5143588076462, 204.03629442556792],
+                        [713.2006321274291, 199.63147792610016],
+                        [747.1018046063824, 198.3555575770784],
+                    ],
+                    "keypoint_scores": [
+                        0.8911811113357544,
+                        0.9161673188209534,
+                        0.6870938539505005,
+                        1.0000675916671753,
+                        0.9663347005844116,
+                    ],
+                    "bbox": [
+                        [
+                            653.8751220703125,
+                            165.8975830078125,
+                            812.619873046875,
+                            626.832275390625,
+                        ]
+                    ],
+                    "bbox_score": 0.872626006603241,
+                },
+                {
+                    "keypoints": [
+                        [629.5751576043363, 188.28332625549024],
+                        [615.1666452434692, 179.30786557392668],
+                        [637.6724471351939, 182.21698862559714],
+                        [600.7430717198555, 182.61260958846344],
+                        [640.2261055699634, 188.03836644961711],
+                    ],
+                    "keypoint_scores": [
+                        0.5044676661491394,
+                        0.46802496910095215,
+                        0.5985856056213379,
+                        0.9990983009338379,
+                        0.9318821430206299,
+                    ],
+                    "bbox": [
+                        [
+                            530.525390625,
+                            148.7684326171875,
+                            679.0963745117188,
+                            596.0816650390625,
+                        ]
+                    ],
+                    "bbox_score": 0.8502302765846252,
+                },
+            ],
+        },
+        {
+            "frame_id": 61,
+            "instances": [
+                {
+                    "keypoints": [
+                        [709.2626232692818, 210.79569070730247],
+                        [708.614378316375, 203.76627525174433],
+                        [712.5382631575525, 203.72588933495405],
+                        [713.7447375386032, 198.94361810228742],
+                        [747.027193666572, 198.0513542812024],
+                    ],
+                    "keypoint_scores": [
+                        0.9014308452606201,
+                        0.9280194640159607,
+                        0.6961719989776611,
+                        0.9890613555908203,
+                        0.9616768956184387,
+                    ],
+                    "bbox": [
+                        [
+                            654.2758178710938,
+                            165.90451049804688,
+                            811.818603515625,
+                            626.4837646484375,
+                        ]
+                    ],
+                    "bbox_score": 0.8739020228385925,
+                },
+                {
+                    "keypoints": [
+                        [631.7896113553173, 187.0002535312799],
+                        [619.0509716254074, 177.8632996916357],
+                        [639.1909286643681, 181.41006425061886],
+                        [601.8359276638045, 181.24896723381244],
+                        [640.9319165770405, 187.30577033972884],
+                    ],
+                    "keypoint_scores": [
+                        0.5064756274223328,
+                        0.4589443802833557,
+                        0.6078445315361023,
+                        0.9989389181137085,
+                        0.9565404653549194,
+                    ],
+                    "bbox": [
+                        [
+                            536.2250366210938,
+                            148.3276824951172,
+                            679.5196533203125,
+                            586.816162109375,
+                        ]
+                    ],
+                    "bbox_score": 0.8503867983818054,
+                },
+            ],
+        },
+    ]
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_invalid_type_outer_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # make outer level a dict, rather than a list of dicts
+    # by passing the first dict in the list only
+    data = mmpose_tracks_valid_list_of_dicts[0]
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_invalid_keys_outer_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # modify key in outer list of dicts
+    data = []
+    for d in mmpose_tracks_valid_list_of_dicts:
+        d["foo"] = d.pop("instances")
+        data.append(d)
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_missing_keys_outer_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # modify key in outer list of dicts
+    data = []
+    for d in mmpose_tracks_valid_list_of_dicts:
+        d.pop("instances")
+        data.append(d)
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_invalid_type_inner_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # make inner level a dicts rather than a list of dicts
+    # by passing the first dict in the list only
+    data = []
+    for d in mmpose_tracks_valid_list_of_dicts:
+        d["instances"] = d["instances"][0]
+        data.append(d)
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_invalid_keys_inner_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # make inner level a dicts rather than a list of dicts
+    # by passing the first dict in the list only
+    list_frame_dicts = []
+    for frame_dict in mmpose_tracks_valid_list_of_dicts:
+        list_instances_dicts = []
+        for instance_dict in frame_dict["instances"]:
+            instance_dict["foo"] = instance_dict.pop("keypoints")
+            list_instances_dicts.append(instance_dict)
+        frame_dict["instances"] = list_instances_dicts
+        list_frame_dicts.append(frame_dict)
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(list_frame_dicts, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+@pytest.fixture
+def mmpose_tracks_json_with_missing_keys_inner_level(
+    mmpose_tracks_valid_list_of_dicts, tmp_path
+):
+    # make inner level a dicts rather than a list of dicts
+    # by passing the first dict in the list only
+    list_frame_dicts = []
+    for frame_dict in mmpose_tracks_valid_list_of_dicts:
+        list_instances_dicts = []
+        for instance_dict in frame_dict["instances"]:
+            instance_dict.pop("keypoints")
+            list_instances_dicts.append(instance_dict)
+        frame_dict["instances"] = list_instances_dicts
+        list_frame_dicts.append(frame_dict)
+
+    # save file
+    file_path = tmp_path / "sample_mmpose_tracks.json"
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(list_frame_dicts, f, ensure_ascii=False, indent=4)
+    return file_path
+
+
+# --------------------------
 # VIA tracks CSV fixtures
+# --------------------------
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""

@@ -4,6 +4,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
+    ValidMMPoseTracksJson,
     ValidVIATracksCSV,
 )
 
@@ -166,3 +167,59 @@ def test_via_tracks_csv_validator_with_invalid_input(
         ValidVIATracksCSV(file_path)
 
     assert str(excinfo.value) == log_message
+
+
+@pytest.mark.parametrize(
+    "invalid_input, log_message",
+    [
+        (
+            "mmpose_tracks_json_with_invalid_type_outer_level",
+            "Expected a list of dictionaries in the input .json file, but got "
+            "<class 'dict'>.",
+        ),
+        (
+            "mmpose_tracks_json_with_invalid_keys_outer_level",
+            "Expected keys in input .json file to be "
+            "['frame_id', 'instances'], but got ['frame_id', 'foo'].",
+        ),
+        (
+            "mmpose_tracks_json_with_missing_keys_outer_level",
+            "Expected keys in input .json file to be "
+            "['frame_id', 'instances'], but got ['frame_id'].",
+        ),
+        (
+            "mmpose_tracks_json_with_invalid_type_inner_level",
+            "Expected a list of dictionaries in the input .json file, "
+            "but got <class 'dict'>.",
+        ),
+        (
+            "mmpose_tracks_json_with_invalid_keys_inner_level",
+            "Expected keys in input .json file to be "
+            "['keypoints', 'keypoint_scores', 'bbox', 'bbox_score'], but got "
+            "['keypoint_scores', 'bbox', 'bbox_score', 'foo'].",
+        ),
+        (
+            "mmpose_tracks_json_with_missing_keys_inner_level",
+            "Expected keys in input .json file to be "
+            "['keypoints', 'keypoint_scores', 'bbox', 'bbox_score'], but got "
+            "['keypoint_scores', 'bbox', 'bbox_score'].",
+        ),
+    ],
+)
+def test_mmpose_tracks_json_validator_with_invalid_input(
+    invalid_input, log_message, request
+):
+    file_path = request.getfixturevalue(invalid_input)
+    with pytest.raises(ValueError) as excinfo:
+        ValidMMPoseTracksJson(file_path)
+
+    assert str(excinfo.value) == log_message
+
+    # TODO add tests for valid files mmpose_tracks_json_valid
+    # What is valid?
+    # - if instances is a list of one, does it output a dict
+    #   rather than a list of dicts? (should this be a valid file?)
+    #   if so: easy fix `if isinstance(input_object, list)`
+    #   ---> `if isinstance(input_object, (list, dict))`
+    # - same with 'keypoints', 'keypoint_scores', 'bbox', 'bbox_score'
+    # - test if keys in different order?

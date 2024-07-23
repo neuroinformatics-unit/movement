@@ -22,7 +22,8 @@ def _validate_list_of_dicts(input_object):
 
 def _validate_keys_of_dict(input_dict, list_expected_keys):
     """Check input is a dictionary with expected keys."""
-    return all(key in list_expected_keys for key in input_dict)
+    # check lists are exactly equal, except for the order of elements
+    return sorted(list_expected_keys) == sorted(list(input_dict.keys()))
 
 
 @define
@@ -424,7 +425,7 @@ class ValidVIATracksCSV:
 
 
 @define
-class ValidMMPoseJson:
+class ValidMMPoseTracksJson:
     """Class for validating MMPose .json files.
 
     We assume the files contain tracked keypoints and bboxes.
@@ -454,8 +455,8 @@ class ValidMMPoseJson:
             if not _validate_list_of_dicts(list_of_dicts):
                 raise log_error(
                     ValueError,
-                    f"Expected a list of dictionaries "
-                    f"for .json file at {value}, "
+                    "Expected a list of dictionaries "
+                    "in the input .json file, "
                     f"but got {type(list_of_dicts)}.",
                 )
             else:
@@ -463,9 +464,9 @@ class ValidMMPoseJson:
                     if not _validate_keys_of_dict(d, list_expected_keys):
                         raise log_error(
                             ValueError,
-                            f"Expected keys in .json file at {value}"
-                            f"to be ['frame_id', 'instances'], "
-                            f"but got {d.keys()}",
+                            "Expected keys in input .json file "
+                            f"to be {list_expected_keys}, "
+                            f"but got {list(d.keys())}.",
                         )
 
         # Read json data
@@ -479,12 +480,13 @@ class ValidMMPoseJson:
         )
 
         # Check inner list of dictionaries
-        _validate_list_of_dicts_and_keys(
-            [frame_dict["instances"] for frame_dict in list_frame_dicts],
-            list_expected_keys=[
-                "keypoints",
-                "keypoint_scores",
-                "bbox",
-                "bbox_score",
-            ],
-        )
+        for frame_dict in list_frame_dicts:
+            _validate_list_of_dicts_and_keys(
+                frame_dict["instances"],
+                list_expected_keys=[
+                    "keypoints",
+                    "keypoint_scores",
+                    "bbox",
+                    "bbox_score",
+                ],
+            )
