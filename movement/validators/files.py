@@ -436,7 +436,15 @@ class ValidMMPJson:
         with open(value) as file:
             list_of_frames = json.load(file)
 
-        # data should be a list of dicts
+        _check_dict_and_keys(list_of_frames, ["frame_id", "instances"])
+
+        for frame_dict in list_of_frames:
+            _check_dict_and_keys(
+                frame_dict["instances"],
+                ["keypoints", "keypoint_scores", "bbox", "bbox_score"],
+            )
+
+        """# data should be a list of dicts
         if not isinstance(list_of_frames, list):
             raise log_error(
                 ValueError,
@@ -456,6 +464,15 @@ class ValidMMPJson:
                 if key not in ["frame_id", "instances"]:
                     raise log_error(
                         ValueError,
-                        "Expected keys to be in ['frame_id', 'instances'],"
+                        "Expected keys in each frame to be in
+                        ['frame_id', 'instances'],"
                         f"but got key named {key}",
-                    )
+                    )"""
+
+
+def _check_dict_and_keys(list_of_dicts, list_of_exp_keys):
+    if isinstance(list_of_dicts, list):
+        for d in list_of_dicts:
+            assert isinstance(d, dict)
+            keys = list(d.keys())
+            assert all([key in list_of_exp_keys for key in keys])
