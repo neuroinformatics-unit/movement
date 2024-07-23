@@ -176,11 +176,12 @@ def from_file(
         0).
     use_frame_numbers_from_file : bool, optional
         If True (default), the frame numbers in the resulting dataset are
-        the same as the ones in the VIA tracks .csv file. This may be useful if
-        the bounding boxes are tracked for a subset of frames in a video,
-        but you want to maintain the start of the full video as the time
-        origin. If False, the frame numbers in the VIA tracks .csv file are
-        instead mapped to a 0-based sequence of consecutive integers.
+        the same as the ones specified for each tracked bounding box in the
+        input file. This may be useful if the bounding boxes are tracked for a
+        subset of frames in a video, but you want to maintain the start of the
+        full video as the time origin. If False, the frame numbers in the VIA
+        tracks .csv file are instead mapped to a 0-based sequence of
+        consecutive integers.
 
     Returns
     -------
@@ -199,9 +200,50 @@ def from_file(
 
     Examples
     --------
+    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
+    the time coordinates in frames, and setting the first tracked frame in the
+    file as frame 0.
+
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_file(
-    ...     "path/to/file.csv", source_software="VIA-tracks", fps=30
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     use_frame_numbers_from_file=False,
+    ... )
+
+    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
+    the time coordinates in seconds, and assuming t = 0 seconds corresponds to
+    the first tracked frame in the file.
+
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_file(
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     fps=30,
+    ...     use_frame_numbers_from_file=False,
+    ... )
+
+    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
+    the time coordinates in frames, and using the same frame numbers as
+    in the VIA tracks .csv file.
+
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_file(
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     use_frame_numbers_from_file=True.
+    ... )
+
+    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
+    the time coordinates in seconds, and assuming t = 0 seconds corresponds to
+    the 0th frame in the full video.
+
+    >>> from movement.io import load_bboxes
+    >>> ds = load_bboxes.from_file(
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     fps=30,
+    ...     use_frame_numbers_from_file=True,
     ... )
 
     """
