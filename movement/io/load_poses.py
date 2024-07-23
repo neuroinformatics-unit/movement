@@ -713,9 +713,9 @@ def from_mmp_file(
 
     Returns
     -------
-    xr.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata.
-
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
     """
     file = ValidFile(
         file_path,
