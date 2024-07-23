@@ -434,13 +434,28 @@ class ValidMMPJson:
     def json_file_contains_expected_levels(self, attribute, value):
         """Ensure the MMPose json file contains the expected header."""
         with open(value) as file:
-            data = json.load(file)
+            list_of_frames = json.load(file)
 
         # data should be a list of dicts
-        if not isinstance(data, list):
+        if not isinstance(list_of_frames, list):
             raise log_error(
                 ValueError,
-                f"Expected a list of dictionaries in {value}.",
+                f"Expected a list of dictionaries in {value},"
+                f"but got {type(list_of_frames)}",
             )
 
-        # [d for d in data if not isinstance(d, dict)]
+        for frame_dict in list_of_frames:
+            if not isinstance(frame_dict, dict):
+                raise log_error(
+                    ValueError,
+                    f"Expected a list of dictionaries in {value},"
+                    f"but got {type(frame_dict)} for {frame_dict}",
+                )
+
+            for key in frame_dict:
+                if key not in ["frame_id", "instances"]:
+                    raise log_error(
+                        ValueError,
+                        "Expected keys to be in ['frame_id', 'instances'],"
+                        f"but got key named {key}",
+                    )
