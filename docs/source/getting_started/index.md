@@ -2,7 +2,7 @@
 
 Start by [installing the package](installation.md).
 
-After that try [loading some of your own predicted poses](target-loading),
+After that, try [loading some of your own tracked poses](target-loading-pose-tracks) or [bounding boxes' trajectories](target-loading-bbox-tracks),
 from one of the [supported formats](target-formats).
 Alternatively, you can use the [sample data](target-sample-data)
 provided with the package.

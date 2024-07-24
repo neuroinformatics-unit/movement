@@ -4,35 +4,37 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` can load pose tracks from various pose estimation frameworks.
+`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
+
+To analyse pose tracks, `movement` supports loading data from various pose estimation frameworks.
 Currently, these include:
 - [DeepLabCut](dlc:) (DLC)
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
 
-:::{warning}
-`movement` only deals with the predicted pose tracks output by these
-software packages. It does not support the training or labelling of the data.
+To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html#:~:text=A%20snippet%20of%20this%20csv%20file%20is%20shown%20below)
+
+:::{note}
+At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages mentioned above. It currently does not support loading manually labelled data, since this is most often defined over a non-continuous set of frames.
 :::
 
-(target-loading)=
+(target-loading-pose-tracks)=
 ## Loading pose tracks
 
-The loading functionalities are provided by the
+The pose track loading functionalities are provided by the
 {mod}`movement.io.load_poses` module, which can be imported as follows:
 
 ```python
 from movement.io import load_poses
 ```
 
-Depending on the source sofrware, one of the following functions can be used.
+Depending on the source software, one of the following functions can be used.
 
 ::::{tab-set}
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5, recommended),
-or from .slp files (experimental):
+To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
@@ -41,9 +43,7 @@ ds = load_poses.from_file(
     "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
 )
 ```
-
-You can also load from SLEAP .slp files in the same way, but there are caveats
-to that approach (see notes in {func}`movement.io.load_poses.from_sleap_file`).
+To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_poses.from_sleap_file`):
 
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
@@ -52,7 +52,7 @@ ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 
 :::{tab-item} DeepLabCut
 
-Load from DeepLabCut files (.h5):
+To load DeepLabCut files in .h5 format:
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 
@@ -62,8 +62,7 @@ ds = load_poses.from_file(
 )
 ```
 
-You may also load .csv files
-(assuming they are formatted as DeepLabCut expects them):
+To load DeepLabCut files in .csv format:
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 ```
@@ -71,7 +70,7 @@ ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 
 :::{tab-item} LightningPose
 
-Load from LightningPose files (.csv):
+To load LightningPose files in .csv format:
 ```python
 ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 
@@ -84,21 +83,22 @@ ds = load_poses.from_file(
 
 ::::
 
-The loaded data include the predicted positions for each individual and
-keypoint as well as the associated point-wise confidence values, as reported by
-the pose estimation software. See the [movement dataset](target-dataset) page
-for more information on data structure.
+The loaded data include the predicted trajectories for each individual and
+keypoint, as well as the associated point-wise confidence values reported by
+the pose estimation software.
+
+For more information on data structure, see the [movement dataset](target-dataset) page.
 
 You can also try `movement` out on some [sample data](target-sample-data)
 included with the package.
 
-(target-saving)=
+(target-saving-pose-tracks)=
 ## Saving pose tracks
-[movement datasets](target-dataset) can be saved as a variety of
+[movement datasets](target-dataset) can be saved in a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
-First import the {mod}`movement.io.save_poses` module:
+To export pose tracks from `movement`, first import the {mod}`movement.io.save_poses` module:
 
 ```python
 from movement.io import save_poses
@@ -110,7 +110,7 @@ Then, depending on the desired format, use one of the following functions:
 
 ::::{tab-item} SLEAP
 
-Save to SLEAP-style analysis files (.h5):
+To save as a SLEAP analysis file in .h5 format:
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
@@ -129,7 +129,7 @@ each attribute and data variable represents, see the
 
 ::::{tab-item} DeepLabCut
 
-Save to DeepLabCut-style files (.h5 or .csv):
+To save as a DeepLabCut file, in .h5 or .csv format:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
@@ -143,13 +143,13 @@ save the data as separate single-animal DeepLabCut-style files.
 
 ::::{tab-item} LightningPose
 
-Save to LightningPose files (.csv).
+To save as a LightningPose file in .csv format:
 ```python
 save_poses.to_lp_file(ds, "/path/to/file.csv")
 ```
 :::{note}
-Because LightningPose saves pose estimation outputs in the same format as single-animal
-DeepLabCut projects, the above command is equivalent to:
+Because LightningPose follows the single-animal
+DeepLabCut .csv format, the above command is equivalent to:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ```
