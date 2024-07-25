@@ -31,7 +31,7 @@ The pose tracks loading functionalities are provided by the
 from movement.io import load_poses
 ```
 
-To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats.
+To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general `from_numpy()` method, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 
@@ -84,6 +84,24 @@ ds = load_poses.from_file(
 ```
 :::
 
+:::{tab-item} From NumPy
+
+In the example below, we create random position data for two individuals, ``Alice`` and ``Bob``,
+with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
+
+```python
+import numpy as np
+
+ds = load_poses.from_numpy(
+    position_array=np.random.rand((100, 2, 3, 2)),
+    confidence_array=np.ones((100, 2, 3)),
+    individual_names=["Alice", "Bob"],
+    keypoint_names=["snout", "centre", "tail_base"],
+    fps=30,
+)
+```
+:::
+
 ::::
 
 The resulting poses data structure `ds` will include the predicted trajectories for each individual and
@@ -102,7 +120,7 @@ To load bounding boxes' tracks into a [movement bounding boxes dataset](target-p
 from movement.io import load_bboxes
 ```
 
-We currently support loading bounding boxes' tracks in the VGG Image Annotator (VIA) format only.
+We currently support loading bounding boxes' tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a `from_numpy()` method, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 :::{tab-item} VGG Image Annotator
@@ -116,6 +134,23 @@ ds = load_bboxes.from_file(
     "path/to/file.csv",
     source_software="VIA-tracks",
     fps=30,
+)
+```
+:::
+
+:::{tab-item} From NumPy
+
+In the example below, we create random position data for two bounding boxes, ``id_0`` and ``id_1``,
+both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.
+
+```python
+import numpy as np
+
+ds = load_bboxes.from_numpy(
+    position_array=np.random.rand(100, 2, 2),
+    shape_array=np.ones((100, 2, 2)) * [40, 30],
+    confidence_array=np.ones((100, 2)) * 0.5,
+    individual_names=["id_0", "id_1"]
 )
 ```
 :::
@@ -198,3 +233,24 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ## Saving bounding boxes tracks
 
 We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
+
+Here is an example of how you can save a bounding boxes dataset to a .csv file:
+
+```python
+import csv
+
+# Open the file in write mode
+with open("path/to/file.csv", mode="w", newline="") as file:
+    writer = csv.writer(file)
+
+    # Write the header
+    writer.writerow(["frame", "individual", "x", "y", "width", "height", "confidence"])
+
+    # Write the data
+    for frame in ds.frames:
+        for individual in ds.individuals:
+            for i, (x, y) in enumerate(ds.positions[frame, individual]):
+                width, height = ds.shapes[frame, individual][i]
+                confidence = ds.confidence[frame, individual][i]
+                writer.writerow([frame, individual, x, y, width, height, confidence])
+```
