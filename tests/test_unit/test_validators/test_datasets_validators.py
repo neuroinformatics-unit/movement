@@ -83,22 +83,6 @@ invalid_bboxes_arrays_and_expected_log = {
 }
 
 
-@pytest.fixture
-def valid_bboxes_inputs():
-    """Return a dictionary with valid inputs for a ValidBboxesDataset."""
-    n_frames, n_individuals, n_space = (10, 2, 2)
-    # valid array for position or shape
-    valid_bbox_array = np.zeros((n_frames, n_individuals, n_space))
-
-    return {
-        "position_array": valid_bbox_array,
-        "shape_array": valid_bbox_array,
-        "individual_names": [
-            "id_" + str(id) for id in range(valid_bbox_array.shape[1])
-        ],
-    }
-
-
 # Tests pose dataset
 @pytest.mark.parametrize(
     "invalid_position_array, log_message",
@@ -232,10 +216,10 @@ def test_bboxes_dataset_validator_with_invalid_position_array(
     with pytest.raises(ValueError) as excinfo:
         ValidBboxesDataset(
             position_array=invalid_position_array,
-            shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+            shape_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "shape_array"
             ],
-            individual_names=request.getfixturevalue("valid_bboxes_inputs")[
+            individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
             ],
         )
@@ -252,11 +236,11 @@ def test_bboxes_dataset_validator_with_invalid_shape_array(
     """Test that invalid shape arrays raise an error."""
     with pytest.raises(ValueError) as excinfo:
         ValidBboxesDataset(
-            position_array=request.getfixturevalue("valid_bboxes_inputs")[
+            position_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "position_array"
             ],
             shape_array=invalid_shape_array,
-            individual_names=request.getfixturevalue("valid_bboxes_inputs")[
+            individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
             ],
         )
@@ -274,15 +258,21 @@ def test_bboxes_dataset_validator_with_invalid_shape_array(
         (
             [1, 2, 3],
             pytest.raises(ValueError),
-            "Expected 'individual_names' to have length 2, but got 3.",
-        ),  # length doesn't match position_array.shape[1]
+            "Expected 'individual_names' to have length 2, "
+            f"but got {len([1, 2, 3])}.",
+        ),
+        # length doesn't match position_array.shape[1]
+        # from valid_bboxes_arrays fixture
         (
             ["id_1", "id_1"],
             pytest.raises(ValueError),
             "individual_names passed to the dataset are not unique. "
             "There are 2 elements in the list, but "
             "only 1 are unique.",
-        ),  # some IDs are not unique
+        ),
+        # some IDs are not unique.
+        # Note: length of individual_names list should match
+        # n_individuals in valid_bboxes_arrays fixture
     ],
 )
 def test_bboxes_dataset_validator_individual_names(
@@ -291,10 +281,10 @@ def test_bboxes_dataset_validator_individual_names(
     """Test individual_names inputs."""
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue("valid_bboxes_inputs")[
+            position_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "position_array"
             ],
-            shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+            shape_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "shape_array"
             ],
             individual_names=list_individual_names,
@@ -313,13 +303,15 @@ def test_bboxes_dataset_validator_individual_names(
         (
             np.ones((10, 3, 2)),
             pytest.raises(ValueError),
-            "Expected 'confidence_array' to have shape (10, 2), "
-            "but got (10, 3, 2).",
-        ),  # will not match position_array shape
+            f"Expected 'confidence_array' to have shape (10, 2), "
+            f"but got {np.ones((10, 3, 2)).shape}.",
+        ),
+        # will not match shape of position_array in
+        # valid_bboxes_arrays fixture
         (
             [1, 2, 3],
             pytest.raises(ValueError),
-            f"Expected a numpy array, but got {type(list())}.",
+            f"Expected a numpy array, but got {type([1, 2, 3])}.",
         ),  # not an ndarray, should raise ValueError
         (
             None,
@@ -334,13 +326,13 @@ def test_bboxes_dataset_validator_confidence_array(
     """Test that invalid confidence arrays raise the appropriate errors."""
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue("valid_bboxes_inputs")[
+            position_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "position_array"
             ],
-            shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+            shape_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "shape_array"
             ],
-            individual_names=request.getfixturevalue("valid_bboxes_inputs")[
+            individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
             ],
             confidence_array=confidence_array,
@@ -387,13 +379,13 @@ def test_bboxes_dataset_validator_frame_array(
     """Test that invalid frame arrays raise the appropriate errors."""
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue("valid_bboxes_inputs")[
+            position_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "position_array"
             ],
-            shape_array=request.getfixturevalue("valid_bboxes_inputs")[
+            shape_array=request.getfixturevalue("valid_bboxes_arrays")[
                 "shape_array"
             ],
-            individual_names=request.getfixturevalue("valid_bboxes_inputs")[
+            individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
             ],
             frame_array=frame_array,

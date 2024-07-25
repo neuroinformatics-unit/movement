@@ -214,6 +214,58 @@ def sleap_file(request):
 
 
 @pytest.fixture
+def valid_bboxes_arrays():
+    """Return a dictionary with valid inputs for a ValidBboxesDataset."""
+    n_frames, n_individuals, n_space = (10, 2, 2)
+    # valid array for position or shape
+    valid_bbox_array = np.zeros((n_frames, n_individuals, n_space))
+
+    return {
+        "position_array": valid_bbox_array,
+        "shape_array": valid_bbox_array,
+        "individual_names": [
+            "id_" + str(id) for id in range(valid_bbox_array.shape[1])
+        ],
+    }
+
+
+@pytest.fixture
+def valid_bboxes_dataset(valid_bboxes_arrays):
+    """Return a valid bboxes' tracks dataset."""
+    dim_names = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+
+    position_array = valid_bboxes_arrays["position"]
+    shape_array = valid_bboxes_arrays["shape"]
+    confidence_array = valid_bboxes_arrays["confidence"]
+
+    n_frames, n_individuals, _ = position_array.shape
+
+    return xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(position_array, dims=dim_names),
+            "shape": xr.DataArray(shape_array, dims=dim_names),
+            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+        },
+        # Ignoring type error because `time_coords`
+        # (which is a function of `data.frame_array`)
+        # cannot be None after
+        # ValidBboxesDataset.__attrs_post_init__()   # type: ignore
+        coords={
+            dim_names[0]: np.arange(n_frames),
+            dim_names[1]: [f"id_{id}" for id in range(n_individuals)],
+            dim_names[2]: ["x", "y"],
+        },
+        attrs={
+            "fps": None,
+            "time_unit": "frames",
+            "source_software": "test",
+            "source_file": "test_bboxes.csv",
+            "ds_type": "bboxes",
+        },
+    )
+
+
+@pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
     of a valid position array.
