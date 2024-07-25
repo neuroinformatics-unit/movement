@@ -5,15 +5,20 @@ import xarray as xr
 class TestMovementDataset:
     """Test suite for the MovementDataset class."""
 
+    @pytest.mark.parametrize(
+        "valid_dataset", ("valid_poses_dataset", "valid_bboxes_dataset")
+    )
     def test_compute_kinematics_with_valid_dataset(
-        self, valid_poses_dataset, kinematic_property
+        self, valid_dataset, kinematic_property, request
     ):
         """Test that computing a kinematic property of a valid
         pose dataset via accessor methods returns an instance of
         xr.DataArray.
         """
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+
         result = getattr(
-            valid_poses_dataset.move, f"compute_{kinematic_property}"
+            valid_input_dataset.move, f"compute_{kinematic_property}"
         )()
         assert isinstance(result, xr.DataArray)
 
@@ -36,7 +41,11 @@ class TestMovementDataset:
     @pytest.mark.parametrize(
         "method", ["compute_invalid_property", "do_something"]
     )
-    def test_invalid_method_call(self, valid_poses_dataset, method):
+    @pytest.mark.parametrize(
+        "valid_dataset", ("valid_poses_dataset", "valid_bboxes_dataset")
+    )
+    def test_invalid_method_call(self, valid_dataset, method, request):
         """Test that invalid accessor method calls raise an AttributeError."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
         with pytest.raises(AttributeError):
-            getattr(valid_poses_dataset.move, method)()
+            getattr(valid_input_dataset.move, method)()
