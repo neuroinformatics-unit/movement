@@ -629,10 +629,6 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
                 data.confidence_array, dims=DIM_NAMES[:-1]
             ),
         },
-        # Ignoring type error because `time_coords`
-        # (which is a function of `data.frame_array`)
-        # cannot be None after
-        # ValidBboxesDataset.__attrs_post_init__()   # type: ignore
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: data.individual_names,
