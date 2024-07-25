@@ -314,7 +314,7 @@ The relevant functionality is implemented in the `movement.sample_data.py` modul
 The most important parts of this module are:
 
 1. The `SAMPLE_DATA` download manager object.
-2. The `list_datasets()` function, which returns a list of the available pose datasets (file names of the pose data files).
+2. The `list_datasets()` function, which returns a list of the available poses datasets (file names of the pose data files).
 3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
 4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose data into `movement`, returning an `xarray.Dataset` object. The local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
