@@ -218,13 +218,14 @@ def valid_bboxes_arrays():
     """Return a dictionary with valid inputs for a ValidBboxesDataset."""
     n_frames, n_individuals, n_space = (10, 2, 2)
     # valid array for position or shape
-    valid_bbox_array = np.zeros((n_frames, n_individuals, n_space))
+    valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
 
     return {
-        "position_array": valid_bbox_array,
-        "shape_array": valid_bbox_array,
+        "position": valid_bbox_array_all_zeros,
+        "shape": valid_bbox_array_all_zeros,
         "individual_names": [
-            "id_" + str(id) for id in range(valid_bbox_array.shape[1])
+            "id_" + str(id)
+            for id in range(valid_bbox_array_all_zeros.shape[1])
         ],
     }
 
@@ -236,7 +237,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
 
     position_array = valid_bboxes_arrays["position"]
     shape_array = valid_bboxes_arrays["shape"]
-    confidence_array = valid_bboxes_arrays["confidence"]
+    confidence_array = np.empty(position_array.shape[:2]) * np.nan
 
     n_frames, n_individuals, _ = position_array.shape
 

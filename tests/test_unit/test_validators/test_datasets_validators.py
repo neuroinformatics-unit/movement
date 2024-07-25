@@ -76,10 +76,11 @@ invalid_bboxes_arrays_and_expected_log = {
         ),  # not an ndarray
         (
             np.zeros((10, 2, 3)),
-            f"Expected '{key}' to have 2 spatial " "coordinates, but got 3.",
+            f"Expected '{key}_array' to have 2 spatial "
+            "coordinates, but got 3.",
         ),  # last dim not 2
     ]
-    for key in ["position_array", "shape_array"]
+    for key in ["position", "shape"]
 }
 
 
@@ -207,7 +208,7 @@ def test_poses_dataset_validator_source_software(
 # Tests bboxes dataset
 @pytest.mark.parametrize(
     "invalid_position_array, log_message",
-    invalid_bboxes_arrays_and_expected_log["position_array"],
+    invalid_bboxes_arrays_and_expected_log["position"],
 )
 def test_bboxes_dataset_validator_with_invalid_position_array(
     invalid_position_array, log_message, request
@@ -217,7 +218,7 @@ def test_bboxes_dataset_validator_with_invalid_position_array(
         ValidBboxesDataset(
             position_array=invalid_position_array,
             shape_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "shape_array"
+                "shape"
             ],
             individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
@@ -228,7 +229,7 @@ def test_bboxes_dataset_validator_with_invalid_position_array(
 
 @pytest.mark.parametrize(
     "invalid_shape_array, log_message",
-    invalid_bboxes_arrays_and_expected_log["shape_array"],
+    invalid_bboxes_arrays_and_expected_log["shape"],
 )
 def test_bboxes_dataset_validator_with_invalid_shape_array(
     invalid_shape_array, log_message, request
@@ -237,7 +238,7 @@ def test_bboxes_dataset_validator_with_invalid_shape_array(
     with pytest.raises(ValueError) as excinfo:
         ValidBboxesDataset(
             position_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "position_array"
+                "position"
             ],
             shape_array=invalid_shape_array,
             individual_names=request.getfixturevalue("valid_bboxes_arrays")[
@@ -282,10 +283,10 @@ def test_bboxes_dataset_validator_individual_names(
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
             position_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "position_array"
+                "position"
             ],
             shape_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "shape_array"
+                "shape"
             ],
             individual_names=list_individual_names,
         )
@@ -327,10 +328,10 @@ def test_bboxes_dataset_validator_confidence_array(
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
             position_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "position_array"
+                "position"
             ],
             shape_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "shape_array"
+                "shape"
             ],
             individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
@@ -380,10 +381,10 @@ def test_bboxes_dataset_validator_frame_array(
     with expected_exception as excinfo:
         ds = ValidBboxesDataset(
             position_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "position_array"
+                "position"
             ],
             shape_array=request.getfixturevalue("valid_bboxes_arrays")[
-                "shape_array"
+                "shape"
             ],
             individual_names=request.getfixturevalue("valid_bboxes_arrays")[
                 "individual_names"
