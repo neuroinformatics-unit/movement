@@ -11,7 +11,7 @@ To analyse pose tracks, `movement` supports loading data from various frameworks
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
 
-To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html#:~:text=A%20snippet%20of%20this%20csv%20file%20is%20shown%20below)
+To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html)
 
 :::{note}
 At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
@@ -230,27 +230,29 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 
 
 (target-saving-bboxes-tracks)=
-## Saving bounding boxes tracks
+## Saving bounding boxes' tracks
 
 We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
 
 Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
 ```python
-import csv
+# define name for output csv file
+file = 'tracking_output.csv"
 
-# Open the file in write mode
-with open("path/to/file.csv", mode="w", newline="") as file:
+# open the csv file in write mode
+with open(filepath, mode="w", newline="") as file:
     writer = csv.writer(file)
 
-    # Write the header
-    writer.writerow(["frame", "individual", "x", "y", "width", "height", "confidence"])
+    # write the header
+    writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
 
-    # Write the data
-    for frame in ds.frames:
-        for individual in ds.individuals:
-            for i, (x, y) in enumerate(ds.positions[frame, individual]):
-                width, height = ds.shapes[frame, individual][i]
-                confidence = ds.confidence[frame, individual][i]
-                writer.writerow([frame, individual, x, y, width, height, confidence])
+    # write the data
+    for individual in ds.individuals.data:
+        for frame in ds.time.data:
+            x, y = ds.position.sel(time=frame, individuals=individual).data
+            width, height = ds.shape.sel(time=frame, individuals=individual).data
+            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            writer.writerow([frame, individual, x, y, width, height, confidence])
+
 ```
