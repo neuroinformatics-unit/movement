@@ -40,17 +40,29 @@ def test_interpolate_over_time(
     assert n_nans_after_frames == expected_n_nans
 
 
-def test_filter_by_confidence(valid_poses_dataset, helpers):
+@pytest.mark.parametrize(
+    "valid_dataset", ("valid_poses_dataset", "valid_bboxes_dataset")
+)
+def test_filter_by_confidence(valid_dataset, helpers, request):
     """Test that points below the default 0.6 confidence threshold
     are converted to NaN.
     """
-    data = valid_poses_dataset.position
-    confidence = valid_poses_dataset.confidence
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
+
+    data = valid_input_dataset.position
+    confidence = valid_input_dataset.confidence
+
+    # Filter data by confidence
     data_filtered = filter_by_confidence(data, confidence)
     n_nans = helpers.count_nans(data_filtered)
+
     assert isinstance(data_filtered, xr.DataArray)
+    # for poses:
     # 5 timepoints * 2 individuals * 2 keypoints * 2 space dimensions
     # have confidence below 0.6
+    # for bboxes:
+    # 10 frames * 2 individuals * 2 space dimensions, and
+    # all confidence values are nan
     assert n_nans == 40
 
 
