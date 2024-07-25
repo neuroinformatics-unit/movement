@@ -6,8 +6,7 @@
 (target-supported-formats)=
 `movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
 
-To analyse pose tracks, `movement` supports loading data from various pose estimation frameworks.
-Currently, these include:
+To analyse pose tracks, `movement` supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
@@ -15,20 +14,24 @@ Currently, these include:
 To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html#:~:text=A%20snippet%20of%20this%20csv%20file%20is%20shown%20below)
 
 :::{note}
-At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages mentioned above. It currently does not support loading manually labelled data, since this is most often defined over a non-continuous set of frames.
+At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
 :::
+
+Below we explain how you can load pose tracks and bounding boxes' tracks into `movement`, and how you can export a `movement` poses dataset to different file formats. You can also try `movement` out on some [sample data](target-sample-data)
+included with the package.
+
 
 (target-loading-pose-tracks)=
 ## Loading pose tracks
 
-The pose track loading functionalities are provided by the
+The pose tracks loading functionalities are provided by the
 {mod}`movement.io.load_poses` module, which can be imported as follows:
 
 ```python
 from movement.io import load_poses
 ```
 
-Depending on the source software, one of the following functions can be used.
+To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats.
 
 ::::{tab-set}
 
@@ -83,18 +86,50 @@ ds = load_poses.from_file(
 
 ::::
 
-The loaded data include the predicted trajectories for each individual and
+The resulting poses data structure `ds` will include the predicted trajectories for each individual and
 keypoint, as well as the associated point-wise confidence values reported by
 the pose estimation software.
 
-For more information on data structure, see the [movement dataset](target-dataset) page.
+For more information on the poses data structure, see the [movement poses dataset](target-poses-and-bboxes-dataset) page.
 
-You can also try `movement` out on some [sample data](target-sample-data)
-included with the package.
+
+(target-loading-bbox-tracks)=
+## Loading bounding boxes' tracks
+To load bounding boxes' tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
+{mod}`movement.io.load_bboxes` module. This module can be imported as:
+
+```python
+from movement.io import load_bboxes
+```
+
+We currently support loading bounding boxes' tracks in the VGG Image Annotator (VIA) format only.
+
+::::{tab-set}
+:::{tab-item} VGG Image Annotator
+
+To load a VIA tracks .csv file:
+```python
+ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
+
+# or equivalently
+ds = load_bboxes.from_file(
+    "path/to/file.csv",
+    source_software="VIA-tracks",
+    fps=30,
+)
+```
+:::
+
+::::
+
+The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
+
+For more information on the bounding boxes data structure, see the [movement bounding boxes dataset](target-poses-and-bboxes-dataset) page.
+
 
 (target-saving-pose-tracks)=
 ## Saving pose tracks
-[movement datasets](target-dataset) can be saved in a variety of
+[movement poses datasets](target-poses-and-bboxes-dataset) can be saved in a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
@@ -157,3 +192,9 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 
 ::::
 :::::
+
+
+(target-saving-bboxes-tracks)=
+## Saving bounding boxes tracks
+
+We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
