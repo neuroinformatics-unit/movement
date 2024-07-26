@@ -1,4 +1,4 @@
-"""Functions for loading bounding boxes tracking data."""
+"""Load bounding boxes' tracking data into ``movement``."""
 
 import ast
 import logging
