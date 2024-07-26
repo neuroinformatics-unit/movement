@@ -196,7 +196,6 @@ def from_file(
     ----------
     .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/
 
-
     Examples
     --------
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
