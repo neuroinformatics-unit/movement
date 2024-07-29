@@ -22,7 +22,12 @@ To learn more about `xarray` data structures in general, see the relevant
 ![](../_static/dataset_structure.png)
 
 The structure of a `movement` dataset `ds` can be easily inspected by simply
-printing it. For example, for one of the sample poses dataset, we can run:
+printing it.
+
+::::{tab-set}
+
+:::{tab-item} Poses dataset
+To inspect a sample poses dataset, we can run:
 ```python
 from movement import sample_data
 
@@ -53,10 +58,11 @@ Attributes:
     frame_path:       /home/user/.movement/data/frames/three-mice_Aeon_fram...
     video_path:       None
 ```
-If you are working in a Jupyter notebook, you can view an interactive
-representation of the dataset by typing its variable name - e.g. `ds` - in a cell.
 
-Similarly, for a sample bounding boxes dataset we can have:
+:::
+
+:::{tab-item} Bounding boxes' dataset
+To inspect a sample bounding boxes' dataset, we can run:
 ```python
 from movement import sample_data
 
@@ -87,24 +93,37 @@ Attributes:
     frame_path:       None
     video_path:       None
 ```
+:::
+
+::::
 
 In both cases, we can see that the description of the dataset structure refers to **dimensions**, **coordinates**, **data variables**, and **attributes**.
+
+If you are working in a Jupyter notebook, you can view an interactive
+representation of the dataset by typing its variable name - e.g. `ds` - in a cell.
 
 ### Dimensions and coordinates
 In `xarray` [terminology](xarray:user-guide/terminology.html),
 each axis of the dataset is called a **dimension** (`dim`), while
 the labelled "ticks" along each axis are called **coordinates** (`coords`).
 
+::::{tab-set}
+:::{tab-item} Poses dataset
 A `movement` poses dataset has the following **dimensions**:
 - `time`, with size equal to the number of frames in the video.
 - `individuals`, with size equal to the number of tracked individuals/instances.
 - `keypoints`, with size equal to the number of tracked keypoints per individual.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D poses.
+:::
 
-A `movement` bounding boxes dataset has the same **dimensions**, except for the `keypoints` dimension. It has:
+:::{tab-item} Bounding boxes' dataset
+A `movement` bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
-- `individuals`, with size equal to the number of tracked bounding boxes (i.e., individuals/instances).
+- `individuals`, with size equal to the number of tracked individuals/instances.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
+Notice that these are the same dimensions as for a poses dataset, except for the `keypoints` dimension.
+:::
+::::
 
 In both cases, appropriate **coordinates** are assigned to each **dimension**.
 - `individuals` are labelled with a list of unique names (e.g. `mouse1`, `mouse2`, etc. or `id_0`, `id_1`, etc.).
@@ -113,16 +132,24 @@ In both cases, appropriate **coordinates** are assigned to each **dimension**.
 - `time` is labelled in seconds if `fps` is provided, otherwise the **coordinates** are expressed in frames (ascending 0-indexed integers).
 
 ### Data variables
-The data variables in a `movement` dataset are the arrays that hold the actual data. The specific data variables stored are slightly different between a `movement` poses dataset and a `movement` bounding boxes dataset.
+The data variables in a `movement` dataset are the arrays that hold the actual data, as {class}`xarray.DataArray` objects.
 
-A `movement` poses dataset contains two **data variables** stored as {class}`xarray.DataArray` objects:
-- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `individuals`, `keypoints`, `space`).
-- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `individuals`, `keypoints`).
+The specific data variables stored are slightly different between a `movement` poses dataset and a `movement` bounding boxes dataset.
 
-A `movement` bounding boxes dataset contains three **data variables** stored as {class}`xarray.DataArray` objects:
-- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `individuals`, `space`).
-- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `individuals`, `space`).
-- `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
+::::{tab-set}
+:::{tab-item} Poses dataset
+A `movement` poses dataset contains two **data variables**:
+- `position`: the 2D or 3D locations of the keypoints over time, with `shape=(time, individuals, keypoints, space)`.
+- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with `shape=(time, individuals, keypoints)`
+:::
+
+:::{tab-item} Bounding boxes' dataset
+A `movement` bounding boxes dataset contains three **data variables**:
+- `position`: the 2D locations of the bounding boxes' centroids over time, with `shape=(time, individuals, space)`.
+- `shape`: the width and height of the bounding boxes over time, with `shape=(time, individuals, space)`.
+- `confidence`: the confidence scores associated with each predicted bounding box, with `shape=(time, individuals)`.
+:::
+::::
 
 Grouping **data variables** together in a single dataset makes it easier to
 keep track of the relationships between them, and makes sense when they
