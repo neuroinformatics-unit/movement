@@ -171,9 +171,9 @@ the `movement` package have additional **attributes**, such as:
 - `video_path`: the path to the video file corresponding to the pose tracks.
 - `frame_path`: the path to a single still frame from the video.
 
-You can also add your own custom **attributes** to the dataset. For example, if you would like to record the frame of the full video at which the loaded tracking data starts, you could add a `frame_offset` attribute:
+You can also add your own custom **attributes** to the dataset. For example, if you would like to record the frame of the full video at which the loaded tracking data starts, you could add a `frame_offset` variable to the attributes of the dataset:
 ```
-ds = ds.assign_attrs(frame_offset=142)
+ds.attrs["frame_offset"] = 142
 ```
 
 ## Working with movement datasets
