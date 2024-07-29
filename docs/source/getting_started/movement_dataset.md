@@ -139,15 +139,15 @@ The specific data variables stored are slightly different between a `movement` p
 ::::{tab-set}
 :::{tab-item} Poses dataset
 A `movement` poses dataset contains two **data variables**:
-- `position`: the 2D or 3D locations of the keypoints over time, with `shape=(time, individuals, keypoints, space)`.
-- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with `shape=(time, individuals, keypoints)`
+- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `individuals`, `keypoints`, `space`).
+- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `individuals`, `keypoints`).
 :::
 
 :::{tab-item} Bounding boxes' dataset
 A `movement` bounding boxes dataset contains three **data variables**:
-- `position`: the 2D locations of the bounding boxes' centroids over time, with `shape=(time, individuals, space)`.
-- `shape`: the width and height of the bounding boxes over time, with `shape=(time, individuals, space)`.
-- `confidence`: the confidence scores associated with each predicted bounding box, with `shape=(time, individuals)`.
+- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `individuals`, `space`).
+- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `individuals`, `space`).
+- `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
 :::
 ::::
 
