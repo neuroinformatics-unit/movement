@@ -256,3 +256,4 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
+Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {func}`.xarray.DataArray.to_dataframe()` method, wrangle the dataframe as required, and then apply the {func}`.pandas.DataFrame.to_csv()` method to save the data as a .csv file.
