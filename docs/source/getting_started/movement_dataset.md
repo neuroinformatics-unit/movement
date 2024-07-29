@@ -164,10 +164,10 @@ Right after loading a `movement` dataset, the following **attributes** are creat
 - `time_unit`: the unit of the `time` **coordinates** (either `frames` or `seconds`).
 - `source_software`: the software that produced the pose or bounding boxes tracks.
 - `source_file`: the path to the file from which the data were loaded.
+- `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 
 Some of the [sample datasets](target-sample-data) provided with
 the `movement` package have additional **attributes**, such as:
-- `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 - `video_path`: the path to the video file corresponding to the pose tracks.
 - `frame_path`: the path to a single still frame from the video.
 
