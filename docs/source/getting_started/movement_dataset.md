@@ -99,7 +99,7 @@ A `movement` poses dataset has the following **dimensions**:
 - `time`, with size equal to the number of frames in the video.
 - `individuals`, with size equal to the number of tracked individuals/instances.
 - `keypoints`, with size equal to the number of tracked keypoints per individual.
-- `space`, which is the number of spatial dimensions, either two (2D) or three (3D).
+- `space`, which is the number of spatial dimensions. Currently, we support only 2D poses.
 
 A `movement` bounding boxes dataset has the same **dimensions**, except for the `keypoints` dimension. It has:
 - `time`, with size equal to the number of frames in the video.
