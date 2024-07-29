@@ -46,7 +46,9 @@ and its path is stored in the `frame_path` attribute
 (i.e., `ds.frame_path`). If no frame file is available for the dataset,
  `ds.frame_path=None`.
 
-:::{note}
+:::{dropdown} Under the hood
+:color: info
+:icon: info
 When you import the `sample_data` module with `from movement import sample_data`,
 `movement` downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, `movement` downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
 :::
