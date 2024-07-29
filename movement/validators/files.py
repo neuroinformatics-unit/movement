@@ -250,6 +250,7 @@ class ValidVIATracksCSV:
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
+
         - Checking that frame numbers are included in `file_attributes` or
         encoded in the image file `filename`.
         - Checking the frame number can be cast as an integer.
@@ -319,6 +320,7 @@ class ValidVIATracksCSV:
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
+
         - Checking that the bounding boxes are defined as rectangles.
         - Checking that the bounding boxes have all geometric parameters
         (["x", "y", "width", "height"]).
