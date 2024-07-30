@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 from napari.settings import get_settings
+from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
@@ -60,7 +61,7 @@ class Loader(QWidget):
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
         self.browse_button = QPushButton("browse")
-        self.browse_button.clicked.connect(self._on_browse_button_clicked)
+        self.browse_button.clicked.connect(self._on_browse_clicked)
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
@@ -70,10 +71,10 @@ class Loader(QWidget):
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
-        self.load_button.clicked.connect(lambda: self._on_load_button_click())
+        self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
 
-    def _on_browse_button_clicked(self):
+    def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
         file_suffix_map = {
             "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
@@ -91,13 +92,13 @@ class Loader(QWidget):
             # Set the file path in the line edit
             self.file_path_edit.setText(file_paths[0])
 
-    def _on_load_button_click(self):
+    def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
         if file_path == "":
-            logger.warning("No file path specified.")
+            show_warning("No file path specified.")
             return
         ds = load_poses.from_file(file_path, source_software, fps)
 
