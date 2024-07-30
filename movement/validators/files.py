@@ -255,7 +255,7 @@ class ValidVIATracksCSV:
           encoded in the image file ``filename``.
         - Checking the frame number can be cast as an integer.
         - Checking that there are as many unique frame numbers as unique image
-        files.
+          files.
 
         If the frame number is included as part of the image file name, it is
         expected as an integer led by at least one zero, between "_" and ".",
