@@ -27,7 +27,7 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from NumPy arrays.
+    """Create a ``movement`` poses dataset from NumPy arrays.
 
     Parameters
     ----------
@@ -95,7 +95,7 @@ def from_file(
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported file.
+    """Create a ``movement`` poses dataset from any supported file.
 
     Parameters
     ----------
@@ -148,7 +148,7 @@ def from_dlc_style_df(
     fps: float | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a DeepLabCut-style DataFrame.
+    """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
@@ -214,7 +214,7 @@ def from_dlc_style_df(
 def from_sleap_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP file.
+    """Create a ``movement`` poses dataset from a SLEAP file.
 
     Parameters
     ----------
@@ -290,7 +290,7 @@ def from_sleap_file(
 def from_lp_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a LightningPose file.
+    """Create a ``movement`` poses dataset from a LightningPose file.
 
     Parameters
     ----------
@@ -320,7 +320,7 @@ def from_lp_file(
 def from_dlc_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a DeepLabCut file.
+    """Create a ``movement`` poses dataset from a DeepLabCut file.
 
     Parameters
     ----------
@@ -357,7 +357,7 @@ def _ds_from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a LightningPose or DeepLabCut file.
+    """Create a ``movement`` poses dataset from a LightningPose or DLC file.
 
     Parameters
     ----------
@@ -406,7 +406,7 @@ def _ds_from_lp_or_dlc_file(
 def _ds_from_sleap_analysis_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP analysis (.h5) file.
+    """Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.
 
     Parameters
     ----------
@@ -454,7 +454,7 @@ def _ds_from_sleap_analysis_file(
 def _ds_from_sleap_labels_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP labels (.slp) file.
+    """Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.
 
     Parameters
     ----------
@@ -630,7 +630,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
 
 
 def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
-    """Create a ``movement`` dataset from validated pose tracking data.
+    """Create a ``movement`` poses dataset from validated pose tracking data.
 
     Parameters
     ----------

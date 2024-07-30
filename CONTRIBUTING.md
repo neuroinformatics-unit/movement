@@ -296,12 +296,12 @@ GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
 Currently, the data repository contains sample pose estimation data files
-stored in the `poses` folder. For some of these files, we also host
+stored in the `poses` folder, and tracked bounding boxes data files under the `bboxes` folder. For some of these files, we also host
 the associated video file (in the `videos` folder) and/or a single
 video frame (in the `frames`) folder. These can be used to develop and
-test visualisations, e.g. overlaying pose data on video frames.
+test visualisations, e.g. to overlay the data on video frames.
 The `metadata.yaml` file holds metadata for each sample dataset,
-including information on data provenance as well as the mapping between pose data files and related
+including information on data provenance as well as the mapping between data files and related
 video/frame files.
 
 ### Fetching data
@@ -314,9 +314,9 @@ The relevant functionality is implemented in the `movement.sample_data.py` modul
 The most important parts of this module are:
 
 1. The `SAMPLE_DATA` download manager object.
-2. The `list_datasets()` function, which returns a list of the available pose datasets (file names of the pose data files).
-3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
-4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose data into `movement`, returning an `xarray.Dataset` object. The local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
+2. The `list_datasets()` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
+3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
+4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
@@ -329,7 +329,7 @@ To add a new file, you will need to:
 2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
 3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
 4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
-5. Add your new files to the `poses`, `videos`, `frames`, and/or `bboxes` folders as appropriate. Follow the existing file naming conventions as closely as possible.
+5. Add your new files to the `poses`, `bboxes`, `videos` and/or `frames` folders as appropriate. Follow the existing file naming conventions as closely as possible.
 6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
     ::::{tab-set}
 
@@ -351,7 +351,7 @@ To add a new file, you will need to:
     ```
     :::
     ::::
-    For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with `movement` installed, it will calculate the sha256 hashes for all files in the `poses`, `videos`, `frames`, and `bboxes` folders and write them to files named `poses_hashes.txt`, `videos_hashes.txt`, `frames_hashes.txt`, and `bboxes_hashes.txt`, respectively.
+    For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with `movement` installed, it will calculate the sha256 hashes for all files in the `poses`, `bboxes`, `videos` and `frames` folders and write them to files named `poses_hashes.txt`, `bboxes_hashes.txt`, `videos_hashes.txt`, and `frames_hashes.txt` respectively.
 
 7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes you've calculated. See the example entry below for guidance.
 

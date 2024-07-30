@@ -251,10 +251,10 @@ class ValidVIATracksCSV:
 
         This involves:
         - Checking that frame numbers are included in `file_attributes` or
-          encoded in the image file `filename`.
+        encoded in the image file `filename`.
         - Checking the frame number can be cast as an integer.
         - Checking that there are as many unique frame numbers as unique image
-          files.
+        files.
 
         If the frame number is included as part of the image file name, it is
         expected as an integer led by at least one zero, between "_" and ".",
@@ -321,7 +321,7 @@ class ValidVIATracksCSV:
         This involves:
         - Checking that the bounding boxes are defined as rectangles.
         - Checking that the bounding boxes have all geometric parameters
-          (["x", "y", "width", "height"]).
+        (["x", "y", "width", "height"]).
         - Checking that the bounding boxes have a track ID defined.
         - Checking that the track ID can be cast as an integer.
         """

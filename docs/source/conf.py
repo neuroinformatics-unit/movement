@@ -194,4 +194,5 @@ myst_url_schemes = {
     "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
+    "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
 }
