@@ -251,16 +251,16 @@ Build the documentation:
 ```sh
 make html
 ```
+The local build can be viewed by opening `docs/build/html/index.html` in a browser.
 :::
 
 :::{tab-item} All platforms
 ```sh
 python make_api_index.py && sphinx-build source build
 ```
+The local build can be viewed by opening `docs/build/index.html` in a browser.
 :::
 ::::
-
-If using `make`, the local build can be viewed by opening `docs/build/html/index.html` in a browser. Otherwise, the file will be located at `docs/build/index.html`.
 
 To refresh the documentation after making changes, remove all generated files in `docs/`,
 including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
