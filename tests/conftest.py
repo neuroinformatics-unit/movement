@@ -213,6 +213,9 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
+# ------------
+
+
 @pytest.fixture
 def valid_bboxes_arrays_all_zeros():  # used for validators
     """Return a dictionary of valid zero arrays (in terms of shape) for a
@@ -314,6 +317,13 @@ def valid_bboxes_dataset(
     )
 
 
+# @pytest.fixture
+# def valid_bboxes_dataset_with_nans(
+#    valid_bboxes_arrays_realistic_with_nans,
+# ):
+# --------------------------------------------------------------------------
+
+
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
@@ -388,6 +398,17 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     return valid_poses_dataset
 
 
+# ---------
+def rename_time_dimension_in_ds(valid_dataset):
+    invalid_dataset = valid_dataset.rename({"time": "tame"})
+    return invalid_dataset
+
+
+def drop_position_var_in_ds(valid_dataset):
+    invalid_dataset = valid_dataset.drop_vars("position")
+    return invalid_dataset
+
+
 @pytest.fixture
 def not_a_dataset():
     """Return data that is not a pose tracks dataset."""
@@ -401,28 +422,30 @@ def empty_dataset():
 
 
 @pytest.fixture
-def missing_var_dataset(valid_poses_dataset):
+def missing_var_poses_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected variable."""
-    return valid_poses_dataset.drop_vars("position")
+    return drop_position_var_in_ds(valid_poses_dataset)
 
 
 @pytest.fixture
-def missing_dim_dataset(valid_poses_dataset):
+def missing_var_bboxes_dataset(valid_bboxes_dataset):
+    """Return a bboxes tracks dataset missing an expected variable."""
+    return drop_position_var_in_ds(valid_bboxes_dataset)
+
+
+@pytest.fixture
+def missing_dim_poses_dataset(valid_poses_dataset):
     """Return a pose tracks dataset missing an expected dimension."""
-    return valid_poses_dataset.rename({"time": "tame"})
+    return rename_time_dimension_in_ds(valid_poses_dataset)
 
 
-@pytest.fixture(
-    params=[
-        "not_a_dataset",
-        "empty_dataset",
-        "missing_var_dataset",
-        "missing_dim_dataset",
-    ]
-)
-def invalid_poses_dataset(request):
-    """Return an invalid pose tracks dataset."""
-    return request.getfixturevalue(request.param)
+@pytest.fixture
+def missing_dim_bboxes_dataset(valid_bboxes_dataset):
+    """Return a pose tracks dataset missing an expected dimension."""
+    return rename_time_dimension_in_ds(valid_bboxes_dataset)
+
+
+# ----------
 
 
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
