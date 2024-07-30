@@ -214,19 +214,21 @@ def sleap_file(request):
 
 
 @pytest.fixture
-def valid_bboxes_arrays():
-    """Return a dictionary with valid inputs for a ValidBboxesDataset."""
+def valid_bboxes_arrays_all_zeros():  # used for validators
+    """Return a dictionary of valid zero arrays (in terms of shape) for a
+    ValidBboxesDataset.
+    """
+    # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
-    # valid array for position or shape
+
+    # build a valid array for position or shape will all zeros
     valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
 
+    # return as a dict
     return {
         "position": valid_bbox_array_all_zeros,
         "shape": valid_bbox_array_all_zeros,
-        "individual_names": [
-            "id_" + str(id)
-            for id in range(valid_bbox_array_all_zeros.shape[1])
-        ],
+        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
     }
 
 
