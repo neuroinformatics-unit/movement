@@ -247,35 +247,36 @@ pip install -r requirements.txt
 Build the documentation:
 
 ::::{tab-set}
-:::{tab-item} All platforms
-```sh
-python make_api_index.py && sphinx-build source build
-```
-:::
-
 :::{tab-item} Unix platforms with `make`
 ```sh
 make html
 ```
 :::
+
+:::{tab-item} All platforms
+```sh
+python make_api_index.py && sphinx-build source build
+```
+:::
 ::::
 
-You can view the local build by opening `docs/build/index.html` in a browser.
+If using `make`, the local build can be viewed by opening `docs/build/html/index.html` in a browser. Otherwise, the file will be located at `docs/build/index.html`.
+
 To refresh the documentation after making changes, remove all generated files in `docs/`,
 including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
 Then, re-run the above command to rebuild the documentation.
 
 ::::{tab-set}
+:::{tab-item} Unix platforms with `make`
+```sh
+make clean html
+```
+:::
+
 :::{tab-item} All platforms
 ```sh
 rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
 python make_api_index.py && sphinx-build source build
-```
-:::
-
-:::{tab-item} Unix platforms with `make`
-```sh
-make clean html
 ```
 :::
 ::::
@@ -283,15 +284,15 @@ make clean html
 To check that external links are correctly resolved, run:
 
 ::::{tab-set}
-:::{tab-item} All platforms
-```sh
-sphinx-build source build -b linkcheck
-```
-:::
-
 :::{tab-item} Unix platforms with `make`
 ```sh
 make linkcheck
+```
+:::
+
+:::{tab-item} All platforms
+```sh
+sphinx-build source build -b linkcheck
 ```
 :::
 ::::
