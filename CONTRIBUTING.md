@@ -215,7 +215,7 @@ The plugins then generate the API reference pages for each module listed in `api
 So make sure that all your public functions/classes/methods have valid docstrings following the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 Our `pre-commit` hooks include some checks (`ruff` rules) that ensure the docstrings are formatted consistently.
 
-If your PR introduces new modules that should not be documented in the [API reference](target-api), or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update the `exclude_modules` list within the `docs/make_api_index.py` script to reflect these exclusions.
+If your PR introduces new modules that should *not* be documented in the [API reference](target-api), or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update the `exclude_modules` list within the `docs/make_api_index.py` script to reflect these exclusions.
 
 ### Updating the examples
 We use [sphinx-gallery](sphinx-gallery:)
@@ -234,28 +234,67 @@ examples are run. See the relevant section of the
 
 ### Building the documentation locally
 We recommend that you build and view the documentation website locally, before you push it.
-To do so, first install the requirements for building the documentation:
+To do so, first navigate to `docs/`.
+All subsequent commands should be run from within this directory.
 ```sh
-pip install -r docs/requirements.txt
+cd docs
+```
+Install the requirements for building the documentation:
+```sh
+pip install -r requirements.txt
 ```
 
-Then, from the root of the repository, run:
+Build the documentation:
+
+::::{tab-set}
+:::{tab-item} All platforms
 ```sh
-python docs/make_api_index.py && sphinx-build docs/source docs/build
+python make_api_index.py && sphinx-build source build
 ```
+:::
+
+:::{tab-item} Unix platforms with `make`
+```sh
+make html
+```
+:::
+::::
 
 You can view the local build by opening `docs/build/index.html` in a browser.
-To refresh the documentation, after making changes, remove the `docs/build` folder and re-run the above command:
+To refresh the documentation after making changes, remove all generated files in `docs/`,
+including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
+Then, re-run the above command to rebuild the documentation.
 
+::::{tab-set}
+:::{tab-item} All platforms
 ```sh
-rm -rf docs/build && python docs/make_api_index.py && sphinx-build docs/source docs/build
+rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
+python make_api_index.py && sphinx-build source build
 ```
+:::
+
+:::{tab-item} Unix platforms with `make`
+```sh
+make clean html
+```
+:::
+::::
 
 To check that external links are correctly resolved, run:
 
+::::{tab-set}
+:::{tab-item} All platforms
 ```sh
-sphinx-build docs/source docs/build -b linkcheck
+sphinx-build source build -b linkcheck
 ```
+:::
+
+:::{tab-item} Unix platforms with `make`
+```sh
+make linkcheck
+```
+:::
+::::
 
 If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to `linkcheck_anchors_ignore_for_url` in `docs/source/conf.py`, e.g.:
 
@@ -314,7 +353,6 @@ To add a new file, you will need to:
 5. Add your new files to the `poses`, `bboxes`, `videos` and/or `frames` folders as appropriate. Follow the existing file naming conventions as closely as possible.
 6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
     ::::{tab-set}
-
     :::{tab-item} Ubuntu
       ```bash
       sha256sum <filename>
