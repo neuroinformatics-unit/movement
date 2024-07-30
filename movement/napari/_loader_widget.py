@@ -1,14 +1,28 @@
-from napari.utils.notifications import show_info
+import logging
+from pathlib import Path
+
+from napari.settings import get_settings
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
+    QComboBox,
+    QFileDialog,
     QFormLayout,
+    QHBoxLayout,
+    QLineEdit,
     QPushButton,
+    QSpinBox,
     QWidget,
 )
 
+from movement.io import load_poses
+from movement.napari.convert import poses_to_napari_tracks
+from movement.napari.layer_styles import PointsStyle
+
+logger = logging.getLogger(__name__)
+
 
 class Loader(QWidget):
-    """Widget for loading data from files."""
+    """Widget for loading movement poses datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
         """Initialize the loader widget."""
@@ -16,17 +30,104 @@ class Loader(QWidget):
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
         # Create widgets
-        self._create_hello_widget()
+        self._create_source_software_widget()
+        self._create_fps_widget()
+        self._create_file_path_widget()
+        self._create_load_button()
 
-    def _create_hello_widget(self):
-        """Create the hello widget.
+    def _create_source_software_widget(self):
+        """Create a combo box for selecting the source software."""
+        self.source_software_combo = QComboBox()
+        self.source_software_combo.addItems(
+            ["SLEAP", "DeepLabCut", "LightningPose"]
+        )
+        self.layout().addRow("source software:", self.source_software_combo)
 
-        This widget contains a button that, when clicked, shows a greeting.
+    def _create_fps_widget(self):
+        """Create a spinbox for selecting the frames per second (fps)."""
+        self.fps_spinbox = QSpinBox()
+        self.fps_spinbox.setMinimum(1)
+        self.fps_spinbox.setMaximum(1000)
+        self.fps_spinbox.setValue(50)
+        self.layout().addRow("fps:", self.fps_spinbox)
+
+    def _create_file_path_widget(self):
+        """Create a line edit and browse button for selecting the file path.
+
+        This allows the user to either browse the file system,
+        or type the path directly into the line edit.
         """
-        hello_button = QPushButton("Say hello")
-        hello_button.clicked.connect(self._on_hello_clicked)
-        self.layout().addRow("Greeting", hello_button)
+        # File path line edit and browse button
+        self.file_path_edit = QLineEdit()
+        self.browse_button = QPushButton("browse")
+        self.browse_button.clicked.connect(self._on_browse_button_clicked)
+        # Layout for line edit and button
+        self.file_path_layout = QHBoxLayout()
+        self.file_path_layout.addWidget(self.file_path_edit)
+        self.file_path_layout.addWidget(self.browse_button)
+        self.layout().addRow("pose file:", self.file_path_layout)
 
-    def _on_hello_clicked(self):
-        """Show a greeting."""
-        show_info("Hello, world!")
+    def _create_load_button(self):
+        """Create a button to load the file and add layers to the viewer."""
+        self.load_button = QPushButton("Load")
+        self.load_button.clicked.connect(lambda: self._on_load_button_click())
+        self.layout().addRow(self.load_button)
+
+    def _on_browse_button_clicked(self):
+        """Open a file dialog to select a file."""
+        file_suffix_map = {
+            "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
+            "LightningPose": "Files containing predicted poses (*.csv)",
+            "SLEAP": "Files containing predicted poses (*.h5 *.slp)",
+        }
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.ExistingFile)
+        # Allowed file suffixes based on the source software
+        dlg.setNameFilter(
+            file_suffix_map[self.source_software_combo.currentText()]
+        )
+        if dlg.exec_():
+            file_paths = dlg.selectedFiles()
+            # Set the file path in the line edit
+            self.file_path_edit.setText(file_paths[0])
+
+    def _on_load_button_click(self):
+        """Load the file and add as a Points layer to the viewer."""
+        fps = self.fps_spinbox.value()
+        source_software = self.source_software_combo.currentText()
+        file_path = self.file_path_edit.text()
+        if file_path == "":
+            logger.warning("No file path specified.")
+            return
+        ds = load_poses.from_file(file_path, source_software, fps)
+
+        self.data, self.props = poses_to_napari_tracks(ds)
+        logger.info("Converted pose tracks to a napari Tracks array.")
+        logger.debug(f"Tracks data shape: {self.data.shape}")
+
+        self.file_name = Path(file_path).name
+        self._add_points_layer()
+
+        self._set_playback_fps(fps)
+        logger.debug(f"Set napari playback speed to {fps} fps.")
+
+    def _add_points_layer(self):
+        """Add the predicted poses to the viewr as a Points layer."""
+        n_individuals = len(self.props["individual"].unique())
+        color_by = "individual" if n_individuals > 1 else "keypoint"
+
+        # Style properties for the napari Points layer
+        points_style = PointsStyle(
+            name=f"Poses: {self.file_name}",
+            properties=self.props,
+        )
+        points_style.set_color_by(prop=color_by, cmap="turbo")
+
+        # Add the points layer to the viewer
+        self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
+
+    @staticmethod
+    def _set_playback_fps(fps: int):
+        """Set the playback speed for the napari viewer."""
+        settings = get_settings()
+        settings.application.playback_fps = fps
