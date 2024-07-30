@@ -211,12 +211,13 @@ class ValidBboxesDataset:
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
-        of the `position_array`. The names will be in the format of `id_<N>`,
-        where <N>  is an integer from 0 to `position_array.shape[1]-1`.
+        of the ``position_array``. The names will be in the format of
+        ``id_<N>``, where <N>  is an integer from 0 to
+        ``position_array.shape[1]-1``.
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
-        be assigned based on the first dimension of the `position_array`,
+        be assigned based on the first dimension of the ``position_array``,
         starting from 0.
     fps : float, optional
         Frames per second defining the sampling rate of the data.

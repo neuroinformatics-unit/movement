@@ -51,13 +51,13 @@ def from_numpy(
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
-        of the `position_array`. The names will be in the format of `id_<N>`,
-        where <N>  is an integer from 0 to `position_array.shape[1]-1` (i.e.,
-        "id_0", "id_1"...).
+        of the ``position_array``. The names will be in the format of
+        ``id_<N>``, where <N>  is an integer from 0 to
+        ``position_array.shape[1]-1`` (i.e., "id_0", "id_1"...).
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
-        be assigned based on the first dimension of the `position_array`,
+        be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
         these need to be consecutive integers.
     fps : float, optional
@@ -112,7 +112,7 @@ def from_numpy(
 
     Create a dataset with the same data as above, but express the time
     coordinate in frames, and assume the first tracked frame is frame 0.
-    To do this, we simply omit the `frame_array` input argument.
+    To do this, we simply omit the ``frame_array`` input argument.
 
     >>> ds = load_bboxes.from_numpy(
     ...     position_array=np.random.rand(100, 2, 2),
@@ -123,8 +123,8 @@ def from_numpy(
 
     Create a dataset with the same data as above, but express the time
     coordinate in seconds, and assume the first tracked frame is captured
-    at time = 0 seconds. To do this, we omit the `frame_array` input argument
-    and pass an `fps` value.
+    at time = 0 seconds. To do this, we omit the ``frame_array`` input argument
+    and pass an ``fps`` value.
 
     >>> ds = load_bboxes.from_numpy(
     ...     position_array=np.random.rand(100, 2, 2),
@@ -293,7 +293,7 @@ def from_via_tracks_file(
     -----
     The bounding boxes' IDs specified in the "track" field of the VIA
     tracks .csv file are mapped to the "individual_name" column of the
-    ``movement`` dataset. The individual names follow the format `id_<N>`,
+    ``movement`` dataset. The individual names follow the format ``id_<N>``,
     with N being the bounding box ID.
 
     References
@@ -468,7 +468,7 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     ----------
     df : pd.DataFrame
         The VIA tracks input dataframe is the one obtained from
-        `df = pd.read_csv(file_path, sep=",", header=0)`.
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
     Returns
     -------
@@ -499,7 +499,7 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
     ----------
     df : pd.DataFrame
         The VIA tracks input dataframe is the one obtained from
-        `df = pd.read_csv(file_path, sep=",", header=0)`.
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
     Returns
     -------
@@ -544,8 +544,8 @@ def _via_attribute_column_to_numpy(
     """Convert values from VIA attribute-type column to a numpy array.
 
     In the VIA tracks .csv file, the attribute-type columns are the columns
-    whose name includes the word `attributes` (i.e. `file_attributes`,
-    `region_shape_attributes` or `region_attributes`). These columns hold
+    whose name includes the word ``attributes`` (i.e. ``file_attributes``,
+    ``region_shape_attributes`` or ``region_attributes``). These columns hold
     dictionary data.
 
     Parameters
@@ -553,24 +553,24 @@ def _via_attribute_column_to_numpy(
     df : pd.DataFrame
         The pandas DataFrame containing the data from the VIA tracks .csv file.
         This is the dataframe obtained from running
-        `df = pd.read_csv(file_path, sep=",", header=0)`.
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
     via_column_name : str
         The name of a column in the VIA tracks .csv file whose values are
-        literal dictionaries (i.e. `file_attributes`, `region_shape_attributes`
-        or `region_attributes`).
+        literal dictionaries (i.e. ``file_attributes``,
+        ``region_shape_attributes`` or ``region_attributes``).
     list_keys : list[str]
         The list of keys whose values we want to extract from the literal
-        dictionaries in the `via_column_name` column.
+        dictionaries in the ``via_column_name`` column.
     cast_fn : type, optional
-        The type function to cast the values to. By default `float`.
+        The type function to cast the values to. By default ``float``.
 
     Returns
     -------
     np.ndarray
-        A numpy array holding the extracted values. If `len(list_keys) > 1`
-        the array is two-dimensional with shape `(N, len(list_keys))`, where
-        `N` is the number of rows in the input dataframe `df`. If
-        `len(list_keys) == 1`, the resulting array will be one-dimensional,
+        A numpy array holding the extracted values. If ``len(list_keys) > 1``
+        the array is two-dimensional with shape ``(N, len(list_keys))``, where
+        ``N`` is the number of rows in the input dataframe ``df``. If
+        ``len(list_keys) == 1``, the resulting array will be one-dimensional,
         with shape (N, ). Note that the computed array is squeezed before
         returning.
 
