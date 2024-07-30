@@ -39,6 +39,7 @@ def setup_logging(tmp_path):
     )
 
 
+# --------- File validator fixtures ---------------------------------
 @pytest.fixture
 def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
@@ -213,7 +214,7 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
-# ------------
+# ------------ Dataset validator fixtures ---------------------------------
 
 
 @pytest.fixture
@@ -235,6 +236,7 @@ def valid_bboxes_arrays_all_zeros():  # used for validators
     }
 
 
+# --------------------- Bboxes dataset fixtures ----------------------------
 @pytest.fixture
 def valid_bboxes_arrays_no_nans():  # used for filtering
     """Return a dictionary of valid non-zero arrays for a
@@ -259,6 +261,15 @@ def valid_bboxes_arrays_no_nans():  # used for filtering
 
     # build an array of confidence values, all 0.9
     confidence = np.full((n_frames, n_individuals), 0.9)
+
+    # set 5 low-confidence values
+    # - set 3 confidence values for bbox id_0 to 0.1
+    # - set 2 confidence values for bbox id_1 to 0.1
+    idx_start = 2
+    confidence[idx_start : idx_start + 3, 0] = 0.1
+    confidence[idx_start : idx_start + 2, 1] = 0.1
+
+    assert np.sum(confidence == 0.1) == 5
 
     # return dict
     return {
@@ -321,7 +332,8 @@ def valid_bboxes_dataset(
 # def valid_bboxes_dataset_with_nans(
 #    valid_bboxes_arrays_realistic_with_nans,
 # ):
-# --------------------------------------------------------------------------
+
+#  --------------------- Poses dataset fixtures ----------------------------
 
 
 @pytest.fixture
@@ -398,7 +410,7 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     return valid_poses_dataset
 
 
-# ---------
+# -------------------- Invalid datasets fixtures ------------------------------
 def rename_time_dimension_in_ds(valid_dataset):
     invalid_dataset = valid_dataset.rename({"time": "tame"})
     return invalid_dataset
@@ -445,7 +457,7 @@ def missing_dim_bboxes_dataset(valid_bboxes_dataset):
     return rename_time_dimension_in_ds(valid_bboxes_dataset)
 
 
-# ----------
+# --------------------------------------------------------------------------
 
 
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
@@ -454,7 +466,7 @@ def kinematic_property(request):
     return request.param
 
 
-# VIA tracks CSV fixtures
+# ---------------- VIA tracks CSV fixtures ----------------------------
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""

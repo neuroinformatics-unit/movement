@@ -41,29 +41,34 @@ def test_interpolate_over_time(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset", ("valid_poses_dataset", "valid_bboxes_dataset")
+    "valid_dataset, n_low_confidence_kpts",
+    [("valid_poses_dataset", 20), ("valid_bboxes_dataset", 5)],
 )
-def test_filter_by_confidence(valid_dataset, helpers, request):
+def test_filter_by_confidence(
+    valid_dataset, n_low_confidence_kpts, helpers, request
+):
     """Test that points below the default 0.6 confidence threshold
     are converted to NaN.
     """
     valid_input_dataset = request.getfixturevalue(valid_dataset)
 
-    data = valid_input_dataset.position
+    position = valid_input_dataset.position
     confidence = valid_input_dataset.confidence
 
-    # Filter data by confidence
-    data_filtered = filter_by_confidence(data, confidence)
-    n_nans = helpers.count_nans(data_filtered)
+    # Filter position by confidence
+    position_filtered = filter_by_confidence(
+        position, confidence, threshold=0.6
+    )
 
-    assert isinstance(data_filtered, xr.DataArray)
-    # for poses:
-    # 5 timepoints * 2 individuals * 2 keypoints * 2 space dimensions
-    # have confidence below 0.6
-    # for bboxes:
-    # 10 frames * 2 individuals * 2 space dimensions, and
-    # all confidence values are nan
-    assert n_nans == 40
+    # Count number of NaNs in the full array
+    n_nans = helpers.count_nans(position_filtered)
+
+    # expected number of nans for poses:
+    # 5 timepoints * 2 individuals * 2 keypoints
+    # we count number of nans in the data, so we multiply by the number of
+    # space dimensions
+    assert isinstance(position_filtered, xr.DataArray)
+    assert n_nans == valid_input_dataset.dims["space"] * n_low_confidence_kpts
 
 
 @pytest.mark.parametrize("window_size", [2, 4])
