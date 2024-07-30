@@ -238,7 +238,7 @@ def valid_bboxes_arrays_all_zeros():  # used for validators
 
 # --------------------- Bboxes dataset fixtures ----------------------------
 @pytest.fixture
-def valid_bboxes_arrays_no_nans():  # used for filtering
+def valid_bboxes_array():  # used for filtering
     """Return a dictionary of valid non-zero arrays for a
     ValidBboxesDataset.
     """
@@ -280,26 +280,16 @@ def valid_bboxes_arrays_no_nans():  # used for filtering
     }
 
 
-# def valid_bboxes_arrays_with_nans(
-#     valid_bboxes_arrays_no_nans,
-# ):  # used for filtering
-#     """Return a dictionary of valid non-zero arrays for a
-#     ValidBboxesDataset with some NaNs in position array.
-#     """
-#     # simulate nans in position, shape and confidence arrays
-#     pass
-
-
 @pytest.fixture
 def valid_bboxes_dataset(
-    valid_bboxes_arrays_no_nans,
+    valid_bboxes_array,
 ):  # this is used in fnalitites test so should be with a "realistic" array
     """Return a valid bboxes' tracks dataset."""
     dim_names = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
 
-    position_array = valid_bboxes_arrays_no_nans["position"]
-    shape_array = valid_bboxes_arrays_no_nans["shape"]
-    confidence_array = valid_bboxes_arrays_no_nans["confidence"]
+    position_array = valid_bboxes_array["position"]
+    shape_array = valid_bboxes_array["shape"]
+    confidence_array = valid_bboxes_array["confidence"]
 
     n_frames, n_individuals, _ = position_array.shape
 
@@ -328,10 +318,15 @@ def valid_bboxes_dataset(
     )
 
 
-# @pytest.fixture
-# def valid_bboxes_dataset_with_nans(
-#    valid_bboxes_arrays_realistic_with_nans,
-# ):
+@pytest.fixture
+def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with NaN values."""
+    # Set 3 NaN values in the position array for id_0
+    valid_bboxes_dataset.position.loc[
+        {"individuals": "id_0", "time": [3, 7, 8]}
+    ] = np.nan
+    return valid_bboxes_dataset
+
 
 #  --------------------- Poses dataset fixtures ----------------------------
 

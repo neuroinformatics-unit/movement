@@ -12,32 +12,63 @@ from movement.filtering import (
 
 
 @pytest.mark.parametrize(
-    "max_gap, expected_n_nans", [(None, 0), (1, 8), (2, 0)]
+    "valid_dataset_with_nan",
+    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
+)
+@pytest.mark.parametrize(
+    "max_gap, expected_n_nans_in_position", [(None, 0), (0, 3), (1, 2), (2, 0)]
 )
 def test_interpolate_over_time(
-    valid_poses_dataset_with_nan, helpers, max_gap, expected_n_nans
+    valid_dataset_with_nan,
+    max_gap,
+    expected_n_nans_in_position,
+    helpers,
+    request,
 ):
     """Test that the number of NaNs decreases after interpolating
     over time and that the resulting number of NaNs is as expected
     for different values of ``max_gap``.
     """
     # First dataset with time unit in frames
-    data_in_frames = valid_poses_dataset_with_nan.position
+    valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    position_in_frames = valid_dataset.position
+
     # Create second dataset with time unit in seconds
-    data_in_seconds = data_in_frames.copy()
-    data_in_seconds["time"] = data_in_seconds["time"] * 0.1
-    data_interp_frames = interpolate_over_time(data_in_frames, max_gap=max_gap)
-    data_interp_seconds = interpolate_over_time(
-        data_in_seconds, max_gap=max_gap
+    position_in_seconds = position_in_frames.copy()
+    position_in_seconds["time"] = position_in_seconds["time"] * 0.1
+
+    # Interpolate nans, for data in frames and data in seconds over time
+    position_interp_frames = interpolate_over_time(
+        position_in_frames, max_gap=max_gap
     )
-    n_nans_before = helpers.count_nans(data_in_frames)
-    n_nans_after_frames = helpers.count_nans(data_interp_frames)
-    n_nans_after_seconds = helpers.count_nans(data_interp_seconds)
+    position_interp_seconds = interpolate_over_time(
+        position_in_seconds, max_gap=max_gap
+    )
+
+    # Count number of NaNs before and after interpolation
+    n_nans_before = helpers.count_nans(position_in_frames)
+    n_nans_after_frames = helpers.count_nans(position_interp_frames)
+    n_nans_after_seconds = helpers.count_nans(position_interp_seconds)
+
     # The number of NaNs should be the same for both datasets
     # as max_gap is based on number of missing observations (NaNs)
     assert n_nans_after_frames == n_nans_after_seconds
-    assert n_nans_after_frames < n_nans_before
-    assert n_nans_after_frames == expected_n_nans
+
+    # The number of NaNs should decrease after interpolation
+    if max_gap == 0:
+        assert n_nans_after_frames == n_nans_before
+    else:
+        assert n_nans_after_frames < n_nans_before
+
+    # The number of NaNs after interpolating should be as expected
+    assert (
+        n_nans_after_frames
+        == valid_dataset.dims["space"]
+        * valid_dataset.dims.get(
+            "keypoints", 1
+        )  # in bboxes dataset there is no keypoints dimension
+        * expected_n_nans_in_position
+    )
 
 
 @pytest.mark.parametrize(
@@ -78,7 +109,9 @@ def test_median_filter(valid_poses_dataset_with_nan, window_size):
     """
     data = valid_poses_dataset_with_nan.position
     data_smoothed = median_filter(data, window_size)
+
     del data_smoothed.attrs["log"]
+
     assert isinstance(data_smoothed, xr.DataArray) and not (
         data_smoothed.equals(data)
     )
