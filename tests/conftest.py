@@ -233,13 +233,59 @@ def valid_bboxes_arrays_all_zeros():  # used for validators
 
 
 @pytest.fixture
-def valid_bboxes_dataset(valid_bboxes_arrays):
+def valid_bboxes_arrays_no_nans():  # used for filtering
+    """Return a dictionary of valid non-zero arrays for a
+    ValidBboxesDataset.
+    """
+    # define the shape of the arrays
+    n_frames, n_individuals, n_space = (10, 2, 2)
+
+    # build a valid array for position
+    # make bbox with id_i move along x=((-1)**(i))*y line from the origin
+    # if i is even: along x = y line
+    # if i is odd: along x = -y line
+    # moving one unit along each axis in each frame
+    position = np.empty((n_frames, n_individuals, n_space))
+    for i in range(n_individuals):
+        position[:, i, 0] = np.arange(n_frames)
+        position[:, i, 1] = (-1) ** i * np.arange(n_frames)
+
+    # build a valid array for constant bbox shape (60, 40)
+    constant_shape = (60, 40)  # width, height in pixels
+    shape = np.tile(constant_shape, (n_frames, n_individuals, 1))
+
+    # build an array of confidence values, all 0.9
+    confidence = np.full((n_frames, n_individuals), 0.9)
+
+    # return dict
+    return {
+        "position": position,
+        "shape": shape,
+        "confidence": confidence,
+        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
+    }
+
+
+# def valid_bboxes_arrays_with_nans(
+#     valid_bboxes_arrays_no_nans,
+# ):  # used for filtering
+#     """Return a dictionary of valid non-zero arrays for a
+#     ValidBboxesDataset with some NaNs in position array.
+#     """
+#     # simulate nans in position, shape and confidence arrays
+#     pass
+
+
+@pytest.fixture
+def valid_bboxes_dataset(
+    valid_bboxes_arrays_no_nans,
+):  # this is used in fnalitites test so should be with a "realistic" array
     """Return a valid bboxes' tracks dataset."""
     dim_names = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
 
-    position_array = valid_bboxes_arrays["position"]
-    shape_array = valid_bboxes_arrays["shape"]
-    confidence_array = np.empty(position_array.shape[:2]) * np.nan
+    position_array = valid_bboxes_arrays_no_nans["position"]
+    shape_array = valid_bboxes_arrays_no_nans["shape"]
+    confidence_array = valid_bboxes_arrays_no_nans["confidence"]
 
     n_frames, n_individuals, _ = position_array.shape
 
