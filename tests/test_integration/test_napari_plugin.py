@@ -35,27 +35,27 @@ def test_meta_widget(meta_widget):
 def test_loader_widget(loader_widget):
     """Test that the loader widget is properly instantiated."""
     assert loader_widget is not None
-    assert loader_widget.layout().rowCount() == 1
+    assert loader_widget.layout().rowCount() == 4
 
 
-def test_hello_button_calls_on_hello_clicked(make_napari_viewer_proxy, mocker):
-    """Test that clicking the hello button calls _on_hello_clicked.
+def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
+    """Test that clicking the 'Load' call the right function.
 
     Here we have to create a new Loader widget after mocking the method.
     We cannot reuse the existing widget fixture because then it would be too
     late to mock (the widget has already "decided" which method to call).
     """
     mock_method = mocker.patch(
-        "movement.napari._loader_widget.Loader._on_hello_clicked"
+        "movement.napari._loader_widget.Loader._on_load_clicked"
     )
     loader = Loader(make_napari_viewer_proxy)
-    hello_button = loader.findChildren(QPushButton)[0]
-    hello_button.click()
+    load_button = loader.findChildren(QPushButton)[-1]
+    load_button.click()
     mock_method.assert_called_once()
 
 
-def test_on_hello_clicked_outputs_message(loader_widget, capsys):
-    """Test that _on_hello_clicked outputs the expected message."""
-    loader_widget._on_hello_clicked()
+def test_on_load_clicked_without_file_path(loader_widget, capsys):
+    """Test that clicking 'Load' without a file path shows a warning."""
+    loader_widget._on_load_clicked()
     captured = capsys.readouterr()
-    assert "INFO: Hello, world!" in captured.out
+    assert "No file path specified." in captured.out
