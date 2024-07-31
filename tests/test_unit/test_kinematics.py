@@ -8,7 +8,9 @@ from movement.analysis import kinematics
 
 
 @pytest.fixture
-def expected_dataarray(valid_poses_dataset):
+def expected_kinematic_arrays_pose_dataset(
+    valid_poses_dataset,
+):  # Compute by hand? using np.gradient?
     """Return a function to generate the expected dataarray
     for different kinematic properties.
     """
@@ -48,50 +50,83 @@ def expected_dataarray(valid_poses_dataset):
     return _expected_dataarray
 
 
-kinematic_test_params = [
-    ("valid_poses_dataset", does_not_raise()),
-    # ("valid_bboxes_dataset", does_not_raise()),
-    ("valid_poses_dataset_with_nan", does_not_raise()),
-    ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
-]
-
-
-@pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
-def test_displacement(ds, expected_exception, expected_dataarray, request):
+@pytest.mark.parametrize(
+    "valid_dataset, expected_exception",
+    [
+        ("valid_poses_dataset", does_not_raise()),
+        ("valid_poses_dataset_with_nan", does_not_raise()),
+        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
+        # ("valid_bboxes_dataset", does_not_raise()),
+    ],
+)
+def test_displacement(
+    valid_dataset,
+    expected_exception,
+    expected_kinematic_arrays_pose_dataset,
+    request,
+):
     """Test displacement computation."""
-    ds = request.getfixturevalue(ds)
+    input_dataset = request.getfixturevalue(valid_dataset)
+    position = input_dataset.position
+
     with expected_exception:
-        result = kinematics.compute_displacement(ds.position)
-        expected = expected_dataarray("displacement")
-        if ds.position.isnull().any():
+        result = kinematics.compute_displacement(position)
+        expected = expected_kinematic_arrays_pose_dataset("displacement")
+        if input_dataset.position.isnull().any():
             expected.loc[{"individuals": "ind1", "time": [3, 4, 7, 8, 9]}] = (
                 np.nan
             )
         xr.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
-def test_velocity(ds, expected_exception, expected_dataarray, request):
+@pytest.mark.parametrize(
+    "valid_dataset, expected_exception",
+    [
+        ("valid_poses_dataset", does_not_raise()),
+        ("valid_poses_dataset_with_nan", does_not_raise()),
+        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
+        # ("valid_bboxes_dataset", does_not_raise()),
+    ],
+)
+def test_velocity(
+    valid_dataset,
+    expected_exception,
+    expected_kinematic_arrays_pose_dataset,
+    request,
+):
     """Test velocity computation."""
-    ds = request.getfixturevalue(ds)
+    valid_dataset = request.getfixturevalue(valid_dataset)
     with expected_exception:
-        result = kinematics.compute_velocity(ds.position)
-        expected = expected_dataarray("velocity")
-        if ds.position.isnull().any():
+        result = kinematics.compute_velocity(valid_dataset.position)
+        expected = expected_kinematic_arrays_pose_dataset("velocity")
+        if valid_dataset.position.isnull().any():
             expected.loc[
                 {"individuals": "ind1", "time": [2, 4, 6, 7, 8, 9]}
             ] = np.nan
         xr.testing.assert_allclose(result, expected)
 
 
-@pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
-def test_acceleration(ds, expected_exception, expected_dataarray, request):
+@pytest.mark.parametrize(
+    "valid_dataset, expected_exception",
+    [
+        ("valid_poses_dataset", does_not_raise()),
+        ("valid_poses_dataset_with_nan", does_not_raise()),
+        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
+        # ("valid_bboxes_dataset", does_not_raise()),
+    ],
+)
+def test_acceleration(
+    valid_dataset,
+    expected_exception,
+    expected_kinematic_arrays_pose_dataset,
+    request,
+):
     """Test acceleration computation."""
-    ds = request.getfixturevalue(ds)
+    valid_dataset = request.getfixturevalue(valid_dataset)
     with expected_exception:
-        result = kinematics.compute_acceleration(ds.position)
-        expected = expected_dataarray("acceleration")
-        if ds.position.isnull().any():
+        result = kinematics.compute_acceleration(valid_dataset.position)
+        expected = expected_kinematic_arrays_pose_dataset("acceleration")
+        if valid_dataset.position.isnull().any():
             expected.loc[
                 {"individuals": "ind1", "time": [1, 3, 5, 6, 7, 8, 9]}
             ] = np.nan
