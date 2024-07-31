@@ -250,6 +250,15 @@ def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
 
 
 @pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_poses_dataset",
+        "valid_bboxes_dataset",
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset_with_nan",
+    ],
+)
+@pytest.mark.parametrize(
     "override_kwargs",
     [
         {"mode": "nearest"},
@@ -258,7 +267,7 @@ def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
     ],
 )
 def test_savgol_filter_kwargs_override(
-    valid_poses_dataset_with_nan, override_kwargs
+    valid_dataset, override_kwargs, request
 ):
     """Test that overriding keyword arguments in the Savitzky-Golay filter
     works, except for the ``axis`` argument, which should raise a ValueError.
@@ -270,7 +279,7 @@ def test_savgol_filter_kwargs_override(
     )
     with expected_exception:
         savgol_filter(
-            valid_poses_dataset_with_nan.position,
+            request.getfixturevalue(valid_dataset).position,
             window=3,
             **override_kwargs,
         )
