@@ -25,7 +25,7 @@ def test_interpolate_over_time(
     helpers,
     request,
 ):
-    """Test that the number of NaNs decreases after interpolating
+    """Test that the number of NaNs decreases after linearly interpolating
     over time and that the resulting number of NaNs is as expected
     for different values of ``max_gap``.
     """
@@ -39,10 +39,10 @@ def test_interpolate_over_time(
 
     # Interpolate nans, for data in frames and data in seconds over time
     position_interp_frames = interpolate_over_time(
-        position_in_frames, max_gap=max_gap
+        position_in_frames, method="linear", max_gap=max_gap
     )
     position_interp_seconds = interpolate_over_time(
-        position_in_seconds, max_gap=max_gap
+        position_in_seconds, method="linear", max_gap=max_gap
     )
 
     # Count number of NaNs before and after interpolation
@@ -73,7 +73,10 @@ def test_interpolate_over_time(
 
 @pytest.mark.parametrize(
     "valid_dataset, n_low_confidence_kpts",
-    [("valid_poses_dataset", 20), ("valid_bboxes_dataset", 5)],
+    [
+        ("valid_poses_dataset", 20),
+        ("valid_bboxes_dataset", 5),
+    ],
 )
 def test_filter_by_confidence(
     valid_dataset, n_low_confidence_kpts, helpers, request
@@ -96,25 +99,34 @@ def test_filter_by_confidence(
 
     # expected number of nans for poses:
     # 5 timepoints * 2 individuals * 2 keypoints
-    # we count number of nans in the data, so we multiply by the number of
+    # Note: we count the number of nans in the array, so we multiply
+    # the number of low confidence keypoints by the number of
     # space dimensions
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.dims["space"] * n_low_confidence_kpts
 
 
+@pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
+)
 @pytest.mark.parametrize("window_size", [2, 4])
-def test_median_filter(valid_poses_dataset_with_nan, window_size):
+def test_median_filter(valid_dataset_with_nan, window_size, request):
     """Test that applying the median filter returns
     a different xr.DataArray than the input data.
     """
-    data = valid_poses_dataset_with_nan.position
-    data_smoothed = median_filter(data, window_size)
+    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
 
-    del data_smoothed.attrs["log"]
+    position = valid_input_dataset.position
+    position_filtered = median_filter(position, window_size)
 
-    assert isinstance(data_smoothed, xr.DataArray) and not (
-        data_smoothed.equals(data)
-    )
+    del position_filtered.attrs["log"]
+
+    # filtered array is an xr.DataArray
+    assert isinstance(position_filtered, xr.DataArray)
+
+    # filtered data should not be equal to the original data
+    assert not position_filtered.equals(position)
 
 
 def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
