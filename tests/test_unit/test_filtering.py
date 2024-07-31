@@ -18,7 +18,7 @@ from movement.filtering import (
 @pytest.mark.parametrize(
     "max_gap, expected_n_nans_in_position", [(None, 0), (0, 3), (1, 2), (2, 0)]
 )
-def test_interpolate_over_time(
+def test_interpolate_over_time_on_position(
     valid_dataset_with_nan,
     max_gap,
     expected_n_nans_in_position,
@@ -70,19 +70,19 @@ def test_interpolate_over_time(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset, n_low_confidence_kpts",
+    "valid_dataset_no_nans, n_low_confidence_kpts",
     [
         ("valid_poses_dataset", 20),
         ("valid_bboxes_dataset", 5),
     ],
 )
-def test_filter_by_confidence(
-    valid_dataset, n_low_confidence_kpts, helpers, request
+def test_filter_by_confidence_on_position(
+    valid_dataset_no_nans, n_low_confidence_kpts, helpers, request
 ):
     """Test that points below the default 0.6 confidence threshold
     are converted to NaN.
     """
-    valid_input_dataset = request.getfixturevalue(valid_dataset)
+    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
 
     position = valid_input_dataset.position
     confidence = valid_input_dataset.confidence
@@ -105,7 +105,7 @@ def test_filter_by_confidence(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_with_nan",
+    "valid_dataset",
     [
         "valid_poses_dataset",
         "valid_bboxes_dataset",
@@ -114,11 +114,11 @@ def test_filter_by_confidence(
     ],
 )
 @pytest.mark.parametrize("window_size", [2, 4])
-def test_median_filter(valid_dataset_with_nan, window_size, helpers, request):
+def test_median_filter_on_position(valid_dataset, window_size, request):
     """Test that applying the median filter to the position data returns
     a different xr.DataArray than the input position data.
     """
-    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
 
     position = valid_input_dataset.position
     position_filtered = median_filter(position, window_size)
@@ -133,7 +133,7 @@ def test_median_filter(valid_dataset_with_nan, window_size, helpers, request):
 
 
 @pytest.mark.parametrize(
-    ("valid_dataset_with_nan, expected_n_nans_in_position_per_indiv"),
+    ("valid_dataset, expected_n_nans_in_position_per_indiv"),
     [
         (
             "valid_poses_dataset",
@@ -146,29 +146,30 @@ def test_median_filter(valid_dataset_with_nan, window_size, helpers, request):
         (
             "valid_poses_dataset_with_nan",
             {0: 7, 1: 0},
-        ),  # individual 1 has 7 frames with nans in position after filtering
-        # individual 2 has no nans after filtering
+        ),
+        # individual with index 0 has 7 frames with nans in position after
+        # filtering
+        # individual with index 1 has no nans after filtering
         (
             "valid_bboxes_dataset_with_nan",
             {0: 7, 1: 0},
-        ),  # individual 1 has 7 frames with nans in position after filtering
-        # individual 2 has no nans after filtering
+        ),
+        # individual with index 0 has 7 frames with nans in position after
+        # filtering
+        # individual with index 0 has no nans after filtering
     ],
 )
-def test_median_filter_with_nans(
-    valid_dataset_with_nan,
+def test_median_filter_with_nans_on_position(
+    valid_dataset,
     expected_n_nans_in_position_per_indiv,
     helpers,
     request,
 ):
-    """Test NaN behaviour of the median filter. The input data
-    contains NaNs in all keypoints of the first individual at timepoints
-    3, 7, and 8 (0-indexed, 10 total timepoints). The median filter
-    should propagate NaNs within the windows of the filter,
-    but it should not introduce any NaNs for the second individual.
+    """Test NaN behaviour of the median filter. The median filter
+    should propagate NaNs within the windows of the filter.
     """
     # get input data
-    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
     position = valid_input_dataset.position
 
     # apply median filter
@@ -210,24 +211,24 @@ def test_median_filter_with_nans(
     ],
 )
 @pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
-def test_savgol_filter(valid_dataset, window, polyorder, request):
+def test_savgol_filter_on_position(valid_dataset, window, polyorder, request):
     """Test that applying the Savitzky-Golay filter to the position data
     returns a different xr.DataArray than the input position data.
     """
     valid_input_dataset = request.getfixturevalue(valid_dataset)
 
     position = valid_input_dataset.position
-    position_smoothed = savgol_filter(
+    posiiton_filtered = savgol_filter(
         position, window=window, polyorder=polyorder
     )
 
-    del position_smoothed.attrs["log"]
+    del posiiton_filtered.attrs["log"]
 
     # filtered array is an xr.DataArray
-    assert isinstance(position_smoothed, xr.DataArray)
+    assert isinstance(posiiton_filtered, xr.DataArray)
 
     # filtered data should not be equal to the original data
-    assert not (position_smoothed.equals(position))
+    assert not (posiiton_filtered.equals(position))
 
 
 @pytest.mark.parametrize(
