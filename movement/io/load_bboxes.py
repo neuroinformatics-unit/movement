@@ -203,7 +203,11 @@ def from_file(
     the first tracked frame in the file.
 
     >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_file("path/to/file.csv", fps=30)
+    >>> ds = load_bboxes.from_file(
+    >>>     "path/to/file.csv",
+    >>>     source_software="VIA-tracks",
+    >>>     fps=30,
+    >>> )
 
     """
     if source_software == "VIA-tracks":
