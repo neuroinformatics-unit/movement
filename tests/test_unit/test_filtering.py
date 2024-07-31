@@ -230,23 +230,72 @@ def test_savgol_filter(valid_dataset, window, polyorder, request):
     assert not (position_smoothed.equals(position))
 
 
-def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
-    """Test NaN behaviour of the Savitzky-Golay filter. The input data
-    contains NaN values in all keypoints of the first individual at times
-    3, 7, and 8 (0-indexed, 10 total timepoints).
-    The Savitzky-Golay filter should propagate NaNs within the windows of
-    the filter, but it should not introduce any NaNs for the second individual.
+@pytest.mark.parametrize(
+    ("valid_dataset, expected_n_nans_in_position_per_indiv"),
+    [
+        (
+            "valid_poses_dataset",
+            {0: 0, 1: 0},
+        ),  # median filtering should not introduce nans if input has no nans
+        (
+            "valid_bboxes_dataset",
+            {0: 0, 1: 0},
+        ),  # median filtering should not introduce nans if input has no nans
+        (
+            "valid_poses_dataset_with_nan",
+            {0: 7, 1: 0},
+        ),
+        # individual with index 0 has 7 frames with nans in position after
+        # filtering
+        # individual with index 1 has no nans after filtering
+        (
+            "valid_bboxes_dataset_with_nan",
+            {0: 7, 1: 0},
+        ),
+        # individual with index 0 has 7 frames with nans in position after
+        # filtering
+        # individual with index 0 has no nans after filtering
+    ],
+)
+def test_savgol_filter_with_nans_on_position(
+    valid_dataset, expected_n_nans_in_position_per_indiv, helpers, request
+):
+    """Test NaN behaviour of the Savitzky-Golay filter. The Savitzky-Golay
+    filter should propagate NaNs within the windows of the filter.
     """
-    data = valid_poses_dataset_with_nan.position
-    data_smoothed = savgol_filter(data, window=3, polyorder=2)
-    # There should be 28 NaNs in total for the first individual, i.e.
-    # at 7 timepoints, 2 keypoints, 2 space dimensions
-    # all except for timepoints 0, 1 and 5
-    assert helpers.count_nans(data_smoothed) == 28
-    assert not (
-        data_smoothed.isel(individuals=0, time=[0, 1, 5]).isnull().any()
-    )
-    assert not data_smoothed.isel(individuals=1).isnull().any()
+    # get input data
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
+    position = valid_input_dataset.position
+
+    # apply SG filter
+    position_filtered = savgol_filter(position, window=3, polyorder=2)
+
+    # count nans in input
+    n_nans_input = helpers.count_nans(position)
+
+    # count nans after filtering per individual
+    n_nans_after_filtering_per_indiv = {
+        i: helpers.count_nans(position_filtered.isel(individuals=i))
+        for i in range(valid_input_dataset.dims["individuals"])
+    }
+
+    # assert expectations
+    for i in range(valid_input_dataset.dims["individuals"]):
+        assert n_nans_after_filtering_per_indiv[i] == (
+            expected_n_nans_in_position_per_indiv[i]
+            * valid_input_dataset.dims["space"]
+            * valid_input_dataset.dims.get("keypoints", 1)
+        )
+
+    # if input data had nans, the filtered position of individual 1
+    # will be nan at every timepoint except for timepoints 0, 1 and 5
+    if n_nans_input != 0:
+        # individual 1's position at exact timepoints 0, 1 and 5 is not nan
+        assert not (
+            position_filtered.isel(individuals=0, time=[0, 1, 5])
+            .isnull()
+            .any()
+        )
 
 
 @pytest.mark.parametrize(
