@@ -126,6 +126,15 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_dlc_file(valid_poses_dataset, file_path)
 
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset",
+        (
+            "not_a_dataset",
+            "empty_dataset",
+            "missing_var_poses_dataset",
+            "missing_dim_poses_dataset",
+        ),
+    )
     def test_to_dlc_file_invalid_dataset(
         self, invalid_poses_dataset, tmp_path
     ):
@@ -252,6 +261,15 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_lp_file(valid_poses_dataset, file_path)
 
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset",
+        (
+            "not_a_dataset",
+            "empty_dataset",
+            "missing_var_poses_dataset",
+            "missing_dim_poses_dataset",
+        ),
+    )
     def test_to_lp_file_invalid_dataset(self, invalid_poses_dataset, tmp_path):
         """Test that saving an invalid pose dataset to a valid
         LightningPose-style file returns the appropriate errors.
@@ -274,6 +292,15 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
 
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset",
+        (
+            "not_a_dataset",
+            "empty_dataset",
+            "missing_var_poses_dataset",
+            "missing_dim_poses_dataset",
+        ),
+    )
     def test_to_sleap_analysis_file_invalid_dataset(
         self, invalid_poses_dataset, new_h5_file
     ):
