@@ -200,17 +200,34 @@ def test_median_filter_with_nans(
         )
 
 
+@pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_poses_dataset",
+        "valid_bboxes_dataset",
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset_with_nan",
+    ],
+)
 @pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
-def test_savgol_filter(valid_poses_dataset_with_nan, window, polyorder):
-    """Test that applying the Savitzky-Golay filter returns
-    a different xr.DataArray than the input data.
+def test_savgol_filter(valid_dataset, window, polyorder, request):
+    """Test that applying the Savitzky-Golay filter to the position data
+    returns a different xr.DataArray than the input position data.
     """
-    data = valid_poses_dataset_with_nan.position
-    data_smoothed = savgol_filter(data, window, polyorder=polyorder)
-    del data_smoothed.attrs["log"]
-    assert isinstance(data_smoothed, xr.DataArray) and not (
-        data_smoothed.equals(data)
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
+
+    position = valid_input_dataset.position
+    position_smoothed = savgol_filter(
+        position, window=window, polyorder=polyorder
     )
+
+    del position_smoothed.attrs["log"]
+
+    # filtered array is an xr.DataArray
+    assert isinstance(position_smoothed, xr.DataArray)
+
+    # filtered data should not be equal to the original data
+    assert not (position_smoothed.equals(position))
 
 
 def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
