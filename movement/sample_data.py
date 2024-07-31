@@ -14,7 +14,7 @@ import xarray
 import yaml
 from requests.exceptions import RequestException
 
-from movement.io import load_poses
+from movement.io import load_bboxes, load_poses
 from movement.utils.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
@@ -289,14 +289,15 @@ def fetch_dataset(
     """
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
-    ds = load_poses.from_file(
-        file_paths["poses"],
-        source_software=metadata[filename]["source_software"],
-        fps=metadata[filename]["fps"],
-    )
-
-    # TODO: Add support for loading bounding boxes data.
-    # Implemented in PR 229: https://github.com/neuroinformatics-unit/movement/pull/229
+    for key, load_module in zip(
+        ["poses", "bboxes"], [load_poses, load_bboxes], strict=False
+    ):
+        if file_paths.get(key):
+            ds = load_module.from_file(
+                file_paths[key],
+                source_software=metadata[filename]["source_software"],
+                fps=metadata[filename]["fps"],
+            )
 
     ds.attrs["frame_path"] = file_paths["frame"]
     ds.attrs["video_path"] = file_paths["video"]

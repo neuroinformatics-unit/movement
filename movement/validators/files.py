@@ -37,9 +37,9 @@ class ValidFile:
     PermissionError
         If the file does not have the expected access permission(s).
     FileNotFoundError
-        If the file does not exist when `expected_permission` is "r" or "rw".
+        If the file does not exist when ``expected_permission`` is "r" or "rw".
     FileExistsError
-        If the file exists when `expected_permission` is "w".
+        If the file exists when ``expected_permission`` is "w".
     ValueError
         If the file does not have one of the expected suffix(es).
 
@@ -215,7 +215,7 @@ class ValidVIATracksCSV:
     Raises
     ------
     ValueError
-        If the .csv file does not match the VIA tracks file requirements.
+        If the file does not match the VIA tracks .csv file requirements.
 
     """
 
@@ -241,7 +241,7 @@ class ValidVIATracksCSV:
                 raise log_error(
                     ValueError,
                     ".csv header row does not match the known format for "
-                    "VIA tracks output files. "
+                    "VIA tracks .csv files. "
                     f"Expected {expected_header} but got {header}.",
                 )
 
@@ -250,15 +250,16 @@ class ValidVIATracksCSV:
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
-        - Checking that frame numbers are included in `file_attributes` or
-        encoded in the image file `filename`.
+        - Checking that frame numbers are included in ``file_attributes`` or
+        encoded in the image file ``filename``.
         - Checking the frame number can be cast as an integer.
         - Checking that there are as many unique frame numbers as unique image
         files.
 
-        If the frame number is included as part of the image file name, it is
-        expected as an integer led by at least one zero, between "_" and ".",
-        followed by the file extension.
+        If the frame number is included as part of the image file name, then
+        it is expected as an integer led by at least one zero, between "_" and
+        ".", followed by the file extension.
+
         """
         df = pd.read_csv(value, sep=",", header=0)
 

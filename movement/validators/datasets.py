@@ -197,32 +197,33 @@ class ValidBboxesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' centroid positions.
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the tracks of the bounding boxes' centroids.
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individual_names, n_space)
-        containing the bounding boxes' width (extent along the
-        x-axis) and height (extent along the y-axis).
+        Array of shape (n_frames, n_individuals, n_space)
+        containing the shape of the bounding boxes. The shape of a bounding
+        box is its width (extent along the x-axis of the image) and height
+        (extent along the y-axis of the image).
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
-        the bounding boxes' confidence scores. If None (default), the
-        confidence scores will be set to an array of NaNs.
+        Array of shape (n_frames, n_individuals) containing
+        the confidence scores of the bounding boxes. If None (default), the
+        confidence scores are set to an array of NaNs.
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
-        of the `position_array`. The names will be in the format of `id_<N>`,
-        where <N>  is an integer from 1 to `position_array.shape[1]`.
+        of the ``position_array``. The names will be in the format of
+        ``id_<N>``, where <N>  is an integer from 0 to
+        ``position_array.shape[1]-1``.
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
-        be assigned based on the first dimension of the `position_array`,
+        be assigned based on the first dimension of the ``position_array``,
         starting from 0.
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
     source_software : str, optional
-        Name of the software from which the bounding boxes were loaded.
-        Defaults to None.
+        Name of the software that generated the data. Defaults to None.
 
     """
 
@@ -319,6 +320,7 @@ class ValidBboxesDataset:
         If no individual names are provided, assign them unique IDs per frame,
         starting with 0 ("id_0").
         """
+        # assign default confidence_array
         if self.confidence_array is None:
             self.confidence_array = np.full(
                 (self.position_array.shape[:-1]),
@@ -330,6 +332,7 @@ class ValidBboxesDataset:
                 "Setting to an array of NaNs."
             )
 
+        # assign default individual_names
         if self.individual_names is None:
             self.individual_names = [
                 f"id_{i}" for i in range(self.position_array.shape[1])
@@ -341,6 +344,7 @@ class ValidBboxesDataset:
                 f"{self.individual_names}.\n"
             )
 
+        # assign default frame_array
         if self.frame_array is None:
             n_frames = self.position_array.shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
