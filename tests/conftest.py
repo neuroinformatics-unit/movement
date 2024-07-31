@@ -283,7 +283,7 @@ def valid_bboxes_array():  # used for filtering
 @pytest.fixture
 def valid_bboxes_dataset(
     valid_bboxes_array,
-):  # this is used in fnalitites test so should be with a "realistic" array
+):  # ---- with low confidence values!
     """Return a valid bboxes' tracks dataset."""
     dim_names = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
 
@@ -319,7 +319,7 @@ def valid_bboxes_dataset(
 
 
 @pytest.fixture
-def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
+def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):  # in position
     """Return a valid bboxes dataset with NaN values."""
     # Set 3 NaN values in the position array for id_0
     valid_bboxes_dataset.position.loc[

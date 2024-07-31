@@ -61,12 +61,10 @@ def test_interpolate_over_time(
         assert n_nans_after_frames < n_nans_before
 
     # The number of NaNs after interpolating should be as expected
-    assert (
-        n_nans_after_frames
-        == valid_dataset.dims["space"]
-        * valid_dataset.dims.get(
-            "keypoints", 1
-        )  # in bboxes dataset there is no keypoints dimension
+    assert n_nans_after_frames == (
+        valid_dataset.dims["space"]
+        * valid_dataset.dims.get("keypoints", 1)
+        # in bboxes dataset there is no keypoints dimension
         * expected_n_nans_in_position
     )
 
@@ -108,12 +106,17 @@ def test_filter_by_confidence(
 
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
-    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
+    [
+        "valid_poses_dataset",
+        "valid_bboxes_dataset",
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset_with_nan",
+    ],
 )
 @pytest.mark.parametrize("window_size", [2, 4])
-def test_median_filter(valid_dataset_with_nan, window_size, request):
-    """Test that applying the median filter returns
-    a different xr.DataArray than the input data.
+def test_median_filter(valid_dataset_with_nan, window_size, helpers, request):
+    """Test that applying the median filter to the position data returns
+    a different xr.DataArray than the input position data.
     """
     valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
 
@@ -129,24 +132,72 @@ def test_median_filter(valid_dataset_with_nan, window_size, request):
     assert not position_filtered.equals(position)
 
 
-def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
+@pytest.mark.parametrize(
+    ("valid_dataset_with_nan, expected_n_nans_in_position_per_indiv"),
+    [
+        (
+            "valid_poses_dataset",
+            {0: 0, 1: 0},
+        ),  # median filtering should not introduce nans if input has no nans
+        (
+            "valid_bboxes_dataset",
+            {0: 0, 1: 0},
+        ),  # median filtering should not introduce nans if input has no nans
+        (
+            "valid_poses_dataset_with_nan",
+            {0: 7, 1: 0},
+        ),  # individual 1 has 7 frames with nans in position after filtering
+        # individual 2 has no nans after filtering
+        (
+            "valid_bboxes_dataset_with_nan",
+            {0: 7, 1: 0},
+        ),  # individual 1 has 7 frames with nans in position after filtering
+        # individual 2 has no nans after filtering
+    ],
+)
+def test_median_filter_with_nans(
+    valid_dataset_with_nan,
+    expected_n_nans_in_position_per_indiv,
+    helpers,
+    request,
+):
     """Test NaN behaviour of the median filter. The input data
     contains NaNs in all keypoints of the first individual at timepoints
     3, 7, and 8 (0-indexed, 10 total timepoints). The median filter
     should propagate NaNs within the windows of the filter,
     but it should not introduce any NaNs for the second individual.
     """
-    data = valid_poses_dataset_with_nan.position
-    data_smoothed = median_filter(data, window=3)
-    # All points of the first individual are converted to NaNs except
-    # at timepoints 0, 1, and 5.
-    assert not (
-        data_smoothed.isel(individuals=0, time=[0, 1, 5]).isnull().any()
-    )
-    # 7 timepoints * 1 individual * 2 keypoints * 2 space dimensions
-    assert helpers.count_nans(data_smoothed) == 28
-    # No NaNs should be introduced for the second individual
-    assert not data_smoothed.isel(individuals=1).isnull().any()
+    # get input data
+    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    position = valid_input_dataset.position
+
+    # apply median filter
+    position_filtered = median_filter(position, window=3)
+
+    # count nans in input
+    n_nans_input = helpers.count_nans(position)
+
+    # count nans after filtering per individual
+    n_nans_after_filtering_per_indiv = {
+        i: helpers.count_nans(position_filtered.isel(individuals=i))
+        for i in range(valid_input_dataset.dims["individuals"])
+    }
+
+    # assert expectations
+    for i in range(valid_input_dataset.dims["individuals"]):
+        assert n_nans_after_filtering_per_indiv[i] == (
+            expected_n_nans_in_position_per_indiv[i]
+            * valid_input_dataset.dims["space"]
+            * valid_input_dataset.dims.get("keypoints", 1)
+        )
+
+    if n_nans_input != 0:
+        # individual 1's position at exact timepoints 0, 1 and 5 is not nan
+        assert not (
+            position_filtered.isel(individuals=0, time=[0, 1, 5])
+            .isnull()
+            .any()
+        )
 
 
 @pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
