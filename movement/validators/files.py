@@ -207,7 +207,7 @@ class ValidDeepLabCutCSV:
 class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
 
-    Parameters
+    Attributes
     ----------
     path : pathlib.Path or str
         Path to the VIA tracks .csv file.
