@@ -214,28 +214,12 @@ def sleap_file(request):
 
 
 @pytest.fixture
-def valid_bboxes_arrays_all_zeros():  # used for validators
-    """Return a dictionary of valid zero arrays (in terms of shape) for a
-    ValidBboxesDataset.
-    """
-    # define the shape of the arrays
-    n_frames, n_individuals, n_space = (10, 2, 2)
-
-    # build a valid array for position or shape will all zeros
-    valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
-
-    # return as a dict
-    return {
-        "position": valid_bbox_array_all_zeros,
-        "shape": valid_bbox_array_all_zeros,
-        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
-    }
-
-
-@pytest.fixture
-def valid_bboxes_array():  # used for filtering
+def valid_bboxes_array():
     """Return a dictionary of valid non-zero arrays for a
     ValidBboxesDataset.
+
+    Contains realistic data for 10 frames, 2 individuals, in 2D
+    with 5 low confidence bounding boxes.
     """
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
@@ -278,8 +262,8 @@ def valid_bboxes_array():  # used for filtering
 @pytest.fixture
 def valid_bboxes_dataset(
     valid_bboxes_array,
-):  # ---- with low confidence values!
-    """Return a valid bboxes' tracks dataset."""
+):
+    """Return a valid bboxes dataset with low confidence values."""
     dim_names = MovementDataset.dim_names_per_ds_type["bboxes"]
 
     position_array = valid_bboxes_array["position"]
@@ -294,10 +278,6 @@ def valid_bboxes_dataset(
             "shape": xr.DataArray(shape_array, dims=dim_names),
             "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
         },
-        # Ignoring type error because `time_coords`
-        # (which is a function of `data.frame_array`)
-        # cannot be None after
-        # ValidBboxesDataset.__attrs_post_init__()   # type: ignore
         coords={
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: [f"id_{id}" for id in range(n_individuals)],
@@ -314,8 +294,8 @@ def valid_bboxes_dataset(
 
 
 @pytest.fixture
-def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):  # in position
-    """Return a valid bboxes dataset with NaN values."""
+def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with NaN values in the position array."""
     # Set 3 NaN values in the position array for id_0
     valid_bboxes_dataset.position.loc[
         {"individuals": "id_0", "time": [3, 7, 8]}
