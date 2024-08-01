@@ -127,7 +127,7 @@ def assert_dataset(
     assert dataset.confidence.shape == dataset.position.shape[:-1]
 
     # Check the dims and coords
-    DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+    DIM_NAMES = MovementDataset.dim_names_per_ds_type["bboxes"]
     assert all([i in dataset.dims for i in DIM_NAMES])
     for d, dim in enumerate(DIM_NAMES[1:]):
         assert dataset.sizes[dim] == dataset.position.shape[d + 1]

@@ -8,7 +8,7 @@ import xarray as xr
 from movement import filtering
 from movement.analysis import kinematics
 from movement.utils.logging import log_error
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,12 @@ class MovementDataset:
 
     Attributes
     ----------
-    dim_names : tuple
-        Names of the expected dimensions in the dataset.
-    var_names : tuple
-        Names of the expected data variables in the dataset.
+    dim_names : dict
+        A dictionary with the names of the expected dimensions in the dataset,
+        for each dataset type ("poses" or "bboxes").
+    var_names : dict
+        A dictionary with the expected data variables in the dataset, for each
+        dataset type ("poses" or "bboxes").
 
     References
     ----------
@@ -42,21 +44,23 @@ class MovementDataset:
 
     """
 
-    dim_names: ClassVar[tuple] = (
-        "time",
-        "individuals",
-        "keypoints",
-        "space",
-    )
-
-    var_names: ClassVar[tuple] = (
-        "position",
-        "confidence",
-    )
+    # Set class attributes for expected dimensions and data variables
+    dim_names_per_ds_type: ClassVar[dict] = {
+        "poses": ("time", "individuals", "keypoints", "space"),
+        "bboxes": ("time", "individuals", "space"),
+    }
+    var_names_per_ds_type: ClassVar[dict] = {
+        "poses": ("position", "confidence"),
+        "bboxes": ("position", "shape", "confidence"),
+    }
 
     def __init__(self, ds: xr.Dataset):
         """Initialize the MovementDataset."""
         self._obj = ds
+
+        # Set instance attributes based on dataset type
+        self.dim_names = self.dim_names_per_ds_type[self._obj.ds_type]
+        self.var_names = self.var_names_per_ds_type[self._obj.ds_type]
 
     def __getattr__(self, name: str) -> xr.DataArray:
         """Forward requested but undefined attributes to relevant modules.
@@ -255,14 +259,34 @@ class MovementDataset:
                 raise ValueError(
                     f"Missing required data variables: {sorted(missing_vars)}"
                 )
-            ValidPosesDataset(
-                position_array=self._obj[self.var_names[0]].values,
-                confidence_array=self._obj[self.var_names[1]].values,
-                individual_names=self._obj.coords[self.dim_names[1]].values,
-                keypoint_names=self._obj.coords[self.dim_names[2]].values,
-                fps=fps,
-                source_software=source_software,
-            )
+            if self._obj.ds_type == "poses":
+                ValidPosesDataset(
+                    position_array=self._obj["position"].values,
+                    confidence_array=self._obj["confidence"].values,
+                    individual_names=self._obj.coords["individuals"].values,
+                    keypoint_names=self._obj.coords["keypoints"].values,
+                    fps=fps,
+                    source_software=source_software,
+                )
+            elif self._obj.ds_type == "bboxes":
+                # define frame_array
+                # convert time axis to frames if time_unit is seconds
+                frame_array = self._obj.coords["time"].values.reshape(-1, 1)
+                if self._obj.attrs["time_unit"] == "seconds":
+                    frame_array *= fps
+
+                ValidBboxesDataset(
+                    position_array=self._obj["position"].values,
+                    shape_array=self._obj["shape"].values,
+                    confidence_array=self._obj["confidence"].values,
+                    individual_names=self._obj.coords["individuals"].values,
+                    frame_array=frame_array,
+                    fps=fps,
+                    source_software=source_software,
+                )
         except Exception as e:
-            error_msg = "The dataset does not contain valid poses. " + str(e)
+            error_msg = (
+                f"The dataset does not contain valid {self._obj.ds_type}. "
+                + str(e)
+            )
             raise log_error(ValueError, error_msg) from e

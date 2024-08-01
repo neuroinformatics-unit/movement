@@ -623,7 +623,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     # Convert data to an xarray.Dataset
     # with dimensions ('time', 'individuals', 'space')
-    DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+    DIM_NAMES = MovementDataset.dim_names_per_ds_type["bboxes"]
     n_space = data.position_array.shape[-1]
     return xr.Dataset(
         data_vars={

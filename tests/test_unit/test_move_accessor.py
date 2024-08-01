@@ -1,3 +1,5 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
 
@@ -48,27 +50,52 @@ def test_invalid_move_method_call(valid_dataset, method, request):
 
 
 @pytest.mark.parametrize(
-    "invalid_dataset, log_message",
+    "input_dataset, expected_exception, log_message",
     (
         (
+            "valid_poses_dataset",
+            does_not_raise(),
+            "",
+        ),
+        (
+            "valid_bboxes_dataset",
+            does_not_raise(),
+            "",
+        ),
+        (
+            "missing_dim_poses_dataset",
+            pytest.raises(ValueError),
+            "The dataset does not contain valid poses. "
+            "Missing required dimensions: ['time']",
+        ),
+        (
+            "missing_dim_bboxes_dataset",
+            pytest.raises(ValueError),
+            "The dataset does not contain valid bboxes. "
+            "Missing required dimensions: ['time']",
+        ),
+        (
             "missing_var_poses_dataset",
+            pytest.raises(ValueError),
+            "The dataset does not contain valid poses. "
             "Missing required data variables: ['position']",
         ),
         (
             "missing_var_bboxes_dataset",
-            "Missing required dimensions: ['keypoints']",
-        ),
-        ("missing_dim_poses_dataset", "Missing required dimensions: ['time']"),
-        (
-            "missing_dim_bboxes_dataset",
-            "Missing required dimensions: ['keypoints', 'time']",
+            pytest.raises(ValueError),
+            "The dataset does not contain valid bboxes. "
+            "Missing required data variables: ['position']",
         ),
     ),
 )
-def test_move_validate(invalid_dataset, log_message, request):
+def test_move_validate(
+    input_dataset, expected_exception, log_message, request
+):
     """Test the validate method returns the expected message."""
-    invalid_dataset = request.getfixturevalue(invalid_dataset)
+    input_dataset = request.getfixturevalue(input_dataset)
 
-    with pytest.raises(ValueError) as excinfo:
-        invalid_dataset.move.validate()
-    assert log_message in str(excinfo.value)
+    with expected_exception as excinfo:
+        input_dataset.move.validate()
+
+    if log_message:
+        assert str(excinfo.value) == log_message
