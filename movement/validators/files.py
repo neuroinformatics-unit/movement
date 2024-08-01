@@ -222,7 +222,7 @@ class ValidVIATracksCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def csv_file_contains_valid_header(self, attribute, value):
+    def _csv_file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
         expected_header = [
             "filename",
@@ -246,7 +246,7 @@ class ValidVIATracksCSV:
                 )
 
     @path.validator
-    def csv_file_contains_valid_frame_numbers(self, attribute, value):
+    def _csv_file_contains_valid_frame_numbers(self, attribute, value):
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -317,7 +317,7 @@ class ValidVIATracksCSV:
             )
 
     @path.validator
-    def csv_file_contains_tracked_bboxes(self, attribute, value):
+    def _csv_file_contains_tracked_bboxes(self, attribute, value):
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
@@ -384,7 +384,7 @@ class ValidVIATracksCSV:
                 ) from e
 
     @path.validator
-    def csv_file_contains_unique_track_IDs_per_filename(
+    def _csv_file_contains_unique_track_IDs_per_filename(
         self, attribute, value
     ):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
