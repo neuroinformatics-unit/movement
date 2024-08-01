@@ -17,6 +17,14 @@ from movement.utils.logging import log_error
 class ValidFile:
     """Class for validating file paths.
 
+    The validator ensures that the file:
+
+    - is not a directory,
+    - exists if it is meant to be read,
+    - does not exist if it is meant to be written,
+    - has the expected access permission(s), and
+    - has one of the expected suffix(es).
+
     Attributes
     ----------
     path : str or pathlib.Path
@@ -113,6 +121,11 @@ class ValidFile:
 class ValidHDF5:
     """Class for validating HDF5 files.
 
+    The validator ensures that the file:
+
+    - is in HDF5 format, and
+    - contains the expected datasets.
+
     Attributes
     ----------
     path : pathlib.Path
@@ -162,6 +175,9 @@ class ValidHDF5:
 class ValidDeepLabCutCSV:
     """Class for validating DeepLabCut-style .csv files.
 
+    The validator ensures that the file contains the
+    expected index column levels.
+
     Attributes
     ----------
     path : pathlib.Path
@@ -206,6 +222,13 @@ class ValidDeepLabCutCSV:
 @define
 class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
+
+    The validator ensures that the file:
+
+    - contains the expected header,
+    - contains valid frame numbers,
+    - contains tracked bounding boxes, and
+    - defines bounding boxes whose IDs are unique per image file.
 
     Attributes
     ----------
