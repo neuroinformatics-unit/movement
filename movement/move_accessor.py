@@ -249,11 +249,11 @@ class MovementDataset:
             missing_vars = set(self.var_names) - set(self._obj.data_vars)
             if missing_dims:
                 raise ValueError(
-                    f"Missing required dimensions: {missing_dims}"
+                    f"Missing required dimensions: {sorted(missing_dims)}"
                 )
             if missing_vars:
                 raise ValueError(
-                    f"Missing required data variables: {missing_vars}"
+                    f"Missing required data variables: {sorted(missing_vars)}"
                 )
             ValidPosesDataset(
                 position_array=self._obj[self.var_names[0]].values,
