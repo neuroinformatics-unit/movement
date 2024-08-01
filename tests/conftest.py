@@ -213,9 +213,6 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
-# ------------ Dataset validator fixtures ---------------------------------
-
-
 @pytest.fixture
 def valid_bboxes_arrays_all_zeros():  # used for validators
     """Return a dictionary of valid zero arrays (in terms of shape) for a
@@ -235,7 +232,6 @@ def valid_bboxes_arrays_all_zeros():  # used for validators
     }
 
 
-# --------------------- Bboxes dataset fixtures ----------------------------
 @pytest.fixture
 def valid_bboxes_array():  # used for filtering
     """Return a dictionary of valid non-zero arrays for a
@@ -327,9 +323,6 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):  # in position
     return valid_bboxes_dataset
 
 
-#  --------------------- Poses dataset fixtures ----------------------------
-
-
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
@@ -405,7 +398,6 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     return valid_poses_dataset
 
 
-# -------------------- Invalid datasets fixtures ------------------------------
 def rename_time_dimension_in_ds(valid_dataset):
     invalid_dataset = valid_dataset.rename({"time": "tame"})
     return invalid_dataset
@@ -450,9 +442,6 @@ def missing_dim_poses_dataset(valid_poses_dataset):
 def missing_dim_bboxes_dataset(valid_bboxes_dataset):
     """Return a bboxes dataset missing the time dimension."""
     return rename_time_dimension_in_ds(valid_bboxes_dataset)
-
-
-# --------------------------------------------------------------------------
 
 
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
