@@ -77,6 +77,11 @@ def test_invalid_move_method_call(valid_dataset, method, request):
             "",
         ),
         (
+            "valid_bboxes_dataset_in_seconds",
+            does_not_raise(),
+            "",
+        ),
+        (
             "missing_dim_poses_dataset",
             pytest.raises(ValueError),
             "The dataset does not contain valid poses. "

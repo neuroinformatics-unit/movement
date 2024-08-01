@@ -272,7 +272,7 @@ class MovementDataset:
                 )
             elif self._obj.ds_type == "bboxes":
                 # Define frame_array.
-                # Convert time axis to frames if time_unit is seconds
+                # Recover from time axis in seconds if necessary.
                 frame_array = self._obj.coords["time"].values.reshape(-1, 1)
                 if self._obj.attrs["time_unit"] == "seconds":
                     frame_array *= fps

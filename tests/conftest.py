@@ -295,6 +295,21 @@ def valid_bboxes_dataset(
 
 
 @pytest.fixture
+def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with time in seconds.
+
+    The origin of time is assumed to be time = frame 0 = 0 seconds.
+    """
+    assert valid_bboxes_dataset.attrs["time_unit"] == "frames"
+
+    fps = 60
+    valid_bboxes_dataset["time"] = valid_bboxes_dataset.time / fps
+    valid_bboxes_dataset.attrs["time_unit"] = "seconds"
+    valid_bboxes_dataset.attrs["fps"] = fps
+    return valid_bboxes_dataset
+
+
+@pytest.fixture
 def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     """Return a valid bboxes dataset with NaN values in the position array."""
     # Set 3 NaN values in the position array for id_0
