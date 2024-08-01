@@ -53,7 +53,7 @@ class TestKinematics:
     kinematic_test_params = [
         ("valid_poses_dataset", does_not_raise()),
         ("valid_poses_dataset_with_nan", does_not_raise()),
-        ("missing_dim_dataset", pytest.raises(AttributeError)),
+        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
     ]
 
     @pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
