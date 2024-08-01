@@ -209,7 +209,7 @@ class ValidVIATracksCSV:
 
     Attributes
     ----------
-    path : pathlib.Path or str
+    path : pathlib.Path
         Path to the VIA tracks .csv file.
 
     Raises
