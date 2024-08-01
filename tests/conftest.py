@@ -248,9 +248,10 @@ def valid_bboxes_array():
     confidence[idx_start : idx_start + 3, 0] = 0.1
     confidence[idx_start : idx_start + 2, 1] = 0.1
 
-    assert np.sum(confidence == 0.1) == 5
+    # assert that there are 5 confidence values
+    # below the default threshold
+    assert np.sum(confidence < 0.6) == 5
 
-    # return dict
     return {
         "position": position,
         "shape": shape,

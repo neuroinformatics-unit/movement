@@ -33,10 +33,10 @@ class MovementDataset:
     ----------
     dim_names_per_ds_type : dict
         A dictionary with the names of the expected dimensions in the dataset,
-        for each dataset type ("poses" or "bboxes").
+        for each dataset type (``"poses"`` or ``"bboxes"``).
     var_names_per_ds_type : dict
         A dictionary with the expected data variables in the dataset, for each
-        dataset type ("poses" or "bboxes").
+        dataset type (``"poses"`` or ``"bboxes"``).
 
     References
     ----------
@@ -254,12 +254,12 @@ class MovementDataset:
             if missing_dims:
                 raise ValueError(
                     f"Missing required dimensions: {sorted(missing_dims)}"
-                    # sorted required for deterministic error messages
+                    # sort for deterministic error messages during testing
                 )
             if missing_vars:
                 raise ValueError(
                     f"Missing required data variables: {sorted(missing_vars)}"
-                    # sorted required for deterministic error messages
+                    # sort for deterministic error messages during testing
                 )
             if self._obj.ds_type == "poses":
                 ValidPosesDataset(
