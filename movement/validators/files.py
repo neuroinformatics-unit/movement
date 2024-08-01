@@ -17,6 +17,14 @@ from movement.utils.logging import log_error
 class ValidFile:
     """Class for validating file paths.
 
+    The validator ensures that the file:
+
+    - is not a directory,
+    - exists if it is meant to be read,
+    - does not exist if it is meant to be written,
+    - has the expected access permission(s), and
+    - has one of the expected suffix(es).
+
     Attributes
     ----------
     path : str or pathlib.Path
@@ -113,6 +121,11 @@ class ValidFile:
 class ValidHDF5:
     """Class for validating HDF5 files.
 
+    The validator ensures that the file:
+
+    - is in HDF5 format, and
+    - contains the expected datasets.
+
     Attributes
     ----------
     path : pathlib.Path
@@ -162,6 +175,9 @@ class ValidHDF5:
 class ValidDeepLabCutCSV:
     """Class for validating DeepLabCut-style .csv files.
 
+    The validator ensures that the file contains the
+    expected index column levels.
+
     Attributes
     ----------
     path : pathlib.Path
@@ -178,7 +194,7 @@ class ValidDeepLabCutCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def _csv_file_contains_expected_levels(self, attribute, value):
+    def _file_contains_expected_levels(self, attribute, value):
         """Ensure that the .csv file contains the expected index column levels.
 
         These are to be found among the top 4 rows of the file.
@@ -207,9 +223,16 @@ class ValidDeepLabCutCSV:
 class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
 
-    Parameters
+    The validator ensures that the file:
+
+    - contains the expected header,
+    - contains valid frame numbers,
+    - contains tracked bounding boxes, and
+    - defines bounding boxes whose IDs are unique per image file.
+
+    Attributes
     ----------
-    path : pathlib.Path or str
+    path : pathlib.Path
         Path to the VIA tracks .csv file.
 
     Raises
@@ -222,7 +245,7 @@ class ValidVIATracksCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def csv_file_contains_valid_header(self, attribute, value):
+    def _file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
         expected_header = [
             "filename",
@@ -246,15 +269,16 @@ class ValidVIATracksCSV:
                 )
 
     @path.validator
-    def csv_file_contains_valid_frame_numbers(self, attribute, value):
+    def _file_contains_valid_frame_numbers(self, attribute, value):
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
+
         - Checking that frame numbers are included in ``file_attributes`` or
-        encoded in the image file ``filename``.
+          encoded in the image file ``filename``.
         - Checking the frame number can be cast as an integer.
         - Checking that there are as many unique frame numbers as unique image
-        files.
+          files.
 
         If the frame number is included as part of the image file name, then
         it is expected as an integer led by at least one zero, between "_" and
@@ -316,13 +340,14 @@ class ValidVIATracksCSV:
             )
 
     @path.validator
-    def csv_file_contains_tracked_bboxes(self, attribute, value):
+    def _file_contains_tracked_bboxes(self, attribute, value):
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
+
         - Checking that the bounding boxes are defined as rectangles.
         - Checking that the bounding boxes have all geometric parameters
-        (["x", "y", "width", "height"]).
+          (``["x", "y", "width", "height"]``).
         - Checking that the bounding boxes have a track ID defined.
         - Checking that the track ID can be cast as an integer.
         """
@@ -382,9 +407,7 @@ class ValidVIATracksCSV:
                 ) from e
 
     @path.validator
-    def csv_file_contains_unique_track_IDs_per_filename(
-        self, attribute, value
-    ):
+    def _file_contains_unique_track_ids_per_filename(self, attribute, value):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
         It checks that bounding boxes IDs are defined once per image file.
@@ -395,13 +418,13 @@ class ValidVIATracksCSV:
         for file in list_unique_filenames:
             df_one_filename = df.loc[df["filename"] == file]
 
-            list_track_IDs_one_filename = [
+            list_track_ids_one_filename = [
                 int(ast.literal_eval(row.region_attributes)["track"])
                 for row in df_one_filename.itertuples()
             ]
 
-            if len(set(list_track_IDs_one_filename)) != len(
-                list_track_IDs_one_filename
+            if len(set(list_track_ids_one_filename)) != len(
+                list_track_ids_one_filename
             ):
                 raise log_error(
                     ValueError,
