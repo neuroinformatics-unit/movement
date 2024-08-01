@@ -31,10 +31,10 @@ class MovementDataset:
 
     Attributes
     ----------
-    dim_names : dict
+    dim_names_per_ds_type : dict
         A dictionary with the names of the expected dimensions in the dataset,
         for each dataset type ("poses" or "bboxes").
-    var_names : dict
+    var_names_per_ds_type : dict
         A dictionary with the expected data variables in the dataset, for each
         dataset type ("poses" or "bboxes").
 
@@ -254,10 +254,12 @@ class MovementDataset:
             if missing_dims:
                 raise ValueError(
                     f"Missing required dimensions: {sorted(missing_dims)}"
+                    # sorted required for deterministic error messages
                 )
             if missing_vars:
                 raise ValueError(
                     f"Missing required data variables: {sorted(missing_vars)}"
+                    # sorted required for deterministic error messages
                 )
             if self._obj.ds_type == "poses":
                 ValidPosesDataset(
@@ -269,8 +271,8 @@ class MovementDataset:
                     source_software=source_software,
                 )
             elif self._obj.ds_type == "bboxes":
-                # define frame_array
-                # convert time axis to frames if time_unit is seconds
+                # Define frame_array.
+                # Convert time axis to frames if time_unit is seconds
                 frame_array = self._obj.coords["time"].values.reshape(-1, 1)
                 if self._obj.attrs["time_unit"] == "seconds":
                     frame_array *= fps
