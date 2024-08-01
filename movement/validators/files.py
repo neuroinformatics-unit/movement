@@ -215,7 +215,7 @@ class ValidVIATracksCSV:
     Raises
     ------
     ValueError
-        If the .csv file does not match the VIA tracks file requirements.
+        If the file does not match the VIA tracks .csv file requirements.
 
     """
 
@@ -241,7 +241,7 @@ class ValidVIATracksCSV:
                 raise log_error(
                     ValueError,
                     ".csv header row does not match the known format for "
-                    "VIA tracks output files. "
+                    "VIA tracks .csv files. "
                     f"Expected {expected_header} but got {header}.",
                 )
 
@@ -257,9 +257,10 @@ class ValidVIATracksCSV:
         - Checking that there are as many unique frame numbers as unique image
           files.
 
-        If the frame number is included as part of the image file name, it is
-        expected as an integer led by at least one zero, between "_" and ".",
-        followed by the file extension.
+        If the frame number is included as part of the image file name, then
+        it is expected as an integer led by at least one zero, between "_" and
+        ".", followed by the file extension.
+
         """
         df = pd.read_csv(value, sep=",", header=0)
 

@@ -73,7 +73,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         (
             "via_tracks_csv_with_invalid_header",
             ".csv header row does not match the known format for "
-            "VIA tracks output files. "
+            "VIA tracks .csv files. "
             "Expected "
             "['filename', 'file_size', 'file_attributes', "
             "'region_count', 'region_id', 'region_shape_attributes', "
@@ -147,7 +147,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
 def test_via_tracks_csv_validator_with_invalid_input(
     invalid_input, log_message, request
 ):
-    """Test that invalid VIA tracks CSV files raise the appropriate errors.
+    """Test that invalid VIA tracks .csv files raise the appropriate errors.
 
     Errors to check:
     - error if .csv header is wrong
