@@ -194,7 +194,7 @@ class ValidDeepLabCutCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def _csv_file_contains_expected_levels(self, attribute, value):
+    def _file_contains_expected_levels(self, attribute, value):
         """Ensure that the .csv file contains the expected index column levels.
 
         These are to be found among the top 4 rows of the file.
@@ -245,7 +245,7 @@ class ValidVIATracksCSV:
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def _csv_file_contains_valid_header(self, attribute, value):
+    def _file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
         expected_header = [
             "filename",
@@ -269,7 +269,7 @@ class ValidVIATracksCSV:
                 )
 
     @path.validator
-    def _csv_file_contains_valid_frame_numbers(self, attribute, value):
+    def _file_contains_valid_frame_numbers(self, attribute, value):
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -340,7 +340,7 @@ class ValidVIATracksCSV:
             )
 
     @path.validator
-    def _csv_file_contains_tracked_bboxes(self, attribute, value):
+    def _file_contains_tracked_bboxes(self, attribute, value):
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
@@ -407,9 +407,7 @@ class ValidVIATracksCSV:
                 ) from e
 
     @path.validator
-    def _csv_file_contains_unique_track_IDs_per_filename(
-        self, attribute, value
-    ):
+    def _file_contains_unique_track_ids_per_filename(self, attribute, value):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
         It checks that bounding boxes IDs are defined once per image file.
