@@ -71,7 +71,21 @@ def _validate_list_length(
 
 @define(kw_only=True)
 class ValidPosesDataset:
-    """Class for validating data intended for a ``movement`` dataset.
+    """Class for validating poses data intended for a ``movement`` dataset.
+
+    The validator ensures that within the ``movement poses`` dataset:
+
+    - The required ``position_array`` is a numpy array
+      with the last dimension containing 2 or 3 spatial coordinates.
+    - The optional ``confidence_array``, if provided, is a numpy array
+      with its shape matching the first three dimensions of the
+      ``position_array``; otherwise, it defaults to an array of NaNs.
+    - The optional ``individual_names`` and ``keypoint_names``,
+      if provided, match the number of individuals and keypoints
+      in the dataset, respectively; otherwise, default names are assigned.
+    - The optional ``fps`` is a positive float; otherwise, it defaults to None.
+    - The optional ``source_software`` is a string; otherwise,
+      it defaults to None.
 
     Attributes
     ----------
@@ -96,10 +110,18 @@ class ValidPosesDataset:
         Name of the software from which the poses were loaded.
         Defaults to None.
 
+    Raises
+    ------
+    ValueError
+        If the dataset does not meet the ``movement poses``
+        dataset requirements.
+
     """
 
-    # Define class attributes
+    # Required attributes
     position_array: np.ndarray = field()
+
+    # Optional attributes
     confidence_array: np.ndarray | None = field(default=None)
     individual_names: list[str] | None = field(
         default=None,
@@ -141,7 +163,6 @@ class ValidPosesDataset:
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
-
             _validate_array_shape(
                 attribute, value, expected_shape=self.position_array.shape[:-1]
             )
@@ -192,7 +213,22 @@ class ValidPosesDataset:
 class ValidBboxesDataset:
     """Class for validating bounding boxes' data for a ``movement`` dataset.
 
-    We consider 2D bounding boxes only.
+    The validator considers 2D bounding boxes only. It ensures that
+    within the ``movement bboxes`` dataset:
+
+    - The required ``position_array`` and ``shape_array`` are numpy arrays,
+      with the last dimension containing 2 spatial coordinates.
+    - The optional ``confidence_array``, if provided, is a numpy array
+      with its shape matching the first two dimensions of the
+      ``position_array``; otherwise, it defaults to an array of NaNs.
+    - The optional ``individual_names``, if provided, match the number of
+      individuals in the dataset; otherwise, default names are assigned.
+    - The optional ``frame_array``, if provided, is a column vector
+      with the frame numbers; otherwise, it defaults to an array of
+      0-based integers.
+    - The optional ``fps`` is a positive float; otherwise, it defaults to None.
+    - The optional ``source_software`` is a string; otherwise, it defaults to
+      None.
 
     Attributes
     ----------
@@ -225,6 +261,12 @@ class ValidBboxesDataset:
     source_software : str, optional
         Name of the software that generated the data. Defaults to None.
 
+    Raises
+    ------
+    ValueError
+        If the dataset does not meet the ``movement bboxes`` dataset
+        requirements.
+
     """
 
     # Required attributes
@@ -256,7 +298,6 @@ class ValidBboxesDataset:
     @shape_array.validator
     def _validate_position_and_shape_arrays(self, attribute, value):
         _validate_type_ndarray(value)
-
         # check last dimension (spatial) has 2 coordinates
         n_expected_spatial_coordinates = 2
         if value.shape[-1] != n_expected_spatial_coordinates:
@@ -272,7 +313,6 @@ class ValidBboxesDataset:
             _validate_list_length(
                 attribute, value, self.position_array.shape[1]
             )
-
             # check n_individual_names are unique
             # NOTE: combined with the requirement above, we are enforcing
             # unique IDs per frame
@@ -288,7 +328,6 @@ class ValidBboxesDataset:
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
-
             _validate_array_shape(
                 attribute, value, expected_shape=self.position_array.shape[:-1]
             )
@@ -297,14 +336,12 @@ class ValidBboxesDataset:
     def _validate_frame_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
-
             # should be a column vector (n_frames, 1)
             _validate_array_shape(
                 attribute,
                 value,
                 expected_shape=(self.position_array.shape[0], 1),
             )
-
             # check frames are continuous: exactly one frame number per row
             if not np.all(np.diff(value, axis=0) == 1):
                 raise log_error(
@@ -331,7 +368,6 @@ class ValidBboxesDataset:
                 "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
-
         # assign default individual_names
         if self.individual_names is None:
             self.individual_names = [
@@ -343,7 +379,6 @@ class ValidBboxesDataset:
                 "Setting to 0-based IDs that are unique per frame: \n"
                 f"{self.individual_names}.\n"
             )
-
         # assign default frame_array
         if self.frame_array is None:
             n_frames = self.position_array.shape[0]
