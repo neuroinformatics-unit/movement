@@ -53,6 +53,13 @@ class TestSavePoses:
         },
     ]
 
+    invalid_poses_datasets_and_exceptions = [
+        ("not_a_dataset", ValueError),
+        ("empty_dataset", RuntimeError),
+        ("missing_var_poses_dataset", ValueError),
+        ("missing_dim_poses_dataset", ValueError),
+    ]
+
     @pytest.fixture(params=output_files)
     def output_file_params(self, request):
         """Return a dictionary containing parameters for testing saving
@@ -128,12 +135,7 @@ class TestSavePoses:
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
-        (
-            ("not_a_dataset", ValueError),
-            ("empty_dataset", RuntimeError),
-            ("missing_var_poses_dataset", ValueError),
-            ("missing_dim_poses_dataset", ValueError),
-        ),
+        invalid_poses_datasets_and_exceptions,
     )
     def test_to_dlc_file_invalid_dataset(
         self, invalid_poses_dataset, expected_exception, tmp_path, request
@@ -263,12 +265,7 @@ class TestSavePoses:
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
-        (
-            ("not_a_dataset", ValueError),
-            ("empty_dataset", RuntimeError),
-            ("missing_var_poses_dataset", ValueError),
-            ("missing_dim_poses_dataset", ValueError),
-        ),
+        invalid_poses_datasets_and_exceptions,
     )
     def test_to_lp_file_invalid_dataset(
         self, invalid_poses_dataset, expected_exception, tmp_path, request
@@ -296,12 +293,7 @@ class TestSavePoses:
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
-        (
-            ("not_a_dataset", ValueError),
-            ("empty_dataset", RuntimeError),
-            ("missing_var_poses_dataset", ValueError),
-            ("missing_dim_poses_dataset", ValueError),
-        ),
+        invalid_poses_datasets_and_exceptions,
     )
     def test_to_sleap_analysis_file_invalid_dataset(
         self, invalid_poses_dataset, expected_exception, new_h5_file, request
