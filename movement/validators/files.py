@@ -418,13 +418,13 @@ class ValidVIATracksCSV:
         for file in list_unique_filenames:
             df_one_filename = df.loc[df["filename"] == file]
 
-            list_track_IDs_one_filename = [
+            list_track_ids_one_filename = [
                 int(ast.literal_eval(row.region_attributes)["track"])
                 for row in df_one_filename.itertuples()
             ]
 
-            if len(set(list_track_IDs_one_filename)) != len(
-                list_track_IDs_one_filename
+            if len(set(list_track_ids_one_filename)) != len(
+                list_track_ids_one_filename
             ):
                 raise log_error(
                     ValueError,
