@@ -352,6 +352,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
+
     - position_array (n_frames, n_individuals, n_space):
         contains the trajectories of the bounding boxes' centroids.
     - shape_array (n_frames, n_individuals, n_space):
