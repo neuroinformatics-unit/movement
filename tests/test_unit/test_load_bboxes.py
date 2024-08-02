@@ -209,7 +209,7 @@ def test_from_file(source_software, fps, use_frame_numbers_from_file):
 
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
-def test_from_VIA_tracks_file(
+def test_from_via_tracks_file(
     via_tracks_file, fps, use_frame_numbers_from_file
 ):
     """Test that loading tracked bounding box data from
