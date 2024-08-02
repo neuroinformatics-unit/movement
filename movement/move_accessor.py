@@ -18,11 +18,11 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MovementDataset:
-    """An :py:class:`xarray.Dataset` accessor for pose tracking data.
+    """An :py:class:`xarray.Dataset` accessor for ``movement`` data.
 
     A ``movement`` dataset is an :py:class:`xarray.Dataset` with a specific
-    structure to represent pose tracks, associated confidence scores and
-    relevant metadata.
+    structure to represent pose tracks or bounding boxes data,
+    associated confidence scores and relevant metadata.
 
     Methods/properties that extend the standard ``xarray`` functionality are
     defined in this class. To avoid conflicts with ``xarray``'s namespace,
@@ -244,23 +244,20 @@ class MovementDataset:
 
         This method checks if the dataset contains the expected dimensions,
         data variables, and metadata attributes. It also ensures that the
-        dataset contains valid poses.
+        dataset contains valid poses or bounding boxes data.
+
+        Raises
+        ------
+        ValueError
+            If the dataset is missing required dimensions, data variables,
+            or contains invalid poses or bounding boxes data.
+
         """
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:
-            missing_dims = set(self.dim_names) - set(self._obj.dims)
-            missing_vars = set(self.var_names) - set(self._obj.data_vars)
-            if missing_dims:
-                raise ValueError(
-                    f"Missing required dimensions: {sorted(missing_dims)}"
-                    # sort for deterministic error messages during testing
-                )
-            if missing_vars:
-                raise ValueError(
-                    f"Missing required data variables: {sorted(missing_vars)}"
-                    # sort for deterministic error messages during testing
-                )
+            self._validate_dimensions()
+            self._validate_data_vars()
             if self._obj.ds_type == "poses":
                 ValidPosesDataset(
                     position_array=self._obj["position"].values,
@@ -276,7 +273,6 @@ class MovementDataset:
                 frame_array = self._obj.coords["time"].values.reshape(-1, 1)
                 if self._obj.attrs["time_unit"] == "seconds":
                     frame_array *= fps
-
                 ValidBboxesDataset(
                     position_array=self._obj["position"].values,
                     shape_array=self._obj["shape"].values,
@@ -292,3 +288,19 @@ class MovementDataset:
                 + str(e)
             )
             raise log_error(ValueError, error_msg) from e
+
+    def _validate_dimensions(self) -> None:
+        missing_dims = set(self.dim_names) - set(self._obj.dims)
+        if missing_dims:
+            raise ValueError(
+                f"Missing required dimensions: {sorted(missing_dims)}"
+                # sort for deterministic error messages during testing
+            )
+
+    def _validate_data_vars(self) -> None:
+        missing_vars = set(self.var_names) - set(self._obj.data_vars)
+        if missing_vars:
+            raise ValueError(
+                f"Missing required data variables: {sorted(missing_vars)}"
+                # sort for deterministic error messages during testing
+            )
