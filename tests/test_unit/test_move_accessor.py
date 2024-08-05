@@ -64,47 +64,47 @@ def test_invalid_move_method_call(valid_dataset, method, request):
 
 
 @pytest.mark.parametrize(
-    "input_dataset, expected_exception, expected_words_in_error_message",
+    "input_dataset, expected_exception, expected_in_error_message",
     (
         (
             "valid_poses_dataset",
             does_not_raise(),
-            [],
+            "",
         ),
         (
             "valid_bboxes_dataset",
             does_not_raise(),
-            [],
+            "",
         ),
         (
             "valid_bboxes_dataset_in_seconds",
             does_not_raise(),
-            [],
+            "",
         ),
         (
             "missing_dim_poses_dataset",
             pytest.raises(ValueError),
-            ["Missing required dimensions:", "time"],
+            "Missing required dimensions: ['time']",
         ),
         (
             "missing_dim_bboxes_dataset",
             pytest.raises(ValueError),
-            ["Missing required dimensions:", "time"],
+            "Missing required dimensions: ['time']",
         ),
         (
             "missing_var_poses_dataset",
             pytest.raises(ValueError),
-            ["Missing required data variables:", "position"],
+            "Missing required data variables: ['position']",
         ),
         (
             "missing_var_bboxes_dataset",
             pytest.raises(ValueError),
-            ["Missing required data variables:", "position"],
+            "Missing required data variables: ['position']",
         ),
     ),
 )
 def test_move_validate(
-    input_dataset, expected_exception, expected_words_in_error_message, request
+    input_dataset, expected_exception, expected_in_error_message, request
 ):
     """Test the validate method returns the expected message."""
     input_dataset = request.getfixturevalue(input_dataset)
@@ -112,14 +112,9 @@ def test_move_validate(
     with expected_exception as excinfo:
         input_dataset.move.validate()
 
-    if expected_words_in_error_message:
+    if expected_in_error_message:
         assert (
             f"The dataset does not contain valid {input_dataset.ds_type}. "
             in str(excinfo.value)
         )
-        assert all(
-            [
-                word in str(excinfo.value)
-                for word in expected_words_in_error_message
-            ]
-        )
+        assert expected_in_error_message in str(excinfo.value)
