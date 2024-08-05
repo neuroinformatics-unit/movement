@@ -248,10 +248,6 @@ def valid_bboxes_array():
     confidence[idx_start : idx_start + 3, 0] = 0.1
     confidence[idx_start : idx_start + 2, 1] = 0.1
 
-    # assert that there are 5 confidence values
-    # below the default threshold
-    assert np.sum(confidence < 0.6) == 5
-
     return {
         "position": position,
         "shape": shape,
@@ -264,7 +260,9 @@ def valid_bboxes_array():
 def valid_bboxes_dataset(
     valid_bboxes_array,
 ):
-    """Return a valid bboxes dataset with low confidence values."""
+    """Return a valid bboxes dataset with low confidence values and
+    time in frames.
+    """
     dim_names = MovementDataset.dim_names["bboxes"]
 
     position_array = valid_bboxes_array["position"]
@@ -300,8 +298,6 @@ def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
 
     The origin of time is assumed to be time = frame 0 = 0 seconds.
     """
-    assert valid_bboxes_dataset.attrs["time_unit"] == "frames"
-
     fps = 60
     valid_bboxes_dataset["time"] = valid_bboxes_dataset.time / fps
     valid_bboxes_dataset.attrs["time_unit"] = "seconds"
