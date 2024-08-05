@@ -45,11 +45,11 @@ class MovementDataset:
     """
 
     # Set class attributes for expected dimensions and data variables
-    dim_names_per_ds_type: ClassVar[dict] = {
+    dim_names: ClassVar[dict] = {
         "poses": ("time", "individuals", "keypoints", "space"),
         "bboxes": ("time", "individuals", "space"),
     }
-    var_names_per_ds_type: ClassVar[dict] = {
+    var_names: ClassVar[dict] = {
         "poses": ("position", "confidence"),
         "bboxes": ("position", "shape", "confidence"),
     }
@@ -59,8 +59,8 @@ class MovementDataset:
         self._obj = ds
 
         # Set instance attributes based on dataset type
-        self.dim_names = self.dim_names_per_ds_type[self._obj.ds_type]
-        self.var_names = self.var_names_per_ds_type[self._obj.ds_type]
+        self.dim_names_instance = self.dim_names[self._obj.ds_type]
+        self.var_names_instance = self.var_names[self._obj.ds_type]
 
     def __getattr__(self, name: str) -> xr.DataArray:
         """Forward requested but undefined attributes to relevant modules.
@@ -290,12 +290,12 @@ class MovementDataset:
             raise log_error(ValueError, error_msg) from e
 
     def _validate_dimensions(self) -> None:
-        missing_dims = set(self.dim_names) - set(self._obj.dims)
+        missing_dims = set(self.dim_names_instance) - set(self._obj.dims)
         if missing_dims:
             raise ValueError(f"Missing required dimensions: {missing_dims}")
 
     def _validate_data_vars(self) -> None:
-        missing_vars = set(self.var_names) - set(self._obj.data_vars)
+        missing_vars = set(self.var_names_instance) - set(self._obj.data_vars)
         if missing_vars:
             raise ValueError(
                 f"Missing required data variables: {missing_vars}"

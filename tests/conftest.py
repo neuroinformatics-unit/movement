@@ -265,7 +265,7 @@ def valid_bboxes_dataset(
     valid_bboxes_array,
 ):
     """Return a valid bboxes dataset with low confidence values."""
-    dim_names = MovementDataset.dim_names_per_ds_type["bboxes"]
+    dim_names = MovementDataset.dim_names["bboxes"]
 
     position_array = valid_bboxes_array["position"]
     shape_array = valid_bboxes_array["shape"]
@@ -350,7 +350,7 @@ def valid_position_array():
 @pytest.fixture
 def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = MovementDataset.dim_names_per_ds_type["poses"]
+    dim_names = MovementDataset.dim_names["poses"]
     # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
