@@ -395,13 +395,13 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
 
 
 def rename_time_dimension_in_ds(valid_dataset):
-    invalid_dataset = valid_dataset.rename({"time": "tame"})
-    return invalid_dataset
+    """Return an invalid dataset with "tame" instead of "time" dimension."""
+    return valid_dataset.rename({"time": "tame"})
 
 
 def drop_position_var_in_ds(valid_dataset):
-    invalid_dataset = valid_dataset.drop_vars("position")
-    return invalid_dataset
+    """Return an invalid dataset without a "position" array."""
+    return valid_dataset.drop_vars("position")
 
 
 @pytest.fixture
