@@ -292,15 +292,11 @@ class MovementDataset:
     def _validate_dimensions(self) -> None:
         missing_dims = set(self.dim_names) - set(self._obj.dims)
         if missing_dims:
-            raise ValueError(
-                f"Missing required dimensions: {sorted(missing_dims)}"
-                # sort for deterministic error messages during testing
-            )
+            raise ValueError(f"Missing required dimensions: {missing_dims}")
 
     def _validate_data_vars(self) -> None:
         missing_vars = set(self.var_names) - set(self._obj.data_vars)
         if missing_vars:
             raise ValueError(
-                f"Missing required data variables: {sorted(missing_vars)}"
-                # sort for deterministic error messages during testing
+                f"Missing required data variables: {missing_vars}"
             )
