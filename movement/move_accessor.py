@@ -256,8 +256,9 @@ class MovementDataset:
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:
-            self._validate_dimensions()
+            self._validate_dims()
             self._validate_data_vars()
+
             if self._obj.ds_type == "poses":
                 ValidPosesDataset(
                     position_array=self._obj["position"].values,
@@ -273,6 +274,7 @@ class MovementDataset:
                 frame_array = self._obj.coords["time"].values.reshape(-1, 1)
                 if self._obj.attrs["time_unit"] == "seconds":
                     frame_array *= fps
+
                 ValidBboxesDataset(
                     position_array=self._obj["position"].values,
                     shape_array=self._obj["shape"].values,
@@ -289,7 +291,7 @@ class MovementDataset:
             )
             raise log_error(ValueError, error_msg) from e
 
-    def _validate_dimensions(self) -> None:
+    def _validate_dims(self) -> None:
         missing_dims = set(self.dim_names_instance) - set(self._obj.dims)
         if missing_dims:
             raise ValueError(f"Missing required dimensions: {missing_dims}")
