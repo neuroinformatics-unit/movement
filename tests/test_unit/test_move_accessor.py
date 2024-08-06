@@ -64,47 +64,57 @@ def test_invalid_move_method_call(valid_dataset, method, request):
 
 
 @pytest.mark.parametrize(
-    "input_dataset, expected_exception, expected_in_error_message",
+    "input_dataset, expected_exception, expected_patterns",
     (
         (
             "valid_poses_dataset",
             does_not_raise(),
-            "",
+            [],
         ),
         (
             "valid_bboxes_dataset",
             does_not_raise(),
-            "",
+            [],
         ),
         (
             "valid_bboxes_dataset_in_seconds",
             does_not_raise(),
-            "",
+            [],
         ),
         (
             "missing_dim_poses_dataset",
             pytest.raises(ValueError),
-            "Missing required dimensions: ['time']",
+            ["Missing required dimensions:", "['time']"],
         ),
         (
             "missing_dim_bboxes_dataset",
             pytest.raises(ValueError),
-            "Missing required dimensions: ['time']",
+            ["Missing required dimensions:", "['time']"],
+        ),
+        (
+            "missing_two_dims_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required dimensions:", "['space', 'time']"],
         ),
         (
             "missing_var_poses_dataset",
             pytest.raises(ValueError),
-            "Missing required data variables: ['position']",
+            ["Missing required data variables:", "['position']"],
         ),
         (
             "missing_var_bboxes_dataset",
             pytest.raises(ValueError),
-            "Missing required data variables: ['position']",
+            ["Missing required data variables:", "['position']"],
+        ),
+        (
+            "missing_two_vars_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required data variables:", "['position', 'shape']"],
         ),
     ),
 )
 def test_move_validate(
-    input_dataset, expected_exception, expected_in_error_message, request
+    input_dataset, expected_exception, expected_patterns, request
 ):
     """Test the validate method returns the expected message."""
     input_dataset = request.getfixturevalue(input_dataset)
@@ -112,9 +122,7 @@ def test_move_validate(
     with expected_exception as excinfo:
         input_dataset.move.validate()
 
-    if expected_in_error_message:
-        assert (
-            f"The dataset does not contain valid {input_dataset.ds_type}. "
-            in str(excinfo.value)
-        )
-        assert expected_in_error_message in str(excinfo.value)
+    if expected_patterns:
+        error_message = str(excinfo.value)
+        assert input_dataset.ds_type in error_message
+        assert all([pattern in error_message for pattern in expected_patterns])
