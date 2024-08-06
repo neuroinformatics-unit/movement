@@ -390,14 +390,14 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     return valid_poses_dataset
 
 
-def rename_time_dimension_in_ds(valid_dataset):
-    """Return an invalid dataset with "tame" instead of "time" dimension."""
-    return valid_dataset.rename({"time": "tame"})
+def rename_dimension_in_ds(valid_dataset, map_old_to_new):
+    """Return an invalid dataset with one dimension renamed."""
+    return valid_dataset.rename(map_old_to_new)
 
 
-def drop_position_var_in_ds(valid_dataset):
-    """Return an invalid dataset without a "position" array."""
-    return valid_dataset.drop_vars("position")
+def drop_position_var_in_ds(valid_dataset, var_name: str | list):
+    """Return an invalid dataset without one or more data variable arrays."""
+    return valid_dataset.drop_vars(var_name)
 
 
 @pytest.fixture
@@ -415,25 +415,45 @@ def empty_dataset():
 @pytest.fixture
 def missing_var_poses_dataset(valid_poses_dataset):
     """Return a poses dataset missing position variable."""
-    return drop_position_var_in_ds(valid_poses_dataset)
+    return drop_position_var_in_ds(valid_poses_dataset, var_name="position")
 
 
 @pytest.fixture
 def missing_var_bboxes_dataset(valid_bboxes_dataset):
     """Return a bboxes dataset missing position variable."""
-    return drop_position_var_in_ds(valid_bboxes_dataset)
+    return drop_position_var_in_ds(valid_bboxes_dataset, var_name="position")
+
+
+@pytest.fixture
+def missing_two_vars_bboxes_dataset(valid_bboxes_dataset):
+    """Return a bboxes dataset missing position and shape variables."""
+    return drop_position_var_in_ds(
+        valid_bboxes_dataset, var_name=["position", "shape"]
+    )
 
 
 @pytest.fixture
 def missing_dim_poses_dataset(valid_poses_dataset):
     """Return a poses dataset missing the time dimension."""
-    return rename_time_dimension_in_ds(valid_poses_dataset)
+    return rename_dimension_in_ds(
+        valid_poses_dataset, map_old_to_new={"time": "tame"}
+    )
 
 
 @pytest.fixture
 def missing_dim_bboxes_dataset(valid_bboxes_dataset):
     """Return a bboxes dataset missing the time dimension."""
-    return rename_time_dimension_in_ds(valid_bboxes_dataset)
+    return rename_dimension_in_ds(
+        valid_bboxes_dataset, map_old_to_new={"time": "tame"}
+    )
+
+
+@pytest.fixture
+def missing_two_dims_bboxes_dataset(valid_bboxes_dataset):
+    """Return a bboxes dataset missing the time and space dimensions."""
+    return rename_dimension_in_ds(
+        valid_bboxes_dataset, map_old_to_new={"time": "tame", "space": "spice"}
+    )
 
 
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
