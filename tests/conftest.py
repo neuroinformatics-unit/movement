@@ -218,7 +218,7 @@ def sleap_file(request):
 
 
 @pytest.fixture
-def valid_bboxes_arrays_all_zeros():  # used for validators
+def valid_bboxes_arrays_all_zeros():
     """Return a dictionary of valid zero arrays (in terms of shape) for a
     ValidBboxesDataset.
     """
@@ -237,97 +237,6 @@ def valid_bboxes_arrays_all_zeros():  # used for validators
 
 
 # --------------------- Bboxes dataset fixtures ----------------------------
-@pytest.fixture
-def valid_bboxes_array():  # used for filtering
-    """Return a dictionary of valid non-zero arrays for a
-    ValidBboxesDataset.
-    """
-    # define the shape of the arrays
-    n_frames, n_individuals, n_space = (10, 2, 2)
-
-    # build a valid array for position
-    # make bbox with id_i move along x=((-1)**(i))*y line from the origin
-    # if i is even: along x = y line
-    # if i is odd: along x = -y line
-    # moving one unit along each axis in each frame
-    position = np.empty((n_frames, n_individuals, n_space))
-    for i in range(n_individuals):
-        position[:, i, 0] = np.arange(n_frames)
-        position[:, i, 1] = (-1) ** i * np.arange(n_frames)
-
-    # build a valid array for constant bbox shape (60, 40)
-    constant_shape = (60, 40)  # width, height in pixels
-    shape = np.tile(constant_shape, (n_frames, n_individuals, 1))
-
-    # build an array of confidence values, all 0.9
-    confidence = np.full((n_frames, n_individuals), 0.9)
-
-    # set 5 low-confidence values
-    # - set 3 confidence values for bbox id_0 to 0.1
-    # - set 2 confidence values for bbox id_1 to 0.1
-    idx_start = 2
-    confidence[idx_start : idx_start + 3, 0] = 0.1
-    confidence[idx_start : idx_start + 2, 1] = 0.1
-
-    return {
-        "position": position,
-        "shape": shape,
-        "confidence": confidence,
-        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
-    }
-
-
-@pytest.fixture
-def valid_bboxes_dataset(
-    valid_bboxes_array,
-):  # ---- with low confidence values!
-    """Return a valid bboxes' tracks dataset."""
-    dim_names = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
-
-    position_array = valid_bboxes_array["position"]
-    shape_array = valid_bboxes_array["shape"]
-    confidence_array = valid_bboxes_array["confidence"]
-
-    n_frames, n_individuals, _ = position_array.shape
-
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(position_array, dims=dim_names),
-            "shape": xr.DataArray(shape_array, dims=dim_names),
-            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
-        },
-        # Ignoring type error because `time_coords`
-        # (which is a function of `data.frame_array`)
-        # cannot be None after
-        # ValidBboxesDataset.__attrs_post_init__()   # type: ignore
-        coords={
-            dim_names[0]: np.arange(n_frames),
-            dim_names[1]: [f"id_{id}" for id in range(n_individuals)],
-            dim_names[2]: ["x", "y"],
-        },
-        attrs={
-            "fps": None,
-            "time_unit": "frames",
-            "source_software": "test",
-            "source_file": "test_bboxes.csv",
-            "ds_type": "bboxes",
-        },
-    )
-
-
-@pytest.fixture
-def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):  # in position
-    """Return a valid bboxes dataset with NaN values."""
-    # Set 3 NaN values in the position array for id_0
-    valid_bboxes_dataset.position.loc[
-        {"individuals": "id_0", "time": [3, 7, 8]}
-    ] = np.nan
-    return valid_bboxes_dataset
-
-
-#  --------------------- Poses dataset fixtures ----------------------------
-
-
 @pytest.fixture
 def valid_bboxes_array():
     """Return a dictionary of valid non-zero arrays for a
@@ -430,6 +339,7 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
+# --------------------- Poses dataset fixtures ----------------------------
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
@@ -506,16 +416,6 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
 
 
 # -------------------- Invalid datasets fixtures ------------------------------
-def rename_time_dimension_in_ds(valid_dataset):
-    invalid_dataset = valid_dataset.rename({"time": "tame"})
-    return invalid_dataset
-
-
-def drop_position_var_in_ds(valid_dataset):
-    invalid_dataset = valid_dataset.drop_vars("position")
-    return invalid_dataset
-
-
 @pytest.fixture
 def not_a_dataset():
     """Return data that is not a pose tracks dataset."""
@@ -570,7 +470,7 @@ def kinematic_property(request):
     return request.param
 
 
-# ---------------- VIA tracks CSV fixtures ----------------------------
+# ---------------- VIA tracks CSV file fixtures ----------------------------
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""
@@ -829,6 +729,9 @@ class Helpers:
     def count_consecutive_nans(da):
         """Count occurrences of consecutive NaNs in a DataArray."""
         return (da.isnull().astype(int).diff("time") == 1).sum().item()
+
+
+# ----------------- Helper fixture -----------------
 
 
 @pytest.fixture
