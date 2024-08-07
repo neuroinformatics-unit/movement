@@ -182,7 +182,7 @@ def test_median_filter_with_nans_on_position(
         for i in range(valid_input_dataset.dims["individuals"])
     }
 
-    # assert expectations
+    # check number of nans is as expected
     for i in range(valid_input_dataset.dims["individuals"]):
         assert n_nans_after_filtering_per_indiv[i] == (
             expected_n_nans_in_position_per_indiv[i]
@@ -250,7 +250,7 @@ def test_savgol_filter_with_nans_on_position(
         for i in range(valid_input_dataset.dims["individuals"])
     }
 
-    # assert expectations
+    # check number of nans is as expected
     for i in range(valid_input_dataset.dims["individuals"]):
         assert n_nans_after_filtering_per_indiv[i] == (
             expected_n_nans_in_position_per_indiv[i]
