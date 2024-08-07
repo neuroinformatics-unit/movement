@@ -16,15 +16,10 @@ A Python toolbox for analysing body movements across space and time, to aid the 
 
 ## Quick install
 
-First, create and activate a conda environment with the required dependencies:
+Create and activate a conda environment with movement installed:
 ```
-conda create -n movement-env -c conda-forge python=3.11 pytables
+conda create -n movement-env -c conda-forge movement
 conda activate movement-env
-```
-
-Then install the `movement` package:
-```
-pip install movement
 ```
 
 > [!Note]
@@ -52,7 +47,7 @@ You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipc
 
 ## Citation
 
-If you use `movement` in your work, please cite the following Zenodo DOI:
+If you use movement in your work, please cite the following Zenodo DOI:
 
 > Nikoloz Sirmpilatze, Chang Huan Lo, Sofía Miñano, Brandon D. Peri, Dhruv Sharma, Laura Porta, Iván Varela & Adam L. Tyson (2024). neuroinformatics-unit/movement. Zenodo. https://zenodo.org/doi/10.5281/zenodo.12755724
 

@@ -1,49 +1,52 @@
 (target-installation)=
 # Installation
 
-## Create a conda environment
+## Install the package
 
 :::{admonition} Use a conda environment
 :class: note
 We recommend you install movement inside a [conda](conda:)
-or [mamba](mamba:) environment, to avoid dependency conflicts with other packages.
-In the following we assume you have `conda` installed,
+or [mamba](mamba:) environment, to avoid dependency conflicts with other packages. In the following we use `movement-env` as the environment name, but you can choose any name you like.
+We will assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
 :::
 
-First, create and activate an environment with some prerequisites.
-You can call your environment whatever you like, we've used `movement-env`.
+::::{tab-set}
 
+:::{tab-item} Conda
+Create and activate an environment with movement installed.
+```sh
+conda create -n movement-env -c conda-forge movement
+conda activate movement-env
+```
+:::
+
+:::{tab-item} Pip
+Create and activate an environment with some prerequisites:
 ```sh
 conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
 
-## Install the package
-
-Then install the `movement` package as described below.
-
-::::{tab-set}
-
-:::{tab-item} Users
-To get the latest release from PyPI:
-
+Install the latest movement release from PyPI:
 ```sh
 pip install movement
 ```
-If you have an older version of `movement` installed in the same environment,
-you can update to the latest version with:
 
+(Optional) Update an existing installation of movement to the latest version within the same environment:
 ```sh
 pip install --upgrade movement
 ```
 :::
 
-:::{tab-item} Developers
-To get the latest development version, clone the
-[GitHub repository](movement-github:)
-and then run from inside the repository:
+:::{tab-item} Development
+Create and activate an environment with some prerequisites:
+```sh
+conda create -n movement-env -c conda-forge python=3.11 pytables
+conda activate movement-env
+```
 
+Clone the [GitHub repository](movement-github:) to get the latest development version and then run from within the repository:
 ```sh
 pip install -e .[dev]  # works on most shells
 pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
@@ -58,11 +61,11 @@ Please see the [contributing guide](target-contributing) for more information.
 ## Check the installation
 
 To verify that the installation was successful, you can run the following
-command (with the `movement-env` activated):
+command (with `movement-env` activated):
 
 ```sh
 movement info
 ```
 
-You should see a printout including the version numbers of `movement`
+You should see a printout including the version numbers of movement
 and some of its dependencies.
