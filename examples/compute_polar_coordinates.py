@@ -393,7 +393,7 @@ fig.show()
 # %%
 # Convert polar coordinates to cartesian
 # ------------------------------------------
-# ``movement`` also provides a ``pol2cart`` convenience function to transform
+# movement also provides a ``pol2cart`` convenience function to transform
 # a vector in polar coordinates back to cartesian.
 head_vector_cart = pol2cart(head_vector_polar)
 

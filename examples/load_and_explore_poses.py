@@ -24,7 +24,7 @@ from movement.io import load_poses
 
 # %%
 # For the sake of this example, we will use the path to one of
-# the sample datasets provided with ``movement``.
+# the sample datasets provided in movement.
 
 file_path = sample_data.fetch_dataset_paths(
     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
