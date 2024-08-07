@@ -1,6 +1,7 @@
 """``attrs`` classes for validating file paths."""
 
 import ast
+import json
 import os
 import re
 from pathlib import Path
@@ -11,6 +12,18 @@ import pandas as pd
 from attrs import define, field, validators
 
 from movement.utils.logging import log_error
+
+
+def _validate_list_of_dicts(input_object):
+    if isinstance(input_object, list):
+        return all(isinstance(item, dict) for item in input_object)
+    return False
+
+
+def _validate_keys_of_dict(input_dict, list_expected_keys):
+    """Check input is a dictionary with expected keys."""
+    # check lists are exactly equal, except for the order of elements
+    return sorted(list_expected_keys) == sorted(list(input_dict.keys()))
 
 
 @define
@@ -433,3 +446,71 @@ class ValidVIATracksCSV:
                     "have the same track ID. "
                     "Please review the VIA tracks .csv file.",
                 )
+
+
+@define
+class ValidMMPoseTracksJson:
+    """Class for validating MMPose .json files.
+
+    We assume the files contain tracked keypoints and bboxes.
+
+    Parameters
+    ----------
+    path : pathlib.Path or str
+        Path to the MMPose .json file.
+
+    Raises
+    ------
+    ValueError
+        If the .json file does not match the MMPose .json file requirements.
+
+    """
+
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def json_file_contains_expected_nested_dicts(self, attribute, value):
+        """Ensure the .json file contains the expected nested dictionaries."""
+
+        def _validate_list_of_dicts_and_keys(
+            list_of_dicts, list_expected_keys
+        ):
+            """Check if input is a list of dicts with expected keys."""
+            if not _validate_list_of_dicts(list_of_dicts):
+                raise log_error(
+                    ValueError,
+                    "Expected a list of dictionaries "
+                    "in the input .json file, "
+                    f"but got {type(list_of_dicts)}.",
+                )
+            else:
+                for d in list_of_dicts:
+                    if not _validate_keys_of_dict(d, list_expected_keys):
+                        raise log_error(
+                            ValueError,
+                            "Expected keys in input .json file "
+                            f"to be {list_expected_keys}, "
+                            f"but got {list(d.keys())}.",
+                        )
+
+        # Read json data
+        with open(value) as file:
+            list_frame_dicts = json.load(file)
+
+        # Check outer list of dictionaries
+        _validate_list_of_dicts_and_keys(
+            list_frame_dicts,
+            list_expected_keys=["frame_id", "instances"],
+        )
+
+        # Check inner list of dictionaries
+        for frame_dict in list_frame_dicts:
+            _validate_list_of_dicts_and_keys(
+                frame_dict["instances"],
+                list_expected_keys=[
+                    "keypoints",
+                    "keypoint_scores",
+                    "bbox",
+                    "bbox_score",
+                ],
+            )
