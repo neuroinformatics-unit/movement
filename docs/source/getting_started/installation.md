@@ -19,6 +19,10 @@ Create and activate an environment with movement installed.
 conda create -n movement-env -c conda-forge movement
 conda activate movement-env
 ```
+(Optional) Update an existing installation of movement to the latest version within the same environment:
+```sh
+conda update movement
+```
 :::
 
 :::{tab-item} Pip
