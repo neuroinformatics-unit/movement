@@ -109,4 +109,4 @@ class TestKinematics:
             ValueError if isinstance(order, int) else TypeError
         )
         with pytest.raises(expected_exception):
-            kinematics._compute_approximate_derivative(data, order=order)
+            kinematics._compute_approximate_time_derivative(data, order=order)
