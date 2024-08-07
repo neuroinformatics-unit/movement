@@ -31,10 +31,10 @@ class MovementDataset:
 
     Attributes
     ----------
-    dim_names_per_ds_type : dict
+    dim_names : dict
         A dictionary with the names of the expected dimensions in the dataset,
         for each dataset type (``"poses"`` or ``"bboxes"``).
-    var_names_per_ds_type : dict
+    var_names : dict
         A dictionary with the expected data variables in the dataset, for each
         dataset type (``"poses"`` or ``"bboxes"``).
 
@@ -57,7 +57,6 @@ class MovementDataset:
     def __init__(self, ds: xr.Dataset):
         """Initialize the MovementDataset."""
         self._obj = ds
-
         # Set instance attributes based on dataset type
         self.dim_names_instance = self.dim_names[self._obj.ds_type]
         self.var_names_instance = self.var_names[self._obj.ds_type]
@@ -258,7 +257,6 @@ class MovementDataset:
         try:
             self._validate_dims()
             self._validate_data_vars()
-
             if self._obj.ds_type == "poses":
                 ValidPosesDataset(
                     position_array=self._obj["position"].values,
@@ -274,7 +272,6 @@ class MovementDataset:
                 frame_array = self._obj.coords["time"].values.reshape(-1, 1)
                 if self._obj.attrs["time_unit"] == "seconds":
                     frame_array *= fps
-
                 ValidBboxesDataset(
                     position_array=self._obj["position"].values,
                     shape_array=self._obj["shape"].values,
@@ -286,8 +283,7 @@ class MovementDataset:
                 )
         except Exception as e:
             error_msg = (
-                f"The dataset does not contain valid {self._obj.ds_type}. "
-                + str(e)
+                f"The dataset does not contain valid {self._obj.ds_type}. {e}"
             )
             raise log_error(ValueError, error_msg) from e
 
