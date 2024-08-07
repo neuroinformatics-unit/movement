@@ -61,25 +61,22 @@ def test_interpolate_over_time_on_position(
 
     # Get position array with time unit in frames & seconds
     # assuming 10 fps = 0.1 s per frame
-    position = {}
-    for time_unit, scale in zip(
-        ["frames", "seconds"], [1.0, 0.1], strict=True
-    ):
-        position[time_unit] = valid_dataset.position * scale
+    position = {
+        "frames": valid_dataset.position,
+        "seconds": valid_dataset.position * 0.1,
+    }
 
-    # Interpolate nans
-    position_interp = {}
-    for time_unit in ["frames", "seconds"]:
-        position_interp[time_unit] = interpolate_over_time(
-            position[time_unit], method="linear", max_gap=max_gap
-        )
-
-    # Count number of NaNs before and after interpolation
+    # Count number of NaNs before and after interpolating position
     n_nans_before = helpers.count_nans(position["frames"])
     n_nans_after_per_time_unit = {}
     for time_unit in ["frames", "seconds"]:
+        # interpolate
+        position_interp = interpolate_over_time(
+            position[time_unit], method="linear", max_gap=max_gap
+        )
+        # count nans
         n_nans_after_per_time_unit[time_unit] = helpers.count_nans(
-            position_interp[time_unit]
+            position_interp
         )
 
     # The number of NaNs should be the same for both datasets
