@@ -11,14 +11,16 @@ from movement.filtering import (
 )
 
 # Dataset fixtures
-valid_datasets_without_nans = [
+list_valid_datasets_without_nans = [
     "valid_poses_dataset",
     "valid_bboxes_dataset",
 ]
-valid_datasets_with_nans = [
-    f"{dataset}_with_nan" for dataset in valid_datasets_without_nans
+list_valid_datasets_with_nans = [
+    f"{dataset}_with_nan" for dataset in list_valid_datasets_without_nans
 ]
-all_valid_datasets = valid_datasets_without_nans + valid_datasets_with_nans
+list_all_valid_datasets = (
+    list_valid_datasets_without_nans + list_valid_datasets_with_nans
+)
 
 
 # Expected number of nans in the position array per individual,
@@ -37,9 +39,14 @@ expected_n_nans_in_position_per_indiv = {
 }
 
 
+def _apply_filter_to_position(dataset, filter_func, **kwargs):
+    """Apply a filter function to the position data of a dataset."""
+    return filter_func(dataset.position, **kwargs)
+
+
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
-    valid_datasets_with_nans,
+    list_valid_datasets_with_nans,
 )
 @pytest.mark.parametrize(
     "max_gap, expected_n_nans_in_position", [(None, 0), (0, 3), (1, 2), (2, 0)]
@@ -55,39 +62,47 @@ def test_interpolate_over_time_on_position(
     over time and that the resulting number of NaNs is as expected
     for different values of ``max_gap``.
     """
-    # First dataset with time unit in frames
     valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
-    position_in_frames = valid_dataset.position
 
-    # Create second dataset with time unit in seconds
-    position_in_seconds = position_in_frames.copy()
-    position_in_seconds["time"] = position_in_seconds["time"] * 0.1
+    # Get position array with time unit in frames & seconds
+    # assuming 10 fps = 0.1 s per frame
+    position = {}
+    for time_unit, scale in zip(
+        ["frames", "seconds"], [1.0, 0.1], strict=True
+    ):
+        position[time_unit] = valid_dataset.position * scale
 
-    # Interpolate nans, for data in frames and data in seconds over time
-    position_interp_frames = interpolate_over_time(
-        position_in_frames, method="linear", max_gap=max_gap
-    )
-    position_interp_seconds = interpolate_over_time(
-        position_in_seconds, method="linear", max_gap=max_gap
-    )
+    # Interpolate nans
+    position_interp = {}
+    for time_unit in ["frames", "seconds"]:
+        position_interp[time_unit] = interpolate_over_time(
+            position[time_unit], method="linear", max_gap=max_gap
+        )
 
     # Count number of NaNs before and after interpolation
-    n_nans_before = helpers.count_nans(position_in_frames)
-    n_nans_after_frames = helpers.count_nans(position_interp_frames)
-    n_nans_after_seconds = helpers.count_nans(position_interp_seconds)
+    n_nans_before = helpers.count_nans(position["frames"])
+    n_nans_after_per_time_unit = {}
+    for time_unit in ["frames", "seconds"]:
+        n_nans_after_per_time_unit[time_unit] = helpers.count_nans(
+            position_interp[time_unit]
+        )
 
     # The number of NaNs should be the same for both datasets
     # as max_gap is based on number of missing observations (NaNs)
-    assert n_nans_after_frames == n_nans_after_seconds
+    assert (
+        n_nans_after_per_time_unit["frames"]
+        == n_nans_after_per_time_unit["seconds"]
+    )
 
     # The number of NaNs should decrease after interpolation
+    n_nans_after = n_nans_after_per_time_unit["frames"]
     if max_gap == 0:
-        assert n_nans_after_frames == n_nans_before
+        assert n_nans_after == n_nans_before
     else:
-        assert n_nans_after_frames < n_nans_before
+        assert n_nans_after < n_nans_before
 
     # The number of NaNs after interpolating should be as expected
-    assert n_nans_after_frames == (
+    assert n_nans_after == (
         valid_dataset.dims["space"]
         * valid_dataset.dims.get("keypoints", 1)
         # in bboxes dataset there is no keypoints dimension
@@ -108,14 +123,13 @@ def test_filter_by_confidence_on_position(
     """Test that points below the default 0.6 confidence threshold
     are converted to NaN.
     """
-    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
-
-    position = valid_input_dataset.position
-    confidence = valid_input_dataset.confidence
-
     # Filter position by confidence
-    position_filtered = filter_by_confidence(
-        position, confidence, threshold=0.6
+    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
+    position_filtered = _apply_filter_to_position(
+        valid_input_dataset,
+        filter_by_confidence,
+        confidence=valid_input_dataset.confidence,
+        threshold=0.6,
     )
 
     # Count number of NaNs in the full array
@@ -132,17 +146,20 @@ def test_filter_by_confidence_on_position(
 
 @pytest.mark.parametrize(
     "valid_dataset",
-    all_valid_datasets,
+    list_all_valid_datasets,
 )
 @pytest.mark.parametrize("window_size", [2, 4])
 def test_median_filter_on_position(valid_dataset, window_size, request):
     """Test that applying the median filter to the position data returns
     a different xr.DataArray than the input position data.
     """
+    # Filter position using median filter
     valid_input_dataset = request.getfixturevalue(valid_dataset)
-
-    position = valid_input_dataset.position
-    position_filtered = median_filter(position, window_size)
+    position_filtered = _apply_filter_to_position(
+        valid_input_dataset,
+        median_filter,
+        window=window_size,
+    )
 
     del position_filtered.attrs["log"]
 
@@ -150,7 +167,7 @@ def test_median_filter_on_position(valid_dataset, window_size, request):
     assert isinstance(position_filtered, xr.DataArray)
 
     # filtered data should not be equal to the original data
-    assert not position_filtered.equals(position)
+    assert not position_filtered.equals(valid_input_dataset.position)
 
 
 @pytest.mark.parametrize(
@@ -166,15 +183,16 @@ def test_median_filter_with_nans_on_position(
     """Test NaN behaviour of the median filter. The median filter
     should propagate NaNs within the windows of the filter.
     """
-    # get input data
+    # Filter position using median filter
     valid_input_dataset = request.getfixturevalue(valid_dataset)
-    position = valid_input_dataset.position
-
-    # apply median filter
-    position_filtered = median_filter(position, window=3)
+    position_filtered = _apply_filter_to_position(
+        valid_input_dataset,
+        median_filter,
+        window=3,
+    )
 
     # count nans in input
-    n_nans_input = helpers.count_nans(position)
+    n_nans_input = helpers.count_nans(valid_input_dataset.position)
 
     # count nans after filtering per individual
     n_nans_after_filtering_per_indiv = {
@@ -201,27 +219,31 @@ def test_median_filter_with_nans_on_position(
 
 @pytest.mark.parametrize(
     "valid_dataset",
-    all_valid_datasets,
+    list_all_valid_datasets,
 )
-@pytest.mark.parametrize("window, polyorder", [(2, 1), (4, 2)])
-def test_savgol_filter_on_position(valid_dataset, window, polyorder, request):
+@pytest.mark.parametrize("window_size, polyorder", [(2, 1), (4, 2)])
+def test_savgol_filter_on_position(
+    valid_dataset, window_size, polyorder, request
+):
     """Test that applying the Savitzky-Golay filter to the position data
     returns a different xr.DataArray than the input position data.
     """
+    # Filter position using Savitzky-Golay filter
     valid_input_dataset = request.getfixturevalue(valid_dataset)
-
-    position = valid_input_dataset.position
-    posiiton_filtered = savgol_filter(
-        position, window=window, polyorder=polyorder
+    position_filtered = _apply_filter_to_position(
+        valid_input_dataset,
+        savgol_filter,
+        window=window_size,
+        polyorder=polyorder,
     )
 
-    del posiiton_filtered.attrs["log"]
+    del position_filtered.attrs["log"]
 
     # filtered array is an xr.DataArray
-    assert isinstance(posiiton_filtered, xr.DataArray)
+    assert isinstance(position_filtered, xr.DataArray)
 
     # filtered data should not be equal to the original data
-    assert not (posiiton_filtered.equals(position))
+    assert not (position_filtered.equals(valid_input_dataset.position))
 
 
 @pytest.mark.parametrize(
@@ -234,15 +256,17 @@ def test_savgol_filter_with_nans_on_position(
     """Test NaN behaviour of the Savitzky-Golay filter. The Savitzky-Golay
     filter should propagate NaNs within the windows of the filter.
     """
-    # get input data
+    # Filter position using Savitzky-Golay filter
     valid_input_dataset = request.getfixturevalue(valid_dataset)
-    position = valid_input_dataset.position
-
-    # apply SG filter
-    position_filtered = savgol_filter(position, window=3, polyorder=2)
+    position_filtered = _apply_filter_to_position(
+        valid_input_dataset,
+        savgol_filter,
+        window=3,
+        polyorder=2,
+    )
 
     # count nans in input
-    n_nans_input = helpers.count_nans(position)
+    n_nans_input = helpers.count_nans(valid_input_dataset.position)
 
     # count nans after filtering per individual
     n_nans_after_filtering_per_indiv = {
@@ -271,7 +295,7 @@ def test_savgol_filter_with_nans_on_position(
 
 @pytest.mark.parametrize(
     "valid_dataset",
-    all_valid_datasets,
+    list_all_valid_datasets,
 )
 @pytest.mark.parametrize(
     "override_kwargs",
