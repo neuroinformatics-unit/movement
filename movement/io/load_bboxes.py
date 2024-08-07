@@ -352,6 +352,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
+
     - position_array (n_frames, n_individuals, n_space):
         contains the trajectories of the bounding boxes' centroids.
     - shape_array (n_frames, n_individuals, n_space):
@@ -381,9 +382,9 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     df = _df_from_via_tracks_file(file_path)
 
     # Compute indices of the rows where the IDs switch
-    bool_ID_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
-    indices_ID_switch = (
-        bool_ID_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
+    bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
+    indices_id_switch = (
+        bool_id_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
     )
 
     # Stack position, shape and confidence arrays along ID axis
@@ -396,7 +397,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     for key in map_key_to_columns:
         list_arrays = np.split(
             df[map_key_to_columns[key]].to_numpy(),
-            indices_ID_switch,  # indices along axis=0
+            indices_id_switch,  # indices along axis=0
         )
 
         array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
@@ -623,7 +624,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     # Convert data to an xarray.Dataset
     # with dimensions ('time', 'individuals', 'space')
-    DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+    DIM_NAMES = MovementDataset.dim_names["bboxes"]
     n_space = data.position_array.shape[-1]
     return xr.Dataset(
         data_vars={
