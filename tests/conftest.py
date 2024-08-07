@@ -329,6 +329,108 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):  # in position
 
 
 @pytest.fixture
+def valid_bboxes_array():
+    """Return a dictionary of valid non-zero arrays for a
+    ValidBboxesDataset.
+
+    Contains realistic data for 10 frames, 2 individuals, in 2D
+    with 5 low confidence bounding boxes.
+    """
+    # define the shape of the arrays
+    n_frames, n_individuals, n_space = (10, 2, 2)
+
+    # build a valid array for position
+    # make bbox with id_i move along x=((-1)**(i))*y line from the origin
+    # if i is even: along x = y line
+    # if i is odd: along x = -y line
+    # moving one unit along each axis in each frame
+    position = np.empty((n_frames, n_individuals, n_space))
+    for i in range(n_individuals):
+        position[:, i, 0] = np.arange(n_frames)
+        position[:, i, 1] = (-1) ** i * np.arange(n_frames)
+
+    # build a valid array for constant bbox shape (60, 40)
+    constant_shape = (60, 40)  # width, height in pixels
+    shape = np.tile(constant_shape, (n_frames, n_individuals, 1))
+
+    # build an array of confidence values, all 0.9
+    confidence = np.full((n_frames, n_individuals), 0.9)
+
+    # set 5 low-confidence values
+    # - set 3 confidence values for bbox id_0 to 0.1
+    # - set 2 confidence values for bbox id_1 to 0.1
+    idx_start = 2
+    confidence[idx_start : idx_start + 3, 0] = 0.1
+    confidence[idx_start : idx_start + 2, 1] = 0.1
+
+    return {
+        "position": position,
+        "shape": shape,
+        "confidence": confidence,
+        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
+    }
+
+
+@pytest.fixture
+def valid_bboxes_dataset(
+    valid_bboxes_array,
+):
+    """Return a valid bboxes dataset with low confidence values and
+    time in frames.
+    """
+    dim_names = MovementDataset.dim_names["bboxes"]
+
+    position_array = valid_bboxes_array["position"]
+    shape_array = valid_bboxes_array["shape"]
+    confidence_array = valid_bboxes_array["confidence"]
+
+    n_frames, n_individuals, _ = position_array.shape
+
+    return xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(position_array, dims=dim_names),
+            "shape": xr.DataArray(shape_array, dims=dim_names),
+            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+        },
+        coords={
+            dim_names[0]: np.arange(n_frames),
+            dim_names[1]: [f"id_{id}" for id in range(n_individuals)],
+            dim_names[2]: ["x", "y"],
+        },
+        attrs={
+            "fps": None,
+            "time_unit": "frames",
+            "source_software": "test",
+            "source_file": "test_bboxes.csv",
+            "ds_type": "bboxes",
+        },
+    )
+
+
+@pytest.fixture
+def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with time in seconds.
+
+    The origin of time is assumed to be time = frame 0 = 0 seconds.
+    """
+    fps = 60
+    valid_bboxes_dataset["time"] = valid_bboxes_dataset.time / fps
+    valid_bboxes_dataset.attrs["time_unit"] = "seconds"
+    valid_bboxes_dataset.attrs["fps"] = fps
+    return valid_bboxes_dataset
+
+
+@pytest.fixture
+def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with NaN values in the position array."""
+    # Set 3 NaN values in the position array for id_0
+    valid_bboxes_dataset.position.loc[
+        {"individuals": "id_0", "time": [3, 7, 8]}
+    ] = np.nan
+    return valid_bboxes_dataset
+
+
+@pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
     of a valid position array.
@@ -359,7 +461,7 @@ def valid_position_array():
 @pytest.fixture
 def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = MovementDataset.dim_names
+    dim_names = MovementDataset.dim_names["poses"]
     # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
@@ -389,6 +491,7 @@ def valid_poses_dataset(valid_position_array, request):
             "time_unit": "frames",
             "source_software": "SLEAP",
             "source_file": "test.h5",
+            "ds_type": "poses",
         },
     )
 
@@ -427,29 +530,38 @@ def empty_dataset():
 
 @pytest.fixture
 def missing_var_poses_dataset(valid_poses_dataset):
-    """Return a pose tracks dataset missing an expected variable."""
-    return drop_position_var_in_ds(valid_poses_dataset)
+    """Return a poses dataset missing position variable."""
+    return valid_poses_dataset.drop_vars("position")
 
 
 @pytest.fixture
 def missing_var_bboxes_dataset(valid_bboxes_dataset):
-    """Return a bboxes tracks dataset missing an expected variable."""
-    return drop_position_var_in_ds(valid_bboxes_dataset)
+    """Return a bboxes dataset missing position variable."""
+    return valid_bboxes_dataset.drop_vars("position")
+
+
+@pytest.fixture
+def missing_two_vars_bboxes_dataset(valid_bboxes_dataset):
+    """Return a bboxes dataset missing position and shape variables."""
+    return valid_bboxes_dataset.drop_vars(["position", "shape"])
 
 
 @pytest.fixture
 def missing_dim_poses_dataset(valid_poses_dataset):
-    """Return a pose tracks dataset missing an expected dimension."""
-    return rename_time_dimension_in_ds(valid_poses_dataset)
+    """Return a poses dataset missing the time dimension."""
+    return valid_poses_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture
 def missing_dim_bboxes_dataset(valid_bboxes_dataset):
-    """Return a pose tracks dataset missing an expected dimension."""
-    return rename_time_dimension_in_ds(valid_bboxes_dataset)
+    """Return a bboxes dataset missing the time dimension."""
+    return valid_bboxes_dataset.rename({"time": "tame"})
 
 
-# --------------------------------------------------------------------------
+@pytest.fixture
+def missing_two_dims_bboxes_dataset(valid_bboxes_dataset):
+    """Return a bboxes dataset missing the time and space dimensions."""
+    return valid_bboxes_dataset.rename({"time": "tame", "space": "spice"})
 
 
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])

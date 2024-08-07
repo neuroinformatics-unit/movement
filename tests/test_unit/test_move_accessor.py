@@ -1,3 +1,5 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
 
@@ -59,3 +61,68 @@ def test_invalid_move_method_call(valid_dataset, method, request):
     valid_input_dataset = request.getfixturevalue(valid_dataset)
     with pytest.raises(AttributeError):
         getattr(valid_input_dataset.move, method)()
+
+
+@pytest.mark.parametrize(
+    "input_dataset, expected_exception, expected_patterns",
+    (
+        (
+            "valid_poses_dataset",
+            does_not_raise(),
+            [],
+        ),
+        (
+            "valid_bboxes_dataset",
+            does_not_raise(),
+            [],
+        ),
+        (
+            "valid_bboxes_dataset_in_seconds",
+            does_not_raise(),
+            [],
+        ),
+        (
+            "missing_dim_poses_dataset",
+            pytest.raises(ValueError),
+            ["Missing required dimensions:", "['time']"],
+        ),
+        (
+            "missing_dim_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required dimensions:", "['time']"],
+        ),
+        (
+            "missing_two_dims_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required dimensions:", "['space', 'time']"],
+        ),
+        (
+            "missing_var_poses_dataset",
+            pytest.raises(ValueError),
+            ["Missing required data variables:", "['position']"],
+        ),
+        (
+            "missing_var_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required data variables:", "['position']"],
+        ),
+        (
+            "missing_two_vars_bboxes_dataset",
+            pytest.raises(ValueError),
+            ["Missing required data variables:", "['position', 'shape']"],
+        ),
+    ),
+)
+def test_move_validate(
+    input_dataset, expected_exception, expected_patterns, request
+):
+    """Test the validate method returns the expected message."""
+    input_dataset = request.getfixturevalue(input_dataset)
+
+    with expected_exception as excinfo:
+        input_dataset.move.validate()
+
+    if expected_patterns:
+        error_message = str(excinfo.value)
+        assert input_dataset.ds_type in error_message
+        assert all([pattern in error_message for pattern in expected_patterns])
