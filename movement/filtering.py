@@ -1,4 +1,4 @@
-"""Filter and interpolate  pose tracks in ``movement`` datasets."""
+"""Filter and interpolate tracks in ``movement`` datasets."""
 
 import xarray as xr
 from scipy import signal
@@ -40,14 +40,14 @@ def filter_by_confidence(
 
     Notes
     -----
-    The point-wise confidence values reported by various pose estimation
-    frameworks are not standardised, and the range of values can vary.
-    For example, DeepLabCut reports a likelihood value between 0 and 1, whereas
-    the point confidence reported by SLEAP can range above 1.
-    Therefore, the default threshold value will not be appropriate for all
-    datasets and does not have the same meaning across pose estimation
-    frameworks. We advise users to inspect the confidence values
-    in their dataset and adjust the threshold accordingly.
+    For the poses dataset case, note that the point-wise confidence values
+    reported by various pose estimation frameworks are not standardised, and
+    the range of values can vary. For example, DeepLabCut reports a likelihood
+    value between 0 and 1, whereas the point confidence reported by SLEAP can
+    range above 1. Therefore, the default threshold value will not be
+    appropriate for all datasets and does not have the same meaning across
+    pose estimation frameworks. We advise users to inspect the confidence
+    values in their dataset and adjust the threshold accordingly.
 
     """
     data_filtered = data.where(confidence >= threshold)
@@ -127,7 +127,7 @@ def median_filter(
     data : xarray.DataArray
         The input data to be smoothed.
     window : int
-        The size of the filter window, representing the fixed number
+        The size of the smoothing window, representing the fixed number
         of observations used for each window.
     min_periods : int
         Minimum number of observations in the window required to have
@@ -137,7 +137,7 @@ def median_filter(
         :py:meth:`xarray.DataArray.rolling`.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after filtering. Default is ``True``.
+        before and after smoothing. Default is ``True``.
 
     Returns
     -------
@@ -146,7 +146,7 @@ def median_filter(
 
     Notes
     -----
-    By default, whenever one or more NaNs are present in the filter window,
+    By default, whenever one or more NaNs are present in the smoothing window,
     a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window  (specifically, by
@@ -194,7 +194,7 @@ def savgol_filter(
     data : xarray.DataArray
         The input data to be smoothed.
     window : int
-        The size of the filter window, representing the fixed number
+        The size of the smoothing window, representing the fixed number
         of observations used for each window.
     polyorder : int
         The order of the polynomial used to fit the samples. Must be
@@ -202,7 +202,7 @@ def savgol_filter(
         2 is used.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after filtering. Default is ``True``.
+        before and after smoothing. Default is ``True``.
     **kwargs : dict
         Additional keyword arguments are passed to
         :py:func:`scipy.signal.savgol_filter`.
@@ -220,7 +220,7 @@ def savgol_filter(
     Uses the :py:func:`scipy.signal.savgol_filter` function to apply a
     Savitzky-Golay filter to the input data.
     See the SciPy documentation for more information on that function.
-    Whenever one or more NaNs are present in a filter window of the
+    Whenever one or more NaNs are present in a smoothing window of the
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window (specifically, by
