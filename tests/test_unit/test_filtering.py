@@ -151,7 +151,7 @@ def test_filter_by_confidence_on_position(
 def test_filter_on_position(
     filter_func, filter_kwargs, valid_dataset, request
 ):
-    """Test that applying the median filter to the position data returns
+    """Test that applying a filter to the position data returns
     a different xr.DataArray than the input position data.
     """
     # Filter position
@@ -188,8 +188,8 @@ def test_filter_with_nans_on_position(
     helpers,
     request,
 ):
-    """Test NaN behaviour of the median filter. The median filter
-    should propagate NaNs within the windows of the filter.
+    """Test NaN behaviour of the selected filter. The median and SG filters
+    should set all values to NaN if one element of the sliding window is NaN.
     """
 
     def _assert_n_nans_in_position_per_individual(
