@@ -59,34 +59,45 @@ def test_kinematics(
 
 
 @pytest.mark.parametrize(
-    "kinematic_variable, expected_xy_array_id_0, expected_xy_array_id_1",
+    "kinematic_variable, expected_2D_array_per_individual",
     [
         (
             "displacement",
-            np.vstack(
-                [np.zeros((1, 2)), np.ones((9, 2))]
-            ),  # n_frames, n_space_dims
-            np.multiply(
-                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
-                np.array([1, -1]),
-            ),
+            {
+                "id_0": np.vstack(
+                    [np.zeros((1, 2)), np.ones((9, 2))]
+                ),  # at t=0 displacement is (0,0)
+                "id_1": np.multiply(
+                    np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
+                    np.array([1, -1]),
+                ),  # n_frames, n_space_dims
+            },
         ),
         (
             "velocity",
-            np.ones((10, 2)),
-            np.multiply(np.ones((10, 2)), np.array([1, -1])),
+            {
+                "id_0": np.ones((10, 2)),
+                "id_1": np.multiply(np.ones((10, 2)), np.array([1, -1])),
+            },
         ),
-        ("acceleration", np.zeros((10, 2)), np.zeros((10, 2))),
+        (
+            "acceleration",
+            {
+                "id_0": np.zeros((10, 2)),
+                "id_1": np.zeros((10, 2)),
+            },
+        ),
     ],
 )
-def test_kinematics_values(
+def test_kinematics_uniform_linear_motion(
     valid_bboxes_dataset,
     kinematic_variable,
-    expected_xy_array_id_0,
-    expected_xy_array_id_1,
-    request,
+    expected_2D_array_per_individual,
 ):
-    """Test kinematics values for a simple case.
+    """Test kinematics values for uniform linear motion case.
+
+    Uniform linear motion means individuals move along a line
+    at constant velocity.
 
     In valid_bboxes_dataset there are 2 individuals ("id_0" and "id_1"),
     tracked for 10 frames, along x and y:
@@ -99,17 +110,11 @@ def test_kinematics_values(
         position
     )
 
-    # check id_0
-    assert np.allclose(
-        kinematic_variable.sel(individuals="id_0").values,
-        expected_xy_array_id_0,
-    )
-
-    # check id_1
-    assert np.allclose(
-        kinematic_variable.sel(individuals="id_1").values,
-        expected_xy_array_id_1,
-    )
+    for ind in expected_2D_array_per_individual:
+        assert np.allclose(
+            kinematic_variable.sel(individuals=ind).values,
+            expected_2D_array_per_individual[ind],
+        )
 
 
 @pytest.mark.parametrize(
