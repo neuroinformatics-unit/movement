@@ -11,8 +11,10 @@ We will assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
 :::
 
-::::{tab-set}
 
+::::::{tab-set}
+:::::{tab-item} Users
+::::{tab-set}
 :::{tab-item} Conda
 Create and activate an environment with movement installed.
 ```sh
@@ -24,7 +26,6 @@ conda activate movement-env
 conda update movement
 ```
 :::
-
 :::{tab-item} Pip
 Create and activate an environment with some prerequisites:
 ```sh
@@ -42,8 +43,9 @@ pip install movement
 pip install --upgrade movement
 ```
 :::
-
-:::{tab-item} Development
+::::
+:::::
+:::::{tab-item} Developers
 Create and activate an environment with some prerequisites:
 ```sh
 conda create -n movement-env -c conda-forge python=3.11 pytables
@@ -58,9 +60,8 @@ pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
 
 This will install the package in editable mode, including all `dev` dependencies.
 Please see the [contributing guide](target-contributing) for more information.
-:::
-
-::::
+:::::
+::::::
 
 ## Check the installation
 
