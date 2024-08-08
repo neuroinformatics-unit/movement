@@ -34,7 +34,7 @@ def _compute_expected_acceleration(position):
     ],
 )
 @pytest.mark.parametrize(
-    "kinematic_variable, expected_kinematic_variable_fn",
+    "kinematic_variable_str, expected_kinematic_variable_fn",
     [
         ("displacement", _compute_expected_displacement),
         ("velocity", _compute_expected_velocity),
@@ -43,19 +43,73 @@ def _compute_expected_acceleration(position):
 )
 def test_kinematics(
     valid_dataset,
-    kinematic_variable,
+    kinematic_variable_str,
     expected_kinematic_variable_fn,
     request,
 ):
     """Test displacement computation."""
     position = request.getfixturevalue(valid_dataset).position
 
-    kinematic_variable = getattr(kinematics, f"compute_{kinematic_variable}")(
-        position
-    )
+    kinematic_variable = getattr(
+        kinematics, f"compute_{kinematic_variable_str}"
+    )(position)
     expected_kinematic_variable = expected_kinematic_variable_fn(position)
 
     xr.testing.assert_allclose(kinematic_variable, expected_kinematic_variable)
+
+
+@pytest.mark.parametrize(
+    "kinematic_variable, expected_xy_array_id_0, expected_xy_array_id_1",
+    [
+        (
+            "displacement",
+            np.vstack(
+                [np.zeros((1, 2)), np.ones((9, 2))]
+            ),  # n_frames, n_space_dims
+            np.multiply(
+                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
+                np.array([1, -1]),
+            ),
+        ),
+        (
+            "velocity",
+            np.ones((10, 2)),
+            np.multiply(np.ones((10, 2)), np.array([1, -1])),
+        ),
+        ("acceleration", np.zeros((10, 2)), np.zeros((10, 2))),
+    ],
+)
+def test_kinematics_values(
+    valid_bboxes_dataset,
+    kinematic_variable,
+    expected_xy_array_id_0,
+    expected_xy_array_id_1,
+    request,
+):
+    """Test kinematics values for a simple case.
+
+    In valid_bboxes_dataset there are 2 individuals ("id_0" and "id_1"),
+    tracked for 10 frames, along x and y:
+    - id_0 moves along x=y line from the origin
+    - id_1 moves along x=-y line from the origin
+    - they both move one unit (pixel) along each axis in each frame
+    """
+    position = valid_bboxes_dataset.position
+    kinematic_variable = getattr(kinematics, f"compute_{kinematic_variable}")(
+        position
+    )
+
+    # check id_0
+    assert np.allclose(
+        kinematic_variable.sel(individuals="id_0").values,
+        expected_xy_array_id_0,
+    )
+
+    # check id_1
+    assert np.allclose(
+        kinematic_variable.sel(individuals="id_1").values,
+        expected_xy_array_id_1,
+    )
 
 
 @pytest.mark.parametrize(
