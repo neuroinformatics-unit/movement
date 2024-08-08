@@ -6,13 +6,19 @@ from movement.utils.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute displacement between consecutive positions.
+    """Compute displacement vector between consecutive positions in time.
 
-    Displacement is the difference between consecutive positions
-    of each keypoint for each individual across ``time``.
-    At each time point ``t``, it is defined as a vector in
-    cartesian ``(x,y)`` coordinates, pointing from the previous
+    At each time point ``t``, the displacement vector is defined as a
+    vector in cartesian ``(x,y)`` coordinates, pointing from the previous
     ``(t-1)`` to the current ``(t)`` position.
+
+    For the position array of a poses dataset, the displacement vectors will be
+    computed for every keypoint and every individual. For the position array
+    of a bounding boxes dataset, the displacement vectors will be computed for
+    the centroid of every individual bounding box. If computed for the shape
+    array of a bounding boxes dataset, the displacement vectors will inform of
+    the change in width and height per bounding box, between consecutive time
+    points.
 
     Parameters
     ----------
@@ -33,11 +39,17 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
-    """Compute the velocity in cartesian ``(x,y)`` coordinates.
+    """Compute the velocity vector in cartesian ``(x,y)`` coordinates.
 
-    Velocity is the first derivative of position for each keypoint
-    and individual across ``time``, computed with the second order
-    accurate central differences.
+    The velocity vector is the first derivative of the position
+    vector. It is computed by applying a second order accurate central
+    differences method on the position vector, assuming equidistant spacing
+    along the time dimension.
+
+    For the position array of a poses dataset, the velocity vectors will be
+    computed for every keypoint and every individual. For the position array
+    of a bounding boxes dataset, the displacement vectors will be computed for
+    the centroid of every individual bounding box.
 
     Parameters
     ----------
@@ -59,11 +71,17 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
-    """Compute acceleration in cartesian ``(x,y)`` coordinates.
+    """Compute acceleration vector in cartesian ``(x,y)`` coordinates.
 
-    Acceleration is the second derivative of position for each keypoint
-    and individual across ``time``, computed with the second order
-    accurate central differences.
+    The acceleration vector is the second derivative of the
+    position vector. It is computed applying a second order accurate central
+    differences method on the velocity vector, assuming equidistant spacing
+    along the time dimension.
+
+    For the position array of a poses dataset, the acceleration vectors will be
+    computed for every keypoint and every individual. For the position array
+    of a bounding boxes dataset, the acceleration vectors will be computed for
+    the centroid of every individual bounding box.
 
     Parameters
     ----------
@@ -113,7 +131,9 @@ def _compute_approximate_time_derivative(
         )
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
+
     _validate_time_dimension(data)
+
     result = data
     for _ in range(order):
         result = result.differentiate("time")
