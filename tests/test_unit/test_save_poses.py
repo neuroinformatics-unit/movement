@@ -53,6 +53,13 @@ class TestSavePoses:
         },
     ]
 
+    invalid_poses_datasets_and_exceptions = [
+        ("not_a_dataset", ValueError),
+        ("empty_dataset", RuntimeError),
+        ("missing_var_poses_dataset", ValueError),
+        ("missing_dim_poses_dataset", ValueError),
+    ]
+
     @pytest.fixture(params=output_files)
     def output_file_params(self, request):
         """Return a dictionary containing parameters for testing saving
@@ -126,15 +133,19 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_dlc_file(valid_poses_dataset, file_path)
 
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset, expected_exception",
+        invalid_poses_datasets_and_exceptions,
+    )
     def test_to_dlc_file_invalid_dataset(
-        self, invalid_poses_dataset, tmp_path
+        self, invalid_poses_dataset, expected_exception, tmp_path, request
     ):
         """Test that saving an invalid pose dataset to a valid
         DeepLabCut-style file returns the appropriate errors.
         """
-        with pytest.raises(ValueError):
+        with pytest.raises(expected_exception):
             save_poses.to_dlc_file(
-                invalid_poses_dataset,
+                request.getfixturevalue(invalid_poses_dataset),
                 tmp_path / "test.h5",
                 split_individuals=False,
             )
@@ -252,13 +263,19 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_lp_file(valid_poses_dataset, file_path)
 
-    def test_to_lp_file_invalid_dataset(self, invalid_poses_dataset, tmp_path):
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset, expected_exception",
+        invalid_poses_datasets_and_exceptions,
+    )
+    def test_to_lp_file_invalid_dataset(
+        self, invalid_poses_dataset, expected_exception, tmp_path, request
+    ):
         """Test that saving an invalid pose dataset to a valid
         LightningPose-style file returns the appropriate errors.
         """
-        with pytest.raises(ValueError):
+        with pytest.raises(expected_exception):
             save_poses.to_lp_file(
-                invalid_poses_dataset,
+                request.getfixturevalue(invalid_poses_dataset),
                 tmp_path / "test.csv",
             )
 
@@ -274,15 +291,19 @@ class TestSavePoses:
             file_path = val.get("file_path") if isinstance(val, dict) else val
             save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
 
+    @pytest.mark.parametrize(
+        "invalid_poses_dataset, expected_exception",
+        invalid_poses_datasets_and_exceptions,
+    )
     def test_to_sleap_analysis_file_invalid_dataset(
-        self, invalid_poses_dataset, new_h5_file
+        self, invalid_poses_dataset, expected_exception, new_h5_file, request
     ):
         """Test that saving an invalid pose dataset to a valid
         SLEAP-style file returns the appropriate errors.
         """
-        with pytest.raises(ValueError):
+        with pytest.raises(expected_exception):
             save_poses.to_sleap_analysis_file(
-                invalid_poses_dataset,
+                request.getfixturevalue(invalid_poses_dataset),
                 new_h5_file,
             )
 

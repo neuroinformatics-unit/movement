@@ -14,6 +14,7 @@ license = { text = "BSD-3-Clause" }
 
 dependencies = [
   "numpy",
+  "pandas<2.2.2;python_version>='3.12'",
   "pandas",
   "h5py",
   "attrs",
@@ -139,7 +140,9 @@ check-hidden = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-requires = tox-conda
+requires =
+    tox-conda
+    tox-gh-actions
 envlist = py{310,311,312}
 isolated_build = True
 

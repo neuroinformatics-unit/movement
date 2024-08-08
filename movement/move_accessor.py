@@ -8,7 +8,7 @@ import xarray as xr
 from movement import filtering
 from movement.analysis import kinematics
 from movement.utils.logging import log_error
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +18,11 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MovementDataset:
-    """An :py:class:`xarray.Dataset` accessor for pose tracking data.
+    """An :py:class:`xarray.Dataset` accessor for ``movement`` data.
 
     A ``movement`` dataset is an :py:class:`xarray.Dataset` with a specific
-    structure to represent pose tracks, associated confidence scores and
-    relevant metadata.
+    structure to represent pose tracks or bounding boxes data,
+    associated confidence scores and relevant metadata.
 
     Methods/properties that extend the standard ``xarray`` functionality are
     defined in this class. To avoid conflicts with ``xarray``'s namespace,
@@ -31,10 +31,12 @@ class MovementDataset:
 
     Attributes
     ----------
-    dim_names : tuple
-        Names of the expected dimensions in the dataset.
-    var_names : tuple
-        Names of the expected data variables in the dataset.
+    dim_names : dict
+        A dictionary with the names of the expected dimensions in the dataset,
+        for each dataset type (``"poses"`` or ``"bboxes"``).
+    var_names : dict
+        A dictionary with the expected data variables in the dataset, for each
+        dataset type (``"poses"`` or ``"bboxes"``).
 
     References
     ----------
@@ -42,21 +44,22 @@ class MovementDataset:
 
     """
 
-    dim_names: ClassVar[tuple] = (
-        "time",
-        "individuals",
-        "keypoints",
-        "space",
-    )
-
-    var_names: ClassVar[tuple] = (
-        "position",
-        "confidence",
-    )
+    # Set class attributes for expected dimensions and data variables
+    dim_names: ClassVar[dict] = {
+        "poses": ("time", "individuals", "keypoints", "space"),
+        "bboxes": ("time", "individuals", "space"),
+    }
+    var_names: ClassVar[dict] = {
+        "poses": ("position", "confidence"),
+        "bboxes": ("position", "shape", "confidence"),
+    }
 
     def __init__(self, ds: xr.Dataset):
         """Initialize the MovementDataset."""
         self._obj = ds
+        # Set instance attributes based on dataset type
+        self.dim_names_instance = self.dim_names[self._obj.ds_type]
+        self.var_names_instance = self.var_names[self._obj.ds_type]
 
     def __getattr__(self, name: str) -> xr.DataArray:
         """Forward requested but undefined attributes to relevant modules.
@@ -240,29 +243,60 @@ class MovementDataset:
 
         This method checks if the dataset contains the expected dimensions,
         data variables, and metadata attributes. It also ensures that the
-        dataset contains valid poses.
+        dataset contains valid poses or bounding boxes data.
+
+        Raises
+        ------
+        ValueError
+            If the dataset is missing required dimensions, data variables,
+            or contains invalid poses or bounding boxes data.
+
         """
         fps = self._obj.attrs.get("fps", None)
         source_software = self._obj.attrs.get("source_software", None)
         try:
-            missing_dims = set(self.dim_names) - set(self._obj.dims)
-            missing_vars = set(self.var_names) - set(self._obj.data_vars)
-            if missing_dims:
-                raise ValueError(
-                    f"Missing required dimensions: {missing_dims}"
+            self._validate_dims()
+            self._validate_data_vars()
+            if self._obj.ds_type == "poses":
+                ValidPosesDataset(
+                    position_array=self._obj["position"].values,
+                    confidence_array=self._obj["confidence"].values,
+                    individual_names=self._obj.coords["individuals"].values,
+                    keypoint_names=self._obj.coords["keypoints"].values,
+                    fps=fps,
+                    source_software=source_software,
                 )
-            if missing_vars:
-                raise ValueError(
-                    f"Missing required data variables: {missing_vars}"
+            elif self._obj.ds_type == "bboxes":
+                # Define frame_array.
+                # Recover from time axis in seconds if necessary.
+                frame_array = self._obj.coords["time"].values.reshape(-1, 1)
+                if self._obj.attrs["time_unit"] == "seconds":
+                    frame_array *= fps
+                ValidBboxesDataset(
+                    position_array=self._obj["position"].values,
+                    shape_array=self._obj["shape"].values,
+                    confidence_array=self._obj["confidence"].values,
+                    individual_names=self._obj.coords["individuals"].values,
+                    frame_array=frame_array,
+                    fps=fps,
+                    source_software=source_software,
                 )
-            ValidPosesDataset(
-                position_array=self._obj[self.var_names[0]].values,
-                confidence_array=self._obj[self.var_names[1]].values,
-                individual_names=self._obj.coords[self.dim_names[1]].values,
-                keypoint_names=self._obj.coords[self.dim_names[2]].values,
-                fps=fps,
-                source_software=source_software,
-            )
         except Exception as e:
-            error_msg = "The dataset does not contain valid poses. " + str(e)
+            error_msg = (
+                f"The dataset does not contain valid {self._obj.ds_type}. {e}"
+            )
             raise log_error(ValueError, error_msg) from e
+
+    def _validate_dims(self) -> None:
+        missing_dims = set(self.dim_names_instance) - set(self._obj.dims)
+        if missing_dims:
+            raise ValueError(
+                f"Missing required dimensions: {sorted(missing_dims)}"
+            )  # sort for a reproducible error message
+
+    def _validate_data_vars(self) -> None:
+        missing_vars = set(self.var_names_instance) - set(self._obj.data_vars)
+        if missing_vars:
+            raise ValueError(
+                f"Missing required data variables: {sorted(missing_vars)}"
+            )  # sort for a reproducible error message

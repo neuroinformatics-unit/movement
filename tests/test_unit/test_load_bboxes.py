@@ -127,7 +127,7 @@ def assert_dataset(
     assert dataset.confidence.shape == dataset.position.shape[:-1]
 
     # Check the dims and coords
-    DIM_NAMES = tuple(a for a in MovementDataset.dim_names if a != "keypoints")
+    DIM_NAMES = MovementDataset.dim_names["bboxes"]
     assert all([i in dataset.dims for i in DIM_NAMES])
     for d, dim in enumerate(DIM_NAMES[1:]):
         assert dataset.sizes[dim] == dataset.position.shape[d + 1]
@@ -209,7 +209,7 @@ def test_from_file(source_software, fps, use_frame_numbers_from_file):
 
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
-def test_from_VIA_tracks_file(
+def test_from_via_tracks_file(
     via_tracks_file, fps, use_frame_numbers_from_file
 ):
     """Test that loading tracked bounding box data from

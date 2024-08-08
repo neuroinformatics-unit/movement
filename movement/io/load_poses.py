@@ -654,7 +654,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = MovementDataset.dim_names
+    DIM_NAMES = MovementDataset.dim_names["poses"]
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
