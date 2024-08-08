@@ -1,7 +1,7 @@
 (target-sample-data)=
 # Sample data
 
-`movement` includes some sample data files that you can use to
+movement includes some sample data files that you can use to
 try the package out. These files contain pose and bounding boxes' tracks from
 various [supported formats](target-supported-formats).
 
@@ -50,5 +50,5 @@ and its path is stored in the `frame_path` attribute
 :color: info
 :icon: info
 When you import the `sample_data` module with `from movement import sample_data`,
-`movement` downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, `movement` downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
+movement downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, movement downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
 :::

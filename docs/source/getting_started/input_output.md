@@ -4,20 +4,20 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
+movement supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
 
-To analyse pose tracks, `movement` supports loading data from various frameworks:
+To analyse pose tracks, movement supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
 
-To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
+To analyse bounding boxes' tracks, movement currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
 
 :::{note}
-At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
+At the moment movement only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
 :::
 
-Below we explain how you can load pose tracks and bounding boxes' tracks into `movement`, and how you can export a `movement` poses dataset to different file formats. You can also try `movement` out on some [sample data](target-sample-data)
+Below we explain how you can load pose tracks and bounding boxes' tracks into movement, and how you can export a [movement poses dataset](target-poses-and-bboxes-dataset) to different file formats. You can also try movement out on some [sample data](target-sample-data)
 included with the package.
 
 
@@ -168,7 +168,7 @@ For more information on the bounding boxes data structure, see the [movement bou
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
-To export pose tracks from `movement`, first import the {mod}`movement.io.save_poses` module:
+To export pose tracks from movement, first import the {mod}`movement.io.save_poses` module:
 
 ```python
 from movement.io import save_poses
@@ -232,7 +232,7 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 (target-saving-bboxes-tracks)=
 ## Saving bounding boxes' tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
+We currently do not provide explicit methods to export a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
 
 Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
@@ -256,4 +256,4 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
-Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {func}`.xarray.DataArray.to_dataframe()` method, wrangle the dataframe as required, and then apply the {func}`.pandas.DataFrame.to_csv()` method to save the data as a .csv file.
+Alternatively, we can convert the [movement bounding boxes dataset](target-poses-and-bboxes-dataset) to a pandas DataFrame with the {func}`.xarray.DataArray.to_dataframe()` method, wrangle the dataframe as required, and then apply the {func}`.pandas.DataFrame.to_csv()` method to save the data as a .csv file.
