@@ -11,6 +11,7 @@ We will assume you have `conda` installed,
 but the same commands will also work with `mamba`/`micromamba`.
 :::
 
+To install movement in a fresh new environment, follow one of the options below depending on your use case.
 
 ::::::{tab-set}
 :::::{tab-item} Users
@@ -20,10 +21,6 @@ Create and activate an environment with movement installed.
 ```sh
 conda create -n movement-env -c conda-forge movement
 conda activate movement-env
-```
-(Optional) Update an existing installation of movement to the latest version within the same environment:
-```sh
-conda update movement
 ```
 :::
 :::{tab-item} Pip
@@ -36,11 +33,6 @@ conda activate movement-env
 Install the latest movement release from PyPI:
 ```sh
 pip install movement
-```
-
-(Optional) Update an existing installation of movement to the latest version within the same environment:
-```sh
-pip install --upgrade movement
 ```
 :::
 ::::
@@ -62,6 +54,25 @@ This will install the package in editable mode, including all `dev` dependencies
 Please see the [contributing guide](target-contributing) for more information.
 :::::
 ::::::
+
+
+To update an existing installation of movement to the latest version, run from your conda environment:
+
+::::{tab-set}
+
+:::{tab-item} Conda
+```sh
+conda update movement
+```
+:::
+
+:::{tab-item} Pip
+```sh
+pip install --upgrade movement
+```
+:::
+
+::::
 
 ## Check the installation
 
