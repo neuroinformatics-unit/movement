@@ -2,22 +2,20 @@
 # Installation
 
 ## Install the package
-
 :::{admonition} Use a conda environment
 :class: note
-We recommend you install movement inside a [conda](conda:)
-or [mamba](mamba:) environment, to avoid dependency conflicts with other packages. In the following we use `movement-env` as the environment name, but you can choose any name you like.
-We will assume you have `conda` installed,
-but the same commands will also work with `mamba`/`micromamba`.
+To avoid dependency conflicts with other packages, it is best practice to install Python packages within a virtual environment.
+We recommend using [conda](conda:) or [mamba](mamba:) to create and manage this environment, as they simplify the installation process.
+The following instructions assume that you have conda installed, but the same commands will also work with `mamba`/`micromamba`.
 :::
 
-To install movement in a fresh new environment, follow one of the options below depending on your use case.
+### Users
+To install movement in a new environment, follow one of the options below.
+We will use `movement-env` as the environment name, but you can choose any name you prefer.
 
-::::::{tab-set}
-:::::{tab-item} Users
 ::::{tab-set}
 :::{tab-item} Conda
-Create and activate an environment with movement installed.
+Create and activate an environment with movement installed:
 ```sh
 conda create -n movement-env -c conda-forge movement
 conda activate movement-env
@@ -29,59 +27,37 @@ Create and activate an environment with some prerequisites:
 conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
-
 Install the latest movement release from PyPI:
 ```sh
 pip install movement
 ```
 :::
 ::::
-:::::
-:::::{tab-item} Developers
-Create and activate an environment with some prerequisites:
+
+### Developers
+If you are a developer looking to contribute to movement, please refer to our [contributing guide](target-contributing) for detailed setup instructions and guidelines.
+
+## Check the installation
+To verify that the installation was successful, run (with `movement-env` activated):
 ```sh
-conda create -n movement-env -c conda-forge python=3.11 pytables
-conda activate movement-env
+movement info
 ```
+You should see a printout including the version numbers of movement
+and some of its dependencies.
 
-Clone the [GitHub repository](movement-github:) to get the latest development version and then run from within the repository:
-```sh
-pip install -e .[dev]  # works on most shells
-pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
-```
-
-This will install the package in editable mode, including all `dev` dependencies.
-Please see the [contributing guide](target-contributing) for more information.
-:::::
-::::::
-
-
-To update an existing installation of movement to the latest version, run from your conda environment:
+## Update the package
+To update an existing installation of movement to the latest version,
+run (with `movement-env` activated):
 
 ::::{tab-set}
-
 :::{tab-item} Conda
 ```sh
 conda update movement
 ```
 :::
-
 :::{tab-item} Pip
 ```sh
 pip install --upgrade movement
 ```
 :::
-
 ::::
-
-## Check the installation
-
-To verify that the installation was successful, you can run the following
-command (with `movement-env` activated):
-
-```sh
-movement info
-```
-
-You should see a printout including the version numbers of movement
-and some of its dependencies.
