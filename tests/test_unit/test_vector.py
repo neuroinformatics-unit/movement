@@ -37,7 +37,7 @@ def trajectory_x_eq_0_cart():
     # Define trajectory
     n_frames = 10
     x_vals = np.zeros((n_frames,))
-    y_vals = np.arange(n_frames)
+    y_vals = np.arange(n_frames, dtype=float)
 
     # Build position array with space in cartesian coordinates
     return xr.DataArray(
@@ -57,7 +57,7 @@ def trajectory_x_eq_y_cart():
     """
     # Define trajectory
     n_frames = 10
-    x_vals = np.arange(n_frames)
+    x_vals = np.arange(n_frames, dtype=float)
     y_vals = x_vals.copy()
 
     # Build position array with space in cartesian coordinates
