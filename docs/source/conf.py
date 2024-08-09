@@ -108,6 +108,7 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
+    "reference_url": {"movement": None},
     "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
@@ -195,4 +196,9 @@ myst_url_schemes = {
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
+}
+
+intersphinx_mapping = {
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }
