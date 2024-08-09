@@ -68,7 +68,7 @@ myst_enable_extensions = [
     "tasklist",
 ]
 # Automatically add anchors to markdown headings
-myst_heading_anchors = 3
+myst_heading_anchors = 4
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -192,7 +192,8 @@ myst_url_schemes = {
     "napari": "https://napari.org/dev/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
-    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
+    "sphinx-doc": "https://www.sphinx-doc.org/en/master/usage/{{path}}#{{fragment}}",
+    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}#{{fragment}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
