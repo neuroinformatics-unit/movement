@@ -25,12 +25,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-    rho = xr.apply_ufunc(
-        np.linalg.norm,
-        data,
-        input_core_dims=[["space"]],
-        kwargs={"axis": -1},
-    )
+    rho = magnitude(data)
     phi = xr.apply_ufunc(
         np.arctan2,
         data.sel(space="y"),
