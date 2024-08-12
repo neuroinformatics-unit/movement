@@ -6,6 +6,72 @@ import xarray as xr
 from movement.utils.logging import log_error
 
 
+def magnitude(data: xr.DataArray) -> xr.DataArray:
+    """Compute the magnitude in space.
+
+    The magnitude is computed as the Euclidean norm of a vector
+    with spatial components ``x`` and ``y`` in Cartesian coordinates.
+    If the input data contains polar coordinates, the magnitude
+    is the same as the radial distance ``rho``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing either ``space`` or ``space_pol``
+        as a dimension.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray representing the magnitude of the vector
+        in space. The output has no spatial dimension.
+
+
+    """
+    if "space" in data.dims:
+        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        return xr.apply_ufunc(
+            np.linalg.norm,
+            data,
+            input_core_dims=[["space"]],
+            kwargs={"axis": -1},
+        )
+    elif "space_pol" in data.dims:
+        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        return data.sel(space_pol="rho", drop=True)
+    else:
+        raise log_error(
+            ValueError,
+            "Input data must contain either 'space' or 'space_pol' "
+            "as dimensions.",
+        )
+
+
+def normalize(data: xr.DataArray) -> xr.DataArray:
+    """Normalize data by the magnitude in space.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing ``space`` as a dimension,
+        with ``x`` and ``y`` in the dimension coordinate.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray representing the normalized data,
+        having the same dimensions as the input data.
+
+    Notes
+    -----
+    Where the input values are 0 for both ``x`` and ``y``, the normalized
+    values will be NaN, because of zero-division.
+
+    """
+    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+    return data / magnitude(data)
+
+
 def cart2pol(data: xr.DataArray) -> xr.DataArray:
     """Transform Cartesian coordinates to polar.
 
@@ -75,72 +141,6 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         ],
         concat_dim="space",
     ).transpose(*dims)
-
-
-def magnitude(data: xr.DataArray) -> xr.DataArray:
-    """Compute the magnitude in space.
-
-    The magnitude is computed as the Euclidean norm of a vector
-    with spatial components ``x`` and ``y`` in Cartesian coordinates.
-    If the input data contains polar coordinates, the magnitude
-    is the same as the radial distance ``rho``.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data containing either ``space`` or ``space_pol``
-        as a dimension.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray representing the magnitude of the vector
-        in space. The output has no spatial dimension.
-
-
-    """
-    if "space" in data.dims:
-        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-        return xr.apply_ufunc(
-            np.linalg.norm,
-            data,
-            input_core_dims=[["space"]],
-            kwargs={"axis": -1},
-        )
-    elif "space_pol" in data.dims:
-        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
-        return data.sel(space_pol="rho", drop=True)
-    else:
-        raise log_error(
-            ValueError,
-            "Input data must contain either 'space' or 'space_pol' "
-            "as dimensions.",
-        )
-
-
-def normalize(data: xr.DataArray) -> xr.DataArray:
-    """Normalize data by the magnitude in space.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data containing ``space`` as a dimension,
-        with ``x`` and ``y`` in the dimension coordinate.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray representing the normalized data,
-        having the same dimensions as the input data.
-
-    Notes
-    -----
-    Where the input values are 0 for both ``x`` and ``y``, the normalized
-    values will be NaN, because of zero-division.
-
-    """
-    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-    return data / magnitude(data)
 
 
 def _validate_dimension_coordinates(
