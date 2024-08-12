@@ -1,6 +1,5 @@
 """Compute kinematic variables like velocity and acceleration."""
 
-import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
@@ -48,6 +47,10 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray DataArray containing the computed velocity.
 
+    See Also
+    --------
+    :py:meth:`xarray.DataArray.differentiate` : The underlying function used.
+
     """
     return _compute_approximate_time_derivative(data, order=1)
 
@@ -69,6 +72,10 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     xarray.DataArray
         An xarray DataArray containing the computed acceleration.
 
+    See Also
+    --------
+    :py:meth:`xarray.DataArray.differentiate` : The underlying function used.
+
     """
     return _compute_approximate_time_derivative(data, order=2)
 
@@ -78,7 +85,9 @@ def _compute_approximate_time_derivative(
 ) -> xr.DataArray:
     """Compute the derivative using numerical differentiation.
 
-    This assumes equidistant time spacing.
+    This function uses :py:meth:`xarray.DataArray.differentiate`,
+    which differentiates the array with the second order
+    accurate central differences.
 
     Parameters
     ----------
@@ -102,15 +111,8 @@ def _compute_approximate_time_derivative(
         raise log_error(ValueError, "Order must be a positive integer.")
     _validate_time_dimension(data)
     result = data
-    dt = data["time"].values[1] - data["time"].values[0]
     for _ in range(order):
-        result = xr.apply_ufunc(
-            np.gradient,
-            result,
-            dt,
-            kwargs={"axis": 0},
-        )
-    result = result.reindex_like(data)
+        result = result.differentiate("time")
     return result
 
 
@@ -130,5 +132,5 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
     """
     if "time" not in data.dims:
         raise log_error(
-            AttributeError, "Input data must contain 'time' as a dimension."
+            ValueError, "Input data must contain 'time' as a dimension."
         )
