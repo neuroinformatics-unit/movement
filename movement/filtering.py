@@ -88,7 +88,7 @@ def interpolate_over_time(
 
     Returns
     -------
-    xr.DataArray
+    xarray.DataArray
         The data where NaN values have been interpolated over
         using the parameters provided.
 
