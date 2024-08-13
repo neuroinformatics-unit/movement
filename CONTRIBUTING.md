@@ -255,7 +255,7 @@ For example, to reference the {mod}`movement.io.load_poses` module, use:
 #### External references
 For referencing external Python objects using [intersphinx](sphinx-doc:extensions/intersphinx.html),
 ensure the mapping between module names and their documentation URLs is defined in [`intersphinx_mapping`](sphinx-doc:extensions/intersphinx.html#confval-intersphinx_mapping) in `docs/source/conf.py`.
-Once the module is included in the mapping, use the same syntax as for internal references.
+Once the module is included in the mapping, use the same syntax as for [internal references](#internal-references).
 
 ::::{tab-set}
 :::{tab-item} Markdown
