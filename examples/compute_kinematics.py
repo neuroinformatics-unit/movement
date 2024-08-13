@@ -258,7 +258,7 @@ displacement_vectors_lengths = compute_norm(
     displacement.sel(individuals=mouse_name)
 )
 
-# sum of all displacement vectors lengths (in pixels)
+# sum the lengths of all displacement vectors (in pixels)
 total_displacement = displacement_vectors_lengths.sum(dim="time").values[0]
 
 print(
