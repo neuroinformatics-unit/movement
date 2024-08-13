@@ -235,24 +235,19 @@ Docstrings in the `.py` files for the [API reference](target-api) and the [examp
 #### Internal references
 ::::{tab-set}
 :::{tab-item} Markdown
-To reference movement objects in `.md` files, use either the `` {py:role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects),
-or the ``<project:#target>`` syntax.
+For referencing movement objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
-For example, to reference the {py:mod}`movement.io.load_poses` module, use:
+For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```markdown
-{py:mod}`movement.io.load_poses`
-```
-or
-```markdown
-<project:#movement.io.load_poses>
+{mod}`movement.io.load_poses`
 ```
 :::
 :::{tab-item} RestructuredText
-To reference movement objects in `.rst` files, use the `` :py:role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing movement objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
-For example, to reference the {py:mod}`movement.io.load_poses` module, use:
+For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```rst
-:py:mod:`movement.io.load_poses`
+:mod:`movement.io.load_poses`
 ```
 :::
 ::::
@@ -260,30 +255,20 @@ For example, to reference the {py:mod}`movement.io.load_poses` module, use:
 #### External references
 For referencing external Python objects using [intersphinx](sphinx-doc:extensions/intersphinx.html),
 ensure the mapping between module names and their documentation URLs is defined in [`intersphinx_mapping`](sphinx-doc:extensions/intersphinx.html#confval-intersphinx_mapping) in `docs/source/conf.py`.
+Once the module is included in the mapping, use the same syntax as for internal references.
 
 ::::{tab-set}
 :::{tab-item} Markdown
-Once the module is included in the mapping, in `.md` files,
-use the `` {external:role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects),
-or the ``<inv:#target>`` syntax.
-
-For example, to reference the {external:meth}`xarray.Dataset.update` method, use:
+For example, to reference the {meth}`xarray.Dataset.update` method, use:
 ```markdown
-{external:meth}`xarray.Dataset.update`
-```
-or
-```markdown
-<inv:#xarray.Dataset.update>
+{meth}`xarray.Dataset.update`
 ```
 :::
 
 :::{tab-item} RestructuredText
-Once the module is included in the mapping, in `.rst` files,
-use the `` :py:role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
-
-For example, to reference the {external:meth}`xarray.Dataset.update` method, use:
+For example, to reference the {meth}`xarray.Dataset.update` method, use:
 ```rst
-:py:meth:`xarray.Dataset.update`
+:meth:`xarray.Dataset.update`
 ```
 :::
 ::::
