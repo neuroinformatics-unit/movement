@@ -134,17 +134,17 @@ class TestVector:
             ),
         ],
     )
-    def test_magnitude(self, ds, expected_exception, request):
-        """Test vector magnitude with known values."""
+    def test_compute_norm(self, ds, expected_exception, request):
+        """Test vector norm computation with known values."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            result = vector.magnitude(ds.cart)
+            result = vector.compute_norm(ds.cart)
             expected = np.sqrt(
                 ds.cart.sel(space="x") ** 2 + ds.cart.sel(space="y") ** 2
             )
             xr.testing.assert_allclose(result, expected)
             # result should be the same from Cartesian and polar coordinates
-            xr.testing.assert_allclose(result, vector.magnitude(ds.pol))
+            xr.testing.assert_allclose(result, vector.compute_norm(ds.pol))
             # The result should only contain the time dimension.
             assert result.dims == ("time",)
 
@@ -168,7 +168,7 @@ class TestVector:
             assert normalized.sel(time=0).isnull().all()
             # the magnitude of the normalized vector should be 1 for all
             # time points except for the expected NaNs.
-            normalized_mag = vector.magnitude(normalized).values
+            normalized_mag = vector.compute_norm(normalized).values
             expected_mag = np.ones_like(normalized_mag)
             expected_mag[normalized.isnull().any("space")] = np.nan
             np.testing.assert_allclose(normalized_mag, expected_mag)

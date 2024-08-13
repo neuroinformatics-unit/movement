@@ -6,25 +6,35 @@ import xarray as xr
 from movement.utils.logging import log_error
 
 
-def magnitude(data: xr.DataArray) -> xr.DataArray:
-    """Compute the magnitude in space.
+def compute_norm(data: xr.DataArray) -> xr.DataArray:
+    """Compute the norm of the vectors along the spatial dimension.
 
-    The magnitude is computed as the Euclidean norm of a vector
-    with spatial components ``x`` and ``y`` in Cartesian coordinates.
-    If the input data contains polar coordinates, the magnitude
-    is the same as the radial distance ``rho``.
+    The norm of a vector is its magnitude, also called Euclidean norm, 2-norm
+    or Euclidean length. Note that if the input data is expressed in polar
+    coordinates, the magnitude of a vector is the same as its radial coordinate
+    ``rho``.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing either ``space`` or ``space_pol``
+        The input data array containing either ``space`` or ``space_pol``
         as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray representing the magnitude of the vector
-        in space. The output has no spatial dimension.
+         A data array holding the norm of the input vectors.
+         Note that this output array has no spatial dimension but preserves
+         all other dimensions of the input data array (see Notes).
+
+    Notes
+    -----
+    If the input data array is a ``position`` array, this function will compute
+    the magnitude of the position vectors, for every individual and keypoint,
+    at every timestep. If the input data array is a ``shape`` array of a
+    bounding boxes dataset, it will compute the magnitude of the shape
+    vectors (i.e., the diagonal of the bounding box),
+    for every individual and at every timestep.
 
 
     """
@@ -69,7 +79,7 @@ def normalize(data: xr.DataArray) -> xr.DataArray:
 
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-    return data / magnitude(data)
+    return data / compute_norm(data)
 
 
 def cart2pol(data: xr.DataArray) -> xr.DataArray:
@@ -91,7 +101,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
     """
     _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-    rho = magnitude(data)
+    rho = compute_norm(data)
     phi = xr.apply_ufunc(
         np.arctan2,
         data.sel(space="y"),
