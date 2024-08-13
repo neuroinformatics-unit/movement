@@ -105,7 +105,7 @@ fig.tight_layout()
 # %%
 # We can also easily plot the components of the position vector against time
 # using ``xarray``'s built-in plotting methods. We use
-# :py:meth:`xarray.DataArray.squeeze` to
+# :meth:`xarray.DataArray.squeeze` to
 # remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
@@ -131,7 +131,7 @@ displacement = ds.move.compute_displacement()
 
 # %%
 # Notice that we could also compute the displacement (and all the other
-# kinematic variables) using the :py:mod:`movement.analysis.kinematics` module:
+# kinematic variables) using the :mod:`movement.analysis.kinematics` module:
 
 # %%
 import movement.analysis.kinematics as kin
@@ -284,7 +284,7 @@ velocity = ds.move.compute_velocity()
 # %%
 # We can plot the components of the velocity vector against time
 # using ``xarray``'s built-in plotting methods. We use
-# :py:meth:`xarray.DataArray.squeeze` to
+# :meth:`xarray.DataArray.squeeze` to
 # remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
