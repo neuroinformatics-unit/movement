@@ -57,7 +57,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
         )
 
 
-def normalize(data: xr.DataArray) -> xr.DataArray:
+def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     """Convert the vectors along the spatial dimension into unit vectors.
 
     A unit vector is a vector pointing in the same direction as the original

@@ -159,36 +159,33 @@ class TestVector:
             ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
         ],
     )
-    def test_normalize(self, ds, expected_exception, request):
-        """Test data normalization (division by magnitude)."""
+    def test_convert_to_unit(self, ds, expected_exception, request):
+        """Test conversion to unit vectors (normalisation)."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            normalized = vector.normalize(ds.cart)
+            unit_cart = vector.convert_to_unit(ds.cart)  # normalise Cartesian
+            unit_pol = vector.convert_to_unit(ds.pol)  # normalise polar
 
-            # the normalized data should have the same dimensions as the input
-            assert normalized.dims == ds.cart.dims
+            # the normalised data should have the same dimensions as the input
+            assert unit_cart.dims == ds.cart.dims
+            assert unit_pol.dims == ds.pol.dims
 
             # normalising null vectors (where x,y = 0,0) should yield NaNs
             is_null_vector = (ds.cart == 0).all("space")
-            assert normalized.where(is_null_vector).isnull().all()
+            assert unit_cart.where(is_null_vector).isnull().all()
+            assert unit_pol.where(is_null_vector).isnull().all()
 
-            # the magnitude of the normalized vector should be 1 for all
+            # the norm of the unit vectors should be 1 for all
             # time points except for the expected NaNs.
-            normalized_mag = vector.compute_norm(normalized).values
-            expected_mag = np.ones_like(normalized_mag)
-            expected_mag[normalized.isnull().any("space")] = np.nan
-            np.testing.assert_allclose(normalized_mag, expected_mag)
+            unit_cart_norm = vector.compute_norm(unit_cart).values
+            expected_norm = np.ones_like(unit_cart_norm)
+            expected_norm[unit_cart.isnull().any("space")] = np.nan
+            np.testing.assert_allclose(unit_cart_norm, expected_norm)
 
             # normalising the polar data should yield the same result
             # as converting the normalised Cartesian data to polar.
-            xr.testing.assert_allclose(
-                vector.normalize(ds.pol),
-                vector.cart2pol(vector.normalize(ds.cart)),
-            )
+            xr.testing.assert_allclose(unit_pol, vector.cart2pol(unit_cart))
 
             # normalising the Cartesian data should yield the same result
             # as converting the normalised polar data to Cartesian.
-            xr.testing.assert_allclose(
-                vector.normalize(ds.cart),
-                vector.pol2cart(vector.normalize(ds.pol)),
-            )
+            xr.testing.assert_allclose(unit_cart, vector.pol2cart(unit_pol))
