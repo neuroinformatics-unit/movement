@@ -58,28 +58,46 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
 
 def normalize(data: xr.DataArray) -> xr.DataArray:
-    """Normalize data by the magnitude in space.
+    """Convert the vectors along the spatial dimension into unit vectors.
+
+    A unit vector is a vector pointing in the same direction as the original
+    vector but with norm = 1.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``space`` as a dimension,
-        with ``x`` and ``y`` in the dimension coordinate.
+        The input data array containing either ``space`` or ``space_pol``
+        as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray representing the normalized data,
-        having the same dimensions as the input data.
+        A data array holding the unit vectors of the input data array
+        (all input dimensions are preserved).
 
     Notes
     -----
-    Where the input values are 0 for both ``x`` and ``y``, the normalized
-    values will be NaN, because of zero-division.
+    Note that the unit vector for the null vector is undefined, since the null
+    vector has 0 norm and no direction associated with it.
 
     """
-    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
-    return data / compute_norm(data)
+    if "space" in data.dims:
+        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        return data / compute_norm(data)
+    elif "space_pol" in data.dims:
+        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        # Set both rho and phi values to NaN at null vectors (where rho = 0)
+        new_data = xr.where(data.sel(space_pol="rho") == 0, np.nan, data)
+        # Set the rho values to 1 for non-null vectors (phi is preserved)
+        new_data.loc[{"space_pol": "rho"}] = xr.where(
+            new_data.sel(space_pol="rho").isnull(), np.nan, 1
+        )
+        return new_data
+    raise log_error(
+        ValueError,
+        "Input data must contain either 'space' or 'space_pol' "
+        "as dimensions.",
+    )
 
 
 def cart2pol(data: xr.DataArray) -> xr.DataArray:

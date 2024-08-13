@@ -172,3 +172,15 @@ class TestVector:
             expected_mag = np.ones_like(normalized_mag)
             expected_mag[normalized.isnull().any("space")] = np.nan
             np.testing.assert_allclose(normalized_mag, expected_mag)
+            # Normalising the polar data should yield the same result
+            # as converting the normalised Cartesian data to polar.
+            xr.testing.assert_allclose(
+                vector.normalize(ds.pol),
+                vector.cart2pol(vector.normalize(ds.cart)),
+            )
+            # Normalising the Cartesian data should yield the same result
+            # as converting the normalised polar data to Cartesian.
+            xr.testing.assert_allclose(
+                vector.normalize(ds.cart),
+                vector.pol2cart(vector.normalize(ds.pol)),
+            )
