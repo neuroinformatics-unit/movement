@@ -138,13 +138,16 @@ class TestVector:
         """Test vector norm computation with known values."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
+            # validate the norm computation
             result = vector.compute_norm(ds.cart)
             expected = np.sqrt(
                 ds.cart.sel(space="x") ** 2 + ds.cart.sel(space="y") ** 2
             )
             xr.testing.assert_allclose(result, expected)
+
             # result should be the same from Cartesian and polar coordinates
             xr.testing.assert_allclose(result, vector.compute_norm(ds.pol))
+
             # The result should only contain the time dimension.
             assert result.dims == ("time",)
 
@@ -161,24 +164,29 @@ class TestVector:
         ds = request.getfixturevalue(ds)
         with expected_exception:
             normalized = vector.normalize(ds.cart)
+
             # the normalized data should have the same dimensions as the input
             assert normalized.dims == ds.cart.dims
-            # the first time point is NaN because the input vector is [0, 0]
-            # (zero-division during normalization).
-            assert normalized.sel(time=0).isnull().all()
+
+            # normalising null vectors (where x,y = 0,0) should yield NaNs
+            is_null_vector = (ds.cart == 0).all("space")
+            assert normalized.where(is_null_vector).isnull().all()
+
             # the magnitude of the normalized vector should be 1 for all
             # time points except for the expected NaNs.
             normalized_mag = vector.compute_norm(normalized).values
             expected_mag = np.ones_like(normalized_mag)
             expected_mag[normalized.isnull().any("space")] = np.nan
             np.testing.assert_allclose(normalized_mag, expected_mag)
-            # Normalising the polar data should yield the same result
+
+            # normalising the polar data should yield the same result
             # as converting the normalised Cartesian data to polar.
             xr.testing.assert_allclose(
                 vector.normalize(ds.pol),
                 vector.cart2pol(vector.normalize(ds.cart)),
             )
-            # Normalising the Cartesian data should yield the same result
+
+            # normalising the Cartesian data should yield the same result
             # as converting the normalised polar data to Cartesian.
             xr.testing.assert_allclose(
                 vector.normalize(ds.cart),
