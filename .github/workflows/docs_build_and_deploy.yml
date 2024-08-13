@@ -30,7 +30,7 @@ jobs:
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
         with:
           python-version: 3.11
-          use-make: true
+          use-make: true  # As specified in the Makefile, warnings are treated as errors
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
