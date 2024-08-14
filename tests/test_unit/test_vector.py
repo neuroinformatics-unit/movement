@@ -163,29 +163,28 @@ class TestVector:
         """Test conversion to unit vectors (normalisation)."""
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            unit_cart = vector.convert_to_unit(ds.cart)  # normalise Cartesian
-            unit_pol = vector.convert_to_unit(ds.pol)  # normalise polar
+            # normalise both the Cartesian and the polar data to unit vectors
+            unit_cart = vector.convert_to_unit(ds.cart)
+            unit_pol = vector.convert_to_unit(ds.pol)
+            # they should yield the same result, just in different coordinates
+            xr.testing.assert_allclose(unit_cart, vector.pol2cart(unit_pol))
+            xr.testing.assert_allclose(unit_pol, vector.cart2pol(unit_cart))
+
+            # since we established that polar vs Cartesian unit vectors are
+            # equivalent, it's enough to do other assertions on either one
 
             # the normalised data should have the same dimensions as the input
             assert unit_cart.dims == ds.cart.dims
-            assert unit_pol.dims == ds.pol.dims
 
-            # normalising null vectors (where x,y = 0,0) should yield NaNs
-            is_null_vector = (ds.cart == 0).all("space")
-            assert unit_cart.where(is_null_vector).isnull().all()
-            assert unit_pol.where(is_null_vector).isnull().all()
+            # unit vector should be NaN if the input vector was null or NaN
+            is_null_vec = (ds.cart == 0).all("space")  # null vec: x=0, y=0
+            is_nan_vec = ds.cart.isnull().any("space")  # any NaN in x or y
+            expected_nan_idxs = is_null_vec | is_nan_vec
+            assert unit_cart.where(expected_nan_idxs).isnull().all()
 
-            # the norm of the unit vectors should be 1 for all
-            # time points except for the expected NaNs.
-            unit_cart_norm = vector.compute_norm(unit_cart).values
-            expected_norm = np.ones_like(unit_cart_norm)
-            expected_norm[unit_cart.isnull().any("space")] = np.nan
-            np.testing.assert_allclose(unit_cart_norm, expected_norm)
-
-            # normalising the polar data should yield the same result
-            # as converting the normalised Cartesian data to polar.
-            xr.testing.assert_allclose(unit_pol, vector.cart2pol(unit_cart))
-
-            # normalising the Cartesian data should yield the same result
-            # as converting the normalised polar data to Cartesian.
-            xr.testing.assert_allclose(unit_cart, vector.pol2cart(unit_pol))
+            # For non-NaN unit vectors in polar coordinates, the rho values
+            # should be 1 and the phi values should be the same as the input
+            expected_unit_pol = ds.pol.copy()
+            expected_unit_pol.loc[{"space_pol": "rho"}] = 1
+            expected_unit_pol = expected_unit_pol.where(~expected_nan_idxs)
+            xr.testing.assert_allclose(unit_pol, expected_unit_pol)
