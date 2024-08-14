@@ -50,11 +50,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
         _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
         return data.sel(space_pol="rho", drop=True)
     else:
-        raise log_error(
-            ValueError,
-            "Input data must contain either 'space' or 'space_pol' "
-            "as dimensions.",
-        )
+        _raise_error_for_missing_spatial_dim()
 
 
 def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
@@ -93,11 +89,8 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
             new_data.sel(space_pol="rho").isnull(), np.nan, 1
         )
         return new_data
-    raise log_error(
-        ValueError,
-        "Input data must contain either 'space' or 'space_pol' "
-        "as dimensions.",
-    )
+    else:
+        _raise_error_for_missing_spatial_dim()
 
 
 def cart2pol(data: xr.DataArray) -> xr.DataArray:
@@ -211,3 +204,11 @@ def _validate_dimension_coordinates(
             )
     if error_message:
         raise log_error(ValueError, error_message)
+
+
+def _raise_error_for_missing_spatial_dim() -> None:
+    raise log_error(
+        ValueError,
+        "Input data array must contain either 'space' or 'space_pol' "
+        "as dimensions.",
+    )
