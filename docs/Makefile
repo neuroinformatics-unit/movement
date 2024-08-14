@@ -3,7 +3,9 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?=
+# -W: if there are warnings, treat them as errors and exit with status 1.
+# --keep-going: run sphinx-build to completion and exit with status 1 if errors.
+SPHINXOPTS    ?= -W --keep-going
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build

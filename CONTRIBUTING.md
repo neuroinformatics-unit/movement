@@ -297,7 +297,7 @@ The local build can be viewed by opening `docs/build/html/index.html` in a brows
 
 :::{tab-item} All platforms
 ```sh
-python make_api_index.py && sphinx-build source build
+python make_api_index.py && sphinx-build source build -W --keep-going
 ```
 The local build can be viewed by opening `docs/build/index.html` in a browser.
 :::
@@ -317,7 +317,7 @@ make clean html
 :::{tab-item} All platforms
 ```sh
 rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
-python make_api_index.py && sphinx-build source build
+python make_api_index.py && sphinx-build source build -W --keep-going
 ```
 :::
 ::::
@@ -333,7 +333,7 @@ make linkcheck
 
 :::{tab-item} All platforms
 ```sh
-sphinx-build source build -b linkcheck
+sphinx-build source build -b linkcheck -W --keep-going
 ```
 :::
 ::::
