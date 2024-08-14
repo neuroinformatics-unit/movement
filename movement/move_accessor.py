@@ -1,4 +1,4 @@
-"""Accessor for extending :py:class:`xarray.Dataset` objects."""
+"""Accessor for extending :class:`xarray.Dataset` objects."""
 
 import logging
 from typing import ClassVar
@@ -18,9 +18,9 @@ xr.set_options(keep_attrs=True)
 
 @xr.register_dataset_accessor("move")
 class MovementDataset:
-    """An :py:class:`xarray.Dataset` accessor for ``movement`` data.
+    """An :class:`xarray.Dataset` accessor for ``movement`` data.
 
-    A ``movement`` dataset is an :py:class:`xarray.Dataset` with a specific
+    A ``movement`` dataset is an :class:`xarray.Dataset` with a specific
     structure to represent pose tracks or bounding boxes data,
     associated confidence scores and relevant metadata.
 
@@ -66,8 +66,8 @@ class MovementDataset:
 
         This method currently only forwards kinematic property computation
         and filtering operations to the respective functions in
-        :py:mod:`movement.analysis.kinematics` and
-        :py:mod:`movement.filtering`.
+        :mod:`movement.analysis.kinematics` and
+        :mod:`movement.filtering`.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class MovementDataset:
         """Provide convenience method for computing kinematic properties.
 
         This method forwards kinematic property computation
-        to the respective functions in :py:mod:`movement.analysis.kinematics`.
+        to the respective functions in :mod:`movement.analysis.kinematics`.
 
         Parameters
         ----------
@@ -161,7 +161,7 @@ class MovementDataset:
         """Provide convenience method for filtering data variables.
 
         This method forwards filtering and/or smoothing to the respective
-        functions in :py:mod:`movement.filtering`. The data variables to
+        functions in :mod:`movement.filtering`. The data variables to
         filter can be specified in ``data_vars``. If ``data_vars`` is not
         specified, the ``position`` data variable is selected by default.
 
