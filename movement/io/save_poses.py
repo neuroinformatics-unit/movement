@@ -241,7 +241,7 @@ def to_lp_file(
     -----
     LightningPose saves pose estimation outputs as .csv files, using the same
     format as single-animal DeepLabCut projects. Therefore, under the hood,
-    this function calls :py:func:`movement.io.save_poses.to_dlc_file`
+    this function calls :func:`movement.io.save_poses.to_dlc_file`
     with ``split_individuals=True``. This setting means that each individual
     is saved to a separate file, with the individual's name appended to the
     file path, just before the file extension,
