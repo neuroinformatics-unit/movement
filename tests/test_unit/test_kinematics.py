@@ -349,3 +349,63 @@ def test_nan_behavior_forward_vector(
         np.isnan(forward_vector.values[1, 0, :]).all()
         and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
     )
+
+    def generate_expected_data_vars(self, pairs_mapping, valid_poses_dataset):
+        """Generate expected data variables for inter-individual distances."""
+        if pairs_mapping is None:
+            return [
+                f"dist_{ind1}_{ind2}"
+                for i, ind1 in enumerate(
+                    valid_poses_dataset.position.individuals.values
+                )
+                for ind2 in valid_poses_dataset.position.individuals.values[
+                    i + 1 :
+                ]
+            ]
+        else:
+            return [
+                f"dist_{ind1}_{ind2}"
+                for ind1, ind2_list in pairs_mapping.items()
+                for ind2 in ind2_list
+            ]
+
+    @pytest.mark.parametrize(
+        "pairs_mapping",
+        [
+            {"ind1": ["ind2"]},
+            # {"ind2": ["ind1", "ind3"]},
+            {"ind1": ["ind2"], "ind2": ["ind1"]},
+            None,  # all pairs
+        ],
+    )
+    def test_inter_individual_distances(
+        self, valid_poses_dataset, pairs_mapping
+    ):
+        """Test inter-individual distances computation."""
+        result = kinematics.compute_inter_individual_distances(
+            valid_poses_dataset.position, pairs_mapping=pairs_mapping
+        )
+        if isinstance(result, dict):
+            expected_data_vars = self.generate_expected_data_vars(
+                pairs_mapping, valid_poses_dataset
+            )
+            # Assert expected pairs present in the result
+            # and the results are zeros
+            for expected in expected_data_vars:
+                xr.testing.assert_equal(
+                    result[expected],
+                    xr.zeros_like(
+                        valid_poses_dataset.position.sel(
+                            individuals="ind1"
+                        ).drop_vars("individuals")
+                    ),
+                )
+        else:  # single DataArray
+            xr.testing.assert_equal(
+                result,
+                xr.zeros_like(
+                    valid_poses_dataset.position.sel(
+                        individuals="ind1"
+                    ).drop_vars("individuals")
+                ),
+            )
