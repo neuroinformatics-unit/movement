@@ -1,5 +1,7 @@
 """Compute kinematic variables like velocity and acceleration."""
 
+import itertools
+
 import xarray as xr
 
 from movement.utils.logging import log_error
@@ -126,6 +128,58 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     return compute_time_derivative(data, order=2)
+
+
+def compute_inter_individual_distances(
+    data: xr.DataArray, pairs_mapping: dict[str, list[str]] | None = None
+) -> xr.DataArray | dict[str, xr.DataArray]:
+    """Compute inter-individual distances for all pairs of keypoints.
+
+    Inter-individual distances are computed as the difference between
+    the positions of each keypoint for each pair of individuals at each
+    time point.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing
+        ``('time', 'individuals', 'keypoints', 'space'`` as dimensions.
+    pairs_mapping : dict[str, list[str]], optional
+        A dictionary containing the mapping between pairs of individuals.
+        The key is the individual and the value is a list of individuals
+        to compute the distance with. If not provided, defaults to ``None``
+        and all possible pairs of individuals are computed.
+
+    Returns
+    -------
+    xarray.DataArray | dict[str, xarray.DataArray]
+        An :class:`xarray.DataArray` containing the computed distances for
+        eachpair of keypoints for the given pair of individuals, or if
+        multiple pairs are provided, a dictionary containing the computed
+        distances for each pair of individuals, with the key being the pair
+        of individuals and the value being the :class:`xarray.DataArray`
+        containing the computed distance for each pair of keypoints.
+
+    """
+    inter_individual_distances = {}
+    # Compute all possible pairs of individuals
+    pairs = (
+        list(itertools.combinations(data.individuals.values, 2))
+        if pairs_mapping is None
+        else [
+            (ind, ind2)
+            for ind, ind2_list in pairs_mapping.items()
+            for ind2 in ind2_list
+        ]
+    )
+    for ind, ind2 in pairs:
+        inter_individual_distances[f"dist_{ind}_{ind2}"] = data.sel(
+            individuals=ind
+        ) - data.sel(individuals=ind2)
+    # Return DataArray if result only has one key
+    if len(inter_individual_distances) == 1:
+        return next(iter(inter_individual_distances.values()))
+    return inter_individual_distances
 
 
 def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
