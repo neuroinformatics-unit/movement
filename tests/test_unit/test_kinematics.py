@@ -53,7 +53,7 @@ class TestKinematics:
     kinematic_test_params = [
         ("valid_poses_dataset", does_not_raise()),
         ("valid_poses_dataset_with_nan", does_not_raise()),
-        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
+        ("missing_dim_poses_dataset", pytest.raises(ValueError)),
     ]
 
     @pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
@@ -109,4 +109,4 @@ class TestKinematics:
             ValueError if isinstance(order, int) else TypeError
         )
         with pytest.raises(expected_exception):
-            kinematics._compute_approximate_derivative(data, order=order)
+            kinematics._compute_approximate_time_derivative(data, order=order)
