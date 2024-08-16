@@ -10,14 +10,13 @@ visualise the results.
 # Imports
 # -------
 
-import numpy as np
-
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
 # %matplotlib widget
 from matplotlib import pyplot as plt
 
 from movement import sample_data
+from movement.utils.vector import compute_norm
 
 # %%
 # Load sample dataset
@@ -255,13 +254,12 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 # mouse along its trajectory.
 
 # length of each displacement vector
-displacement_vectors_lengths = np.linalg.norm(
-    displacement.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-    axis=1,
+displacement_vectors_lengths = compute_norm(
+    displacement.sel(individuals=mouse_name)
 )
 
-# sum of all displacement vectors
-total_displacement = np.sum(displacement_vectors_lengths, axis=0)  # in pixels
+# sum the lengths of all displacement vectors (in pixels)
+total_displacement = displacement_vectors_lengths.sum(dim="time").values[0]
 
 print(
     f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} "
@@ -299,14 +297,12 @@ plt.gcf().show()
 # uses second order central differences.
 
 # %%
-# We can also visualise the speed, as the norm of the velocity vector:
+# We can also visualise the speed, as the magnitude (norm)
+# of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
-    # compute the norm of the velocity vector for one mouse
-    speed_one_mouse = np.linalg.norm(
-        velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-        axis=1,
-    )
+    # compute the magnitude of the velocity vector for one mouse
+    speed_one_mouse = compute_norm(velocity.sel(individuals=mouse_name))
     # plot speed against time
     ax.plot(speed_one_mouse)
     ax.set_title(mouse_name)
@@ -379,16 +375,12 @@ for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
 fig.tight_layout()
 
 # %%
-# The norm of the acceleration vector is the magnitude of the
-# acceleration.
-# We can also represent this for each individual.
+# The can also represent the magnitude (norm) of the acceleration vector
+# for each individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
-    # compute norm of the acceleration vector for one mouse
-    accel_one_mouse = np.linalg.norm(
-        accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-        axis=1,
-    )
+    # compute magnitude of the acceleration vector for one mouse
+    accel_one_mouse = compute_norm(accel.sel(individuals=mouse_name))
 
     # plot acceleration against time
     ax.plot(accel_one_mouse)
