@@ -41,13 +41,17 @@ def test_interpolate_over_time_on_position(
     over time and that the resulting number of NaNs is as expected
     for different values of ``max_gap``.
     """
-    valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    valid_dataset_in_frames = request.getfixturevalue(valid_dataset_with_nan)
 
     # Get position array with time unit in frames & seconds
     # assuming 10 fps = 0.1 s per frame
+    valid_dataset_in_seconds = valid_dataset_in_frames.copy()
+    valid_dataset_in_seconds.coords["time"] = (
+        valid_dataset_in_seconds.coords["time"] * 0.1
+    )
     position = {
-        "frames": valid_dataset.position,
-        "seconds": valid_dataset.position * 0.1,
+        "frames": valid_dataset_in_frames.position,
+        "seconds": valid_dataset_in_seconds.position,
     }
 
     # Count number of NaNs before and after interpolating position
@@ -79,8 +83,8 @@ def test_interpolate_over_time_on_position(
 
     # The number of NaNs after interpolating should be as expected
     assert n_nans_after == (
-        valid_dataset.dims["space"]
-        * valid_dataset.dims.get("keypoints", 1)
+        valid_dataset_in_frames.dims["space"]
+        * valid_dataset_in_frames.dims.get("keypoints", 1)
         # in bboxes dataset there is no keypoints dimension
         * expected_n_nans_in_position
     )
