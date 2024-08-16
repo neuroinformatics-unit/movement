@@ -1,6 +1,5 @@
 """Compute kinematic variables like velocity and acceleration."""
 
-import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
@@ -9,15 +8,17 @@ from movement.utils.logging import log_error
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement between consecutive positions.
 
-    This is the difference between consecutive positions of each keypoint for
-    each individual across time. At each time point ``t``, it's defined as a
-    vector in cartesian ``(x,y)`` coordinates, pointing from the previous
+    Displacement is the difference between consecutive positions
+    of each keypoint for each individual across ``time``.
+    At each time point ``t``, it is defined as a vector in
+    cartesian ``(x,y)`` coordinates, pointing from the previous
     ``(t-1)`` to the current ``(t)`` position.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``time`` as a dimension.
+        The input data containing position information, with
+        ``time`` as a dimension.
 
     Returns
     -------
@@ -35,50 +36,62 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute the velocity in cartesian ``(x,y)`` coordinates.
 
     Velocity is the first derivative of position for each keypoint
-    and individual across time. It's computed using numerical differentiation
-    and assumes equidistant time spacing.
+    and individual across ``time``, computed with the second order
+    accurate central differences.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``time`` as a dimension.
+        The input data containing position information, with
+        ``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the computed velocity.
 
+    See Also
+    --------
+    :py:meth:`xarray.DataArray.differentiate` : The underlying method used.
+
     """
-    return _compute_approximate_derivative(data, order=1)
+    return _compute_approximate_time_derivative(data, order=1)
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """Compute acceleration in cartesian ``(x,y)`` coordinates.
 
-    Acceleration represents the second derivative of position for each keypoint
-    and individual across time. It's computed using numerical differentiation
-    and assumes equidistant time spacing.
+    Acceleration is the second derivative of position for each keypoint
+    and individual across ``time``, computed with the second order
+    accurate central differences.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing ``time`` as a dimension.
+        The input data containing position information, with
+        ``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the computed acceleration.
 
+    See Also
+    --------
+    :py:meth:`xarray.DataArray.differentiate` : The underlying method used.
+
     """
-    return _compute_approximate_derivative(data, order=2)
+    return _compute_approximate_time_derivative(data, order=2)
 
 
-def _compute_approximate_derivative(
+def _compute_approximate_time_derivative(
     data: xr.DataArray, order: int
 ) -> xr.DataArray:
     """Compute the derivative using numerical differentiation.
 
-    This assumes equidistant time spacing.
+    This function uses :py:meth:`xarray.DataArray.differentiate`,
+    which differentiates the array with the second order
+    accurate central differences.
 
     Parameters
     ----------
@@ -102,15 +115,8 @@ def _compute_approximate_derivative(
         raise log_error(ValueError, "Order must be a positive integer.")
     _validate_time_dimension(data)
     result = data
-    dt = data["time"].values[1] - data["time"].values[0]
     for _ in range(order):
-        result = xr.apply_ufunc(
-            np.gradient,
-            result,
-            dt,
-            kwargs={"axis": 0},
-        )
-    result = result.reindex_like(data)
+        result = result.differentiate("time")
     return result
 
 
@@ -124,11 +130,11 @@ def _validate_time_dimension(data: xr.DataArray) -> None:
 
     Raises
     ------
-    AttributeError
+    ValueError
         If the input data does not contain a ``time`` dimension.
 
     """
     if "time" not in data.dims:
         raise log_error(
-            AttributeError, "Input data must contain 'time' as a dimension."
+            ValueError, "Input data must contain 'time' as a dimension."
         )
