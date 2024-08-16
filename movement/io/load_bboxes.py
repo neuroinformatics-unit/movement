@@ -35,19 +35,19 @@ def from_numpy(
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
         containing the tracks of the bounding boxes' centroids.
-        It will be converted to a :py:class:`xarray.DataArray` object
+        It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
-        :py:class:`xarray.DataArray` object named "shape".
+        :class:`xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals) containing
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
-        to a :py:class:`xarray.DataArray` object named "confidence".
+        to a :class:`xarray.DataArray` object named "confidence".
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
