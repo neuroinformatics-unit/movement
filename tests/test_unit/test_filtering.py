@@ -23,22 +23,6 @@ list_all_valid_datasets = (
 )
 
 
-# Expected number of nans in the position array per individual,
-# for each dataset
-expected_n_nans_in_position_per_indiv = {
-    "valid_poses_dataset": {0: 0, 1: 0},
-    # filtering should not introduce nans if input has no nans
-    "valid_bboxes_dataset": {0: 0, 1: 0},
-    # filtering should not introduce nans if input has no nans
-    "valid_poses_dataset_with_nan": {0: 7, 1: 0},
-    # individual with index 0 has 7 frames with nans in position after
-    # filtering individual with index 1 has no nans after filtering
-    "valid_bboxes_dataset_with_nan": {0: 7, 1: 0},
-    # individual with index 0 has 7 frames with nans in position after
-    # filtering individual with index 0 has no nans after filtering
-}
-
-
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
     list_valid_datasets_with_nans,
@@ -167,6 +151,22 @@ def test_filter_on_position(
 
     # filtered data should not be equal to the original data
     assert not position_filtered.equals(valid_input_dataset.position)
+
+
+# Expected number of nans in the position array per individual,
+# for each dataset
+expected_n_nans_in_position_per_indiv = {
+    "valid_poses_dataset": {0: 0, 1: 0},
+    # filtering should not introduce nans if input has no nans
+    "valid_bboxes_dataset": {0: 0, 1: 0},
+    # filtering should not introduce nans if input has no nans
+    "valid_poses_dataset_with_nan": {0: 7, 1: 0},
+    # individual with index 0 has 7 frames with nans in position after
+    # filtering individual with index 1 has no nans after filtering
+    "valid_bboxes_dataset_with_nan": {0: 7, 1: 0},
+    # individual with index 0 has 7 frames with nans in position after
+    # filtering individual with index 0 has no nans after filtering
+}
 
 
 @pytest.mark.parametrize(
