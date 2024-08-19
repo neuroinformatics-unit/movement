@@ -22,9 +22,9 @@ def compute_head_direction_vector(
         the two chosen keypoints corresponding to the left and
         right of the head.
     left_keypoint : str
-        Name of the right keypoint, e.g., "right_ear"
-    right_keypoint : str
         Name of the left keypoint, e.g., "left_ear"
+    right_keypoint : str
+        Name of the right keypoint, e.g., "right_ear"
 
     Returns
     -------
@@ -52,7 +52,7 @@ def compute_head_direction_vector(
     ):
         raise log_error(
             AttributeError,
-            "The given keypoints could not be found in the input dataset",
+            "The selected keypoints could not be found in the input dataset",
         )
 
     # Select the right and left keypoints
