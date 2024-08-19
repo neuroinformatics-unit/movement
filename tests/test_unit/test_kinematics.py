@@ -124,8 +124,8 @@ def test_kinematics_uniform_linear_motion(
         ("empty_dataset", pytest.raises(AttributeError)),
         ("missing_var_poses_dataset", pytest.raises(AttributeError)),
         ("missing_var_bboxes_dataset", pytest.raises(AttributeError)),
-        ("missing_dim_poses_dataset", pytest.raises(AttributeError)),
-        ("missing_dim_bboxes_dataset", pytest.raises(AttributeError)),
+        ("missing_dim_poses_dataset", pytest.raises(ValueError)),
+        ("missing_dim_bboxes_dataset", pytest.raises(ValueError)),
     ],
 )
 @pytest.mark.parametrize(
