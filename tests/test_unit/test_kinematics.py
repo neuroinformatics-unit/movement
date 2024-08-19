@@ -351,7 +351,7 @@ def test_nan_behavior_forward_vector(
     )
 
     def generate_expected_data_vars(self, pairs_mapping, valid_poses_dataset):
-        """Generate expected data variables for inter-individual distances."""
+        """Generate expected data variables for interindividual distances."""
         if pairs_mapping is None:
             return [
                 f"dist_{ind1}_{ind2}"
@@ -366,46 +366,49 @@ def test_nan_behavior_forward_vector(
             return [
                 f"dist_{ind1}_{ind2}"
                 for ind1, ind2_list in pairs_mapping.items()
-                for ind2 in ind2_list
+                for ind2 in (
+                    ind2_list if isinstance(ind2_list, list) else [ind2_list]
+                )
             ]
 
     @pytest.mark.parametrize(
         "pairs_mapping",
         [
             {"ind1": ["ind2"]},
-            # {"ind2": ["ind1", "ind3"]},
-            {"ind1": ["ind2"], "ind2": ["ind1"]},
+            {"ind1": "ind2"},
+            {"ind1": ["ind1", "ind2"], "ind2": "ind1"},
             None,  # all pairs
         ],
     )
-    def test_inter_individual_distances(
+    def test_compute_interindividual_distances(
         self, valid_poses_dataset, pairs_mapping
     ):
-        """Test inter-individual distances computation."""
-        result = kinematics.compute_inter_individual_distances(
+        """Test interindividual distances computation."""
+        expected_result = xr.zeros_like(
+            xr.DataArray(
+                coords={
+                    "time": valid_poses_dataset.time,
+                    "keypoints": valid_poses_dataset.keypoints,
+                },
+                dims=["time", "keypoints"],
+            )
+        )
+        result = kinematics.compute_interindividual_distances(
             valid_poses_dataset.position, pairs_mapping=pairs_mapping
         )
         if isinstance(result, dict):
             expected_data_vars = self.generate_expected_data_vars(
                 pairs_mapping, valid_poses_dataset
             )
-            # Assert expected pairs present in the result
+            # Assert expected pairs are present in the result
             # and the results are zeros
             for expected in expected_data_vars:
                 xr.testing.assert_equal(
                     result[expected],
-                    xr.zeros_like(
-                        valid_poses_dataset.position.sel(
-                            individuals="ind1"
-                        ).drop_vars("individuals")
-                    ),
+                    expected_result,
                 )
         else:  # single DataArray
             xr.testing.assert_equal(
                 result,
-                xr.zeros_like(
-                    valid_poses_dataset.position.sel(
-                        individuals="ind1"
-                    ).drop_vars("individuals")
-                ),
+                expected_result,
             )

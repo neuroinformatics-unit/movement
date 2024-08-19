@@ -5,6 +5,7 @@ import itertools
 import xarray as xr
 
 from movement.utils.logging import log_error
+from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -130,56 +131,62 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     return compute_time_derivative(data, order=2)
 
 
-def compute_inter_individual_distances(
-    data: xr.DataArray, pairs_mapping: dict[str, list[str]] | None = None
+def compute_interindividual_distances(
+    data: xr.DataArray, pairs_mapping: dict[str, str | list[str]] | None = None
 ) -> xr.DataArray | dict[str, xr.DataArray]:
-    """Compute inter-individual distances for all pairs of keypoints.
+    """Compute interindividual distances for all pairs of keypoints.
 
-    Inter-individual distances are computed as the difference between
-    the positions of each keypoint for each pair of individuals at each
-    time point.
+    Interindividual distances are computed as the norm of the
+    difference in position (for all keypoints) between pairs of
+    individuals at each time point.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data containing
         ``('time', 'individuals', 'keypoints', 'space'`` as dimensions.
-    pairs_mapping : dict[str, list[str]], optional
+    pairs_mapping : dict[str, str | list[str]], optional
         A dictionary containing the mapping between pairs of individuals.
         The key is the individual and the value is a list of individuals
-        to compute the distance with. If not provided, defaults to ``None``
-        and all possible pairs of individuals are computed.
+        or a string representing an individual to compute the distance with.
+        If not provided, defaults to ``None`` and all possible combinations
+        of pairs are computed.
 
     Returns
     -------
     xarray.DataArray | dict[str, xarray.DataArray]
         An :class:`xarray.DataArray` containing the computed distances for
-        eachpair of keypoints for the given pair of individuals, or if
+        all keypoints between the given pair of individuals, or if
         multiple pairs are provided, a dictionary containing the computed
         distances for each pair of individuals, with the key being the pair
         of individuals and the value being the :class:`xarray.DataArray`
-        containing the computed distance for each pair of keypoints.
+        containing the computed distances.
 
     """
-    inter_individual_distances = {}
-    # Compute all possible pairs of individuals
+    interindividual_distances = {}
+    # Compute all possible pair combinations if not provided
     pairs = (
         list(itertools.combinations(data.individuals.values, 2))
         if pairs_mapping is None
         else [
             (ind, ind2)
             for ind, ind2_list in pairs_mapping.items()
-            for ind2 in ind2_list
+            for ind2 in (
+                ind2_list if isinstance(ind2_list, list) else [ind2_list]
+            )
         ]
     )
     for ind, ind2 in pairs:
-        inter_individual_distances[f"dist_{ind}_{ind2}"] = data.sel(
-            individuals=ind
-        ) - data.sel(individuals=ind2)
+        distance = compute_norm(
+            data.sel(individuals=ind) - data.sel(individuals=ind2)
+        )
+        if "individuals" in distance.coords:
+            distance = distance.drop_vars("individuals")
+        interindividual_distances[f"dist_{ind}_{ind2}"] = distance
     # Return DataArray if result only has one key
-    if len(inter_individual_distances) == 1:
-        return next(iter(inter_individual_distances.values()))
-    return inter_individual_distances
+    if len(interindividual_distances) == 1:
+        return next(iter(interindividual_distances.values()))
+    return interindividual_distances
 
 
 def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
