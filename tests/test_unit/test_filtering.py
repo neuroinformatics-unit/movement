@@ -23,22 +23,6 @@ list_all_valid_datasets = (
 )
 
 
-# Expected number of nans in the position array per individual,
-# for each dataset
-expected_n_nans_in_position_per_indiv = {
-    "valid_poses_dataset": {0: 0, 1: 0},
-    # filtering should not introduce nans if input has no nans
-    "valid_bboxes_dataset": {0: 0, 1: 0},
-    # filtering should not introduce nans if input has no nans
-    "valid_poses_dataset_with_nan": {0: 7, 1: 0},
-    # individual with index 0 has 7 frames with nans in position after
-    # filtering individual with index 1 has no nans after filtering
-    "valid_bboxes_dataset_with_nan": {0: 7, 1: 0},
-    # individual with index 0 has 7 frames with nans in position after
-    # filtering individual with index 0 has no nans after filtering
-}
-
-
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
     list_valid_datasets_with_nans,
@@ -57,13 +41,17 @@ def test_interpolate_over_time_on_position(
     over time and that the resulting number of NaNs is as expected
     for different values of ``max_gap``.
     """
-    valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    valid_dataset_in_frames = request.getfixturevalue(valid_dataset_with_nan)
 
     # Get position array with time unit in frames & seconds
     # assuming 10 fps = 0.1 s per frame
+    valid_dataset_in_seconds = valid_dataset_in_frames.copy()
+    valid_dataset_in_seconds.coords["time"] = (
+        valid_dataset_in_seconds.coords["time"] * 0.1
+    )
     position = {
-        "frames": valid_dataset.position,
-        "seconds": valid_dataset.position * 0.1,
+        "frames": valid_dataset_in_frames.position,
+        "seconds": valid_dataset_in_seconds.position,
     }
 
     # Count number of NaNs before and after interpolating position
@@ -95,8 +83,8 @@ def test_interpolate_over_time_on_position(
 
     # The number of NaNs after interpolating should be as expected
     assert n_nans_after == (
-        valid_dataset.dims["space"]
-        * valid_dataset.dims.get("keypoints", 1)
+        valid_dataset_in_frames.dims["space"]
+        * valid_dataset_in_frames.dims.get("keypoints", 1)
         # in bboxes dataset there is no keypoints dimension
         * expected_n_nans_in_position
     )
@@ -151,7 +139,7 @@ def test_filter_by_confidence_on_position(
 def test_filter_on_position(
     filter_func, filter_kwargs, valid_dataset, request
 ):
-    """Test that applying the median filter to the position data returns
+    """Test that applying a filter to the position data returns
     a different xr.DataArray than the input position data.
     """
     # Filter position
@@ -167,6 +155,22 @@ def test_filter_on_position(
 
     # filtered data should not be equal to the original data
     assert not position_filtered.equals(valid_input_dataset.position)
+
+
+# Expected number of nans in the position array per individual,
+# for each dataset
+expected_n_nans_in_position_per_indiv = {
+    "valid_poses_dataset": {0: 0, 1: 0},
+    # filtering should not introduce nans if input has no nans
+    "valid_bboxes_dataset": {0: 0, 1: 0},
+    # filtering should not introduce nans if input has no nans
+    "valid_poses_dataset_with_nan": {0: 7, 1: 0},
+    # individual with index 0 has 7 frames with nans in position after
+    # filtering individual with index 1 has no nans after filtering
+    "valid_bboxes_dataset_with_nan": {0: 7, 1: 0},
+    # individual with index 0 has 7 frames with nans in position after
+    # filtering individual with index 0 has no nans after filtering
+}
 
 
 @pytest.mark.parametrize(
@@ -188,8 +192,8 @@ def test_filter_with_nans_on_position(
     helpers,
     request,
 ):
-    """Test NaN behaviour of the median filter. The median filter
-    should propagate NaNs within the windows of the filter.
+    """Test NaN behaviour of the selected filter. The median and SG filters
+    should set all values to NaN if one element of the sliding window is NaN.
     """
 
     def _assert_n_nans_in_position_per_individual(
