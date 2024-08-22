@@ -9,11 +9,11 @@ from movement.utils.logging import log_error
 def compute_head_direction_vector(
     data: xr.DataArray, left_keypoint: str, right_keypoint: str
 ):
-    """Compute the head direction vector given two keypoints on the head.
+    """Compute the 2D head direction vector given two keypoints on the head.
 
     The head direction vector is computed as a vector perpendicular to the
     line connecting two keypoints on either side of the head, pointing
-    forwards (in a rostral direction).
+    forwards (in the rostral direction).
 
     Parameters
     ----------
@@ -46,13 +46,9 @@ def compute_head_direction_vector(
             "Input data must contain 'time', 'space', and 'keypoints' as "
             "dimensions.",
         )
-    if not all(
-        keypoint in data.keypoints
-        for keypoint in [left_keypoint, right_keypoint]
-    ):
+    if left_keypoint == right_keypoint:
         raise log_error(
-            AttributeError,
-            "The selected keypoints could not be found in the input dataset",
+            ValueError, "The left and right keypoints may not be identical."
         )
 
     # Select the right and left keypoints
