@@ -50,6 +50,12 @@ def compute_head_direction_vector(
         raise log_error(
             ValueError, "The left and right keypoints may not be identical."
         )
+    if len(data.space) != 2:
+        raise log_error(
+            ValueError,
+            "Input data must have 2 (and only 2) spatial dimensions, but "
+            f"currently has {len(data.space)}.",
+        )
 
     # Select the right and left keypoints
     head_left = data.sel(keypoints=left_keypoint, drop=True)

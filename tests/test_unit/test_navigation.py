@@ -36,7 +36,7 @@ def test_compute_head_direction_vector(mock_dataset):
     are computed from a basic mock dataset.
     """
     # Test that validators work
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError):  # Catch incorrect datatype
         np_array = [
             [[[1, 0], [-1, 0], [0, -1]]],
             [[[0, 1], [0, -1], [1, 0]]],
@@ -47,16 +47,37 @@ def test_compute_head_direction_vector(mock_dataset):
             np_array, "left_ear", "right_ear"
         )
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(AttributeError):  # Catch incorrect dimensions
         mock_dataset_keypoint = mock_dataset.sel(keypoints="nose", drop=True)
         navigation.compute_head_direction_vector(
             mock_dataset_keypoint, "left_ear", "right_ear"
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # Catch identical left and right keypoints
         navigation.compute_head_direction_vector(
             mock_dataset, "left_ear", "left_ear"
         )
+
+    with pytest.raises(ValueError):  # Catch incorrect spatial dimensions
+        time = np.array([0])
+        individuals = np.array(["individual_0"])
+        keypoints = np.array(["left", "right"])
+        space = np.array(["x", "y", "z"])
+
+        ds = xr.DataArray(
+            [
+                [[[1, 0, 0], [-1, 0, 0]]],
+            ],
+            dims=["time", "individuals", "keypoints", "space"],
+            coords={
+                "time": time,
+                "individuals": individuals,
+                "keypoints": keypoints,
+                "space": space,
+            },
+        )
+
+        navigation.compute_head_direction_vector(ds, "left", "right")
 
     # Test that output contains correct datatype, dimensions, and values
     head_vector = navigation.compute_head_direction_vector(
