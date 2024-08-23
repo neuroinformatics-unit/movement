@@ -173,6 +173,31 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     return result
 
 
+def compute_speed(data: xr.DataArray) -> xr.DataArray:
+    """Compute instantaneous speed at each time point.
+
+    Speed is a scalar quantity computed as the Euclidean norm (magnitude)
+    of the velocity vector at each time point.
+
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` as dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed speed. Will have
+        the same dimensions as the input data, except for ``space``
+        which will be removed.
+
+    """
+    _validate_type_data_array(data)
+    return compute_norm(compute_velocity(data))
+
+
 def compute_forward_vector(
     data: xr.DataArray,
     left_keypoint: str,
@@ -674,4 +699,109 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
         raise log_error(
             TypeError,
             f"Input data must be an xarray.DataArray, but got {type(data)}.",
+        )
+
+
+def compute_path_length(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+) -> xr.DataArray:
+    """Compute the length of a path travelled between two time points.
+
+    The path length is defined as the sum of the norms (magnitudes) of the
+    displacement vectors between two time points ``start`` and ``stop``,
+    which should be provided in the time units of the data array.
+    If not specified, the minimum and maximum time points in the data array
+    are used as start and stop times, respectively.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` as dimensions.
+    start : float, optional
+        The time point to consider as the start of a path.
+        If None (default), the minimum time point in the data is used.
+    stop : float, optional
+        The time point to consider as the end of a path.
+        If None (default), the maximum time point in the data is used.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length.
+        Will have the same dimensions as the input data, except for ``time``
+        and ``space`` which will be removed.
+
+    """
+    # Validate input data type and dimensions
+    _validate_type_data_array(data)
+    # We choose to validate the time dimension here, despite the fact that
+    # it will be also validated later in the compute_displacement function.
+    # This is because we rely on the time dimension for start and stop values.
+    validate_dims_coords(data, {"time": []})
+    # Now validate the start and stop times
+    _validate_start_stop_times(data, start, stop)
+
+    # Handle the case where the start or stop times are not provided
+    start = data.time.min() if start is None else start
+    stop = data.time.max() if stop is None else stop
+
+    # Compute the sum of the displacement norms in the given time range
+    selected_data = data.sel(time=slice(start, stop))
+    displacement_norm = compute_norm(compute_displacement(selected_data))
+    return displacement_norm.sum(dim="time")
+
+
+def _validate_start_stop_times(
+    data: xr.DataArray,
+    start: int | float | None,
+    stop: int | float | None,
+) -> None:
+    """Validate the start and stop times for path length computation.
+
+    Parameters
+    ----------
+    data: xarray.DataArray
+        The input data array containing position information.
+    start : float or None
+        The start time point for path length computation.
+    stop : float or None
+        The stop time point for path length computation.
+
+    Raises
+    ------
+    TypeError
+        If the start or stop time is not numeric.
+    ValueError
+        If either of the provided times is outside the time range of the data,
+        or if the start time is later than the stop time.
+
+    """
+    provided_time_points = {"start time": start, "stop time": stop}
+    expected_time_range = (data.time.min(), data.time.max())
+
+    for name, value in provided_time_points.items():
+        if value is None:  # Skip if the time point is not provided
+            continue
+        # Check that the provided value is numeric
+        if not isinstance(value, int | float):
+            raise log_error(
+                TypeError,
+                f"Expected a numeric value for {name}, but got {type(value)}.",
+            )
+        # Check that the provided value is within the time range of the data
+        if value < expected_time_range[0] or value > expected_time_range[1]:
+            raise log_error(
+                ValueError,
+                f"The provided {name} {value} is outside the time range "
+                f"of the data array ({expected_time_range}).",
+            )
+
+    # Check that the start time is earlier than the stop time
+    if start is not None and stop is not None and start >= stop:
+        raise log_error(
+            ValueError,
+            "The start time must be earlier than the stop time.",
         )
