@@ -3,6 +3,7 @@
 import xarray as xr
 
 from movement.utils.logging import log_error
+from movement.validators.arrays import validate_dimension_coordinates
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -42,7 +43,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     height per bounding box, between consecutive time points.
 
     """
-    _validate_time_dimension(data)
+    validate_dimension_coordinates(data, {"time": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
     return result
@@ -152,30 +153,8 @@ def _compute_approximate_time_derivative(
         )
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
-
-    _validate_time_dimension(data)
-
+    validate_dimension_coordinates(data, {"time": []})
     result = data
     for _ in range(order):
         result = result.differentiate("time")
     return result
-
-
-def _validate_time_dimension(data: xr.DataArray) -> None:
-    """Validate the input data contains a ``time`` dimension.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-
-    Raises
-    ------
-    ValueError
-        If the input data does not contain a ``time`` dimension.
-
-    """
-    if "time" not in data.dims:
-        raise log_error(
-            ValueError, "Input data must contain 'time' as a dimension."
-        )
