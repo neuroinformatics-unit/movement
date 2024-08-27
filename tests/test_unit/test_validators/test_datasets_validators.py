@@ -261,8 +261,7 @@ def test_bboxes_dataset_validator_with_invalid_shape_array(
             pytest.raises(ValueError),
             "Expected 'individual_names' to have length 2, "
             f"but got {len([1, 2, 3])}.",
-        ),
-        # length doesn't match position_array.shape[1]
+        ),  # length doesn't match position_array.shape[1]
         # from valid_bboxes_arrays_all_zeros fixture
         (
             ["id_1", "id_1"],
@@ -270,8 +269,7 @@ def test_bboxes_dataset_validator_with_invalid_shape_array(
             "individual_names passed to the dataset are not unique. "
             "There are 2 elements in the list, but "
             "only 1 are unique.",
-        ),
-        # some IDs are not unique.
+        ),  # some IDs are not unique.
         # Note: length of individual_names list should match
         # n_individuals in valid_bboxes_arrays_all_zeros fixture
     ],
@@ -306,8 +304,7 @@ def test_bboxes_dataset_validator_individual_names(
             pytest.raises(ValueError),
             f"Expected 'confidence_array' to have shape (10, 2), "
             f"but got {np.ones((10, 3, 2)).shape}.",
-        ),
-        # will not match shape of position_array in
+        ),  # will not match shape of position_array in
         # valid_bboxes_arrays_all_zeros fixture
         (
             [1, 2, 3],
