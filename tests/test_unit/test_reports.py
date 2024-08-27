@@ -15,12 +15,13 @@ from movement.utils.reports import report_nan_values
 @pytest.mark.parametrize(
     "data_selection, list_expected_individuals_indices",
     [
+        # Report for the full position data array
         (lambda ds: ds.position, [0, 1]),
-        # Report for the full dataset
+        # Report for the position of individual 0 only
         (
             lambda ds: ds.position.isel(individuals=0),
             [0],
-        ),  # Report for individual 0 only
+        ),
     ],
 )
 def test_report_nan_values_in_position_selecting_individual(
@@ -69,30 +70,29 @@ def test_report_nan_values_in_position_selecting_individual(
 @pytest.mark.parametrize(
     "data_selection, list_expected_keypoints, list_expected_individuals",
     [
+        # Report nans in position for all keypoints and individuals
         (
             lambda ds: ds.position,
             ["key1", "key2"],
             ["ind1", "ind2"],
         ),
-        # Report nans for all keypoints and individuals
+        # Report nans in position for keypoint "key1", for all individuals
+        # if only one keypoint exists: it is not explicitly reported in output
         (
             lambda ds: ds.position.sel(keypoints="key1"),
             [],
             ["ind1", "ind2"],
         ),
-        # Report nans for keypoint "key1" only, and all individuals
-        # if only one keypoint: not explicitly reported in output
+        # Report nans in position for individual "ind1" and keypoint "key1"
+        # if only one keypoint exists: it is not explicitly reported in output
         (
             lambda ds: ds.position.sel(individuals="ind1", keypoints="key1"),
             [],
             ["ind1"],
         ),
-        # Report nans for individual "ind1" and keypoint "key1" only
-        # if only one keypoint: not explicitly reported in output
     ],
 )
 def test_report_nan_values_in_position_selecting_keypoint(
-    capsys,
     valid_dataset,
     data_selection,
     list_expected_keypoints,
