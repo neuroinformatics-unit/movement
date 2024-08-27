@@ -351,23 +351,45 @@ def test_nan_behavior_forward_vector(
         and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
     )
 
-    def _generate_expected_data_vars(self, pairs, valid_poses_dataset, dim):
-        """Generate expected data variables for pairwise distances."""
+    def expected_pairwise_distances(self, pairs, input_ds, dim):
+        """Return a dictionary containing the expected data variable
+        names mapped to the expected data array for pairwise distances tests.
+        """
+        expected_coord = "keypoints" if dim == "individuals" else "individuals"
+
+        def _expected_dataarray(fill_value):
+            return xr.full_like(
+                xr.DataArray(
+                    coords={
+                        "time": input_ds.time,
+                        expected_coord: getattr(input_ds, expected_coord),
+                    },
+                    dims=["time", expected_coord],
+                ),
+                fill_value=fill_value,
+            )
+
         if pairs is None:
-            return [
-                f"dist_{elem1}_{elem2}"
-                for elem1, elem2 in itertools.combinations(
-                    getattr(valid_poses_dataset, dim).values, 2
-                )
-            ]
+            paired_elements = list(
+                itertools.combinations(getattr(input_ds, dim).values, 2)
+            )
         else:
-            return [
-                f"dist_{elem1}_{elem2}"
+            paired_elements = [
+                (elem1, elem2)
                 for elem1, elem2_list in pairs.items()
                 for elem2 in (
                     [elem2_list] if isinstance(elem2_list, str) else elem2_list
                 )
             ]
+        expected_data = {
+            f"dist_{elem1}_{elem2}": _expected_dataarray(
+                0 if elem1 == elem2 else np.sqrt(2)
+            )
+            for elem1, elem2 in paired_elements
+        }
+        if len(expected_data) == 1:
+            return next(iter(expected_data.values()))
+        return expected_data
 
     @pytest.mark.parametrize(
         "dim, pairs",
@@ -382,34 +404,20 @@ def test_nan_behavior_forward_vector(
             ("keypoints", None),  # all pairs
         ],
     )
-    def test_compute_pairwise_distances(self, valid_poses_dataset, dim, pairs):
-        """Test interkeypoint distances computation."""
-        expected_coord = "keypoints" if dim == "individuals" else "individuals"
-        expected_result = xr.zeros_like(
-            xr.DataArray(
-                coords={
-                    "time": valid_poses_dataset.time,
-                    expected_coord: getattr(
-                        valid_poses_dataset, expected_coord
-                    ),
-                },
-                dims=["time", expected_coord],
-            )
-        )
+    def test_compute_pairwise_distances(
+        self, pairwise_distances_dataset, dim, pairs
+    ):
+        """Test pairwise distances computation."""
+        input_ds = pairwise_distances_dataset(dim)
         result = getattr(kinematics, f"compute_inter{dim[:-1]}_distances")(
-            valid_poses_dataset.position, pairs=pairs
+            input_ds.position, pairs=pairs
+        )
+        expected_result = self.expected_pairwise_distances(
+            pairs, input_ds, dim
         )
         if isinstance(result, dict):
-            expected_data_vars = self._generate_expected_data_vars(
-                pairs, valid_poses_dataset, dim
-            )
-            # Assert expected pairs are present in the result
-            # and the results are zeros
-            for expected in expected_data_vars:
-                xr.testing.assert_equal(
-                    result[expected],
-                    expected_result,
-                )
+            for key in result:
+                xr.testing.assert_equal(result[key], expected_result[key])
         else:  # single DataArray
             xr.testing.assert_equal(
                 result,
