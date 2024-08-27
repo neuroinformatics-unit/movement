@@ -567,10 +567,27 @@ def missing_two_dims_bboxes_dataset(valid_bboxes_dataset):
     return valid_bboxes_dataset.rename({"time": "tame", "space": "spice"})
 
 
+# --------------------------- Kinematics fixtures ---------------------------
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
 def kinematic_property(request):
     """Return a kinematic property."""
     return request.param
+
+
+@pytest.fixture
+def pairwise_distances_dataset(valid_poses_dataset):
+    """Return a dataset in which the positions of either ``ind2`` or ``key2``
+    is offset by 1 unit (for testing pairwise distances computation).
+    """
+
+    def _pairwise_distances_dataset(dim):
+        elem_name = f"{dim[:3]}2"
+        valid_poses_dataset.position.loc[{dim: elem_name}] = (
+            valid_poses_dataset.position.sel({dim: elem_name}) + 1
+        )
+        return valid_poses_dataset
+
+    return _pairwise_distances_dataset
 
 
 # ---------------- VIA tracks CSV file fixtures ----------------------------
