@@ -225,7 +225,7 @@ def valid_bboxes_arrays_all_zeros():
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
 
-# build a valid array for position or shape with all zeros
+    # build a valid array for position or shape with all zeros
     valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
 
     # return as a dict
