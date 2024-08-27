@@ -84,4 +84,3 @@ def test_log_to_attrs(
     assert output_data.attrs["log"][0]["operation"] == "fake_func"
     assert output_data.attrs["log"][0]["arg_1"] == "test1"
     assert output_data.attrs["log"][0]["kwarg"] == "test2"
-    assert output_data.attrs["log"][0]["kwarg"] == "test2"
