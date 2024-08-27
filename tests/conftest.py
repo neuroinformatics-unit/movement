@@ -39,6 +39,7 @@ def setup_logging(tmp_path):
     )
 
 
+# --------- File validator fixtures ---------------------------------
 @pytest.fixture
 def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
@@ -213,6 +214,29 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
+# ------------ Dataset validator fixtures ---------------------------------
+
+
+@pytest.fixture
+def valid_bboxes_arrays_all_zeros():
+    """Return a dictionary of valid zero arrays (in terms of shape) for a
+    ValidBboxesDataset.
+    """
+    # define the shape of the arrays
+    n_frames, n_individuals, n_space = (10, 2, 2)
+
+    # build a valid array for position or shape with all zeros
+    valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
+
+    # return as a dict
+    return {
+        "position": valid_bbox_array_all_zeros,
+        "shape": valid_bbox_array_all_zeros,
+        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
+    }
+
+
+# --------------------- Bboxes dataset fixtures ----------------------------
 @pytest.fixture
 def valid_bboxes_array():
     """Return a dictionary of valid non-zero arrays for a
@@ -315,6 +339,7 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
+# --------------------- Poses dataset fixtures ----------------------------
 @pytest.fixture
 def valid_position_array():
     """Return a function that generates different kinds
@@ -390,6 +415,7 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     return valid_poses_dataset
 
 
+# -------------------- Invalid datasets fixtures ------------------------------
 @pytest.fixture
 def not_a_dataset():
     """Return data that is not a pose tracks dataset."""
@@ -444,7 +470,7 @@ def kinematic_property(request):
     return request.param
 
 
-# VIA tracks CSV fixtures
+# ---------------- VIA tracks CSV file fixtures ----------------------------
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
     """Return the file path for a file with invalid header."""
@@ -703,6 +729,9 @@ class Helpers:
     def count_consecutive_nans(da):
         """Count occurrences of consecutive NaNs in a DataArray."""
         return (da.isnull().astype(int).diff("time") == 1).sum().item()
+
+
+# ----------------- Helper fixture -----------------
 
 
 @pytest.fixture
