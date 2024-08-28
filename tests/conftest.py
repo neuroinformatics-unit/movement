@@ -422,21 +422,19 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
 def valid_poses_array_uniform_linear_motion():
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
-    n_keypoints = 3  # centroid, left and right
+    n_keypoints = 3
     kpt_str2idx = {
         "centroid": 0,
         "left": 1,
         "right": 2,
     }
 
-    # build a valid array for position
-
-    # define centroid trajectory
+    # define centroid trajectory in position array
     # for each individual, the centroid moves along
-    # x=((-1)**(i))*y line from the origin
-    # - if index of individual is even: along x = y line
-    # - if index of individual odd: along x = -y line
-    # moving one unit along each axis in each frame
+    # the x=+/-y line, starting from the origin.
+    # - if the index of the individual is even: along x = y line
+    # - if the index of the individual odd: along x = -y line
+    # They move one unit along x and y axes in each frame
     position = np.empty((n_frames, n_individuals, n_keypoints, n_space))
     for i in range(n_individuals):
         position[:, i, kpt_str2idx["centroid"], 0] = np.arange(n_frames)
@@ -444,13 +442,13 @@ def valid_poses_array_uniform_linear_motion():
             n_frames
         )
 
-    # define left and right keypoints
+    # define trajectory of left and right keypoints
     # for individual 0, at each timepoint:
-    # - left keypoint (index=1) is x_centroid, y_centroid + 1
-    # - right keypoint (index=2) is x_centroid + 1, y_centroid
+    # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
+    # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
     # for individual 1, at each timepoint:
-    # - left keypoint (index=1) is x_centroid +1, y_centroid
-    # - right keypoint (index=2) is x_centroid, y_centroid + 1
+    # - the left keypoint (index=1) is at x_centroid - 1, y_centroid
+    # - the right keypoint (index=2) is at x_centroid, y_centroid + 1
     offset_in_x = {"x_offset": 1, "y_offset": 0}
     offset_in_y = {"x_offset": 0, "y_offset": 1}
 
@@ -460,7 +458,7 @@ def valid_poses_array_uniform_linear_motion():
             "right": offset_in_x,
         },
         1: {
-            "left": {k: -v for k, v in offset_in_x.items()},  # x_offsert = -1
+            "left": {k: -v for k, v in offset_in_x.items()},
             "right": offset_in_y,
         },
     }
@@ -470,7 +468,7 @@ def valid_poses_array_uniform_linear_motion():
         side_kpt_offset = individual_to_side_kpt_offset[i]
         for kpt in kpt_str2idx:
             if kpt != "centroid":
-                # xcoord
+                # x coord
                 position[:, i, kpt_str2idx[kpt], 0] = (
                     position[:, i, 0, 0] + side_kpt_offset[kpt]["x_offset"]
                 )
@@ -483,13 +481,14 @@ def valid_poses_array_uniform_linear_motion():
     confidence = np.full((n_frames, n_individuals, n_keypoints), 0.9)
 
     # set 5 low-confidence values
-    # - set 3 confidence values for individual id_0, centroid to 0.1
-    # - set 2 confidence values for individual id_1, centroid to 0.1
+    # - set 3 confidence values for individual id_0's centroid to 0.1
+    # - set 2 confidence values for individual id_1's centroid to 0.1
     idx_start = 2
     confidence[idx_start : idx_start + 3, 0, 0] = 0.1
     confidence[idx_start : idx_start + 2, 1, 0] = 0.1
 
     # ensure list of kpt names is sorted by index before returning
+    # to match arrays
     kpt_str2idx_sorted = dict(
         sorted(
             kpt_str2idx.items(),
@@ -508,7 +507,7 @@ def valid_poses_array_uniform_linear_motion():
 def valid_poses_dataset_uniform_linear_motion(
     valid_poses_array_uniform_linear_motion,
 ):
-    """Return a valid poses dataset for a uniform circular motion."""
+    """Return a valid poses dataset for a uniform linear motion."""
     dim_names = MovementDataset.dim_names["poses"]
 
     position_array = valid_poses_array_uniform_linear_motion["position"]
