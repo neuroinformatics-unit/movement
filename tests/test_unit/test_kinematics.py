@@ -15,26 +15,26 @@ from movement.analysis import kinematics
     "kinematic_variable, expected_2D_array_per_individual_and_kpt",
     [
         (
-            "displacement",
+            "displacement",  # n_frames, n_space_dims
             {
-                0: np.vstack(  # first individual
+                0: np.vstack(
                     [np.zeros((1, 2)), np.ones((9, 2))]
                 ),  # at t=0 displacement is (0,0)
                 1: np.multiply(
                     np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
                     np.array([1, -1]),
-                ),  # n_frames, n_space_dims
+                ),
             },
         ),
         (
-            "velocity",
+            "velocity",  # n_frames, n_space_dims
             {
                 0: np.ones((10, 2)),
                 1: np.multiply(np.ones((10, 2)), np.array([1, -1])),
             },
         ),
         (
-            "acceleration",
+            "acceleration",  # n_frames, n_space_dims
             {
                 0: np.zeros((10, 2)),
                 1: np.zeros((10, 2)),
