@@ -8,32 +8,41 @@ from movement.utils.logging import log_error
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement between consecutive positions in time.
 
-    At each time point ``t``, the displacement vector is defined as a
-    vector in cartesian ``(x,y)`` coordinates, pointing from the previous
-    ``(t-1)`` to the current ``(t)`` position.
+    The displacement vector is defined as the difference between the current
+    and the previous position vectors.
+
+    It is computed at each time point ``t``, as the vector pointing from the
+    previous ``(t-1)`` to the current ``(t)`` position, in cartesian ``(x,y)``
+    coordinates
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information, with
-        ``time`` as a dimension.
+        The input data containing position information in cartesian ``(x,y)``
+        coordinates, with ``time`` as a dimension.
 
     Notes
     -----
-    For the position array of a poses dataset, the displacement vectors will be
-    computed for every keypoint and every individual. For the position array
-    of a bounding boxes dataset, the displacement vectors will be computed for
-    the centroid of every individual bounding box. If computed for the shape
-    array of a bounding boxes dataset, the displacement vectors will inform of
+    For the ``position`` array of a ``poses`` dataset, the displacement
+    vectors will be computed for every keypoint and every individual.
+
+    For the ``position`` array
+    of a ``bboxes`` dataset, the displacement vectors will be computed for
+    the centroid of every individual bounding box.
+
+    If computed for the ``shape``
+    array of a ``bboxes`` dataset, the displacement vectors will inform of
     the change in width and height per bounding box, between consecutive time
     points.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed displacement.
+        An xarray DataArray containing the computed displacement in cartesian
+        ``(x,y)`` coordinates.
 
     """
+    # TODO: validate that the input data is in cartesian coordinates
     _validate_time_dimension(data)
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
@@ -44,31 +53,30 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute velocity in cartesian ``(x,y)`` coordinates.
 
     The velocity vector is the first derivative of the position
-    vector. It is computed by applying a second order accurate central
-    differences method on the position vector, assuming equidistant spacing
-    along the time dimension.
+    vector.
 
-    For the position array of a poses dataset, the velocity vectors will be
-    computed for every keypoint and every individual. For the position array
-    of a bounding boxes dataset, the displacement vectors will be computed for
-    the centroid of every individual bounding box.
+    It is computed by applying a second order accurate central
+    differences method on the position vector.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information, with
-        ``time`` as a dimension.
+        The input data containing position information in cartesian ``(x,y)``
+        coordinates, with``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed velocity.
+        An xarray DataArray containing the computed velocity in cartesian
+        ``(x,y)`` coordinates.
 
     Notes
     -----
-    For the position array of a poses dataset, the velocity vectors will be
-    computed for every keypoint and every individual. For the position array
-    of a bounding boxes dataset, the displacement vectors will be computed for
+    For the ``position`` array of a ``poses`` dataset, the velocity vectors
+    will be computed for every keypoint and every individual.
+
+    For the ``position`` array
+    of a ``bboxes`` dataset, the displacement vectors will be computed for
     the centroid of every individual bounding box.
 
     See Also
@@ -83,31 +91,30 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """Compute acceleration in cartesian ``(x,y)`` coordinates.
 
     The acceleration vector is the second derivative of the
-    position vector. It is computed applying a second order accurate central
-    differences method on the velocity vector, assuming equidistant spacing
-    along the time dimension.
+    position vector.
 
-    For the position array of a poses dataset, the acceleration vectors will be
-    computed for every keypoint and every individual. For the position array
-    of a bounding boxes dataset, the acceleration vectors will be computed for
-    the centroid of every individual bounding box.
+    It is computed by applying a second order accurate central
+    differences method on the velocity vector.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information, with
-        ``time`` as a dimension.
+        The input data containing position information in cartesian ``(x,y)``
+        coordinates, with``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed acceleration.
+        An xarray DataArray containing the computed acceleration in cartesian
+        ``(x,y)`` coordinates.
 
     Notes
     -----
-    For the position array of a poses dataset, the acceleration vectors will be
-    computed for every keypoint and every individual. For the position array
-    of a bounding boxes dataset, the acceleration vectors will be computed for
+    For the ``position`` array of a ``poses`` dataset, the acceleration
+    vectors will be computed for every keypoint and every individual.
+
+    For the ``position`` array
+    of a ``bboxes`` dataset, the acceleration vectors will be computed for
     the centroid of every individual bounding box.
 
     See Also
@@ -121,11 +128,11 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 def _compute_approximate_time_derivative(
     data: xr.DataArray, order: int
 ) -> xr.DataArray:
-    """Compute the derivative using numerical differentiation.
+    """Compute the time derivative using numerical differentiation.
 
     This function uses :py:meth:`xarray.DataArray.differentiate`,
-    which differentiates the array with the second order
-    accurate central differences.
+    which differentiates the array with a second order
+    accurate central differences method.
 
     Parameters
     ----------
@@ -138,7 +145,8 @@ def _compute_approximate_time_derivative(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the derived variable.
+        An xarray DataArray containing the time-derivative of the
+        input data.
 
     """
     if not isinstance(order, int):
@@ -148,6 +156,7 @@ def _compute_approximate_time_derivative(
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
 
+    # TODO: validate that the input data is in cartesian coordinates
     _validate_time_dimension(data)
 
     result = data
