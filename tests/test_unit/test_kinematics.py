@@ -351,24 +351,74 @@ def test_nan_behavior_forward_vector(
         and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
     )
 
-    def expected_pairwise_distances(self, pairs, input_ds, dim):
-        """Return a dictionary containing the expected data variable
-        names mapped to the expected data array for pairwise distances tests.
-        """
-        expected_coord = "keypoints" if dim == "individuals" else "individuals"
-
-        def _expected_dataarray(fill_value):
-            return xr.full_like(
-                xr.DataArray(
-                    coords={
-                        "time": input_ds.time,
-                        expected_coord: getattr(input_ds, expected_coord),
-                    },
-                    dims=["time", expected_coord],
+    @pytest.mark.parametrize(
+        "dim, pairs, expected_data",
+        [
+            (
+                "individuals",
+                ("ind1", "ind2"),
+                np.array(
+                    [
+                        [
+                            [1.0, 0.0, np.sqrt(2)],
+                            [1.0, np.sqrt(2), 0.0],
+                            [0.0, 1.0, 1.0],
+                        ],
+                        [
+                            [np.sqrt(13), 0.0, np.sqrt(8)],
+                            [1.0, np.sqrt(8), 0.0],
+                            [0.0, np.sqrt(13), 1.0],
+                        ],
+                    ]
                 ),
-                fill_value=fill_value,
-            )
+            ),
+            (
+                "keypoints",
+                ("key1", "key2"),
+                np.array(
+                    [
+                        [
+                            [np.sqrt(2), 0.0, 1.0],
+                            [1.0, 1.0, 0.0],
+                            [0.0, np.sqrt(2), 1.0],
+                        ],
+                        [
+                            [np.sqrt(8), 0.0, np.sqrt(13)],
+                            [1.0, np.sqrt(13), 0.0],
+                            [0.0, np.sqrt(8), 1.0],
+                        ],
+                    ]
+                ),
+            ),
+        ],
+    )
+    def test_cdist(
+        self, dim, pairs, expected_data, pairwise_distances_dataset
+    ):
+        """Test the computation of pairwise distances with known values."""
+        core_dim = "keypoints" if dim == "individuals" else "individuals"
+        input_dataarray = pairwise_distances_dataset.position
+        expected = xr.DataArray(
+            expected_data,
+            coords=[
+                input_dataarray.time.values,
+                getattr(input_dataarray, core_dim).values,
+                getattr(input_dataarray, core_dim).values,
+            ],
+            dims=["time", pairs[0], pairs[1]],
+        )
+        A = input_dataarray.sel({dim: pairs[0]})
+        B = input_dataarray.sel({dim: pairs[1]})
+        result = kinematics.cdist(A, B, dim)
+        xr.testing.assert_equal(
+            result,
+            expected,
+        )
 
+    def expected_pairwise_distances(self, pairs, input_ds, dim):
+        """Return a list of the expected data variable names
+        for pairwise distances tests.
+        """
         if pairs is None:
             paired_elements = list(
                 itertools.combinations(getattr(input_ds, dim).values, 2)
@@ -381,54 +431,46 @@ def test_nan_behavior_forward_vector(
                     [elem2_list] if isinstance(elem2_list, str) else elem2_list
                 )
             ]
-        expected_data = {
-            f"dist_{elem1}_{elem2}": _expected_dataarray(
-                0 if elem1 == elem2 else np.sqrt(2)
-            )
-            for elem1, elem2 in paired_elements
-        }
-        if len(expected_data) == 1:
-            return next(iter(expected_data.values()))
+        expected_data = [
+            f"dist_{elem1}_{elem2}" for elem1, elem2 in paired_elements
+        ]
         return expected_data
 
     @pytest.mark.parametrize(
         "dim, pairs",
         [
-            ("individuals", {"ind1": ["ind2"]}),
-            ("individuals", {"ind1": "ind2"}),
-            ("individuals", {"ind1": ["ind1", "ind2"], "ind2": "ind1"}),
+            ("individuals", {"ind1": ["ind2"]}),  # list input
+            ("individuals", {"ind1": "ind2"}),  # string input
+            ("individuals", {"ind1": ["ind2", "ind3"], "ind2": "ind3"}),
             ("individuals", None),  # all pairs
-            ("keypoints", {"key1": ["key2"]}),
-            ("keypoints", {"key1": "key2"}),
-            ("keypoints", {"key1": ["key1", "key2"], "key2": "key1"}),
+            ("keypoints", {"key1": ["key2"]}),  # list input
+            ("keypoints", {"key1": "key2"}),  # string input
+            ("keypoints", {"key1": ["key2", "key3"], "key2": "key3"}),
             ("keypoints", None),  # all pairs
         ],
     )
-    def test_compute_pairwise_distances(
+    def test_compute_pairwise_distances_with_valid_pairs(
         self, pairwise_distances_dataset, dim, pairs
     ):
-        """Test pairwise distances computation."""
-        input_ds = pairwise_distances_dataset(dim)
+        """Test that the expected pairwise distances are computed
+        for valid ``pairs`` inputs.
+        """
         result = getattr(kinematics, f"compute_inter{dim[:-1]}_distances")(
-            input_ds.position, pairs=pairs
+            pairwise_distances_dataset.position, pairs=pairs
         )
-        expected_result = self.expected_pairwise_distances(
-            pairs, input_ds, dim
+        expected_data_vars = self.expected_pairwise_distances(
+            pairs, pairwise_distances_dataset, dim
         )
         if isinstance(result, dict):
-            for key in result:
-                xr.testing.assert_equal(result[key], expected_result[key])
-        else:  # single DataArray
-            xr.testing.assert_equal(
-                result,
-                expected_result,
-            )
+            assert set(result.keys()) == set(expected_data_vars)
+        else:  # expect single DataArray
+            assert isinstance(result, xr.DataArray)
 
     def test_compute_pairwise_distances_with_invalid_dim(
-        self, valid_poses_dataset
+        self, pairwise_distances_dataset
     ):
         """Test that an error is raised when an invalid dimension is passed."""
         with pytest.raises(ValueError):
             kinematics._compute_pairwise_distances(
-                valid_poses_dataset.position, "invalid_dim"
+                pairwise_distances_dataset.position, "invalid_dim"
             )
