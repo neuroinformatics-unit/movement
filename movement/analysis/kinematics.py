@@ -8,7 +8,7 @@ from movement.utils.logging import log_error
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement between consecutive positions in time.
 
-    The displacement vector is defined as the difference between the current
+    We define the displacement vector as the difference between the current
     and the previous position vectors.
 
     It is computed at each time point ``t``, as the vector pointing from the
@@ -56,7 +56,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     vector.
 
     It is computed by applying a second order accurate central
-    differences method on the position vector.
+    differences method on the position array.
 
     Parameters
     ----------
@@ -94,7 +94,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     position vector.
 
     It is computed by applying a second order accurate central
-    differences method on the velocity vector.
+    differences method on the velocity array.
 
     Parameters
     ----------
