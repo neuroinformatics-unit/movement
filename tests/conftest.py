@@ -575,19 +575,37 @@ def kinematic_property(request):
 
 
 @pytest.fixture
-def pairwise_distances_dataset(valid_poses_dataset):
-    """Return a dataset in which the positions of either ``ind2`` or ``key2``
-    is offset by 1 unit (for testing pairwise distances computation).
+def pairwise_distances_dataset():
+    """Return a minimal poses dataset with 3 individuals
+    and 3 keypoints for pairwise distances computation.
     """
-
-    def _pairwise_distances_dataset(dim):
-        elem_name = f"{dim[:3]}2"
-        valid_poses_dataset.position.loc[{dim: elem_name}] = (
-            valid_poses_dataset.position.sel({dim: elem_name}) + 1
-        )
-        return valid_poses_dataset
-
-    return _pairwise_distances_dataset
+    time = np.arange(2)
+    space = ["x", "y"]
+    individuals = ["ind1", "ind2", "ind3"]
+    keypoints = ["key1", "key2", "key3"]
+    data = np.array(
+        [
+            [
+                [[1, 1], [0, 0], [1, 0]],
+                [[1, 0], [1, 1], [0, 0]],
+                [[0, 0], [1, 0], [1, 1]],
+            ],
+            [
+                [[3, 6], [1, 4], [0, 4]],
+                [[0, 4], [3, 6], [1, 4]],
+                [[1, 4], [0, 4], [3, 6]],
+            ],
+        ]
+    )
+    return xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(
+                data,
+                coords=[time, individuals, keypoints, space],
+                dims=["time", "individuals", "keypoints", "space"],
+            )
+        }
+    )
 
 
 # ---------------- VIA tracks CSV file fixtures ----------------------------
@@ -837,6 +855,7 @@ def track_ids_not_unique_per_frame(
     return file_path
 
 
+# ----------------- Helpers fixture -----------------
 class Helpers:
     """Generic helper methods for ``movement`` test modules."""
 
@@ -849,9 +868,6 @@ class Helpers:
     def count_consecutive_nans(da):
         """Count occurrences of consecutive NaNs in a DataArray."""
         return (da.isnull().astype(int).diff("time") == 1).sum().item()
-
-
-# ----------------- Helper fixture -----------------
 
 
 @pytest.fixture
