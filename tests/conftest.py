@@ -410,6 +410,8 @@ def valid_poses_dataset(valid_position_array, request):
 @pytest.fixture
 def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid pose tracks dataset with NaN values."""
+    # Sets position for all keypoints in individual ind1 to NaN
+    # at timepoints 3, 7, 8
     valid_poses_dataset.position.loc[
         {"individuals": "ind1", "time": [3, 7, 8]}
     ] = np.nan

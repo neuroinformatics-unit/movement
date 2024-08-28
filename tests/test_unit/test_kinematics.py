@@ -86,6 +86,50 @@ def test_kinematics_uniform_linear_motion(
 
 
 @pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    [
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset_with_nan",
+    ],
+)
+@pytest.mark.parametrize(
+    "kinematic_variable, expected_nans_per_individual",
+    [
+        ("displacement", {0: 5, 1: 0}),
+        ("velocity", {0: 6, 1: 0}),
+        ("acceleration", {0: 7, 1: 0}),
+    ],
+)
+def test_kinematics_with_dataset_with_nans(
+    valid_dataset_with_nan,
+    kinematic_variable,
+    expected_nans_per_individual,
+    helpers,
+    request,
+):
+    # compute kinematic array
+    valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    position = valid_dataset.position
+    kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
+        position
+    )
+
+    # compute n nans in kinematic array per individual
+    n_nans_kinematics_per_indiv = {
+        i: helpers.count_nans(kinematic_array.isel(individuals=i))
+        for i in range(valid_dataset.dims["individuals"])
+    }
+
+    # check number of nans per indiv is as expected in kinematic array
+    for i in range(valid_dataset.dims["individuals"]):
+        assert n_nans_kinematics_per_indiv[i] == (
+            expected_nans_per_individual[i]
+            * valid_dataset.dims["space"]
+            * valid_dataset.dims.get("keypoints", 1)
+        )
+
+
+@pytest.mark.parametrize(
     "invalid_dataset, expected_exception",
     [
         ("not_a_dataset", pytest.raises(AttributeError)),
