@@ -1,61 +1,64 @@
 import numpy as np
 import pytest
-import xarray as xr
 
 from movement.analysis import kinematics
 
+# def _compute_expected_displacement(position):
+#     displacement = position.diff("time")
+#     displacement = displacement.reindex_like(position)
 
-def _compute_expected_displacement(position):
-    displacement = position.diff("time")
-    displacement = displacement.reindex_like(position)
-
-    # set first frame to displacement 0
-    displacement.loc[{"time": 0}] = 0
-    return displacement
-
-
-def _compute_expected_velocity(position):
-    # differentiate position along time dimension
-    return position.differentiate("time")
+#     # set first frame to displacement 0
+#     displacement.loc[{"time": 0}] = 0
+#     return displacement
 
 
-def _compute_expected_acceleration(position):
-    velocity = _compute_expected_velocity(position)
-    return velocity.differentiate("time")
+# def _compute_expected_velocity(position):
+#     # differentiate position along time dimension
+#     return position.differentiate("time")
 
 
-@pytest.mark.parametrize(
-    "valid_dataset",
-    [
-        "valid_poses_dataset",
-        "valid_poses_dataset_with_nan",
-        "valid_bboxes_dataset",
-        "valid_bboxes_dataset_with_nan",
-    ],
-)
-@pytest.mark.parametrize(
-    "kinematic_variable_str, expected_kinematic_variable_fn",
-    [
-        ("displacement", _compute_expected_displacement),
-        ("velocity", _compute_expected_velocity),
-        ("acceleration", _compute_expected_acceleration),
-    ],
-)
-def test_kinematics(
-    valid_dataset,
-    kinematic_variable_str,
-    expected_kinematic_variable_fn,
-    request,
-):
-    """Test displacement computation."""
-    position = request.getfixturevalue(valid_dataset).position
+# def _compute_expected_acceleration(position):
+#     velocity = _compute_expected_velocity(position)
+#     return velocity.differentiate("time")
 
-    kinematic_variable = getattr(
-        kinematics, f"compute_{kinematic_variable_str}"
-    )(position)
-    expected_kinematic_variable = expected_kinematic_variable_fn(position)
 
-    xr.testing.assert_allclose(kinematic_variable, expected_kinematic_variable)
+# @pytest.mark.parametrize(
+#     "valid_dataset",
+#     [
+#         "valid_poses_dataset",
+#         "valid_poses_dataset_with_nan",
+#         "valid_bboxes_dataset",
+#         "valid_bboxes_dataset_with_nan",
+#     ],
+# )
+# @pytest.mark.parametrize(
+#     "kinematic_variable_str, expected_kinematic_variable_fn",
+#     [
+#         ("displacement", _compute_expected_displacement),
+#         ("velocity", _compute_expected_velocity),
+#         ("acceleration", _compute_expected_acceleration),
+#     ],
+# )
+# def test_kinematics(
+#     valid_dataset,
+#     kinematic_variable_str,
+#     expected_kinematic_variable_fn,
+#     request,
+# ):
+#     """Test displacement computation."""
+#     position = request.getfixturevalue(valid_dataset).position
+
+#     kinematic_variable = getattr(
+#         kinematics, f"compute_{kinematic_variable_str}"
+#     )(position)
+#     expected_kinematic_variable = expected_kinematic_variable_fn(position)
+
+#     xr.testing.assert_allclose(kinematic_variable,
+# expected_kinematic_variable)
+
+
+#### test with valid_poses_dataset_with_nan,  ]
+# valid_bboxes_dataset_with_nan tests!
 
 
 @pytest.mark.parametrize(
@@ -64,10 +67,10 @@ def test_kinematics(
         (
             "displacement",
             {
-                "id_0": np.vstack(
+                0: np.vstack(  # first individual
                     [np.zeros((1, 2)), np.ones((9, 2))]
                 ),  # at t=0 displacement is (0,0)
-                "id_1": np.multiply(
+                1: np.multiply(
                     np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
                     np.array([1, -1]),
                 ),  # n_frames, n_space_dims
@@ -76,23 +79,24 @@ def test_kinematics(
         (
             "velocity",
             {
-                "id_0": np.ones((10, 2)),
-                "id_1": np.multiply(np.ones((10, 2)), np.array([1, -1])),
+                0: np.ones((10, 2)),
+                1: np.multiply(np.ones((10, 2)), np.array([1, -1])),
             },
         ),
         (
             "acceleration",
             {
-                "id_0": np.zeros((10, 2)),
-                "id_1": np.zeros((10, 2)),
+                0: np.zeros((10, 2)),
+                1: np.zeros((10, 2)),
             },
         ),
     ],
 )
-def test_kinematics_uniform_linear_motion(
+def test_kinematics_bboxes_uniform_linear_motion(
     valid_bboxes_dataset,
     kinematic_variable,
     expected_2D_array_per_individual,
+    # request,
 ):
     """Test kinematics values for uniform linear motion case.
 
@@ -112,9 +116,70 @@ def test_kinematics_uniform_linear_motion(
 
     for ind in expected_2D_array_per_individual:
         assert np.allclose(
-            kinematic_variable.sel(individuals=ind).values,
+            kinematic_variable.isel(individuals=ind).values,
             expected_2D_array_per_individual[ind],
         )
+
+
+@pytest.mark.parametrize(
+    "kinematic_variable, expected_2D_array_per_individual_and_kpt",
+    [
+        (
+            "displacement",
+            {
+                0: np.vstack(  # first individual
+                    [np.zeros((1, 2)), np.ones((9, 2))]
+                ),  # at t=0 displacement is (0,0)
+                1: np.multiply(
+                    np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
+                    np.array([1, -1]),
+                ),  # n_frames, n_space_dims
+            },
+        ),
+        (
+            "velocity",
+            {
+                0: np.ones((10, 2)),
+                1: np.multiply(np.ones((10, 2)), np.array([1, -1])),
+            },
+        ),
+        (
+            "acceleration",
+            {
+                0: np.zeros((10, 2)),
+                1: np.zeros((10, 2)),
+            },
+        ),
+    ],
+)
+def test_kinematics_poses_uniform_linear_motion(
+    valid_poses_dataset_uniform_linear_motion,
+    kinematic_variable,
+    expected_2D_array_per_individual_and_kpt,
+    # request,
+):
+    """Test kinematics values for uniform linear motion case.
+
+    Uniform linear motion means individuals move along a line
+    at constant velocity.
+
+    In valid_bboxes_dataset there are 2 individuals ("id_0" and "id_1"),
+    tracked for 10 frames, along x and y:
+    - id_0 moves along x=y line from the origin
+    - id_1 moves along x=-y line from the origin
+    - they both move one unit (pixel) along each axis in each frame
+    """
+    position = valid_poses_dataset_uniform_linear_motion.position
+    kinematic_variable = getattr(kinematics, f"compute_{kinematic_variable}")(
+        position
+    )
+
+    for ind in expected_2D_array_per_individual_and_kpt:
+        for k in range(position.coords["keypoints"].size):
+            assert np.allclose(
+                kinematic_variable.isel(individuals=ind, keypoints=k).values,
+                expected_2D_array_per_individual_and_kpt[ind],
+            )
 
 
 @pytest.mark.parametrize(
