@@ -42,7 +42,6 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     height per bounding box, between consecutive time points.
 
     """
-    # TODO: validate that the input data is in cartesian coordinates
     _validate_time_dimension(data)
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
@@ -158,7 +157,6 @@ def _compute_approximate_time_derivative(
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
 
-    # TODO: validate that the input data is in cartesian coordinates
     _validate_time_dimension(data)
 
     result = data
