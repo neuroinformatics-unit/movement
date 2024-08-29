@@ -19,8 +19,8 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with ``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -43,7 +43,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     height per bounding box, between consecutive time points.
 
     """
-    validate_dimension_coordinates(data, {"time": []})
+    validate_dimension_coordinates(data, {"time": [], "space": ["x", "y"]})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
     return result
@@ -59,8 +59,8 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with ``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -95,8 +95,8 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -134,7 +134,8 @@ def _compute_approximate_time_derivative(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing ``time`` as a dimension.
+        The input data containing ``time`` and ``space`` (in Cartesian
+        coordinates) as required dimensions.
     order : int
         The order of the time-derivative. For an input containing position
         data, use 1 to compute velocity, and 2 to compute acceleration. Value
@@ -153,7 +154,7 @@ def _compute_approximate_time_derivative(
         )
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
-    validate_dimension_coordinates(data, {"time": []})
+    validate_dimension_coordinates(data, {"time": [], "space": ["x", "y"]})
     result = data
     for _ in range(order):
         result = result.differentiate("time")
