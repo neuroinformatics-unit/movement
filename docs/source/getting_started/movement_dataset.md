@@ -22,7 +22,7 @@ To learn more about `xarray` data structures in general, see the relevant
 ```{figure} ../_static/dataset_structure.png
 :alt: movement dataset structure
 
-A schematic showing the structure of `poses` and `bboxes` datasets in `movement`.
+An {class}`xarray.Dataset` is a collection of several data arrays that share some dimensions. The schematic shows the data arrays that make up the `poses` and `bboxes` datasets in `movement`.
 ```
 
 The structure of a `movement` dataset `ds` can be easily inspected by simply
