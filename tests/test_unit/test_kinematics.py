@@ -15,7 +15,7 @@ from movement.analysis import kinematics
     "kinematic_variable, expected_2D_array_per_individual_and_kpt",
     [
         (
-            "displacement",  # n_frames, n_space_dims
+            "displacement",
             {
                 0: np.vstack(
                     [np.zeros((1, 2)), np.ones((9, 2))]
@@ -27,14 +27,14 @@ from movement.analysis import kinematics
             },
         ),
         (
-            "velocity",  # n_frames, n_space_dims
+            "velocity",
             {
                 0: np.ones((10, 2)),
                 1: np.multiply(np.ones((10, 2)), np.array([1, -1])),
             },
         ),
         (
-            "acceleration",  # n_frames, n_space_dims
+            "acceleration",
             {
                 0: np.zeros((10, 2)),
                 1: np.zeros((10, 2)),
@@ -45,12 +45,12 @@ from movement.analysis import kinematics
 def test_kinematics_uniform_linear_motion(
     valid_dataset_uniform_linear_motion,
     kinematic_variable,
-    expected_2D_array_per_individual_and_kpt,
+    expected_2D_array_per_individual_and_kpt,  # 2D: n_frames, n_space_dims
     request,
 ):
-    """Test kinematics values for uniform linear motion case.
+    """Test computed kinematics for a uniform linear motion case.
 
-    Uniform linear motion means individuals move along a line
+    Uniform linear motion means the individuals move along a line
     at constant velocity.
 
     We consider 2 individuals ("id_0" and "id_1"),
@@ -60,7 +60,8 @@ def test_kinematics_uniform_linear_motion(
     - they both move one unit (pixel) along each axis in each frame
 
     If the dataset is a poses dataset, we consider 3 keypoints per individual
-    (centroid, left, right), that are always in front of the centroid at 45deg.
+    (centroid, left, right), that are always in front of the centroid keypoint
+    at 45deg from the trajectory.
     """
     position = request.getfixturevalue(
         valid_dataset_uniform_linear_motion
@@ -107,6 +108,12 @@ def test_kinematics_with_dataset_with_nans(
     helpers,
     request,
 ):
+    """Test kinematics computation for a dataset with nans.
+
+    We test that the kinematics can be computed and that the number
+    of nan values in the kinematic array is as expected.
+
+    """
     # compute kinematic array
     valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
     position = valid_dataset.position
@@ -154,7 +161,7 @@ def test_kinematics_with_invalid_dataset(
     kinematic_variable,
     request,
 ):
-    """Test displacement computation with an invalid dataset."""
+    """Test kinematics computation with an invalid dataset."""
     with expected_exception:
         position = request.getfixturevalue(invalid_dataset).position
         getattr(kinematics, f"compute_{kinematic_variable}")(position)
