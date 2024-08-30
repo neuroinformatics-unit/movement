@@ -447,19 +447,19 @@ def valid_poses_array_uniform_linear_motion():
     # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
     # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
     # for individual 1, at each timepoint:
-    # - the left keypoint (index=1) is at x_centroid - 1, y_centroid
-    # - the right keypoint (index=2) is at x_centroid, y_centroid + 1
-    offset_in_x = {"x_offset": 1, "y_offset": 0}
-    offset_in_y = {"x_offset": 0, "y_offset": 1}
+    # - the left keypoint (index=1) is at x_centroid + 1, y_centroid
+    # - the right keypoint (index=2) is at x_centroid, y_centroid - 1
+    offset_in_xpos = {"x_offset": 1, "y_offset": 0}
+    offset_in_ypos = {"x_offset": 0, "y_offset": 1}
 
     individual_to_side_kpt_offset = {
         0: {
-            "left": offset_in_y,
-            "right": offset_in_x,
+            "left": offset_in_ypos,
+            "right": offset_in_xpos,
         },
         1: {
-            "left": {k: -v for k, v in offset_in_x.items()},
-            "right": offset_in_y,
+            "left": offset_in_xpos,
+            "right": {k: -v for k, v in offset_in_ypos.items()},
         },
     }
 
