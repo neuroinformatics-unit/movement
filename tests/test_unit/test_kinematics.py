@@ -241,9 +241,9 @@ def test_approximate_derivative_with_invalid_order(order):
             ],
             dims=["time", pairs[0], pairs[1]],
         )
-        A = input_dataarray.sel({dim: pairs[0]})
-        B = input_dataarray.sel({dim: pairs[1]})
-        result = kinematics.cdist(A, B, dim)
+        a = input_dataarray.sel({dim: pairs[0]})
+        b = input_dataarray.sel({dim: pairs[1]})
+        result = kinematics.cdist(a, b, dim)
         xr.testing.assert_equal(
             result,
             expected,
