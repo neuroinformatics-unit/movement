@@ -9,9 +9,7 @@ from movement.sample_data import fetch_dataset_paths
 
 @pytest.fixture
 def sample_dataset():
-    """Return a single-animal sample dataset, with time unit in frames.
-    This allows us to better control the expected number of NaNs in the tests.
-    """
+    """Return a single-animal sample dataset, with time unit in frames."""
     ds_path = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")[
         "poses"
     ]
@@ -28,17 +26,18 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     at most by the filter's window length minus one (``window - 1``)
     multiplied by the number of consecutive NaNs in the input data.
     """
-    # Check filter position by confidence behaves as expected
-    # default threshold is 0.6 for confidence
-    expected_n_nans = (sample_dataset.confidence.data < 0.6).sum()  # 13136
+    # Compute number of low confidence keypoints
+    n_low_confidence_kpts = (sample_dataset.confidence.data < 0.6).sum()
+
+    # Check filter position by confidence creates correct number of NaNs
     sample_dataset.update(
         {"position": sample_dataset.move.filter_by_confidence()}
     )
     n_total_nans_input = helpers.count_nans(sample_dataset.position)
 
-    assert n_total_nans_input == expected_n_nans, (
-        f"Expected {expected_n_nans} NaNs in input data, "
-        f"got: {n_total_nans_input}"
+    assert (
+        n_total_nans_input
+        == n_low_confidence_kpts * sample_dataset.dims["space"]
     )
 
     # Compute maximum expected increase in NaNs due to filtering
@@ -92,6 +91,9 @@ def test_accessor_filter_method(
     applied, if valid data variables are passed, otherwise
     raise an exception.
     """
+    # Compute velocity
+    sample_dataset["velocity"] = sample_dataset.move.compute_velocity()
+
     with expected_exception as expected_type:
         if method in ["median_filter", "savgol_filter"]:
             # supply required "window" argument
