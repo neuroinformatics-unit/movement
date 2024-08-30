@@ -1,5 +1,6 @@
 """Compute kinematic variables like velocity and acceleration."""
 
+import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
@@ -165,3 +166,124 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     for _ in range(order):
         result = result.differentiate("time")
     return result
+
+
+def compute_head_direction_vector(
+    data: xr.DataArray, left_keypoint: str, right_keypoint: str
+):
+    """Compute the 2D head direction vector given two keypoints on the head.
+
+    The head direction vector is computed as a vector perpendicular to the
+    line connecting two keypoints on either side of the head, pointing
+    forwards (in the rostral direction).
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data representing position. This must contain
+        the two chosen keypoints corresponding to the left and
+        right of the head.
+    left_keypoint : str
+        Name of the left keypoint, e.g., "left_ear"
+    right_keypoint : str
+        Name of the right keypoint, e.g., "right_ear"
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray representing the head direction vector,
+        with dimensions matching the input data array, but without the
+        ``keypoints`` dimension.
+
+    """
+    # Validate input dataset
+    if left_keypoint == right_keypoint:
+        raise log_error(
+            ValueError, "The left and right keypoints may not be identical."
+        )
+    if len(data.space) != 2:
+        raise log_error(
+            ValueError,
+            "Input data must have 2 (and only 2) spatial dimensions, but "
+            f"currently has {len(data.space)}.",
+        )
+
+    # Select the right and left keypoints
+    head_left = data.sel(keypoints=left_keypoint, drop=True)
+    head_right = data.sel(keypoints=right_keypoint, drop=True)
+
+    # Initialize a vector from right to left ear, and another vector
+    # perpendicular to the X-Y plane
+    right_to_left_vector = head_left - head_right
+    perpendicular_vector = np.array([0, 0, -1])
+
+    # Compute cross product
+    head_vector = head_right.copy()
+    head_vector.values = np.cross(right_to_left_vector, perpendicular_vector)[
+        :, :, :-1
+    ]
+
+    return head_vector
+
+
+def _validate_time_dimension(data: xr.DataArray) -> None:
+    """Validate the input data contains a ``time`` dimension.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input data does not contain a ``time`` dimension.
+
+    """
+    if "time" not in data.dims:
+        raise log_error(
+            ValueError, "Input data must contain 'time' as a dimension."
+        )
+
+
+def _validate_type_data_array(data: xr.DataArray) -> None:
+    """Validate the input data is an xarray DataArray.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input data is not an xarray DataArray.
+
+    """
+    if not isinstance(data, xr.DataArray):
+        raise log_error(
+            TypeError,
+            f"Input data must be an xarray.DataArray, but got {type(data)}.",
+        )
+
+
+def _validate_time_keypoints_space_dimensions(data: xr.DataArray) -> None:
+    """Validate if input data contains ``time``, ``keypoints`` and ``space``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input data is not an xarray DataArray.
+
+    """
+    if not all(coord in data.dims for coord in ["time", "keypoints", "space"]):
+        raise log_error(
+            AttributeError,
+            "Input data must contain 'time', 'space', and 'keypoints' as "
+            "dimensions.",
+        )
