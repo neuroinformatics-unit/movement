@@ -142,17 +142,17 @@ def cdist(
     """Compute distance between each pair of the two collections of inputs.
 
     This function is a wrapper around :func:`scipy.spatial.distance.cdist`
-    and computes the pairwise distances between each pair of inputs, where
-    the inputs are either ``individuals`` or ``keypoints``. The distances
-    are computed using the specified metric.
+    and computes the pairwise distances between either a pair of
+    ``individuals`` or ``keypoints`` as specified by ``dim``.
+    The distances are computed using the specified ``metric``.
 
     Parameters
     ----------
     a : xarray.DataArray
-        The first input data containing position information of a
+        The first input data containing position vectors of a
         single individual or keypoint, with ``space`` as a dimension.
     b : xarray.DataArray
-        The second input data containing position information of a
+        The second input data containing position vectors of a
         single individual or keypoint, with ``space`` as a dimension.
     dim : str
         The dimension to compute the distances for. Must be either
@@ -193,7 +193,7 @@ def cdist(
 
     >>> pos1 = ds.position.sel(keypoints="key1")
     >>> pos2 = ds.position.sel(keypoints="key2")
-    >>> kp_dists = cdist(pos1, pos2, dim="keypoints")
+    >>> key_dists = cdist(pos1, pos2, dim="keypoints")
 
     Obtain the distance between ``key1`` of ``ind1`` and
     ``key2`` of ``ind2`` from ``ind_dists``
@@ -201,28 +201,29 @@ def cdist(
 
     >>> dist_ind1key1_ind2key2 = ind_dists.sel(ind1="key1", ind2="key2")
 
-    Equivalently, the same distance can be obtained from ``kp_dists``:
+    Equivalently, the same distance can be obtained from ``key_dists``:
 
     >>> dist_ind1key1_ind2key2 = key_dists.sel(key1="ind1", key2="ind2")
 
     Obtain the distance between ``key1`` and ``key2`` of ``ind1``
     (i.e. interkeypoint distance within the same individual):
 
-    >>> dist_ind1key1_ind1key2 = kp_dists.sel(key1="ind1", key2="ind1")
+    >>> dist_ind1key1_ind1key2 = key_dists.sel(key1="ind1", key2="ind1")
 
     Obtain the distance between ``key1`` of ``ind1`` and ``ind2``
-    (i.e. interindividual distance, same keypoint)
+    (i.e. interindividual distance, same keypoint):
 
     >>> dist_ind1key1_ind2key1 = ind_dists.sel(ind1="key1", ind2="key1")
 
     See Also
     --------
     scipy.spatial.distance.cdist : The underlying function used.
-
+    compute_interindividual_distances : Compute distances between one or
+        more pairs of individuals within and across all keypoints.
+    compute_interkeypoint_distances : Compute distances between one or
+        more pairs of keypoints within and across all individuals.
 
     """
-    # What happens if the input data has more dims than expected?
-    # What happens if the input data and dim are conflicting?
     core_dim = "individuals" if dim == "keypoints" else "keypoints"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
@@ -245,25 +246,37 @@ def cdist(
 
 
 def compute_interindividual_distances(
-    data: xr.DataArray, pairs: dict[str, str | list[str]] | None = None
+    data: xr.DataArray,
+    pairs: dict[str, str | list[str]] | None = None,
+    metric: str | None = "euclidean",
 ) -> xr.DataArray | dict[str, xr.DataArray]:
     """Compute interindividual distances for all pairs of keypoints.
 
-    Interindividual distances are computed as the norm of the
-    difference in position (for each pair of the same keypoints)
-    between pairs of individuals at each time point.
+    Distances are computed between pairs of individuals for all possible
+    combinations of keypoint pairs at each time point.
+    The distances are computed using the specified ``metric``.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data containing
-        ``('time', 'individuals', 'keypoints', 'space'`` as dimensions.
+        ``('time', 'individuals', 'keypoints', 'space')`` as dimensions.
     pairs : dict[str, str | list[str]], optional
         A dictionary containing the mapping between pairs of individuals.
         The key is the individual and the value is a list of individuals
         or a string representing an individual to compute the distance with.
         If not provided, defaults to ``None`` and all possible combinations
         of pairs are computed.
+    metric : str, optional
+        The distance metric to use. Must be one of the options supported
+        by :func:`scipy.spatial.distance.cdist`, i.e.
+        ``'braycurtis'``, ``'canberra'``, ``'chebyshev'``, ``'cityblock'``,
+        ``'correlation'``, ``'cosine'``, ``'dice'``, ``'euclidean'``,
+        ``'hamming'``, ``'jaccard'``, ``'jensenshannon'``, ``'kulczynski1'``,
+        ``'mahalanobis'``, ``'matching'``, ``'minkowski'``,
+        ``'rogerstanimoto'``, ``'russellrao'``, ``'seuclidean'``,
+        ``'sokalmichener'``, ``'sokalsneath'``, ``'sqeuclidean'``, ``'yule'``.
+        Defaults to ``'euclidean'``.
 
     Returns
     -------
@@ -275,24 +288,87 @@ def compute_interindividual_distances(
         of individuals and the value being the :class:`xarray.DataArray`
         containing the computed distances.
 
+    Examples
+    --------
+    Compute the Euclidean distance (default) for all keypoints
+    between ``ind1`` and ``ind2`` (i.e. interindividual distance):
+
+    >>> position = xr.DataArray(
+    ...     np.arange(24).reshape(2, 3, 2, 2),
+    ...     coords={
+    ...         "time": np.arange(2),
+    ...         "individuals": ["ind1", "ind2", "ind3"],
+    ...         "keypoints": ["key1", "key2"],
+    ...         "space": ["x", "y"],
+    ...     },
+    ...     dims=["time", "individuals", "keypoints", "space"],
+    ... )
+    >>> dist_ind1_ind2 = compute_interindividual_distances(
+    ...     position, pairs={"ind1": "ind2"}
+    ... )
+    >>> dist_ind1_ind2
+    <xarray.DataArray (time: 2, ind1: 2, ind2: 2)> Size: 64B
+    5.657 8.485 2.828 5.657 5.657 8.485 2.828 5.657
+    Coordinates:
+      * time     (time) int32 8B 0 1
+      * ind1     (ind1) <U4 32B 'key1' 'key2'
+      * ind2     (ind2) <U4 32B 'key1' 'key2'
+
+    The resulting ``dist_ind1_ind2`` is a DataArray containing the computed
+    distances between ``ind1`` and ``ind2`` for all keypoints
+    at each time point.
+
+    To obtain the distances between ``key1`` of ``ind1`` and
+    ``key2`` of ``ind2``:
+
+    >>> dist_ind1_ind2.sel(ind1="key1", ind2="key2")
+
+    Compute the city block or Manhattan distance for multiple pairs of
+    individuals using ``position``:
+
+    >>> ind_dists = compute_interindividual_distances(
+    ...     position,
+    ...     pairs={"ind1": "ind2", "ind3": ["ind1", "ind2"]},
+    ...     metric="cityblock",
+    ... )
+    >>> ind_dists.keys()
+    dict_keys(['dist_ind1_ind2', 'dist_ind3_ind1', 'dist_ind3_ind2'])
+
+    As multiple pairs of individuals are specified,
+    the resulting ``ind_dists`` is a dictionary containing the DataArrays
+    of computed distances for each pair of individuals.
+
+    Compute the city block or Manhattan distance for all possible pairs of
+    individuals using ``position``:
+
+    >>> ind_dists = compute_interindividual_distances(
+    ...     position,
+    ...     metric="cityblock",
+    ... )
+    >>> ind_dists.keys()
+    dict_keys(['dist_ind1_ind2', 'dist_ind1_ind3', 'dist_ind2_ind3'])
+
     See Also
     --------
-    compute_interkeypoint_distances : Compute distances between pairs of
-        keypoints within each individual.
-    movement.utils.vector.compute_norm : Compute the norm of a vector.
+    compute_interkeypoint_distances : Compute distances between one or
+        more pairs of keypoints within and across all individuals.
 
     """
-    return _compute_pairwise_distances(data, "individuals", pairs=pairs)
+    return _compute_pairwise_distances(
+        data, "individuals", pairs=pairs, metric=metric
+    )
 
 
 def compute_interkeypoint_distances(
-    data: xr.DataArray, pairs: dict[str, str | list[str]] | None = None
+    data: xr.DataArray,
+    pairs: dict[str, str | list[str]] | None = None,
+    metric: str | None = "euclidean",
 ) -> xr.DataArray | dict[str, xr.DataArray]:
-    """Compute interkeypoint distances for all pairs of individuals.
+    """Compute interkeypoint distances within and across all individuals.
 
-    Interkeypoint distances are computed as the norm of the
-    difference in position (for all individuals) between pairs of
-    keypoints at each time point.
+    Distances are computed between pairs of keypoints at each time point.
+    as the norm of the
+    difference in position (for all individuals)
 
     Parameters
     ----------
@@ -305,6 +381,16 @@ def compute_interkeypoint_distances(
         or a string representing a keypoint to compute the distance with.
         If not provided, defaults to ``None`` and all possible combinations
         of pairs are computed.
+    metric : str, optional
+        The distance metric to use. Must be one of the options supported
+        by :func:`scipy.spatial.distance.cdist`, i.e.
+        ``'braycurtis'``, ``'canberra'``, ``'chebyshev'``, ``'cityblock'``,
+        ``'correlation'``, ``'cosine'``, ``'dice'``, ``'euclidean'``,
+        ``'hamming'``, ``'jaccard'``, ``'jensenshannon'``, ``'kulczynski1'``,
+        ``'mahalanobis'``, ``'matching'``, ``'minkowski'``,
+        ``'rogerstanimoto'``, ``'russellrao'``, ``'seuclidean'``,
+        ``'sokalmichener'``, ``'sokalsneath'``, ``'sqeuclidean'``, ``'yule'``.
+        Defaults to ``'euclidean'``.
 
     Returns
     -------
@@ -316,13 +402,78 @@ def compute_interkeypoint_distances(
         of keypoints and the value being the :class:`xarray.DataArray`
         containing the computed distances.
 
+    Examples
+    --------
+    Compute the Euclidean distance (default) for all keypoints
+    between ``ind1`` and ``ind2`` (i.e. interindividual distance):
+
+    >>> position = xr.DataArray(
+    ...     np.arange(24).reshape(2, 2, 3, 2),
+    ...     coords={
+    ...         "time": np.arange(2),
+    ...         "individuals": ["ind1", "ind2"],
+    ...         "keypoints": ["key1", "key2", "key3"],
+    ...         "space": ["x", "y"],
+    ...     },
+    ...     dims=["time", "individuals", "keypoints", "space"],
+    ... )
+    >>> dist_key1_key2 = compute_interkeypoint_distances(
+    ...     position, pairs={"key1": "key2"}
+    ... )
+    >>> dist_key1_key2
+    <xarray.DataArray (time: 2, key1: 2, key2: 2)> Size: 64B
+    2.828 11.31 5.657 2.828 2.828 11.31 5.657 2.828
+    Coordinates:
+      * time     (time) int32 8B 0 1
+      * key1     (key1) <U4 32B 'ind1' 'ind2'
+      * key2     (key2) <U4 32B 'ind1' 'ind2'
+
+
+    The resulting ``dist_key1_key2`` is a DataArray containing the computed
+    distances between ``key1`` and ``key2`` for all individuals
+    at each time point.
+
+    To obtain the distances between ``key1`` and ``key2`` within ``ind1``:
+    >>> dist_key1_key2.sel(key1="ind1", key2="ind1")
+
+    To obtain the distances between ``key1`` of ``ind1`` and
+    ``key2`` of ``ind2``:
+    >>> dist_key1_key2.sel(key1="ind1", key2="ind2")
+
+    Compute the city block or Manhattan distance for multiple pairs of
+    keypoints using ``position``:
+
+    >>> key_dists = compute_interkeypoint_distances(
+    ...     position,
+    ...     pairs={"key1": "key2", "key3": ["key1", "key2"]},
+    ...     metric="cityblock",
+    ... )
+    >>> key_dists.keys()
+    dict_keys(['dist_key1_key2', 'dist_key3_key1', 'dist_key3_key2'])
+
+    As multiple pairs of keypoints are specified,
+    the resulting ``key_dists`` is a dictionary containing the DataArrays
+    of computed distances for each pair of keypoints.
+
+    Compute the city block or Manhattan distance for all possible pairs of
+    keypoints using ``position``:
+
+    >>> key_dists = compute_interkeypoint_distances(
+    ...     position,
+    ...     metric="cityblock",
+    ... )
+    >>> key_dists.keys()
+    dict_keys(['dist_key1_key2', 'dist_key1_key3', 'dist_key2_key3'])
+
     See Also
     --------
-    compute_interindividual_distances: Compute distances for each keypoint,
-        between pairs of individuals.
+    compute_interindividual_distances : Compute distances between one or
+        more pairs of individuals within and across all keypoints.
 
     """
-    return _compute_pairwise_distances(data, "keypoints", pairs=pairs)
+    return _compute_pairwise_distances(
+        data, "keypoints", pairs=pairs, metric=metric
+    )
 
 
 def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
@@ -376,7 +527,7 @@ def _compute_pairwise_distances(
     This function computes the distances between pairs of ``keypoints``
     (i.e. interkeypoint distances) or pairs of ``individuals`` (i.e.
     interindividual distances). The distances are computed using the
-    specified metric.
+    specified ``metric``.
 
     Parameters
     ----------
@@ -419,13 +570,14 @@ def _compute_pairwise_distances(
 
     See Also
     --------
+    cdist : ``movement``'s wrapper around :func:`scipy.spatial.distance.cdist`.
     :func:`scipy.spatial.distance.cdist` : The underlying function used.
 
     """
     if dim not in ["individuals", "keypoints"]:
         raise log_error(
             ValueError,
-            "Dimension must be either 'individuals' or 'keypoints', "
+            "'dim' must be either 'individuals' or 'keypoints', "
             f"but got {dim}.",
         )
     pairwise_distances = {}
