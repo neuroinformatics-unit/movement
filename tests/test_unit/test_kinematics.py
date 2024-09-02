@@ -100,9 +100,9 @@ def test_kinematics_uniform_linear_motion(
 @pytest.mark.parametrize(
     "kinematic_variable, expected_nans_per_individual",
     [
-        ("displacement", {0: 5, 1: 0}),
-        ("velocity", {0: 6, 1: 0}),
-        ("acceleration", {0: 7, 1: 0}),
+        ("displacement", [5, 0]),
+        ("velocity", [6, 0]),
+        ("acceleration", [7, 0]),
     ],
 )
 def test_kinematics_with_dataset_with_nans(
