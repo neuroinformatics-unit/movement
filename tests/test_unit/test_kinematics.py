@@ -66,7 +66,7 @@ def test_kinematics_uniform_linear_motion(
     position = request.getfixturevalue(
         valid_dataset_uniform_linear_motion
     ).position
-    kinematic_variable = getattr(kinematics, f"compute_{kinematic_variable}")(
+    kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
 
@@ -74,14 +74,12 @@ def test_kinematics_uniform_linear_motion(
         if "keypoints" in position.coords:
             for k in range(position.coords["keypoints"].size):
                 assert np.allclose(
-                    kinematic_variable.isel(
-                        individuals=ind, keypoints=k
-                    ).values,
+                    kinematic_array.isel(individuals=ind, keypoints=k).values,
                     expected_2D_array_per_individual_and_kpt[ind],
                 )
         else:
             assert np.allclose(
-                kinematic_variable.isel(individuals=ind).values,
+                kinematic_array.isel(individuals=ind).values,
                 expected_2D_array_per_individual_and_kpt[ind],
             )
 
