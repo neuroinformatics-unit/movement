@@ -80,7 +80,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :py:meth:`xarray.DataArray.differentiate` : The underlying method used.
+    :meth:`xarray.DataArray.differentiate` : The underlying method used.
 
     """
     return _compute_approximate_time_derivative(data, order=1)
@@ -119,7 +119,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :py:meth:`xarray.DataArray.differentiate` : The underlying method used.
+    :meth:`xarray.DataArray.differentiate` : The underlying method used.
 
     """
     return _compute_approximate_time_derivative(data, order=2)
@@ -130,7 +130,7 @@ def _compute_approximate_time_derivative(
 ) -> xr.DataArray:
     """Compute the time derivative of an array using numerical differentiation.
 
-    This function uses :py:meth:`xarray.DataArray.differentiate`,
+    This function uses :meth:`xarray.DataArray.differentiate`,
     which differentiates the array with the second-order
     accurate central differences method.
 
