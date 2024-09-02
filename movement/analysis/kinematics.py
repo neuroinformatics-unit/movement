@@ -54,7 +54,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     The velocity array is the first time derivative of the position
     array.
 
-    It is computed by applying a second order accurate central
+    It is computed by applying the second order accurate central
     differences method on the position array.
 
     Parameters
@@ -92,7 +92,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     The acceleration array is the second time derivative of the
     position array.
 
-    It is computed by applying a second order accurate central
+    It is computed by applying the second order accurate central
     differences method on the velocity array.
 
     Parameters
@@ -131,7 +131,7 @@ def _compute_approximate_time_derivative(
     """Compute the time derivative of an array using numerical differentiation.
 
     This function uses :py:meth:`xarray.DataArray.differentiate`,
-    which differentiates the array with a second order
+    which differentiates the array with the second order
     accurate central differences method.
 
     Parameters
