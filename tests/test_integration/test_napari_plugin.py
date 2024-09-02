@@ -1,7 +1,7 @@
 import pytest
 from qtpy.QtWidgets import QPushButton, QWidget
 
-from movement.napari._loader_widget import Loader
+from movement.napari._loader_widget import PosesLoader
 from movement.napari._meta_widget import MovementMetaWidget
 
 
@@ -28,7 +28,7 @@ def test_meta_widget(meta_widget):
     assert len(meta_widget.collapsible_widgets) == 1
 
     first_widget = meta_widget.collapsible_widgets[0]
-    assert first_widget._text == "Load data"
+    assert first_widget._text == "Load poses"
     assert first_widget.isExpanded()
 
 
@@ -46,9 +46,9 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
     late to mock (the widget has already "decided" which method to call).
     """
     mock_method = mocker.patch(
-        "movement.napari._loader_widget.Loader._on_load_clicked"
+        "movement.napari._loader_widget.PosesLoader._on_load_clicked"
     )
-    loader = Loader(make_napari_viewer_proxy)
+    loader = PosesLoader(make_napari_viewer_proxy)
     load_button = loader.findChildren(QPushButton)[-1]
     load_button.click()
     mock_method.assert_called_once()

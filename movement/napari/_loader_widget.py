@@ -22,7 +22,7 @@ from movement.napari.layer_styles import PointsStyle
 logger = logging.getLogger(__name__)
 
 
-class Loader(QWidget):
+class PosesLoader(QWidget):
     """Widget for loading movement poses datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -60,13 +60,13 @@ class Loader(QWidget):
         """
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
-        self.browse_button = QPushButton("browse")
+        self.browse_button = QPushButton("Browse")
         self.browse_button.clicked.connect(self._on_browse_clicked)
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
-        self.layout().addRow("pose file:", self.file_path_layout)
+        self.layout().addRow("file path:", self.file_path_layout)
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
