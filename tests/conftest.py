@@ -237,14 +237,19 @@ def valid_bboxes_arrays_all_zeros():
 
 
 # --------------------- Bboxes dataset fixtures ----------------------------
-# uniform linear motion
 @pytest.fixture
 def valid_bboxes_arrays():
-    """Return a dictionary of valid non-zero arrays for a
-    ValidBboxesDataset.
+    """Return a dictionary of valid arrays for a
+    ValidBboxesDataset representing a uniform linear motion.
 
-    Contains realistic data for 10 frames, 2 individuals, in 2D
-    with 5 low confidence bounding boxes.
+    It represents 2 individuals for 10 frames, in 2D space.
+    - Individual 0 moves along the x=y line from the origin.
+    - Individual 1 moves along the x=-y line line from the origin.
+
+    All confidence values are set to 0.9 except the following which are set
+    to 0.1:
+    - Individual 0 at frames 2, 3, 4
+    - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
@@ -280,13 +285,12 @@ def valid_bboxes_arrays():
     }
 
 
-# uniform linear motion
 @pytest.fixture
 def valid_bboxes_dataset(
     valid_bboxes_arrays,
 ):
-    """Return a valid bboxes dataset with low confidence values and
-    time in frames.
+    """Return a valid bboxes dataset for two individuals moving in uniform
+    linear motion, with 5 frames with low confidence values and time in frames.
     """
     dim_names = MovementDataset.dim_names["bboxes"]
 
@@ -420,6 +424,18 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
 
 @pytest.fixture
 def valid_poses_array_uniform_linear_motion():
+    """Return a dictionary of valid arrays for a
+    ValidPosesDataset representing a uniform linear motion.
+
+    It represents 2 individuals with 3 keypoints, for 10 frames, in 2D space.
+    - Individual 0 moves along the x=y line from the origin.
+    - Individual 1 moves along the x=-y line line from the origin.
+
+    All confidence values for all keypoints are set to 0.9 except
+    for the keypoints at the following frames which are set to 0.1:
+    - Individual 0 at frames 2, 3, 4
+    - Individual 1 at frames 2, 3
+    """
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
     n_keypoints = 3
@@ -507,7 +523,9 @@ def valid_poses_array_uniform_linear_motion():
 def valid_poses_dataset_uniform_linear_motion(
     valid_poses_array_uniform_linear_motion,
 ):
-    """Return a valid poses dataset for a uniform linear motion."""
+    """Return a valid poses dataset for two individuals moving in uniform
+    linear motion, with 5 frames with low confidence values and time in frames.
+    """
     dim_names = MovementDataset.dim_names["poses"]
 
     position_array = valid_poses_array_uniform_linear_motion["position"]
