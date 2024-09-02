@@ -52,9 +52,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute velocity array in cartesian coordinates.
 
     The velocity array is the first time derivative of the position
-    array.
-
-    It is computed by applying the second-order accurate central
+    array. It is computed by applying the second-order accurate central
     differences method on the position array.
 
     Parameters
@@ -90,10 +88,8 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """Compute acceleration array in cartesian coordinates.
 
     The acceleration array is the second time derivative of the
-    position array.
-
-    It is computed by applying the second-order accurate central
-    differences method on the velocity array.
+    position array. It is computed by applying the second-order accurate
+    central differences method on the velocity array.
 
     Parameters
     ----------
