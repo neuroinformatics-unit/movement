@@ -55,23 +55,3 @@ class PointsStyle(LayerStyle):
         self.text["string"] = prop
         n_colors = len(self.properties[prop].unique())
         self.face_color_cycle = self._sample_colormap(n_colors, cmap)
-
-
-@dataclass
-class TracksStyle(LayerStyle):
-    """Style properties for a napari Tracks layer."""
-
-    name: str
-    properties: pd.DataFrame
-    tail_width: int = 5
-    tail_length: int = 60
-    head_length: int = 0
-    color_by: str = "track_id"
-    colormap: str = DEFAULT_COLORMAP
-    visible: bool = True
-    blending: str = "translucent"
-
-    def set_color_by(self, prop: str, cmap: str) -> None:
-        """Set the color_by to a column in the properties DataFrame."""
-        self.color_by = prop
-        self.colormap = cmap

@@ -10,33 +10,6 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 
-def _replace_nans_with_zeros(
-    ds: xr.Dataset, data_vars: list[str]
-) -> xr.Dataset:
-    """Replace NaN values in specified data variables with zeros.
-
-    Parameters
-    ----------
-    ds : xr.Dataset
-        ``movement`` dataset with multiple data variables.
-    data_vars : list[str]
-        List of data variables to check for NaNs.
-
-    Returns
-    -------
-    ds : xr.Dataset
-        Dataset with NaNs replaced by zeros in the specified data variables.
-
-    """
-    for data_var in data_vars:
-        if ds[data_var].isnull().any():
-            logger.warning(
-                f"NaNs found in {data_var}, will be replaced with zeros."
-            )
-            ds[data_var] = ds[data_var].fillna(0)
-    return ds
-
-
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
     return pd.DataFrame(
@@ -86,7 +59,6 @@ def poses_to_napari_tracks(ds: xr.Dataset) -> tuple[np.ndarray, pd.DataFrame]:
     n_keypoints = ds_.sizes["keypoints"]
     n_tracks = n_individuals * n_keypoints
 
-    ds_ = _replace_nans_with_zeros(ds_, ["confidence"])
     # assign unique integer ids to individuals and keypoints
     ds_.coords["individual_ids"] = ("individuals", range(n_individuals))
     ds_.coords["keypoint_ids"] = ("keypoints", range(n_keypoints))
