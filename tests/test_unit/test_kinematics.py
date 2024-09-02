@@ -124,20 +124,22 @@ def test_kinematics_with_dataset_with_nans(
     kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
-
     # compute n nans in kinematic array per individual
-    n_nans_kinematics_per_indiv = {
-        i: helpers.count_nans(kinematic_array.isel(individuals=i))
+    n_nans_kinematics_per_indiv = [
+        helpers.count_nans(kinematic_array.isel(individuals=i))
         for i in range(valid_dataset.dims["individuals"])
-    }
-
-    # check number of nans per indiv is as expected in kinematic array
-    for i in range(valid_dataset.dims["individuals"]):
-        assert n_nans_kinematics_per_indiv[i] == (
-            expected_nans_per_individual[i]
-            * valid_dataset.dims["space"]
-            * valid_dataset.dims.get("keypoints", 1)
-        )
+    ]
+    # expected nans per individual adjusted for space and keypoints dimensions
+    expected_nans_adjusted = [
+        n
+        * valid_dataset.dims["space"]
+        * valid_dataset.dims.get("keypoints", 1)
+        for n in expected_nans_per_individual
+    ]
+    # check number of nans per individual is as expected in kinematic array
+    np.testing.assert_array_equal(
+        n_nans_kinematics_per_indiv, expected_nans_adjusted
+    )
 
 
 @pytest.mark.parametrize(
