@@ -8,7 +8,7 @@ from movement.utils.logging import log_error
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement array in cartesian coordinates.
 
-    We define the displacement array as the difference between the position
+    The displacement array is defined as the difference between the position
     array at time point ``t`` and the position array at time point ``t-1``.
 
     As a result, for a given individual and keypoint, the displacement vector
@@ -24,7 +24,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the displacement vectors in cartesian
+        An xarray DataArray containing displacement vectors in cartesian
         coordinates.
 
     Notes
@@ -61,12 +61,12 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     ----------
     data : xarray.DataArray
         The input data array containing position vectors in cartesian
-        coordinates, with``time`` as a dimension.
+        coordinates, with ``time`` as a dimension.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the velocity vectors in cartesian
+        An xarray DataArray containing velocity vectors in cartesian
         coordinates.
 
     Notes
@@ -104,7 +104,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the acceleration vectors in cartesian
+        An xarray DataArray containing acceleration vectors in cartesian
         coordinates.
 
     Notes
@@ -139,7 +139,7 @@ def _compute_approximate_time_derivative(
     data : xarray.DataArray
         The input data array containing ``time`` as a dimension.
     order : int
-        The order of the time derivative. For an input position data array, use
+        The order of the time derivative. For an input containing position data, use
         1 to compute velocity, and 2 to compute acceleration. Value must be a
         positive integer.
 
