@@ -112,23 +112,37 @@ class Loader(QWidget):
         self._set_playback_fps(fps)
         logger.debug(f"Set napari playback speed to {fps} fps.")
 
+        self._enable_layer_tooltips()
+        logger.info("Enabled visibility of napari layer tooltips.")
+
     def _add_points_layer(self):
-        """Add the predicted poses to the viewr as a Points layer."""
+        """Add the predicted poses to the viewer as a Points layer."""
         n_individuals = len(self.props["individual"].unique())
         color_by = "individual" if n_individuals > 1 else "keypoint"
 
         # Style properties for the napari Points layer
         points_style = PointsStyle(
-            name=f"Poses: {self.file_name}",
+            name=f"poses: {self.file_name}",
             properties=self.props,
         )
         points_style.set_color_by(prop=color_by, cmap="turbo")
 
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
+        logger.info("Added poses as a napari Points layer.")
 
     @staticmethod
     def _set_playback_fps(fps: int):
         """Set the playback speed for the napari viewer."""
         settings = get_settings()
         settings.application.playback_fps = fps
+
+    @staticmethod
+    def _enable_layer_tooltips():
+        """Toggle on tooltip visibility for napari layers.
+
+        This nicely displays the layer properties as a tooltip
+        when hovering over the layer in the napari viewer.
+        """
+        settings = get_settings()
+        settings.appearance.layer_tooltip_visibility = True
