@@ -1,4 +1,4 @@
-"""Conversion functions from movement datasets to napari layers."""
+"""Conversion functions from ``movement`` datasets to napari layers."""
 
 import logging
 
@@ -18,7 +18,7 @@ def _replace_nans_with_zeros(
     Parameters
     ----------
     ds : xr.Dataset
-        Movement dataset with multiple data variables.
+        ``movement`` dataset with multiple data variables.
     data_vars : list[str]
         List of data variables to check for NaNs.
 
@@ -38,7 +38,7 @@ def _replace_nans_with_zeros(
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
-    """Construct a DataFrame with properties from the movement dataset."""
+    """Construct a properties DataFrame from a ``movement`` dataset."""
     return pd.DataFrame(
         {
             "individual": ds.coords["individuals"].values,
@@ -50,18 +50,18 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
 
 
 def poses_to_napari_tracks(ds: xr.Dataset) -> tuple[np.ndarray, pd.DataFrame]:
-    """Convert movement poses dataset to napari Tracks array and properties.
+    """Convert poses dataset to napari Tracks array and properties.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Movement poses dataset containing dataset containing the pose tracks,
-        confidence scores, and associated metadata.
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
 
     Returns
     -------
     data : np.ndarray
-        Napari Tracks array with shape (N, 4),
+        napari Tracks array with shape (N, 4),
         where N is n_keypoints * n_individuals * n_frames
         and the 4 columns are (track_id, frame_idx, y, x).
     properties : pd.DataFrame
