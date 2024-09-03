@@ -49,8 +49,19 @@ class PointsStyle(LayerStyle):
         samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
         return [tuple(cmap.colors[i]) for i in samples]
 
-    def set_color_by(self, prop: str, cmap: str) -> None:
-        """Set the face_color to a column in the properties DataFrame."""
+    def set_color_by(self, prop: str, cmap: str | None = None) -> None:
+        """Set the face_color to a column in the properties DataFrame.
+
+        Parameters
+        ----------
+        prop : str
+            The column name in the properties DataFrame to color by.
+        cmap : str, optional
+            The name of the colormap to use, otherwise use the face_colormap.
+
+        """
+        if cmap is None:
+            cmap = self.face_colormap
         self.face_color = prop
         self.text["string"] = prop
         n_colors = len(self.properties[prop].unique())
