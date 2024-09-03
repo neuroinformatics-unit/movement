@@ -117,16 +117,17 @@ class PosesLoader(QWidget):
 
     def _add_points_layer(self):
         """Add the predicted poses to the viewer as a Points layer."""
-        n_individuals = len(self.props["individual"].unique())
-        color_by = "individual" if n_individuals > 1 else "keypoint"
-
         # Style properties for the napari Points layer
         points_style = PointsStyle(
             name=f"poses: {self.file_name}",
             properties=self.props,
         )
-        points_style.set_color_by(prop=color_by, cmap="turbo")
-
+        # Color the points by individual if there are multiple individuals
+        # Otherwise, color by keypoint
+        n_individuals = len(self.props["individual"].unique())
+        points_style.set_color_by(
+            prop="individual" if n_individuals > 1 else "keypoint"
+        )
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
         logger.info("Added poses as a napari Points layer.")
