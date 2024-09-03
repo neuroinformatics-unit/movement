@@ -83,8 +83,8 @@ def test_interpolate_over_time_on_position(
 
     # The number of NaNs after interpolating should be as expected
     assert n_nans_after == (
-        valid_dataset_in_frames.dims["space"]
-        * valid_dataset_in_frames.dims.get("keypoints", 1)
+        valid_dataset_in_frames.sizes["space"]
+        * valid_dataset_in_frames.sizes.get("keypoints", 1)
         # in bboxes dataset there is no keypoints dimension
         * expected_n_nans_in_position
     )
@@ -120,7 +120,7 @@ def test_filter_by_confidence_on_position(
     # the number of low confidence keypoints by the number of
     # space dimensions
     assert isinstance(position_filtered, xr.DataArray)
-    assert n_nans == valid_input_dataset.dims["space"] * n_low_confidence_kpts
+    assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
 
 
 @pytest.mark.parametrize(
@@ -198,15 +198,15 @@ def test_filter_with_nans_on_position(
         # compute n nans in position after filtering per individual
         n_nans_after_filtering_per_indiv = {
             i: helpers.count_nans(position_filtered.isel(individuals=i))
-            for i in range(valid_input_dataset.dims["individuals"])
+            for i in range(valid_input_dataset.sizes["individuals"])
         }
 
         # check number of nans per indiv is as expected
-        for i in range(valid_input_dataset.dims["individuals"]):
+        for i in range(valid_input_dataset.sizes["individuals"]):
             assert n_nans_after_filtering_per_indiv[i] == (
                 expected_nans_in_filt_position_per_indiv[i]
-                * valid_input_dataset.dims["space"]
-                * valid_input_dataset.dims.get("keypoints", 1)
+                * valid_input_dataset.sizes["space"]
+                * valid_input_dataset.sizes.get("keypoints", 1)
             )
 
     # Filter position
