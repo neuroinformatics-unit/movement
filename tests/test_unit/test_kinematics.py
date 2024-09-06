@@ -128,14 +128,14 @@ def test_kinematics_with_dataset_with_nans(
     # compute n nans in kinematic array per individual
     n_nans_kinematics_per_indiv = [
         helpers.count_nans(kinematic_array.isel(individuals=i))
-        for i in range(valid_dataset.dims["individuals"])
+        for i in range(valid_dataset.sizes["individuals"])
     ]
 
     # expected nans per individual adjusted for space and keypoints dimensions
     expected_nans_adjusted = [
         n
-        * valid_dataset.dims["space"]
-        * valid_dataset.dims.get("keypoints", 1)
+        * valid_dataset.sizes["space"]
+        * valid_dataset.sizes.get("keypoints", 1)
         for n in expected_nans_per_individual
     ]
     # check number of nans per individual is as expected in kinematic array
