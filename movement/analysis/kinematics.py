@@ -51,7 +51,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     """Compute velocity array in cartesian coordinates.
 
-    The velocity array is the first time derivative of the position
+    The velocity array is the first time-derivative of the position
     array. It is computed by applying the second-order accurate central
     differences method on the position array.
 
@@ -87,7 +87,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """Compute acceleration array in cartesian coordinates.
 
-    The acceleration array is the second time derivative of the
+    The acceleration array is the second time-derivative of the
     position array. It is computed by applying the second-order accurate
     central differences method on the velocity array.
 
@@ -124,7 +124,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 def _compute_approximate_time_derivative(
     data: xr.DataArray, order: int
 ) -> xr.DataArray:
-    """Compute the time derivative of an array using numerical differentiation.
+    """Compute the time-derivative of an array using numerical differentiation.
 
     This function uses :meth:`xarray.DataArray.differentiate`,
     which differentiates the array with the second-order
@@ -135,14 +135,14 @@ def _compute_approximate_time_derivative(
     data : xarray.DataArray
         The input data array containing ``time`` as a dimension.
     order : int
-        The order of the time derivative. For an input containing position
+        The order of the time-derivative. For an input containing position
         data, use 1 to compute velocity, and 2 to compute acceleration. Value
         must be a positive integer.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the time derivative of the
+        An xarray DataArray containing the time-derivative of the
         input data.
 
     """
