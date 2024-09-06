@@ -130,6 +130,7 @@ Load the data into movement
         time_unit:        seconds
         source_software:  SLEAP
         source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
+        ds_type:          poses
 
 
 
@@ -213,7 +214,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fae95f69f50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fbbfd7e4790>
 
 
 
@@ -244,7 +245,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fae95f64b50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fbbfd7a13d0>
 
 
 
@@ -288,14 +289,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7faea0bf2250>
+    <matplotlib.colorbar.Colorbar object at 0x7fbc0556f290>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.637 seconds)
+   **Total running time of the script:** (0 minutes 0.713 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:
@@ -318,6 +319,10 @@ For example, we can use ``matplotlib`` to plot trajectories
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: load_and_explore_poses.py <load_and_explore_poses.py>`
+
+    .. container:: sphx-glr-download sphx-glr-download-zip
+
+      :download:`Download zipped: load_and_explore_poses.zip <load_and_explore_poses.zip>`
 
 
 .. only:: html

@@ -96,6 +96,7 @@ In this tutorial, we will use a sample dataset with a single individual
         time_unit:        frames
         source_software:  SLEAP
         source_file:      /home/runner/.movement/data/poses/SLEAP_single-mouse_EP...
+        ds_type:          poses
     -----------------------------
     Individuals: ['individual_0']
     Keypoints: ['snout' 'left_ear' 'right_ear' 'centre' 'tail_base' 'tail_end']
@@ -674,7 +675,7 @@ with two coordinates: ``x`` and ``y``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.520 seconds)
+   **Total running time of the script:** (0 minutes 16.565 seconds)
 
 
 .. _sphx_glr_download_examples_compute_polar_coordinates.py:
@@ -697,6 +698,10 @@ with two coordinates: ``x`` and ``y``.
     .. container:: sphx-glr-download sphx-glr-download-python
 
       :download:`Download Python source code: compute_polar_coordinates.py <compute_polar_coordinates.py>`
+
+    .. container:: sphx-glr-download sphx-glr-download-zip
+
+      :download:`Download zipped: compute_polar_coordinates.zip <compute_polar_coordinates.zip>`
 
 
 .. only:: html

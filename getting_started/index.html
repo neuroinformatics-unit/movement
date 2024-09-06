@@ -28,20 +28,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -128,7 +128,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -372,7 +372,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sample_data.html">Sample data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement datasets</a></li>
 </ul>
 </div>
 </nav></div>
@@ -430,7 +430,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
 <p>Start by <a class="reference internal" href="installation.html"><span class="std std-doc">installing the package</span></a>.</p>
-<p>After that try <a class="reference internal" href="input_output.html#target-loading"><span class="std std-ref">loading some of your own predicted poses</span></a>,
+<p>After that, try <a class="reference internal" href="input_output.html#target-loading-pose-tracks"><span class="std std-ref">loading some of your own tracked poses</span></a> or <a class="reference internal" href="input_output.html#target-loading-bbox-tracks"><span class="std std-ref">bounding boxes’ trajectories</span></a>,
 from one of the <a class="reference internal" href="input_output.html#target-formats"><span class="std std-ref">supported formats</span></a>.
 Alternatively, you can use the <a class="reference internal" href="sample_data.html#target-sample-data"><span class="std std-ref">sample data</span></a>
 provided with the package.</p>
@@ -441,19 +441,21 @@ concept in the package.</p>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#create-a-conda-environment">Create a conda environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#install-the-package">Install the package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#check-the-installation">Check the installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#update-the-package">Update the package</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="input_output.html#supported-formats">Supported formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input_output.html#loading-pose-tracks">Loading pose tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_output.html#loading-bounding-boxes-tracks">Loading bounding boxes’ tracks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input_output.html#saving-pose-tracks">Saving pose tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input_output.html#saving-bounding-boxes-tracks">Saving bounding boxes’ tracks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sample_data.html">Sample data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement dataset</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement_dataset.html#dataset-structure">Dataset structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement_dataset.html#working-with-movement-datasets">Working with movement datasets</a></li>
 </ul>
@@ -531,7 +533,7 @@ concept in the package.</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

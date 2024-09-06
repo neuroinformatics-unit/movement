@@ -27,20 +27,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="_static/documentation_options.js?v=056c92e6"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -410,6 +410,8 @@ document.write(`
 </li>
       <li><a href="api/movement.analysis.kinematics.compute_displacement.html#movement.analysis.kinematics.compute_displacement">compute_displacement() (in module movement.analysis.kinematics)</a>
 </li>
+      <li><a href="api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm">compute_norm() (in module movement.utils.vector)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.analysis.kinematics.compute_velocity.html#movement.analysis.kinematics.compute_velocity">compute_velocity() (in module movement.analysis.kinematics)</a>
@@ -421,6 +423,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="api/movement.utils.logging.configure_logging.html#movement.utils.logging.configure_logging">configure_logging() (in module movement.utils.logging)</a>
+</li>
+      <li><a href="api/movement.utils.vector.convert_to_unit.html#movement.utils.vector.convert_to_unit">convert_to_unit() (in module movement.utils.vector)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -464,19 +468,31 @@ document.write(`
         <li><a href="api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset.fps">(movement.validators.datasets.ValidPosesDataset attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.frame_array">frame_array (movement.validators.datasets.ValidBboxesDataset attribute)</a>
+</li>
       <li><a href="api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file">from_dlc_file() (in module movement.io.load_poses)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.io.load_poses.from_dlc_style_df.html#movement.io.load_poses.from_dlc_style_df">from_dlc_style_df() (in module movement.io.load_poses)</a>
 </li>
-      <li><a href="api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">from_file() (in module movement.io.load_poses)</a>
+      <li><a href="api/movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file">from_file() (in module movement.io.load_bboxes)</a>
+
+      <ul>
+        <li><a href="api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">(in module movement.io.load_poses)</a>
 </li>
+      </ul></li>
       <li><a href="api/movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file">from_lp_file() (in module movement.io.load_poses)</a>
 </li>
-      <li><a href="api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy">from_numpy() (in module movement.io.load_poses)</a>
+      <li><a href="api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy">from_numpy() (in module movement.io.load_bboxes)</a>
+
+      <ul>
+        <li><a href="api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy">(in module movement.io.load_poses)</a>
 </li>
+      </ul></li>
       <li><a href="api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file">from_sleap_file() (in module movement.io.load_poses)</a>
+</li>
+      <li><a href="api/movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file">from_via_tracks_file() (in module movement.io.load_bboxes)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -538,6 +554,8 @@ document.write(`
 </li>
         <li><a href="api/movement.filtering.html#module-movement.filtering">movement.filtering</a>
 </li>
+        <li><a href="api/movement.io.load_bboxes.html#module-movement.io.load_bboxes">movement.io.load_bboxes</a>
+</li>
         <li><a href="api/movement.io.load_poses.html#module-movement.io.load_poses">movement.io.load_poses</a>
 </li>
         <li><a href="api/movement.io.save_poses.html#module-movement.io.save_poses">movement.io.save_poses</a>
@@ -572,14 +590,21 @@ document.write(`
 </li>
       </ul></li>
       <li>
+    movement.io.load_bboxes
+
+      <ul>
+        <li><a href="api/movement.io.load_bboxes.html#module-movement.io.load_bboxes">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     movement.io.load_poses
 
       <ul>
         <li><a href="api/movement.io.load_poses.html#module-movement.io.load_poses">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     movement.io.save_poses
 
@@ -651,6 +676,8 @@ document.write(`
 </li>
         <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5.path">(movement.validators.files.ValidHDF5 attribute)</a>
 </li>
+        <li><a href="api/movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV.path">(movement.validators.files.ValidVIATracksCSV attribute)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -716,13 +743,15 @@ document.write(`
 </li>
       <li><a href="api/movement.validators.files.ValidDeepLabCutCSV.html#movement.validators.files.ValidDeepLabCutCSV">ValidDeepLabCutCSV (class in movement.validators.files)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile">ValidFile (class in movement.validators.files)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5">ValidHDF5 (class in movement.validators.files)</a>
 </li>
       <li><a href="api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset">ValidPosesDataset (class in movement.validators.datasets)</a>
+</li>
+      <li><a href="api/movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV">ValidVIATracksCSV (class in movement.validators.files)</a>
 </li>
       <li><a href="api/movement.move_accessor.MovementDataset.html#movement.move_accessor.MovementDataset.var_names">var_names (movement.move_accessor.MovementDataset attribute)</a>
 </li>
@@ -767,7 +796,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

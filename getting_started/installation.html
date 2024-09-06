@@ -28,20 +28,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -128,7 +128,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -372,7 +372,7 @@ document.write(`
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sample_data.html">Sample data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement datasets</a></li>
 </ul>
 </div>
 </nav></div>
@@ -432,63 +432,73 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="installation">
 <span id="target-installation"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<section id="create-a-conda-environment">
-<h2>Create a conda environment<a class="headerlink" href="#create-a-conda-environment" title="Link to this heading">#</a></h2>
-<div class="note admonition">
-<p class="admonition-title">Use a conda environment</p>
-<p>We recommend you install movement inside a <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
-or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> environment, to avoid dependency conflicts with other packages.
-In the following we assume you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed,
-but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
-</div>
-<p>First, create and activate an environment with some prerequisites.
-You can call your environment whatever you like, we’ve used <code class="docutils literal notranslate"><span class="pre">movement-env</span></code>.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>pytables
-conda<span class="w"> </span>activate<span class="w"> </span>movement-env
-</pre></div>
-</div>
-</section>
 <section id="install-the-package">
 <h2>Install the package<a class="headerlink" href="#install-the-package" title="Link to this heading">#</a></h2>
-<p>Then install the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package as described below.</p>
+<div class="note admonition">
+<p class="admonition-title">Use a conda environment</p>
+<p>To avoid dependency conflicts with other packages, it is best practice to install Python packages within a virtual environment.
+We recommend using <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a> or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> to create and manage this environment, as they simplify the installation process.
+The following instructions assume that you have conda installed, but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
+</div>
+<section id="users">
+<h3>Users<a class="headerlink" href="#users" title="Link to this heading">#</a></h3>
+<p>To install movement in a new environment, follow one of the options below.
+We will use <code class="docutils literal notranslate"><span class="pre">movement-env</span></code> as the environment name, but you can choose any name you prefer.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
-Users</label><div class="sd-tab-content docutils">
-<p>To get the latest release from PyPI:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement
-</pre></div>
-</div>
-<p>If you have an older version of <code class="docutils literal notranslate"><span class="pre">movement</span></code> installed in the same environment,
-you can update to the latest version with:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>movement
+Conda</label><div class="sd-tab-content docutils">
+<p>Create and activate an environment with movement installed:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>movement
+conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1">
-Developers</label><div class="sd-tab-content docutils">
-<p>To get the latest development version, clone the
-<a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">GitHub repository</a>
-and then run from inside the repository:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span><span class="w">  </span><span class="c1"># works on most shells</span>
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span><span class="w">  </span><span class="c1"># works on zsh (the default shell on macOS)</span>
+Pip</label><div class="sd-tab-content docutils">
+<p>Create and activate an environment with some prerequisites:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>pytables
+conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </pre></div>
 </div>
-<p>This will install the package in editable mode, including all <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies.
-Please see the <a class="reference internal" href="../community/contributing.html#target-contributing"><span class="std std-ref">contributing guide</span></a> for more information.</p>
+<p>Install the latest movement release from PyPI:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement
+</pre></div>
+</div>
 </div>
 </div>
 </section>
+<section id="developers">
+<h3>Developers<a class="headerlink" href="#developers" title="Link to this heading">#</a></h3>
+<p>If you are a developer looking to contribute to movement, please refer to our <a class="reference internal" href="../community/contributing.html#target-contributing"><span class="std std-ref">contributing guide</span></a> for detailed setup instructions and guidelines.</p>
+</section>
+</section>
 <section id="check-the-installation">
 <h2>Check the installation<a class="headerlink" href="#check-the-installation" title="Link to this heading">#</a></h2>
-<p>To verify that the installation was successful, you can run the following
-command (with the <code class="docutils literal notranslate"><span class="pre">movement-env</span></code> activated):</p>
+<p>To verify that the installation was successful, run (with <code class="docutils literal notranslate"><span class="pre">movement-env</span></code> activated):</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>movement<span class="w"> </span>info
 </pre></div>
 </div>
-<p>You should see a printout including the version numbers of <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+<p>You should see a printout including the version numbers of movement
 and some of its dependencies.</p>
+</section>
+<section id="update-the-package">
+<h2>Update the package<a class="headerlink" href="#update-the-package" title="Link to this heading">#</a></h2>
+<p>To update movement to the latest version, we recommend installing it in a new environment,
+as this prevents potential compatibility issues caused by changes in dependency versions.</p>
+<p>To uninstall an existing environment named <code class="docutils literal notranslate"><span class="pre">movement-env</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>remove<span class="w"> </span>-n<span class="w"> </span>movement-env
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you are unsure about the environment name, you can get a list of the environments on your system with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>list
+</pre></div>
+</div>
+</div>
+<p>Once the environment has been removed, you can create a new one following the <a class="reference internal" href="#install-the-package"><span class="std std-ref">installation instructions</span></a> above.</p>
 </section>
 </section>
 
@@ -538,9 +548,13 @@ and some of its dependencies.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-conda-environment">Create a conda environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-package">Install the package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-the-package">Install the package</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#users">Users</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developers">Developers</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-the-installation">Check the installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#update-the-package">Update the package</a></li>
 </ul>
   </nav></div>
 
@@ -575,7 +589,7 @@ and some of its dependencies.</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

@@ -1,0 +1,6 @@
+convert\_to\_unit
+=================
+
+.. currentmodule:: movement.utils.vector
+
+.. autofunction:: convert_to_unit

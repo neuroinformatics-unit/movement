@@ -1,0 +1,6 @@
+from\_numpy
+===========
+
+.. currentmodule:: movement.io.load_bboxes
+
+.. autofunction:: from_numpy

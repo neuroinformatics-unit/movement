@@ -28,20 +28,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -128,7 +128,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -449,7 +449,7 @@ coordinates.</p>
 
 <span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
 <span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
-<span class="kn">from</span> <span class="nn">movement.utils.vector</span> <span class="kn">import</span> <span class="n">cart2pol</span><span class="p">,</span> <span class="n">pol2cart</span>
+<span class="kn">from</span> <span class="nn">movement.utils.vector</span> <span class="kn">import</span> <a href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">cart2pol</span></a><span class="p">,</span> <a href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">pol2cart</span></a>
 </pre></div>
 </div>
 </section>
@@ -457,15 +457,15 @@ coordinates.</p>
 <h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Link to this heading">#</a></h2>
 <p>In this tutorial, we will use a sample dataset with a single individual
 (a mouse) and six keypoints.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds_path</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ds_path</span> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths" title="movement.sample_data.fetch_dataset_paths" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span></a><span class="p">(</span>
     <span class="s2">&quot;SLEAP_single-mouse_EPM.analysis.h5&quot;</span>
 <span class="p">)[</span><span class="s2">&quot;poses&quot;</span><span class="p">]</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># force time_unit = frames</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file" class="sphx-glr-backref-module-movement-io-load_poses sphx-glr-backref-type-py-function"><span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span></a><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># force time_unit = frames</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Individuals: </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints: </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Individuals: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 1MB
@@ -483,6 +483,7 @@ Attributes:
     time_unit:        frames
     source_software:  SLEAP
     source_file:      /home/runner/.movement/data/poses/SLEAP_single-mouse_EP...
+    ds_type:          poses
 -----------------------------
 Individuals: [&#39;individual_0&#39;]
 Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#39; &#39;tail_base&#39; &#39;tail_end&#39;]
@@ -491,7 +492,7 @@ Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#
 <p>The loaded dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains two data variables:<code class="docutils literal notranslate"><span class="pre">position</span></code> and
 <code class="docutils literal notranslate"><span class="pre">confidence</span></code>. Both are stored as data arrays. In this tutorial, we will
 use only <code class="docutils literal notranslate"><span class="pre">position</span></code>:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a>
 </pre></div>
 </div>
 </section>
@@ -501,17 +502,17 @@ use only <code class="docutils literal notranslate"><span class="pre">position</
 we will compute the head vector of the mouse.</p>
 <p>We define it as the vector from the midpoint between the ears to the snout.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute the midpoint between the ears</span>
-<span class="n">midpoint_ears</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
     <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span>
 <span class="p">)</span>
 
 <span class="c1"># compute the head vector</span>
-<span class="n">head_vector</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">midpoint_ears</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a>
 
 <span class="c1"># drop the keypoints dimension</span>
 <span class="c1"># (otherwise the `head_vector` data array retains a `snout` keypoint from the</span>
 <span class="c1"># operation above)</span>
-<span class="n">head_vector</span> <span class="o">=</span> <span class="n">head_vector</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.drop_vars.html#xarray.DataArray.drop_vars" title="xarray.DataArray.drop_vars" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector</span><span class="o">.</span><span class="n">drop_vars</span></a><span class="p">(</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -522,13 +523,13 @@ correct.</p>
 <p>We can start by plotting the trajectory of the midpoint between the ears. We
 will refer to this as the head trajectory.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">mouse_name</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">mouse_name</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
     <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
-    <span class="n">c</span><span class="o">=</span><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span></a><span class="p">,</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -538,7 +539,7 @@ will refer to this as the head trajectory.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Head trajectory (</span><span class="si">{</span><span class="n">mouse_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.attrs.html#xarray.Dataset.attrs" title="xarray.Dataset.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span></a><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -548,7 +549,7 @@ cruciform shape. This is because the dataset is of a mouse moving on an
 We can actually verify this is the case by overlaying the head
 trajectory on the sample frame of the dataset.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># read sample frame</span>
-<span class="n">frame_path</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span><span class="p">(</span>
+<span class="n">frame_path</span> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths" title="movement.sample_data.fetch_dataset_paths" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span></a><span class="p">(</span>
     <span class="s2">&quot;SLEAP_single-mouse_EPM.analysis.h5&quot;</span>
 <span class="p">)[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
 <span class="n">im</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">frame_path</span><span class="p">)</span>
@@ -560,10 +561,10 @@ trajectory on the sample frame of the dataset.</p>
 
 <span class="c1"># plot head trajectory with semi-transparent markers</span>
 <span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
     <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
-    <span class="n">c</span><span class="o">=</span><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span></a><span class="p">,</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>  <span class="c1"># transparency</span>
@@ -597,38 +598,38 @@ mouse is within a small rectangular area and time window.</p>
 </div>
 <p>For that subset of the data, we now plot the head vector.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">mouse_name</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">mouse_name</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <span class="c1"># plot midpoint between the ears, and color based on time</span>
 <span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
     <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-    <span class="n">c</span><span class="o">=</span><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">time_window</span><span class="p">],</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><span class="n">time_window</span><span class="p">],</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># plot snout, and color based on time</span>
 <span class="n">sc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span>
         <span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
     <span class="p">),</span>
-    <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span>
         <span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
     <span class="p">),</span>
     <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-    <span class="n">c</span><span class="o">=</span><span class="n">position</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">time_window</span><span class="p">],</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><span class="n">time_window</span><span class="p">],</span>
     <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
     <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># plot the computed head vector</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
-    <span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
-    <span class="n">head_vector</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
-    <span class="n">head_vector</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">),</span>
     <span class="n">angles</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
     <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">scale_units</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
@@ -648,7 +649,7 @@ mouse is within a small rectangular area and time window.</p>
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
     <span class="n">sc</span><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.attrs.html#xarray.Dataset.attrs" title="xarray.Dataset.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span></a><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="n">ticks</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">time_window</span><span class="p">)[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
 <span class="p">)</span>
 
@@ -672,9 +673,9 @@ the ears to the snout, as we defined it.</p>
 <p>A convenient way to inspect the orientation of a vector in 2D is by
 expressing it in polar coordinates. We can do this with the vector function
 <code class="docutils literal notranslate"><span class="pre">cart2pol</span></code>:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">head_vector_polar</span> <span class="o">=</span> <span class="n">cart2pol</span><span class="p">(</span><span class="n">head_vector</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector_polar</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">cart2pol</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector</span></a><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">head_vector_polar</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector_polar</span></a><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, individuals: 1, space_pol: 2)&gt; Size: 148kB
@@ -706,12 +707,12 @@ check this by plotting a histogram of its values across the whole clip.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># plot histogram using xarray&#39;s built-in histogram function</span>
-<span class="n">rho_data</span> <span class="o">=</span> <span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span>
-<span class="n">rho_data</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rho_data</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rho_data</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
 <span class="c1"># add mean</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="n">rho_data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.mean.html#xarray.DataArray.mean" title="xarray.DataArray.mean" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">rho_data</span><span class="o">.</span><span class="n">mean</span></a><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
     <span class="n">c</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span>
     <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -719,7 +720,7 @@ check this by plotting a histogram of its values across the whole clip.</p>
 
 <span class="c1"># add median</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
-    <span class="n">x</span><span class="o">=</span><span class="n">rho_data</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.median.html#xarray.DataArray.median" title="xarray.DataArray.median" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">rho_data</span><span class="o">.</span><span class="n">median</span></a><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
     <span class="n">c</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
     <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -727,8 +728,8 @@ check this by plotting a histogram of its values across the whole clip.</p>
 <span class="c1"># add legend</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
     <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">&quot;mean = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">rho_data</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="n">rho_data</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;mean = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rho_data</span></a><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;median = </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rho_data</span></a><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">,</span>
 <span class="p">)</span>
@@ -754,7 +755,7 @@ a circular histogram.</p>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s2">&quot;polar&quot;</span><span class="p">)</span>
 
 <span class="c1"># plot histogram using xarray&#39;s built-in histogram function</span>
-<span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span> <span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
     <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
 <span class="p">)</span>
 
@@ -786,7 +787,7 @@ the mouse but is always  parallel to the pixel coordinate system.
 Again, this will be easier to visualise if we focus on a
 small time window.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># select phi values within a time window</span>
-<span class="n">phi</span> <span class="o">=</span> <span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+<span class="n">phi</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_vector_polar</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span>
     <span class="n">individuals</span><span class="o">=</span><span class="n">mouse_name</span><span class="p">,</span>
     <span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">,</span>
     <span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">,</span>
@@ -809,7 +810,7 @@ small time window.</p>
 <span class="n">cax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span>
     <span class="n">sc</span><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;time (</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.attrs.html#xarray.Dataset.attrs" title="xarray.Dataset.attrs" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span></a><span class="p">[</span><span class="s1">&#39;time_unit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="n">ticks</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">time_window</span><span class="p">)[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span>
 <span class="p">)</span>
 
@@ -834,9 +835,9 @@ the head of the mouse turned anti-clockwise.</p>
 <h2>Convert polar coordinates to cartesian<a class="headerlink" href="#convert-polar-coordinates-to-cartesian" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> also provides a <code class="docutils literal notranslate"><span class="pre">pol2cart</span></code> convenience function to transform
 a vector in polar coordinates back to cartesian.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">head_vector_cart</span> <span class="o">=</span> <span class="n">pol2cart</span><span class="p">(</span><span class="n">head_vector_polar</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector_cart</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">pol2cart</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector_polar</span></a><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">head_vector_cart</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_vector_cart</span></a><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, individuals: 1, space: 2)&gt; Size: 148kB
@@ -849,7 +850,7 @@ Coordinates:
 </div>
 <p>Note that the resulting <cite>head_vector_cart</cite> array has a <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension
 with two coordinates: <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 16.520 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 16.565 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-polar-coordinates-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_polar_coordinates.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
@@ -860,6 +861,9 @@ with two coordinates: <code class="docutils literal notranslate"><span class="pr
 </div>
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/8c764d9f054b54b3d9a974597939bbdb/compute_polar_coordinates.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">compute_polar_coordinates.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/a98cbac755c506fe52bb526be923dd06/compute_polar_coordinates.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">compute_polar_coordinates.zip</span></code></a></p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
@@ -956,7 +960,7 @@ with two coordinates: <code class="docutils literal notranslate"><span class="pr
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

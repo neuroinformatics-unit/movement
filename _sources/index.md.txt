@@ -42,6 +42,12 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 ```{include} /snippets/status-warning.md
 ```
 
+## Citation
+```{include} ../../README.md
+:start-after: '## Citation'
+:end-before: '## License'
+```
+
 ```{toctree}
 :maxdepth: 2
 :hidden:

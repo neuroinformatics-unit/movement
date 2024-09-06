@@ -27,7 +27,7 @@ print(ds)
 # Visualise the pose tracks
 # -------------------------
 # Since the data contains only a single wasp, we use
-# :py:meth:`xarray.DataArray.squeeze` to remove
+# :meth:`xarray.DataArray.squeeze` to remove
 # the dimension of length 1 from the data (the ``individuals`` dimension).
 
 ds.position.squeeze().plot.line(
@@ -51,7 +51,7 @@ ds.position.squeeze().plot.line(
 # it's always a good idea to inspect the actual confidence values in the data.
 #
 # Let's first look at a histogram of the confidence scores. As before, we use
-# :py:meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
+# :meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
 # from the data.
 
 ds.confidence.squeeze().plot.hist(bins=20)
@@ -74,7 +74,7 @@ ds.confidence.squeeze().plot.line(
 # Filter out points with low confidence
 # -------------------------------------
 # Using the
-# :py:meth:`filter_by_confidence()\
+# :meth:`filter_by_confidence()\
 # <movement.move_accessor.MovementDataset.filtering_wrapper>`
 # method of the ``move`` accessor,
 # we can filter out points with confidence scores below a certain threshold.
@@ -82,20 +82,20 @@ ds.confidence.squeeze().plot.line(
 # provided.
 # This method will also report the number of NaN values in the dataset before
 # and after the filtering operation by default (``print_report=True``).
-# We will use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+# We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
 
 ds.update({"position": ds.move.filter_by_confidence()})
 
 # %%
 # .. note::
-#    The ``move`` accessor :py:meth:`filter_by_confidence()\
+#    The ``move`` accessor :meth:`filter_by_confidence()\
 #    <movement.move_accessor.MovementDataset.filtering_wrapper>`
 #    method is a convenience method that applies
-#    :py:func:`movement.filtering.filter_by_confidence`,
+#    :func:`movement.filtering.filter_by_confidence`,
 #    which takes ``position`` and ``confidence`` as arguments.
 #    The equivalent function call using the
-#    :py:mod:`movement.filtering` module would be:
+#    :mod:`movement.filtering` module would be:
 #
 #    .. code-block:: python
 #
@@ -121,7 +121,7 @@ ds.position.squeeze().plot.line(
 # Interpolate over missing values
 # -------------------------------
 # Using the
-# :py:meth:`interpolate_over_time()\
+# :meth:`interpolate_over_time()\
 # <movement.move_accessor.MovementDataset.filtering_wrapper>`
 # method of the ``move`` accessor,
 # we can interpolate over the gaps we've introduced in the pose tracks.
@@ -135,13 +135,13 @@ ds.update({"position": ds.move.interpolate_over_time(max_gap=40)})
 
 # %%
 # .. note::
-#    The ``move`` accessor :py:meth:`interpolate_over_time()\
+#    The ``move`` accessor :meth:`interpolate_over_time()\
 #    <movement.move_accessor.MovementDataset.filtering_wrapper>`
 #    is also a convenience method that applies
-#    :py:func:`movement.filtering.interpolate_over_time`
+#    :func:`movement.filtering.interpolate_over_time`
 #    to the ``position`` data variable.
 #    The equivalent function call using the
-#    :py:mod:`movement.filtering` module would be:
+#    :mod:`movement.filtering` module would be:
 #
 #    .. code-block:: python
 #
@@ -176,7 +176,7 @@ for log_entry in ds.position.log:
 # %%
 # Filtering multiple data variables
 # ---------------------------------
-# All :py:mod:`movement.filtering` functions are available via the
+# All :mod:`movement.filtering` functions are available via the
 # ``move`` accessor. These ``move`` accessor methods operate on the
 # ``position`` data variable in the dataset ``ds`` by default.
 # There is also an additional argument ``data_vars`` that allows us to
@@ -192,7 +192,7 @@ for log_entry in ds.position.log:
 # in ``ds``, based on the confidence scores, we can specify
 # ``data_vars=["position", "velocity"]`` in the method call.
 # As the filtered data variables are returned as a dictionary, we can once
-# again use :py:meth:`xarray.Dataset.update` to update ``ds`` in-place
+# again use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered data variables.
 
 ds["velocity"] = ds.move.compute_velocity()

@@ -18,6 +18,10 @@
     
     cart2pol
     
+    compute_norm
+    
+    convert_to_unit
+    
     pol2cart
     
 

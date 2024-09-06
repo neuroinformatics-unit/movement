@@ -28,20 +28,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -128,7 +128,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -441,14 +441,12 @@ or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">
 development environment for movement. In the following we assume you have
 <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
 <p>First, create and activate a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment with some prerequisites:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-dev<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>pytables
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-dev<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>pytables
 conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
 </pre></div>
 </div>
-<p>The above method ensures that you will get packages that often can’t be
-installed via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, including <a class="reference external" href="https://www.hdfgroup.org/solutions/hdf5/">hdf5</a>.</p>
-<p>To install movement for development, clone the GitHub repository,
-and then run from inside the repository:</p>
+<p>To install movement for development, clone the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">GitHub repository</a>,
+and then run from within the repository:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span><span class="w">  </span><span class="c1"># works on most shells</span>
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span><span class="w">  </span><span class="c1"># works on zsh (the default shell on macOS)</span>
 </pre></div>
@@ -581,12 +579,11 @@ The version number is automatically determined from the latest tag on the <em>ma
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
 <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement.neuroinformatics.dev</span></a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
-They are written in either <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a> or
-<a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/typography.html#">markdown</a>.
+They are written in either <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/typography.html#">Markdown</a>
+or <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a>.
 The <code class="docutils literal notranslate"><span class="pre">index.md</span></code> file corresponds to the homepage of the documentation website.
-Other <code class="docutils literal notranslate"><span class="pre">.rst</span></code>  or <code class="docutils literal notranslate"><span class="pre">.md</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
-<p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a> and the
-<a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+Other <code class="docutils literal notranslate"><span class="pre">.md</span></code>  or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
+<p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/#">Sphinx</a> and the <a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
 The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
@@ -614,49 +611,32 @@ my_new_file
 </pre></div>
 </div>
 </section>
-<section id="adding-external-links">
-<h4>Adding external links<a class="headerlink" href="#adding-external-links" title="Link to this heading">#</a></h4>
-<p>If you are adding references to an external link (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/issues/1</span></code>) in a <code class="docutils literal notranslate"><span class="pre">.md</span></code> file, you will need to check if a matching URL scheme (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/</span></code>) is defined in <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>. If it is, the following <code class="docutils literal notranslate"><span class="pre">[](scheme:loc)</span></code> syntax will be converted to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues/1">full URL</a> during the build process:</p>
+<section id="linking-to-external-urls">
+<h4>Linking to external URLs<a class="headerlink" href="#linking-to-external-urls" title="Link to this heading">#</a></h4>
+<p>If you are adding references to an external URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/issues/1</span></code>) in a <code class="docutils literal notranslate"><span class="pre">.md</span></code> file, you will need to check if a matching URL scheme (e.g. <code class="docutils literal notranslate"><span class="pre">https://github.com/neuroinformatics-unit/movement/</span></code>) is defined in <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>. If it is, the following <code class="docutils literal notranslate"><span class="pre">[](scheme:loc)</span></code> syntax will be converted to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues/1">full URL</a> during the build process:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>[<span class="nt">link text</span>](<span class="na">movement-github:issues/1</span>)
 </pre></div>
 </div>
-<p>If it is not yet defined and you have multiple external links pointing to the same base URL, you will need to <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/cross-referencing.html#customising-external-url-resolution">add the URL scheme</a> to <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>.</p>
+<p>If it is not yet defined and you have multiple external URLs pointing to the same base URL, you will need to <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/cross-referencing.html#customising-external-url-resolution">add the URL scheme</a> to <code class="docutils literal notranslate"><span class="pre">myst_url_schemes</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>.</p>
 </section>
 </section>
 <section id="updating-the-api-reference">
 <h3>Updating the API reference<a class="headerlink" href="#updating-the-api-reference" title="Link to this heading">#</a></h3>
-<p>If your PR introduces new public modules, or renames existing ones,
-make sure to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> page, so that they are included in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>, e.g.:</p>
-<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">API Reference</span>
-<span class="gh">=============</span>
-
-Information on specific functions, classes, and methods.
-
-<span class="p">..</span> <span class="ow">rubric</span><span class="p">::</span> Modules
-
-<span class="p">..</span> <span class="ow">autosummary</span><span class="p">::</span>
-    <span class="nc">:toctree:</span> api
-    <span class="nc">:recursive:</span>
-    <span class="nc">:nosignatures:</span>
-
-    movement.move_accessor
-    movement.io.load_poses
-    movement.io.save_poses
-    movement.your_new_module
-</pre></div>
-</div>
-<p>The API reference is auto-generated by the <code class="docutils literal notranslate"><span class="pre">sphinx-autodoc</span></code> and <code class="docutils literal notranslate"><span class="pre">sphinx-autosummary</span></code> plugins, based on docstrings.
+<p>The <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a> is auto-generated by the <code class="docutils literal notranslate"><span class="pre">docs/make_api_index.py</span></code> script, and the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#">sphinx-autodoc</a> and <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#">sphinx-autosummary</a> extensions.
+The script generates the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> file containing the list of modules to be included in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>.
+The plugins then generate the API reference pages for each module listed in <code class="docutils literal notranslate"><span class="pre">api_index.rst</span></code>, based on the docstrings in the source code.
 So make sure that all your public functions/classes/methods have valid docstrings following the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
 Our <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> hooks include some checks (<code class="docutils literal notranslate"><span class="pre">ruff</span></code> rules) that ensure the docstrings are formatted consistently.</p>
+<p>If your PR introduces new modules that should <em>not</em> be documented in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>, or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update the <code class="docutils literal notranslate"><span class="pre">exclude_modules</span></code> list within the <code class="docutils literal notranslate"><span class="pre">docs/make_api_index.py</span></code> script to reflect these exclusions.</p>
 </section>
 <section id="updating-the-examples">
 <h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Link to this heading">#</a></h3>
-<p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/">sphinx-gallery</a>
+<p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/#">sphinx-gallery</a>
 to create the <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">examples</span></a>.
 To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
 The file should be structured as specified in the relevant
-<a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax">sphinx-gallery documentation</a>.</p>
-<p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration.html#binder-links">integration with binder</a>
+<a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax#">sphinx-gallery documentation</a>.</p>
+<p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration#binder-links">integration with binder</a>
 to provide interactive versions of the examples.
 If your examples rely on packages that are not among movement’s dependencies,
 you will need to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/environment.yml</span></code> file.
@@ -664,25 +644,127 @@ That file is used by binder to create the conda environment in which the
 examples are run. See the relevant section of the
 <a class="reference external" href="https://mybinder.readthedocs.io/en/latest/using/config_files.html">binder documentation</a>.</p>
 </section>
+<section id="cross-referencing-python-objects">
+<h3>Cross-referencing Python objects<a class="headerlink" href="#cross-referencing-python-objects" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Docstrings in the <code class="docutils literal notranslate"><span class="pre">.py</span></code> files for the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a> and the <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">examples</span></a> are converted into <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files, so these should use reStructuredText syntax.</p>
+</div>
+<section id="internal-references">
+<h4>Internal references<a class="headerlink" href="#internal-references" title="Link to this heading">#</a></h4>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Markdown</label><div class="sd-tab-content docutils">
+<p>For referencing movement objects in <code class="docutils literal notranslate"><span class="pre">.md</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">{role}`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
+<p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{mod}`movement.io.load_poses`
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+RestructuredText</label><div class="sd-tab-content docutils">
+<p>For referencing movement objects in <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">:role:`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
+<p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:mod:</span><span class="nv">`movement.io.load_poses`</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="external-references">
+<h4>External references<a class="headerlink" href="#external-references" title="Link to this heading">#</a></h4>
+<p>For referencing external Python objects using <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#">intersphinx</a>,
+ensure the mapping between module names and their documentation URLs is defined in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"><code class="docutils literal notranslate"><span class="pre">intersphinx_mapping</span></code></a> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>.
+Once the module is included in the mapping, use the same syntax as for <a class="reference internal" href="#internal-references">internal references</a>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Markdown</label><div class="sd-tab-content docutils">
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.7.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+RestructuredText</label><div class="sd-tab-content docutils">
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.7.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Link to this heading">#</a></h3>
 <p>We recommend that you build and view the documentation website locally, before you push it.
-To do so, first install the requirements for building the documentation:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
+To do so, first navigate to <code class="docutils literal notranslate"><span class="pre">docs/</span></code>.
+All subsequent commands should be run from within this directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
 </pre></div>
 </div>
-<p>Then, from the root of the repository, run:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build
+<p>Install the requirements for building the documentation:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 </pre></div>
 </div>
-<p>You can view the local build by opening <code class="docutils literal notranslate"><span class="pre">docs/build/index.html</span></code> in a browser.
-To refresh the documentation, after making changes, remove the <code class="docutils literal notranslate"><span class="pre">docs/build</span></code> folder and re-run the above command:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>docs/build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build
+<p>Build the documentation:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
 </pre></div>
+</div>
+<p>The local build can be viewed by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in a browser.</p>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+All platforms</label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>make_api_index.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-W<span class="w"> </span>--keep-going
+</pre></div>
+</div>
+<p>The local build can be viewed by opening <code class="docutils literal notranslate"><span class="pre">docs/build/index.html</span></code> in a browser.</p>
+</div>
+</div>
+<p>To refresh the documentation after making changes, remove all generated files in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>,
+including the auto-generated API index <code class="docutils literal notranslate"><span class="pre">source/api_index.rst</span></code>, and those in <code class="docutils literal notranslate"><span class="pre">build/</span></code>, <code class="docutils literal notranslate"><span class="pre">source/api/</span></code>, and <code class="docutils literal notranslate"><span class="pre">source/examples/</span></code>.
+Then, re-run the above command to rebuild the documentation.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
+Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean<span class="w"> </span>html
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
+All platforms</label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-f<span class="w"> </span>source/api_index.rst<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>source/api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>source/examples
+python<span class="w"> </span>make_api_index.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-W<span class="w"> </span>--keep-going
+</pre></div>
+</div>
+</div>
 </div>
 <p>To check that external links are correctly resolved, run:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span>docs/source<span class="w"> </span>docs/build<span class="w"> </span>-b<span class="w"> </span>linkcheck
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>linkcheck
 </pre></div>
+</div>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
+All platforms</label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-b<span class="w"> </span>linkcheck<span class="w"> </span>-W<span class="w"> </span>--keep-going
+</pre></div>
+</div>
+</div>
 </div>
 <p>If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to <code class="docutils literal notranslate"><span class="pre">linkcheck_anchors_ignore_for_url</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The linkcheck builder will skip verifying that anchors exist when checking</span>
@@ -704,12 +786,12 @@ by the <a class="reference external" href="https://www.g-node.org/">German Neuro
 GIN has a GitHub-like interface and git-like
 <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">CLI</a> functionalities.</p>
 <p>Currently, the data repository contains sample pose estimation data files
-stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder. For some of these files, we also host
+stored in the <code class="docutils literal notranslate"><span class="pre">poses</span></code> folder, and tracked bounding boxes data files under the <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> folder. For some of these files, we also host
 the associated video file (in the <code class="docutils literal notranslate"><span class="pre">videos</span></code> folder) and/or a single
 video frame (in the <code class="docutils literal notranslate"><span class="pre">frames</span></code>) folder. These can be used to develop and
-test visualisations, e.g. overlaying pose data on video frames.
+test visualisations, e.g. to overlay the data on video frames.
 The <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> file holds metadata for each sample dataset,
-including information on data provenance as well as the mapping between pose data files and related
+including information on data provenance as well as the mapping between data files and related
 video/frame files.</p>
 <section id="fetching-data">
 <h3>Fetching data<a class="headerlink" href="#fetching-data" title="Link to this heading">#</a></h3>
@@ -721,9 +803,9 @@ like verification of sha256 hashes and decompression of archives.</p>
 The most important parts of this module are:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">SAMPLE_DATA</span></code> download manager object.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">list_datasets()</span></code> function, which returns a list of the available pose datasets (file names of the pose data files).</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code> function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">video</span></code>. If the relevant files are not already cached locally, they will be downloaded.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function, which downloads the files associated with a given sample dataset (same as <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code>) and additionally loads the pose data into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object. The local paths to the associated video and frame files are stored as dataset attributes, with names <code class="docutils literal notranslate"><span class="pre">video_path</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_path</span></code>, respectively.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">list_datasets()</span></code> function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code> function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">video</span></code>. If the relevant files are not already cached locally, they will be downloaded.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function, which downloads the files associated with a given sample dataset (same as <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code>) and additionally loads the pose or bounding box data into movement, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names <code class="docutils literal notranslate"><span class="pre">video_path</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_path</span></code>, respectively.</p></li>
 </ol>
 <p>By default, the downloaded files are stored in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> folder.
 This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.sample_data.py</span></code> module.</p>
@@ -737,32 +819,32 @@ To add a new file, you will need to:</p>
 <li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a> (if not already)</p></li>
 <li><p>Download the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> and set it up with your GIN credentials, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal.</p></li>
 <li><p>Clone the movement data repository to your local machine, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code> in a terminal.</p></li>
-<li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, <code class="docutils literal notranslate"><span class="pre">frames</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
+<li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
 <li><p>Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-0">
+<input checked="checked" id="sd-tab-item-10" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
 Ubuntu</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sha256sum<span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
+<input id="sd-tab-item-11" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
 MacOS</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-2">
+<input id="sd-tab-item-12" name="sd-tab-set-5" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
 Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>certutil<span class="w"> </span>-hashfile<span class="w"> </span>&lt;filename&gt;<span class="w"> </span>SHA256
 </pre></div>
 </div>
 </div>
 </div>
-<p>For convenience, we’ve included a <code class="docutils literal notranslate"><span class="pre">get_sha256_hashes.py</span></code> script in the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. If you run this from the root of the data repository, within a Python environment with <code class="docutils literal notranslate"><span class="pre">movement</span></code> installed, it will calculate the sha256 hashes for all files in the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, <code class="docutils literal notranslate"><span class="pre">frames</span></code>, and <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> folders and write them to files named <code class="docutils literal notranslate"><span class="pre">poses_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">videos_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">frames_hashes.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">bboxes_hashes.txt</span></code>, respectively.</p>
+<p>For convenience, we’ve included a <code class="docutils literal notranslate"><span class="pre">get_sha256_hashes.py</span></code> script in the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. If you run this from the root of the data repository, within a Python environment with movement installed, it will calculate the sha256 hashes for all files in the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders and write them to files named <code class="docutils literal notranslate"><span class="pre">poses_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">videos_hashes.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">frames_hashes.txt</span></code> respectively.</p>
 </li>
 <li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code>, including their sha256 hashes you’ve calculated. See the example entry below for guidance.</p></li>
 <li><p>Commit a specific file with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">.</span></code> to commit all changes.</p></li>
@@ -855,11 +937,16 @@ Windows</label><div class="sd-tab-content docutils">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#editing-the-documentation">Editing the documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-pages">Adding new pages</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-external-links">Adding external links</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linking-to-external-urls">Linking to external URLs</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-api-reference">Updating the API reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-examples">Updating the examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cross-referencing-python-objects">Cross-referencing Python objects</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-references">Internal references</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#external-references">External references</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
 </ul>
 </li>
@@ -903,7 +990,7 @@ Windows</label><div class="sd-tab-content docutils">
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

@@ -27,20 +27,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -426,7 +426,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">RequestException</span>
 
-<span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
+<span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_bboxes</span><span class="p">,</span> <span class="n">load_poses</span>
 <span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -709,14 +709,15 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="n">with_video</span><span class="p">)</span>
 
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-        <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">],</span>
-        <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
-        <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>
-    <span class="p">)</span>
-
-    <span class="c1"># TODO: Add support for loading bounding boxes data.</span>
-    <span class="c1"># Implemented in PR 229: https://github.com/neuroinformatics-unit/movement/pull/229</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">load_module</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">,</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">load_poses</span><span class="p">,</span> <span class="n">load_bboxes</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">file_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">load_module</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+                <span class="n">file_paths</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
+                <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
 
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;video_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span>
@@ -761,7 +762,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

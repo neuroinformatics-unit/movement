@@ -1,3 +1,6 @@
+..
+  This file is auto-generated.
+
 .. _target-api:
 
 API Reference
@@ -12,14 +15,15 @@ Information on specific functions, classes, and methods.
     :recursive:
     :nosignatures:
 
-    movement.move_accessor
-    movement.io.load_poses
-    movement.io.save_poses
     movement.filtering
-    movement.analysis.kinematics
-    movement.utils.vector
+    movement.move_accessor
+    movement.sample_data
     movement.utils.logging
     movement.utils.reports
-    movement.sample_data
-    movement.validators.files
+    movement.utils.vector
+    movement.analysis.kinematics
     movement.validators.datasets
+    movement.validators.files
+    movement.io.load_bboxes
+    movement.io.load_poses
+    movement.io.save_poses

@@ -27,20 +27,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -412,7 +412,6 @@ document.write(`
   <h1>Source code for movement.analysis.kinematics</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Compute kinematic variables like velocity and acceleration.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span>
@@ -421,22 +420,40 @@ document.write(`
 <div class="viewcode-block" id="compute_displacement">
 <a class="viewcode-back" href="../../../api/movement.analysis.kinematics.compute_displacement.html#movement.analysis.kinematics.compute_displacement">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute displacement between consecutive positions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute displacement array in cartesian coordinates.</span>
 
-<span class="sd">    This is the difference between consecutive positions of each keypoint for</span>
-<span class="sd">    each individual across time. At each time point ``t``, it&#39;s defined as a</span>
-<span class="sd">    vector in cartesian ``(x,y)`` coordinates, pointing from the previous</span>
-<span class="sd">    ``(t-1)`` to the current ``(t)`` position.</span>
+<span class="sd">    The displacement array is defined as the difference between the position</span>
+<span class="sd">    array at time point ``t`` and the position array at time point ``t-1``.</span>
+
+<span class="sd">    As a result, for a given individual and keypoint, the displacement vector</span>
+<span class="sd">    at time point ``t``, is the vector pointing from the previous</span>
+<span class="sd">    ``(t-1)`` to the current ``(t)`` position, in cartesian coordinates.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
-<span class="sd">        The input data containing ``time`` as a dimension.</span>
+<span class="sd">        The input data array containing position vectors in cartesian</span>
+<span class="sd">        coordinates, with ``time`` as a dimension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the computed displacement.</span>
+<span class="sd">        An xarray DataArray containing displacement vectors in cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``displacement``</span>
+<span class="sd">    array will hold the displacement vectors for every keypoint and every</span>
+<span class="sd">    individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``displacement``</span>
+<span class="sd">    array will hold the displacement vectors for the centroid of every</span>
+<span class="sd">    individual bounding box.</span>
+
+<span class="sd">    For the ``shape`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``displacement`` array will hold vectors with the change in width and</span>
+<span class="sd">    height per bounding box, between consecutive time points.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_validate_time_dimension</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -449,70 +466,105 @@ document.write(`
 <div class="viewcode-block" id="compute_velocity">
 <a class="viewcode-back" href="../../../api/movement.analysis.kinematics.compute_velocity.html#movement.analysis.kinematics.compute_velocity">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the velocity in cartesian ``(x,y)`` coordinates.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity array in cartesian coordinates.</span>
 
-<span class="sd">    Velocity is the first derivative of position for each keypoint</span>
-<span class="sd">    and individual across time. It&#39;s computed using numerical differentiation</span>
-<span class="sd">    and assumes equidistant time spacing.</span>
+<span class="sd">    The velocity array is the first time-derivative of the position</span>
+<span class="sd">    array. It is computed by applying the second-order accurate central</span>
+<span class="sd">    differences method on the position array.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
-<span class="sd">        The input data containing ``time`` as a dimension.</span>
+<span class="sd">        The input data array containing position vectors in cartesian</span>
+<span class="sd">        coordinates, with ``time`` as a dimension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the computed velocity.</span>
+<span class="sd">        An xarray DataArray containing velocity vectors in cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``velocity`` array</span>
+<span class="sd">    will hold the velocity vectors for every keypoint and every individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``velocity`` array</span>
+<span class="sd">    will hold the velocity vectors for the centroid of every individual</span>
+<span class="sd">    bounding box.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :meth:`xarray.DataArray.differentiate` : The underlying method used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_compute_approximate_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_compute_approximate_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="compute_acceleration">
 <a class="viewcode-back" href="../../../api/movement.analysis.kinematics.compute_acceleration.html#movement.analysis.kinematics.compute_acceleration">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration in cartesian ``(x,y)`` coordinates.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration array in cartesian coordinates.</span>
 
-<span class="sd">    Acceleration represents the second derivative of position for each keypoint</span>
-<span class="sd">    and individual across time. It&#39;s computed using numerical differentiation</span>
-<span class="sd">    and assumes equidistant time spacing.</span>
+<span class="sd">    The acceleration array is the second time-derivative of the</span>
+<span class="sd">    position array. It is computed by applying the second-order accurate</span>
+<span class="sd">    central differences method on the velocity array.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
-<span class="sd">        The input data containing ``time`` as a dimension.</span>
+<span class="sd">        The input data array containing position vectors in cartesian</span>
+<span class="sd">        coordinates, with``time`` as a dimension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the computed acceleration.</span>
+<span class="sd">        An xarray DataArray containing acceleration vectors in cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``acceleration``</span>
+<span class="sd">    array will hold the acceleration vectors for every keypoint and every</span>
+<span class="sd">    individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``acceleration``</span>
+<span class="sd">    array will hold the acceleration vectors for the centroid of every</span>
+<span class="sd">    individual bounding box.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :meth:`xarray.DataArray.differentiate` : The underlying method used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_compute_approximate_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_compute_approximate_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_compute_approximate_derivative</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">_compute_approximate_time_derivative</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the derivative using numerical differentiation.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the time-derivative of an array using numerical differentiation.</span>
 
-<span class="sd">    This assumes equidistant time spacing.</span>
+<span class="sd">    This function uses :meth:`xarray.DataArray.differentiate`,</span>
+<span class="sd">    which differentiates the array with the second-order</span>
+<span class="sd">    accurate central differences method.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
-<span class="sd">        The input data containing ``time`` as a dimension.</span>
+<span class="sd">        The input data array containing ``time`` as a dimension.</span>
 <span class="sd">    order : int</span>
-<span class="sd">        The order of the derivative. 1 for velocity, 2 for</span>
-<span class="sd">        acceleration. Value must be a positive integer.</span>
+<span class="sd">        The order of the time-derivative. For an input containing position</span>
+<span class="sd">        data, use 1 to compute velocity, and 2 to compute acceleration. Value</span>
+<span class="sd">        must be a positive integer.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the derived variable.</span>
+<span class="sd">        An xarray DataArray containing the time-derivative of the</span>
+<span class="sd">        input data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -521,17 +573,12 @@ document.write(`
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">order</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="s2">&quot;Order must be a positive integer.&quot;</span><span class="p">)</span>
+
     <span class="n">_validate_time_dimension</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
     <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">,</span>
-            <span class="n">result</span><span class="p">,</span>
-            <span class="n">dt</span><span class="p">,</span>
-            <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex_like</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">differentiate</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
@@ -545,13 +592,13 @@ document.write(`
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
-<span class="sd">    AttributeError</span>
+<span class="sd">    ValueError</span>
 <span class="sd">        If the input data does not contain a ``time`` dimension.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-            <span class="ne">AttributeError</span><span class="p">,</span> <span class="s2">&quot;Input data must contain &#39;time&#39; as a dimension.&quot;</span>
+            <span class="ne">ValueError</span><span class="p">,</span> <span class="s2">&quot;Input data must contain &#39;time&#39; as a dimension.&quot;</span>
         <span class="p">)</span>
 </pre></div>
 
@@ -591,7 +638,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">

@@ -27,20 +27,20 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=9c66c473" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../../_static/documentation_options.js?v=2fd7553c"></script>
+    <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.19</p>
+    <p class="title logo__title">movement v0.0.20</p>
   
 </a></div>
     
@@ -418,6 +418,99 @@ document.write(`
 <span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span>
 
 
+<div class="viewcode-block" id="compute_norm">
+<a class="viewcode-back" href="../../../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the norm of the vectors along the spatial dimension.</span>
+
+<span class="sd">    The norm of a vector is its magnitude, also called Euclidean norm, 2-norm</span>
+<span class="sd">    or Euclidean length. Note that if the input data is expressed in polar</span>
+<span class="sd">    coordinates, the magnitude of a vector is the same as its radial coordinate</span>
+<span class="sd">    ``rho``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data array containing either ``space`` or ``space_pol``</span>
+<span class="sd">        as a dimension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">         A data array holding the norm of the input vectors.</span>
+<span class="sd">         Note that this output array has no spatial dimension but preserves</span>
+<span class="sd">         all other dimensions of the input data array (see Notes).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the input data array is a ``position`` array, this function will compute</span>
+<span class="sd">    the magnitude of the position vectors, for every individual and keypoint,</span>
+<span class="sd">    at every timestep. If the input data array is a ``shape`` array of a</span>
+<span class="sd">    bounding boxes dataset, it will compute the magnitude of the shape</span>
+<span class="sd">    vectors (i.e., the diagonal of the bounding box),</span>
+<span class="sd">    for every individual and at every timestep.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">_validate_dimension_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;space&quot;</span><span class="p">]],</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;space_pol&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">_validate_dimension_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_raise_error_for_missing_spatial_dim</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="convert_to_unit">
+<a class="viewcode-back" href="../../../api/movement.utils.vector.convert_to_unit.html#movement.utils.vector.convert_to_unit">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_to_unit</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the vectors along the spatial dimension into unit vectors.</span>
+
+<span class="sd">    A unit vector is a vector pointing in the same direction as the original</span>
+<span class="sd">    vector but with norm = 1.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data array containing either ``space`` or ``space_pol``</span>
+<span class="sd">        as a dimension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        A data array holding the unit vectors of the input data array</span>
+<span class="sd">        (all input dimensions are preserved).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Note that the unit vector for the null vector is undefined, since the null</span>
+<span class="sd">    vector has 0 norm and no direction associated with it.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">_validate_dimension_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">data</span> <span class="o">/</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;space_pol&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">_validate_dimension_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">]})</span>
+        <span class="c1"># Set both rho and phi values to NaN at null vectors (where rho = 0)</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># Set the rho values to 1 for non-null vectors (phi is preserved)</span>
+        <span class="n">new_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="s2">&quot;rho&quot;</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">new_data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_data</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_raise_error_for_missing_spatial_dim</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="cart2pol">
 <a class="viewcode-back" href="../../../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol">[docs]</a>
 <span class="k">def</span> <span class="nf">cart2pol</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
@@ -439,12 +532,7 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_validate_dimension_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
-    <span class="n">rho</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">,</span>
-        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;space&quot;</span><span class="p">]],</span>
-        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
-    <span class="p">)</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">,</span>
         <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
@@ -540,6 +628,14 @@ document.write(`
             <span class="p">)</span>
     <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">error_message</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_raise_error_for_missing_spatial_dim</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
+        <span class="ne">ValueError</span><span class="p">,</span>
+        <span class="s2">&quot;Input data array must contain either &#39;space&#39; or &#39;space_pol&#39; &quot;</span>
+        <span class="s2">&quot;as dimensions.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 
                 </article>
@@ -578,7 +674,7 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.5.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
     </p>
     <p class="theme-version">
