@@ -100,7 +100,7 @@ def test_kinematics_uniform_linear_motion(
 @pytest.mark.parametrize(
     "kinematic_variable, expected_nans_per_individual",
     [
-        ("displacement", [5, 0]),
+        ("displacement", [5, 0]),  # individual 0, individual 1
         ("velocity", [6, 0]),
         ("acceleration", [7, 0]),
     ],
@@ -124,11 +124,13 @@ def test_kinematics_with_dataset_with_nans(
     kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
+
     # compute n nans in kinematic array per individual
     n_nans_kinematics_per_indiv = [
         helpers.count_nans(kinematic_array.isel(individuals=i))
         for i in range(valid_dataset.dims["individuals"])
     ]
+
     # expected nans per individual adjusted for space and keypoints dimensions
     expected_nans_adjusted = [
         n
