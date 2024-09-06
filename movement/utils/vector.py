@@ -4,7 +4,7 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
-from movement.validators.arrays import validate_dimension_coordinates
+from movement.validators.arrays import validate_dims_coords
 
 
 def compute_norm(data: xr.DataArray) -> xr.DataArray:
@@ -40,7 +40,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
     """
     if "space" in data.dims:
-        validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        validate_dims_coords(data, {"space": ["x", "y"]})
         return xr.apply_ufunc(
             np.linalg.norm,
             data,
@@ -48,7 +48,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
             kwargs={"axis": -1},
         )
     elif "space_pol" in data.dims:
-        validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
         return data.sel(space_pol="rho", drop=True)
     else:
         _raise_error_for_missing_spatial_dim()
@@ -79,10 +79,10 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
 
     """
     if "space" in data.dims:
-        validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        validate_dims_coords(data, {"space": ["x", "y"]})
         return data / compute_norm(data)
     elif "space_pol" in data.dims:
-        validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
         # Set both rho and phi values to NaN at null vectors (where rho = 0)
         new_data = xr.where(data.sel(space_pol="rho") == 0, np.nan, data)
         # Set the rho values to 1 for non-null vectors (phi is preserved)
@@ -112,7 +112,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
 
     """
-    validate_dimension_coordinates(data, {"space": ["x", "y"]})
+    validate_dims_coords(data, {"space": ["x", "y"]})
     rho = compute_norm(data)
     phi = xr.apply_ufunc(
         np.arctan2,
@@ -148,7 +148,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         in the dimension coordinate.
 
     """
-    validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+    validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
     rho = data.sel(space_pol="rho")
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)

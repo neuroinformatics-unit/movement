@@ -5,7 +5,7 @@ import xarray as xr
 from movement.utils.logging import log_error
 
 
-def validate_dimension_coordinates(
+def validate_dims_coords(
     data: xr.DataArray, required_dim_coords: dict
 ) -> None:
     """Validate dimensions and coordinates in a data array.
