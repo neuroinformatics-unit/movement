@@ -238,12 +238,18 @@ def valid_bboxes_arrays_all_zeros():
 
 # --------------------- Bboxes dataset fixtures ----------------------------
 @pytest.fixture
-def valid_bboxes_array():
-    """Return a dictionary of valid non-zero arrays for a
-    ValidBboxesDataset.
+def valid_bboxes_arrays():
+    """Return a dictionary of valid arrays for a
+    ValidBboxesDataset representing a uniform linear motion.
 
-    Contains realistic data for 10 frames, 2 individuals, in 2D
-    with 5 low confidence bounding boxes.
+    It represents 2 individuals for 10 frames, in 2D space.
+    - Individual 0 moves along the x=y line from the origin.
+    - Individual 1 moves along the x=-y line line from the origin.
+
+    All confidence values are set to 0.9 except the following which are set
+    to 0.1:
+    - Individual 0 at frames 2, 3, 4
+    - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
     n_frames, n_individuals, n_space = (10, 2, 2)
@@ -276,22 +282,21 @@ def valid_bboxes_array():
         "position": position,
         "shape": shape,
         "confidence": confidence,
-        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
     }
 
 
 @pytest.fixture
 def valid_bboxes_dataset(
-    valid_bboxes_array,
+    valid_bboxes_arrays,
 ):
-    """Return a valid bboxes dataset with low confidence values and
-    time in frames.
+    """Return a valid bboxes dataset for two individuals moving in uniform
+    linear motion, with 5 frames with low confidence values and time in frames.
     """
     dim_names = MovementDataset.dim_names["bboxes"]
 
-    position_array = valid_bboxes_array["position"]
-    shape_array = valid_bboxes_array["shape"]
-    confidence_array = valid_bboxes_array["confidence"]
+    position_array = valid_bboxes_arrays["position"]
+    shape_array = valid_bboxes_arrays["shape"]
+    confidence_array = valid_bboxes_arrays["confidence"]
 
     n_frames, n_individuals, _ = position_array.shape
 
@@ -409,10 +414,108 @@ def valid_poses_dataset(valid_position_array, request):
 @pytest.fixture
 def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid pose tracks dataset with NaN values."""
+    # Sets position for all keypoints in individual ind1 to NaN
+    # at timepoints 3, 7, 8
     valid_poses_dataset.position.loc[
         {"individuals": "ind1", "time": [3, 7, 8]}
     ] = np.nan
     return valid_poses_dataset
+
+
+@pytest.fixture
+def valid_poses_array_uniform_linear_motion():
+    """Return a dictionary of valid arrays for a
+    ValidPosesDataset representing a uniform linear motion.
+
+    It represents 2 individuals with 3 keypoints, for 10 frames, in 2D space.
+    - Individual 0 moves along the x=y line from the origin.
+    - Individual 1 moves along the x=-y line line from the origin.
+
+    All confidence values for all keypoints are set to 0.9 except
+    for the keypoints at the following frames which are set to 0.1:
+    - Individual 0 at frames 2, 3, 4
+    - Individual 1 at frames 2, 3
+    """
+    # define the shape of the arrays
+    n_frames, n_individuals, n_keypoints, n_space = (10, 2, 3, 2)
+
+    # define centroid (index=0) trajectory in position array
+    # for each individual, the centroid moves along
+    # the x=+/-y line, starting from the origin.
+    # - individual 0 moves along x = y line
+    # - individual 1 moves along x = -y line
+    # They move one unit along x and y axes in each frame
+    frames = np.arange(n_frames)
+    position = np.empty((n_frames, n_individuals, n_keypoints, n_space))
+    position[:, :, 0, 0] = frames[:, None]  # reshape to (n_frames, 1)
+    position[:, 0, 0, 1] = frames
+    position[:, 1, 0, 1] = -frames
+
+    # define trajectory of left and right keypoints
+    # for individual 0, at each timepoint:
+    # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
+    # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
+    # for individual 1, at each timepoint:
+    # - the left keypoint (index=1) is at x_centroid - 1, y_centroid
+    # - the right keypoint (index=2) is at x_centroid, y_centroid + 1
+    offsets = [
+        [(0, 1), (1, 0)],  # individual 0: left, right keypoints (x,y) offsets
+        [(-1, 0), (0, 1)],  # individual 1: left, right keypoints (x,y) offsets
+    ]
+    for i in range(n_individuals):
+        for kpt in range(1, n_keypoints):
+            position[:, i, kpt, 0] = (
+                position[:, i, 0, 0] + offsets[i][kpt - 1][0]
+            )
+            position[:, i, kpt, 1] = (
+                position[:, i, 0, 1] + offsets[i][kpt - 1][1]
+            )
+
+    # build an array of confidence values, all 0.9
+    confidence = np.full((n_frames, n_individuals, n_keypoints), 0.9)
+    # set 5 low-confidence values
+    # - set 3 confidence values for individual id_0's centroid to 0.1
+    # - set 2 confidence values for individual id_1's centroid to 0.1
+    idx_start = 2
+    confidence[idx_start : idx_start + 3, 0, 0] = 0.1
+    confidence[idx_start : idx_start + 2, 1, 0] = 0.1
+
+    return {"position": position, "confidence": confidence}
+
+
+@pytest.fixture
+def valid_poses_dataset_uniform_linear_motion(
+    valid_poses_array_uniform_linear_motion,
+):
+    """Return a valid poses dataset for two individuals moving in uniform
+    linear motion, with 5 frames with low confidence values and time in frames.
+    """
+    dim_names = MovementDataset.dim_names["poses"]
+
+    position_array = valid_poses_array_uniform_linear_motion["position"]
+    confidence_array = valid_poses_array_uniform_linear_motion["confidence"]
+
+    n_frames, n_individuals, _, _ = position_array.shape
+
+    return xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(position_array, dims=dim_names),
+            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+        },
+        coords={
+            dim_names[0]: np.arange(n_frames),
+            dim_names[1]: [f"id_{i}" for i in range(1, n_individuals + 1)],
+            dim_names[2]: ["centroid", "left", "right"],
+            dim_names[3]: ["x", "y"],
+        },
+        attrs={
+            "fps": None,
+            "time_unit": "frames",
+            "source_software": "test",
+            "source_file": "test_poses.h5",
+            "ds_type": "poses",
+        },
+    )
 
 
 # -------------------- Invalid datasets fixtures ------------------------------
