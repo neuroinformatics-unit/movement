@@ -11,7 +11,7 @@ def validate_dims_coords(
     """Validate dimensions and coordinates in a data array.
 
     This function raises a ValueError if the specified dimensions and
-    coordinates are not present in the input data array..
+    coordinates are not present in the input data array.
 
     Parameters
     ----------
@@ -21,6 +21,18 @@ def validate_dims_coords(
         A dictionary of required dimensions and their corresponding
         coordinate values. If you don't need to specify any
         coordinate values, you can pass an empty list.
+
+    Examples
+    --------
+    Validate that a data array contains the dimension 'time'. No specific
+    coordinates are required.
+
+    >>> validate_dims_coords(data, {"time": []})
+
+    Validate that a data array contains the dimensions 'time' and 'space',
+    and that the 'space' dimension contains the coordinates 'x' and 'y'.
+
+    >>> validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
 
     Raises
     ------
