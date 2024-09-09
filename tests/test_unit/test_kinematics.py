@@ -1,5 +1,6 @@
 import itertools
 import re
+from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
@@ -393,7 +394,9 @@ def test_nan_behavior_forward_vector(
         ),
     ],
 )
-def test_cdist(dim, pairs, expected_data, pairwise_distances_dataset):
+def test_cdist_with_known_values(
+    dim, pairs, expected_data, pairwise_distances_dataset
+):
     """Test the computation of pairwise distances with known values."""
     core_dim = "keypoints" if dim == "individuals" else "individuals"
     input_dataarray = pairwise_distances_dataset.position
@@ -413,6 +416,55 @@ def test_cdist(dim, pairs, expected_data, pairwise_distances_dataset):
         result,
         expected,
     )
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda position: (
+            position.sel(individuals="ind1"),
+            position.sel(individuals="ind2"),
+        ),  # individuals dim is scalar
+        lambda position: (
+            position.where(
+                position.individuals == "ind1", drop=True
+            ).squeeze(),
+            position.where(
+                position.individuals == "ind2", drop=True
+            ).squeeze(),
+        ),  # individuals dim is 1D
+        lambda position: (
+            position.sel(individuals="ind1", keypoints="key1"),
+            position.sel(individuals="ind2", keypoints="key1"),
+        ),  # both individuals and keypoints dims are scalar
+        lambda position: (
+            position.where(position.keypoints == "key1", drop=True).sel(
+                individuals="ind1"
+            ),
+            position.where(position.keypoints == "key1", drop=True).sel(
+                individuals="ind2"
+            ),
+        ),  # keypoints dim is 1D
+    ],
+    ids=[
+        "dim_has_ndim_0",
+        "dim_has_ndim_1",
+        "core_dim_has_ndim_0",
+        "core_dim_has_ndim_1",
+    ],
+)
+def test_cdist_with_single_dim_inputs(
+    pairwise_distances_dataset, selection_fn
+):
+    """Test that the computation of pairwise distances
+    works regardless of whether the input DataArrays have
+    ```dim``` and ```core_dim``` being either scalar (ndim=0)
+    or 1D (ndim=1).
+    """
+    position = pairwise_distances_dataset.position
+    a, b = selection_fn(position)
+    with does_not_raise():
+        kinematics.cdist(a, b, "individuals")
 
 
 def expected_pairwise_distances(pairs, input_ds, dim):
