@@ -227,6 +227,10 @@ def cdist(
     core_dim = "individuals" if dim == "keypoints" else "keypoints"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
+    if a.coords[core_dim].ndim == 0:
+        a = a.expand_dims(core_dim).transpose("time", "space", core_dim)
+    if b.coords[core_dim].ndim == 0:
+        b = b.expand_dims(core_dim).transpose("time", "space", core_dim)
     result = xr.apply_ufunc(
         _cdist,
         a,
@@ -242,7 +246,8 @@ def cdist(
             elem2: getattr(a, core_dim).values,
         }
     )
-    return result
+    # Drop any squeezed coordinates
+    return result.squeeze(drop=True)
 
 
 def compute_interindividual_distances(
