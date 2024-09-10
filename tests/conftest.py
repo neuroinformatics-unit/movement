@@ -574,40 +574,6 @@ def kinematic_property(request):
     return request.param
 
 
-@pytest.fixture
-def pairwise_distances_dataset():
-    """Return a minimal poses dataset with 3 individuals
-    and 3 keypoints for pairwise distances computation.
-    """
-    time = np.arange(2)
-    space = ["x", "y"]
-    individuals = ["ind1", "ind2", "ind3"]
-    keypoints = ["key1", "key2", "key3"]
-    data = np.array(
-        [
-            [
-                [[1, 1], [0, 0], [1, 0]],
-                [[1, 0], [1, 1], [0, 0]],
-                [[0, 0], [1, 0], [1, 1]],
-            ],
-            [
-                [[3, 6], [1, 4], [0, 4]],
-                [[0, 4], [3, 6], [1, 4]],
-                [[1, 4], [0, 4], [3, 6]],
-            ],
-        ]
-    )
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(
-                data,
-                coords=[time, individuals, keypoints, space],
-                dims=["time", "individuals", "keypoints", "space"],
-            )
-        }
-    )
-
-
 # ---------------- VIA tracks CSV file fixtures ----------------------------
 @pytest.fixture
 def via_tracks_csv_with_invalid_header(tmp_path):
