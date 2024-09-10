@@ -377,7 +377,7 @@ def compute_interkeypoint_distances(
     ----------
     data : xarray.DataArray
         The input data containing
-        ``('time', 'individuals', 'keypoints', 'space'`` as dimensions.
+        ``('time', 'individuals', 'keypoints', 'space')`` as dimensions.
     pairs : dict[str, str | list[str]], optional
         A dictionary containing the mapping between pairs of keypoints.
         The key is the keypoint and the value is a list of keypoints
@@ -431,16 +431,17 @@ def compute_interkeypoint_distances(
       * key1     (key1) <U4 32B 'ind1' 'ind2'
       * key2     (key2) <U4 32B 'ind1' 'ind2'
 
-
     The resulting ``dist_key1_key2`` is a DataArray containing the computed
     distances between ``key1`` and ``key2`` for all individuals
     at each time point.
 
     To obtain the distances between ``key1`` and ``key2`` within ``ind1``:
+
     >>> dist_key1_key2.sel(key1="ind1", key2="ind1")
 
     To obtain the distances between ``key1`` of ``ind1`` and
     ``key2`` of ``ind2``:
+
     >>> dist_key1_key2.sel(key1="ind1", key2="ind2")
 
     Compute the city block or Manhattan distance for multiple pairs of
@@ -536,7 +537,7 @@ def _compute_pairwise_distances(
     ----------
     data : xarray.DataArray
         The input data containing
-        ``('time', 'individuals', 'keypoints', 'space'`` as dimensions.
+        ``('time', 'individuals', 'keypoints', 'space')`` as dimensions.
     dim : str
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
