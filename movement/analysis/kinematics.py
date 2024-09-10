@@ -227,14 +227,8 @@ def cdist(
     core_dim = "individuals" if dim == "keypoints" else "keypoints"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
-    if a.coords.get(core_dim) is None:
-        a = a.assign_coords({core_dim: "temp"})
-    if b.coords.get(core_dim) is None:
-        b = b.assign_coords({core_dim: "temp"})
-    if a.coords[core_dim].ndim == 0:
-        a = a.expand_dims(core_dim).transpose("time", "space", core_dim)
-    if b.coords[core_dim].ndim == 0:
-        b = b.expand_dims(core_dim).transpose("time", "space", core_dim)
+    a = _validate_core_dimension(a, core_dim)
+    b = _validate_core_dimension(b, core_dim)
     result = xr.apply_ufunc(
         _cdist,
         a,
@@ -614,3 +608,32 @@ def _compute_pairwise_distances(
     if len(pairwise_distances) == 1:
         return next(iter(pairwise_distances.values()))
     return pairwise_distances
+
+
+def _validate_core_dimension(
+    data: xr.DataArray, core_dim: str
+) -> xr.DataArray:
+    """Validate the input data contains the required core dimension.
+
+    This function ensures the input data contains the ``core_dim``
+    required when applying :func:`scipy.spatial.distance.cdist` to
+    the input data, by adding a temporary dimension if necessary.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+    core_dim : str
+        The core dimension to validate.
+
+    Returns
+    -------
+    xarray.DataArray
+        The input data with the core dimension validated.
+
+    """
+    if data.coords.get(core_dim) is None:
+        data = data.assign_coords({core_dim: "temp_dim"})
+    if data.coords[core_dim].ndim == 0:
+        data = data.expand_dims(core_dim).transpose("time", "space", core_dim)
+    return data
