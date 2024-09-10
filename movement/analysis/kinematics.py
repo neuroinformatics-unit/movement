@@ -5,6 +5,7 @@ import xarray as xr
 
 from movement.utils.logging import log_error
 from movement.validators.arrays import validate_dims_coords
+from movement.utils.vector import convert_to_unit
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -169,13 +170,19 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 
 
 def compute_head_direction_vector(
-    data: xr.DataArray, left_keypoint: str, right_keypoint: str
+    data: xr.DataArray,
+    left_keypoint: str,
+    right_keypoint: str,
+    front_keypoint: str | None = None,
 ):
     """Compute the 2D head direction vector given two keypoints on the head.
 
     The head direction vector is computed as a vector perpendicular to the
     line connecting two keypoints on either side of the head, pointing
-    forwards (in the rostral direction).
+    forwards (in the rostral direction). As the forward direction may
+    differ between coordinate systems, the front keypoint is used ...,
+    when present. Otherwise, we assume that coordinates are given in the
+    image coordinate system (where the origin is located in the top-left).
 
     Parameters
     ----------
@@ -187,6 +194,8 @@ def compute_head_direction_vector(
         Name of the left keypoint, e.g., "left_ear"
     right_keypoint : str
         Name of the right keypoint, e.g., "right_ear"
+    front_keypoint : str | None
+        (Optional) Name of the front keypoint, e.g., "nose".
 
     Returns
     -------
@@ -197,6 +206,9 @@ def compute_head_direction_vector(
 
     """
     # Validate input dataset
+    _validate_type_data_array(data)
+    _validate_time_keypoints_space_dimensions(data)
+
     if left_keypoint == right_keypoint:
         raise log_error(
             ValueError, "The left and right keypoints may not be identical."
@@ -222,6 +234,25 @@ def compute_head_direction_vector(
     head_vector.values = np.cross(right_to_left_vector, perpendicular_vector)[
         :, :, :-1
     ]
+
+    # Check computed head_vector is pointing in the same direction as vector
+    # from head midpoint to snout
+    if front_keypoint:
+        head_front = data.sel(keypoints=front_keypoint, drop=True)
+        head_midpoint = (head_right + head_left) / 2
+        mid_to_front_vector = head_front - head_midpoint
+        dot_product_array = (
+            convert_to_unit(head_vector.sel(individuals=data.individuals[0]))
+            * convert_to_unit(mid_to_front_vector).sel(
+                individuals=data.individuals[0]
+            )
+        ).sum(dim="space")
+        median_dot_product = float(dot_product_array.median(dim="time").values)
+        if median_dot_product < 0:
+            perpendicular_vector = np.array([0, 0, 1])
+            head_vector.values = np.cross(
+                right_to_left_vector, perpendicular_vector
+            )[:, :, :-1]
 
     return head_vector
 
