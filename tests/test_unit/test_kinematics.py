@@ -445,12 +445,21 @@ def test_cdist_with_known_values(
                 individuals="ind2"
             ),
         ),  # keypoints dim is 1D
+        lambda position: (
+            position.drop_sel(keypoints=position.keypoints.values[1:])
+            .squeeze(drop=True)
+            .sel(individuals="ind1"),
+            position.drop_sel(keypoints=position.keypoints.values[1:])
+            .squeeze(drop=True)
+            .sel(individuals="ind2"),
+        ),  # missing core dim
     ],
     ids=[
         "dim_has_ndim_0",
         "dim_has_ndim_1",
         "core_dim_has_ndim_0",
         "core_dim_has_ndim_1",
+        "missing_core_dim",
     ],
 )
 def test_cdist_with_single_dim_inputs(
@@ -459,7 +468,7 @@ def test_cdist_with_single_dim_inputs(
     """Test that the computation of pairwise distances
     works regardless of whether the input DataArrays have
     ```dim``` and ```core_dim``` being either scalar (ndim=0)
-    or 1D (ndim=1).
+    or 1D (ndim=1), or if ``core_dim`` is missing.
     """
     position = pairwise_distances_dataset.position
     a, b = selection_fn(position)

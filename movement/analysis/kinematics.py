@@ -227,6 +227,10 @@ def cdist(
     core_dim = "individuals" if dim == "keypoints" else "keypoints"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
+    if a.coords.get(core_dim) is None:
+        a = a.assign_coords({core_dim: "temp"})
+    if b.coords.get(core_dim) is None:
+        b = b.assign_coords({core_dim: "temp"})
     if a.coords[core_dim].ndim == 0:
         a = a.expand_dims(core_dim).transpose("time", "space", core_dim)
     if b.coords[core_dim].ndim == 0:
