@@ -177,6 +177,13 @@ linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
 ]
+# A dictionary that maps a pattern of redirects from source to target
+# If the pattens match, linkcheck will treat this as a "working" link
+linkcheck_allowed_redirects = {
+    # allow for all Zenodo links
+    # (because version-agnostic dois redirect to latest record)
+    "https://zenodo.org/*": "https://zenodo.org/*",
+}
 
 myst_url_schemes = {
     "http": None,
