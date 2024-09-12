@@ -326,7 +326,7 @@ def from_via_tracks_file(
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
         individual_names=[
-            f"id_{id}" for id in bboxes_arrays["ID_array"].squeeze()
+            f"id_{id.item()}" for id in bboxes_arrays["ID_array"]
         ],
         frame_array=(
             bboxes_arrays["frame_array"]
@@ -398,8 +398,11 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
             df[map_key_to_columns[key]].to_numpy(),
             indices_id_switch,  # indices along axis=0
         )
+        array_dict[key] = np.stack(list_arrays, axis=1)
 
-        array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
+        # squeeze only last dimension if it is 1
+        if array_dict[key].shape[-1] == 1:
+            array_dict[key] = array_dict[key].squeeze(axis=-1)
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
