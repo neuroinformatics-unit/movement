@@ -419,3 +419,54 @@ def test_fps_and_time_coords(
     else:
         start_frame = 0
     assert_time_coordinates(ds, expected_fps, start_frame)
+
+
+def test_df_from_via_tracks_file(via_tracks_file):
+    """Test that the helper function correctly reads the VIA tracks .csv file
+    as a dataframe.
+    """
+    df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
+
+    assert isinstance(df, pd.DataFrame)
+
+    # Check data is for 5 frames
+    assert len(df.frame_number.unique()) == 5
+
+    # Check all individuals are defined for every frame (even if Nan)
+    assert df.shape[0] == len(df.ID.unique()) * 5
+
+    # Check columns
+    assert list(df.columns) == [
+        "ID",
+        "frame_number",
+        "x",
+        "y",
+        "w",
+        "h",
+        "confidence",
+    ]
+
+
+def test_position_numpy_array_from_via_tracks_file(via_tracks_file):
+    """Test the extracted position array from the VIA tracks .csv file
+    represents the centroid of the bbox.
+    """
+    # Extract arrays from VIA tracks .csv file
+    bboxes_arrays = load_bboxes._numpy_arrays_from_via_tracks_file(
+        via_tracks_file
+    )
+
+    # Read VIA tracks .csv file as a dataframe
+    df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
+
+    # Check the centroid values
+    for k, id in enumerate(bboxes_arrays["ID_array"]):
+        df_one_ID = df[df["ID"] == id.item()]
+        centroid_position = np.array(
+            [df_one_ID.x + df_one_ID.w / 2, df_one_ID.y + df_one_ID.h / 2]
+        ).T
+
+        assert np.allclose(
+            bboxes_arrays["position_array"][:, k, :],
+            centroid_position,
+        )
