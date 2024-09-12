@@ -428,14 +428,10 @@ def test_df_from_via_tracks_file(via_tracks_file):
     df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
 
     assert isinstance(df, pd.DataFrame)
-
-    # Check data is for 5 frames
     assert len(df.frame_number.unique()) == 5
-
-    # Check all individuals are defined for every frame (even if Nan)
-    assert df.shape[0] == len(df.ID.unique()) * 5
-
-    # Check columns
+    assert (
+        df.shape[0] == len(df.ID.unique()) * 5
+    )  # all individuals in all frames (even if nan)
     assert list(df.columns) == [
         "ID",
         "frame_number",
@@ -451,7 +447,7 @@ def test_position_numpy_array_from_via_tracks_file(via_tracks_file):
     """Test the extracted position array from the VIA tracks .csv file
     represents the centroid of the bbox.
     """
-    # Extract arrays from VIA tracks .csv file
+    # Extract numpy arrays from VIA tracks .csv file
     bboxes_arrays = load_bboxes._numpy_arrays_from_via_tracks_file(
         via_tracks_file
     )
