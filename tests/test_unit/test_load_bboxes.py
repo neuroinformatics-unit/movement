@@ -459,14 +459,18 @@ def test_position_numpy_array_from_via_tracks_file(via_tracks_file):
     # Read VIA tracks .csv file as a dataframe
     df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
 
-    # Check the centroid values
-    for k, id in enumerate(bboxes_arrays["ID_array"]):
+    # Compute centroid positions from the dataframe
+    # (go thru in the same order as ID array)
+    list_derived_centroids = []
+    for id in bboxes_arrays["ID_array"]:
         df_one_ID = df[df["ID"] == id.item()]
         centroid_position = np.array(
             [df_one_ID.x + df_one_ID.w / 2, df_one_ID.y + df_one_ID.h / 2]
-        ).T
+        ).T  # frames, xy
+        list_derived_centroids.append(centroid_position)
 
-        assert np.allclose(
-            bboxes_arrays["position_array"][:, k, :],
-            centroid_position,
-        )
+    # Compare to extracted position array
+    assert np.allclose(
+        bboxes_arrays["position_array"],  # frames, individuals, xy
+        np.stack(list_derived_centroids, axis=1),
+    )
