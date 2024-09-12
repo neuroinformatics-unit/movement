@@ -459,9 +459,9 @@ def test_position_numpy_array_from_via_tracks_file(via_tracks_file):
     # (go thru in the same order as ID array)
     list_derived_centroids = []
     for id in bboxes_arrays["ID_array"]:
-        df_one_ID = df[df["ID"] == id.item()]
+        df_one_id = df[df["ID"] == id.item()]
         centroid_position = np.array(
-            [df_one_ID.x + df_one_ID.w / 2, df_one_ID.y + df_one_ID.h / 2]
+            [df_one_id.x + df_one_id.w / 2, df_one_id.y + df_one_id.h / 2]
         ).T  # frames, xy
         list_derived_centroids.append(centroid_position)
 
