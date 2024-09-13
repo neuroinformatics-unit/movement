@@ -21,6 +21,13 @@ from movement.napari.layer_styles import PointsStyle
 
 logger = logging.getLogger(__name__)
 
+# Allowed poses file suffixes for each supported source software
+SUPPORTED_POSES_FILES = {
+    "DeepLabCut": ["*.h5", "*.csv"],
+    "LightningPose": ["*.csv"],
+    "SLEAP": ["*.h5", "*.slp"],
+}
+
 
 class PosesLoader(QWidget):
     """Widget for loading movement poses datasets from file."""
@@ -35,13 +42,13 @@ class PosesLoader(QWidget):
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+        # Enable layer tooltips from napari settings
+        self._enable_layer_tooltips()
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
-        self.source_software_combo.addItems(
-            ["SLEAP", "DeepLabCut", "LightningPose"]
-        )
+        self.source_software_combo.addItems(SUPPORTED_POSES_FILES.keys())
         self.layout().addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
@@ -49,7 +56,7 @@ class PosesLoader(QWidget):
         self.fps_spinbox = QSpinBox()
         self.fps_spinbox.setMinimum(1)
         self.fps_spinbox.setMaximum(1000)
-        self.fps_spinbox.setValue(50)
+        self.fps_spinbox.setValue(30)
         self.layout().addRow("fps:", self.fps_spinbox)
 
     def _create_file_path_widget(self):
@@ -76,16 +83,13 @@ class PosesLoader(QWidget):
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
-        file_suffix_map = {
-            "DeepLabCut": "Files containing predicted poses (*.h5 *.csv)",
-            "LightningPose": "Files containing predicted poses (*.csv)",
-            "SLEAP": "Files containing predicted poses (*.h5 *.slp)",
-        }
+        file_suffixes = SUPPORTED_POSES_FILES[
+            self.source_software_combo.currentText()
+        ]
         dlg = QFileDialog()
         dlg.setFileMode(QFileDialog.ExistingFile)
-        # Allowed file suffixes based on the source software
         dlg.setNameFilter(
-            file_suffix_map[self.source_software_combo.currentText()]
+            f"Files containing predicted poses ({' '.join(file_suffixes)})"
         )
         if dlg.exec_():
             file_paths = dlg.selectedFiles()
@@ -103,17 +107,14 @@ class PosesLoader(QWidget):
         ds = load_poses.from_file(file_path, source_software, fps)
 
         self.data, self.props = poses_to_napari_tracks(ds)
-        logger.info("Converted pose tracks to a napari Tracks array.")
-        logger.debug(f"Tracks data shape: {self.data.shape}")
+        logger.info("Converted poses dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
 
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
         self._set_playback_fps(fps)
         logger.debug(f"Set napari playback speed to {fps} fps.")
-
-        self._enable_layer_tooltips()
-        logger.info("Enabled visibility of napari layer tooltips.")
 
     def _add_points_layer(self):
         """Add the predicted poses to the viewer as a Points layer."""
@@ -130,7 +131,7 @@ class PosesLoader(QWidget):
         )
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
-        logger.info("Added poses as a napari Points layer.")
+        logger.info("Added poses dataset as a napari Points layer.")
 
     @staticmethod
     def _set_playback_fps(fps: int):
