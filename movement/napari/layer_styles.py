@@ -39,16 +39,6 @@ class PointsStyle(LayerStyle):
     face_colormap: str = DEFAULT_COLORMAP
     text: dict = field(default_factory=lambda: {"visible": False})
 
-    @staticmethod
-    def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
-        """Sample n equally-spaced colors from a napari colormap.
-
-        This includes the endpoints of the colormap.
-        """
-        cmap = ensure_colormap(cmap_name)
-        samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
-        return [tuple(cmap.colors[i]) for i in samples]
-
     def set_color_by(self, prop: str, cmap: str | None = None) -> None:
         """Set the face_color to a column in the properties DataFrame.
 
@@ -65,4 +55,14 @@ class PointsStyle(LayerStyle):
         self.face_color = prop
         self.text["string"] = prop
         n_colors = len(self.properties[prop].unique())
-        self.face_color_cycle = self._sample_colormap(n_colors, cmap)
+        self.face_color_cycle = _sample_colormap(n_colors, cmap)
+
+
+def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
+    """Sample n equally-spaced colors from a napari colormap.
+
+    This includes the endpoints of the colormap.
+    """
+    cmap = ensure_colormap(cmap_name)
+    samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
+    return [tuple(cmap.colors[i]) for i in samples]

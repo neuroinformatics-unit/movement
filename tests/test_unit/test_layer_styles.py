@@ -77,18 +77,14 @@ def test_points_style_set_color_by(sample_properties, prop, expected_n_colors):
     )
 
     points_style.set_color_by(prop=prop)
-
+    # Check that face_color and text are updated correctly
     assert points_style.face_color == prop
     assert points_style.text == {"visible": False, "string": prop}
+
+    # Check that face_color_cycle has the correct number of colors
     assert len(points_style.face_color_cycle) == expected_n_colors
-
-
-def test_points_style_sample_colormap():
-    """Test that the _sample_colormap method returns colors
-    formatted as tuples of length 4 (RGBA).
-    """
-    n = 5
-    colors = PointsStyle._sample_colormap(n=n, cmap_name=DEFAULT_COLORMAP)
-
-    assert len(colors) == n
-    assert all(isinstance(c, tuple) and len(c) == 4 for c in colors)
+    # Check that all colors are tuples of length 4 (RGBA)
+    assert all(
+        isinstance(c, tuple) and len(c) == 4
+        for c in points_style.face_color_cycle
+    )
