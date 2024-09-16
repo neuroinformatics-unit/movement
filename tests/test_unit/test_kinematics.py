@@ -186,119 +186,149 @@ def test_approximate_derivative_with_invalid_order(order):
         kinematics.compute_time_derivative(data, order=order)
 
 
-class TestNavigation:
-    """Test suite for navigation-related functions in the kinematics module."""
+@pytest.fixture
+def valid_data_array_for_head_vector():
+    """Return a position data array for an individual with 3 keypoints
+    (left ear, right ear and nose), tracked for 4 frames, in x-y space.
+    """
+    time = [0, 1, 2, 3]
+    individuals = ["individual_0"]
+    keypoints = ["left_ear", "right_ear", "nose"]
+    space = ["x", "y"]
 
-    @pytest.fixture
-    def mock_dataarray(self):
-        """Return a mock DataArray containing four known head orientations."""
-        time = [0, 1, 2, 3]
-        individuals = ["individual_0"]
-        keypoints = ["left_ear", "right_ear", "nose"]
-        space = ["x", "y"]
+    ds = xr.DataArray(
+        [
+            [[[1, 0], [-1, 0], [0, -1]]],  # time 0
+            [[[0, 1], [0, -1], [1, 0]]],  # time 1
+            [[[-1, 0], [1, 0], [0, 1]]],  # time 2
+            [[[0, -1], [0, 1], [-1, 0]]],  # time 3
+        ],
+        dims=["time", "individuals", "keypoints", "space"],
+        coords={
+            "time": time,
+            "individuals": individuals,
+            "keypoints": keypoints,
+            "space": space,
+        },
+    )
+    return ds
 
-        ds = xr.DataArray(
-            [
-                [[[1, 0], [-1, 0], [0, -1]]],  # time 0
-                [[[0, 1], [0, -1], [1, 0]]],  # time 1
-                [[[-1, 0], [1, 0], [0, 1]]],  # time 2
-                [[[0, -1], [0, 1], [-1, 0]]],  # time 3
-            ],
-            dims=["time", "individuals", "keypoints", "space"],
-            coords={
-                "time": time,
-                "individuals": individuals,
-                "keypoints": keypoints,
-                "space": space,
-            },
-        )
-        return ds
 
-    @pytest.fixture
-    def mock_dataarray_3D(self):
-        """Return a 3D DataArray containing a known head orientation."""
-        time = [0]
-        individuals = ["individual_0"]
-        keypoints = ["left", "right"]
-        space = ["x", "y", "z"]
+@pytest.fixture
+def invalid_input_type_for_head_vector(valid_data_array_for_head_vector):
+    """Return a numpy array of position values by individual, per keypoint,
+    over time.
+    """
+    return valid_data_array_for_head_vector.values
 
-        ds = xr.DataArray(
-            [
-                [[[1, 0, 0], [-1, 0, 0]]],
-            ],
-            dims=["time", "individuals", "keypoints", "space"],
-            coords={
-                "time": time,
-                "individuals": individuals,
-                "keypoints": keypoints,
-                "space": space,
-            },
-        )
-        return ds
 
-    def test_compute_head_direction_vector(
-        self, mock_dataarray, mock_dataarray_3D
-    ):
-        """Test that the correct head direction vectors
-        are computed from a basic mock dataset.
-        """
-        # Test that validators work
+@pytest.fixture
+def invalid_dimensions_for_head_vector(valid_data_array_for_head_vector):
+    """Return a position DataArray in which the ``keypoints`` dimension has
+    been dropped.
+    """
+    return valid_data_array_for_head_vector.sel(keypoints="nose", drop=True)
 
-        # Catch incorrect datatype
-        with pytest.raises(TypeError, match="must be an xarray.DataArray"):
-            kinematics.compute_head_direction_vector(
-                mock_dataarray.values, "left_ear", "right_ear"
-            )
 
-        # Catch incorrect dimensions
-        with pytest.raises(
-            AttributeError, match="'time', 'space', and 'keypoints'"
-        ):
-            mock_data_keypoint = mock_dataarray.sel(
-                keypoints="nose", drop=True
-            )
-            kinematics.compute_head_direction_vector(
-                mock_data_keypoint, "left_ear", "right_ear"
-            )
+@pytest.fixture
+def invalid_spatial_dimensions_for_head_vector(
+    valid_data_array_for_head_vector,
+):
+    """Return a position DataArray containing three spatial dimensions."""
+    dataarray_3d = valid_data_array_for_head_vector.pad(
+        space=(0, 1), constant_values=0
+    )
+    return dataarray_3d.assign_coords(space=["x", "y", "z"])
 
-        # Catch identical left and right keypoints
-        with pytest.raises(ValueError, match="keypoints may not be identical"):
-            kinematics.compute_head_direction_vector(
-                mock_dataarray, "left_ear", "left_ear"
-            )
 
-        # Catch incorrect spatial dimensions
-        with pytest.raises(
+@pytest.fixture
+def valid_data_array_for_head_vector_with_NaNs(
+    valid_data_array_for_head_vector,
+):
+    """Return a position DataArray where position values are NaN for the
+    ``left_ear`` keypoint at time ``1``.
+    """
+    nan_dataarray = valid_data_array_for_head_vector.where(
+        (valid_data_array_for_head_vector.time != 1)
+        | (valid_data_array_for_head_vector.keypoints != "left_ear")
+    )
+    return nan_dataarray
+
+
+def test_compute_2d_head_direction_vector(valid_data_array_for_head_vector):
+    """Test that the correct output head direction vectors
+    are computed from a valid mock dataset.
+    """
+    head_vector = kinematics.compute_2d_head_direction_vector(
+        valid_data_array_for_head_vector, "left_ear", "right_ear"
+    )
+    known_vectors = np.array([[[0, 1]], [[-1, 0]], [[0, -1]], [[1, 0]]])
+
+    assert (
+        isinstance(head_vector, xr.DataArray)
+        and ("space" in head_vector.dims)
+        and ("keypoints" not in head_vector.dims)
+    )
+    assert np.equal(head_vector.values, known_vectors).all()
+
+
+@pytest.mark.parametrize(
+    "input_data, expected_error, expected_match_str, keypoints",
+    [
+        (
+            "invalid_input_type_for_head_vector",
+            TypeError,
+            "must be an xarray.DataArray",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "invalid_dimensions_for_head_vector",
+            AttributeError,
+            "'time', 'space', and 'keypoints'",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "invalid_spatial_dimensions_for_head_vector",
             ValueError,
-            match=re.escape("must have 2 (and only 2) spatial dimensions"),
-        ):
-            kinematics.compute_head_direction_vector(
-                mock_dataarray_3D, "left", "right"
-            )
+            "must have 2 (and only 2) spatial dimensions",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "valid_data_array_for_head_vector",
+            ValueError,
+            "keypoints may not be identical",
+            ["left_ear", "left_ear"],
+        ),
+    ],
+)
+def test_compute_2d_head_direction_vector_with_invalid_input(
+    input_data, keypoints, expected_error, expected_match_str, request
+):
+    """Test that ``compute_2d_head_direction_vector`` catches errors
+    correctly when passed invalid inputs.
+    """
+    # Get fixture
+    input_data = request.getfixturevalue(input_data)
 
-        # Test that output contains correct datatype, dimensions, and values
-        head_vector = kinematics.compute_head_direction_vector(
-            mock_dataarray, "left_ear", "right_ear"
-        )
-        known_vectors = np.array([[[0, 2]], [[-2, 0]], [[0, -2]], [[2, 0]]])
-
-        assert (
-            isinstance(head_vector, xr.DataArray)
-            and ("space" in head_vector.dims)
-            and ("keypoints" not in head_vector.dims)
+    # Catch error
+    with pytest.raises(expected_error, match=re.escape(expected_match_str)):
+        kinematics.compute_2d_head_direction_vector(
+            input_data, keypoints[0], keypoints[1]
         )
 
-        assert np.equal(head_vector.values, known_vectors).all()
 
-        # Test behaviour with NaNs
-        nan_dataarray = mock_dataarray.where(
-            (mock_dataarray.time != 1)
-            | (mock_dataarray.keypoints != "left_ear")
-        )
-        head_vector = kinematics.compute_head_direction_vector(
-            nan_dataarray, "left_ear", "right_ear"
-        )
-        assert (
-            np.isnan(head_vector.values[1, 0, :]).all()
-            and not np.isnan(head_vector.values[[0, 2, 3], 0, :]).any()
-        )
+def test_nan_behavior_2D_head_vector(
+    valid_data_array_for_head_vector_with_NaNs,
+):
+    """Test that ``compute_head_direction_vector()`` generates the
+    expected output for a valid input DataArray containing ``NaN``
+    position values at a single time (``1``) and keypoint
+    (``left_ear``).
+    """
+    head_vector = kinematics.compute_2d_head_direction_vector(
+        valid_data_array_for_head_vector_with_NaNs, "left_ear", "right_ear"
+    )
+    assert (
+        np.isnan(head_vector.values[1, 0, :]).all()
+        and not np.isnan(head_vector.values[[0, 2, 3], 0, :]).any()
+    )
