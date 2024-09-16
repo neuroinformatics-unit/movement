@@ -1,3 +1,5 @@
+"""Widgets for loading movement datasets from file."""
+
 import logging
 from pathlib import Path
 

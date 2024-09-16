@@ -1,70 +1,51 @@
+"""Unit tests for loader widgets in the napari plugin.
+
+In some tests, we reuse the ``poses_loader_widget`` fixture from
+``test_unit/test_napari_plugin/conftest.py``. In other tests, we have to
+instantiate a new PosesLoader widget within the test function. This is because
+we need to mock a method of the widget, and we cannot do that after the widget
+has been instantiated (because the widget has already "decided" which method
+to call).
+"""
+
 import pytest
 from napari.settings import get_settings
-from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox, QWidget
+from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox
 
-from movement.napari._loader_widget import SUPPORTED_POSES_FILES, PosesLoader
-from movement.napari._meta_widget import MovementMetaWidget
-
-
-# -------------------- widget fixtures ---------------------------------------#
-@pytest.fixture
-def meta_widget(make_napari_viewer_proxy) -> MovementMetaWidget:
-    """Fixture to expose the MovementMetaWidget for testing.
-    Simultaneously acts as a smoke test that the widget
-    can be instantiated without crashing.
-    """
-    viewer = make_napari_viewer_proxy()
-    return MovementMetaWidget(viewer)
+from movement.napari._loader_widgets import SUPPORTED_POSES_FILES, PosesLoader
 
 
-@pytest.fixture
-def loader_widget(meta_widget) -> QWidget:
-    """Fixture to expose the Loader widget for testing."""
-    loader = meta_widget.loader.content()
-    return loader
-
-
-# -------------------- tests for widget instantiation ------------------------#
-def test_meta_widget_instantiation(meta_widget):
-    """Test that the meta widget is properly instantiated."""
-    assert meta_widget is not None
-    assert len(meta_widget.collapsible_widgets) == 1
-
-    first_widget = meta_widget.collapsible_widgets[0]
-    assert first_widget._text == "Load poses"
-    assert first_widget.isExpanded()
-
-
-def test_loader_widget_instantiation(loader_widget):
+# ------------------- tests for widget instantiation--------------------------#
+def test_poses_loader_widget_instantiation(poses_loader_widget):
     """Test that the loader widget is properly instantiated."""
-    assert loader_widget is not None
-    assert loader_widget.layout().rowCount() == 4
+    assert poses_loader_widget is not None
+    assert poses_loader_widget.layout().rowCount() == 4
 
     # Make sure the all rows except last start with lowercase text
     # which ends with a semicolon
-    for i in range(loader_widget.layout().rowCount() - 1):
-        label = loader_widget.layout().itemAt(i, 0).widget()
+    for i in range(poses_loader_widget.layout().rowCount() - 1):
+        label = poses_loader_widget.layout().itemAt(i, 0).widget()
         assert label.text().islower()
         assert label.text().endswith(":")
 
     # Make sure that the source software combo box is populated
-    source_software_combo = loader_widget.findChildren(QComboBox)[0]
+    source_software_combo = poses_loader_widget.findChildren(QComboBox)[0]
     assert source_software_combo.count() == len(SUPPORTED_POSES_FILES)
 
     # Test that the default fps is 30
-    fps_spinbox = loader_widget.findChildren(QSpinBox)[0]
+    fps_spinbox = poses_loader_widget.findChildren(QSpinBox)[0]
     assert fps_spinbox.value() == 30
 
     # Make sure that the line edit for file path is empty
-    file_path_edit = loader_widget.findChildren(QLineEdit)[-1]
+    file_path_edit = poses_loader_widget.findChildren(QLineEdit)[-1]
     assert file_path_edit.text() == ""
 
     # Make sure that the first button is a "Browse" button
-    browse_button = loader_widget.findChildren(QPushButton)[0]
+    browse_button = poses_loader_widget.findChildren(QPushButton)[0]
     assert browse_button.text() == "Browse"
 
     # Make sure that the last row is a "Load" button
-    load_button = loader_widget.findChildren(QPushButton)[-1]
+    load_button = poses_loader_widget.findChildren(QPushButton)[-1]
     assert load_button.text() == "Load"
 
     # Make sure that layer tooltips are enabled
@@ -72,17 +53,12 @@ def test_loader_widget_instantiation(loader_widget):
 
 
 # --------test connection between widget buttons and methods------------------#
-# In these tests we have to create a new Loader widget after mocking the
-# method. We cannot reuse the existing widget fixture because then it would be
-# late to mock (the widget has already "decided" which method to call).
-
-
 def test_browse_button_calls_on_browse_clicked(
     make_napari_viewer_proxy, mocker
 ):
     """Test that clicking the 'Browse' button calls the right function."""
     mock_method = mocker.patch(
-        "movement.napari._loader_widget.PosesLoader._on_browse_clicked"
+        "movement.napari._loader_widgets.PosesLoader._on_browse_clicked"
     )
     loader = PosesLoader(make_napari_viewer_proxy)
     browse_button = loader.findChildren(QPushButton)[0]
@@ -93,7 +69,7 @@ def test_browse_button_calls_on_browse_clicked(
 def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
     """Test that clicking the 'Load' button calls the right function."""
     mock_method = mocker.patch(
-        "movement.napari._loader_widget.PosesLoader._on_load_clicked"
+        "movement.napari._loader_widgets.PosesLoader._on_load_clicked"
     )
     loader = PosesLoader(make_napari_viewer_proxy)
     load_button = loader.findChildren(QPushButton)[-1]
@@ -105,15 +81,15 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
 # In these tests we check if calling a widget method has the expected effects
 
 
-def test_on_load_clicked_without_file_path(loader_widget, capsys):
+def test_on_load_clicked_without_file_path(poses_loader_widget, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
     # Call the _on_load_clicked method (pretend the user clicked "Load")
-    loader_widget._on_load_clicked()
+    poses_loader_widget._on_load_clicked()
     captured = capsys.readouterr()
     assert "No file path specified." in captured.out
 
 
-def test_on_load_clicked_with_valid_file_path(loader_widget, caplog):
+def test_on_load_clicked_with_valid_file_path(poses_loader_widget, caplog):
     """Test clicking 'Load' with a valid file path.
 
     This test checks that the `_on_load_clicked` method causes the following:
@@ -124,18 +100,18 @@ def test_on_load_clicked_with_valid_file_path(loader_widget, caplog):
     """
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    loader_widget.file_path_edit.setText(file_path.as_posix())
+    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
 
     # Set the fps to 60
-    loader_widget.fps_spinbox.setValue(60)
+    poses_loader_widget.fps_spinbox.setValue(60)
 
     # Call the _on_load_clicked method (pretend the user clicked "Load")
-    loader_widget._on_load_clicked()
+    poses_loader_widget._on_load_clicked()
 
     # Check that class attributes have been created
-    assert loader_widget.file_name == file_path.name
-    assert loader_widget.data is not None
-    assert loader_widget.props is not None
+    assert poses_loader_widget.file_name == file_path.name
+    assert poses_loader_widget.data is not None
+    assert poses_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
     expected_log_messages = [
@@ -148,7 +124,7 @@ def test_on_load_clicked_with_valid_file_path(loader_widget, caplog):
         assert any(msg in record.getMessage() for record in caplog.records)
 
     # Check that a Points layer was added to the viewer
-    points_layer = loader_widget.viewer.layers[0]
+    points_layer = poses_loader_widget.viewer.layers[0]
     assert points_layer.name == f"poses: {file_path.name}"
 
     # Check that the playback fps was set correctly
