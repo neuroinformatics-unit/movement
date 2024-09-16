@@ -43,7 +43,7 @@ def poses_to_napari_tracks(ds: xr.Dataset) -> tuple[np.ndarray, pd.DataFrame]:
     Notes
     -----
     A corresponding napari Points array can be derived from the Tracks array
-    by taking its last 3 columns: (frame_idx, y, x). See the the documentation
+    by taking its last 3 columns: (frame_idx, y, x). See the documentation
     on the napari Tracks [1]_  and Points [2]_ layers.
 
     References
