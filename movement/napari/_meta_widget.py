@@ -3,7 +3,7 @@
 from brainglobe_utils.qtpy.collapsible_widget import CollapsibleWidgetContainer
 from napari.viewer import Viewer
 
-from movement.napari._loader_widget import PosesLoader
+from movement.napari._loader_widgets import PosesLoader
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
