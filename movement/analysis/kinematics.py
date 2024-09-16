@@ -43,7 +43,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     height per bounding box, between consecutive time points.
 
     """
-    validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
+    validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
     return result
@@ -154,7 +154,7 @@ def _compute_approximate_time_derivative(
         )
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
-    validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
+    validate_dims_coords(data, {"time": [], "space": []})
     result = data
     for _ in range(order):
         result = result.differentiate("time")
