@@ -15,6 +15,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from movement import sample_data
+from movement.analysis.kinematics import compute_2d_head_direction_vector
 from movement.io import load_poses
 from movement.utils.vector import cart2pol, pol2cart
 
@@ -48,20 +49,16 @@ position = ds.position
 # To demonstrate how polar coordinates can be useful in behavioural analyses,
 # we will compute the head vector of the mouse.
 #
-# We define it as the vector from the midpoint between the ears to the snout.
+# In ``movement``, head vector is defined as the vector perpendicular to the
+# line connecting two symmetrical keypoints on either side of the head (usually
+# the ears), pointing forwards. (See :func:`here\
+# <movement.analysis.kinematics.compute_2d_head_direction_vector>` for a more
+# detailed explanation).
 
-# compute the midpoint between the ears
-midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
-    dim="keypoints"
+head_vector = compute_2d_head_direction_vector(
+    position, "left_ear", "right_ear"
 )
 
-# compute the head vector
-head_vector = position.sel(keypoints="snout") - midpoint_ears
-
-# drop the keypoints dimension
-# (otherwise the `head_vector` data array retains a `snout` keypoint from the
-# operation above)
-head_vector = head_vector.drop_vars("keypoints")
 
 # %%
 # Visualise the head trajectory
@@ -72,9 +69,12 @@ head_vector = head_vector.drop_vars("keypoints")
 # We can start by plotting the trajectory of the midpoint between the ears. We
 # will refer to this as the head trajectory.
 
-fig, ax = plt.subplots(1, 1)
+midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
+    dim="keypoints"
+)
 mouse_name = ds.individuals.values[0]
 
+fig, ax = plt.subplots(1, 1)
 sc = ax.scatter(
     midpoint_ears.sel(individuals=mouse_name, space="x"),
     midpoint_ears.sel(individuals=mouse_name, space="y"),
