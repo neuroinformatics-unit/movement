@@ -19,52 +19,38 @@ from movement.utils import vector
     [
         (
             "displacement",
-            {
-                0: np.vstack(
+            [
+                np.vstack(
                     [
                         np.zeros((1, 2)),
-                        np.tile(
-                            np.array(
-                                [math.sqrt(2), math.atan(1)]
-                            ),  # rho, phi=45deg
-                            (9, 1),
-                        ),
-                    ]
-                ),
-                1: np.vstack(
+                        np.tile([math.sqrt(2), math.atan(1)], (9, 1)),
+                    ],
+                ),  # Individual 0, rho=sqrt(2), phi=45deg
+                np.vstack(
                     [
                         np.zeros((1, 2)),
-                        np.tile(
-                            np.array(
-                                [math.sqrt(2), -math.atan(1)]
-                            ),  # rho, phi=-45deg
-                            (9, 1),
-                        ),
+                        np.tile([math.sqrt(2), -math.atan(1)], (9, 1)),
                     ]
-                ),
-            },
+                ),  # Individual 1, rho=sqrt(2), phi=-45deg
+            ],
         ),
         (
             "velocity",
-            {
-                0: np.tile(
-                    np.array([math.sqrt(2), math.atan(1)]),  # rho, phi=-45deg
-                    (10, 1),
-                ),
-                1: np.tile(
-                    np.array(
-                        [math.sqrt(2), -math.atan(1)]
-                    ),  # rho, phi=-135deg
-                    (10, 1),
-                ),
-            },
+            [
+                np.tile(
+                    [math.sqrt(2), math.atan(1)], (10, 1)
+                ),  # Individual O, rho, phi=45deg
+                np.tile(
+                    [math.sqrt(2), -math.atan(1)], (10, 1)
+                ),  # Individual 1, rho, phi=-45deg
+            ],
         ),
         (
             "acceleration",
-            {
-                0: np.zeros((10, 2)),
-                1: np.zeros((10, 2)),
-            },
+            [
+                np.zeros((10, 2)),
+                np.zeros((10, 2)),
+            ],
         ),
     ],
 )
@@ -79,26 +65,28 @@ def test_cart2pol_transform_on_kinematics(
     """
     ds = request.getfixturevalue(valid_dataset_uniform_linear_motion)
     kinematic_array_cart = getattr(ds.move, f"compute_{kinematic_variable}")()
-
     kinematic_array_pol = vector.cart2pol(kinematic_array_cart)
 
-    # Check the polar array is as expected
-    for ind in expected_2D_pol_array_per_individual:
-        if "keypoints" in ds.position.coords:
-            for k in range(ds.position.coords["keypoints"].size):
-                assert np.allclose(
-                    kinematic_array_pol.isel(
-                        individuals=ind, keypoints=k
-                    ).values,
-                    expected_2D_pol_array_per_individual[ind],
-                )
-        else:
-            assert np.allclose(
-                kinematic_array_pol.isel(individuals=ind).values,
-                expected_2D_pol_array_per_individual[ind],
-            )
+    # Build expected data array
+    expected_array_pol = xr.DataArray(
+        np.stack(expected_2D_pol_array_per_individual, axis=1),
+        # Stack along the "individuals" axis
+        dims=["time", "individuals", "space"],
+    )
+    if "keypoints" in ds.position.coords:
+        expected_array_pol = expected_array_pol.expand_dims(
+            {"keypoints": ds.position.coords["keypoints"].size}
+        )
+        expected_array_pol = expected_array_pol.transpose(
+            "time", "individuals", "keypoints", "space"
+        )
 
-    # Check we can recover the original Cartesian array?
+    # Compare the values of the kinematic_array against the expected_array
+    np.testing.assert_allclose(
+        kinematic_array_pol.values, expected_array_pol.values
+    )
+
+    # Check we can recover the original Cartesian array
     kinematic_array_cart_recover = vector.pol2cart(kinematic_array_pol)
     xr.testing.assert_allclose(
         kinematic_array_cart, kinematic_array_cart_recover
