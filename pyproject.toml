@@ -48,6 +48,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 [project.optional-dependencies]
 napari = [
   "napari[all]>=0.4.19",
+  "napari-video>=0.2.9",
   "brainglobe-utils[qt]>=0.6"  # needed for collapsible widgets
 ]
 dev = [
