@@ -1,4 +1,5 @@
 import re
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 
@@ -6,47 +7,43 @@ from movement.validators.arrays import validate_dims_coords
 
 
 @pytest.mark.parametrize(
-    "required_dims_coords",
+    "required_dims_coords, expected_exception, expected_error_message",
     [
-        ({"time": []}),
-        ({"time": [0, 1]}),
-        ({"space": ["x", "y"]}),
-        ({"time": [], "space": []}),
-        ({"time": [], "space": ["x", "y"]}),
-    ],
-)
-def test_validate_dims_coords_on_valid_input(
-    valid_poses_dataset_uniform_linear_motion,  # fixture from conftest.py
-    required_dims_coords,
-):
-    """Test that valid inputs do not raise an error."""
-    position_array = valid_poses_dataset_uniform_linear_motion["position"]
-    validate_dims_coords(position_array, required_dims_coords)
-
-
-@pytest.mark.parametrize(
-    "required_dims_coords, expected_error_message",
-    [
+        # Valid cases (no error)
+        ({"time": []}, does_not_raise(), None),
+        ({"time": [0, 1]}, does_not_raise(), None),
+        ({"space": ["x", "y"]}, does_not_raise(), None),
+        ({"time": [], "space": []}, does_not_raise(), None),
+        ({"time": [], "space": ["x", "y"]}, does_not_raise(), None),
+        # Invalid cases (raise ValueError)
         (
             {"spacetime": []},
+            pytest.raises(ValueError),
             "Input data must contain ['spacetime'] as dimensions.",
         ),
         (
             {"time": [0, 100], "space": ["x", "y"]},
+            pytest.raises(ValueError),
             "Input data must contain [100] in the 'time' coordinates.",
         ),
         (
             {"space": ["x", "y", "z"]},
+            pytest.raises(ValueError),
             "Input data must contain ['z'] in the 'space' coordinates.",
         ),
     ],
 )
-def test_validate_dims_coords_on_invalid_input(
+def test_validate_dims_coords(
     valid_poses_dataset_uniform_linear_motion,  # fixture from conftest.py
     required_dims_coords,
+    expected_exception,
     expected_error_message,
 ):
-    """Test that invalid inputs raise a ValueError with expected message."""
+    """Test validate_dims_coords for both valid and invalid inputs."""
     position_array = valid_poses_dataset_uniform_linear_motion["position"]
-    with pytest.raises(ValueError, match=re.escape(expected_error_message)):
+    with expected_exception as exc_info:
         validate_dims_coords(position_array, required_dims_coords)
+        if expected_error_message:
+            assert re.search(
+                re.escape(expected_error_message), str(exc_info.value)
+            )
