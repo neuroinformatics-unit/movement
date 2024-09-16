@@ -15,7 +15,7 @@ from movement.utils import vector
     ],
 )
 @pytest.mark.parametrize(
-    "kinematic_variable, expected_2D_pol_array_per_individual",
+    "kinematic_variable, expected_kinematics_polar",
     [
         (
             "displacement",
@@ -48,8 +48,8 @@ from movement.utils import vector
         (
             "acceleration",
             [
-                np.zeros((10, 2)),
-                np.zeros((10, 2)),
+                np.zeros((10, 2)),  # Individual 0
+                np.zeros((10, 2)),  # Individual 1
             ],
         ),
     ],
@@ -57,7 +57,7 @@ from movement.utils import vector
 def test_cart2pol_transform_on_kinematics(
     valid_dataset_uniform_linear_motion,
     kinematic_variable,
-    expected_2D_pol_array_per_individual,
+    expected_kinematics_polar,
     request,
 ):
     """Test transformation between Cartesian and polar coordinates
@@ -69,7 +69,7 @@ def test_cart2pol_transform_on_kinematics(
 
     # Build expected data array
     expected_array_pol = xr.DataArray(
-        np.stack(expected_2D_pol_array_per_individual, axis=1),
+        np.stack(expected_kinematics_polar, axis=1),
         # Stack along the "individuals" axis
         dims=["time", "individuals", "space"],
     )
