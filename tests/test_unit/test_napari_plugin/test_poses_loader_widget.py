@@ -1,11 +1,8 @@
 """Unit tests for loader widgets in the napari plugin.
 
-In some tests, we reuse the ``poses_loader_widget`` fixture from
-``test_unit/test_napari_plugin/conftest.py``. In other tests, we have to
-instantiate a new PosesLoader widget within the test function. This is because
-we need to mock a method of the widget, and we cannot do that after the widget
-has been instantiated (because the widget has already "decided" which method
-to call).
+We instantiate the PosesLoader widget in each test instead of using a fixture.
+This is because mocking widget methods would not work after the widget is
+instantiated (the methods would have already been connected to signals).
 """
 
 import pytest
@@ -16,9 +13,12 @@ from movement.napari._loader_widgets import SUPPORTED_POSES_FILES, PosesLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#
-def test_poses_loader_widget_instantiation(poses_loader_widget):
+def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
     """Test that the loader widget is properly instantiated."""
-    assert poses_loader_widget is not None
+    # Instantiate the poses loader widget
+    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
+
+    # Check that the widget has the expected number of rows
     assert poses_loader_widget.layout().rowCount() == 4
 
     # Make sure the all rows except last start with lowercase text
@@ -60,8 +60,8 @@ def test_browse_button_calls_on_browse_clicked(
     mock_method = mocker.patch(
         "movement.napari._loader_widgets.PosesLoader._on_browse_clicked"
     )
-    loader = PosesLoader(make_napari_viewer_proxy)
-    browse_button = loader.findChildren(QPushButton)[0]
+    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
+    browse_button = poses_loader_widget.findChildren(QPushButton)[0]
     browse_button.click()
     mock_method.assert_called_once()
 
@@ -71,8 +71,8 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
     mock_method = mocker.patch(
         "movement.napari._loader_widgets.PosesLoader._on_load_clicked"
     )
-    loader = PosesLoader(make_napari_viewer_proxy)
-    load_button = loader.findChildren(QPushButton)[-1]
+    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
+    load_button = poses_loader_widget.findChildren(QPushButton)[-1]
     load_button.click()
     mock_method.assert_called_once()
 
@@ -81,15 +81,20 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
 # In these tests we check if calling a widget method has the expected effects
 
 
-def test_on_load_clicked_without_file_path(poses_loader_widget, capsys):
+def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
+    # Instantiate the napari viewer and the poses loader widget
+    viewer = make_napari_viewer_proxy()
+    poses_loader_widget = PosesLoader(viewer)
     # Call the _on_load_clicked method (pretend the user clicked "Load")
     poses_loader_widget._on_load_clicked()
     captured = capsys.readouterr()
     assert "No file path specified." in captured.out
 
 
-def test_on_load_clicked_with_valid_file_path(poses_loader_widget, caplog):
+def test_on_load_clicked_with_valid_file_path(
+    make_napari_viewer_proxy, caplog
+):
     """Test clicking 'Load' with a valid file path.
 
     This test checks that the `_on_load_clicked` method causes the following:
@@ -98,6 +103,9 @@ def test_on_load_clicked_with_valid_file_path(poses_loader_widget, caplog):
     - adds a Points layer to the viewer (with the expected name)
     - sets the playback fps to the specified value
     """
+    # Instantiate the napari viewer and the poses loader widget
+    viewer = make_napari_viewer_proxy()
+    poses_loader_widget = PosesLoader(viewer)
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
     poses_loader_widget.file_path_edit.setText(file_path.as_posix())

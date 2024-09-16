@@ -1,10 +1,13 @@
 """Test the napari plugin meta widget."""
 
+from movement.napari._meta_widget import MovementMetaWidget
 
-# We use the meta_widget fixture from test_napa_plugin/conftest.py
-def test_meta_widget_instantiation(meta_widget):
-    """Test that the meta widget is properly instantiated."""
-    assert meta_widget is not None
+
+def test_meta_widget_instantiation(make_napari_viewer_proxy):
+    """Test that the meta widget can be properly instanctiated."""
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+
     assert len(meta_widget.collapsible_widgets) == 1
 
     first_widget = meta_widget.collapsible_widgets[0]
