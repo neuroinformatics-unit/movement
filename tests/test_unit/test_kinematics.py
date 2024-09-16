@@ -181,4 +181,4 @@ def test_approximate_derivative_with_invalid_order(order):
     data = np.arange(10)
     expected_exception = ValueError if isinstance(order, int) else TypeError
     with pytest.raises(expected_exception):
-        kinematics._compute_approximate_time_derivative(data, order=order)
+        kinematics.compute_time_derivative(data, order=order)
