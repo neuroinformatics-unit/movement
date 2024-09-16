@@ -242,7 +242,7 @@ def invalid_spatial_dimensions_for_head_vector(
 
 
 @pytest.fixture
-def valid_data_array_for_head_vector_with_NaNs(
+def valid_data_array_for_head_vector_with_nans(
     valid_data_array_for_head_vector,
 ):
     """Return a position DataArray where position values are NaN for the
@@ -317,8 +317,8 @@ def test_compute_2d_head_direction_vector_with_invalid_input(
         )
 
 
-def test_nan_behavior_2D_head_vector(
-    valid_data_array_for_head_vector_with_NaNs,
+def test_nan_behavior_2d_head_vector(
+    valid_data_array_for_head_vector_with_nans,
 ):
     """Test that ``compute_head_direction_vector()`` generates the
     expected output for a valid input DataArray containing ``NaN``
@@ -326,7 +326,7 @@ def test_nan_behavior_2D_head_vector(
     (``left_ear``).
     """
     head_vector = kinematics.compute_2d_head_direction_vector(
-        valid_data_array_for_head_vector_with_NaNs, "left_ear", "right_ear"
+        valid_data_array_for_head_vector_with_nans, "left_ear", "right_ear"
     )
     assert (
         np.isnan(head_vector.values[1, 0, :]).all()
