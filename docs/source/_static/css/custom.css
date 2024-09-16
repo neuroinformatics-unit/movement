@@ -30,3 +30,12 @@ display: flex;
 flex-wrap: wrap;
 justify-content: space-between;
 }
+
+/* Disable decoration for all but movement backrefs */
+a[class^="sphx-glr-backref-module-"],
+a[class^="sphx-glr-backref-type-"] {
+  text-decoration: none;
+}
+a[class^="sphx-glr-backref-module-movement"] {
+  text-decoration: underline;
+}

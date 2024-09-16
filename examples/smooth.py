@@ -109,7 +109,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
 # Smoothing with a median filter
 # ------------------------------
 # Using the
-# :py:meth:`median_filter()\
+# :meth:`median_filter()\
 # <movement.move_accessor.MovementDataset.filtering_wrapper>`
 # method of the ``move`` accessor,
 # we apply a rolling window median filter over a 0.1-second window
@@ -125,13 +125,13 @@ ds_wasp_smooth.update({"position": ds_wasp_smooth.move.median_filter(window)})
 
 # %%
 # .. note::
-#    The ``move`` accessor :py:meth:`median_filter()\
+#    The ``move`` accessor :meth:`median_filter()\
 #    <movement.move_accessor.MovementDataset.filtering_wrapper>`
 #    method is a convenience method that applies
-#    :py:func:`movement.filtering.median_filter`
+#    :func:`movement.filtering.median_filter`
 #    to the ``position`` data variable.
 #    The equivalent function call using the
-#    :py:mod:`movement.filtering` module would be:
+#    :mod:`movement.filtering` module would be:
 #
 #    .. code-block:: python
 #
@@ -249,11 +249,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Smoothing with a Savitzky-Golay filter
 # --------------------------------------
 # Here we use the
-# :py:meth:`savgol_filter()\
+# :meth:`savgol_filter()\
 # <movement.move_accessor.MovementDataset.filtering_wrapper>`
 # method of the ``move`` accessor, which is a convenience method that applies
-# :py:func:`movement.filtering.savgol_filter`
-# (a wrapper around :py:func:`scipy.signal.savgol_filter`),
+# :func:`movement.filtering.savgol_filter`
+# (a wrapper around :func:`scipy.signal.savgol_filter`),
 # to the ``position`` data variable.
 # The Savitzky-Golay filter is a polynomial smoothing filter that can be
 # applied to time series data on a rolling window basis.

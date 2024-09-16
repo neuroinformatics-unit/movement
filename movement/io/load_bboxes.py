@@ -35,19 +35,19 @@ def from_numpy(
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
         containing the tracks of the bounding boxes' centroids.
-        It will be converted to a :py:class:`xarray.DataArray` object
+        It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_space)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
-        :py:class:`xarray.DataArray` object named "shape".
+        :class:`xarray.DataArray` object named "shape".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals) containing
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
-        to a :py:class:`xarray.DataArray` object named "confidence".
+        to a :class:`xarray.DataArray` object named "confidence".
     individual_names : list of str, optional
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
@@ -402,6 +402,11 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
 
         array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
 
+    # Transform position_array to represent centroid of bbox,
+    # rather than top-left corner
+    # (top left corner: corner of the bbox with minimum x and y coordinates)
+    array_dict["position_array"] += array_dict["shape_array"] / 2
+
     # Add remaining arrays to dict
     array_dict["ID_array"] = df["ID"].unique().reshape(-1, 1)
     array_dict["frame_array"] = df["frame_number"].unique().reshape(-1, 1)
@@ -415,14 +420,16 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
     Read the VIA tracks .csv file as a pandas dataframe with columns:
     - ID: the integer ID of the tracked bounding box.
     - frame_number: the frame number of the tracked bounding box.
-    - x: the x-coordinate of the tracked bounding box centroid.
-    - y: the y-coordinate of the tracked bounding box centroid.
+    - x: the x-coordinate of the tracked bounding box's top-left corner.
+    - y: the y-coordinate of the tracked bounding box's top-left corner.
     - w: the width of the tracked bounding box.
     - h: the height of the tracked bounding box.
     - confidence: the confidence score of the tracked bounding box.
 
     The dataframe is sorted by ID and frame number, and for each ID,
-    empty frames are filled in with NaNs.
+    empty frames are filled in with NaNs. The coordinates of the bboxes
+    are assumed to be in the image coordinate system (i.e., the top-left
+    corner of a bbox is its corner with minimum x and y coordinates).
     """
     # Read VIA tracks .csv file as a pandas dataframe
     df_file = pd.read_csv(file_path, sep=",", header=0)

@@ -34,11 +34,11 @@ def from_numpy(
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_keypoints, n_space)
         containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
+        :class:`xarray.DataArray` object named "position".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the point-wise confidence scores. It will be converted to a
-        :py:class:`xarray.DataArray` object named "confidence".
+        :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
