@@ -71,16 +71,16 @@ def test_loader_widget_instantiation(loader_widget):
     assert get_settings().appearance.layer_tooltip_visibility is True
 
 
-# -------------------- tests for callbacks -----------------------------------#
+# --------test connection between widget buttons and methods------------------#
+# In these tests we have to create a new Loader widget after mocking the
+# method. We cannot reuse the existing widget fixture because then it would be
+# late to mock (the widget has already "decided" which method to call).
+
+
 def test_browse_button_calls_on_browse_clicked(
     make_napari_viewer_proxy, mocker
 ):
-    """Test that clicking the 'Browse' button calls the right function.
-
-    Here we have to create a new Loader widget after mocking the method.
-    We cannot reuse the existing widget fixture because then it would be too
-    late to mock (the widget has already "decided" which method to call).
-    """
+    """Test that clicking the 'Browse' button calls the right function."""
     mock_method = mocker.patch(
         "movement.napari._loader_widget.PosesLoader._on_browse_clicked"
     )
@@ -91,11 +91,7 @@ def test_browse_button_calls_on_browse_clicked(
 
 
 def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
-    """Test that clicking the 'Load' button calls the right function.
-
-    Here we also have to create a new Loader widget after mocking the method,
-    as in the previous test.
-    """
+    """Test that clicking the 'Load' button calls the right function."""
     mock_method = mocker.patch(
         "movement.napari._loader_widget.PosesLoader._on_load_clicked"
     )
@@ -105,8 +101,13 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
     mock_method.assert_called_once()
 
 
+# ------------------- tests for widget methods--------------------------------#
+# In these tests we check if calling a widget method has the expected effects
+
+
 def test_on_load_clicked_without_file_path(loader_widget, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
+    # Call the _on_load_clicked method (pretend the user clicked "Load")
     loader_widget._on_load_clicked()
     captured = capsys.readouterr()
     assert "No file path specified." in captured.out
@@ -118,8 +119,8 @@ def test_on_load_clicked_with_valid_file_path(loader_widget, caplog):
     This test checks that the `_on_load_clicked` method causes the following:
     - creates the `data`, `props`, and `file_name` attributes
     - emits a series of expected log messages
-    - adds a Points layer to the viewer (with the correct name)
-    - sets the playback fps to the correct value
+    - adds a Points layer to the viewer (with the expected name)
+    - sets the playback fps to the specified value
     """
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
