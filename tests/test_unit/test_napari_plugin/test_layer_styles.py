@@ -52,7 +52,7 @@ def test_points_style_initialization(sample_properties):
 
     assert points_style.symbol == "disc"
     assert points_style.size == 10
-    assert points_style.edge_width == 0
+    assert points_style.border_width == 0
     assert points_style.face_color is None
     assert points_style.face_color_cycle is None
     assert points_style.face_colormap == DEFAULT_COLORMAP

@@ -33,7 +33,7 @@ class PointsStyle(LayerStyle):
     blending: str = "translucent"
     symbol: str = "disc"
     size: int = 10
-    edge_width: int = 0
+    border_width: int = 0
     face_color: str | None = None
     face_color_cycle: list[tuple] | None = None
     face_colormap: str = DEFAULT_COLORMAP
