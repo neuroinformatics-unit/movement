@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import xarray as xr
 
 from movement.analysis import kinematics
 
@@ -12,40 +13,40 @@ from movement.analysis import kinematics
     ],
 )
 @pytest.mark.parametrize(
-    "kinematic_variable, expected_2D_array_per_individual_and_kpt",
+    "kinematic_variable, expected_kinematics",
     [
         (
             "displacement",
-            {
-                0: np.vstack(
-                    [np.zeros((1, 2)), np.ones((9, 2))]
-                ),  # at t=0 displacement is (0,0)
-                1: np.multiply(
+            [
+                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),  # Individual 0
+                np.multiply(
                     np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
                     np.array([1, -1]),
-                ),
-            },
+                ),  # Individual 1
+            ],
         ),
         (
             "velocity",
-            {
-                0: np.ones((10, 2)),
-                1: np.multiply(np.ones((10, 2)), np.array([1, -1])),
-            },
+            [
+                np.ones((10, 2)),  # Individual 0
+                np.multiply(
+                    np.ones((10, 2)), np.array([1, -1])
+                ),  # Individual 1
+            ],
         ),
         (
             "acceleration",
-            {
-                0: np.zeros((10, 2)),
-                1: np.zeros((10, 2)),
-            },
+            [
+                np.zeros((10, 2)),  # Individual 0
+                np.zeros((10, 2)),  # Individual 1
+            ],
         ),
     ],
 )
 def test_kinematics_uniform_linear_motion(
     valid_dataset_uniform_linear_motion,
     kinematic_variable,
-    expected_2D_array_per_individual_and_kpt,  # 2D: n_frames, n_space_dims
+    expected_kinematics,  # 2D: n_frames, n_space_dims
     request,
 ):
     """Test computed kinematics for a uniform linear motion case.
@@ -63,27 +64,30 @@ def test_kinematics_uniform_linear_motion(
     (centroid, left, right), that are always in front of the centroid keypoint
     at 45deg from the trajectory.
     """
+    # Compute kinematic array from input dataset
     position = request.getfixturevalue(
         valid_dataset_uniform_linear_motion
     ).position
-    kinematic_variable = getattr(kinematics, f"compute_{kinematic_variable}")(
+    kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
 
-    for ind in expected_2D_array_per_individual_and_kpt:
-        if "keypoints" in position.coords:
-            for k in range(position.coords["keypoints"].size):
-                assert np.allclose(
-                    kinematic_variable.isel(
-                        individuals=ind, keypoints=k
-                    ).values,
-                    expected_2D_array_per_individual_and_kpt[ind],
-                )
-        else:
-            assert np.allclose(
-                kinematic_variable.isel(individuals=ind).values,
-                expected_2D_array_per_individual_and_kpt[ind],
-            )
+    # Build expected data array from the expected numpy array
+    expected_array = xr.DataArray(
+        np.stack(expected_kinematics, axis=1),
+        # Stack along the "individuals" axis
+        dims=["time", "individuals", "space"],
+    )
+    if "keypoints" in position.coords:
+        expected_array = expected_array.expand_dims(
+            {"keypoints": position.coords["keypoints"].size}
+        )
+        expected_array = expected_array.transpose(
+            "time", "individuals", "keypoints", "space"
+        )
+
+    # Compare the values of the kinematic_array against the expected_array
+    np.testing.assert_allclose(kinematic_array.values, expected_array.values)
 
 
 @pytest.mark.parametrize(
@@ -96,9 +100,9 @@ def test_kinematics_uniform_linear_motion(
 @pytest.mark.parametrize(
     "kinematic_variable, expected_nans_per_individual",
     [
-        ("displacement", {0: 5, 1: 0}),
-        ("velocity", {0: 6, 1: 0}),
-        ("acceleration", {0: 7, 1: 0}),
+        ("displacement", [5, 0]),  # individual 0, individual 1
+        ("velocity", [6, 0]),
+        ("acceleration", [7, 0]),
     ],
 )
 def test_kinematics_with_dataset_with_nans(
@@ -122,18 +126,22 @@ def test_kinematics_with_dataset_with_nans(
     )
 
     # compute n nans in kinematic array per individual
-    n_nans_kinematics_per_indiv = {
-        i: helpers.count_nans(kinematic_array.isel(individuals=i))
-        for i in range(valid_dataset.dims["individuals"])
-    }
+    n_nans_kinematics_per_indiv = [
+        helpers.count_nans(kinematic_array.isel(individuals=i))
+        for i in range(valid_dataset.sizes["individuals"])
+    ]
 
-    # check number of nans per indiv is as expected in kinematic array
-    for i in range(valid_dataset.dims["individuals"]):
-        assert n_nans_kinematics_per_indiv[i] == (
-            expected_nans_per_individual[i]
-            * valid_dataset.dims["space"]
-            * valid_dataset.dims.get("keypoints", 1)
-        )
+    # expected nans per individual adjusted for space and keypoints dimensions
+    expected_nans_adjusted = [
+        n
+        * valid_dataset.sizes["space"]
+        * valid_dataset.sizes.get("keypoints", 1)
+        for n in expected_nans_per_individual
+    ]
+    # check number of nans per individual is as expected in kinematic array
+    np.testing.assert_array_equal(
+        n_nans_kinematics_per_indiv, expected_nans_adjusted
+    )
 
 
 @pytest.mark.parametrize(
