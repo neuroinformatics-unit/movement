@@ -237,7 +237,6 @@ def valid_bboxes_arrays_all_zeros():
 
 
 # --------------------- Bboxes dataset fixtures ----------------------------
-# uniform linear motion
 @pytest.fixture
 def valid_bboxes_arrays():
     """Return a dictionary of valid arrays for a
@@ -286,7 +285,6 @@ def valid_bboxes_arrays():
     }
 
 
-# uniform linear motion
 @pytest.fixture
 def valid_bboxes_dataset(
     valid_bboxes_arrays,
