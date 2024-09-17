@@ -349,7 +349,7 @@ def from_via_tracks_file(
 
 
 def _numpy_arrays_from_via_tracks_file(
-    file_path: Path, frame_regexp: str
+    file_path: Path, frame_regexp: str = r"(0\d*)\.\w+$"
 ) -> dict:
     """Extract numpy arrays from the input VIA tracks .csv file.
 
@@ -375,9 +375,9 @@ def _numpy_arrays_from_via_tracks_file(
 
     frame_regexp : str
         Regular expression pattern to extract the frame number from the
-        filename. The frame number is expected to be encoded in the filename
-        as an integer number led by at least one zero, followed by the file
-        extension.
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
 
     Returns
     -------
@@ -427,7 +427,7 @@ def _numpy_arrays_from_via_tracks_file(
 
 
 def _df_from_via_tracks_file(
-    file_path: Path, frame_regexp: str
+    file_path: Path, frame_regexp: str = r"(0\d*)\.\w+$"
 ) -> pd.DataFrame:
     """Load VIA tracks .csv file as a dataframe.
 
@@ -494,7 +494,7 @@ def _df_from_via_tracks_file(
     return df
 
 
-def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
+def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
     """Extract confidence scores from the VIA tracks input dataframe.
 
     Parameters
@@ -525,7 +525,9 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     return bbox_confidence
 
 
-def _extract_frame_number_from_via_tracks_df(df, frame_regexp) -> np.ndarray:
+def _extract_frame_number_from_via_tracks_df(
+    df: pd.DataFrame, frame_regexp: str = r"(0\d*)\.\w+$"
+) -> np.ndarray:
     """Extract frame numbers from the VIA tracks input dataframe.
 
     Parameters

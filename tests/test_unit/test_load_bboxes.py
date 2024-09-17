@@ -425,7 +425,9 @@ def test_df_from_via_tracks_file(via_tracks_file):
     """Test that the helper function correctly reads the VIA tracks .csv file
     as a dataframe.
     """
-    df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
+    df = load_bboxes._df_from_via_tracks_file(
+        file_path=via_tracks_file,
+    )
 
     assert isinstance(df, pd.DataFrame)
     assert len(df.frame_number.unique()) == 5
