@@ -234,6 +234,11 @@ class ValidVIATracksCSV:
     ----------
     path : pathlib.Path
         Path to the VIA tracks .csv file.
+    frame_regexp : str
+        Regular expression pattern to extract the frame number from the
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
 
     Raises
     ------
@@ -243,6 +248,7 @@ class ValidVIATracksCSV:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
+    frame_regexp: str = r"(0\d*)\.\w+$"
 
     @path.validator
     def _file_contains_valid_header(self, attribute, value):
@@ -281,8 +287,8 @@ class ValidVIATracksCSV:
           files.
 
         If the frame number is included as part of the image file name, then
-        it is expected as an integer led by at least one zero, between "_" and
-        ".", followed by the file extension.
+        it is expected as an integer led by at least one zero, followed by the
+        file extension.
 
         """
         df = pd.read_csv(value, sep=",", header=0)
@@ -309,10 +315,8 @@ class ValidVIATracksCSV:
 
         # else: extract frame number from filename.
         else:
-            pattern = r"_(0\d*)\.\w+$"
-
             for f_i, f in enumerate(df["filename"]):
-                regex_match = re.search(pattern, f)
+                regex_match = re.search(self.frame_regexp, f)
                 if regex_match:  # if there is a pattern match
                     list_frame_numbers.append(
                         int(regex_match.group(1))  # type: ignore
