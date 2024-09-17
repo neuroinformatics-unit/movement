@@ -79,7 +79,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+    compute_time_derivative : The underlying function used.
 
     """
     # validate only presence of Cartesian space dimension
@@ -119,7 +119,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+    compute_time_derivative : The underlying function used.
 
     """
     # validate only presence of Cartesian space dimension
