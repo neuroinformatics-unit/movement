@@ -132,6 +132,45 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     return compute_time_derivative(data, order=2)
 
 
+def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
+    """Compute the time-derivative of an array using numerical differentiation.
+
+    This function uses :meth:`xarray.DataArray.differentiate`,
+    which differentiates the array with the second-order
+    accurate central differences method.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing ``time`` as a required dimension.
+    order : int
+        The order of the time-derivative. For an input containing position
+        data, use 1 to compute velocity, and 2 to compute acceleration. Value
+        must be a positive integer.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the time-derivative of the input data.
+
+    See Also
+    --------
+    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+
+    """
+    if not isinstance(order, int):
+        raise log_error(
+            TypeError, f"Order must be an integer, but got {type(order)}."
+        )
+    if order <= 0:
+        raise log_error(ValueError, "Order must be a positive integer.")
+    validate_dims_coords(data, {"time": []})
+    result = data
+    for _ in range(order):
+        result = result.differentiate("time")
+    return result
+
+
 def cdist(
     a: xr.DataArray,
     b: xr.DataArray,
@@ -369,9 +408,9 @@ def compute_interkeypoint_distances(
 ) -> xr.DataArray | dict[str, xr.DataArray]:
     """Compute interkeypoint distances within and across all individuals.
 
-    Distances are computed between pairs of keypoints at each time point.
-    as the norm of the
-    difference in position (for all individuals)
+    Distances are computed between pairs of keypoints for all possible
+    combinations of individual pairs at each time point.
+    The distances are computed using the specified ``metric``.
 
     Parameters
     ----------
@@ -478,45 +517,6 @@ def compute_interkeypoint_distances(
     return _compute_pairwise_distances(
         data, "keypoints", pairs=pairs, metric=metric
     )
-
-
-def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
-    """Compute the time-derivative of an array using numerical differentiation.
-
-    This function uses :meth:`xarray.DataArray.differentiate`,
-    which differentiates the array with the second-order
-    accurate central differences method.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data containing ``time`` as a required dimension.
-    order : int
-        The order of the time-derivative. For an input containing position
-        data, use 1 to compute velocity, and 2 to compute acceleration. Value
-        must be a positive integer.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the time-derivative of the input data.
-
-    See Also
-    --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
-
-    """
-    if not isinstance(order, int):
-        raise log_error(
-            TypeError, f"Order must be an integer, but got {type(order)}."
-        )
-    if order <= 0:
-        raise log_error(ValueError, "Order must be a positive integer.")
-    validate_dims_coords(data, {"time": []})
-    result = data
-    for _ in range(order):
-        result = result.differentiate("time")
-    return result
 
 
 def _compute_pairwise_distances(
