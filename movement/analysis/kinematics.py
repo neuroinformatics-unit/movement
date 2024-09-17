@@ -3,6 +3,7 @@
 import xarray as xr
 
 from movement.utils.logging import log_error
+from movement.validators.arrays import validate_dims_coords
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -18,8 +19,8 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with ``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -42,7 +43,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     height per bounding box, between consecutive time points.
 
     """
-    _validate_time_dimension(data)
+    validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
     return result
@@ -58,8 +59,8 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with ``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -78,10 +79,13 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+    compute_time_derivative : The underlying function used.
 
     """
-    return _compute_approximate_time_derivative(data, order=1)
+    # validate only presence of Cartesian space dimension
+    # (presence of time dimension will be checked in compute_time_derivative)
+    validate_dims_coords(data, {"space": []})
+    return compute_time_derivative(data, order=1)
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
@@ -94,8 +98,8 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing position vectors in cartesian
-        coordinates, with``time`` as a dimension.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
@@ -115,15 +119,16 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 
     See Also
     --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+    compute_time_derivative : The underlying function used.
 
     """
-    return _compute_approximate_time_derivative(data, order=2)
+    # validate only presence of Cartesian space dimension
+    # (presence of time dimension will be checked in compute_time_derivative)
+    validate_dims_coords(data, {"space": []})
+    return compute_time_derivative(data, order=2)
 
 
-def _compute_approximate_time_derivative(
-    data: xr.DataArray, order: int
-) -> xr.DataArray:
+def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     """Compute the time-derivative of an array using numerical differentiation.
 
     This function uses :meth:`xarray.DataArray.differentiate`,
@@ -133,7 +138,7 @@ def _compute_approximate_time_derivative(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data array containing ``time`` as a dimension.
+        The input data containing ``time`` as a required dimension.
     order : int
         The order of the time-derivative. For an input containing position
         data, use 1 to compute velocity, and 2 to compute acceleration. Value
@@ -142,8 +147,11 @@ def _compute_approximate_time_derivative(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the time-derivative of the
-        input data.
+        An xarray DataArray containing the time-derivative of the input data.
+
+    See Also
+    --------
+    :meth:`xarray.DataArray.differentiate` : The underlying method used.
 
     """
     if not isinstance(order, int):
@@ -152,30 +160,8 @@ def _compute_approximate_time_derivative(
         )
     if order <= 0:
         raise log_error(ValueError, "Order must be a positive integer.")
-
-    _validate_time_dimension(data)
-
+    validate_dims_coords(data, {"time": []})
     result = data
     for _ in range(order):
         result = result.differentiate("time")
     return result
-
-
-def _validate_time_dimension(data: xr.DataArray) -> None:
-    """Validate the input data contains a ``time`` dimension.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-
-    Raises
-    ------
-    ValueError
-        If the input data does not contain a ``time`` dimension.
-
-    """
-    if "time" not in data.dims:
-        raise log_error(
-            ValueError, "Input data must contain 'time' as a dimension."
-        )
