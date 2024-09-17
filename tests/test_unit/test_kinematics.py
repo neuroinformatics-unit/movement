@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -182,3 +184,193 @@ def test_approximate_derivative_with_invalid_order(order):
     expected_exception = ValueError if isinstance(order, int) else TypeError
     with pytest.raises(expected_exception):
         kinematics.compute_time_derivative(data, order=order)
+
+
+@pytest.mark.parametrize(
+    "dim, expected_data",
+    [
+        (
+            "individuals",
+            np.array(
+                [
+                    [
+                        [0.0, 1.0, 1.0],
+                        [1.0, np.sqrt(2), 0.0],
+                        [1.0, 2.0, np.sqrt(2)],
+                    ],
+                    [
+                        [2.0, np.sqrt(5), 1.0],
+                        [3.0, np.sqrt(10), 2.0],
+                        [np.sqrt(5), np.sqrt(8), np.sqrt(2)],
+                    ],
+                ]
+            ),
+        ),
+        (
+            "keypoints",
+            np.array(
+                [[[1.0, 1.0], [1.0, 1.0]], [[1.0, np.sqrt(5)], [3.0, 1.0]]]
+            ),
+        ),
+    ],
+)
+def test_cdist_with_known_values(
+    dim, expected_data, valid_poses_dataset_uniform_linear_motion
+):
+    """Test the computation of pairwise distances with known values."""
+    core_dim = "keypoints" if dim == "individuals" else "individuals"
+    input_dataarray = valid_poses_dataset_uniform_linear_motion.position.sel(
+        time=slice(0, 1)
+    )  # Use only the first two frames for simplicity
+    pairs = input_dataarray[dim].values[:2]
+    expected = xr.DataArray(
+        expected_data,
+        coords=[
+            input_dataarray.time.values,
+            getattr(input_dataarray, core_dim).values,
+            getattr(input_dataarray, core_dim).values,
+        ],
+        dims=["time", pairs[0], pairs[1]],
+    )
+    a = input_dataarray.sel({dim: pairs[0]})
+    b = input_dataarray.sel({dim: pairs[1]})
+    result = kinematics.cdist(a, b, dim)
+    xr.testing.assert_equal(
+        result,
+        expected,
+    )
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_poses_dataset_uniform_linear_motion",
+        "valid_bboxes_dataset",
+    ],
+)
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        # individuals dim is scalar,
+        # poses: multiple keypoints
+        # bboxes: missing keypoints dim
+        # e.g. comparing 2 individuals from the same data array
+        lambda position: (
+            position.isel(individuals=0),
+            position.isel(individuals=1),
+        ),
+        # individuals dim is 1D
+        # poses: multiple keypoints
+        # bboxes: missing keypoints dim
+        # e.g. comparing 2 single-individual data arrays
+        lambda position: (
+            position.where(
+                position.individuals == position.individuals[0], drop=True
+            ).squeeze(),
+            position.where(
+                position.individuals == position.individuals[1], drop=True
+            ).squeeze(),
+        ),
+        # both individuals and keypoints dims are scalar (poses only)
+        # e.g. comparing 2 individuals from the same data array,
+        # at the same keypoint
+        lambda position: (
+            position.isel(individuals=0, keypoints=0),
+            position.isel(individuals=1, keypoints=0),
+        ),
+        # individuals dim is scalar, keypoints dim is 1D (poses only)
+        # e.g. comparing 2 single-individual, single-keypoint data arrays
+        lambda position: (
+            position.where(
+                position.keypoints == position.keypoints[0], drop=True
+            ).isel(individuals=0),
+            position.where(
+                position.keypoints == position.keypoints[0], drop=True
+            ).isel(individuals=1),
+        ),
+    ],
+    ids=[
+        "dim_has_ndim_0",
+        "dim_has_ndim_1",
+        "core_dim_has_ndim_0",
+        "core_dim_has_ndim_1",
+    ],
+)
+def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
+    """Test that the pairwise distances data array is successfully
+     returned regardless of whether the input DataArrays have
+    ``dim`` ("individuals") and ``core_dim`` ("keypoints")
+    being either scalar (ndim=0) or 1D (ndim=1),
+    or if ``core_dim`` is missing.
+    """
+    if request.node.callspec.id not in [
+        "core_dim_has_ndim_0-valid_bboxes_dataset",
+        "core_dim_has_ndim_1-valid_bboxes_dataset",
+    ]:  # Skip tests with keypoints dim for bboxes
+        valid_dataset = request.getfixturevalue(valid_dataset)
+        position = valid_dataset.position
+        a, b = selection_fn(position)
+        assert isinstance(kinematics.cdist(a, b, "individuals"), xr.DataArray)
+
+
+def expected_pairwise_distances(pairs, input_ds, dim):
+    """Return a list of the expected data variable names
+    for pairwise distances tests.
+    """
+    if pairs is None:
+        paired_elements = list(
+            itertools.combinations(getattr(input_ds, dim).values, 2)
+        )
+    else:
+        paired_elements = [
+            (elem1, elem2)
+            for elem1, elem2_list in pairs.items()
+            for elem2 in (
+                [elem2_list] if isinstance(elem2_list, str) else elem2_list
+            )
+        ]
+    expected_data = [
+        f"dist_{elem1}_{elem2}" for elem1, elem2 in paired_elements
+    ]
+    return expected_data
+
+
+@pytest.mark.parametrize(
+    "dim, pairs",
+    [
+        ("individuals", {"id_1": ["id_2"]}),  # list input
+        ("individuals", {"id_1": "id_2"}),  # string input
+        ("individuals", {"id_1": ["id_2"], "id_2": "id_1"}),
+        ("individuals", None),  # all pairs
+        ("keypoints", {"centroid": ["left"]}),  # list input
+        ("keypoints", {"centroid": "left"}),  # string input
+        ("keypoints", {"centroid": ["left"], "left": "right"}),
+        ("keypoints", None),  # all pairs
+    ],
+)
+def test_compute_pairwise_distances_with_valid_pairs(
+    valid_poses_dataset_uniform_linear_motion, dim, pairs
+):
+    """Test that the expected pairwise distances are computed
+    for valid ``pairs`` inputs.
+    """
+    result = getattr(kinematics, f"compute_inter{dim[:-1]}_distances")(
+        valid_poses_dataset_uniform_linear_motion.position, pairs=pairs
+    )
+    expected_data_vars = expected_pairwise_distances(
+        pairs, valid_poses_dataset_uniform_linear_motion, dim
+    )
+    if isinstance(result, dict):
+        assert set(result.keys()) == set(expected_data_vars)
+    else:  # expect single DataArray
+        assert isinstance(result, xr.DataArray)
+
+
+def test_compute_pairwise_distances_with_invalid_dim(
+    valid_poses_dataset_uniform_linear_motion,
+):
+    """Test that an error is raised when an invalid dimension is passed."""
+    with pytest.raises(ValueError):
+        kinematics._compute_pairwise_distances(
+            valid_poses_dataset_uniform_linear_motion.position, "invalid_dim"
+        )

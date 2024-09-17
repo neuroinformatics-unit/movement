@@ -567,6 +567,7 @@ def missing_two_dims_bboxes_dataset(valid_bboxes_dataset):
     return valid_bboxes_dataset.rename({"time": "tame", "space": "spice"})
 
 
+# --------------------------- Kinematics fixtures ---------------------------
 @pytest.fixture(params=["displacement", "velocity", "acceleration"])
 def kinematic_property(request):
     """Return a kinematic property."""
@@ -820,6 +821,7 @@ def track_ids_not_unique_per_frame(
     return file_path
 
 
+# ----------------- Helpers fixture -----------------
 class Helpers:
     """Generic helper methods for ``movement`` test modules."""
 
@@ -832,9 +834,6 @@ class Helpers:
     def count_consecutive_nans(da):
         """Count occurrences of consecutive NaNs in a DataArray."""
         return (da.isnull().astype(int).diff("time") == 1).sum().item()
-
-
-# ----------------- Helper fixture -----------------
 
 
 @pytest.fixture
