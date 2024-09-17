@@ -15,7 +15,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from movement import sample_data
-from movement.analysis.kinematics import compute_2d_head_direction_vector
+from movement.analysis.kinematics import compute_head_direction_vector
 from movement.io import load_poses
 from movement.utils.vector import cart2pol, pol2cart
 
@@ -52,12 +52,10 @@ position = ds.position
 # In ``movement``, head vector is defined as the vector perpendicular to the
 # line connecting two symmetrical keypoints on either side of the head (usually
 # the ears), pointing forwards. (See :func:`here\
-# <movement.analysis.kinematics.compute_2d_head_direction_vector>` for a more
+# <movement.analysis.kinematics.compute_forward_vector>` for a more
 # detailed explanation).
 
-head_vector = compute_2d_head_direction_vector(
-    position, "left_ear", "right_ear"
-)
+head_vector = compute_head_direction_vector(position, "left_ear", "right_ear")
 
 
 # %%
