@@ -93,8 +93,8 @@ def rename_keypoints(fpath, rename_dict):
 # %%
 # Delete Keypoints of your choice
 # --------------------------------
-# First, create a list of keypoints
-# to delete modify accordingly
+# First, create a list of keypoints.
+# to delete modify this list accordingly
 kps_to_delete = ["abdomen_pre", "abdomen", "tailbase", "front_L", "front_R"]
 # %%
 # Now we can go ahead and delete those Keypoints
