@@ -258,7 +258,7 @@ def compute_forward_vector(
 
     # Define upward vector
     # default: negative z direction in the image coordinate system
-    if camera_view == "top-down":
+    if camera_view == "top_down":
         upward_vector = np.array([0, 0, -1])
     else:
         upward_vector = np.array([0, 0, 1])

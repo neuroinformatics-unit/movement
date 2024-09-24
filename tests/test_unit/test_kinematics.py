@@ -260,7 +260,16 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
     are computed from a valid mock dataset.
     """
     forward_vector = kinematics.compute_forward_vector(
-        valid_data_array_for_forward_vector, "left_ear", "right_ear"
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="bottom_up",
+    )
+    forward_vector_flipped = kinematics.compute_forward_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="top_down",
     )
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
@@ -270,6 +279,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         and ("keypoints" not in forward_vector.dims)
     )
     assert np.equal(forward_vector.values, known_vectors).all()
+    assert np.equal(forward_vector_flipped.values, known_vectors * -1).all()
 
 
 @pytest.mark.parametrize(
