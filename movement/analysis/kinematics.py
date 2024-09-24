@@ -6,8 +6,8 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
-from movement.validators.arrays import validate_dims_coords
 from movement.utils.vector import compute_norm
+from movement.validators.arrays import validate_dims_coords
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -230,7 +230,14 @@ def compute_forward_vector(
     """
     # Validate input data
     _validate_type_data_array(data)
-    _validate_time_keypoints_space_dimensions(data)
+    validate_dims_coords(
+        data,
+        {
+            "time": [],
+            "keypoints": [left_keypoint, right_keypoint],
+            "space": [],
+        },
+    )
     if len(data.space) != 2:
         raise log_error(
             ValueError,
@@ -315,26 +322,6 @@ def compute_head_direction_vector(
     )
 
 
-def _validate_time_dimension(data: xr.DataArray) -> None:
-    """Validate the input data contains a ``time`` dimension.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-
-    Raises
-    ------
-    ValueError
-        If the input data does not contain a ``time`` dimension.
-
-    """
-    if "time" not in data.dims:
-        raise log_error(
-            ValueError, "Input data must contain 'time' as a dimension."
-        )
-
-
 def _validate_type_data_array(data: xr.DataArray) -> None:
     """Validate the input data is an xarray DataArray.
 
@@ -353,26 +340,4 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
         raise log_error(
             TypeError,
             f"Input data must be an xarray.DataArray, but got {type(data)}.",
-        )
-
-
-def _validate_time_keypoints_space_dimensions(data: xr.DataArray) -> None:
-    """Validate if input data contains ``time``, ``keypoints`` and ``space``.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-
-    Raises
-    ------
-    ValueError
-        If the input data is not an xarray DataArray.
-
-    """
-    if not all(coord in data.dims for coord in ["time", "keypoints", "space"]):
-        raise log_error(
-            AttributeError,
-            "Input data must contain 'time', 'space', and 'keypoints' as "
-            "dimensions.",
         )
