@@ -271,6 +271,12 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         "right_ear",
         camera_view="top_down",
     )
+    head_vector = kinematics.compute_head_direction_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="bottom_up",
+    )
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
     assert (
@@ -280,6 +286,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
     )
     assert np.equal(forward_vector.values, known_vectors).all()
     assert np.equal(forward_vector_flipped.values, known_vectors * -1).all()
+    assert head_vector.equals(forward_vector)
 
 
 @pytest.mark.parametrize(
