@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
+from movement.validators.arrays import validate_dims_coords
 
 
 def compute_norm(data: xr.DataArray) -> xr.DataArray:
@@ -39,7 +40,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
     """
     if "space" in data.dims:
-        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        validate_dims_coords(data, {"space": ["x", "y"]})
         return xr.apply_ufunc(
             np.linalg.norm,
             data,
@@ -47,7 +48,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
             kwargs={"axis": -1},
         )
     elif "space_pol" in data.dims:
-        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
         return data.sel(space_pol="rho", drop=True)
     else:
         _raise_error_for_missing_spatial_dim()
@@ -78,10 +79,10 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
 
     """
     if "space" in data.dims:
-        _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+        validate_dims_coords(data, {"space": ["x", "y"]})
         return data / compute_norm(data)
     elif "space_pol" in data.dims:
-        _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
         # Set both rho and phi values to NaN at null vectors (where rho = 0)
         new_data = xr.where(data.sel(space_pol="rho") == 0, np.nan, data)
         # Set the rho values to 1 for non-null vectors (phi is preserved)
@@ -111,7 +112,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
 
     """
-    _validate_dimension_coordinates(data, {"space": ["x", "y"]})
+    validate_dims_coords(data, {"space": ["x", "y"]})
     rho = compute_norm(data)
     phi = xr.apply_ufunc(
         np.arctan2,
@@ -147,7 +148,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         in the dimension coordinate.
 
     """
-    _validate_dimension_coordinates(data, {"space_pol": ["rho", "phi"]})
+    validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
     rho = data.sel(space_pol="rho")
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
@@ -162,48 +163,6 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         ],
         concat_dim="space",
     ).transpose(*dims)
-
-
-def _validate_dimension_coordinates(
-    data: xr.DataArray, required_dim_coords: dict
-) -> None:
-    """Validate the input data array.
-
-    Ensure that it contains the required dimensions and coordinates.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-    required_dim_coords : dict
-        A dictionary of required dimensions and their corresponding
-        coordinate values.
-
-    Raises
-    ------
-    ValueError
-        If the input data does not contain the required dimension(s)
-        and/or the required coordinate(s).
-
-    """
-    missing_dims = [dim for dim in required_dim_coords if dim not in data.dims]
-    error_message = ""
-    if missing_dims:
-        error_message += (
-            f"Input data must contain {missing_dims} as dimensions.\n"
-        )
-    missing_coords = []
-    for dim, coords in required_dim_coords.items():
-        missing_coords = [
-            coord for coord in coords if coord not in data.coords.get(dim, [])
-        ]
-        if missing_coords:
-            error_message += (
-                "Input data must contain "
-                f"{missing_coords} in the '{dim}' coordinates."
-            )
-    if error_message:
-        raise log_error(ValueError, error_message)
 
 
 def _raise_error_for_missing_spatial_dim() -> None:
