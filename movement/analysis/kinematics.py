@@ -354,9 +354,10 @@ def compute_heading(
     reference_vector : ndt.NDArray | list | tuple, optional
         The reference vector against which the ```forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
-        where reference_vector[0] corresponds to the x-coordinate and
-        reference_vector[1] corresponds to the y-coordinate. If left
-        unspecified, the vector [1, 0] is used by default.
+        in the form [x,y] - where reference_vector[0] corresponds to the
+        x-coordinate and reference_vector[1] corresponds to the
+        y-coordinate. If left unspecified, the vector [1, 0] is used by
+        default.
     camera_view : Literal["top_down", "bottom_up"], optional
         The camera viewing angle, used to determine the upwards
         direction of the animal. Can be either ``"top_down"`` (where the
@@ -375,7 +376,7 @@ def compute_heading(
         but without the ``keypoints`` and ``space`` dimensions.
 
     """
-    # Convert reference vector to np.array if list
+    # Convert reference vector to np.array if list or tuple
     if isinstance(reference_vector, (list | tuple)):
         reference_vector = np.array(reference_vector)
 
@@ -483,7 +484,7 @@ def compute_relative_heading(
 
     """
     # Validate ROI
-    _validate_ROI_for_relative_heading(ROI, data)
+    _validate_roi_for_relative_heading(ROI, data)
 
     # Drop individuals dim if present
     if "individuals" in data.dims:
@@ -559,7 +560,7 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
         )
 
 
-def _validate_ROI_for_relative_heading(
+def _validate_roi_for_relative_heading(
     ROI: xr.DataArray | np.ndarray, data: xr.DataArray
 ):
     """Validate the ROI has the correct type and dimensions.
