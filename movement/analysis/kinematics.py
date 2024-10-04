@@ -177,31 +177,13 @@ def compute_forward_vector(
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
 ):
-    """Compute a 2D forward vector given two left-right symmetrical keypoints.
+    """Compute a 2D forward vector given two left-right symmetric keypoints.
 
     The forward vector is computed as a vector perpendicular to the
     line connecting two symmetrical keypoints on either side of the body
     (i.e., symmetrical relative to the mid-sagittal plane), and pointing
     forwards (in the rostral direction). A top-down or bottom-up view of the
-    animal is assumed.
-
-    To determine the forward direction of the animal, we need to specify
-    (1) the right-to-left direction of the animal and (2) its upward direction.
-    We determine the right-to-left direction via the input left and right
-    keypoints. The upwards direction, in turn, can be determined by passing the
-    ``camera_view`` argument with either ``"top_down"`` or ``"bottom_up"``. If
-    the camera view is specified as being ``top_down``, or if no additional
-    information is provided, we assume that the upwards direction matches that
-    of the vector [0, 0, -1]. If the camera view is ``bottom_up``, the upwards
-    direction is assumed to be given by [0, 0, 1]. For both cases, we assume
-    that position values are expressed in the image coordinate system (where
-    the positive X-axis is oriented to the right, the positive Y-axis faces
-    downwards, and positive Z-axis faces away from the person viewing the
-    screen).
-
-    If one of the required pieces of information is missing for a frame (e.g.,
-    the left keypoint is not visible), then the computed head direction vector
-    is set to NaN.
+    animal is assumed (see Notes).
 
     Parameters
     ----------
@@ -227,6 +209,26 @@ def compute_forward_vector(
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
 
+    Notes
+    -----
+    To determine the forward direction of the animal, we need to specify
+    (1) the right-to-left direction of the animal and (2) its upward direction.
+    We determine the right-to-left direction via the input left and right
+    keypoints. The upwards direction, in turn, can be determined by passing the
+    ``camera_view`` argument with either ``"top_down"`` or ``"bottom_up"``. If
+    the camera view is specified as being ``"top_down"``, or if no additional
+    information is provided, we assume that the upwards direction matches that
+    of the vector ``[0, 0, -1]``. If the camera view is ``"bottom_up"``, the
+    upwards direction is assumed to be given by ``[0, 0, 1]``. For both cases,
+    we assume that position values are expressed in the image coordinate
+    system (where the positive X-axis is oriented to the right, the positive
+    Y-axis faces downwards, and positive Z-axis faces away from the person
+    viewing the screen).
+
+    If one of the required pieces of information is missing for a frame (e.g.,
+    the left keypoint is not visible), then the computed head direction vector
+    is set to NaN.
+
     """
     # Validate input data
     _validate_type_data_array(data)
@@ -241,7 +243,7 @@ def compute_forward_vector(
     if len(data.space) != 2:
         raise log_error(
             ValueError,
-            "Input data must have 2 (and only 2) spatial dimensions, but "
+            "Input data must have exactly 2 spatial dimensions, but "
             f"currently has {len(data.space)}.",
         )
 
@@ -290,7 +292,7 @@ def compute_head_direction_vector(
     This function is an alias for :func:`compute_forward_vector()\
     <movement.analysis.kinematics.compute_forward_vector>`. For more
     detailed information on how the head direction vector is computed,
-    please refer to the documentation for this function.
+    please refer to the documentation for that function.
 
     Parameters
     ----------

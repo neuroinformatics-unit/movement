@@ -307,7 +307,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "invalid_spatial_dimensions_for_forward_vector",
             ValueError,
-            "must have 2 (and only 2) spatial dimensions",
+            "must have exactly 2 spatial dimensions",
             ["left_ear", "right_ear"],
         ),
         (
