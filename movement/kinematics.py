@@ -194,7 +194,6 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         which will be removed.
 
     """
-    _validate_type_data_array(data)
     return compute_norm(compute_velocity(data))
 
 

@@ -43,6 +43,13 @@ from movement import kinematics
                 np.zeros((10, 2)),  # Individual 1
             ],
         ),
+        (
+            "speed",  # magnitude of velocity
+            [
+                np.ones(10) * np.sqrt(2),  # Individual 0
+                np.ones(10) * np.sqrt(2),  # Individual 1
+            ],
+        ),
     ],
 )
 def test_kinematics_uniform_linear_motion(
@@ -74,19 +81,24 @@ def test_kinematics_uniform_linear_motion(
         position
     )
 
+    # Figure out which dimensions to expect in kinematic_array
+    # and in the final xarray.DataArray
+    expected_dims = ["time", "individuals"]
+    if kinematic_variable in ["displacement", "velocity", "acceleration"]:
+        expected_dims.append("space")
+
     # Build expected data array from the expected numpy array
     expected_array = xr.DataArray(
-        np.stack(expected_kinematics, axis=1),
         # Stack along the "individuals" axis
-        dims=["time", "individuals", "space"],
+        np.stack(expected_kinematics, axis=1),
+        dims=expected_dims,
     )
     if "keypoints" in position.coords:
         expected_array = expected_array.expand_dims(
             {"keypoints": position.coords["keypoints"].size}
         )
-        expected_array = expected_array.transpose(
-            "time", "individuals", "keypoints", "space"
-        )
+        expected_dims.insert(2, "keypoints")
+        expected_array = expected_array.transpose(*expected_dims)
 
     # Compare the values of the kinematic_array against the expected_array
     np.testing.assert_allclose(kinematic_array.values, expected_array.values)
@@ -105,6 +117,7 @@ def test_kinematics_uniform_linear_motion(
         ("displacement", [5, 0]),  # individual 0, individual 1
         ("velocity", [6, 0]),
         ("acceleration", [7, 0]),
+        ("speed", [6, 0]),
     ],
 )
 def test_kinematics_with_dataset_with_nans(
@@ -134,10 +147,13 @@ def test_kinematics_with_dataset_with_nans(
     ]
 
     # expected nans per individual adjusted for space and keypoints dimensions
+    if "space" in kinematic_array.dims:
+        n_space_dims = position.sizes["space"]
+    else:
+        n_space_dims = 1
+
     expected_nans_adjusted = [
-        n
-        * valid_dataset.sizes["space"]
-        * valid_dataset.sizes.get("keypoints", 1)
+        n * n_space_dims * valid_dataset.sizes.get("keypoints", 1)
         for n in expected_nans_per_individual
     ]
     # check number of nans per individual is as expected in kinematic array
@@ -163,6 +179,7 @@ def test_kinematics_with_dataset_with_nans(
         "displacement",
         "velocity",
         "acceleration",
+        "speed",
     ],
 )
 def test_kinematics_with_invalid_dataset(
