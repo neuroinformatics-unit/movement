@@ -192,7 +192,6 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         which will be removed.
 
     """
-    _validate_type_data_array(data)
     return compute_norm(compute_velocity(data))
 
 
@@ -229,8 +228,6 @@ def compute_path_length(
         and ``space`` which will be removed.
 
     """
-    # Validate input data type and dimensions
-    _validate_type_data_array(data)
     # We choose to validate the time dimension here, despite the fact that
     # it will be also validated later in the compute_displacement function.
     # This is because we rely on the time dimension for start and stop values.
