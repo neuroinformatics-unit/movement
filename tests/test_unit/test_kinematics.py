@@ -1,4 +1,5 @@
 import re
+from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
@@ -201,6 +202,59 @@ def test_approximate_derivative_with_invalid_order(order):
     expected_exception = ValueError if isinstance(order, int) else TypeError
     with pytest.raises(expected_exception):
         kinematics.compute_time_derivative(data, order=order)
+
+
+@pytest.mark.parametrize(
+    "start, stop, expected_exception",
+    [
+        # full time ranges
+        (None, None, does_not_raise()),
+        (0, None, does_not_raise()),
+        (None, 9, does_not_raise()),
+        (0, 9, does_not_raise()),
+        # partial time ranges
+        (1, 8, does_not_raise()),
+        (1.5, 8.5, does_not_raise()),
+        (2, None, does_not_raise()),
+        (None, 6.3, does_not_raise()),
+        # invalid time ranges
+        (0, 10, pytest.raises(ValueError)),  # stop > n_frames
+        (-1, 9, pytest.raises(ValueError)),  # start < 0
+        (9, 0, pytest.raises(ValueError)),  # start > stop
+        ("text", 9, pytest.raises(TypeError)),  # start is not a number
+        (0, [0, 1], pytest.raises(TypeError)),  # stop is not a number
+    ],
+)
+def test_compute_path_length_across_time_ranges(
+    valid_poses_dataset_uniform_linear_motion,
+    start,
+    stop,
+    expected_exception,
+):
+    """Test that the path length is computed correctly for a uniform linear
+    motion case.
+    """
+    position = valid_poses_dataset_uniform_linear_motion.position
+    with expected_exception:
+        path_length = kinematics.compute_path_length(
+            position, start=start, stop=stop, nan_policy="scale"
+        )
+        # Expected number of steps (displacements) in selected time range
+        num_steps = 9  # full time range: 10 frames - 1
+        if start is not None:
+            num_steps -= np.ceil(start)
+        if stop is not None:
+            num_steps -= 9 - np.floor(stop)
+        # Each step has a magnitude of sqrt(2) in x-y space
+        expected_path_length = xr.DataArray(
+            np.ones((2, 3)) * np.sqrt(2) * num_steps,
+            dims=["individuals", "keypoints"],
+            coords={
+                "individuals": position.coords["individuals"],
+                "keypoints": position.coords["keypoints"],
+            },
+        )
+        xr.testing.assert_allclose(path_length, expected_path_length)
 
 
 @pytest.fixture
