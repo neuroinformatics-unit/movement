@@ -3,10 +3,14 @@
 from typing import Literal
 
 import numpy as np
+import numpy.typing as npt
 import xarray as xr
 
 from movement.utils.logging import log_error
-from movement.utils.vector import compute_norm
+from movement.utils.vector import (
+    convert_to_unit,
+    signed_angle_between_2d_vectors,
+)
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -176,7 +180,7 @@ def compute_forward_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-):
+) -> xr.DataArray:
     """Compute a 2D forward vector given two left-right symmetric keypoints.
 
     The forward vector is computed as a vector perpendicular to the
@@ -278,7 +282,7 @@ def compute_forward_vector(
 
     # Return unit vector
 
-    return forward_vector / compute_norm(forward_vector)
+    return convert_to_unit(forward_vector)
 
 
 def compute_head_direction_vector(
@@ -286,7 +290,7 @@ def compute_head_direction_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-):
+) -> xr.DataArray:
     """Compute the 2D head direction vector given two keypoints on the head.
 
     This function is an alias for :func:`compute_forward_vector()\
@@ -322,6 +326,86 @@ def compute_head_direction_vector(
     return compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
+
+
+def compute_heading(
+    data: xr.DataArray,
+    left_keypoint: str,
+    right_keypoint: str,
+    reference_vector: npt.NDArray | list | tuple = (1, 0),
+    camera_view: Literal["top_down", "bottom_up"] = "top_down",
+    in_radians=False,
+) -> xr.DataArray:
+    """Compute the 2D heading given two keypoints on the head.
+
+    Heading is defined as the signed angle between the animal's forward
+    vector (see :func:`compute_forward_direction()\
+    <movement.analysis.kinematics.compute_forward_direction>`)
+    and a reference vector. By default, the reference vector
+    corresponds to the direction of the positive x-axis.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data representing position. This must contain
+        the two symmetrical keypoints located on the left and
+        right sides of the body, respectively.
+    left_keypoint : str
+        Name of the left keypoint, e.g., "left_ear"
+    right_keypoint : str
+        Name of the right keypoint, e.g., "right_ear"
+    reference_vector : ndt.NDArray | list | tuple, optional
+        The reference vector against which the ```forward_vector`` is
+        compared to compute 2D heading. Must be a two-dimensional vector,
+        in the form [x,y] - where reference_vector[0] corresponds to the
+        x-coordinate and reference_vector[1] corresponds to the
+        y-coordinate. If left unspecified, the vector [1, 0] is used by
+        default.
+    camera_view : Literal["top_down", "bottom_up"], optional
+        The camera viewing angle, used to determine the upwards
+        direction of the animal. Can be either ``"top_down"`` (where the
+        upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
+        upwards direction is [0, 0, 1]). If left unspecified, the camera
+        view is assumed to be ``"top_down"``.
+    in_radians : bool, optional
+        If true, the returned heading array is given in radians.
+        If false, the array is given in degrees. False by default.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed heading
+        timeseries, with dimensions matching the input data array,
+        but without the ``keypoints`` and ``space`` dimensions.
+
+    """
+    # Convert reference vector to np.array if list or tuple
+    if isinstance(reference_vector, (list | tuple)):
+        reference_vector = np.array(reference_vector)
+
+    # Validate that reference vector has correct dimensionality
+    if reference_vector.shape != (2,):
+        raise log_error(
+            ValueError,
+            f"Reference vector must be two-dimensional (with"
+            f" shape ``(2,)``), but got {reference_vector.shape}.",
+        )
+
+    # Compute forward vector
+    forward_vector = compute_forward_vector(
+        data, left_keypoint, right_keypoint, camera_view=camera_view
+    )
+
+    # Compute signed angle between forward vector and reference vector
+    heading_array = signed_angle_between_2d_vectors(
+        forward_vector, reference_vector
+    )
+
+    # Convert to degrees
+    if not in_radians:
+        heading_array = np.rad2deg(heading_array)
+
+    return heading_array
 
 
 def _validate_type_data_array(data: xr.DataArray) -> None:
