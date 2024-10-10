@@ -5,7 +5,8 @@ from typing import Literal
 import numpy as np
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error, log_warning
+from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
@@ -169,6 +170,106 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     for _ in range(order):
         result = result.differentiate("time")
     return result
+
+
+def compute_speed(data: xr.DataArray) -> xr.DataArray:
+    """Compute instantaneous speed at each time point.
+
+    Speed is a scalar quantity computed as the Euclidean norm (magnitude)
+    of the velocity vector at each time point.
+
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` as dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed speed. Will have
+        the same dimensions as the input data, except for ``space``
+        which will be removed.
+
+    """
+    return compute_norm(compute_velocity(data))
+
+
+def compute_path_length(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+    nan_policy: Literal["drop", "scale"] = "drop",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute the length of a path travelled between two time points.
+
+    The path length is defined as the sum of the norms (magnitudes) of the
+    displacement vectors between two time points ``start`` and ``stop``,
+    which should be provided in the time units of the data array.
+    If not specified, the minimum and maximum time coordinates of the data
+    array are used as start and stop times, respectively.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` among the dimensions.
+    start : float, optional
+        The time to consider as the path's starting point. If None (default),
+        the minimum time coordinate in the data is used.
+    stop : float, optional
+        The time to consider as the path's end point. If None (default),
+        the maximum time coordinate in the data is used.
+    nan_policy : Literal["drop", "scale"], optional
+        Policy to handle NaN (missing) values. Can be one of the ``"drop"``
+        or ``"scale"``. Defaults to ``"drop"``. See Notes for more details
+        on the two policies.
+    nan_warn_threshold : float, optional
+        If more than this proportion of values are missing in any point track,
+        a warning will be emitted. Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length.
+        Will have the same dimensions as the input data, except for ``time``
+        and ``space`` which will be removed.
+
+    Notes
+    -----
+    Choosing ``nan_policy="drop"`` will drop NaN values from each point track
+    before computing path length. This equates to assuming that a track
+    follows a straight line between two valid points flanking a missing
+    segment. Missing segments at the beginning or end of the specified
+    time range are not counted. This approach tends to underestimate
+    the path length, and the error increases with the number of missing
+    values.
+
+    Choosing ``nan_policy="scale"`` will adjust the path length based on the
+    the proportion of valid segments per point track. For example, if only
+    80% of segments are present, the path length will be computed based on
+    these and the result will be divided by 0.8. This approach assumes
+    that motion dynamics are similar across present and missing time
+    segments, which may not be the case.
+
+    """
+    _validate_start_stop_times(data, start, stop)
+    data = data.sel(time=slice(start, stop))
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    if nan_policy == "drop":
+        return _compute_path_length_drop_nan(data)
+
+    elif nan_policy == "scale":
+        return _compute_scaled_path_length(data)
+    else:
+        raise log_error(
+            ValueError,
+            f"Invalid value for nan_policy: {nan_policy}. "
+            "Must be one of 'drop' or 'weight'.",
+        )
 
 
 def compute_forward_vector(
@@ -343,3 +444,180 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
             TypeError,
             f"Input data must be an xarray.DataArray, but got {type(data)}.",
         )
+
+
+def _validate_start_stop_times(
+    data: xr.DataArray,
+    start: int | float | None,
+    stop: int | float | None,
+) -> None:
+    """Validate the start and stop times for path length computation.
+
+    Parameters
+    ----------
+    data: xarray.DataArray
+        The input data array containing position information.
+    start : float or None
+        The start time point for path length computation.
+    stop : float or None
+        The stop time point for path length computation.
+
+    Raises
+    ------
+    TypeError
+        If the start or stop time is not numeric.
+    ValueError
+        If the time dimension is missing, if either of the provided times is
+        outside the data time range, or if the start time is later than the
+        stop time.
+
+    """
+    # We validate the time dimension here, on top of any validation that may
+    # occur downstream, because we rely on it for start/stop times.
+    validate_dims_coords(data, {"time": []})
+
+    provided_time_points = {"start time": start, "stop time": stop}
+    expected_time_range = (data.time.min(), data.time.max())
+
+    for name, value in provided_time_points.items():
+        if value is None:  # Skip if the time point is not provided
+            continue
+        # Check that the provided value is numeric
+        if not isinstance(value, int | float):
+            raise log_error(
+                TypeError,
+                f"Expected a numeric value for {name}, but got {type(value)}.",
+            )
+        # Check that the provided value is within the time range of the data
+        if value < expected_time_range[0] or value > expected_time_range[1]:
+            raise log_error(
+                ValueError,
+                f"The provided {name} {value} is outside the time range "
+                f"of the data array ({expected_time_range}).",
+            )
+
+    # Check that the start time is earlier than the stop time
+    if start is not None and stop is not None and start >= stop:
+        raise log_error(
+            ValueError,
+            "The start time must be earlier than the stop time.",
+        )
+
+
+def _warn_about_nan_proportion(
+    data: xr.DataArray, nan_warn_threshold: float
+) -> None:
+    """Print a warning if the proportion of NaN values exceeds a threshold.
+
+    The NaN proportion is evaluated per point track, and a given point is
+    considered NaN if any of its ``space`` coordinates are NaN. The warning
+    specifically lists the point tracks that exceed the threshold.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data array.
+    nan_warn_threshold : float
+        The threshold for the proportion of NaN values. Must be a number
+        between 0 and 1.
+
+    """
+    nan_warn_threshold = float(nan_warn_threshold)
+    if nan_warn_threshold < 0 or nan_warn_threshold > 1:
+        raise log_error(
+            ValueError,
+            "nan_warn_threshold must be a number between 0 and 1.",
+        )
+
+    n_nans = data.isnull().any(dim="space").sum(dim="time")
+    data_to_warn_about = data.where(
+        n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
+    )
+    if len(data_to_warn_about) > 0:
+        log_warning(
+            "The result may be unreliable for point tracks with many "
+            "missing values. The following tracks have more than "
+            f"{nan_warn_threshold * 100:.3} %) NaN values:",
+        )
+        report_nan_values(data_to_warn_about)
+
+
+def _compute_scaled_path_length(
+    data: xr.DataArray,
+) -> xr.DataArray:
+    """Compute scaled path length based on proportion of valid segments.
+
+    Path length is first computed based on valid segments (non-NaN values
+    on both ends of the segment) and then scaled based on the proportion of
+    valid segments per point track - i.e. the result is divided by the
+    proportion of valid segments.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` among the dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length.
+        Will have the same dimensions as the input data, except for ``time``
+        and ``space`` which will be removed.
+
+    """
+    # Skip first displacement segment (always 0) to not mess up the scaling
+    displacement = compute_displacement(data).isel(time=slice(1, None))
+    # count number of valid displacement segments per point track
+    valid_segments = (~displacement.isnull()).any(dim="space").sum(dim="time")
+    # compute proportion of valid segments per point track
+    valid_proportion = valid_segments / (data.sizes["time"] - 1)
+    # return scaled path length
+    return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def _compute_path_length_drop_nan(
+    data: xr.DataArray,
+) -> xr.DataArray:
+    """Compute path length by dropping NaN values before computation.
+
+    This function iterates over point tracks, drops NaN values from each
+    track, and then computes the path length for the remaining valid
+    segments (takes the sum of the norms of the displacement vectors).
+    If there is no valid segment in a track, the path length for that
+    track will be NaN.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information in Cartesian
+        coordinates, with ``time`` and ``space`` among the dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length.
+        Will have the same dimensions as the input data, except for ``time``
+        and ``space`` which will be removed.
+
+    """
+    # Create array for holding results
+    path_length = xr.full_like(
+        data.isel(time=0, space=0, drop=True), fill_value=np.nan
+    )
+
+    # Stack data to iterate over point tracks
+    dims_to_stack = [d for d in data.dims if d not in ["time", "space"]]
+    stacked_data = data.stack(tracks=dims_to_stack)
+    for track_name in stacked_data.tracks.values:
+        # Drop NaN values from current point track
+        track_data = stacked_data.sel(tracks=track_name, drop=True).dropna(
+            dim="time", how="any"
+        )
+        # Compute path length for current point track
+        # and store it in the result array
+        target_loc = {k: v for k, v in zip(dims_to_stack, track_name)}
+        path_length.loc[target_loc] = compute_norm(
+            compute_displacement(track_data)
+        ).sum(dim="time", min_count=1)  # returns NaN if no valid segment
+    return path_length
