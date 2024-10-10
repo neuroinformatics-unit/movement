@@ -7,7 +7,10 @@ import numpy.typing as npt
 import xarray as xr
 
 from movement.utils.logging import log_error
-from movement.utils.vector import convert_to_unit
+from movement.utils.vector import (
+    convert_to_unit,
+    signed_angle_between_2d_vectors,
+)
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -380,39 +383,22 @@ def compute_heading(
     if isinstance(reference_vector, (list | tuple)):
         reference_vector = np.array(reference_vector)
 
-    # Validate that reference vector has correct dimensionality and type
+    # Validate that reference vector has correct dimensionality
     if reference_vector.shape != (2,):
         raise log_error(
             ValueError,
             f"Reference vector must be two-dimensional (with"
-            f" shape `(2,)`), but got {reference_vector.shape}.",
-        )
-    if not (reference_vector.dtype == int) or (
-        reference_vector.dtype == float
-    ):
-        raise log_error(
-            ValueError,
-            "Reference vector may only contain values of type ``int``"
-            "or ``float``.",
+            f" shape ``(2,)``), but got {reference_vector.shape}.",
         )
 
-    # Compute forward vector and separate x and y components
+    # Compute forward vector
     forward_vector = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
-    forward_x = forward_vector.sel(space="x")
-    forward_y = forward_vector.sel(space="y")
 
-    # Normalize reference vector and separate x and y components
-    reference_vector = reference_vector / np.linalg.norm(reference_vector)
-    ref_x = reference_vector[0]
-    ref_y = reference_vector[1]
-
-    # Compute perp dot product to find signed angular difference between
-    # forward vector and reference vector
-    heading_array = np.arctan2(
-        forward_y * ref_x - forward_x * ref_y,
-        forward_x * ref_x + forward_y * ref_y,
+    # Compute signed angle between forward vector and reference vector
+    heading_array = signed_angle_between_2d_vectors(
+        forward_vector, reference_vector
     )
 
     # Convert to degrees
@@ -441,3 +427,72 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
             TypeError,
             f"Input data must be an xarray.DataArray, but got {type(data)}.",
         )
+
+
+def _validate_roi_for_relative_heading(
+    ROI: xr.DataArray | np.ndarray, data: xr.DataArray
+):
+    """Validate the ROI has the correct type and dimensions.
+
+    Parameters
+    ----------
+    ROI : xarray.DataArray | numpy.ndarray
+        The ROI position array to validate.
+    data : xarray.DataArray
+        The input data against which to validate the ROI.
+
+    Returns
+    -------
+    TypeError
+        If ROI is not an xarray.DataArray or a numpy.ndarray
+    ValueError
+        If ROI does not have the correct dimensions
+
+    """
+    if not isinstance(ROI, (xr.DataArray | np.ndarray)):
+        raise log_error(
+            TypeError,
+            f"ROI must be an xarray.DataArray or a np.ndarray, but got "
+            f"{type(data)}.",
+        )
+    if isinstance(ROI, xr.DataArray):
+        validate_dims_coords(
+            ROI,
+            {
+                "time": [],
+                "space": [],
+            },
+        )
+        if not len(ROI.time) == len(data.time):
+            raise log_error(
+                ValueError,
+                "Input data and ROI must have matching time dimensions.",
+            )
+        if "individuals" in ROI.dims and len(ROI.individuals) > 1:
+            raise log_error(
+                ValueError, "ROI may not contain multiple individuals."
+            )
+    else:
+        if not (
+            ROI.shape[0] == 1 or ROI.shape[0] == len(data.time)
+        ):  # Validate time dim
+            raise log_error(
+                ValueError,
+                "Dimension ``0`` of the ``ROI`` argument must have length 1 or"
+                " be equal in length to the ``time`` dimension of ``data``. \n"
+                "\n If passing a single coordinate, make sure that ... (e.g. "
+                "``np.array([[0,1]])``",
+            )
+        if not ROI.shape[1] == 2:  # Validate space dimension
+            raise log_error(
+                ValueError,
+                "Dimension ``1`` of the ``ROI`` argument must correspond to "
+                "coordinates in 2-D space, and may therefore only have size "
+                f"``2``. Instead, got size ``{ROI.shape[1]}``.",
+            )
+        if len(ROI.shape) > 3:
+            raise log_error(
+                ValueError,
+                "ROI may not have more than 3 dimensions (O: time, 1: space, "
+                "2: keypoints).",
+            )
