@@ -728,21 +728,10 @@ def compute_path_length(
     stop : float, optional
         The time to consider as the path's end point. If None (default),
         the maximum time coordinate in the data is used.
-    nan_policy : str, optional
-        Policy to handle NaN (missing) values. Can be one of the following:
-        - ``"drop"``: drop any NaN values before computing path length. This
-            is the default behavior, and it equates to assuming that a track
-            follows a straight line between two valid points flanking a missing
-            segment. Missing segments at the beginning or end of the specified
-            time range are not counted. This approach tends to underestimate
-            the path length, and the error increases with the number of missing
-            values.
-        - ``"scale"``: scale path length based on the proportion of valid
-            segments per point track. For example, if only 80% of segments
-            are present, the path length will be computed based on these
-            and the result will be divided by 0.8. This approach
-            assumes that motion dynamics are similar across present
-            and missing time segments, which may not be the case.
+    nan_policy : Literal["drop", "scale"], optional
+        Policy to handle NaN (missing) values. Can be one of the ``"drop"``
+        or ``"scale"``. Defaults to ``"drop"``. See Notes for more details
+        on the two policies.
     nan_warn_threshold : float, optional
         If more than this proportion of values are missing in any point track,
         a warning will be emitted. Defaults to 0.2 (20%).
@@ -753,6 +742,23 @@ def compute_path_length(
         An xarray DataArray containing the computed path length.
         Will have the same dimensions as the input data, except for ``time``
         and ``space`` which will be removed.
+
+    Notes
+    -----
+    Choosing ``nan_policy="drop"`` will drop NaN values from each point track
+    before computing path length. This equates to assuming that a track
+    follows a straight line between two valid points flanking a missing
+    segment. Missing segments at the beginning or end of the specified
+    time range are not counted. This approach tends to underestimate
+    the path length, and the error increases with the number of missing
+    values.
+
+    Choosing ``nan_policy="scale"`` will adjust the path length based on the
+    the proportion of valid segments per point track. For example, if only
+    80% of segments are present, the path length will be computed based on
+    these and the result will be divided by 0.8. This approach assumes
+    that motion dynamics are similar across present and missing time
+    segments, which may not be the case.
 
     """
     _validate_start_stop_times(data, start, stop)
