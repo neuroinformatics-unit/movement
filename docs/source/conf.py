@@ -176,6 +176,7 @@ linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
 ]
 
+
 myst_url_schemes = {
     "http": None,
     "https": None,
