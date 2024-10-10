@@ -218,36 +218,81 @@ def test_approximate_derivative_with_invalid_order(order):
         (2, None, does_not_raise()),
         (None, 6.3, does_not_raise()),
         # invalid time ranges
-        (0, 10, pytest.raises(ValueError)),  # stop > n_frames
-        (-1, 9, pytest.raises(ValueError)),  # start < 0
-        (9, 0, pytest.raises(ValueError)),  # start > stop
-        ("text", 9, pytest.raises(TypeError)),  # start is not a number
-        (0, [0, 1], pytest.raises(TypeError)),  # stop is not a number
+        (
+            0,
+            10,
+            pytest.raises(
+                ValueError, match="stop time 10 is outside the time range"
+            ),
+        ),
+        (
+            -1,
+            9,
+            pytest.raises(
+                ValueError, match="start time -1 is outside the time range"
+            ),
+        ),
+        (
+            9,
+            0,
+            pytest.raises(
+                ValueError,
+                match="start time must be earlier than the stop time",
+            ),
+        ),
+        (
+            "text",
+            9,
+            pytest.raises(
+                TypeError, match="Expected a numeric value for start"
+            ),
+        ),
+        (
+            0,
+            [0, 1],
+            pytest.raises(
+                TypeError, match="Expected a numeric value for stop"
+            ),
+        ),
     ],
 )
-def test_compute_path_length_across_time_ranges(
+@pytest.mark.parametrize(
+    "nan_policy",
+    ["drop", "scale"],  # results should be same for both here
+)
+def test_path_length_across_time_ranges(
     valid_poses_dataset_uniform_linear_motion,
     start,
     stop,
+    nan_policy,
     expected_exception,
 ):
-    """Test that the path length is computed correctly for a uniform linear
-    motion case.
+    """Test path length computation for a uniform linear motion case,
+    across different time ranges.
+
+    The test dataset ``valid_poses_dataset_uniform_linear_motion``
+    contains 2 individuals ("id_0" and "id_1"), moving
+    along x=y and x=-y lines, respectively, at a constant velocity.
+    At each frame they cover a distance of sqrt(2) in x-y space, so in total
+    we expect a path length of sqrt(2) * num_segments, where num_segments is
+    the number of selected frames minus 1.
     """
     position = valid_poses_dataset_uniform_linear_motion.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
-            position, start=start, stop=stop, nan_policy="scale"
+            position, start=start, stop=stop, nan_policy=nan_policy
         )
-        # Expected number of steps (displacements) in selected time range
-        num_steps = 9  # full time range: 10 frames - 1
+
+        # Expected number of segments (displacements) in selected time range
+        num_segments = 9  # full time range: 10 frames - 1
         if start is not None:
-            num_steps -= np.ceil(start)
+            num_segments -= np.ceil(start)
         if stop is not None:
-            num_steps -= 9 - np.floor(stop)
-        # Each step has a magnitude of sqrt(2) in x-y space
+            num_segments -= 9 - np.floor(stop)
+        print("num_segments", num_segments)
+
         expected_path_length = xr.DataArray(
-            np.ones((2, 3)) * np.sqrt(2) * num_steps,
+            np.ones((2, 3)) * np.sqrt(2) * num_segments,
             dims=["individuals", "keypoints"],
             coords={
                 "individuals": position.coords["individuals"],
@@ -255,6 +300,125 @@ def test_compute_path_length_across_time_ranges(
             },
         )
         xr.testing.assert_allclose(path_length, expected_path_length)
+
+
+@pytest.mark.parametrize(
+    "nan_policy, expected_path_lengths_id_1, expected_exception",
+    [
+        (
+            "drop",
+            {
+                # 9 segments - 1 missing on edge
+                "centroid": np.sqrt(2) * 8,
+                # missing mid frames should have no effect
+                "left": np.sqrt(2) * 9,
+                "right": np.nan,  # all frames missing
+            },
+            does_not_raise(),
+        ),
+        (
+            "scale",
+            {
+                # scaling should restore "true" path length
+                "centroid": np.sqrt(2) * 9,
+                "left": np.sqrt(2) * 9,
+                "right": np.nan,  # all frames missing
+            },
+            does_not_raise(),
+        ),
+        (
+            "invalid",  # invalid value for nan_policy
+            {},
+            pytest.raises(ValueError, match="Invalid value for nan_policy"),
+        ),
+    ],
+)
+def test_path_length_with_nans(
+    valid_poses_dataset_uniform_linear_motion_with_nans,
+    nan_policy,
+    expected_path_lengths_id_1,
+    expected_exception,
+):
+    """Test path length computation for a uniform linear motion case,
+    with varying number of missing values per individual and keypoint.
+
+    The test dataset ``valid_poses_dataset_uniform_linear_motion_with_nans``
+    contains 2 individuals ("id_0" and "id_1"), moving
+    along x=y and x=-y lines, respectively, at a constant velocity.
+    At each frame they cover a distance of sqrt(2) in x-y space.
+
+    Individual "id_1" has some missing values per keypoint:
+    - "centroid" is missing a value on the very first frame
+    - "left" is missing 5 values in middle frames (not at the edges)
+    - "right" is missing values in all frames
+
+    Individual "id_0" has no missing values.
+
+    Because the underlying motion is uniform linear, the "scale" policy should
+    perfectly restore the path length for individual "id_1" to its true value.
+    The "drop" policy should do likewise if frames are missing in the middle,
+    but will not count any missing frames at the edges.
+    """
+    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    with expected_exception:
+        path_length = kinematics.compute_path_length(
+            position,
+            nan_policy=nan_policy,
+        )
+        # Initialise with expected path lengths for scenario without NaNs
+        expected_array = xr.DataArray(
+            np.ones((2, 3)) * np.sqrt(2) * 9,
+            dims=["individuals", "keypoints"],
+            coords={
+                "individuals": position.coords["individuals"],
+                "keypoints": position.coords["keypoints"],
+            },
+        )
+        # insert expected path lengths for individual id_1
+        for kpt, value in expected_path_lengths_id_1.items():
+            target_loc = {"individuals": "id_1", "keypoints": kpt}
+            expected_array.loc[target_loc] = value
+        xr.testing.assert_allclose(path_length, expected_array)
+
+
+@pytest.mark.parametrize(
+    "nan_warn_threshold, expected_exception",
+    [
+        (1, does_not_raise()),
+        (0.2, does_not_raise()),
+        (-1, pytest.raises(ValueError, match="a number between 0 and 1")),
+    ],
+)
+def test_path_length_warns_about_nans(
+    valid_poses_dataset_uniform_linear_motion_with_nans,
+    nan_warn_threshold,
+    expected_exception,
+    caplog,
+):
+    """Test that a warning is raised when the number of missing values
+    exceeds a given threshold.
+
+    See the docstring of ``test_path_length_with_nans`` for details
+    about what's in the dataset.
+    """
+    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    with expected_exception:
+        kinematics.compute_path_length(
+            position, nan_warn_threshold=nan_warn_threshold
+        )
+
+        if (nan_warn_threshold > 0.1) and (nan_warn_threshold < 0.5):
+            # Make sure that a warning was emitted
+            assert caplog.records[0].levelname == "WARNING"
+            assert "The result may be unreliable" in caplog.records[0].message
+            # Make sure that the NaN report only mentions
+            # the individual and keypoint that violate the threshold
+            assert caplog.records[1].levelname == "INFO"
+            assert "Individual: id_1" in caplog.records[1].message
+            assert "Individual: id_2" not in caplog.records[1].message
+            assert "left: 5/10 (50.0%)" in caplog.records[1].message
+            assert "right: 10/10 (100.0%)" in caplog.records[1].message
+            assert "centroid" not in caplog.records[1].message
 
 
 @pytest.fixture
