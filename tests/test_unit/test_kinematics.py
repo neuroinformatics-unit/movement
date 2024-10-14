@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -182,3 +184,168 @@ def test_approximate_derivative_with_invalid_order(order):
     expected_exception = ValueError if isinstance(order, int) else TypeError
     with pytest.raises(expected_exception):
         kinematics.compute_time_derivative(data, order=order)
+
+
+@pytest.fixture
+def valid_data_array_for_forward_vector():
+    """Return a position data array for an individual with 3 keypoints
+    (left ear, right ear and nose), tracked for 4 frames, in x-y space.
+    """
+    time = [0, 1, 2, 3]
+    individuals = ["individual_0"]
+    keypoints = ["left_ear", "right_ear", "nose"]
+    space = ["x", "y"]
+
+    ds = xr.DataArray(
+        [
+            [[[1, 0], [-1, 0], [0, -1]]],  # time 0
+            [[[0, 1], [0, -1], [1, 0]]],  # time 1
+            [[[-1, 0], [1, 0], [0, 1]]],  # time 2
+            [[[0, -1], [0, 1], [-1, 0]]],  # time 3
+        ],
+        dims=["time", "individuals", "keypoints", "space"],
+        coords={
+            "time": time,
+            "individuals": individuals,
+            "keypoints": keypoints,
+            "space": space,
+        },
+    )
+    return ds
+
+
+@pytest.fixture
+def invalid_input_type_for_forward_vector(valid_data_array_for_forward_vector):
+    """Return a numpy array of position values by individual, per keypoint,
+    over time.
+    """
+    return valid_data_array_for_forward_vector.values
+
+
+@pytest.fixture
+def invalid_dimensions_for_forward_vector(valid_data_array_for_forward_vector):
+    """Return a position DataArray in which the ``keypoints`` dimension has
+    been dropped.
+    """
+    return valid_data_array_for_forward_vector.sel(keypoints="nose", drop=True)
+
+
+@pytest.fixture
+def invalid_spatial_dimensions_for_forward_vector(
+    valid_data_array_for_forward_vector,
+):
+    """Return a position DataArray containing three spatial dimensions."""
+    dataarray_3d = valid_data_array_for_forward_vector.pad(
+        space=(0, 1), constant_values=0
+    )
+    return dataarray_3d.assign_coords(space=["x", "y", "z"])
+
+
+@pytest.fixture
+def valid_data_array_for_forward_vector_with_nans(
+    valid_data_array_for_forward_vector,
+):
+    """Return a position DataArray where position values are NaN for the
+    ``left_ear`` keypoint at time ``1``.
+    """
+    nan_dataarray = valid_data_array_for_forward_vector.where(
+        (valid_data_array_for_forward_vector.time != 1)
+        | (valid_data_array_for_forward_vector.keypoints != "left_ear")
+    )
+    return nan_dataarray
+
+
+def test_compute_forward_vector(valid_data_array_for_forward_vector):
+    """Test that the correct output forward direction vectors
+    are computed from a valid mock dataset.
+    """
+    forward_vector = kinematics.compute_forward_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="bottom_up",
+    )
+    forward_vector_flipped = kinematics.compute_forward_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="top_down",
+    )
+    head_vector = kinematics.compute_head_direction_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="bottom_up",
+    )
+    known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
+
+    assert (
+        isinstance(forward_vector, xr.DataArray)
+        and ("space" in forward_vector.dims)
+        and ("keypoints" not in forward_vector.dims)
+    )
+    assert np.equal(forward_vector.values, known_vectors).all()
+    assert np.equal(forward_vector_flipped.values, known_vectors * -1).all()
+    assert head_vector.equals(forward_vector)
+
+
+@pytest.mark.parametrize(
+    "input_data, expected_error, expected_match_str, keypoints",
+    [
+        (
+            "invalid_input_type_for_forward_vector",
+            TypeError,
+            "must be an xarray.DataArray",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "invalid_dimensions_for_forward_vector",
+            ValueError,
+            "Input data must contain ['keypoints']",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "invalid_spatial_dimensions_for_forward_vector",
+            ValueError,
+            "must have exactly 2 spatial dimensions",
+            ["left_ear", "right_ear"],
+        ),
+        (
+            "valid_data_array_for_forward_vector",
+            ValueError,
+            "keypoints may not be identical",
+            ["left_ear", "left_ear"],
+        ),
+    ],
+)
+def test_compute_forward_vector_with_invalid_input(
+    input_data, keypoints, expected_error, expected_match_str, request
+):
+    """Test that ``compute_forward_vector`` catches errors
+    correctly when passed invalid inputs.
+    """
+    # Get fixture
+    input_data = request.getfixturevalue(input_data)
+
+    # Catch error
+    with pytest.raises(expected_error, match=re.escape(expected_match_str)):
+        kinematics.compute_forward_vector(
+            input_data, keypoints[0], keypoints[1]
+        )
+
+
+def test_nan_behavior_forward_vector(
+    valid_data_array_for_forward_vector_with_nans,
+):
+    """Test that ``compute_forward_vector()`` generates the
+    expected output for a valid input DataArray containing ``NaN``
+    position values at a single time (``1``) and keypoint
+    (``left_ear``).
+    """
+    forward_vector = kinematics.compute_forward_vector(
+        valid_data_array_for_forward_vector_with_nans, "left_ear", "right_ear"
+    )
+    assert (
+        np.isnan(forward_vector.values[1, 0, :]).all()
+        and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
+    )
