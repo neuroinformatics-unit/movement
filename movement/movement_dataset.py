@@ -1,6 +1,7 @@
 """Accessor for extending :class:`xarray.Dataset` objects."""
 
 import logging
+from dataclasses import dataclass
 from typing import ClassVar
 
 import xarray as xr
@@ -12,12 +13,24 @@ from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 
 logger = logging.getLogger(__name__)
 
-# Preserve the attributes (metadata) of xarray objects after operations
-xr.set_options(keep_attrs=True)
+
+@dataclass
+class MovementDataset:
+    """A dataclass to define the canonical structure of a Movement Dataset."""
+
+    # Set class attributes for expected dimensions and data variables
+    dim_names: ClassVar[dict] = {
+        "poses": ("time", "individuals", "keypoints", "space"),
+        "bboxes": ("time", "individuals", "space"),
+    }
+    var_names: ClassVar[dict] = {
+        "poses": ("position", "confidence"),
+        "bboxes": ("position", "shape", "confidence"),
+    }
 
 
 @xr.register_dataset_accessor("move")
-class MovementDataset:
+class _DeprecatedMovementDataset:
     """An :class:`xarray.Dataset` accessor for ``movement`` data.
 
     A ``movement`` dataset is an :class:`xarray.Dataset` with a specific

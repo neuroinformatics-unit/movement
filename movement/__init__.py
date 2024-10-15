@@ -1,7 +1,7 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from movement.utils.logging import configure_logging
-from movement.move_accessor import MovementDataset
+from movement.movement_dataset import MovementDataset
 
 try:
     __version__ = version("movement")
