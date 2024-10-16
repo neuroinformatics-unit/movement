@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement import MovementDataset
 from movement.utils.logging import log_error
 from movement.validators.files import ValidFile
 
@@ -430,6 +431,17 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     """
     if not isinstance(ds, xr.Dataset):
         raise log_error(
-            ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
+            TypeError, f"Expected an xarray Dataset, but got {type(ds)}."
         )
-    ds.move.validate()  # validate the dataset
+
+    missing_vars = set(MovementDataset.var_names["poses"]) - set(ds.data_vars)
+    if missing_vars:
+        raise ValueError(
+            f"Missing required data variables: {sorted(missing_vars)}"
+        )  # sort for a reproducible error message
+
+    missing_dims = set(MovementDataset.dim_names["poses"]) - set(ds.dims)
+    if missing_dims:
+        raise ValueError(
+            f"Missing required dimensions: {sorted(missing_dims)}"
+        )  # sort for a reproducible error message
