@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement import MovementDataset
+from movement.movement_dataset import BboxesDataset
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset
 from movement.validators.files import ValidFile, ValidVIATracksCSV
@@ -631,7 +631,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
 
     # Convert data to an xarray.Dataset
     # with dimensions ('time', 'individuals', 'space')
-    DIM_NAMES = MovementDataset.dim_names["bboxes"]
+    DIM_NAMES = BboxesDataset.get_dim_names()
     n_space = data.position_array.shape[-1]
     return xr.Dataset(
         data_vars={

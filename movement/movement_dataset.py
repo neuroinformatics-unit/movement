@@ -1,22 +1,35 @@
-"""Accessor for extending :class:`xarray.Dataset` objects."""
-
-import logging
-from dataclasses import dataclass
-from typing import ClassVar
-
-logger = logging.getLogger(__name__)
+"""Define the canonical structure of Movement Datasets."""
 
 
-@dataclass
 class MovementDataset:
-    """A dataclass to define the canonical structure of a Movement Dataset."""
+    """Base class to define the canonical structure of a Movement Dataset."""
 
-    # Set class attributes for expected dimensions and data variables
-    dim_names: ClassVar[dict] = {
-        "poses": ("time", "individuals", "keypoints", "space"),
-        "bboxes": ("time", "individuals", "space"),
-    }
-    var_names: ClassVar[dict] = {
-        "poses": ("position", "confidence"),
-        "bboxes": ("position", "shape", "confidence"),
-    }
+    # Base dimensions and variables common to all datasets
+    DIM_NAMES: tuple[str, ...] = ("time", "space")
+    VAR_NAMES: tuple[str, ...] = ("position", "confidence")
+
+    @classmethod
+    def get_dim_names(cls):
+        """Get dimension names for the dataset."""
+        return cls.DIM_NAMES
+
+    @classmethod
+    def get_var_names(cls):
+        """Get variable names for the dataset."""
+        return cls.VAR_NAMES
+
+
+class PosesDataset(MovementDataset):
+    """Dataset class for pose data, extending MovementDataset."""
+
+    # Additional dimensions and variables specific to poses
+    DIM_NAMES: tuple[str, ...] = ("time", "individuals", "keypoints", "space")
+    VAR_NAMES: tuple[str, ...] = MovementDataset.VAR_NAMES
+
+
+class BboxesDataset(MovementDataset):
+    """Dataset class for bounding boxes' data, extending MovementDataset."""
+
+    # Additional dimensions and variables specific to bounding boxes
+    DIM_NAMES: tuple[str, ...] = ("time", "individuals", "space")
+    VAR_NAMES: tuple[str, ...] = ("position", "shape", "confidence")
