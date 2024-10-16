@@ -425,8 +425,10 @@ def _validate_dataset(ds: xr.Dataset) -> None:
 
     Raises
     ------
+    TypeError
+        If the input is not an xarray Dataset.
     ValueError
-        If `ds` is not an a valid ``movement`` dataset.
+        If the dataset is missing required data variables or dimensions.
 
     """
     if not isinstance(ds, xr.Dataset):
