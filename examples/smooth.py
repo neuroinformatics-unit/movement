@@ -12,6 +12,11 @@ from matplotlib import pyplot as plt
 from scipy.signal import welch
 
 from movement import sample_data
+from movement.filtering import (
+    interpolate_over_time,
+    median_filter,
+    savgol_filter,
+)
 
 # %%
 # Load a sample dataset
@@ -33,8 +38,8 @@ print(ds_wasp)
 # %%
 # Define a plotting function
 # --------------------------
-# Let's define a plotting function to help us visualise the effects smoothing
-# both in the time and frequency domains.
+# Let's define a plotting function to help us visualise the effects of
+# smoothing both in the time and frequency domains.
 # The function takes as inputs two datasets containing raw and smooth data
 # respectively, and plots the position time series and power spectral density
 # (PSD) for a given individual and keypoint. The function also allows you to
@@ -77,9 +82,8 @@ def plot_raw_and_smooth_timeseries_and_psd(
         )
 
         # interpolate data to remove NaNs in the PSD calculation
-        pos_interp = ds.sel(**selection).move.interpolate_over_time(
-            print_report=False
-        )
+        pos_interp = interpolate_over_time(pos, print_report=False)
+
         # compute and plot the PSD
         freq, psd = welch(pos_interp, fs=ds.fps, nperseg=256)
         ax[1].semilogy(
@@ -108,12 +112,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Smoothing with a median filter
 # ------------------------------
-# Using the
-# :meth:`median_filter()\
-# <movement.move_accessor.MovementDataset.filtering_wrapper>`
-# method of the ``move`` accessor,
-# we apply a rolling window median filter over a 0.1-second window
-# (4 frames) to the wasp dataset.
+# Using the :func:`movement.filtering.median_filter` function on the
+# ``position`` data variable, we can apply a rolling window median filter
+# over a 0.1-second window (4 frames) to the wasp dataset.
 # As the ``window`` parameter is defined in *number of observations*,
 # we can simply multiply the desired time window by the frame rate
 # of the video. We will also create a copy of the dataset to avoid
@@ -121,23 +122,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(0.1 * ds_wasp.fps)
 ds_wasp_smooth = ds_wasp.copy()
-ds_wasp_smooth.update({"position": ds_wasp_smooth.move.median_filter(window)})
-
-# %%
-# .. note::
-#    The ``move`` accessor :meth:`median_filter()\
-#    <movement.move_accessor.MovementDataset.filtering_wrapper>`
-#    method is a convenience method that applies
-#    :func:`movement.filtering.median_filter`
-#    to the ``position`` data variable.
-#    The equivalent function call using the
-#    :mod:`movement.filtering` module would be:
-#
-#    .. code-block:: python
-#
-#       from movement.filtering import median_filter
-#
-#       ds_wasp_smooth.update({"position": median_filter(position, window)})
+ds_wasp_smooth.update({"position": median_filter(ds_wasp.position, window)})
 
 # %%
 # We see from the printed report that the dataset has no missing values
@@ -181,9 +166,7 @@ print(ds_mouse)
 
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
-ds_mouse_smooth.update(
-    {"position": ds_mouse_smooth.move.median_filter(window)}
-)
+ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
@@ -199,7 +182,7 @@ ds_mouse_smooth.update(
 # window are sufficient for the median to be calculated. Let's try this.
 
 ds_mouse_smooth.update(
-    {"position": ds_mouse.move.median_filter(window, min_periods=2)}
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
 )
 
 # %%
@@ -222,7 +205,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(2 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": ds_mouse.move.median_filter(window, min_periods=2)}
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
 )
 
 # %%
@@ -248,13 +231,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Smoothing with a Savitzky-Golay filter
 # --------------------------------------
-# Here we use the
-# :meth:`savgol_filter()\
-# <movement.move_accessor.MovementDataset.filtering_wrapper>`
-# method of the ``move`` accessor, which is a convenience method that applies
-# :func:`movement.filtering.savgol_filter`
-# (a wrapper around :func:`scipy.signal.savgol_filter`),
-# to the ``position`` data variable.
+# Here we apply the :func:`movement.filtering.savgol_filter` function
+# (a wrapper around :func:`scipy.signal.savgol_filter`), to the ``position``
+# data variable.
 # The Savitzky-Golay filter is a polynomial smoothing filter that can be
 # applied to time series data on a rolling window basis.
 # A polynomial with a degree specified by ``polyorder`` is applied to each
@@ -268,7 +247,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 # to be used as the ``window`` size.
 
 window = int(0.2 * ds_mouse.fps)
-ds_mouse_smooth.update({"position": ds_mouse.move.savgol_filter(window)})
+ds_mouse_smooth.update({"position": savgol_filter(ds_mouse.position, window)})
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
@@ -289,7 +268,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
 window = int(0.2 * ds_wasp.fps)
-ds_wasp_smooth.update({"position": ds_wasp.move.savgol_filter(window)})
+ds_wasp_smooth.update({"position": savgol_filter(ds_wasp.position, window)})
 
 # %%
 plot_raw_and_smooth_timeseries_and_psd(
@@ -315,27 +294,24 @@ plot_raw_and_smooth_timeseries_and_psd(
 # with a larger ``window`` to further smooth the data.
 # Between the two filters, we can interpolate over small gaps to avoid the
 # excessive proliferation of NaN values. Let's try this on the mouse dataset.
-# First, we will apply the median filter.
 
+# First, we will apply the median filter.
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": ds_mouse.move.median_filter(window, min_periods=2)}
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
 )
 
-# %%
-# Next, let's linearly interpolate over gaps smaller than 1 second (30 frames).
-
+# Next, let's linearly interpolate over gaps smaller
+# than 1 second (30 frames).
 ds_mouse_smooth.update(
-    {"position": ds_mouse_smooth.move.interpolate_over_time(max_gap=30)}
+    {"position": interpolate_over_time(ds_mouse_smooth.position, max_gap=30)}
 )
 
-# %%
-# Finally, let's apply the Savitzky-Golay filter over a 0.4-second window
-# (12 frames).
-
+# Finally, let's apply the Savitzky-Golay filter
+# over a 0.4-second window (12 frames).
 window = int(0.4 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": ds_mouse_smooth.move.savgol_filter(window)}
+    {"position": savgol_filter(ds_mouse_smooth.position, window)}
 )
 
 # %%
