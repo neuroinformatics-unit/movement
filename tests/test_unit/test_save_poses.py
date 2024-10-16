@@ -54,8 +54,8 @@ class TestSavePoses:
     ]
 
     invalid_poses_datasets_and_exceptions = [
-        ("not_a_dataset", ValueError),
-        ("empty_dataset", RuntimeError),
+        ("not_a_dataset", TypeError),
+        ("empty_dataset", ValueError),
         ("missing_var_poses_dataset", ValueError),
         ("missing_dim_poses_dataset", ValueError),
     ]
@@ -70,7 +70,7 @@ class TestSavePoses:
     @pytest.mark.parametrize(
         "ds, expected_exception",
         [
-            (np.array([1, 2, 3]), pytest.raises(ValueError)),  # incorrect type
+            (np.array([1, 2, 3]), pytest.raises(TypeError)),  # incorrect type
             (
                 load_poses.from_dlc_file(
                     DATA_PATHS.get("DLC_single-wasp.predictions.h5")

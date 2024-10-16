@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement import MovementDataset
+from movement.movement_dataset import BboxesDataset, PosesDataset
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
 
@@ -292,7 +292,7 @@ def valid_bboxes_dataset(
     """Return a valid bboxes dataset for two individuals moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
     """
-    dim_names = MovementDataset.dim_names["bboxes"]
+    dim_names = BboxesDataset.get_dim_names()
 
     position_array = valid_bboxes_arrays["position"]
     shape_array = valid_bboxes_arrays["shape"]
@@ -376,7 +376,7 @@ def valid_position_array():
 @pytest.fixture
 def valid_poses_dataset(valid_position_array, request):
     """Return a valid pose tracks dataset."""
-    dim_names = MovementDataset.dim_names["poses"]
+    dim_names = PosesDataset.get_dim_names()
     # create a multi_individual_array by default unless overridden via param
     try:
         array_format = request.param
@@ -490,7 +490,7 @@ def valid_poses_dataset_uniform_linear_motion(
     """Return a valid poses dataset for two individuals moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
     """
-    dim_names = MovementDataset.dim_names["poses"]
+    dim_names = PosesDataset.get_dim_names()
 
     position_array = valid_poses_array_uniform_linear_motion["position"]
     confidence_array = valid_poses_array_uniform_linear_motion["confidence"]

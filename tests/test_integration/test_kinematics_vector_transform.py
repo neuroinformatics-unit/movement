@@ -3,6 +3,7 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 import xarray as xr
 
+import movement.analysis.kinematics as kin
 from movement.utils import vector
 
 
@@ -16,7 +17,7 @@ class TestKinematicsVectorTransform:
         [
             ("valid_poses_dataset", does_not_raise()),
             ("valid_poses_dataset_with_nan", does_not_raise()),
-            ("missing_dim_poses_dataset", pytest.raises(RuntimeError)),
+            ("missing_dim_poses_dataset", pytest.raises(ValueError)),
         ],
     )
     def test_cart_and_pol_transform(
@@ -27,7 +28,7 @@ class TestKinematicsVectorTransform:
         """
         ds = request.getfixturevalue(ds)
         with expected_exception:
-            data = getattr(ds.move, f"compute_{kinematic_property}")()
+            data = getattr(kin, f"compute_{kinematic_property}")(ds.position)
             pol_data = vector.cart2pol(data)
             cart_data = vector.pol2cart(pol_data)
             xr.testing.assert_allclose(cart_data, data)

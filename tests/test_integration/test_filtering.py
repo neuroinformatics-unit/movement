@@ -1,8 +1,12 @@
-from contextlib import nullcontext as does_not_raise
-
 import pytest
-import xarray as xr
 
+from movement.analysis.kinematics import compute_velocity
+from movement.filtering import (
+    filter_by_confidence,
+    interpolate_over_time,
+    median_filter,
+    savgol_filter,
+)
 from movement.io import load_poses
 from movement.sample_data import fetch_dataset_paths
 
@@ -16,7 +20,7 @@ def sample_dataset():
         "poses"
     ]
     ds = load_poses.from_dlc_file(ds_path)
-    ds["velocity"] = ds.move.compute_velocity()
+    ds["velocity"] = compute_velocity(ds.position)
     return ds
 
 
@@ -30,7 +34,12 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     """
     # Introduce nans via filter_by_confidence
     sample_dataset.update(
-        {"position": sample_dataset.move.filter_by_confidence()}
+        {
+            "position": filter_by_confidence(
+                sample_dataset.position,
+                sample_dataset.confidence,
+            )
+        }
     )
     expected_n_nans = 13136
     n_nans_confilt = helpers.count_nans(sample_dataset.position)
@@ -44,7 +53,7 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     # Apply median filter and check that
     # it doesn't introduce too many or too few NaNs
     sample_dataset.update(
-        {"position": sample_dataset.move.median_filter(window)}
+        {"position": median_filter(sample_dataset.position, window)}
     )
     n_nans_medfilt = helpers.count_nans(sample_dataset.position)
     max_nans_increase = (window - 1) * n_consecutive_nans
@@ -61,7 +70,11 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     # Apply savgol filter and check that
     # it doesn't introduce too many or too few NaNs
     sample_dataset.update(
-        {"position": sample_dataset.move.savgol_filter(window, polyorder=2)}
+        {
+            "position": savgol_filter(
+                sample_dataset.position, window, polyorder=2
+            )
+        }
     )
     n_nans_savgol = helpers.count_nans(sample_dataset.position)
     max_nans_increase = (window - 1) * n_consecutive_nans
@@ -74,53 +87,6 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
 
     # Interpolate data (without max_gap) to eliminate all NaNs
     sample_dataset.update(
-        {"position": sample_dataset.move.interpolate_over_time()}
+        {"position": interpolate_over_time(sample_dataset.position)}
     )
     assert helpers.count_nans(sample_dataset.position) == 0
-
-
-@pytest.mark.parametrize(
-    "method",
-    [
-        "filter_by_confidence",
-        "interpolate_over_time",
-        "median_filter",
-        "savgol_filter",
-    ],
-)
-@pytest.mark.parametrize(
-    "data_vars, expected_exception",
-    [
-        (None, does_not_raise(xr.DataArray)),
-        (["position", "velocity"], does_not_raise(dict)),
-        (["vlocity"], pytest.raises(RuntimeError)),  # Does not exist
-    ],
-)
-def test_accessor_filter_method(
-    sample_dataset, method, data_vars, expected_exception
-):
-    """Test that filtering methods in the ``move`` accessor
-    return the expected data type and structure, and the
-    expected ``log`` attribute containing the filtering method
-    applied, if valid data variables are passed, otherwise
-    raise an exception.
-    """
-    with expected_exception as expected_type:
-        if method in ["median_filter", "savgol_filter"]:
-            # supply required "window" argument
-            result = getattr(sample_dataset.move, method)(
-                data_vars=data_vars, window=3
-            )
-        else:
-            result = getattr(sample_dataset.move, method)(data_vars=data_vars)
-        assert isinstance(result, expected_type)
-        if isinstance(result, xr.DataArray):
-            assert hasattr(result, "log")
-            assert result.log[0]["operation"] == method
-        elif isinstance(result, dict):
-            assert set(result.keys()) == set(data_vars)
-            assert all(hasattr(value, "log") for value in result.values())
-            assert all(
-                value.log[0]["operation"] == method
-                for value in result.values()
-            )

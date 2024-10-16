@@ -170,10 +170,14 @@ linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
+    "https://opensource.org/license/bsd-3-clause/",
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
-    "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
+    # When linkchecking in CI, the following links raise:
+    # '403 Client Error: Forbidden for url'
+    "https://pubs.acs.org/doi/*",  
+    "https://opensource.org/license/*",
 ]
 
 myst_url_schemes = {
