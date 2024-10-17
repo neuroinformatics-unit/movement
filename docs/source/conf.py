@@ -174,6 +174,7 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
+    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
 ]
 
 myst_url_schemes = {
