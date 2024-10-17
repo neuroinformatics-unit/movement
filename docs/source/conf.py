@@ -175,14 +175,6 @@ linkcheck_anchors_ignore_for_url = [
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
 ]
-# Spoof user agent to avoid 403 errors, see
-# https://github.com/sphinx-doc/sphinx/issues/10343#issuecomment-1097430133
-linkcheck_request_headers = {
-    r"https://opensource.org/license/bsd-3-clause/": {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) "
-        "Gecko/20100101 Firefox/92.0"
-    }
-}
 
 myst_url_schemes = {
     "http": None,
