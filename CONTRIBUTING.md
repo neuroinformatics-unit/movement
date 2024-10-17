@@ -275,17 +275,19 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 
 ### Building the documentation locally
 We recommend that you build and view the documentation website locally, before you push it.
-To do so, first navigate to `docs/`.
-All subsequent commands should be run from within this directory.
+
+You first need to install the requirements for building the documentation. To do so, run the following command from the root of the repository:
+```sh
+pip install -r ./docs/requirements.txt
+```
+
+Then navigate to the `docs/` directory:
 ```sh
 cd docs
 ```
-Install the requirements for building the documentation:
-```sh
-pip install -r requirements.txt
-```
+All subsequent commands should be run from within this directory.
 
-Build the documentation:
+To build the documentation, run:
 
 ::::{tab-set}
 :::{tab-item} Unix platforms with `make`
