@@ -171,10 +171,16 @@ The build job is triggered on each PR, ensuring that the documentation build is 
 The deployment job is only triggered whenever a tag is pushed to the _main_ branch,
 ensuring that the documentation is published in sync with each PyPI release.
 
+
 ### Editing the documentation
 
-To edit the documentation, first clone the repository, and install movement in a
+To edit the documentation, first clone the repository, and install `movement` in a
 [development environment](#creating-a-development-environment).
+
+Then, install a few additional dependencies in your development environment to be able to build the documentation locally. To do this, run the following command from the root of the repository:
+```sh
+pip install -r ./docs/requirements.txt
+```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
 and commit your changes. Submit your documentation changes via a pull request,
@@ -273,19 +279,17 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 :::
 ::::
 
+
 ### Building the documentation locally
-We recommend that you build and view the documentation website locally, before you push it.
-To do so, first navigate to `docs/`.
-All subsequent commands should be run from within this directory.
+We recommend that you build and view the documentation website locally, before you push your proposed changes.
+
+First, ensure your development environment with the required dependencies is active (see [Editing the documentation](#editing-the-documentation) for details on how to create it). Then, navigate to the `docs/` directory:
 ```sh
 cd docs
 ```
-Install the requirements for building the documentation:
-```sh
-pip install -r requirements.txt
-```
+All subsequent commands should be run from this directory.
 
-Build the documentation:
+To build the documentation, run:
 
 ::::{tab-set}
 :::{tab-item} Unix platforms with `make`
@@ -303,9 +307,8 @@ The local build can be viewed by opening `docs/build/index.html` in a browser.
 :::
 ::::
 
-To refresh the documentation after making changes, remove all generated files in `docs/`,
-including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
-Then, re-run the above command to rebuild the documentation.
+To re-build the documentation after making changes, run the command below. It will remove all generated files in `docs/`,
+including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`, and then re-build the documentation.
 
 ::::{tab-set}
 :::{tab-item} Unix platforms with `make`
