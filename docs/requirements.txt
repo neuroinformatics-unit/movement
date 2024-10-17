@@ -1,5 +1,4 @@
 -e .
-fake-useragent
 linkify-it-py
 myst-parser
 nbsphinx
