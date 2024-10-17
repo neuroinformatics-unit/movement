@@ -518,6 +518,40 @@ def valid_poses_dataset_uniform_linear_motion(
     )
 
 
+@pytest.fixture
+def valid_poses_dataset_uniform_linear_motion_with_nans(
+    valid_poses_dataset_uniform_linear_motion,
+):
+    """Return a valid poses dataset with NaN values in the position array.
+
+    Specifically, we will introducde:
+    - 1 NaN value in the centroid keypoint of individual id_1 at time=0
+    - 5 NaN values in the left keypoint of individual id_1 (frames 3-7)
+    - 10 NaN values in the right keypoint of individual id_1 (all frames)
+    """
+    valid_poses_dataset_uniform_linear_motion.position.loc[
+        {
+            "individuals": "id_1",
+            "keypoints": "centroid",
+            "time": 0,
+        }
+    ] = np.nan
+    valid_poses_dataset_uniform_linear_motion.position.loc[
+        {
+            "individuals": "id_1",
+            "keypoints": "left",
+            "time": slice(3, 7),
+        }
+    ] = np.nan
+    valid_poses_dataset_uniform_linear_motion.position.loc[
+        {
+            "individuals": "id_1",
+            "keypoints": "right",
+        }
+    ] = np.nan
+    return valid_poses_dataset_uniform_linear_motion
+
+
 # -------------------- Invalid datasets fixtures ------------------------------
 @pytest.fixture
 def not_a_dataset():
