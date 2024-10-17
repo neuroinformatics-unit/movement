@@ -171,6 +171,84 @@ The build job is triggered on each PR, ensuring that the documentation build is 
 The deployment job is only triggered whenever a tag is pushed to the _main_ branch,
 ensuring that the documentation is published in sync with each PyPI release.
 
+
+### Building the documentation locally
+We recommend that you build and view the documentation website locally, before you push your proposed changes.
+
+You will first need to install the required dependencies for building the documentation. To do so, we recommend you create a new virtual environment, activate it and run the following command from the root of the repository:
+```sh
+pip install -r ./docs/requirements.txt
+```
+
+Then navigate to the `docs/` directory:
+```sh
+cd docs
+```
+All subsequent commands should be run from within this directory.
+
+To build the documentation, run:
+
+::::{tab-set}
+:::{tab-item} Unix platforms with `make`
+```sh
+make html
+```
+The local build can be viewed by opening `docs/build/html/index.html` in a browser.
+:::
+
+:::{tab-item} All platforms
+```sh
+python make_api_index.py && sphinx-build source build -W --keep-going
+```
+The local build can be viewed by opening `docs/build/index.html` in a browser.
+:::
+::::
+
+To re-build the documentation after making changes, run the command below. It will remove all generated files in `docs/`,
+including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`, and then re-build the documentation.
+
+::::{tab-set}
+:::{tab-item} Unix platforms with `make`
+```sh
+make clean html
+```
+:::
+
+:::{tab-item} All platforms
+```sh
+rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
+python make_api_index.py && sphinx-build source build -W --keep-going
+```
+:::
+::::
+
+To check that external links are correctly resolved, run:
+
+::::{tab-set}
+:::{tab-item} Unix platforms with `make`
+```sh
+make linkcheck
+```
+:::
+
+:::{tab-item} All platforms
+```sh
+sphinx-build source build -b linkcheck -W --keep-going
+```
+:::
+::::
+
+If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to `linkcheck_anchors_ignore_for_url` in `docs/source/conf.py`, e.g.:
+
+```python
+# The linkcheck builder will skip verifying that anchors exist when checking
+# these URLs
+linkcheck_anchors_ignore_for_url = [
+    "https://gin.g-node.org/G-Node/Info/wiki/",
+    "https://neuroinformatics.zulipchat.com/",
+]
+```
+
 ### Editing the documentation
 
 To edit the documentation, first clone the repository, and install movement in a
@@ -272,84 +350,6 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 ```
 :::
 ::::
-
-### Building the documentation locally
-We recommend that you build and view the documentation website locally, before you push your proposed changes.
-
-You will first need to install the required dependencies for building the documentation. To do so, we recommend you create a new virtual environment, activate it and run the following command from the root of the repository:
-```sh
-pip install -r ./docs/requirements.txt
-```
-
-Then navigate to the `docs/` directory:
-```sh
-cd docs
-```
-All subsequent commands should be run from within this directory.
-
-To build the documentation, run:
-
-::::{tab-set}
-:::{tab-item} Unix platforms with `make`
-```sh
-make html
-```
-The local build can be viewed by opening `docs/build/html/index.html` in a browser.
-:::
-
-:::{tab-item} All platforms
-```sh
-python make_api_index.py && sphinx-build source build -W --keep-going
-```
-The local build can be viewed by opening `docs/build/index.html` in a browser.
-:::
-::::
-
-To refresh the documentation after making changes, run the command below. It will remove all generated files in `docs/`,
-including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
-Then, re-run the above command to rebuild the documentation.
-
-::::{tab-set}
-:::{tab-item} Unix platforms with `make`
-```sh
-make clean html
-```
-:::
-
-:::{tab-item} All platforms
-```sh
-rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
-python make_api_index.py && sphinx-build source build -W --keep-going
-```
-:::
-::::
-
-To check that external links are correctly resolved, run:
-
-::::{tab-set}
-:::{tab-item} Unix platforms with `make`
-```sh
-make linkcheck
-```
-:::
-
-:::{tab-item} All platforms
-```sh
-sphinx-build source build -b linkcheck -W --keep-going
-```
-:::
-::::
-
-If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to `linkcheck_anchors_ignore_for_url` in `docs/source/conf.py`, e.g.:
-
-```python
-# The linkcheck builder will skip verifying that anchors exist when checking
-# these URLs
-linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
-    "https://neuroinformatics.zulipchat.com/",
-]
-```
 
 ## Sample data
 
