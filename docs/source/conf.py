@@ -10,6 +10,7 @@ import os
 import sys
 
 import setuptools_scm
+from fake_useragent import UserAgent
 
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
@@ -174,8 +175,18 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
-    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
+    # "https://opensource.org/license/bsd-3-clause/",  # to avoid 403 error
 ]
+
+# Generate a random User-Agent string
+ua = UserAgent()
+# Spoof user agent to avoid 403 errors, see
+# https://github.com/sphinx-doc/sphinx/issues/10343#issuecomment-1097430133
+linkcheck_request_headers = {
+    "https://opensource.org/license/bsd-3-clause/": {
+        "User-Agent": ua.random
+    }
+}
 
 myst_url_schemes = {
     "http": None,
