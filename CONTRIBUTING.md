@@ -274,9 +274,9 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 ::::
 
 ### Building the documentation locally
-We recommend that you build and view the documentation website locally, before you push it.
+We recommend that you build and view the documentation website locally, before you push your proposed changes.
 
-You first need to install the requirements for building the documentation. To do so, run the following command from the root of the repository:
+You will first need to install the required dependencies for building the documentation. To do so, we recommend you create a new virtual environment, activate it and run the following command from the root of the repository:
 ```sh
 pip install -r ./docs/requirements.txt
 ```
@@ -305,7 +305,7 @@ The local build can be viewed by opening `docs/build/index.html` in a browser.
 :::
 ::::
 
-To refresh the documentation after making changes, remove all generated files in `docs/`,
+To refresh the documentation after making changes, run the command below. It will remove all generated files in `docs/`,
 including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`.
 Then, re-run the above command to rebuild the documentation.
 
