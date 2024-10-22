@@ -1,21 +1,29 @@
-"""Load and modify the pose track files.
-==========================================
-this helps to format your pose tracks in a way that is
-compatible with other
-packages from other developers or even other analysis pipelines
-from collaborators that might use slightly
-different sets of keypoints.
-Load and rename, delete or reorder
-keypoints in pose track files (such as .h5, .slp, or .csv).
+"""Convert pose tracks between file formats
+===========================================
+
+Load pose tracks from one file format, modify them,
+and save them to another file format.
 """
+
+# %%
+# Motivation
+# ----------
+# When working with pose estimation data, it's often useful to convert
+# between file formats. For example, you may need to
+# use some downstream analysis tool that requires a specific file
+# format, or expects the keypoints to be named in a certain way.
+#
+# In the following example, we will load a dataset from a
+# SLEAP file, modify the keypoints (rename, delete, reorder),
+# and save the modified dataset as a DeepLabCut file.
 
 # %%
 # Imports
 # -------
 import pathlib
 
-from movement import sample_data
-from movement.io import load_poses, save_poses
+from movement.movement import sample_data
+from movement.movement.io import load_poses, save_poses
 
 # %%
 # Load the dataset
@@ -32,9 +40,9 @@ from movement.io import load_poses, save_poses
 # For the sake of this example, we will use the path to one of
 # the sample datasets provided with ``movement``.
 
-fpath = sample_data.fetch_dataset_paths(
-    "SLEAP_single-mouse_EPM.analysis.h5"
-)["poses"]
+fpath = sample_data.fetch_dataset_paths("SLEAP_single-mouse_EPM.analysis.h5")[
+    "poses"
+]
 print(fpath)
 
 # %%
@@ -48,18 +56,18 @@ print(ds)
 # Create a dictionary that maps old keypoint names to new ones
 rename_dict = {
     "snout": "nose",
-    "neck_L": "earL",
-    "neck_R": "earR",
-    "neck": "neck",
-    "back_L": "hipL",
-    "back_R": "hipR",
-    "abdomen_post": "tail",
+    "left_ear": "earL",
+    "right_ear": "earR",
+    "centre": "middle",
+    "tail_base": "tailbase",
+    "tail_end": "tailend",
 }
 
 
 # %%
 # Now we can run the following function,
 # to rename the keypoints as defined in ``rename_dict``.
+
 
 # the keypoints have been renamed.
 # this function takes the dataset and the rename_dict as input.
@@ -79,20 +87,27 @@ def rename_keypoints(ds, rename_dict):
 
 
 # %%
+# To prove to ourselves that the keypoints have been renamed,
+# we can print the keypoints in the modified dataset.
+ds_renamed = rename_keypoints(ds, rename_dict)
+print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
+
+
+# %%
 # Delete Keypoints
 # -----------------
 # --------------------------------
 # Let's create a list of keypoints to delete.
 # to delete modify this list accordingly
 
-kps_to_delete = ["abdomen_pre", "abdomen", "tailbase", "front_L", "front_R"]
+kps_to_delete = ["tail_end"]
 
 
 # %%
 # Now we can go ahead and delete these keypoints
 # using an appropriate function.
 def delete_keypoints(ds, delete_keypoints):
-    if not delete_keypoints
+    if not delete_keypoints:
         print("No keypoints to delete. Skipping deleting step.")
     else:
         # Delete the specified keypoints
@@ -102,13 +117,28 @@ def delete_keypoints(ds, delete_keypoints):
 
 
 # %%
+# To prove to ourselves that the keypoints have been deleted,
+# we can print the keypoints in the modified dataset.
+
+ds_deleted = delete_keypoints(ds_renamed, kps_to_delete)
+print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
+
+
+# %%
 # Reorder keypoints
 # ------------------
 # --------------------------------
 # Again create a list with the
 # Let's list the keypoints in the desired order.
 
-ordered_keypoints = ["nose", "earL", "earR", "neck", "hipL", "hipR", "tail"]
+ordered_keypoints = [
+    "snout",
+    "right_ear",
+    "left_ear",
+    "centre",
+    "tail_end",
+    "tail_base",
+]
 
 
 # %%
@@ -123,33 +153,39 @@ def reorder_keypoints(ds, ordered_keypoints):
         ds = ds.reindex(keypoints=ordered_keypoints)
     return ds
 
+
 ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
-print("Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values)
+print(
+    "Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values
+)
+
 # %%
-# and how can I use this when I only have my filepath????
-# -----------
-# Great! Now we know how we can modify our movement datasets!
-# let's put it all together and see how we could use this in a real world
-# scenario.
-# This function will convert all files in the folder to the desired format.
-# The function will rename the keypoints, delete specified keypoints,
-# and reorder them in the dataset.
-# The function will then save the modified dataset to a new file.
+# # One function to rule them all
+# # -----------------------------
+# # Now that we know how to rename, delete, and reorder keypoints,
+# # let's put it all together in a single function,
+# # and see how we'd use this in a real-world scenario.
+# #
+# # The following function will convert all files in a folder
+# # (that end with a specified suffix) to the desired format.
+# # Each file will be loaded, modified, and saved to a new file.
 
 
-FPATH = "/path/to/your/data/"
+data_dir = "/path/to/your/data/"
+target_dir = "/path/to/your/target/data/"
 
 
-def convert_all(FPATH, ext="_inference.slp"):
-    source_folder = pathlib.Path(FPATH)
-    fpaths = list(source_folder.rglob(f"*{ext}"))
+def convert_all(data_dir, target_dir, suffix=".slp"):
+    source_folder = pathlib.Path(data_dir)
+    fpaths = list(source_folder.rglob(f"*{suffix}"))
 
     for fpath in fpaths:
         fpath = pathlib.Path(fpath)
+        target_path = pathlib.Path(target_dir)
 
         # this determines the filename of your modified file
         # change it if you like to change the filename
-        dest_path = fpath.parent / "tracking_2D_8KP.csv"
+        dest_path = target_path / f"{fpath.stem}_dlc.csv"
 
         if dest_path.exists():
             print(f"Skipping {fpath} as {dest_path} already exists.")
@@ -158,16 +194,12 @@ def convert_all(FPATH, ext="_inference.slp"):
         if fpath.exists():
             print(f"processing: {fpath}")
             # load the data
-            ds = load_poses.from_sleap_file(fpath, fps=60)
+            ds = load_poses.from_sleap_file(fpath)
             ds_renamed = rename_keypoints(ds, rename_dict)
             ds_deleted = delete_keypoints(ds_renamed, kps_to_delete)
             ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
             # save poses to dlc file format
-            # here we are also splitting the multi animal file into 2
-            # separate files for each animal
-            save_poses.to_dlc_file(
-                ds_reordered, dest_path, split_individuals=True
-            )
+            save_poses.to_dlc_file(ds_reordered, dest_path)
 
         else:
             raise ValueError(
