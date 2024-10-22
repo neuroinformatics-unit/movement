@@ -20,7 +20,8 @@ from movement.io import load_poses, save_poses
 # %%
 # Load the dataset
 # --------------------
-# This should the location to your outputfile by one of our
+# This should the location of a file output by one of
+# our supported pose estimation
 # supported pose estimation
 # frameworks (e.g., DeepLabCut, SLEAP), containing predicted pose tracks.
 # For example, the path could be something like:
@@ -32,17 +33,17 @@ from movement.io import load_poses, save_poses
 # the sample datasets provided with ``movement``.
 
 fpath = sample_data.fetch_dataset_paths(
-    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+    "SLEAP_single-mouse_EPM.analysis.h5"
 )["poses"]
 print(fpath)
 
 # %%
-# Now we are loading this dataset into our xarray dataset that we can then
+# Now let's load this file into an xarray dataset, which we can then
 # modify to our liking.
 ds = load_poses.from_sleap_file(fpath, fps=30)
 print(ds)
 # %%
-# Rename Keypoints of your choice
+# Rename keypoints
 # --------------------------------
 # Create a dictionary that maps old keypoint names to new ones
 rename_dict = {
@@ -57,7 +58,9 @@ rename_dict = {
 
 
 # %%
-# Now we can run the function and see that
+# Now we can run the following function,
+# to rename the keypoints as defined in ``rename_dict``.
+
 # the keypoints have been renamed.
 # this function takes the dataset and the rename_dict as input.
 def rename_keypoints(ds, rename_dict):
@@ -65,10 +68,10 @@ def rename_keypoints(ds, rename_dict):
     keypoint_names = ds.coords["keypoints"].values
     print("Original keypoints:", keypoint_names)
     # rename the keypoints
-    if rename_dict is None or len(rename_dict) == 0:
-        print("No KPs to rename. Skipping renaming step.")
+    if not rename_dict:
+        print("No keypoints to rename. Skipping renaming step.")
     else:
-        new_keypoints = [rename_dict.get(kp, kp) for kp in keypoint_names]
+        new_keypoints = [rename_dict.get(kp, str(kp)) for kp in keypoint_names]
         print("New keypoints:", new_keypoints)
         # Assign the modified values back to the Dataset
         ds = ds.assign_coords(keypoints=new_keypoints)
@@ -76,19 +79,21 @@ def rename_keypoints(ds, rename_dict):
 
 
 # %%
-# Delete Keypoints of your choice
+# Delete Keypoints
+# -----------------
 # --------------------------------
-# First, create a list of keypoints.
+# Let's create a list of keypoints to delete.
 # to delete modify this list accordingly
 
 kps_to_delete = ["abdomen_pre", "abdomen", "tailbase", "front_L", "front_R"]
 
 
 # %%
-# Now we can go ahead and delete those Keypoints
+# Now we can go ahead and delete these keypoints
+# using an appropriate function.
 def delete_keypoints(ds, delete_keypoints):
-    if delete_keypoints is None or len(delete_keypoints) == 0:
-        print("No KPs to delete. Skipping deleting step.")
+    if not delete_keypoints
+        print("No keypoints to delete. Skipping deleting step.")
     else:
         # Delete the specified keypoints
         # and their corresponding data
@@ -97,10 +102,11 @@ def delete_keypoints(ds, delete_keypoints):
 
 
 # %%
-# Delete Keypoints of your choice
+# Reorder keypoints
+# ------------------
 # --------------------------------
 # Again create a list with the
-# desired order of the keypoints
+# Let's list the keypoints in the desired order.
 
 ordered_keypoints = ["nose", "earL", "earR", "neck", "hipL", "hipR", "tail"]
 
@@ -110,14 +116,15 @@ ordered_keypoints = ["nose", "earL", "earR", "neck", "hipL", "hipR", "tail"]
 # those keypoints
 def reorder_keypoints(ds, ordered_keypoints):
     # reorder the keypoints
-    if ordered_keypoints is None or len(ordered_keypoints) == 0:
-        print("No KPs to reorder. Skipping reordering step.")
+    if not ordered_keypoints:
+        print("No keypoints to reorder. Skipping reordering step.")
     else:
         # Reorder the keypoints in the Dataset
         ds = ds.reindex(keypoints=ordered_keypoints)
     return ds
 
-
+ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
+print("Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values)
 # %%
 # and how can I use this when I only have my filepath????
 # -----------
