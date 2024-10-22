@@ -100,7 +100,7 @@ print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
 # Let's create a list of keypoints to delete.
 # to delete modify this list accordingly
 
-kps_to_delete = ["tail_end"]
+kps_to_delete = ["tailend"]
 
 
 # %%
@@ -131,14 +131,7 @@ print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
 # Again create a list with the
 # Let's list the keypoints in the desired order.
 
-ordered_keypoints = [
-    "snout",
-    "right_ear",
-    "left_ear",
-    "centre",
-    "tail_end",
-    "tail_base",
-]
+ordered_keypoints = ["nose", "earR", "earL", "middle", "tailbase"]
 
 
 # %%
