@@ -96,7 +96,6 @@ print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
 # %%
 # Delete Keypoints
 # -----------------
-# --------------------------------
 # Let's create a list of keypoints to delete.
 # to delete modify this list accordingly
 
@@ -127,7 +126,6 @@ print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
 # %%
 # Reorder keypoints
 # ------------------
-# --------------------------------
 # Again create a list with the
 # Let's list the keypoints in the desired order.
 
@@ -199,3 +197,6 @@ def convert_all(data_dir, target_dir, suffix=".slp"):
                 f"File '{fpath}' does not exist. "
                 f"Please check the file path and try again."
             )
+
+
+# %%
