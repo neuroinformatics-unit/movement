@@ -22,8 +22,8 @@ and save them to another file format.
 # -------
 import pathlib
 
-from movement.movement import sample_data
-from movement.movement.io import load_poses, save_poses
+from movement import sample_data
+from movement.io import load_poses, save_poses
 
 # %%
 # Load the dataset
