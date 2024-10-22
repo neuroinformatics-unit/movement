@@ -43,7 +43,7 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
 
     assert (
         n_total_nans_input
-        == n_low_confidence_kpts * sample_dataset.dims["space"]
+        == n_low_confidence_kpts * sample_dataset.sizes["space"]
     )
 
     # Compute maximum expected increase in NaNs due to filtering
