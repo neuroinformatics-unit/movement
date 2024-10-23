@@ -117,17 +117,19 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
+# The :mod:`movement.analysis.kinematics` module provides functions to compute
+# various kinematic quantities,
+# such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
-# their trajectories.
-# For this, we can use the ``compute_displacement()`` function from
-# the :mod:`movement.analysis.kinematics` module:
+# their trajectories:
 
 import movement.analysis.kinematics as kin
 
 displacement = kin.compute_displacement(position)
 
 # %%
-# This function will return a data array equivalent to the ``position`` one,
+# The :func:`movement.analysis.kinematics.compute_displacement`
+# function will return a data array equivalent to the ``position`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
 #
@@ -267,7 +269,8 @@ print(
 velocity = kin.compute_velocity(position)
 
 # %%
-# The ``compute_velocity()`` function will return a data array equivalent to
+# The :func:`movement.analysis.kinematics.compute_velocity`
+# function will return a data array equivalent to
 # the ``position`` one, but holding velocity data along the ``space`` axis,
 # rather than position data. Notice how ``xarray`` nicely deals with the
 # different individuals and spatial dimensions for us! ✨
@@ -343,7 +346,8 @@ fig.show()
 # %%
 # Compute acceleration
 # ---------------------
-# We can compute the acceleration of the data with an equivalent method:
+# Let's now compute the acceleration for all individuals in our data
+# array:
 accel = kin.compute_acceleration(position)
 
 # %%
@@ -368,8 +372,8 @@ for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
 fig.tight_layout()
 
 # %%
-# The can also represent the magnitude (norm) of the acceleration vector
-# for each individual:
+# We can also compute and visualise the magnitude (norm) of the
+# acceleration vector for each individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # compute magnitude of the acceleration vector for one mouse

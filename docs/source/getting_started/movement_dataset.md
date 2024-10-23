@@ -195,7 +195,7 @@ For example, you can:
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
 
-As an example, here's how you can use the `sel` method to select subsets of
+As an example, here's how you can use {meth}`xarray.Dataset.sel` to select subsets of
 data:
 
 ```python
@@ -246,12 +246,11 @@ ds["velocity"] = compute_velocity(ds.position)
 ds.velocity
 ```
 
-The output of `compute_velocity()` is an {class}`xarray.DataArray` object,
+The output of {func}`movement.analysis.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
 with the same **dimensions** as the original `position` **data variable**,
 so adding it to the existing `ds` makes sense and works seamlessly.
 
-We can also update existing **data variables** in-place, using the `update()`
-method. For example, if we wanted to update the `position`
+We can also update existing **data variables** in-place, using {meth}`xarray.Dataset.update`. For example, if we wanted to update the `position`
 and `velocity` arrays in our dataset, we could do:
 
 ```python
