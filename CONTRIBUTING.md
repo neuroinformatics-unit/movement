@@ -292,51 +292,60 @@ All subsequent commands should be run from this directory.
 To build the documentation, run:
 
 ::::{tab-set}
-:::{tab-item} Unix platforms with `make`
+:::{tab-item} `make` mode
 ```sh
 make html
 ```
 The local build can be viewed by opening `docs/build/html/index.html` in a browser.
 :::
 
-:::{tab-item} All platforms
+:::{tab-item} Default mode
 ```sh
-python make_api_index.py && sphinx-build source build -W --keep-going
+python make_api_index.py && sphinx-build source build -W
 ```
 The local build can be viewed by opening `docs/build/index.html` in a browser.
 :::
 ::::
 
-To re-build the documentation after making changes, run the command below. It will remove all generated files in `docs/`,
-including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`, and then re-build the documentation.
+To re-build the documentation after making changes, we recommend removing existing build files first.
+The following command will remove all generated files in `docs/`,
+including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`. Once the files are removed, you can re-build the documentation as described above.
 
-::::{tab-set}
-:::{tab-item} Unix platforms with `make`
+::::::{tab-set}
+:::::{tab-item} `make` mode
 ```sh
-make clean html
+make clean
 ```
-:::
+:::::
 
-:::{tab-item} All platforms
+:::::{tab-item} Default mode
+::::{tab-set}
+:::{tab-item} Unix
 ```sh
 rm -f source/api_index.rst && rm -rf build && rm -rf source/api && rm -rf source/examples
-python make_api_index.py && sphinx-build source build -W --keep-going
+```
+:::
+:::{tab-item} Windows
+```sh
+rm -fo source/api_index.rst && rm -r -fo build, source/api, source/examples
 ```
 :::
 ::::
+:::::
+::::::
 
 To check that external links are correctly resolved, run:
 
 ::::{tab-set}
-:::{tab-item} Unix platforms with `make`
+:::{tab-item} `make` mode
 ```sh
 make linkcheck
 ```
 :::
 
-:::{tab-item} All platforms
+:::{tab-item} Default mode
 ```sh
-sphinx-build source build -b linkcheck -W --keep-going
+sphinx-build source build -b linkcheck -W
 ```
 :::
 ::::
@@ -399,9 +408,9 @@ To add a new file, you will need to:
 6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
     ::::{tab-set}
     :::{tab-item} Ubuntu
-      ```bash
-      sha256sum <filename>
-      ```
+    ```bash
+    sha256sum <filename>
+    ```
     :::
 
     :::{tab-item} MacOS
