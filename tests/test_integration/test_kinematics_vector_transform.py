@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+import movement.analysis.kinematics as kin
 from movement.utils import vector
 
 
@@ -64,7 +65,9 @@ def test_cart2pol_transform_on_kinematics(
     with various kinematic properties.
     """
     ds = request.getfixturevalue(valid_dataset_uniform_linear_motion)
-    kinematic_array_cart = getattr(ds.move, f"compute_{kinematic_variable}")()
+    kinematic_array_cart = getattr(kin, f"compute_{kinematic_variable}")(
+        ds.position
+    )
     kinematic_array_pol = vector.cart2pol(kinematic_array_cart)
 
     # Build expected data array

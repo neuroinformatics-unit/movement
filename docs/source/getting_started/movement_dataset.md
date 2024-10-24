@@ -195,7 +195,7 @@ For example, you can:
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
 
-As an example, here's how you can use the `sel` method to select subsets of
+As an example, here's how you can use {meth}`xarray.Dataset.sel` to select subsets of
 data:
 
 ```python
@@ -223,55 +223,45 @@ position = ds.position.sel(
 )  # the output is a data array
 ```
 
-### Accessing movement-specific functionality
-
-`movement` extends `xarray`'s functionality with a number of convenience
-methods that are specific to `movement` datasets. These `movement`-specific methods are accessed using the
-`move` keyword.
-
-For example, to compute the velocity and acceleration vectors for all individuals and keypoints across time, we provide the `move.compute_velocity` and `move.compute_acceleration` methods:
-
-```python
-velocity = ds.move.compute_velocity()
-acceleration = ds.move.compute_acceleration()
-```
-
-The `movement`-specific functionalities are implemented in the
-{class}`movement.move_accessor.MovementDataset` class, which is an [accessor](https://docs.xarray.dev/en/stable/internals/extending-xarray.html) to the
-underlying {class}`xarray.Dataset` object. Defining a custom accessor is convenient
-to avoid conflicts with `xarray`'s built-in methods.
-
 ### Modifying movement datasets
 
-The `velocity` and `acceleration` produced in the above example are {class}`xarray.DataArray` objects, with the same **dimensions** as the
-original `position` **data variable**.
+Datasets can be modified by adding new **data variables** and **attributes**,
+or updating existing ones.
 
-In some cases, you may wish to
-add these or other new **data variables** to the `movement` dataset for
-convenience. This can be done by simply assigning them to the dataset
-with an appropriate name:
+Let's imagine we want to compute the instantaneous velocity of all tracked
+points and store the results within the same dataset, for convenience.
 
 ```python
-ds["velocity"] = velocity
-ds["acceleration"] = acceleration
+from movement.analysis.kinematics import compute_velocity
 
-# we can now access these using dot notation on the dataset
+# compute velocity from position
+velocity = compute_velocity(ds.position)
+# add it to the dataset as a new data variable
+ds["velocity"] = velocity
+
+# we could have also done both steps in a single line
+ds["velocity"] = compute_velocity(ds.position)
+
+# we can now access velocity like any other data variable
 ds.velocity
-ds.acceleration
 ```
 
-Custom **attributes** can also be added to the dataset:
+The output of {func}`movement.analysis.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
+with the same **dimensions** as the original `position` **data variable**,
+so adding it to the existing `ds` makes sense and works seamlessly.
+
+We can also update existing **data variables** in-place, using {meth}`xarray.Dataset.update`. For example, if we wanted to update the `position`
+and `velocity` arrays in our dataset, we could do:
+
+```python
+ds.update({"position": position_filtered, "velocity": velocity_filtered})
+```
+
+Custom **attributes** can be added to the dataset with:
 
 ```python
 ds.attrs["my_custom_attribute"] = "my_custom_value"
 
 # we can now access this value using dot notation on the dataset
 ds.my_custom_attribute
-```
-
-We can also update existing **data variables** in-place, using the `update()` method. For example, if we wanted to update the `position`
-and `velocity` arrays in our dataset, we could do:
-
-```python
-ds.update({"position": position_filtered, "velocity": velocity_filtered})
 ```
