@@ -199,7 +199,9 @@ def _cdist(
         ``'individuals'`` or ``'keypoints'``.
     metric : str, optional
         The distance metric to use. Must be one of the options supported
-        by :func:`scipy.spatial.distance.cdist`. Defaults to ``'euclidean'``.
+        by :func:`scipy.spatial.distance.cdist`, e.g. ``'cityblock'``,
+        ``'euclidean'``, etc.
+        Defaults to ``'euclidean'``.
     **kwargs : dict
         Additional keyword arguments to pass to
         :func:`scipy.spatial.distance.cdist`.
@@ -290,7 +292,9 @@ def compute_pairwise_distances(
         of pairs are computed.
     metric : str, optional
         The distance metric to use. Must be one of the options supported
-        by :func:`scipy.spatial.distance.cdist`. Defaults to ``'euclidean'``.
+        by :func:`scipy.spatial.distance.cdist`, e.g. ``'cityblock'``,
+        ``'euclidean'``, etc.
+        Defaults to ``'euclidean'``.
     **kwargs : dict
         Additional keyword arguments to pass to
         :func:`scipy.spatial.distance.cdist`.
