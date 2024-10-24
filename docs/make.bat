@@ -26,6 +26,7 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
+:process_targets
 if "%1" == "clean" (
 	@echo Removing auto-generated files under 'docs' and 'src'...
 	rmdir /S /Q %BUILDDIR%
@@ -35,9 +36,12 @@ if "%1" == "clean" (
 ) else (
 	@echo Generating API index...
 	python make_api_index.py
+	%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 )
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+shift
+if not "%1" == "" goto process_targets
+
 goto end
 
 :help

@@ -298,10 +298,10 @@ The local build can be viewed by opening `docs/build/html/index.html` in a brows
 
 To re-build the documentation after making changes, we recommend removing existing build files first.
 The following command will remove all generated files in `docs/`,
-including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`. Once the files are removed, you can re-build the documentation as described above.
+including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`. It will then re-build the documentation:
 
 ```sh
-make clean
+make clean html
 ```
 
 To check that external links are correctly resolved, run:
@@ -323,10 +323,9 @@ linkcheck_anchors_ignore_for_url = [
 
 :::{tip}
 The `make` commands can be combined to run multiple tasks sequentially.
-For example, to clean the build directory, build the documentation, and check the links, run:
+For example, to re-build the documentation and check the links, run:
 ```sh
-make clean html linkcheck                 # Unix-like systems
-make clean && make html && make linkcheck # Windows systems
+make clean html linkcheck
 ```
 :::
 
