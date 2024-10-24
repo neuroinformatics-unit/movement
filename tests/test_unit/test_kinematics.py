@@ -400,7 +400,7 @@ def test_cdist_with_known_values(
     )
     a = input_dataarray.sel({dim: pairs[0]})
     b = input_dataarray.sel({dim: pairs[1]})
-    result = kinematics.cdist(a, b, dim)
+    result = kinematics._cdist(a, b, dim)
     xr.testing.assert_equal(
         result,
         expected,
@@ -476,7 +476,7 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
         valid_dataset = request.getfixturevalue(valid_dataset)
         position = valid_dataset.position
         a, b = selection_fn(position)
-        assert isinstance(kinematics.cdist(a, b, "individuals"), xr.DataArray)
+        assert isinstance(kinematics._cdist(a, b, "individuals"), xr.DataArray)
 
 
 def expected_pairwise_distances(pairs, input_ds, dim):
@@ -520,8 +520,8 @@ def test_compute_pairwise_distances_with_valid_pairs(
     """Test that the expected pairwise distances are computed
     for valid ``pairs`` inputs.
     """
-    result = getattr(kinematics, f"compute_inter{dim[:-1]}_distances")(
-        valid_poses_dataset_uniform_linear_motion.position, pairs=pairs
+    result = kinematics.compute_pairwise_distances(
+        valid_poses_dataset_uniform_linear_motion.position, dim, pairs=pairs
     )
     expected_data_vars = expected_pairwise_distances(
         pairs, valid_poses_dataset_uniform_linear_motion, dim
@@ -537,6 +537,6 @@ def test_compute_pairwise_distances_with_invalid_dim(
 ):
     """Test that an error is raised when an invalid dimension is passed."""
     with pytest.raises(ValueError):
-        kinematics._compute_pairwise_distances(
+        kinematics.compute_pairwise_distances(
             valid_poses_dataset_uniform_linear_motion.position, "invalid_dim"
         )
