@@ -232,7 +232,7 @@ Let's imagine we want to compute the instantaneous velocity of all tracked
 points and store the results within the same dataset, for convenience.
 
 ```python
-from movement.analysis.kinematics import compute_velocity
+from movement.kinematics import compute_velocity
 
 # compute velocity from position
 velocity = compute_velocity(ds.position)
@@ -246,7 +246,7 @@ ds["velocity"] = compute_velocity(ds.position)
 ds.velocity
 ```
 
-The output of {func}`movement.analysis.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
+The output of {func}`movement.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
 with the same **dimensions** as the original `position` **data variable**,
 so adding it to the existing `ds` makes sense and works seamlessly.
 

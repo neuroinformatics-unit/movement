@@ -9,8 +9,8 @@ missing values.
 # Imports
 # -------
 from movement import sample_data
-from movement.analysis.kinematics import compute_velocity
 from movement.filtering import filter_by_confidence, interpolate_over_time
+from movement.kinematics import compute_velocity
 
 # %%
 # Load a sample dataset

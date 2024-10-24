@@ -290,7 +290,7 @@ def compute_head_direction_vector(
     """Compute the 2D head direction vector given two keypoints on the head.
 
     This function is an alias for :func:`compute_forward_vector()\
-    <movement.analysis.kinematics.compute_forward_vector>`. For more
+    <movement.kinematics.compute_forward_vector>`. For more
     detailed information on how the head direction vector is computed,
     please refer to the documentation for that function.
 

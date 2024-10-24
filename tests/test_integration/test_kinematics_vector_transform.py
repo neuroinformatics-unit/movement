@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import movement.analysis.kinematics as kin
+import movement.kinematics as kin
 from movement.utils import vector
 
 
