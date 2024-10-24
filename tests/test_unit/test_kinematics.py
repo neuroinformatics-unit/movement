@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.analysis import kinematics
+from movement import kinematics
 
 
 @pytest.mark.parametrize(
