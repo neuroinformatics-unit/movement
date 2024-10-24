@@ -270,9 +270,9 @@ def compute_pairwise_distances(
 ) -> xr.DataArray | dict[str, xr.DataArray]:
     """Compute pairwise distances between ``individuals`` or ``keypoints``.
 
-    This function computes the distances between pairs of ``keypoints``
-    (i.e. interkeypoint distances) or pairs of ``individuals`` (i.e.
-    interindividual distances), as specified by ``dim``.
+    This function computes the distances between pairs of ``individuals``
+    (i.e. interindividual distances) or pairs of ``keypoints``
+    (i.e. interkeypoint distances), as specified by ``dim``.
     The distances are computed using the specified ``metric``.
 
     Parameters
