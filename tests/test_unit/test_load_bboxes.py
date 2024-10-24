@@ -9,7 +9,7 @@ import pytest
 import xarray as xr
 
 from movement.io import load_bboxes
-from movement.movement_dataset import BboxesDataset
+from movement.validators.datasets import ValidBboxesDataset
 
 
 @pytest.fixture()
@@ -127,7 +127,7 @@ def assert_dataset(
     assert dataset.confidence.shape == dataset.position.shape[:-1]
 
     # Check the dims and coords
-    DIM_NAMES = BboxesDataset.get_dim_names()
+    DIM_NAMES = ValidBboxesDataset.DIM_NAMES
     assert all([i in dataset.dims for i in DIM_NAMES])
     for d, dim in enumerate(DIM_NAMES[1:]):
         assert dataset.sizes[dim] == dataset.position.shape[d + 1]

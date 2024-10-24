@@ -1,7 +1,7 @@
 """``attrs`` classes for validating data structures."""
 
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, ClassVar
 
 import attrs
 import numpy as np
@@ -141,6 +141,10 @@ class ValidPosesDataset:
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
+
+    # Class variables
+    DIM_NAMES: ClassVar[tuple] = ("time", "individuals", "keypoints", "space")
+    VAR_NAMES: ClassVar[tuple] = ("position", "confidence")
 
     # Add validators
     @position_array.validator
@@ -292,6 +296,9 @@ class ValidBboxesDataset:
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
+
+    DIM_NAMES: ClassVar[tuple] = ("time", "individuals", "space")
+    VAR_NAMES: ClassVar[tuple] = ("position", "shape", "confidence")
 
     # Validators
     @position_array.validator

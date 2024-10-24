@@ -352,7 +352,7 @@ def test_bboxes_dataset_validator_confidence_array(
         (
             np.arange(10).reshape(-1, 2),
             pytest.raises(ValueError),
-            "Expected 'frame_array' to have shape (10, 1), " "but got (5, 2).",
+            "Expected 'frame_array' to have shape (10, 1), but got (5, 2).",
         ),  # frame_array should be a column vector
         (
             [1, 2, 3],
