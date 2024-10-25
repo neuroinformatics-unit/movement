@@ -1,3 +1,6 @@
+..
+    This file is auto-generated.
+
 .. _target-api:
 
 API Reference
