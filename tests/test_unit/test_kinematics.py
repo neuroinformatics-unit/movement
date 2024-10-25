@@ -483,7 +483,7 @@ def expected_pairwise_distances(pairs, input_ds, dim):
     """Return a list of the expected data variable names
     for pairwise distances tests.
     """
-    if pairs is None:
+    if pairs == "all":
         paired_elements = list(
             itertools.combinations(getattr(input_ds, dim).values, 2)
         )
@@ -507,11 +507,11 @@ def expected_pairwise_distances(pairs, input_ds, dim):
         ("individuals", {"id_1": ["id_2"]}),  # list input
         ("individuals", {"id_1": "id_2"}),  # string input
         ("individuals", {"id_1": ["id_2"], "id_2": "id_1"}),
-        ("individuals", None),  # all pairs
+        ("individuals", "all"),  # all pairs
         ("keypoints", {"centroid": ["left"]}),  # list input
         ("keypoints", {"centroid": "left"}),  # string input
         ("keypoints", {"centroid": ["left"], "left": "right"}),
-        ("keypoints", None),  # all pairs
+        ("keypoints", "all"),  # all pairs
     ],
 )
 def test_compute_pairwise_distances_with_valid_pairs(
@@ -521,7 +521,7 @@ def test_compute_pairwise_distances_with_valid_pairs(
     for valid ``pairs`` inputs.
     """
     result = kinematics.compute_pairwise_distances(
-        valid_poses_dataset_uniform_linear_motion.position, dim, pairs=pairs
+        valid_poses_dataset_uniform_linear_motion.position, dim, pairs
     )
     expected_data_vars = expected_pairwise_distances(
         pairs, valid_poses_dataset_uniform_linear_motion, dim
@@ -532,11 +532,18 @@ def test_compute_pairwise_distances_with_valid_pairs(
         assert isinstance(result, xr.DataArray)
 
 
-def test_compute_pairwise_distances_with_invalid_dim(
-    valid_poses_dataset_uniform_linear_motion,
+@pytest.mark.parametrize(
+    "dim, pairs",
+    [
+        ("invalid_dim", {"id_1": "id_2"}),  # invalid dim, valid pairs
+        ("keypoints", "invalid_string"),  # valid dim, invalid pairs
+    ],
+)
+def test_compute_pairwise_distances_with_invalid_input(
+    valid_poses_dataset_uniform_linear_motion, dim, pairs
 ):
-    """Test that an error is raised when an invalid dimension is passed."""
+    """Test that an error is raised for invalid ``dim`` or ``pairs`."""
     with pytest.raises(ValueError):
         kinematics.compute_pairwise_distances(
-            valid_poses_dataset_uniform_linear_motion.position, "invalid_dim"
+            valid_poses_dataset_uniform_linear_motion.position, dim, pairs
         )
