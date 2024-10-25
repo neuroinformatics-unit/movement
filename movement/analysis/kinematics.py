@@ -239,24 +239,25 @@ def _cdist(
         ``individuals`` or ``keypoints``
 
     """
-    core_dim = "individuals" if dim == "keypoints" else "keypoints"
+    # The dimension from which ``dim`` labels are obtained
+    labels_dim = "individuals" if dim == "keypoints" else "keypoints"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
-    a = _validate_core_dimension(a, core_dim)
-    b = _validate_core_dimension(b, core_dim)
+    a = _validate_labels_dimension(a, labels_dim)
+    b = _validate_labels_dimension(b, labels_dim)
     result = xr.apply_ufunc(
         cdist,
         a,
         b,
         kwargs={"metric": metric, **kwargs},
-        input_core_dims=[[core_dim, "space"], [core_dim, "space"]],
+        input_core_dims=[[labels_dim, "space"], [labels_dim, "space"]],
         output_core_dims=[[elem1, elem2]],
         vectorize=True,
     )
     result = result.assign_coords(
         {
-            elem1: getattr(a, core_dim).values,
-            elem2: getattr(a, core_dim).values,
+            elem1: getattr(a, labels_dim).values,
+            elem2: getattr(a, labels_dim).values,
         }
     )
     # Drop any squeezed coordinates
@@ -431,7 +432,7 @@ def compute_pairwise_distances(
             ValueError,
             f"'pairs' must be a dictionary or 'all', but got {pairs}.",
         )
-    # Find all possible pair combinations if "all" is specified
+    # Find all possible pair combinations if 'all' is specified
     if pairs == "all":
         paired_elements = list(
             itertools.combinations(getattr(data, dim).values, 2)
@@ -440,7 +441,9 @@ def compute_pairwise_distances(
         paired_elements = [
             (elem1, elem2)
             for elem1, elem2_list in pairs.items()
-            for elem2 in (
+            for elem2 in
+            (
+                # Ensure elem2_list is a list
                 [elem2_list] if isinstance(elem2_list, str) else elem2_list
             )
         ]
@@ -464,30 +467,29 @@ def compute_pairwise_distances(
     return pairwise_distances
 
 
-def _validate_core_dimension(
-    data: xr.DataArray, core_dim: str
-) -> xr.DataArray:
-    """Validate the input data contains the required core dimension.
+def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
+    """Validate the input data contains the ``dim`` for labelling dimensions.
 
-    This function ensures the input data contains the ``core_dim``
-    required when applying :func:`scipy.spatial.distance.cdist` to
+    This function ensures the input data contains the ``dim``
+    used as labels (coordinates) when applying
+    :func:`scipy.spatial.distance.cdist` to
     the input data, by adding a temporary dimension if necessary.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data to validate.
-    core_dim : str
-        The core dimension to validate.
+    dim : str
+        The dimension to validate.
 
     Returns
     -------
     xarray.DataArray
-        The input data with the core dimension validated.
+        The input data with the labels dimension validated.
 
     """
-    if data.coords.get(core_dim) is None:
-        data = data.assign_coords({core_dim: "temp_dim"})
-    if data.coords[core_dim].ndim == 0:
-        data = data.expand_dims(core_dim).transpose("time", "space", core_dim)
+    if data.coords.get(dim) is None:
+        data = data.assign_coords({dim: "temp_dim"})
+    if data.coords[dim].ndim == 0:
+        data = data.expand_dims(dim).transpose("time", "space", dim)
     return data
