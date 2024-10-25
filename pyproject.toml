@@ -1,8 +1,9 @@
 [project]
 name = "movement"
 authors = [
-  { name = "Niko Sirmpilatze", email = "niko.sirbiladze@gmail.com" },
+  { name = "Nikoloz Sirmpilatze", email = "niko.sirbiladze@gmail.com" },
   { name = "Chang Huan Lo", email = "changhuan.lo@ucl.ac.uk" },
+  { name = "Sofía Miñano", email = "s.minano@ucl.ac.uk" },
 ]
 description = "Analysis of body movement"
 readme = "README.md"
@@ -108,14 +109,15 @@ ignore = [
   "D213", # multi-line-summary second line
 ]
 select = [
-  "E",   # pycodestyle errors
-  "F",   # Pyflakes
-  "UP",  # pyupgrade
-  "I",   # isort
-  "B",   # flake8 bugbear
-  "SIM", # flake8 simplify
-  "C90", # McCabe complexity
-  "D",   # pydocstyle
+  "E",      # pycodestyle errors
+  "F",      # Pyflakes
+  "UP",     # pyupgrade
+  "I",      # isort
+  "B",      # flake8 bugbear
+  "SIM",    # flake8 simplify
+  "C90",    # McCabe complexity
+  "D",      # pydocstyle
+  "NPY201", # checks for syntax that was deprecated in numpy2.0
 ]
 per-file-ignores = { "tests/*" = [
   "D100", # missing docstring in public module
@@ -139,7 +141,9 @@ check-hidden = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-requires = tox-conda
+requires =
+    tox-conda
+    tox-gh-actions
 envlist = py{310,311,312}
 isolated_build = True
 

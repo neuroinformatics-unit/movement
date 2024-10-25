@@ -10,14 +10,13 @@ visualise the results.
 # Imports
 # -------
 
-import numpy as np
-
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
 # %matplotlib widget
 from matplotlib import pyplot as plt
 
 from movement import sample_data
+from movement.utils.vector import compute_norm
 
 # %%
 # Load sample dataset
@@ -104,8 +103,9 @@ fig.tight_layout()
 
 # %%
 # We can also easily plot the components of the position vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
-# remove the dimension of length 1 from the data (the keypoints dimension).
+# using ``xarray``'s built-in plotting methods. We use
+# :meth:`xarray.DataArray.squeeze` to
+# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
 
@@ -117,27 +117,22 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
+# The :mod:`movement.kinematics` module provides functions to compute
+# various kinematic quantities,
+# such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
-# their trajectories.
-# For this, we can use the ``compute_displacement`` method of the
-# ``move`` accessor.
-displacement = ds.move.compute_displacement()
+# their trajectories:
+
+import movement.kinematics as kin
+
+displacement = kin.compute_displacement(position)
 
 # %%
-# This method will return a data array equivalent to the ``position`` one,
+# The :func:`movement.kinematics.compute_displacement`
+# function will return a data array equivalent to the ``position`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
-
-# %%
-# Notice that we could also compute the displacement (and all the other
-# kinematic variables) using the kinematics module:
-
-# %%
-import movement.analysis.kinematics as kin
-
-displacement_kin = kin.compute_displacement(position)
-
-# %%
+#
 # The ``displacement`` data array holds, for a given individual and keypoint
 # at timestep ``t``, the vector that goes from its previous position at time
 # ``t-1`` to its current position at time ``t``.
@@ -254,13 +249,12 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 # mouse along its trajectory.
 
 # length of each displacement vector
-displacement_vectors_lengths = np.linalg.norm(
-    displacement.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-    axis=1,
+displacement_vectors_lengths = compute_norm(
+    displacement.sel(individuals=mouse_name)
 )
 
-# sum of all displacement vectors
-total_displacement = np.sum(displacement_vectors_lengths, axis=0)  # in pixels
+# sum the lengths of all displacement vectors (in pixels)
+total_displacement = displacement_vectors_lengths.sum(dim="time").values[0]
 
 print(
     f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} "
@@ -272,18 +266,20 @@ print(
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
 # array:
-velocity = ds.move.compute_velocity()
+velocity = kin.compute_velocity(position)
 
 # %%
-# The ``velocity`` method will return a data array equivalent to the
-# ``position`` one, but holding velocity data along the ``space`` axis, rather
-# than position data. Notice how ``xarray`` nicely deals with the different
-# individuals and spatial dimensions for us! ✨
+# The :func:`movement.kinematics.compute_velocity`
+# function will return a data array equivalent to
+# the ``position`` one, but holding velocity data along the ``space`` axis,
+# rather than position data. Notice how ``xarray`` nicely deals with the
+# different individuals and spatial dimensions for us! ✨
 
 # %%
 # We can plot the components of the velocity vector against time
-# using ``xarray``'s built-in plotting methods. We use ``squeeze()`` to
-# remove the dimension of length 1 from the data (the keypoints dimension).
+# using ``xarray``'s built-in plotting methods. We use
+# :meth:`xarray.DataArray.squeeze` to
+# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
 plt.gcf().show()
@@ -297,14 +293,12 @@ plt.gcf().show()
 # uses second order central differences.
 
 # %%
-# We can also visualise the speed, as the norm of the velocity vector:
+# We can also visualise the speed, as the magnitude (norm)
+# of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
-    # compute the norm of the velocity vector for one mouse
-    speed_one_mouse = np.linalg.norm(
-        velocity.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-        axis=1,
-    )
+    # compute the magnitude of the velocity vector for one mouse
+    speed_one_mouse = compute_norm(velocity.sel(individuals=mouse_name))
     # plot speed against time
     ax.plot(speed_one_mouse)
     ax.set_title(mouse_name)
@@ -352,8 +346,9 @@ fig.show()
 # %%
 # Compute acceleration
 # ---------------------
-# We can compute the acceleration of the data with an equivalent method:
-accel = ds.move.compute_acceleration()
+# Let's now compute the acceleration for all individuals in our data
+# array:
+accel = kin.compute_acceleration(position)
 
 # %%
 # and plot of the components of the acceleration vector ``ax``, ``ay`` per
@@ -377,16 +372,12 @@ for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
 fig.tight_layout()
 
 # %%
-# The norm of the acceleration vector is the magnitude of the
-# acceleration.
-# We can also represent this for each individual.
+# We can also compute and visualise the magnitude (norm) of the
+# acceleration vector for each individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
-    # compute norm of the acceleration vector for one mouse
-    accel_one_mouse = np.linalg.norm(
-        accel.sel(individuals=mouse_name, space=["x", "y"]).squeeze(),
-        axis=1,
-    )
+    # compute magnitude of the acceleration vector for one mouse
+    accel_one_mouse = compute_norm(accel.sel(individuals=mouse_name))
 
     # plot acceleration against time
     ax.plot(accel_one_mouse)

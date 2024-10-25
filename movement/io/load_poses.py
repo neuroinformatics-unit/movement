@@ -1,4 +1,4 @@
-"""Functions for loading pose tracking data from various frameworks."""
+"""Load pose tracking data from various frameworks into ``movement``."""
 
 import logging
 from pathlib import Path
@@ -11,14 +11,9 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement import MovementDataset
-from movement.io.validators import (
-    ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
-    ValidPosesDataset,
-)
-from movement.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_warning
+from movement.validators.datasets import ValidPosesDataset
+from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 logger = logging.getLogger(__name__)
 
@@ -31,18 +26,18 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from NumPy arrays.
+    """Create a ``movement`` poses dataset from NumPy arrays.
 
     Parameters
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_individuals, n_keypoints, n_space)
         containing the poses. It will be converted to a
-        :py:class:`xarray.DataArray` object named "position".
+        :class:`xarray.DataArray` object named "position".
     confidence_array : np.ndarray, optional
         Array of shape (n_frames, n_individuals, n_keypoints) containing
         the point-wise confidence scores. It will be converted to a
-        :py:class:`xarray.DataArray` object named "confidence".
+        :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
@@ -99,7 +94,7 @@ def from_file(
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported file.
+    """Create a ``movement`` poses dataset from any supported file.
 
     Parameters
     ----------
@@ -152,7 +147,7 @@ def from_dlc_style_df(
     fps: float | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a DeepLabCut-style DataFrame.
+    """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
@@ -218,7 +213,7 @@ def from_dlc_style_df(
 def from_sleap_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP file.
+    """Create a ``movement`` poses dataset from a SLEAP file.
 
     Parameters
     ----------
@@ -294,7 +289,7 @@ def from_sleap_file(
 def from_lp_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a LightningPose file.
+    """Create a ``movement`` poses dataset from a LightningPose file.
 
     Parameters
     ----------
@@ -324,7 +319,7 @@ def from_lp_file(
 def from_dlc_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a DeepLabCut file.
+    """Create a ``movement`` poses dataset from a DeepLabCut file.
 
     Parameters
     ----------
@@ -361,7 +356,7 @@ def _ds_from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a LightningPose or DeepLabCut file.
+    """Create a ``movement`` poses dataset from a LightningPose or DLC file.
 
     Parameters
     ----------
@@ -410,7 +405,7 @@ def _ds_from_lp_or_dlc_file(
 def _ds_from_sleap_analysis_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP analysis (.h5) file.
+    """Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.
 
     Parameters
     ----------
@@ -458,7 +453,7 @@ def _ds_from_sleap_analysis_file(
 def _ds_from_sleap_labels_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a SLEAP labels (.slp) file.
+    """Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.
 
     Parameters
     ----------
@@ -634,7 +629,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
 
 
 def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
-    """Create a ``movement`` dataset from validated pose tracking data.
+    """Create a ``movement`` poses dataset from validated pose tracking data.
 
     Parameters
     ----------
@@ -658,7 +653,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
 
-    DIM_NAMES = MovementDataset.dim_names
+    DIM_NAMES = ValidPosesDataset.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
@@ -678,5 +673,6 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "time_unit": time_unit,
             "source_software": data.source_software,
             "source_file": None,
+            "ds_type": "poses",
         },
     )

@@ -4,7 +4,7 @@ ci:
     autoupdate_schedule: monthly
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.6.0
+      rev: v5.0.0
       hooks:
           - id: check-added-large-files
           - id: check-docstring-first
@@ -29,12 +29,12 @@ repos:
         - id: rst-directive-colons
         - id: rst-inline-touching-normal
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.4.7
+      rev: v0.6.9
       hooks:
         - id: ruff
         - id: ruff-format
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v1.10.0
+      rev: v1.11.2
       hooks:
           - id: mypy
             additional_dependencies:

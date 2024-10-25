@@ -4,35 +4,40 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` can load pose tracks from various pose estimation frameworks.
-Currently, these include:
+`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
+
+To analyse pose tracks, `movement` supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
 
-:::{warning}
-`movement` only deals with the predicted pose tracks output by these
-software packages. It does not support the training or labelling of the data.
+To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
+
+:::{note}
+At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
 :::
 
-(target-loading)=
+Below we explain how you can load pose tracks and bounding boxes' tracks into `movement`, and how you can export a `movement` poses dataset to different file formats. You can also try `movement` out on some [sample data](target-sample-data)
+included with the package.
+
+
+(target-loading-pose-tracks)=
 ## Loading pose tracks
 
-The loading functionalities are provided by the
+The pose tracks loading functionalities are provided by the
 {mod}`movement.io.load_poses` module, which can be imported as follows:
 
 ```python
 from movement.io import load_poses
 ```
 
-Depending on the source sofrware, one of the following functions can be used.
+To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general `from_numpy()` method, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 
 :::{tab-item} SLEAP
 
-Load from [SLEAP analysis files](sleap:tutorials/analysis) (.h5, recommended),
-or from .slp files (experimental):
+To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
@@ -41,9 +46,7 @@ ds = load_poses.from_file(
     "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
 )
 ```
-
-You can also load from SLEAP .slp files in the same way, but there are caveats
-to that approach (see notes in {func}`movement.io.load_poses.from_sleap_file`).
+To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_poses.from_sleap_file`):
 
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
@@ -52,7 +55,7 @@ ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 
 :::{tab-item} DeepLabCut
 
-Load from DeepLabCut files (.h5):
+To load DeepLabCut files in .h5 format:
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 
@@ -62,8 +65,7 @@ ds = load_poses.from_file(
 )
 ```
 
-You may also load .csv files
-(assuming they are formatted as DeepLabCut expects them):
+To load DeepLabCut files in .csv format:
 ```python
 ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 ```
@@ -71,7 +73,7 @@ ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 
 :::{tab-item} LightningPose
 
-Load from LightningPose files (.csv):
+To load LightningPose files in .csv format:
 ```python
 ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 
@@ -82,23 +84,91 @@ ds = load_poses.from_file(
 ```
 :::
 
+:::{tab-item} From NumPy
+
+In the example below, we create random position data for two individuals, ``Alice`` and ``Bob``,
+with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
+
+```python
+import numpy as np
+
+ds = load_poses.from_numpy(
+    position_array=np.random.rand((100, 2, 3, 2)),
+    confidence_array=np.ones((100, 2, 3)),
+    individual_names=["Alice", "Bob"],
+    keypoint_names=["snout", "centre", "tail_base"],
+    fps=30,
+)
+```
+:::
+
 ::::
 
-The loaded data include the predicted positions for each individual and
-keypoint as well as the associated point-wise confidence values, as reported by
-the pose estimation software. See the [movement dataset](target-dataset) page
-for more information on data structure.
+The resulting poses data structure `ds` will include the predicted trajectories for each individual and
+keypoint, as well as the associated point-wise confidence values reported by
+the pose estimation software.
 
-You can also try `movement` out on some [sample data](target-sample-data)
-included with the package.
+For more information on the poses data structure, see the [movement poses dataset](target-poses-and-bboxes-dataset) page.
 
-(target-saving)=
+
+(target-loading-bbox-tracks)=
+## Loading bounding boxes' tracks
+To load bounding boxes' tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
+{mod}`movement.io.load_bboxes` module. This module can be imported as:
+
+```python
+from movement.io import load_bboxes
+```
+
+We currently support loading bounding boxes' tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a `from_numpy()` method, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+
+::::{tab-set}
+:::{tab-item} VGG Image Annotator
+
+To load a VIA tracks .csv file:
+```python
+ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
+
+# or equivalently
+ds = load_bboxes.from_file(
+    "path/to/file.csv",
+    source_software="VIA-tracks",
+    fps=30,
+)
+```
+:::
+
+:::{tab-item} From NumPy
+
+In the example below, we create random position data for two bounding boxes, ``id_0`` and ``id_1``,
+both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.
+
+```python
+import numpy as np
+
+ds = load_bboxes.from_numpy(
+    position_array=np.random.rand(100, 2, 2),
+    shape_array=np.ones((100, 2, 2)) * [40, 30],
+    confidence_array=np.ones((100, 2)) * 0.5,
+    individual_names=["id_0", "id_1"]
+)
+```
+:::
+
+::::
+
+The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
+
+For more information on the bounding boxes data structure, see the [movement bounding boxes dataset](target-poses-and-bboxes-dataset) page.
+
+
+(target-saving-pose-tracks)=
 ## Saving pose tracks
-[movement datasets](target-dataset) can be saved as a variety of
+[movement poses datasets](target-poses-and-bboxes-dataset) can be saved in a variety of
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
-First import the {mod}`movement.io.save_poses` module:
+To export pose tracks from `movement`, first import the {mod}`movement.io.save_poses` module:
 
 ```python
 from movement.io import save_poses
@@ -110,7 +180,7 @@ Then, depending on the desired format, use one of the following functions:
 
 ::::{tab-item} SLEAP
 
-Save to SLEAP-style analysis files (.h5):
+To save as a SLEAP analysis file in .h5 format:
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
@@ -129,7 +199,7 @@ each attribute and data variable represents, see the
 
 ::::{tab-item} DeepLabCut
 
-Save to DeepLabCut-style files (.h5 or .csv):
+To save as a DeepLabCut file, in .h5 or .csv format:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
@@ -143,13 +213,13 @@ save the data as separate single-animal DeepLabCut-style files.
 
 ::::{tab-item} LightningPose
 
-Save to LightningPose files (.csv).
+To save as a LightningPose file in .csv format:
 ```python
 save_poses.to_lp_file(ds, "/path/to/file.csv")
 ```
 :::{note}
-Because LightningPose saves pose estimation outputs in the same format as single-animal
-DeepLabCut projects, the above command is equivalent to:
+Because LightningPose follows the single-animal
+DeepLabCut .csv format, the above command is equivalent to:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ```
@@ -157,3 +227,33 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 
 ::::
 :::::
+
+
+(target-saving-bboxes-tracks)=
+## Saving bounding boxes' tracks
+
+We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
+
+Here is an example of how you can save a bounding boxes dataset to a .csv file:
+
+```python
+# define name for output csv file
+file = 'tracking_output.csv"
+
+# open the csv file in write mode
+with open(filepath, mode="w", newline="") as file:
+    writer = csv.writer(file)
+
+    # write the header
+    writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
+
+    # write the data
+    for individual in ds.individuals.data:
+        for frame in ds.time.data:
+            x, y = ds.position.sel(time=frame, individuals=individual).data
+            width, height = ds.shape.sel(time=frame, individuals=individual).data
+            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            writer.writerow([frame, individual, x, y, width, height, confidence])
+
+```
+Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {func}`.xarray.DataArray.to_dataframe()` method, wrangle the dataframe as required, and then apply the {func}`.pandas.DataFrame.to_csv()` method to save the data as a .csv file.

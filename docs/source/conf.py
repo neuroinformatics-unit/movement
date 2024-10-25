@@ -47,6 +47,7 @@ extensions = [
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
+    "sphinx.ext.autosectionlabel",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -67,7 +68,7 @@ myst_enable_extensions = [
     "tasklist",
 ]
 # Automatically add anchors to markdown headings
-myst_heading_anchors = 3
+myst_heading_anchors = 4
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -75,6 +76,9 @@ templates_path = ["_templates"]
 # Automatically generate stub pages for API
 autosummary_generate = True
 autodoc_default_flags = ["members", "inherited-members"]
+
+# Prefix section labels with the document name
+autosectionlabel_prefix_document = True
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -104,7 +108,9 @@ sphinx_gallery_conf = {
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
     },
-    'remove_config_comments': True, 
+    "reference_url": {"movement": None},
+    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image  
+    "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
 
@@ -169,6 +175,7 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
+    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
 ]
 
 myst_url_schemes = {
@@ -187,7 +194,14 @@ myst_url_schemes = {
     "napari": "https://napari.org/dev/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
-    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}",
+    "sphinx-doc": "https://www.sphinx-doc.org/en/master/usage/{{path}}#{{fragment}}",
+    "sphinx-gallery": "https://sphinx-gallery.github.io/stable/{{path}}#{{fragment}}",
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
+    "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
+}
+
+intersphinx_mapping = {
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }

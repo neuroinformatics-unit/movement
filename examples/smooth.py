@@ -30,15 +30,16 @@ ds_wasp = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds_wasp)
 
 # %%
-# We see that the dataset contains a single individual (a wasp) with two
-# keypoints tracked in 2D space. The video was recorded at 40 fps and lasts for
-# ~27 seconds.
+# We see that the dataset contains the 2D pose tracks and confidence scores
+# for a single wasp, generated with DeepLabCut. The wasp is tracked at two
+# keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
+# lasts for approximately 27 seconds.
 
 # %%
 # Define a plotting function
 # --------------------------
-# Let's define a plotting function to help us visualise the effects smoothing
-# both in the time and frequency domains.
+# Let's define a plotting function to help us visualise the effects of
+# smoothing both in the time and frequency domains.
 # The function takes as inputs two datasets containing raw and smooth data
 # respectively, and plots the position time series and power spectral density
 # (PSD) for a given individual and keypoint. The function also allows you to
@@ -80,9 +81,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
             label=f"{label} {space}",
         )
 
-        # generate interpolated dataset to avoid NaNs in the PSD calculation
-        ds_interp = interpolate_over_time(ds, max_gap=None, print_report=False)
-        pos_interp = ds_interp.position.sel(**selection)
+        # interpolate data to remove NaNs in the PSD calculation
+        pos_interp = interpolate_over_time(pos, print_report=False)
+
         # compute and plot the PSD
         freq, psd = welch(pos_interp, fs=ds.fps, nperseg=256)
         ax[1].semilogy(
@@ -111,12 +112,17 @@ def plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Smoothing with a median filter
 # ------------------------------
-# Here we use the :py:func:`movement.filtering.median_filter` function to
-# apply a rolling window median filter to the wasp dataset.
-# The ``window_length`` parameter is defined in seconds (according to the
-# ``time_unit`` dataset attribute).
+# Using the :func:`movement.filtering.median_filter` function on the
+# ``position`` data variable, we can apply a rolling window median filter
+# over a 0.1-second window (4 frames) to the wasp dataset.
+# As the ``window`` parameter is defined in *number of observations*,
+# we can simply multiply the desired time window by the frame rate
+# of the video. We will also create a copy of the dataset to avoid
+# modifying the original data.
 
-ds_wasp_medfilt = median_filter(ds_wasp, window_length=0.1)
+window = int(0.1 * ds_wasp.fps)
+ds_wasp_smooth = ds_wasp.copy()
+ds_wasp_smooth.update({"position": median_filter(ds_wasp.position, window)})
 
 # %%
 # We see from the printed report that the dataset has no missing values
@@ -124,7 +130,7 @@ ds_wasp_medfilt = median_filter(ds_wasp, window_length=0.1)
 # median filter in the time and frequency domains.
 
 plot_raw_and_smooth_timeseries_and_psd(
-    ds_wasp, ds_wasp_medfilt, keypoint="stinger"
+    ds_wasp, ds_wasp_smooth, keypoint="stinger"
 )
 
 # %%
@@ -142,8 +148,8 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Choosing parameters for the median filter
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# You can control the behaviour of :py:func:`movement.filtering.median_filter`
-# via two parameters: ``window_length`` and ``min_periods``.
+# We can control the behaviour of the median filter
+# via two parameters: ``window`` and ``min_periods``.
 # To better understand the effect of these parameters, let's use a
 # dataset that contains missing values.
 
@@ -154,10 +160,13 @@ print(ds_mouse)
 # The dataset contains a single mouse with six keypoints tracked in
 # 2D space. The video was recorded at 30 fps and lasts for ~616 seconds. We can
 # see that there are some missing values, indicated as "nan" in the
-# printed dataset. Let's apply the median filter to this dataset, with
-# the ``window_length`` set to 0.1 seconds.
+# printed dataset.
+# Let's apply the median filter over a 0.1-second window (3 frames)
+# to the dataset.
 
-ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1)
+window = int(0.1 * ds_mouse.fps)
+ds_mouse_smooth = ds_mouse.copy()
+ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
@@ -172,7 +181,9 @@ ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1)
 # For example, setting ``min_periods=2`` means that two non-NaN values in the
 # window are sufficient for the median to be calculated. Let's try this.
 
-ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
+ds_mouse_smooth.update(
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+)
 
 # %%
 # We see that this time the number of NaN values has decreased
@@ -183,32 +194,36 @@ ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
 # parts of the data.
 
 plot_raw_and_smooth_timeseries_and_psd(
-    ds_mouse, ds_mouse_medfilt, keypoint="snout", time_range=slice(0, 80)
+    ds_mouse, ds_mouse_smooth, keypoint="snout", time_range=slice(0, 80)
 )
 
 # %%
 # The smoothing once again reduces the power of high-frequency components, but
 # the resulting time series stays quite close to the raw data.
 #
-# What happens if we increase the ``window_length`` to 2 seconds?
+# What happens if we increase the ``window`` to 2 seconds (60 frames)?
 
-ds_mouse_medfilt = median_filter(ds_mouse, window_length=2, min_periods=2)
+window = int(2 * ds_mouse.fps)
+ds_mouse_smooth.update(
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+)
 
 # %%
-# The number of NaN values has decreased even further. That's because the
-# chance of finding at least 2 valid values within a 2 second window is
-# quite high. Let's plot the results for the same keypoint and time range
+# The number of NaN values has decreased even further.
+# That's because the chance of finding at least 2 valid values within
+# a 2-second window (i.e. 60 frames) is quite high.
+# Let's plot the results for the same keypoint and time range
 # as before.
 
 plot_raw_and_smooth_timeseries_and_psd(
-    ds_mouse, ds_mouse_medfilt, keypoint="snout", time_range=slice(0, 80)
+    ds_mouse, ds_mouse_smooth, keypoint="snout", time_range=slice(0, 80)
 )
 # %%
 # We see that the filtered time series is much smoother and it has even
 # "bridged" over some small gaps. That said, it often deviates from the raw
 # data, in ways that may not be desirable, depending on the application.
-# That means that our choice of ``window_length`` may be too large.
-# In general, you should choose a ``window_length`` that is small enough to
+# Here, our choice of ``window`` may be too large.
+# In general, you should choose a ``window`` that is small enough to
 # preserve the original data structure, but large enough to remove
 # "spikes" and high-frequency noise. Always inspect the results to ensure
 # that the filter is not removing important features.
@@ -216,18 +231,23 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Smoothing with a Savitzky-Golay filter
 # --------------------------------------
-# Here we use the :py:func:`movement.filtering.savgol_filter` function,
-# which is a wrapper around :py:func:`scipy.signal.savgol_filter`.
+# Here we apply the :func:`movement.filtering.savgol_filter` function
+# (a wrapper around :func:`scipy.signal.savgol_filter`), to the ``position``
+# data variable.
 # The Savitzky-Golay filter is a polynomial smoothing filter that can be
-# applied to time series data on a rolling window basis. A polynomial of
-# degree ``polyorder`` is fitted to the data in each window of length
-# ``window_length``, and the value of the polynomial at the center of the
-# window is used as the output value.
+# applied to time series data on a rolling window basis.
+# A polynomial with a degree specified by ``polyorder`` is applied to each
+# data segment defined by the size ``window``.
+# The value of the polynomial at the midpoint of each ``window`` is then
+# used as the output value.
 #
-# Let's try it on the mouse dataset.
+# Let's try it on the mouse dataset, this time using a 0.2-second
+# window (i.e. 6 frames) and the default ``polyorder=2`` for smoothing.
+# As before, we first compute the corresponding number of observations
+# to be used as the ``window`` size.
 
-ds_mouse_savgol = savgol_filter(ds_mouse, window_length=0.2, polyorder=2)
-
+window = int(0.2 * ds_mouse.fps)
+ds_mouse_smooth.update({"position": savgol_filter(ds_mouse.position, window)})
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
@@ -238,22 +258,21 @@ ds_mouse_savgol = savgol_filter(ds_mouse, window_length=0.2, polyorder=2)
 # effects in the time and frequency domains.
 
 plot_raw_and_smooth_timeseries_and_psd(
-    ds_mouse, ds_mouse_savgol, keypoint="snout", time_range=slice(0, 80)
+    ds_mouse, ds_mouse_smooth, keypoint="snout", time_range=slice(0, 80)
 )
 # %%
 # Once again, the power of high-frequency components has been reduced, but more
 # missing values have been introduced.
 
 # %%
-# Now let's take a look at the wasp dataset.
+# Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
-ds_wasp_savgol = savgol_filter(ds_wasp, window_length=0.2, polyorder=2)
+window = int(0.2 * ds_wasp.fps)
+ds_wasp_smooth.update({"position": savgol_filter(ds_wasp.position, window)})
 
 # %%
 plot_raw_and_smooth_timeseries_and_psd(
-    ds_wasp,
-    ds_wasp_savgol,
-    keypoint="stinger",
+    ds_wasp, ds_wasp_smooth, keypoint="stinger"
 )
 # %%
 # This example shows two important limitations of the Savitzky-Golay filter.
@@ -261,7 +280,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 # example, focus on what happens around the sudden drop in position
 # during the final second. Second, the PSD appears to have large periodic
 # drops at certain frequencies. Both of these effects vary with the
-# choice of ``window_length`` and ``polyorder``. You can read more about these
+# choice of ``window`` and ``polyorder``. You can read more about these
 # and other limitations of the Savitzky-Golay filter in
 # `this paper <https://pubs.acs.org/doi/10.1021/acsmeasuresciau.1c00054>`_.
 
@@ -269,33 +288,38 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Combining multiple smoothing filters
 # ------------------------------------
-# You can also combine multiple smoothing filters by applying them
+# We can also combine multiple smoothing filters by applying them
 # sequentially. For example, we can first apply the median filter with a small
-# ``window_length`` to remove "spikes" and then apply the Savitzky-Golay filter
-# with a larger ``window_length`` to further smooth the data.
+# ``window`` to remove "spikes" and then apply the Savitzky-Golay filter
+# with a larger ``window`` to further smooth the data.
 # Between the two filters, we can interpolate over small gaps to avoid the
 # excessive proliferation of NaN values. Let's try this on the mouse dataset.
-# First, let's apply the median filter.
 
-ds_mouse_medfilt = median_filter(ds_mouse, window_length=0.1, min_periods=2)
+# First, we will apply the median filter.
+window = int(0.1 * ds_mouse.fps)
+ds_mouse_smooth.update(
+    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+)
 
-# %%
-# Next, let's linearly interpolate over gaps smaller than 1 second.
+# Next, let's linearly interpolate over gaps smaller
+# than 1 second (30 frames).
+ds_mouse_smooth.update(
+    {"position": interpolate_over_time(ds_mouse_smooth.position, max_gap=30)}
+)
 
-ds_mouse_medfilt_interp = interpolate_over_time(ds_mouse_medfilt, max_gap=1)
-
-# %%
-# Finally, let's apply the Savitzky-Golay filter.
-
-ds_mouse_medfilt_interp_savgol = savgol_filter(
-    ds_mouse_medfilt_interp, window_length=0.4, polyorder=2
+# Finally, let's apply the Savitzky-Golay filter
+# over a 0.4-second window (12 frames).
+window = int(0.4 * ds_mouse.fps)
+ds_mouse_smooth.update(
+    {"position": savgol_filter(ds_mouse_smooth.position, window)}
 )
 
 # %%
-# A record of all applied operations is stored in the dataset's ``log``
-# attribute. Let's inspect it to summarise what we've done.
+# A record of all applied operations is stored in the ``log`` attribute of the
+# ``ds_mouse_smooth.position`` data array. Let's inspect it to summarise
+# what we've done.
 
-for entry in ds_mouse_medfilt_interp_savgol.log:
+for entry in ds_mouse_smooth.position.log:
     print(entry)
 
 # %%
@@ -304,7 +328,7 @@ for entry in ds_mouse_medfilt_interp_savgol.log:
 
 plot_raw_and_smooth_timeseries_and_psd(
     ds_mouse,
-    ds_mouse_medfilt_interp_savgol,
+    ds_mouse_smooth,
     keypoint="snout",
     time_range=slice(0, 80),
 )
@@ -312,3 +336,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # %%
 # Feel free to play around with the parameters of the applied filters and to
 # also look at other keypoints and time ranges.
+
+# %%
+# .. seealso::
+#   :ref:`examples/filter_and_interpolate:Filtering multiple data variables`
+#   in the
+#   :ref:`sphx_glr_examples_filter_and_interpolate.py` example.

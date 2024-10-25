@@ -1,127 +1,289 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    log_to_attrs,
     median_filter,
     savgol_filter,
 )
-from movement.sample_data import fetch_dataset
+
+# Dataset fixtures
+list_valid_datasets_without_nans = [
+    "valid_poses_dataset",
+    "valid_bboxes_dataset",
+]
+list_valid_datasets_with_nans = [
+    f"{dataset}_with_nan" for dataset in list_valid_datasets_without_nans
+]
+list_all_valid_datasets = (
+    list_valid_datasets_without_nans + list_valid_datasets_with_nans
+)
 
 
-@pytest.fixture(scope="module")
-def sample_dataset():
-    """Return a single-animal sample dataset, with time unit in seconds."""
-    return fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
-
-
-def test_log_to_attrs(sample_dataset):
-    """Test for the ``log_to_attrs()`` decorator. Decorates a mock function and
-    checks that ``attrs`` contains all expected values.
+@pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    list_valid_datasets_with_nans,
+)
+@pytest.mark.parametrize(
+    "max_gap, expected_n_nans_in_position", [(None, 0), (0, 3), (1, 2), (2, 0)]
+)
+def test_interpolate_over_time_on_position(
+    valid_dataset_with_nan,
+    max_gap,
+    expected_n_nans_in_position,
+    helpers,
+    request,
+):
+    """Test that the number of NaNs decreases after linearly interpolating
+    over time and that the resulting number of NaNs is as expected
+    for different values of ``max_gap``.
     """
+    valid_dataset_in_frames = request.getfixturevalue(valid_dataset_with_nan)
 
-    @log_to_attrs
-    def fake_func(ds, arg, kwarg=None):
-        return ds
+    # Get position array with time unit in frames & seconds
+    # assuming 10 fps = 0.1 s per frame
+    valid_dataset_in_seconds = valid_dataset_in_frames.copy()
+    valid_dataset_in_seconds.coords["time"] = (
+        valid_dataset_in_seconds.coords["time"] * 0.1
+    )
+    position = {
+        "frames": valid_dataset_in_frames.position,
+        "seconds": valid_dataset_in_seconds.position,
+    }
 
-    ds = fake_func(sample_dataset, "test1", kwarg="test2")
+    # Count number of NaNs before and after interpolating position
+    n_nans_before = helpers.count_nans(position["frames"])
+    n_nans_after_per_time_unit = {}
+    for time_unit in ["frames", "seconds"]:
+        # interpolate
+        position_interp = interpolate_over_time(
+            position[time_unit], method="linear", max_gap=max_gap
+        )
+        # count nans
+        n_nans_after_per_time_unit[time_unit] = helpers.count_nans(
+            position_interp
+        )
 
-    assert "log" in ds.attrs
-    assert ds.attrs["log"][0]["operation"] == "fake_func"
+    # The number of NaNs should be the same for both datasets
+    # as max_gap is based on number of missing observations (NaNs)
     assert (
-        ds.attrs["log"][0]["arg_1"] == "test1"
-        and ds.attrs["log"][0]["kwarg"] == "test2"
+        n_nans_after_per_time_unit["frames"]
+        == n_nans_after_per_time_unit["seconds"]
+    )
+
+    # The number of NaNs should decrease after interpolation
+    n_nans_after = n_nans_after_per_time_unit["frames"]
+    if max_gap == 0:
+        assert n_nans_after == n_nans_before
+    else:
+        assert n_nans_after < n_nans_before
+
+    # The number of NaNs after interpolating should be as expected
+    assert n_nans_after == (
+        valid_dataset_in_frames.sizes["space"]
+        * valid_dataset_in_frames.sizes.get("keypoints", 1)
+        # in bboxes dataset there is no keypoints dimension
+        * expected_n_nans_in_position
     )
 
 
-def test_interpolate_over_time(sample_dataset, helpers):
-    """Test the ``interpolate_over_time`` function.
-
-    Check that the number of nans is decreased after running this function
-    on a filtered dataset
+@pytest.mark.parametrize(
+    "valid_dataset_no_nans, n_low_confidence_kpts",
+    [
+        ("valid_poses_dataset", 20),
+        ("valid_bboxes_dataset", 5),
+    ],
+)
+def test_filter_by_confidence_on_position(
+    valid_dataset_no_nans, n_low_confidence_kpts, helpers, request
+):
+    """Test that points below the default 0.6 confidence threshold
+    are converted to NaN.
     """
-    ds_filtered = filter_by_confidence(sample_dataset)
-    ds_interpolated = interpolate_over_time(ds_filtered)
-
-    assert helpers.count_nans(ds_interpolated) < helpers.count_nans(
-        ds_filtered
+    # Filter position by confidence
+    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
+    position_filtered = filter_by_confidence(
+        valid_input_dataset.position,
+        confidence=valid_input_dataset.confidence,
+        threshold=0.6,
     )
 
+    # Count number of NaNs in the full array
+    n_nans = helpers.count_nans(position_filtered)
 
-def test_filter_by_confidence(sample_dataset, caplog, helpers):
-    """Tests for the ``filter_by_confidence()`` function.
-    Checks that the function filters the expected amount of values
-    from a known dataset, and tests that this value is logged
-    correctly.
+    # expected number of nans for poses:
+    # 5 timepoints * 2 individuals * 2 keypoints
+    # Note: we count the number of nans in the array, so we multiply
+    # the number of low confidence keypoints by the number of
+    # space dimensions
+    assert isinstance(position_filtered, xr.DataArray)
+    assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    list_all_valid_datasets,
+)
+@pytest.mark.parametrize(
+    ("filter_func, filter_kwargs"),
+    [
+        (median_filter, {"window": 2}),
+        (median_filter, {"window": 4}),
+        (savgol_filter, {"window": 2, "polyorder": 1}),
+        (savgol_filter, {"window": 4, "polyorder": 2}),
+    ],
+)
+def test_filter_on_position(
+    filter_func, filter_kwargs, valid_dataset, request
+):
+    """Test that applying a filter to the position data returns
+    a different xr.DataArray than the input position data.
     """
-    ds_filtered = filter_by_confidence(sample_dataset, threshold=0.6)
+    # Filter position
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
+    position_filtered = filter_func(
+        valid_input_dataset.position, **filter_kwargs
+    )
 
-    assert isinstance(ds_filtered, xr.Dataset)
+    del position_filtered.attrs["log"]
 
-    n_nans = helpers.count_nans(ds_filtered)
-    assert n_nans == 2555
+    # filtered array is an xr.DataArray
+    assert isinstance(position_filtered, xr.DataArray)
 
-    # Check that diagnostics are being logged correctly
-    assert f"snout: {n_nans}/{ds_filtered.time.values.shape[0]}" in caplog.text
+    # filtered data should not be equal to the original data
+    assert not position_filtered.equals(valid_input_dataset.position)
 
 
-@pytest.mark.parametrize("window_size", [0.2, 1, 4, 12])
-def test_median_filter(sample_dataset, window_size):
-    """Tests for the ``median_filter()`` function. Checks that
-    the function successfully receives the input data and
-    returns a different xr.Dataset with the correct dimensions.
+# Expected number of nans in the position array per
+# individual, after applying a filter with window size 3
+@pytest.mark.parametrize(
+    ("valid_dataset, expected_nans_in_filtered_position_per_indiv"),
+    [
+        (
+            "valid_poses_dataset",
+            {0: 0, 1: 0},
+        ),  # filtering should not introduce nans if input has no nans
+        ("valid_bboxes_dataset", {0: 0, 1: 0}),
+        ("valid_poses_dataset_with_nan", {0: 7, 1: 0}),
+        ("valid_bboxes_dataset_with_nan", {0: 7, 1: 0}),
+    ],
+)
+@pytest.mark.parametrize(
+    ("filter_func, filter_kwargs"),
+    [
+        (median_filter, {"window": 3}),
+        (savgol_filter, {"window": 3, "polyorder": 2}),
+    ],
+)
+def test_filter_with_nans_on_position(
+    filter_func,
+    filter_kwargs,
+    valid_dataset,
+    expected_nans_in_filtered_position_per_indiv,
+    helpers,
+    request,
+):
+    """Test NaN behaviour of the selected filter. The median and SG filters
+    should set all values to NaN if one element of the sliding window is NaN.
     """
-    ds_smoothed = median_filter(sample_dataset, window_size)
 
-    # Test whether filter received and returned correct data
-    assert isinstance(ds_smoothed, xr.Dataset) and ~(
-        ds_smoothed == sample_dataset
+    def _assert_n_nans_in_position_per_individual(
+        valid_input_dataset,
+        position_filtered,
+        expected_nans_in_filt_position_per_indiv,
+    ):
+        # compute n nans in position after filtering per individual
+        n_nans_after_filtering_per_indiv = {
+            i: helpers.count_nans(position_filtered.isel(individuals=i))
+            for i in range(valid_input_dataset.sizes["individuals"])
+        }
+
+        # check number of nans per indiv is as expected
+        for i in range(valid_input_dataset.sizes["individuals"]):
+            assert n_nans_after_filtering_per_indiv[i] == (
+                expected_nans_in_filt_position_per_indiv[i]
+                * valid_input_dataset.sizes["space"]
+                * valid_input_dataset.sizes.get("keypoints", 1)
+            )
+
+    # Filter position
+    valid_input_dataset = request.getfixturevalue(valid_dataset)
+    position_filtered = filter_func(
+        valid_input_dataset.position, **filter_kwargs
     )
-    assert ds_smoothed.position.shape == sample_dataset.position.shape
+
+    # check number of nans per indiv is as expected
+    _assert_n_nans_in_position_per_individual(
+        valid_input_dataset,
+        position_filtered,
+        expected_nans_in_filtered_position_per_indiv,
+    )
+
+    # if input had nans,
+    # individual 1's position at exact timepoints 0, 1 and 5 is not nan
+    n_nans_input = helpers.count_nans(valid_input_dataset.position)
+    if n_nans_input != 0:
+        assert not (
+            position_filtered.isel(individuals=0, time=[0, 1, 5])
+            .isnull()
+            .any()
+        )
 
 
-def test_median_filter_with_nans(valid_poses_dataset_with_nan, helpers):
-    """Test nan behavior of the ``median_filter()`` function. The
-    ``valid_poses_dataset_with_nan`` dataset (fixture defined in conftest.py)
-    contains NaN values in all keypoints of the first individual at times
-    3, 7, and 8 (0-indexed, 10 total timepoints).
-    The median filter should propagate NaNs within the windows of the filter,
-    but it should not introduce any NaNs for the second individual.
+@pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    list_valid_datasets_with_nans,
+)
+@pytest.mark.parametrize(
+    "window",
+    [3, 5, 6, 10],  # data is nframes = 10
+)
+@pytest.mark.parametrize(
+    "filter_func",
+    [median_filter, savgol_filter],
+)
+def test_filter_with_nans_on_position_varying_window(
+    valid_dataset_with_nan, window, filter_func, helpers, request
+):
+    """Test that the number of NaNs in the filtered position data
+    increases at most by the filter's window length minus one
+    multiplied by the number of consecutive NaNs in the input data.
     """
-    ds_smoothed = median_filter(valid_poses_dataset_with_nan, 3)
-    # There should be NaNs at 7 timepoints for the first individual
-    # all except for timepoints 0, 1 and 5
-    assert helpers.count_nans(ds_smoothed) == 7
-    assert (
-        ~ds_smoothed.position.isel(individuals=0, time=[0, 1, 5])
-        .isnull()
-        .any()
-    )
-    # The second individual should not contain any NaNs
-    assert ~ds_smoothed.position.sel(individuals="ind2").isnull().any()
+    # Prepare kwargs per filter
+    kwargs = {"window": window}
+    if filter_func == savgol_filter:
+        kwargs["polyorder"] = 2
 
-
-@pytest.mark.parametrize("window_length", [0.2, 1, 4, 12])
-@pytest.mark.parametrize("polyorder", [1, 2, 3])
-def test_savgol_filter(sample_dataset, window_length, polyorder):
-    """Tests for the ``savgol_filter()`` function.
-    Checks that the function successfully receives the input
-    data and returns a different xr.Dataset with the correct
-    dimensions.
-    """
-    ds_smoothed = savgol_filter(
-        sample_dataset, window_length, polyorder=polyorder
+    # Filter position
+    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    position_filtered = filter_func(
+        valid_input_dataset.position,
+        **kwargs,
     )
 
-    # Test whether filter received and returned correct data
-    assert isinstance(ds_smoothed, xr.Dataset) and ~(
-        ds_smoothed == sample_dataset
+    # Count number of NaNs in the input and filtered position data
+    n_total_nans_initial = helpers.count_nans(valid_input_dataset.position)
+    n_consecutive_nans_initial = helpers.count_consecutive_nans(
+        valid_input_dataset.position
     )
-    assert ds_smoothed.position.shape == sample_dataset.position.shape
+
+    n_total_nans_filtered = helpers.count_nans(position_filtered)
+
+    max_nans_increase = (window - 1) * n_consecutive_nans_initial
+
+    # Check that filtering does not reduce number of nans
+    assert n_total_nans_filtered >= n_total_nans_initial
+    # Check that the increase in nans is below the expected threshold
+    assert n_total_nans_filtered - n_total_nans_initial <= max_nans_increase
 
 
+@pytest.mark.parametrize(
+    "valid_dataset",
+    list_all_valid_datasets,
+)
 @pytest.mark.parametrize(
     "override_kwargs",
     [
@@ -130,36 +292,20 @@ def test_savgol_filter(sample_dataset, window_length, polyorder):
         {"mode": "nearest", "axis": 1},
     ],
 )
-def test_savgol_filter_kwargs_override(sample_dataset, override_kwargs):
-    """Further tests for the ``savgol_filter()`` function.
-    Checks that the function raises a ValueError when the ``axis`` keyword
-    argument is overridden, as this is not allowed. Overriding other keyword
-    arguments (e.g. ``mode``) should not raise an error.
+def test_savgol_filter_kwargs_override(
+    valid_dataset, override_kwargs, request
+):
+    """Test that overriding keyword arguments in the Savitzky-Golay filter
+    works, except for the ``axis`` argument, which should raise a ValueError.
     """
-    if "axis" in override_kwargs:
-        with pytest.raises(ValueError):
-            savgol_filter(sample_dataset, 5, **override_kwargs)
-    else:
-        ds_smoothed = savgol_filter(sample_dataset, 5, **override_kwargs)
-        assert isinstance(ds_smoothed, xr.Dataset)
-
-
-def test_savgol_filter_with_nans(valid_poses_dataset_with_nan, helpers):
-    """Test nan behavior of the ``savgol_filter()`` function. The
-    ``valid_poses_dataset_with_nan`` dataset (fixture defined in conftest.py)
-    contains NaN values in all keypoints of the first individual at times
-    3, 7, and 8 (0-indexed, 10 total timepoints).
-    The Savitzky-Golay filter should propagate NaNs within the windows of
-    the filter, but it should not introduce any NaNs for the second individual.
-    """
-    ds_smoothed = savgol_filter(valid_poses_dataset_with_nan, 3, polyorder=2)
-    # There should be NaNs at 7 timepoints for the first individual
-    # all except for timepoints 0, 1 and 5
-    assert helpers.count_nans(ds_smoothed) == 7
-    assert (
-        ~ds_smoothed.position.isel(individuals=0, time=[0, 1, 5])
-        .isnull()
-        .any()
+    expected_exception = (
+        pytest.raises(ValueError)
+        if "axis" in override_kwargs
+        else does_not_raise()
     )
-    # The second individual should not contain any NaNs
-    assert ~ds_smoothed.position.sel(individuals="ind2").isnull().any()
+    with expected_exception:
+        savgol_filter(
+            request.getfixturevalue(valid_dataset).position,
+            window=3,
+            **override_kwargs,
+        )

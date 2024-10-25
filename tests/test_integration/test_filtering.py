@@ -3,70 +3,73 @@ import pytest
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    median_filter,
     savgol_filter,
 )
 from movement.io import load_poses
 from movement.sample_data import fetch_dataset_paths
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def sample_dataset():
-    """Return a single-animal sample dataset, with time unit in frames.
-    This allows us to better control the expected number of NaNs in the tests.
-    """
+    """Return a single-animal sample dataset, with time unit in frames."""
     ds_path = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")[
         "poses"
     ]
-    return load_poses.from_dlc_file(ds_path, fps=None)
+    ds = load_poses.from_dlc_file(ds_path)
+    return ds
 
 
-@pytest.mark.parametrize("window_length", [3, 5, 6, 13])
-def test_nan_propagation_through_filters(
-    sample_dataset, window_length, helpers
-):
-    """Tests how NaNs are propagated when passing a dataset through multiple
-    filters sequentially. For the ``median_filter`` and ``savgol_filter``,
-    we expect the number of NaNs to increase at most by the filter's window
-    length minus one (``window_length - 1``) multiplied by the number of
-    continuous stretches of NaNs present in the input dataset.
+@pytest.mark.parametrize("window", [3, 5, 6, 13])
+def test_nan_propagation_through_filters(sample_dataset, window, helpers):
+    """Test NaN propagation is as expected when passing a DataArray through
+    filter by confidence, Savgol filter and interpolation.
+    For the ``savgol_filter``, the number of NaNs is expected to increase
+    at most by the filter's window length minus one (``window - 1``)
+    multiplied by the number of consecutive NaNs in the input data.
     """
-    # Introduce nans via filter_by_confidence
-    ds_with_nans = filter_by_confidence(sample_dataset, threshold=0.6)
-    nans_after_confilt = helpers.count_nans(ds_with_nans)
-    nan_repeats_after_confilt = helpers.count_nan_repeats(ds_with_nans)
-    assert nans_after_confilt == 2555, (
-        f"Unexpected number of NaNs in filtered dataset: "
-        f"expected: 2555, got: {nans_after_confilt}"
+    # Compute number of low confidence keypoints
+    n_low_confidence_kpts = (sample_dataset.confidence.data < 0.6).sum()
+
+    # Check filter position by confidence creates correct number of NaNs
+    sample_dataset.update(
+        {
+            "position": filter_by_confidence(
+                sample_dataset.position,
+                sample_dataset.confidence,
+            )
+        }
+    )
+    n_total_nans_input = helpers.count_nans(sample_dataset.position)
+
+    assert (
+        n_total_nans_input
+        == n_low_confidence_kpts * sample_dataset.sizes["space"]
     )
 
-    # Apply median filter and check that
-    # it doesn't introduce too many or too few NaNs
-    ds_medfilt = median_filter(ds_with_nans, window_length)
-    nans_after_medfilt = helpers.count_nans(ds_medfilt)
-    nan_repeats_after_medfilt = helpers.count_nan_repeats(ds_medfilt)
-    max_nans_increase = (window_length - 1) * nan_repeats_after_confilt
-    assert (
-        nans_after_medfilt <= nans_after_confilt + max_nans_increase
-    ), "Median filter introduced more NaNs than expected."
-    assert (
-        nans_after_medfilt >= nans_after_confilt
-    ), "Median filter mysteriously removed NaNs."
-
-    # Apply savgol filter and check that
-    # it doesn't introduce too many or too few NaNs
-    ds_savgol = savgol_filter(
-        ds_medfilt, window_length, polyorder=2, print_report=True
+    # Compute maximum expected increase in NaNs due to filtering
+    n_consecutive_nans_input = helpers.count_consecutive_nans(
+        sample_dataset.position
     )
-    nans_after_savgol = helpers.count_nans(ds_savgol)
-    max_nans_increase = (window_length - 1) * nan_repeats_after_medfilt
-    assert (
-        nans_after_savgol <= nans_after_medfilt + max_nans_increase
-    ), "Savgol filter introduced more NaNs than expected."
-    assert (
-        nans_after_savgol >= nans_after_medfilt
-    ), "Savgol filter mysteriously removed NaNs."
+    max_nans_increase = (window - 1) * n_consecutive_nans_input
 
-    # Apply interpolate_over_time (without max_gap) to eliminate all NaNs
-    ds_interpolated = interpolate_over_time(ds_savgol, print_report=True)
-    assert helpers.count_nans(ds_interpolated) == 0
+    # Apply savgol filter and check that number of NaNs is within threshold
+    sample_dataset.update(
+        {
+            "position": savgol_filter(
+                sample_dataset.position, window, polyorder=2
+            )
+        }
+    )
+
+    n_total_nans_savgol = helpers.count_nans(sample_dataset.position)
+
+    # Check that filtering does not reduce number of nans
+    assert n_total_nans_savgol >= n_total_nans_input
+    # Check that the increase in nans is below the expected threshold
+    assert n_total_nans_savgol - n_total_nans_input <= max_nans_increase
+
+    # Interpolate data (without max_gap) and check it eliminates all NaNs
+    sample_dataset.update(
+        {"position": interpolate_over_time(sample_dataset.position)}
+    )
+    assert helpers.count_nans(sample_dataset.position) == 0

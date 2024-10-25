@@ -1,68 +1,62 @@
 (target-installation)=
 # Installation
 
-## Create a conda environment
-
+## Install the package
 :::{admonition} Use a conda environment
 :class: note
-We recommend you install movement inside a [conda](conda:)
-or [mamba](mamba:) environment, to avoid dependency conflicts with other packages.
-In the following we assume you have `conda` installed,
-but the same commands will also work with `mamba`/`micromamba`.
+To avoid dependency conflicts with other packages, it is best practice to install Python packages within a virtual environment.
+We recommend using [conda](conda:) or [mamba](mamba:) to create and manage this environment, as they simplify the installation process.
+The following instructions assume that you have conda installed, but the same commands will also work with `mamba`/`micromamba`.
 :::
 
-First, create and activate an environment with some prerequisites.
-You can call your environment whatever you like, we've used `movement-env`.
+### Users
+To install movement in a new environment, follow one of the options below.
+We will use `movement-env` as the environment name, but you can choose any name you prefer.
 
+::::{tab-set}
+:::{tab-item} Conda
+Create and activate an environment with movement installed:
+```sh
+conda create -n movement-env -c conda-forge movement
+conda activate movement-env
+```
+:::
+:::{tab-item} Pip
+Create and activate an environment with some prerequisites:
 ```sh
 conda create -n movement-env -c conda-forge python=3.11 pytables
 conda activate movement-env
 ```
-
-## Install the package
-
-Then install the `movement` package as described below.
-
-::::{tab-set}
-
-:::{tab-item} Users
-To get the latest release from PyPI:
-
+Install the latest movement release from PyPI:
 ```sh
 pip install movement
 ```
-If you have an older version of `movement` installed in the same environment,
-you can update to the latest version with:
-
-```sh
-pip install --upgrade movement
-```
 :::
-
-:::{tab-item} Developers
-To get the latest development version, clone the
-[GitHub repository](movement-github:)
-and then run from inside the repository:
-
-```sh
-pip install -e .[dev]  # works on most shells
-pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
-```
-
-This will install the package in editable mode, including all `dev` dependencies.
-Please see the [contributing guide](target-contributing) for more information.
-:::
-
 ::::
 
+### Developers
+If you are a developer looking to contribute to movement, please refer to our [contributing guide](target-contributing) for detailed setup instructions and guidelines.
+
 ## Check the installation
-
-To verify that the installation was successful, you can run the following
-command (with the `movement-env` activated):
-
+To verify that the installation was successful, run (with `movement-env` activated):
 ```sh
 movement info
 ```
-
-You should see a printout including the version numbers of `movement`
+You should see a printout including the version numbers of movement
 and some of its dependencies.
+
+## Update the package
+To update movement to the latest version, we recommend installing it in a new environment,
+as this prevents potential compatibility issues caused by changes in dependency versions.
+
+To uninstall an existing environment named `movement-env`:
+```sh
+conda env remove -n movement-env
+```
+:::{tip}
+If you are unsure about the environment name, you can get a list of the environments on your system with:
+```sh
+conda env list
+```
+:::
+Once the environment has been removed, you can create a new one following the [installation instructions](#install-the-package) above.

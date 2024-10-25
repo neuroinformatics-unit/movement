@@ -9,6 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=build
+set SPHINXOPTS=-W
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -25,7 +26,22 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+:process_targets
+if "%1" == "clean" (
+	@echo Removing auto-generated files under 'docs' and 'src'...
+	rmdir /S /Q %BUILDDIR%
+	del /Q %SOURCEDIR%\api_index.rst
+    rmdir /S /Q %SOURCEDIR%\api\
+	rmdir /S /Q %SOURCEDIR%\examples\
+) else (
+	@echo Generating API index...
+	python make_api_index.py
+	%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+)
+
+shift
+if not "%1" == "" goto process_targets
+
 goto end
 
 :help
