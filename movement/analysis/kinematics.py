@@ -296,7 +296,7 @@ def compute_pairwise_distances(
           the value can be a list of keypoints or individuals,
           or a string representing a single keypoint or individual
           to compute the distance with.
-        - If the special keyword ``"all"`` is provided,
+        - If the special keyword ``'all'`` is provided,
           all possible combinations of pairs are computed.
     metric : str, optional
         The distance metric to use. Must be one of the options supported
@@ -316,6 +316,13 @@ def compute_pairwise_distances(
         computed distances for each pair, with the key being the pair of
         keypoints or individuals and the value being the
         :class:`xarray.DataArray` containing the computed distances.
+
+    Raises
+    ------
+    ValueError
+        If ``dim`` is not one of ``'individuals'`` or ``'keypoints'``;
+        if ``pairs`` is not a dictionary or ``'all'``; or
+        if there are no pairs in ``data`` to compute distances for.
 
     Examples
     --------
@@ -343,7 +350,6 @@ def compute_pairwise_distances(
     * ind1     (ind1) <U4 48B 'key1' 'key2' 'key3'
     * ind2     (ind2) <U4 48B 'key1' 'key2' 'key3'
 
-
     The resulting ``dist_ind1_ind2`` is a DataArray containing the computed
     distances between ``ind1`` and ``ind2`` for all keypoints
     at each time point.
@@ -367,7 +373,6 @@ def compute_pairwise_distances(
     * time     (time) int64 16B 0 1
     * key1     (key1) <U4 48B 'ind1' 'ind2' 'ind3'
     * key2     (key2) <U4 48B 'ind1' 'ind2' 'ind3'
-
 
     The resulting ``dist_key1_key2`` is a DataArray containing the computed
     distances between ``key1`` and ``key2`` for all individuals
@@ -426,8 +431,7 @@ def compute_pairwise_distances(
             ValueError,
             f"'pairs' must be a dictionary or 'all', but got {pairs}.",
         )
-    pairwise_distances = {}
-    # Compute all possible pair combinations if not provided
+    # Find all possible pair combinations if "all" is specified
     if pairs == "all":
         paired_elements = list(
             itertools.combinations(getattr(data, dim).values, 2)
@@ -440,12 +444,20 @@ def compute_pairwise_distances(
                 [elem2_list] if isinstance(elem2_list, str) else elem2_list
             )
         ]
-    for elem1, elem2 in paired_elements:
-        input1 = data.sel({dim: elem1})
-        input2 = data.sel({dim: elem2})
-        pairwise_distances[f"dist_{elem1}_{elem2}"] = _cdist(
-            input1, input2, dim=dim, metric=metric, **kwargs
+    if not paired_elements:
+        raise log_error(
+            ValueError, "Could not find any pairs to compute distances for."
         )
+    pairwise_distances = {
+        f"dist_{elem1}_{elem2}": _cdist(
+            data.sel({dim: elem1}),
+            data.sel({dim: elem2}),
+            dim=dim,
+            metric=metric,
+            **kwargs,
+        )
+        for elem1, elem2 in paired_elements
+    }
     # Return DataArray if result only has one key
     if len(pairwise_distances) == 1:
         return next(iter(pairwise_distances.values()))

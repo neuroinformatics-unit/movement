@@ -537,12 +537,13 @@ def test_compute_pairwise_distances_with_valid_pairs(
     [
         ("invalid_dim", {"id_1": "id_2"}),  # invalid dim, valid pairs
         ("keypoints", "invalid_string"),  # valid dim, invalid pairs
+        ("individuals", {}),  # valid dim, empty pairs
     ],
 )
 def test_compute_pairwise_distances_with_invalid_input(
     valid_poses_dataset_uniform_linear_motion, dim, pairs
 ):
-    """Test that an error is raised for invalid ``dim`` or ``pairs`."""
+    """Test that an error is raised for invalid inputs."""
     with pytest.raises(ValueError):
         kinematics.compute_pairwise_distances(
             valid_poses_dataset_uniform_linear_motion.position, dim, pairs
