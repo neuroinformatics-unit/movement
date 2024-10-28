@@ -296,9 +296,13 @@ make html
 ```
 The local build can be viewed by opening `docs/build/html/index.html` in a browser.
 
-To re-build the documentation after making changes, we recommend removing existing build files first.
+To re-build the documentation after making changes,
+we recommend removing existing build files first.
 The following command will remove all generated files in `docs/`,
-including the auto-generated API index `source/api_index.rst`, and those in `build/`, `source/api/`, and `source/examples/`. It will then re-build the documentation:
+including the auto-generated files `source/api_index.rst` and
+`source/snippets/admonitions.md`, as well as all files in
+ `build/`, `source/api/`, and `source/examples/`.
+ It will then re-build the documentation:
 
 ```sh
 make clean html

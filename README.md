@@ -34,6 +34,8 @@ We aim to support a range of pose estimation packages, along with 2D or 3D track
 
 Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmaps.html).
 
+<!-- Start Admonitions -->
+
 > [!Warning]
 > 🏗️ The package is currently in early development and the interface is subject to change. Feel free to play around and provide feedback.
 
@@ -42,6 +44,8 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 > [animovement](https://www.roald-arboel.com/animovement/) toolbox, which is similar in scope.
 > We are working together with its developer
 > to gradually converge on common data standards and workflows.
+
+<!-- End Admonitions -->
 
 ## Join the movement
 

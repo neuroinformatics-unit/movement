@@ -61,6 +61,7 @@ docs/build/
 docs/source/examples/
 docs/source/api/
 docs/source/api_index.rst
+docs/source/snippets/admonitions.md
 sg_execution_times.rst
 
 # MkDocs documentation
