@@ -486,8 +486,8 @@ def compute_pairwise_distances(
 
     Examples
     --------
-    Compute the Euclidean distance (default) for all keypoints
-    between ``ind1`` and ``ind2`` (i.e. interindividual distance):
+    Compute the Euclidean distance (default) between ``ind1`` and ``ind2``
+    (i.e. interindividual distance), for all possible pairs of keypoints.
 
     >>> position = xr.DataArray(
     ...     np.arange(36).reshape(2, 3, 3, 2),
@@ -520,8 +520,7 @@ def compute_pairwise_distances(
     >>> dist_ind1_ind2.sel(ind1="key1", ind2="key2")
 
     Compute the Euclidean distance (default) between ``key1`` and ``key2``
-    for all pairs of individuals and within each individual
-    (i.e. interkeypoint distance):
+    (i.e. interkeypoint distance), for all possible pairs of individuals.
 
     >>> dist_key1_key2 = compute_pairwise_distances(
     ...     position, "keypoints", {"key1": "key2"}
