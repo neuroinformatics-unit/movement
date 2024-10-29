@@ -447,17 +447,19 @@ def compute_pairwise_distances(
     dim : Literal["individuals", "keypoints"]
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
-    pairs : dict[str, str | list[str]] | Literal["all"]
-        A dictionary containing the mapping between pairs of ``individuals``
-        or ``keypoints``, or the special keyword ``"all"``.
+    pairs : dict[str, str | list[str]] or 'all'
+        Specifies the pairs of elements (either individuals or keypoints)
+        for which to compute distances, depending on the value of ``dim``.
 
-        - If a dictionary is provided,
-          the key is the keypoint or individual and
-          the value can be a list of keypoints or individuals,
-          or a string representing a single keypoint or individual
-          to compute the distance with.
-        - If the special keyword ``'all'`` is provided,
-          all possible combinations of pairs are computed.
+        - If ``dim='individuals'``, ``pairs`` should be a dictionary where
+          each key is an individual name, and each value is also an individual
+          name or a list of such names to compute distances with.
+        - If ``dim='keypoints'``, ``pairs`` should be a dictionary where each
+          key is a keypoint name, and each value is also keypoint name or a
+          list of such names to compute distances with.
+        - Alternatively, use the special keyword ``'all'`` to compute distances
+          for all possible pairs of individuals or keypoints
+          (depending on ``dim``).
     metric : str, optional
         The distance metric to use. Must be one of the options supported
         by :func:`scipy.spatial.distance.cdist`, e.g. ``'cityblock'``,
@@ -469,13 +471,13 @@ def compute_pairwise_distances(
 
     Returns
     -------
-    xarray.DataArray | dict[str, xarray.DataArray]
-        An :class:`xarray.DataArray` containing the computed distances between
-        a single pair of ``individuals`` or ``keypoints``. If multiple
-        ``pairs`` are provided, this will be a dictionary containing the
-        computed distances for each pair, with the key being the pair of
-        keypoints or individuals and the value being the
-        :class:`xarray.DataArray` containing the computed distances.
+    xarray.DataArray or dict[str, xarray.DataArray]
+        The computed pairwise distances. If a single pair is specified in 
+        ``pairs``, returns an :class:`xarray.DataArray`. If multiple pairs
+        are specified, returns a dictionary where each key is a string
+        representing the pair  (e.g., ``'dist_ind1_ind2'`` or 
+        ``'dist_key1_key2'``) and each value is an :class:`xarray.DataArray`
+        containing the computed distances for that pair.
 
     Raises
     ------
