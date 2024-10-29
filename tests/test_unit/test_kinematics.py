@@ -522,18 +522,36 @@ def test_compute_pairwise_distances_with_valid_pairs(
 
 
 @pytest.mark.parametrize(
-    "dim, pairs",
+    "ds, dim, pairs",
     [
-        ("invalid_dim", {"id_1": "id_2"}),  # invalid dim, valid pairs
-        ("keypoints", "invalid_string"),  # valid dim, invalid pairs
-        ("individuals", {}),  # valid dim, empty pairs
+        (
+            "valid_poses_dataset_uniform_linear_motion",
+            "invalid_dim",
+            {"id_1": "id_2"},
+        ),  # invalid dim
+        (
+            "valid_poses_dataset_uniform_linear_motion",
+            "keypoints",
+            "invalid_string",
+        ),  # invalid pairs
+        (
+            "valid_poses_dataset_uniform_linear_motion",
+            "individuals",
+            {},
+        ),  # empty pairs
+        ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
+        (
+            "missing_dim_bboxes_dataset",
+            "individuals",
+            "all",
+        ),  # invalid dataset
     ],
 )
 def test_compute_pairwise_distances_with_invalid_input(
-    valid_poses_dataset_uniform_linear_motion, dim, pairs
+    ds, dim, pairs, request
 ):
     """Test that an error is raised for invalid inputs."""
     with pytest.raises(ValueError):
         kinematics.compute_pairwise_distances(
-            valid_poses_dataset_uniform_linear_motion.position, dim, pairs
+            request.getfixturevalue(ds).position, dim, pairs
         )

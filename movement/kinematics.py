@@ -345,12 +345,14 @@ def _cdist(
     ----------
     a : xarray.DataArray
         The first input data containing position information of a
-        single individual or keypoint, with ``space``
-        (in Cartesian coordinates) as a required dimension.
+        single individual or keypoint, with ``time``, ``space``
+        (in Cartesian coordinates), and ``individuals`` or ``keypoints``
+        (as specified by ``dim``) as required dimensions.
     b : xarray.DataArray
         The second input data containing position information of a
-        single individual or keypoint, with ``space``
-        (in Cartesian coordinates) as a required dimension.
+        single individual or keypoint, with ``time``, ``space``
+        (in Cartesian coordinates), and ``individuals`` or ``keypoints``
+        (as specified by ``dim``) as required dimensions.
     dim : str
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
@@ -438,8 +440,10 @@ def compute_pairwise_distances(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing
-        ``('time', 'individuals', 'keypoints', 'space')`` as dimensions.
+        The input data containing position information, with ``time``,
+        ``space`` (in Cartesian coordinates), and
+        ``individuals`` or ``keypoints`` (as specified by ``dim``)
+        as required dimensions.
     dim : Literal["individuals", "keypoints"]
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
@@ -587,6 +591,7 @@ def compute_pairwise_distances(
             ValueError,
             f"'pairs' must be a dictionary or 'all', but got {pairs}.",
         )
+    validate_dims_coords(data, {"time": [], "space": ["x", "y"], dim: []})
     # Find all possible pair combinations if 'all' is specified
     if pairs == "all":
         paired_elements = list(
