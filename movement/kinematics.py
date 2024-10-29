@@ -472,10 +472,10 @@ def compute_pairwise_distances(
     Returns
     -------
     xarray.DataArray or dict[str, xarray.DataArray]
-        The computed pairwise distances. If a single pair is specified in 
+        The computed pairwise distances. If a single pair is specified in
         ``pairs``, returns an :class:`xarray.DataArray`. If multiple pairs
         are specified, returns a dictionary where each key is a string
-        representing the pair  (e.g., ``'dist_ind1_ind2'`` or 
+        representing the pair  (e.g., ``'dist_ind1_ind2'`` or
         ``'dist_key1_key2'``) and each value is an :class:`xarray.DataArray`
         containing the computed distances for that pair.
 
