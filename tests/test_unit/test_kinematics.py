@@ -383,7 +383,7 @@ def test_cdist_with_known_values(
     dim, expected_data, valid_poses_dataset_uniform_linear_motion
 ):
     """Test the computation of pairwise distances with known values."""
-    core_dim = "keypoints" if dim == "individuals" else "individuals"
+    labels_dim = "keypoints" if dim == "individuals" else "individuals"
     input_dataarray = valid_poses_dataset_uniform_linear_motion.position.sel(
         time=slice(0, 1)
     )  # Use only the first two frames for simplicity
@@ -392,8 +392,8 @@ def test_cdist_with_known_values(
         expected_data,
         coords=[
             input_dataarray.time.values,
-            getattr(input_dataarray, core_dim).values,
-            getattr(input_dataarray, core_dim).values,
+            getattr(input_dataarray, labels_dim).values,
+            getattr(input_dataarray, labels_dim).values,
         ],
         dims=["time", pairs[0], pairs[1]],
     )
@@ -457,20 +457,20 @@ def test_cdist_with_known_values(
     ids=[
         "dim_has_ndim_0",
         "dim_has_ndim_1",
-        "core_dim_has_ndim_0",
-        "core_dim_has_ndim_1",
+        "labels_dim_has_ndim_0",
+        "labels_dim_has_ndim_1",
     ],
 )
 def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
     """Test that the pairwise distances data array is successfully
      returned regardless of whether the input DataArrays have
-    ``dim`` ("individuals") and ``core_dim`` ("keypoints")
+    ``dim`` ("individuals") and ``labels_dim`` ("keypoints")
     being either scalar (ndim=0) or 1D (ndim=1),
-    or if ``core_dim`` is missing.
+    or if ``labels_dim`` is missing.
     """
     if request.node.callspec.id not in [
-        "core_dim_has_ndim_0-valid_bboxes_dataset",
-        "core_dim_has_ndim_1-valid_bboxes_dataset",
+        "labels_dim_has_ndim_0-valid_bboxes_dataset",
+        "labels_dim_has_ndim_1-valid_bboxes_dataset",
     ]:  # Skip tests with keypoints dim for bboxes
         valid_dataset = request.getfixturevalue(valid_dataset)
         position = valid_dataset.position
