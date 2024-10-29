@@ -39,7 +39,7 @@ We aim to support a range of pose estimation packages, along with 2D or 3D track
 
 Find out more on our [mission and scope](target-mission) statement and our [roadmap](target-roadmaps).
 
-```{include} /snippets/status-warning.md
+```{include} /snippets/admonitions.md
 ```
 
 ## Citation
