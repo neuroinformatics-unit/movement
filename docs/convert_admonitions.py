@@ -1,10 +1,13 @@
-"""Convert admonitions GitHub Flavored Markdown to MyST Markdown."""
+"""Convert admonitions GitHub Flavored Markdown (GFM) to MyST Markdown."""
 
 import re
 from pathlib import Path
 
+# Valid admonition types supported by both GFM and MyST (case-insensitive)
+VALID_TYPES = {"note", "tip", "important", "warning", "caution"}
 
-def convert_gfm_admonitions_to_myst_snippets(
+
+def convert_gfm_admonitions_to_myst_md(
     input_path: Path, output_path: Path, exclude: set[str] | None = None
 ):
     """Convert admonitions from GitHub Flavored Markdown to MyST.
@@ -24,50 +27,47 @@ def convert_gfm_admonitions_to_myst_snippets(
         Default is None.
 
     """
-    valid_types = {"note", "tip", "important", "warning", "caution"}
-    if exclude is None:
-        excluded_types = set()  # Empty set
-    else:
-        excluded_types = set([s.lower() for s in exclude])  # Lowercase
-
-    print(f"Excluded admonition types: {excluded_types}")
+    excluded_types = {s.lower() for s in (exclude or set())}
 
     # Read the input file
-    with open(input_path, encoding="utf-8") as f:
-        gfm_text = f.read()
+    gfm_text = input_path.read_text(encoding="utf-8")
 
     # Regex pattern to match GFM admonitions
     pattern = r"(^> \[!(\w+)\]\n(?:^> .*\n?)*)"
     matches = re.finditer(pattern, gfm_text, re.MULTILINE)
 
-    # List to hold converted admonitions
+    # Process matches and collect converted admonitions
     admonitions = []
-
     for match in matches:
-        full_block = match.group(0)
-        adm_type = match.group(2).lower()
-        # Skip invalid or excluded admonition types
-        if adm_type not in valid_types or adm_type in excluded_types:
-            continue
-        # Extract content lines, skipping the admonition type line
-        content_lines = []
-        for line in full_block.split("\n"):
-            if line.startswith("> ") and not line.startswith("> [!"):
-                content_lines.append(line[2:].strip())
-        content = "\n".join(content_lines).strip()
-        # Convert to MyST admonition
-        adm_myst = ":::{" + adm_type + "}\n" + content + "\n" + ":::\n"
-        # Append to the list
-        admonitions.append(adm_myst)
+        adm_myst = _process_match(match, excluded_types)
+        if adm_myst:
+            admonitions.append(adm_myst)
 
     if admonitions:
         # Write all admonitions to a single file
-        with open(output_path, "w", encoding="utf-8") as f:
-            for admonition in admonitions:
-                f.write(admonition + "\n")
+        output_path.write_text("\n".join(admonitions) + "\n", encoding="utf-8")
         print(f"Admonitions written to {output_path}")
     else:
         print("No GitHub Markdown admonitions found.")
+
+
+def _process_match(match: re.Match, excluded_types: set[str]) -> str | None:
+    """Process a regex match and return the converted admonition if valid."""
+    # Extract the admonition type
+    adm_type = match.group(2).lower()
+    if adm_type not in VALID_TYPES or adm_type in excluded_types:
+        return None
+
+    # Extract the content lines
+    full_block = match.group(0)
+    content = "\n".join(
+        line[2:].strip()
+        for line in full_block.split("\n")
+        if line.startswith("> ") and not line.startswith("> [!")
+    ).strip()
+
+    # Return the converted admonition
+    return ":::{" + adm_type + "}\n" + content + "\n" + ":::\n"
 
 
 if __name__ == "__main__":
@@ -82,6 +82,6 @@ if __name__ == "__main__":
     target_path = snippets_dir / "admonitions.md"
 
     # Call the function
-    convert_gfm_admonitions_to_myst_snippets(
+    convert_gfm_admonitions_to_myst_md(
         readme_path, target_path, exclude={"note"}
     )
