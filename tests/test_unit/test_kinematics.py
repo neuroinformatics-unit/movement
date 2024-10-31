@@ -289,7 +289,6 @@ def test_path_length_across_time_ranges(
             num_segments -= np.ceil(start)
         if stop is not None:
             num_segments -= 9 - np.floor(stop)
-        print("num_segments", num_segments)
 
         expected_path_length = xr.DataArray(
             np.ones((2, 3)) * np.sqrt(2) * num_segments,
