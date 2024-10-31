@@ -191,7 +191,7 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
     -------
     xarray.DataArray
         An xarray DataArray containing the computed speed,
-        with dimensions matching those of the input data, 
+        with dimensions matching those of the input data,
         except ``space`` is removed.
 
     """
@@ -740,7 +740,7 @@ def compute_path_length(
     -------
     xarray.DataArray
         An xarray DataArray containing the computed path length,
-        with dimensions matching those of the input data, 
+        with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
 
     Notes
@@ -900,7 +900,7 @@ def _compute_scaled_path_length(
     # Skip first displacement segment (always 0) to not mess up the scaling
     displacement = compute_displacement(data).isel(time=slice(1, None))
     # count number of valid displacement segments per point track
-    valid_segments = (~displacement.isnull()).any(dim="space").sum(dim="time")
+    valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
     # compute proportion of valid segments per point track
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
