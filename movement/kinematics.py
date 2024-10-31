@@ -870,7 +870,7 @@ def _warn_about_nan_proportion(
             "missing values. The following tracks have more than "
             f"{nan_warn_threshold * 100:.3} %) NaN values:",
         )
-        report_nan_values(data_to_warn_about)
+        print(report_nan_values(data_to_warn_about))
 
 
 def _compute_scaled_path_length(
