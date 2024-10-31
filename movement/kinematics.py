@@ -761,8 +761,17 @@ def compute_path_length(
     segments, which may not accurately reflect actual conditions.
 
     """
-    _validate_start_stop_times(data, start, stop)
+    validate_dims_coords(data, {"time": [], "space": []})
     data = data.sel(time=slice(start, stop))
+    # Check that the data is not empty or too short
+    n_time = data.sizes["time"]
+    if n_time < 2:
+        raise log_error(
+            ValueError,
+            f"At least 2 time points are required to compute path length, "
+            f"but {n_time} were found. Double-check the start and stop times.",
+        )
+
     _warn_about_nan_proportion(data, nan_warn_threshold)
 
     if nan_policy == "drop":
@@ -776,64 +785,7 @@ def compute_path_length(
             f"Invalid value for nan_policy: {nan_policy}. "
             "Must be one of 'drop' or 'scale'.",
         )
-
-def _validate_start_stop_times(
-    data: xr.DataArray,
-    start: int | float | None,
-    stop: int | float | None,
-) -> None:
-    """Validate the start and stop times for path length computation.
-
-    Parameters
-    ----------
-    data: xarray.DataArray
-        The input data array containing position information.
-    start : float or None
-        The start time point for path length computation.
-    stop : float or None
-        The stop time point for path length computation.
-
-    Raises
-    ------
-    TypeError
-        If the start or stop time is not numeric.
-    ValueError
-        If the time dimension is missing, if either of the provided times is
-        outside the data time range, or if the start time is later than the
-        stop time.
-
-    """
-    # We validate the time dimension here, on top of any validation that may
-    # occur downstream, because we rely on it for start/stop times.
-    validate_dims_coords(data, {"time": []})
-
-    provided_time_points = {"start time": start, "stop time": stop}
-    expected_time_range = (data.time.min(), data.time.max())
-
-    for name, value in provided_time_points.items():
-        if value is None:  # Skip if the time point is not provided
-            continue
-        # Check that the provided value is numeric
-        if not isinstance(value, int | float):
-            raise log_error(
-                TypeError,
-                f"Expected a numeric value for {name}, but got {type(value)}.",
-            )
-        # Check that the provided value is within the time range of the data
-        if value < expected_time_range[0] or value > expected_time_range[1]:
-            raise log_error(
-                ValueError,
-                f"The provided {name} {value} is outside the time range "
-                f"of the data array ({expected_time_range}).",
-            )
-
-    # Check that the start time is earlier than the stop time
-    if start is not None and stop is not None and start >= stop:
-        raise log_error(
-            ValueError,
-            "The start time must be earlier than the stop time.",
-        )
-
+    
 
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float

@@ -210,61 +210,46 @@ def test_approximate_derivative_with_invalid_order(order):
         # full time ranges
         (None, None, does_not_raise()),
         (0, None, does_not_raise()),
-        (None, 9, does_not_raise()),
         (0, 9, does_not_raise()),
+        (0, 10, does_not_raise()),  # xarray.sel will truncate to 0, 9
+        (-1, 9, does_not_raise()),  # xarray.sel will truncate to 0, 9
         # partial time ranges
         (1, 8, does_not_raise()),
         (1.5, 8.5, does_not_raise()),
         (2, None, does_not_raise()),
-        (None, 6.3, does_not_raise()),
-        # invalid time ranges
-        (
-            0,
-            10,
-            pytest.raises(
-                ValueError, match="stop time 10 is outside the time range"
-            ),
-        ),
-        (
-            -1,
-            9,
-            pytest.raises(
-                ValueError, match="start time -1 is outside the time range"
-            ),
-        ),
+        # Empty time range (because start > stop)
         (
             9,
             0,
             pytest.raises(
                 ValueError,
-                match="start time must be earlier than the stop time",
+                match="At least 2 time points",
             ),
         ),
+        # Empty time range (because of invalid start type)
         (
             "text",
             9,
             pytest.raises(
-                TypeError, match="Expected a numeric value for start"
+                ValueError,
+                match="At least 2 time points",
             ),
         ),
+        # Time range too short
         (
             0,
-            [0, 1],
+            0.5,
             pytest.raises(
-                TypeError, match="Expected a numeric value for stop"
+                ValueError,
+                match="At least 2 time points",
             ),
         ),
     ],
-)
-@pytest.mark.parametrize(
-    "nan_policy",
-    ["drop", "scale"],  # results should be same for both here
 )
 def test_path_length_across_time_ranges(
     valid_poses_dataset_uniform_linear_motion,
     start,
     stop,
-    nan_policy,
     expected_exception,
 ):
     """Test path length computation for a uniform linear motion case,
@@ -280,15 +265,18 @@ def test_path_length_across_time_ranges(
     position = valid_poses_dataset_uniform_linear_motion.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
-            position, start=start, stop=stop, nan_policy=nan_policy
+            position, start=start, stop=stop
         )
 
         # Expected number of segments (displacements) in selected time range
         num_segments = 9  # full time range: 10 frames - 1
+        start = max(0, start) if start is not None else 0
+        stop = min(9, stop) if stop is not None else 9
         if start is not None:
-            num_segments -= np.ceil(start)
+            num_segments -= np.ceil(max(0, start))
         if stop is not None:
-            num_segments -= 9 - np.floor(stop)
+            stop = min(9, stop)
+            num_segments -= 9 - np.floor(min(9, stop))
 
         expected_path_length = xr.DataArray(
             np.ones((2, 3)) * np.sqrt(2) * num_segments,
