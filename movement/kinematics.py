@@ -886,15 +886,15 @@ def _compute_scaled_path_length(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information in Cartesian
-        coordinates, with ``time`` and ``space`` among the dimensions.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed path length.
-        Will have the same dimensions as the input data, except for ``time``
-        and ``space`` which will be removed.
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
 
     """
     # Skip first displacement segment (always 0) to not mess up the scaling
@@ -921,15 +921,15 @@ def _compute_path_length_drop_nan(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information in Cartesian
-        coordinates, with ``time`` and ``space`` among the dimensions.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed path length.
-        Will have the same dimensions as the input data, except for ``time``
-        and ``space`` which will be removed.
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
 
     """
     # Create array for holding results
