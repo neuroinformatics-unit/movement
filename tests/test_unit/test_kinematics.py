@@ -385,7 +385,7 @@ def test_path_length_with_nans(
     [
         (1, does_not_raise()),
         (0.2, does_not_raise()),
-        (-1, pytest.raises(ValueError, match="a number between 0 and 1")),
+        (-1, pytest.raises(ValueError, match="between 0 and 1")),
     ],
 )
 def test_path_length_warns_about_nans(
