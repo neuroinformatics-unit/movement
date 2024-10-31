@@ -184,15 +184,15 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information in Cartesian
-        coordinates, with ``time`` and ``space`` as dimensions.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
 
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed speed. Will have
-        the same dimensions as the input data, except for ``space``
-        which will be removed.
+        An xarray DataArray containing the computed speed,
+        with dimensions matching those of the input data, 
+        except ``space`` is removed.
 
     """
     return compute_norm(compute_velocity(data))
@@ -720,13 +720,13 @@ def compute_path_length(
     Parameters
     ----------
     data : xarray.DataArray
-        The input data containing position information in Cartesian
-        coordinates, with ``time`` and ``space`` among the dimensions.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
     start : float, optional
-        The time to consider as the path's starting point. If None (default),
+        The start time of the path. If None (default),
         the minimum time coordinate in the data is used.
     stop : float, optional
-        The time to consider as the path's end point. If None (default),
+        The end time of the path. If None (default),
         the maximum time coordinate in the data is used.
     nan_policy : Literal["drop", "scale"], optional
         Policy to handle NaN (missing) values. Can be one of the ``"drop"``
@@ -739,15 +739,15 @@ def compute_path_length(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed path length.
-        Will have the same dimensions as the input data, except for ``time``
-        and ``space`` which will be removed.
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data, 
+        except ``time`` and ``space`` are removed.
 
     Notes
     -----
     Choosing ``nan_policy="drop"`` will drop NaN values from each point track
     before computing path length. This equates to assuming that a track
-    follows a straight line between two valid points flanking a missing
+    follows a straight line between two valid points adjacent to a missing
     segment. Missing segments at the beginning or end of the specified
     time range are not counted. This approach tends to underestimate
     the path length, and the error increases with the number of missing
@@ -757,8 +757,8 @@ def compute_path_length(
     the proportion of valid segments per point track. For example, if only
     80% of segments are present, the path length will be computed based on
     these and the result will be divided by 0.8. This approach assumes
-    that motion dynamics are similar across present and missing time
-    segments, which may not be the case.
+    that motion dynamics are similar across observed and missing time
+    segments, which may not accurately reflect actual conditions.
 
     """
     _validate_start_stop_times(data, start, stop)
@@ -774,9 +774,8 @@ def compute_path_length(
         raise log_error(
             ValueError,
             f"Invalid value for nan_policy: {nan_policy}. "
-            "Must be one of 'drop' or 'weight'.",
+            "Must be one of 'drop' or 'scale'.",
         )
-
 
 def _validate_start_stop_times(
     data: xr.DataArray,
@@ -855,10 +854,10 @@ def _warn_about_nan_proportion(
 
     """
     nan_warn_threshold = float(nan_warn_threshold)
-    if nan_warn_threshold < 0 or nan_warn_threshold > 1:
+    if not 0 <= nan_warn_threshold <= 1:
         raise log_error(
             ValueError,
-            "nan_warn_threshold must be a number between 0 and 1.",
+            "nan_warn_threshold must be between 0 and 1.",
         )
 
     n_nans = data.isnull().any(dim="space").sum(dim="time")
