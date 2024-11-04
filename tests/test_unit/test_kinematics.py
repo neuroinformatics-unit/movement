@@ -204,6 +204,12 @@ def test_approximate_derivative_with_invalid_order(order):
         kinematics.compute_time_derivative(data, order=order)
 
 
+time_points_value_error = pytest.raises(
+    ValueError,
+    match="At least 2 time points are required to compute path length",
+)
+
+
 @pytest.mark.parametrize(
     "start, stop, expected_exception",
     [
@@ -217,33 +223,11 @@ def test_approximate_derivative_with_invalid_order(order):
         (1, 8, does_not_raise()),
         (1.5, 8.5, does_not_raise()),
         (2, None, does_not_raise()),
-        # Empty time range (because start > stop)
-        (
-            9,
-            0,
-            pytest.raises(
-                ValueError,
-                match="At least 2 time points",
-            ),
-        ),
-        # Empty time range (because of invalid start type)
-        (
-            "text",
-            9,
-            pytest.raises(
-                ValueError,
-                match="At least 2 time points",
-            ),
-        ),
+        # Empty time ranges
+        (9, 0, time_points_value_error),  # start > stop
+        ("text", 9, time_points_value_error),  # invalid start type
         # Time range too short
-        (
-            0,
-            0.5,
-            pytest.raises(
-                ValueError,
-                match="At least 2 time points",
-            ),
-        ),
+        (0, 0.5, time_points_value_error),
     ],
 )
 def test_path_length_across_time_ranges(
