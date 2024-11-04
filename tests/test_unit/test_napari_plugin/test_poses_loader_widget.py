@@ -7,6 +7,7 @@ instantiated (the methods would have already been connected to signals).
 
 import pytest
 from napari.settings import get_settings
+from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox
 
 from movement.napari._loader_widgets import SUPPORTED_POSES_FILES, PosesLoader
@@ -79,6 +80,36 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
 
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
+
+
+@pytest.mark.parametrize(
+    "file_path",
+    [
+        # valid file path
+        str(DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent),
+        # empty string, simulate user canceling the dialog
+        "",
+    ],
+)
+def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
+    """Test that the _on_browse_clicked method correctly sets the
+    file path in the QLineEdit widget (file_path_edit).
+    The file path is provided by mocking the return of the
+    QFileDialog.getOpenFileName method.
+    """
+    # Instantiate the napari viewer and the poses loader widget
+    viewer = make_napari_viewer_proxy()
+    poses_loader_widget = PosesLoader(viewer)
+
+    # Mock the QFileDialog.getOpenFileName method to return the file path
+    mocker.patch(
+        "movement.napari._loader_widgets.QFileDialog.getOpenFileName",
+        return_value=file_path,
+    )
+    # Simulate the user clicking the 'Browse' button
+    poses_loader_widget._on_browse_clicked()
+    # Check that the file path edit text has been updated
+    assert poses_loader_widget.file_path_edit.text() == file_path
 
 
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):

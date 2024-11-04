@@ -88,15 +88,19 @@ class PosesLoader(QWidget):
         file_suffixes = SUPPORTED_POSES_FILES[
             self.source_software_combo.currentText()
         ]
-        dlg = QFileDialog()
-        dlg.setFileMode(QFileDialog.ExistingFile)
-        dlg.setNameFilter(
-            f"Files containing predicted poses ({' '.join(file_suffixes)})"
+
+        file_path = QFileDialog.getOpenFileName(
+            self,
+            caption="Open file containing predicted poses",
+            filter=f"Poses files ({' '.join(file_suffixes)})",
         )
-        if dlg.exec_():
-            file_paths = dlg.selectedFiles()
-            # Set the file path in the line edit
-            self.file_path_edit.setText(file_paths[0])
+
+        # A blank string is returned if the user cancels the dialog
+        if not file_path:
+            return
+
+        # Add the file path to the line edit (text field)
+        self.file_path_edit.setText(file_path)
 
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
