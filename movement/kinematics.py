@@ -789,7 +789,7 @@ def compute_path_length(
             f"Invalid value for nan_policy: {nan_policy}. "
             "Must be one of 'ffill' or 'scale'.",
         )
-    
+
 
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float
