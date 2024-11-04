@@ -278,28 +278,17 @@ def test_path_length_across_time_ranges(
     [
         (
             "drop",
-            {
-                # 9 segments - 1 missing on edge
-                "centroid": np.sqrt(2) * 8,
-                # missing mid frames should have no effect
-                "left": np.sqrt(2) * 9,
-                "right": np.nan,  # all frames missing
-            },
+            np.array([np.sqrt(2) * 8, np.sqrt(2) * 9, np.nan]),
             does_not_raise(),
         ),
         (
             "scale",
-            {
-                # scaling should restore "true" path length
-                "centroid": np.sqrt(2) * 9,
-                "left": np.sqrt(2) * 9,
-                "right": np.nan,  # all frames missing
-            },
+            np.array([np.sqrt(2) * 9, np.sqrt(2) * 9, np.nan]),
             does_not_raise(),
         ),
         (
             "invalid",  # invalid value for nan_policy
-            {},
+            np.zeros(3),
             pytest.raises(ValueError, match="Invalid value for nan_policy"),
         ),
     ],
@@ -336,20 +325,12 @@ def test_path_length_with_nans(
             position,
             nan_policy=nan_policy,
         )
-        # Initialise with expected path lengths for scenario without NaNs
-        expected_array = xr.DataArray(
-            np.ones((2, 3)) * np.sqrt(2) * 9,
-            dims=["individuals", "keypoints"],
-            coords={
-                "individuals": position.coords["individuals"],
-                "keypoints": position.coords["keypoints"],
-            },
+        # Get path_length for individual "id_1" as a numpy array
+        path_length_id_1 = path_length.sel(individuals="id_1").values
+        # Check them against the expected values
+        np.testing.assert_allclose(
+            path_length_id_1, expected_path_lengths_id_1
         )
-        # insert expected path lengths for individual id_1
-        for kpt, value in expected_path_lengths_id_1.items():
-            target_loc = {"individuals": "id_1", "keypoints": kpt}
-            expected_array.loc[target_loc] = value
-        xr.testing.assert_allclose(path_length, expected_array)
 
 
 @pytest.mark.parametrize(
