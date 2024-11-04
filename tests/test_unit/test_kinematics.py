@@ -277,7 +277,7 @@ def test_path_length_across_time_ranges(
     "nan_policy, expected_path_lengths_id_1, expected_exception",
     [
         (
-            "drop",
+            "ffill",
             np.array([np.sqrt(2) * 8, np.sqrt(2) * 9, np.nan]),
             does_not_raise(),
         ),
@@ -316,8 +316,8 @@ def test_path_length_with_nans(
 
     Because the underlying motion is uniform linear, the "scale" policy should
     perfectly restore the path length for individual "id_1" to its true value.
-    The "drop" policy should do likewise if frames are missing in the middle,
-    but will not count any missing frames at the edges.
+    The "ffill" policy should do likewise if frames are missing in the middle,
+    but will not "correct" for missing values at the edges.
     """
     position = valid_poses_dataset_uniform_linear_motion_with_nans.position
     with expected_exception:
