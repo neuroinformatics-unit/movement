@@ -105,7 +105,6 @@ fix = true
 ignore = [
   "D203", # one blank line before class
   "D213", # multi-line-summary second line
-  "B905", # zip without explicit strict
 ]
 select = [
   "E",      # pycodestyle errors
