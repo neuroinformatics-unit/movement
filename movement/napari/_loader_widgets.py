@@ -89,7 +89,7 @@ class PosesLoader(QWidget):
             self.source_software_combo.currentText()
         ]
 
-        file_path = QFileDialog.getOpenFileName(
+        file_path, _ = QFileDialog.getOpenFileName(
             self,
             caption="Open file containing predicted poses",
             filter=f"Poses files ({' '.join(file_suffixes)})",

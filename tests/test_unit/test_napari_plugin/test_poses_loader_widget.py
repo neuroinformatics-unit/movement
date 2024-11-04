@@ -104,7 +104,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
     # Mock the QFileDialog.getOpenFileName method to return the file path
     mocker.patch(
         "movement.napari._loader_widgets.QFileDialog.getOpenFileName",
-        return_value=file_path,
+        return_value=(file_path, None),  # tuple(file_path, filter)
     )
     # Simulate the user clicking the 'Browse' button
     poses_loader_widget._on_browse_clicked()
