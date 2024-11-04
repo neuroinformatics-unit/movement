@@ -17,7 +17,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from movement import sample_data
-from movement.kinematics import compute_pairwise_distances
+from movement.kinematics import (
+    compute_forward_vector,
+    compute_pairwise_distances,
+)
 
 # %%
 # Load sample dataset
@@ -60,6 +63,8 @@ ax.legend()
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Get reference length
 
+# Measure the long side of the box in pixels
+# Note the lens is a bit distorted
 # Should I use diagonal?
 start_point = np.array([[209, 382]])
 end_point = np.array([[213, 1022]])
@@ -84,37 +89,6 @@ ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.set_title("Reference length")
 
-# Measure the long side of the box in pixels
-
-# Note the lens is a bit distorted
-
-
-# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Plot keypoints on sample frames
-
-# time_sel = [5.0, 50.0, 100.0]
-
-# # get colormap tab20
-# cmap = plt.get_cmap("tab20")
-
-# fig, axs = plt.subplots(len(time_sel), 1, figsize=(10, 15))
-# for k in range(len(time_sel)):
-#     for kpt_i, kpt in enumerate(ds.coords["keypoints"].data):
-#         axs[k].scatter(
-#             x=ds.position.sel(keypoints=kpt, space="x", time=time_sel[k]),
-#             y=ds.position.sel(keypoints=kpt, space="y", time=time_sel[k]),
-#             s=10,
-#             label=f"{kpt}",
-#             color=cmap(kpt_i),
-#         )
-
-#     axs[k].axis("equal")
-#     axs[k].invert_yaxis()
-#     axs[k].set_xlabel("x (pixels)")
-#     axs[k].set_ylabel("y (pixels)")
-#     axs[k].set_title(f"Keypoints at {time_sel[k]} s")
-#     # axs[k].legend(bbox_to_anchor=(1.1, 1.05))
-
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Compute distances between keypoints on different individuals
@@ -133,15 +107,15 @@ inter_individual_kpt_distances = compute_pairwise_distances(
 # from individual 1 to all keypoints on individual 2
 print(inter_individual_kpt_distances.shape)  # inter_individual_distances
 
-# normalise with reference length?
-inter_individual_kpt_distances_norm = (
-    inter_individual_kpt_distances / reference_length
-)
+# # normalise with reference length?
+# inter_individual_kpt_distances_norm = (
+#     inter_individual_kpt_distances / reference_length
+# )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Plot matrix of distances and keypoints
 # Show different patterns / positions between the two animals
-# Note that the colorbars vary across frames!
+# Note that the colorbars vary across plots aka frames!
 
 time_sel = [50.0, 100.0, 250.0]
 
@@ -170,12 +144,6 @@ for k in range(len(time_sel)):
             label=f"{kpt}",
             color=cmap(kpt_i),
         )
-        # # connect matching keypoints
-        # axs[0].plot(
-        #     ds.position.sel(keypoints=kpt, space="x", time=time_sel[k]),
-        #     ds.position.sel(keypoints=kpt, space="y", time=time_sel[k]),
-        #     'r'
-        # )
 
     # add text per individual
     for ind in ds.coords["individuals"].data:
@@ -229,7 +197,11 @@ for k in range(len(time_sel)):
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # To get distance between homologous keypoints
 # get the diagonal of the previous matrix at each frame
-inter_individual_same_kpts = np.diagonal(inter_individual_kpt_distances)
+inter_individual_same_kpts = np.diagonal(
+    inter_individual_kpt_distances,
+    axis1=1,
+    axis2=2,
+)
 print(inter_individual_same_kpts.shape)  # (59999, 12)
 
 
@@ -240,30 +212,52 @@ for k_i, kpt in enumerate(list_kpts_individual_1):
         inter_individual_same_kpts[:, k_i],
     )
 
+# # plot matrix as sparse matrix?
+# # plot vectors on top of a given frame?
+# for k in range(len(time_sel)):
+#     fig, axs = plt.subplots(1, 2, figsize=(13, 5))
+#     fig.subplots_adjust(wspace=0.5)
+
+#     # plot keypoints
+#     for kpt_i, kpt in enumerate(ds.coords["keypoints"].data):
+#         axs[0].scatter(
+#             x=ds.position.sel(keypoints=kpt, space="x", time=time_sel[k]),
+#             y=ds.position.sel(keypoints=kpt, space="y", time=time_sel[k]),
+#             s=10,
+#             label=f"{kpt}",
+#             color=cmap(kpt_i),
+#         )
+#         # connect matching keypoints
+#         axs[0].plot(
+#             ds.position.sel(keypoints=kpt, space="x", time=time_sel[k]),
+#             ds.position.sel(keypoints=kpt, space="y", time=time_sel[k]),
+#             "r",
+#         )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-# To get specific keypoints between individuals
+# To get distance between specific keypoints on different individuals
 # e.g. snout of individual 1 to tail base of individual 2
-# yo can select the relevant keypoints along the dimensions
+# you can select the relevant keypoint coordinates along the dimensions
 # "individual1" and "individual2"
 
 distance_snout_1_to_tail_2 = inter_individual_kpt_distances.sel(
     individual1="snout", individual2="tailbase"
 )
 
-# plot distance over time
+# plot distance from snout 1 to tailbase 2 over time
+# plot in a short time window?
 fig, ax = plt.subplots()
 ax.plot(
     distance_snout_1_to_tail_2.time,  # seconds
     distance_snout_1_to_tail_2 / reference_length,
 )
 ax.set_xlabel("time (seconds)")
-ax.set_ylabel("distance normalised")
+ax.set_ylabel("distance snout-to-tail normalised")
 
-# plot vectors on top of a given frame?
+
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Compute distances between the keypoints of the same individual
+# Compute distances between the keypoints on the same individual
 # compute average bodylength = snout to tailbase
 
 distance_snout_to_tailbase_all = compute_pairwise_distances(
@@ -271,14 +265,14 @@ distance_snout_to_tailbase_all = compute_pairwise_distances(
     dim="keypoints",
     pairs={
         "snout": "tailbase",
-        # this will set the dims of the output (individuals will be the
-        # coordinates)
+        # this will set the dims of the output
+        # (individuals will be the coordinates)
     },
 )  # pixels
 
 print(distance_snout_to_tailbase_all)  # dimensions are snout and tailbase!
 
-# within individual
+# compute distances within individual
 bodylength_individual_1 = distance_snout_to_tailbase_all.sel(
     snout="individual1",
     tailbase="individual1",
@@ -289,7 +283,7 @@ bodylength_individual_2 = distance_snout_to_tailbase_all.sel(
     tailbase="individual2",
 )
 
-# across individuals
+# compute distances across individuals
 # (an alternative way to the above)
 snout_1_to_tail_2 = distance_snout_to_tailbase_all.sel(
     snout="individual1",
@@ -300,13 +294,14 @@ snout_2_to_tail_1 = distance_snout_to_tailbase_all.sel(
     tailbase="individual1",
 )
 
+# check that this approach is equivalent to the previous one
 np.testing.assert_almost_equal(
     snout_1_to_tail_2.data, distance_snout_1_to_tail_2.data
 )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Plot bodylength over time
-
+# as a histogram instead?
 for b_i, bodylength_data_array in enumerate(
     [
         bodylength_individual_1,
@@ -330,7 +325,60 @@ for b_i, bodylength_data_array in enumerate(
     ax.set_ylabel("length (pixels)")
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Try usage of 'all' and plot matrix of four quadrants
+# Try usage of 'all' and plot distance matrix with four quadrants
 
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Compute distances between centroids
+
+distances_between_centroids = compute_pairwise_distances(
+    ds.centroid,
+    dim="individuals",
+    pairs={
+        "individual1": "individual2",
+    },
+)
+
+print(distances_between_centroids.shape)  # (59999,)
+
+# histogram
+fig, ax = plt.subplots()
+ax.hist(
+    distances_between_centroids,
+)
+ax.set_xlabel("distance (pixels)")
+ax.set_ylabel("frames")  # make it relative to the total number of frames?
+ax.set_title("Distances between centroids")
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Try a different metric, e.g cosine distance
+# https://en.wikipedia.org/wiki/Cosine_similarity
+
+# compute forward vector per individual
+
+ds["head_vector"] = compute_forward_vector(
+    ds.position,
+    left_keypoint="leftear",
+    right_keypoint="rightear",
+    camera_view="top_down",
+)
+
+# compute cosine distance between forward vectors
+# 1 - dot product of unit vectors
+cosine_distance_head_vectors = compute_pairwise_distances(
+    ds.head_vector,
+    dim="individuals",
+    pairs={
+        "individual1": "individual2",
+    },
+    metric="cosine",
+)
+
+# plot histogram
+# most of the time the vectors are antiparallel?
+fig, ax = plt.subplots()  # figsize=(3, 3))
+ax.hist(
+    cosine_distance_head_vectors,
+)
+ax.set_xlabel("cosine distance")
+ax.set_ylabel("frames")
 # %%
-# Try a different metric
