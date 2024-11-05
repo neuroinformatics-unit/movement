@@ -1,4 +1,5 @@
 import re
+from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
@@ -43,6 +44,13 @@ from movement import kinematics
                 np.zeros((10, 2)),  # Individual 1
             ],
         ),
+        (
+            "speed",  # magnitude of velocity
+            [
+                np.ones(10) * np.sqrt(2),  # Individual 0
+                np.ones(10) * np.sqrt(2),  # Individual 1
+            ],
+        ),
     ],
 )
 def test_kinematics_uniform_linear_motion(
@@ -74,19 +82,24 @@ def test_kinematics_uniform_linear_motion(
         position
     )
 
+    # Figure out which dimensions to expect in kinematic_array
+    # and in the final xarray.DataArray
+    expected_dims = ["time", "individuals"]
+    if kinematic_variable in ["displacement", "velocity", "acceleration"]:
+        expected_dims.append("space")
+
     # Build expected data array from the expected numpy array
     expected_array = xr.DataArray(
-        np.stack(expected_kinematics, axis=1),
         # Stack along the "individuals" axis
-        dims=["time", "individuals", "space"],
+        np.stack(expected_kinematics, axis=1),
+        dims=expected_dims,
     )
     if "keypoints" in position.coords:
         expected_array = expected_array.expand_dims(
             {"keypoints": position.coords["keypoints"].size}
         )
-        expected_array = expected_array.transpose(
-            "time", "individuals", "keypoints", "space"
-        )
+        expected_dims.insert(2, "keypoints")
+        expected_array = expected_array.transpose(*expected_dims)
 
     # Compare the values of the kinematic_array against the expected_array
     np.testing.assert_allclose(kinematic_array.values, expected_array.values)
@@ -105,6 +118,7 @@ def test_kinematics_uniform_linear_motion(
         ("displacement", [5, 0]),  # individual 0, individual 1
         ("velocity", [6, 0]),
         ("acceleration", [7, 0]),
+        ("speed", [6, 0]),
     ],
 )
 def test_kinematics_with_dataset_with_nans(
@@ -134,10 +148,13 @@ def test_kinematics_with_dataset_with_nans(
     ]
 
     # expected nans per individual adjusted for space and keypoints dimensions
+    if "space" in kinematic_array.dims:
+        n_space_dims = position.sizes["space"]
+    else:
+        n_space_dims = 1
+
     expected_nans_adjusted = [
-        n
-        * valid_dataset.sizes["space"]
-        * valid_dataset.sizes.get("keypoints", 1)
+        n * n_space_dims * valid_dataset.sizes.get("keypoints", 1)
         for n in expected_nans_per_individual
     ]
     # check number of nans per individual is as expected in kinematic array
@@ -163,6 +180,7 @@ def test_kinematics_with_dataset_with_nans(
         "displacement",
         "velocity",
         "acceleration",
+        "speed",
     ],
 )
 def test_kinematics_with_invalid_dataset(
@@ -184,6 +202,175 @@ def test_approximate_derivative_with_invalid_order(order):
     expected_exception = ValueError if isinstance(order, int) else TypeError
     with pytest.raises(expected_exception):
         kinematics.compute_time_derivative(data, order=order)
+
+
+time_points_value_error = pytest.raises(
+    ValueError,
+    match="At least 2 time points are required to compute path length",
+)
+
+
+@pytest.mark.parametrize(
+    "start, stop, expected_exception",
+    [
+        # full time ranges
+        (None, None, does_not_raise()),
+        (0, None, does_not_raise()),
+        (0, 9, does_not_raise()),
+        (0, 10, does_not_raise()),  # xarray.sel will truncate to 0, 9
+        (-1, 9, does_not_raise()),  # xarray.sel will truncate to 0, 9
+        # partial time ranges
+        (1, 8, does_not_raise()),
+        (1.5, 8.5, does_not_raise()),
+        (2, None, does_not_raise()),
+        # Empty time ranges
+        (9, 0, time_points_value_error),  # start > stop
+        ("text", 9, time_points_value_error),  # invalid start type
+        # Time range too short
+        (0, 0.5, time_points_value_error),
+    ],
+)
+def test_path_length_across_time_ranges(
+    valid_poses_dataset_uniform_linear_motion,
+    start,
+    stop,
+    expected_exception,
+):
+    """Test path length computation for a uniform linear motion case,
+    across different time ranges.
+
+    The test dataset ``valid_poses_dataset_uniform_linear_motion``
+    contains 2 individuals ("id_0" and "id_1"), moving
+    along x=y and x=-y lines, respectively, at a constant velocity.
+    At each frame they cover a distance of sqrt(2) in x-y space, so in total
+    we expect a path length of sqrt(2) * num_segments, where num_segments is
+    the number of selected frames minus 1.
+    """
+    position = valid_poses_dataset_uniform_linear_motion.position
+    with expected_exception:
+        path_length = kinematics.compute_path_length(
+            position, start=start, stop=stop
+        )
+
+        # Expected number of segments (displacements) in selected time range
+        num_segments = 9  # full time range: 10 frames - 1
+        start = max(0, start) if start is not None else 0
+        stop = min(9, stop) if stop is not None else 9
+        if start is not None:
+            num_segments -= np.ceil(max(0, start))
+        if stop is not None:
+            stop = min(9, stop)
+            num_segments -= 9 - np.floor(min(9, stop))
+
+        expected_path_length = xr.DataArray(
+            np.ones((2, 3)) * np.sqrt(2) * num_segments,
+            dims=["individuals", "keypoints"],
+            coords={
+                "individuals": position.coords["individuals"],
+                "keypoints": position.coords["keypoints"],
+            },
+        )
+        xr.testing.assert_allclose(path_length, expected_path_length)
+
+
+@pytest.mark.parametrize(
+    "nan_policy, expected_path_lengths_id_1, expected_exception",
+    [
+        (
+            "ffill",
+            np.array([np.sqrt(2) * 8, np.sqrt(2) * 9, np.nan]),
+            does_not_raise(),
+        ),
+        (
+            "scale",
+            np.array([np.sqrt(2) * 9, np.sqrt(2) * 9, np.nan]),
+            does_not_raise(),
+        ),
+        (
+            "invalid",  # invalid value for nan_policy
+            np.zeros(3),
+            pytest.raises(ValueError, match="Invalid value for nan_policy"),
+        ),
+    ],
+)
+def test_path_length_with_nans(
+    valid_poses_dataset_uniform_linear_motion_with_nans,
+    nan_policy,
+    expected_path_lengths_id_1,
+    expected_exception,
+):
+    """Test path length computation for a uniform linear motion case,
+    with varying number of missing values per individual and keypoint.
+
+    The test dataset ``valid_poses_dataset_uniform_linear_motion_with_nans``
+    contains 2 individuals ("id_0" and "id_1"), moving
+    along x=y and x=-y lines, respectively, at a constant velocity.
+    At each frame they cover a distance of sqrt(2) in x-y space.
+
+    Individual "id_1" has some missing values per keypoint:
+    - "centroid" is missing a value on the very first frame
+    - "left" is missing 5 values in middle frames (not at the edges)
+    - "right" is missing values in all frames
+
+    Individual "id_0" has no missing values.
+
+    Because the underlying motion is uniform linear, the "scale" policy should
+    perfectly restore the path length for individual "id_1" to its true value.
+    The "ffill" policy should do likewise if frames are missing in the middle,
+    but will not "correct" for missing values at the edges.
+    """
+    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    with expected_exception:
+        path_length = kinematics.compute_path_length(
+            position,
+            nan_policy=nan_policy,
+        )
+        # Get path_length for individual "id_1" as a numpy array
+        path_length_id_1 = path_length.sel(individuals="id_1").values
+        # Check them against the expected values
+        np.testing.assert_allclose(
+            path_length_id_1, expected_path_lengths_id_1
+        )
+
+
+@pytest.mark.parametrize(
+    "nan_warn_threshold, expected_exception",
+    [
+        (1, does_not_raise()),
+        (0.2, does_not_raise()),
+        (-1, pytest.raises(ValueError, match="between 0 and 1")),
+    ],
+)
+def test_path_length_warns_about_nans(
+    valid_poses_dataset_uniform_linear_motion_with_nans,
+    nan_warn_threshold,
+    expected_exception,
+    caplog,
+):
+    """Test that a warning is raised when the number of missing values
+    exceeds a given threshold.
+
+    See the docstring of ``test_path_length_with_nans`` for details
+    about what's in the dataset.
+    """
+    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    with expected_exception:
+        kinematics.compute_path_length(
+            position, nan_warn_threshold=nan_warn_threshold
+        )
+
+        if (nan_warn_threshold > 0.1) and (nan_warn_threshold < 0.5):
+            # Make sure that a warning was emitted
+            assert caplog.records[0].levelname == "WARNING"
+            assert "The result may be unreliable" in caplog.records[0].message
+            # Make sure that the NaN report only mentions
+            # the individual and keypoint that violate the threshold
+            assert caplog.records[1].levelname == "INFO"
+            assert "Individual: id_1" in caplog.records[1].message
+            assert "Individual: id_2" not in caplog.records[1].message
+            assert "left: 5/10 (50.0%)" in caplog.records[1].message
+            assert "right: 10/10 (100.0%)" in caplog.records[1].message
+            assert "centroid" not in caplog.records[1].message
 
 
 @pytest.fixture
