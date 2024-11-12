@@ -301,14 +301,13 @@ class TestLoadPoses:
         )
         self.assert_dataset(ds, expected_source_software=source_software)
 
-
     def test_from_multi_view(self):
         """Test that the from_file() function delegates to the correct
         loader function according to the source_software.
         """
         view_names = ["view_0", "view_1"]
         file_path_dict = {
-            view: POSE_DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+            view: DATA_PATHS.get("DLC_single-wasp.predictions.h5")
             for view in view_names
         }
 
