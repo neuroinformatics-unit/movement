@@ -352,9 +352,9 @@ def from_dlc_file(
 
 
 def from_multi_view(
-    file_path_dict: dict[str, Union[Path, str]],
+    file_path_dict: dict[str, Path | str],
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
-    fps: Optional[float] = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Load and merge pose tracking data from multiple views (cameras).
 

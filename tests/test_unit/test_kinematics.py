@@ -742,3 +742,10 @@ def test_compute_pairwise_distances_with_invalid_input(
         kinematics.compute_pairwise_distances(
             request.getfixturevalue(ds).position, dim, pairs
         )
+
+    # @pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
+    # @pytest.fixture(mult)
+    # def test_multiview(self):
+    #     ds = request.getfixturevalue("multi_view_dataset")
+    #     pass
+    #     result = kinematics.compute_displacement(multi_view_dataset.position)
