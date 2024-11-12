@@ -277,6 +277,14 @@ def valid_poses_dataset(valid_position_array, request):
 
 
 @pytest.fixture
+def multi_view_dataset():
+    view_names = ["view_0", "view_1"]
+    new_coord_views = xr.DataArray(view_names, dims="view")
+    dataset_list = [valid_poses_dataset() for _ in range(len(view_names))]
+    return xr.concat(dataset_list, dim=new_coord_views)
+
+
+@pytest.fixture
 def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid pose tracks dataset with NaN values."""
     valid_poses_dataset.position.loc[

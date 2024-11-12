@@ -110,3 +110,10 @@ class TestKinematics:
         )
         with pytest.raises(expected_exception):
             kinematics._compute_approximate_derivative(data, order=order)
+
+    # @pytest.mark.parametrize("ds, expected_exception", kinematic_test_params)
+    # @pytest.fixture(mult)
+    # def test_multiview(self):
+    #     ds = request.getfixturevalue("multi_view_dataset")
+    #     pass
+    #     result = kinematics.compute_displacement(multi_view_dataset.position)
