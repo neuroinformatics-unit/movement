@@ -86,20 +86,29 @@ mock_retrieve = MagicMock(pooch.retrieve, side_effect=RequestException)
 
 @pytest.mark.parametrize("download_fails", [True, False])
 @pytest.mark.parametrize("local_exists", [True, False])
-def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
+@pytest.mark.parametrize("local_temp_exists", [True, False])
+def test_fetch_metadata(
+    tmp_path, caplog, download_fails, local_exists, local_temp_exists
+):
     """Test the fetch_metadata function with different combinations of
-    failed download and pre-existing local file. The expected behavior is
+    failed download and pre-existing local files. The expected behavior is
     that the function will try to download the metadata file, and if that
     fails, it will try to load an existing local file. If neither succeeds,
-    an error is raised.
+    an error is raised. If an local temporary file exists, it should be
+    deleted in the process.
     """
     metadata_file_name = "metadata.yaml"
     local_file_path = tmp_path / metadata_file_name
+    local_temp_file_path = tmp_path / f"temp_{metadata_file_name}"
 
     with patch("movement.sample_data.DATA_DIR", tmp_path):
         # simulate the existence of a local metadata file
         if local_exists:
             local_file_path.touch()
+
+        # simulate the existence of a local temporary metadata file
+        if local_temp_exists:
+            local_temp_file_path.touch()
 
         if download_fails:
             # simulate a failed download
@@ -118,6 +127,9 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
                         _fetch_metadata(metadata_file_name, data_dir=tmp_path)
         else:
             metadata = _fetch_metadata(metadata_file_name, data_dir=tmp_path)
+            # Check that the local temporary file was deleted
+            assert not local_temp_file_path.is_file()
+            # Check that the local metadata file exists and is valid
             assert local_file_path.is_file()
             validate_metadata(metadata)
 

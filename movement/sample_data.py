@@ -56,11 +56,18 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
+    # Delete any existing local temporary metadata file
+    # This is to force a fresh download of the metadata file each time
+    temp_file_name = f"temp_{file_name}"
+    local_temp_file_path = Path(data_dir / temp_file_name)
+    if local_temp_file_path.is_file():
+        local_temp_file_path.unlink()
+
     local_file_path = pooch.retrieve(
         url=f"{DATA_URL}/{file_name}",
         known_hash=None,
         path=data_dir,
-        fname=f"temp_{file_name}",
+        fname=temp_file_name,
         progressbar=False,
     )
     logger.debug(
