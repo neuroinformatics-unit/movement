@@ -94,7 +94,7 @@ def test_fetch_metadata(
     failed download and pre-existing local files. The expected behavior is
     that the function will try to download the metadata file, and if that
     fails, it will try to load an existing local file. If neither succeeds,
-    an error is raised. If an local temporary file exists, it should be
+    an error is raised. If a local temporary file exists, it should be
     deleted in the process.
     """
     metadata_file_name = "metadata.yaml"
