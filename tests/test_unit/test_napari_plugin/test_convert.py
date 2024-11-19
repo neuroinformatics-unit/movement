@@ -90,7 +90,7 @@ def test_valid_poses_to_napari_tracks(ds_name, request):
     [
         ("not_a_dataset", AttributeError),
         ("empty_dataset", KeyError),
-        ("missing_var_poses_dataset", KeyError),
+        ("missing_var_poses_dataset", AttributeError),
         ("missing_dim_poses_dataset", KeyError),
     ],
 )
