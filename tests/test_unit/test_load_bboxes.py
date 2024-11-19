@@ -1,6 +1,7 @@
 """Test suite for the load_bboxes module."""
 
 import ast
+from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
@@ -12,146 +13,119 @@ from movement.io import load_bboxes
 from movement.validators.datasets import ValidBboxesDataset
 
 
-# ---------
 @pytest.fixture()
-def single_animal_via_tracks_file():
-    """Return the file path for a VIA tracks .csv file with a single animal."""
-    via_sample_file_name = "VIA_single-crab_MOCA-crab-1.csv"
-    return pytest.DATA_PATHS.get(via_sample_file_name)
+def get_attributes_dict():
+    def _get_attributes_dict(via_file_name: str) -> dict:
+        # Should match the first 3 rows of each file!
+        attributes_dict_per_test_file = {
+            "VIA_single-crab_MOCA-crab-1.csv": {
+                "region_shape_attributes": {
+                    "name": np.array(["rect"] * 3),
+                    "x_y": np.array(
+                        [
+                            [957.85, 296.708],
+                            [919.149, 296.708],
+                            [889.317, 303.158],
+                        ]
+                    ).reshape(-1, 2),
+                    "width_height": np.array(
+                        [
+                            [320.09, 153.191],
+                            [357.984, 158.835],
+                            [366.853, 162.867],
+                        ]
+                    ).reshape(-1, 2),
+                },
+                "region_attributes": {
+                    "track": np.ones((3,)),
+                },
+            },
+            "VIA_multiple-crabs_5-frames_labels.csv": {
+                "region_shape_attributes": {
+                    "name": np.array(["rect"] * 3),
+                    "x_y": np.array(
+                        [
+                            [526.2366942646654, 393.280914246804],
+                            [2565, 468],
+                            [759.6484377108334, 136.60946673708338],
+                        ]
+                    ).reshape(-1, 2),
+                    "width_height": np.array(
+                        [[46, 38], [41, 30], [29, 25]]
+                    ).reshape(-1, 2),
+                },
+                "region_attributes": {
+                    "track": np.array([71, 70, 69]),
+                },
+            },
+        }
+        if via_file_name not in attributes_dict_per_test_file:
+            raise ValueError(
+                f"Attributes dict not defined for filename '{via_file_name}''."
+            )
+        return attributes_dict_per_test_file[via_file_name]
 
-
-@pytest.fixture()
-def multi_animal_via_tracks_file():
-    """Return the file path for a VIA tracks .csv file with multiple
-    animals.
-    """
-    via_sample_file_name = "VIA_multiple-crabs_5-frames_labels.csv"
-    return pytest.DATA_PATHS.get(via_sample_file_name)
-
-
-# ---------
-
-
-@pytest.fixture()
-def df_input_via_tracks_small(request):
-    """Return the first 3 rows of the dataframe that results from
-    reading the input VIA tracks .csv filepath.
-    """
-    df = pd.read_csv(request.param, sep=",", header=0)
-    return df.loc[:2, :]
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_confidence(request):
-    """Return the first 3 rows of the dataframe that results from
-    reading the input VIA tracks .csv filepath and add some
-    confidence values.
-    """
-    df = pd.read_csv(request.param, sep=",", header=0).loc[:2, :]
-
-    return update_attribute_column(
-        df_input=df,
-        attribute_column_name="region_attributes",
-        dict_to_append={"confidence": "0.5"},
-    )
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_frame_number(request):
-    """Return the first 3 rows of the dataframe that results from
-    reading the input VIA tracks .csv filepath and add some
-    frame numbers.
-    """
-    df = pd.read_csv(request.param, sep=",", header=0).loc[:2, :]
-
-    return update_attribute_column(
-        df_input=df,
-        attribute_column_name="file_attributes",
-        dict_to_append={"frame": "1"},
-    )
+    return _get_attributes_dict
 
 
 @pytest.fixture()
-def valid_from_numpy_inputs_required_arrays():
-    """Return a dictionary with valid numpy arrays for the `from_numpy()`
-    loader, excluding the optional `frame_array`.
-    """
+def create_df_input_via_tracks():
+    def _create_df_input_via_tracks(
+        via_file_path: Path,
+        small: bool = False,
+        attribute_column_name: str | None = None,
+        dict_to_append: dict | None = None,
+    ) -> pd.DataFrame:
+        """Return the dataframe that results from
+        reading the input VIA tracks .csv filepath.
+        """
+        # read the VIA tracks .csv file as a dataframe
+        df = pd.read_csv(via_file_path, sep=",", header=0)
+        # optionally return the first 3 rows only
+        if small:
+            df = df.loc[:2, :]
+
+        # optionally modify the dataframe to include the attribute column
+        if attribute_column_name is None:
+            return df
+        else:
+            return update_attribute_column(
+                df_input=df,
+                attribute_column_name=attribute_column_name,  # "region_attributes", /// "file_attributes",
+                dict_to_append=dict_to_append,  # {"confidence": "0.5"}, /// {"frame": "1"},
+            )
+
+    return _create_df_input_via_tracks
+
+
+@pytest.fixture()
+def create_valid_from_numpy_inputs():
     n_frames = 5
     n_individuals = 86
     n_space = 2
     individual_names_array = np.arange(n_individuals).reshape(-1, 1)
+    first_frame_number = 1  # should match sample file
 
     rng = np.random.default_rng(seed=42)
 
-    return {
-        "position_array": rng.random((n_frames, n_individuals, n_space)),
-        "shape_array": rng.random((n_frames, n_individuals, n_space)),
-        "confidence_array": rng.random((n_frames, n_individuals)),
-        "individual_names": [
-            f"id_{id}" for id in individual_names_array.squeeze()
-        ],
-    }
+    def _create_valid_from_numpy_inputs(with_frame_array=False):
+        required_inputs = {
+            "position_array": rng.random((n_frames, n_individuals, n_space)),
+            "shape_array": rng.random((n_frames, n_individuals, n_space)),
+            "confidence_array": rng.random((n_frames, n_individuals)),
+            "individual_names": [
+                f"id_{id}" for id in individual_names_array.squeeze()
+            ],
+        }
 
+        if with_frame_array:
+            required_inputs["frame_array"] = np.arange(
+                first_frame_number, first_frame_number + n_frames
+            ).reshape(-1, 1)
 
-@pytest.fixture()
-def valid_from_numpy_inputs_all_arrays(
-    valid_from_numpy_inputs_required_arrays,
-):
-    """Return a dictionary with valid numpy arrays for the from_numpy() loader,
-    including a `frame_array` that ranges from frame 1 to 5.
-    """
-    n_frames = valid_from_numpy_inputs_required_arrays["position_array"].shape[
-        0
-    ]
-    first_frame_number = 1  # should match sample file
+        return required_inputs
 
-    valid_from_numpy_inputs_required_arrays["frame_array"] = np.arange(
-        first_frame_number, first_frame_number + n_frames
-    ).reshape(-1, 1)
-
-    return valid_from_numpy_inputs_required_arrays
-
-
-# -------------
-# def df_input_multi_animal_via_tracks_small(multi_animal_via_tracks_file):
-#     """Return the first 3 rows of the VIA tracks .csv file as a dataframe."""
-#     df = pd.read_csv(multi_animal_via_tracks_file, sep=",", header=0)
-#     return df.loc[:2, :]
-
-
-# @pytest.fixture()
-# def df_input_multi_animal_via_tracks_small_w_conf(
-#     df_input_multi_animal_via_tracks_small,
-# ):
-#     """Return a dataframe with the first three rows of the
-#     VIA tracks .csv file
-#     and add confidence values to the bounding boxes.
-#     """
-#     df = update_attribute_column(
-#         df_input=df_input_multi_animal_via_tracks_small,
-#         attribute_column_name="region_attributes",
-#         dict_to_append={"confidence": "0.5"},
-#     )
-
-#     return df
-
-
-# @pytest.fixture()
-# def df_input_via_tracks_small_with_frame_number(
-#     df_input_multi_animal_via_tracks_small,
-# ):
-#     """Return a dataframe with the first three rows of the VIA tracks .csv
-# file
-#     and add frame number values to the bounding boxes.
-#     """
-# df = update_attribute_column(
-#     df_input=df_input_multi_animal_via_tracks_small,
-#     attribute_column_name="file_attributes",
-#     dict_to_append={"frame": "1"},
-# )
-
-#     return df
-# ---------
+    return _create_valid_from_numpy_inputs
 
 
 def update_attribute_column(df_input, attribute_column_name, dict_to_append):
@@ -268,44 +242,47 @@ def test_from_file(source_software, fps, use_frame_numbers_from_file):
 
 
 @pytest.mark.parametrize(
-    "via_tracks_file_str",
-    ["multi_animal_via_tracks_file", "single_animal_via_tracks_file"],
+    "via_file_path",
+    [
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+    ],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 def test_from_via_tracks_file(
-    via_tracks_file_str, fps, use_frame_numbers_from_file, request
+    via_file_path,
+    fps,
+    use_frame_numbers_from_file,
 ):
     """Test that loading tracked bounding box data from
     a valid VIA tracks .csv file returns a proper Dataset.
     """
-    # get the input file
-    via_tracks_file = request.getfixturevalue(via_tracks_file_str)
-
-    # run general dataset checks
     ds = load_bboxes.from_via_tracks_file(
-        file_path=via_tracks_file,
+        file_path=via_file_path,
         fps=fps,
-        use_frame_numbers_from_file=False,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
     )
-    assert_dataset(ds, via_tracks_file, "VIA-tracks", fps)
+    assert_dataset(ds, via_file_path, "VIA-tracks", fps)
 
 
 @pytest.mark.parametrize(
-    "valid_from_numpy_inputs",
-    [
-        "valid_from_numpy_inputs_required_arrays",
-        "valid_from_numpy_inputs_all_arrays",
-    ],
+    "with_frame_array",
+    [True, False],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
-def test_from_numpy(valid_from_numpy_inputs, fps, source_software, request):
+def test_from_numpy(
+    create_valid_from_numpy_inputs,
+    with_frame_array,
+    fps,
+    source_software,
+):
     """Test that loading bounding boxes trajectories from the input
     numpy arrays returns a proper Dataset.
     """
     # get the input arrays
-    from_numpy_inputs = request.getfixturevalue(valid_from_numpy_inputs)
+    from_numpy_inputs = create_valid_from_numpy_inputs(with_frame_array)
 
     # run general dataset checks
     ds = load_bboxes.from_numpy(
@@ -326,57 +303,11 @@ def test_from_numpy(valid_from_numpy_inputs, fps, source_software, request):
 
 
 @pytest.mark.parametrize(
-    "df_input_via_tracks_small, expected_attributes_dict",
+    "via_file_path",
     [
-        (  # multi animal VIA tracks file
-            pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-            {
-                "region_shape_attributes": {
-                    "name": np.array(["rect"] * 3),
-                    "x_y": np.array(
-                        [
-                            [526.2366942646654, 393.280914246804],
-                            [2565, 468],
-                            [759.6484377108334, 136.60946673708338],
-                        ]
-                    ).reshape(-1, 2),
-                    "width_height": np.array(
-                        [[46, 38], [41, 30], [29, 25]]
-                    ).reshape(-1, 2),
-                },
-                "region_attributes": {
-                    "track": np.array([71, 70, 69]),
-                },
-            },
-        ),
-        (
-            # single animal VIA tracks file
-            pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-            {
-                "region_shape_attributes": {
-                    "name": np.array(["rect"] * 3),
-                    "x_y": np.array(
-                        [
-                            [957.85, 296.708],
-                            [919.149, 296.708],
-                            [889.317, 303.158],
-                        ]
-                    ).reshape(-1, 2),
-                    "width_height": np.array(
-                        [
-                            [320.09, 153.191],
-                            [357.984, 158.835],
-                            [366.853, 162.867],
-                        ]
-                    ).reshape(-1, 2),
-                },
-                "region_attributes": {
-                    "track": np.ones((3,)),
-                },
-            },
-        ),
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
     ],
-    indirect=["df_input_via_tracks_small"],
 )
 @pytest.mark.parametrize(
     "via_column_name, list_keys, cast_fn",
@@ -404,8 +335,9 @@ def test_from_numpy(valid_from_numpy_inputs, fps, source_software, request):
     ],
 )
 def test_via_attribute_column_to_numpy(
-    df_input_via_tracks_small,
-    expected_attributes_dict,
+    create_df_input_via_tracks,
+    get_attributes_dict,
+    via_file_path,
     via_column_name,
     list_keys,
     cast_fn,
@@ -414,73 +346,113 @@ def test_via_attribute_column_to_numpy(
     attributes.
     """
     attribute_array = load_bboxes._via_attribute_column_to_numpy(
-        df=df_input_via_tracks_small,
+        df=create_df_input_via_tracks(
+            via_file_path, small=True
+        ),  # small=True to only get 3 rows
         via_column_name=via_column_name,
         list_keys=list_keys,
         cast_fn=cast_fn,
     )
 
-    expected_attribute_array = expected_attributes_dict[via_column_name][
+    attributes_dict = get_attributes_dict(
+        via_file_path.name
+    )  # returns results for the first 3 rows
+    expected_attribute_array = attributes_dict[via_column_name][
         "_".join(list_keys)
     ]
     assert np.array_equal(attribute_array, expected_attribute_array)
 
 
-# TODO
 @pytest.mark.parametrize(
-    "df_input, expected_array",
+    "via_file_path",
     [
-        ("df_input_via_tracks_small", np.full((3,), np.nan)),
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+    ],
+)
+@pytest.mark.parametrize(
+    "input_confidence_value, expected_confidence_array",
+    # we only check the first 3 rows of the files
+    [
         (
-            "df_input_via_tracks_small_with_confidence",
+            None,
+            np.full((3,), np.nan),
+        ),
+        (
+            0.5,
             np.array([0.5, 0.5, 0.5]),
         ),
     ],
 )
 def test_extract_confidence_from_via_tracks_df(
-    df_input, expected_array, request
+    create_df_input_via_tracks,
+    via_file_path,
+    input_confidence_value,
+    expected_confidence_array,
 ):
     """Test that the function correctly extracts the confidence values from
     the VIA dataframe.
+
+    A mock VIA dataframe is generated with all confidence values set to the
+    input_confidence_value.
     """
-    df = request.getfixturevalue(df_input)
+    # None of the sample files includes a confidence column
+    # so we add it to the dataframe here
+    # ----> can I use a crab one from tracking output & replace
+    # VIA_multiple-crabs_5-frames_labels?
+    if input_confidence_value:
+        df = create_df_input_via_tracks(
+            via_file_path,
+            small=True,  # only get 3 rows
+            attribute_column_name="region_attributes",
+            dict_to_append={"confidence": input_confidence_value},
+        )
+    else:
+        df = create_df_input_via_tracks(via_file_path, small=True)
+
     confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
 
-    assert np.array_equal(confidence_array, expected_array, equal_nan=True)
+    assert np.array_equal(
+        confidence_array, expected_confidence_array, equal_nan=True
+    )
 
 
-# TODO
 @pytest.mark.parametrize(
-    "df_input, expected_array",
+    "via_file_path, expected_frame_array",
     [
         (
-            "df_input_via_tracks_small",
+            pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
             np.ones((3,)),
-        ),  # extract from filename
+        ),
         (
-            "df_input_via_tracks_small_with_frame_number",
-            np.array([1, 1, 1]),
-        ),  # extract from file_attributes
+            pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+            np.array([0, 5, 10]),
+        ),
     ],
 )
 def test_extract_frame_number_from_via_tracks_df(
-    df_input, expected_array, request
+    create_df_input_via_tracks,
+    via_file_path,
+    expected_frame_array,
 ):
     """Test that the function correctly extracts the frame number values from
     the VIA dataframe.
     """
-    df = request.getfixturevalue(df_input)
+    df = create_df_input_via_tracks(via_file_path, small=True)
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
 
-    assert np.array_equal(frame_array, expected_array)
+    assert np.array_equal(frame_array, expected_frame_array)
 
 
 @pytest.mark.parametrize(
-    "via_tracks_file, frame_array_from_file",
+    "via_file_path, frame_array_from_file",
     [
-        ("multi_animal_via_tracks_file", np.array(range(1, 6))),
         (
-            "single_animal_via_tracks_file",
+            pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+            np.array(range(1, 6)),
+        ),
+        (
+            pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
             np.array(list(range(0, 168, 5)) + [167]),
         ),
     ],
@@ -497,23 +469,20 @@ def test_extract_frame_number_from_via_tracks_df(
 )
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 def test_fps_and_time_coords(
-    via_tracks_file,
+    via_file_path,
     frame_array_from_file,
     fps,
     expected_fps,
     expected_time_unit,
     use_frame_numbers_from_file,
-    request,
 ):
     """Test that fps conversion is as expected, and time coordinates are set
     according to the input "fps" and the "use_frame_numbers_from_file"
     parameters.
     """
-    via_tracks_file = request.getfixturevalue(via_tracks_file)
-
     # load dataset with inputs
     ds = load_bboxes.from_via_tracks_file(
-        via_tracks_file,
+        via_file_path,
         fps=fps,
         use_frame_numbers_from_file=use_frame_numbers_from_file,
     )
@@ -522,10 +491,10 @@ def test_fps_and_time_coords(
     assert ds.time_unit == expected_time_unit
 
     # check fps is as expected
-    if expected_fps is None:
-        assert ds.fps is expected_fps
-    else:
+    if bool(expected_fps):
         assert ds.fps == expected_fps
+    else:
+        assert ds.fps is None
 
     # check loading frame numbers from file
     if use_frame_numbers_from_file:
@@ -537,22 +506,24 @@ def test_fps_and_time_coords(
 
 
 @pytest.mark.parametrize(
-    "via_tracks_file, expected_n_frames, expected_n_individuals",
+    "via_file_path, expected_n_frames, expected_n_individuals",
     [
-        ("multi_animal_via_tracks_file", 5, 86),
-        ("single_animal_via_tracks_file", 35, 1),
+        (
+            pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+            5,
+            86,
+        ),
+        (pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"), 35, 1),
     ],
 )
 def test_df_from_via_tracks_file(
-    via_tracks_file, expected_n_frames, expected_n_individuals, request
+    via_file_path, expected_n_frames, expected_n_individuals
 ):
     """Test that the `_df_from_via_tracks_file` helper function correctly
     reads the VIA tracks .csv file as a dataframe.
     """
-    via_tracks_file = request.getfixturevalue(via_tracks_file)
-
     df = load_bboxes._df_from_via_tracks_file(
-        file_path=via_tracks_file,
+        via_file_path,
     )
 
     assert isinstance(df, pd.DataFrame)
@@ -560,7 +531,7 @@ def test_df_from_via_tracks_file(
     assert len(df.ID.unique()) == expected_n_individuals
     assert (
         df.shape[0] == len(df.ID.unique()) * expected_n_frames
-    )  # all individuals in all frames (even if nan)
+    )  # all individuals are present in all frames (even if nan)
     assert list(df.columns) == [
         "ID",
         "frame_number",
@@ -571,27 +542,27 @@ def test_df_from_via_tracks_file(
         "confidence",
     ]
 
-
 @pytest.mark.parametrize(
-    "via_tracks_file",
-    ["multi_animal_via_tracks_file", "single_animal_via_tracks_file"],
+    "via_file_path",
+    [
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+    ],
 )
-def test_position_numpy_array_from_via_tracks_file(via_tracks_file, request):
+def test_position_numpy_array_from_via_tracks_file(via_file_path):
     """Test the extracted position array from the VIA tracks .csv file
     represents the centroid of the bbox.
     """
-    via_tracks_file = request.getfixturevalue(via_tracks_file)
-
     # Extract numpy arrays from VIA tracks .csv file
     bboxes_arrays = load_bboxes._numpy_arrays_from_via_tracks_file(
-        via_tracks_file
+        via_file_path
     )
 
     # Read VIA tracks .csv file as a dataframe
-    df = load_bboxes._df_from_via_tracks_file(via_tracks_file)
+    df = load_bboxes._df_from_via_tracks_file(via_file_path)
 
     # Compute centroid positions from the dataframe
-    # (go thru in the same order as ID array)
+    # (go through in the same order as ID array)
     list_derived_centroids = []
     for id in bboxes_arrays["ID_array"]:
         df_one_id = df[df["ID"] == id.item()]
