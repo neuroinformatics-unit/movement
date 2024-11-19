@@ -98,6 +98,32 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
     assert poses_loader_widget.file_path_edit.text() == file_path
 
 
+@pytest.mark.parametrize(
+    "source_software, expected_file_filter",
+    [
+        ("DeepLabCut", "Poses files (*.h5 *.csv)"),
+        ("SLEAP", "Poses files (*.h5 *.slp)"),
+        ("LightningPose", "Poses files (*.csv)"),
+    ],
+)
+def test_file_filters_per_source_software(
+    source_software, expected_file_filter, make_napari_viewer_proxy, mocker
+):
+    """Test that the file dialog is opened with the correct filters."""
+    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
+    poses_loader_widget.source_software_combo.setCurrentText(source_software)
+    mock_file_dialog = mocker.patch(
+        "movement.napari._loader_widgets.QFileDialog.getOpenFileName",
+        return_value=("", None),
+    )
+    poses_loader_widget._on_browse_clicked()
+    mock_file_dialog.assert_called_once_with(
+        poses_loader_widget,
+        caption="Open file containing predicted poses",
+        filter=expected_file_filter,
+    )
+
+
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
     # Instantiate the napari viewer and the poses loader widget
