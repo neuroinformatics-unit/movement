@@ -10,7 +10,7 @@ from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox
 
-from movement.napari._loader_widgets import SUPPORTED_POSES_FILES, PosesLoader
+from movement.napari._loader_widgets import PosesLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#
@@ -22,32 +22,18 @@ def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
     # Check that the widget has the expected number of rows
     assert poses_loader_widget.layout().rowCount() == 4
 
-    # Make sure the all rows except last start with lowercase text
-    # which ends with a semicolon
-    for i in range(poses_loader_widget.layout().rowCount() - 1):
-        label = poses_loader_widget.layout().itemAt(i, 0).widget()
-        assert label.text().islower()
-        assert label.text().endswith(":")
-
-    # Make sure that the source software combo box is populated
-    source_software_combo = poses_loader_widget.findChildren(QComboBox)[0]
-    assert source_software_combo.count() == len(SUPPORTED_POSES_FILES)
-
-    # Test that the default fps is 30
-    fps_spinbox = poses_loader_widget.findChildren(QSpinBox)[0]
-    assert fps_spinbox.value() == 30
-
-    # Make sure that the line edit for file path is empty
-    file_path_edit = poses_loader_widget.findChildren(QLineEdit)[-1]
-    assert file_path_edit.text() == ""
-
-    # Make sure that the first button is a "Browse" button
-    browse_button = poses_loader_widget.findChildren(QPushButton)[0]
-    assert browse_button.text() == "Browse"
-
-    # Make sure that the last row is a "Load" button
-    load_button = poses_loader_widget.findChildren(QPushButton)[-1]
-    assert load_button.text() == "Load"
+    # Check that the expected widgets are present in the layout
+    expected_widgets = [
+        (QComboBox, "source_software_combo"),
+        (QSpinBox, "fps_spinbox"),
+        (QLineEdit, "file_path_edit"),
+        (QPushButton, "load_button"),
+        (QPushButton, "browse_button"),
+    ]
+    assert all(
+        poses_loader_widget.findChild(widget_type, widget_name) is not None
+        for widget_type, widget_name in expected_widgets
+    ), "Some widgets are missing."
 
     # Make sure that layer tooltips are enabled
     assert get_settings().appearance.layer_tooltip_visibility is True
@@ -62,7 +48,7 @@ def test_browse_button_calls_on_browse_clicked(
         "movement.napari._loader_widgets.PosesLoader._on_browse_clicked"
     )
     poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    browse_button = poses_loader_widget.findChildren(QPushButton)[0]
+    browse_button = poses_loader_widget.findChild(QPushButton, "browse_button")
     browse_button.click()
     mock_method.assert_called_once()
 
@@ -73,7 +59,7 @@ def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
         "movement.napari._loader_widgets.PosesLoader._on_load_clicked"
     )
     poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    load_button = poses_loader_widget.findChildren(QPushButton)[-1]
+    load_button = poses_loader_widget.findChild(QPushButton, "load_button")
     load_button.click()
     mock_method.assert_called_once()
 

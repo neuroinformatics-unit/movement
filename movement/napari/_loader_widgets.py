@@ -50,12 +50,14 @@ class PosesLoader(QWidget):
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
+        self.source_software_combo.setObjectName("source_software_combo")
         self.source_software_combo.addItems(SUPPORTED_POSES_FILES.keys())
         self.layout().addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
         """Create a spinbox for selecting the frames per second (fps)."""
         self.fps_spinbox = QSpinBox()
+        self.fps_spinbox.setObjectName("fps_spinbox")
         self.fps_spinbox.setMinimum(1)
         self.fps_spinbox.setMaximum(1000)
         self.fps_spinbox.setValue(30)
@@ -69,7 +71,9 @@ class PosesLoader(QWidget):
         """
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
+        self.file_path_edit.setObjectName("file_path_edit")
         self.browse_button = QPushButton("Browse")
+        self.browse_button.setObjectName("browse_button")
         self.browse_button.clicked.connect(self._on_browse_clicked)
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
@@ -80,6 +84,7 @@ class PosesLoader(QWidget):
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
+        self.load_button.setObjectName("load_button")
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
 
