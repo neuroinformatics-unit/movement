@@ -374,7 +374,7 @@ def _numpy_arrays_from_via_tracks_file(
         Path to the VIA tracks .csv file containing the bounding boxes' tracks.
 
     frame_regexp : str
-        Regular expression pattern to extract the frame number from the
+        Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
         by the file extension.
@@ -537,10 +537,10 @@ def _extract_frame_number_from_via_tracks_df(
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
     frame_regexp : str
-        Regular expression pattern to extract the frame number from the
-        filename. The frame number is expected to be encoded in the filename
-        as an integer number led by at least one zero, followed by the file
-        extension.
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed by
+        the file extension.
 
     Returns
     -------
