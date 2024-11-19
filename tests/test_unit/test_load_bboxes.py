@@ -91,8 +91,8 @@ def create_df_input_via_tracks():
         else:
             return update_attribute_column(
                 df_input=df,
-                attribute_column_name=attribute_column_name, 
-                dict_to_append=dict_to_append, 
+                attribute_column_name=attribute_column_name,
+                dict_to_append=dict_to_append,
             )
 
     return _create_df_input_via_tracks
