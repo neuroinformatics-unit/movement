@@ -3,33 +3,32 @@
 import numpy as np
 import pandas as pd
 import pytest
+from pandas.testing import assert_frame_equal
 
 from movement.napari.convert import poses_to_napari_tracks
 
 
 @pytest.fixture
-def confidence_with_some_nan(valid_poses_dataset):
+def confidence_with_some_nan(valid_poses_dataset_uniform_linear_motion):
     """Return a valid poses dataset with some NaNs in confidence values."""
-    valid_poses_dataset["confidence"].loc[
-        {"individuals": "ind1", "time": [3, 7, 8]}
-    ] = np.nan
-    return valid_poses_dataset
+    ds = valid_poses_dataset_uniform_linear_motion
+    ds["confidence"].loc[{"individuals": "id_1", "time": [3, 7, 8]}] = np.nan
+    return ds
 
 
 @pytest.fixture
-def confidence_with_all_nan(valid_poses_dataset):
+def confidence_with_all_nan(valid_poses_dataset_uniform_linear_motion):
     """Return a valid poses dataset with all NaNs in confidence values."""
-    valid_poses_dataset["confidence"].data = np.full_like(
-        valid_poses_dataset["confidence"].data, np.nan
-    )
-    return valid_poses_dataset
+    ds = valid_poses_dataset_uniform_linear_motion
+    ds["confidence"].data = np.full_like(ds["confidence"].data, np.nan)
+    return ds
 
 
 @pytest.mark.parametrize(
     "ds_name",
     [
-        "valid_poses_dataset",
-        "valid_poses_dataset_with_nan",
+        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset_uniform_linear_motion_with_nans",
         "confidence_with_some_nan",
         "confidence_with_all_nan",
     ],
@@ -46,43 +45,45 @@ def test_valid_poses_to_napari_tracks(ds_name, request):
 
     data, props = poses_to_napari_tracks(ds)
 
-    # Check the types and shapes of the returned values
-    assert isinstance(data, np.ndarray)
-    assert data.shape == (n_frames * n_tracks, 4)
-    assert isinstance(props, pd.DataFrame)
-    assert len(props) == n_frames * n_tracks
+    # Prepare expected y, x positions and corresponding confidence values.
+    # Assume values are extracted from the dataset in a specific way,
+    # by iterating first over individuals and then over keypoints.
+    y_coords, x_coords, confidence = [], [], []
+    for id in ds.individuals.values:
+        for kpt in ds.keypoints.values:
+            position = ds.position.sel(individuals=id, keypoints=kpt)
+            y_coords.extend(position.sel(space="y").values)
+            x_coords.extend(position.sel(space="x").values)
+            conf = ds.confidence.sel(individuals=id, keypoints=kpt)
+            confidence.extend(conf.values)
 
-    # Check that the data array has the expected values
-    # first column should be each track id repeated for n_frames
+    # Generate expected data array
     expected_track_ids = np.repeat(np.arange(n_tracks), n_frames)
-    np.testing.assert_allclose(data[:, 0], expected_track_ids)
-    # 2nd column should be each frame ids repeated for n_tracks
     expected_frame_ids = np.tile(np.arange(n_frames), n_tracks)
-    np.testing.assert_allclose(data[:, 1], expected_frame_ids)
-    # The last two columns should be the y and x coordinates
-    base = np.arange(n_frames, dtype=float)
-    expected_yx = np.column_stack(
-        (np.tile(base * 4, n_tracks), np.tile(base * base, n_tracks))
+    expected_yx = np.column_stack((y_coords, x_coords))
+    expected_data = np.column_stack(
+        (expected_track_ids, expected_frame_ids, expected_yx)
     )
-    if ds_name == "valid_poses_dataset_with_nan":
-        expected_yx[[3, 7, 8, 13, 17, 18]] = np.nan
-    np.testing.assert_allclose(data[:, 2:], expected_yx, equal_nan=True)
 
-    # Check that the properties dataframe has the expected values
-    expected_columns = ["individual", "keypoint", "time", "confidence"]
-    assert all(col in props.columns for col in expected_columns)
+    # Generate expected properties DataFrame
+    expected_props = pd.DataFrame(
+        {
+            "individual": np.repeat(
+                ds.individuals.values.repeat(n_keypoints), n_frames
+            ),
+            "keypoint": np.repeat(
+                np.tile(ds.keypoints.values, n_individuals), n_frames
+            ),
+            "time": expected_frame_ids,
+            "confidence": confidence,
+        }
+    )
 
-    # check that the properties match their expected values
-    # note: track_id should be individual_id * n_keypoints + keypoint_id
-    expected_individuals = [
-        f"ind{i}" for i in expected_track_ids // n_keypoints + 1
-    ]
-    assert np.array_equal(props["individual"], expected_individuals)
-    expected_keypoints = [
-        f"key{i}" for i in expected_track_ids % n_keypoints + 1
-    ]
-    assert np.array_equal(props["keypoint"], expected_keypoints)
-    np.testing.assert_allclose(props["time"], expected_frame_ids)
+    # Assert that the data array matches the expected data
+    np.testing.assert_allclose(data, expected_data, equal_nan=True)
+
+    # Assert that the properties DataFrame matches the expected properties
+    assert_frame_equal(props, expected_props)
 
 
 @pytest.mark.parametrize(
