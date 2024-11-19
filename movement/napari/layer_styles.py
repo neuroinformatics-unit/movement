@@ -27,10 +27,6 @@ class LayerStyle:
 class PointsStyle(LayerStyle):
     """Style properties for a napari Points layer."""
 
-    name: str
-    properties: pd.DataFrame
-    visible: bool = True
-    blending: str = "translucent"
     symbol: str = "disc"
     size: int = 10
     border_width: int = 0
