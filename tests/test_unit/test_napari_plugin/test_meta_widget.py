@@ -4,7 +4,7 @@ from movement.napari._meta_widget import MovementMetaWidget
 
 
 def test_meta_widget_instantiation(make_napari_viewer_proxy):
-    """Test that the meta widget can be properly instanctiated."""
+    """Test that the meta widget can be properly instantiated."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
 
