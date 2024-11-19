@@ -153,14 +153,15 @@ def test_on_load_clicked_with_valid_file_path(
     assert poses_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
-    expected_log_messages = [
+    # Check that the expected log messages were emitted
+    expected_log_messages = {
         "Converted poses dataset to a napari Tracks array.",
-        "Tracks array shape: ",
+        "Tracks array shape: (2170, 4)",
         "Added poses dataset as a napari Points layer.",
-        "Set napari playback speed to ",
-    ]
-    for msg in expected_log_messages:
-        assert any(msg in record.getMessage() for record in caplog.records)
+        "Set napari playback speed to 60 fps.",
+    }
+    log_messages = {record.getMessage() for record in caplog.records}
+    assert expected_log_messages <= log_messages
 
     # Check that a Points layer was added to the viewer
     points_layer = poses_loader_widget.viewer.layers[0]
