@@ -52,30 +52,22 @@ def poses_to_napari_tracks(ds: xr.Dataset) -> tuple[np.ndarray, pd.DataFrame]:
     .. [2] https://napari.org/stable/howtos/layers/points.html
 
     """
-    ds_ = ds.copy()  # make a copy to avoid modifying the original dataset
-
-    n_frames = ds_.sizes["time"]
-    n_individuals = ds_.sizes["individuals"]
-    n_keypoints = ds_.sizes["keypoints"]
+    n_frames = ds.sizes["time"]
+    n_individuals = ds.sizes["individuals"]
+    n_keypoints = ds.sizes["keypoints"]
     n_tracks = n_individuals * n_keypoints
-
-    # assign unique integer ids to individuals and keypoints
-    ds_.coords["individual_ids"] = ("individuals", range(n_individuals))
-    ds_.coords["keypoint_ids"] = ("keypoints", range(n_keypoints))
-
-    # Stack 3 dimensions into a new single dimension named "tracks"
-    ds_ = ds_.stack(tracks=("individuals", "keypoints", "time"))
-    # Track ids are unique ints (individual_id * n_keypoints + keypoint_id)
-    individual_ids = ds_.coords["individual_ids"].values
-    keypoint_ids = ds_.coords["keypoint_ids"].values
-    track_ids = (individual_ids * n_keypoints + keypoint_ids).reshape(-1, 1)
-
     # Construct the napari Tracks array
-    yx_columns = np.fliplr(ds_["position"].values.T)
-    time_column = np.tile(range(n_frames), n_tracks).reshape(-1, 1)
-    data = np.hstack((track_ids, time_column, yx_columns))
-
+    # Reorder axes to (individuals, keypoints, frames, xy)
+    yx_cols = np.transpose(ds.position.values, (1, 2, 0, 3)).reshape(-1, 2)[
+        :, [1, 0]  # swap x and y columns
+    ]
+    # Each keypoint of each individual is a separate track
+    track_id_col = np.repeat(np.arange(n_tracks), n_frames).reshape(-1, 1)
+    time_col = np.tile(np.arange(n_frames), (n_tracks)).reshape(-1, 1)
+    data = np.hstack((track_id_col, time_col, yx_cols))
     # Construct the properties DataFrame
+    # Stack 3 dimensions into a new single dimension named "tracks"
+    ds_ = ds.stack(tracks=("individuals", "keypoints", "time"))
     properties = _construct_properties_dataframe(ds_)
 
     return data, properties
