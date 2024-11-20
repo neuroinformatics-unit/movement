@@ -3,7 +3,7 @@
 from brainglobe_utils.qtpy.collapsible_widget import CollapsibleWidgetContainer
 from napari.viewer import Viewer
 
-from movement.napari._loader_widget import Loader
+from movement.napari._loader_widgets import PosesLoader
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -18,9 +18,9 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         super().__init__()
 
         self.add_widget(
-            Loader(napari_viewer, parent=self),
+            PosesLoader(napari_viewer, parent=self),
             collapsible=True,
-            widget_title="Load data",
+            widget_title="Load poses",
         )
 
         self.loader = self.collapsible_widgets[0]
