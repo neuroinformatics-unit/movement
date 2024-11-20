@@ -181,6 +181,7 @@ linkcheck_ignore = [
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
 ]
 
+
 myst_url_schemes = {
     "http": None,
     "https": None,
