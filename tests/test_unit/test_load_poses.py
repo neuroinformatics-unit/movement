@@ -301,7 +301,7 @@ class TestLoadPoses:
         )
         self.assert_dataset(ds, expected_source_software=source_software)
 
-    def from_multiview_files(self):
+    def test_from_multiview_files(self):
         """Test that the from_file() function delegates to the correct
         loader function according to the source_software.
         """
@@ -310,8 +310,7 @@ class TestLoadPoses:
             view: DATA_PATHS.get("DLC_single-wasp.predictions.h5")
             for view in view_names
         }
-
-        multi_view_ds = load_poses.from_multi_view(
+        multi_view_ds = load_poses.from_multiview_files(
             file_path_dict, source_software="DeepLabCut"
         )
 
