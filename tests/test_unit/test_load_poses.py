@@ -301,7 +301,7 @@ class TestLoadPoses:
         )
         self.assert_dataset(ds, expected_source_software=source_software)
 
-    def test_from_multi_view(self):
+    def from_multiview_files(self):
         """Test that the from_file() function delegates to the correct
         loader function according to the source_software.
         """
