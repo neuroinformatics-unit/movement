@@ -351,7 +351,7 @@ def from_dlc_file(
     )
 
 
-def from_multi_view(
+def from_multiview_files(
     file_path_dict: dict[str, Path | str],
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: float | None = None,
