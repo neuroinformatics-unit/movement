@@ -82,14 +82,9 @@ def test_layer_style_initialization(
 
 def test_layer_style_as_kwargs(sample_layer_style, default_style_attributes):
     """Test that the as_kwargs method returns the correct dictionary."""
-    style = sample_layer_style(LayerStyle)
-    expected_attrs = default_style_attributes[LayerStyle].copy()
-    for attr, expected_value in expected_attrs.items():
-        actual_value = style.as_kwargs()[attr]
-        if isinstance(expected_value, pd.DataFrame):
-            assert actual_value.equals(expected_value)
-        else:
-            assert actual_value == expected_value
+    style = sample_layer_style(LayerStyle).as_kwargs()
+    expected_attrs = default_style_attributes[LayerStyle]
+    assert style == expected_attrs
 
 
 @pytest.mark.parametrize(
