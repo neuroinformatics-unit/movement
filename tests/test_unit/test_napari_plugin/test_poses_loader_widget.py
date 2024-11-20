@@ -40,27 +40,17 @@ def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
 
 
 # --------test connection between widget buttons and methods------------------#
-def test_browse_button_calls_on_browse_clicked(
-    make_napari_viewer_proxy, mocker
+@pytest.mark.parametrize("button", ["browse", "load"])
+def test_button_connected_to_on_clicked(
+    make_napari_viewer_proxy, mocker, button
 ):
-    """Test that clicking the 'Browse' button calls the right function."""
+    """Test that clicking a button calls the right function."""
     mock_method = mocker.patch(
-        "movement.napari._loader_widgets.PosesLoader._on_browse_clicked"
+        f"movement.napari._loader_widgets.PosesLoader._on_{button}_clicked"
     )
     poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    browse_button = poses_loader_widget.findChild(QPushButton, "browse_button")
-    browse_button.click()
-    mock_method.assert_called_once()
-
-
-def test_load_button_calls_on_load_clicked(make_napari_viewer_proxy, mocker):
-    """Test that clicking the 'Load' button calls the right function."""
-    mock_method = mocker.patch(
-        "movement.napari._loader_widgets.PosesLoader._on_load_clicked"
-    )
-    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    load_button = poses_loader_widget.findChild(QPushButton, "load_button")
-    load_button.click()
+    button = poses_loader_widget.findChild(QPushButton, f"{button}_button")
+    button.click()
     mock_method.assert_called_once()
 
 
