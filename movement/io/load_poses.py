@@ -371,8 +371,8 @@ def from_multiview_files(
     Returns
     -------
     xarray.Dataset
-        Dataset containing the pose tracks, confidence scores, and metadata,
-        with an additional views dimension.
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata, with an additional ``views`` dimension.
 
     """
     views_list = list(file_path_dict.keys())
