@@ -16,6 +16,19 @@ To discuss the specifics of both types of `movement` datasets, it is useful to c
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
 
+:::{dropdown} Additional dimensions
+:color: info
+:icon: info
+The above **dimensions** and **coordinates** are created
+by default when loading a `movement` dataset from a single
+file containing pose or bounding boxes tracks.
+
+In some cases, you may encounter or create datasets with extra
+**dimensions**. For example, the
+{func}`movement.io.load_poses.from_multiview_files()` function
+creates an additional `views` **dimension**,
+with the **coordinates** being the names given to each camera view.
+:::
 
 ## Dataset structure
 
