@@ -16,20 +16,6 @@ To discuss the specifics of both types of `movement` datasets, it is useful to c
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
 
-:::{dropdown} Additional dimensions
-:color: info
-:icon: info
-The above **dimensions** and **coordinates** are created
-by default when loading a `movement` dataset from a single
-file containing pose or bounding boxes tracks.
-
-In some cases, you may encounter or create datasets with extra
-**dimensions**. For example, the
-{func}`movement.io.load_poses.from_multiview_files()` function
-creates an additional `views` **dimension**,
-with the **coordinates** being the names given to each camera view.
-:::
-
 ## Dataset structure
 
 ```{figure} ../_static/dataset_structure.png
@@ -147,6 +133,20 @@ In both cases, appropriate **coordinates** are assigned to each **dimension**.
 - `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc. Note that this dimension only exists in the poses dataset.
 - `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D). Note that bounding boxes datasets are restricted to 2D space.
 - `time` is labelled in seconds if `fps` is provided, otherwise the **coordinates** are expressed in frames (ascending 0-indexed integers).
+
+:::{dropdown} Additional dimensions
+:color: info
+:icon: info
+The above **dimensions** and **coordinates** are created
+by default when loading a `movement` dataset from a single
+file containing pose or bounding boxes tracks.
+
+In some cases, you may encounter or create datasets with extra
+**dimensions**. For example, the
+{func}`movement.io.load_poses.from_multiview_files()` function
+creates an additional `views` **dimension**,
+with the **coordinates** being the names given to each camera view.
+:::
 
 ### Data variables
 The data variables in a `movement` dataset are the arrays that hold the actual data, as {class}`xarray.DataArray` objects.
