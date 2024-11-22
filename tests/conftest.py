@@ -397,9 +397,9 @@ def valid_poses_dataset(valid_position_array, request):
         },
         coords={
             "time": np.arange(n_frames),
-            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
-            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
             "space": ["x", "y"],
+            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
+            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
         },
         attrs={
             "fps": None,
@@ -408,7 +408,7 @@ def valid_poses_dataset(valid_position_array, request):
             "source_file": "test.h5",
             "ds_type": "poses",
         },
-    )
+    ).transpose("time", "space", "keypoints", "individuals")
 
 
 @pytest.fixture
@@ -504,9 +504,9 @@ def valid_poses_dataset_uniform_linear_motion(
         },
         coords={
             dim_names[0]: np.arange(n_frames),
-            dim_names[1]: [f"id_{i}" for i in range(1, n_individuals + 1)],
-            dim_names[2]: ["centroid", "left", "right"],
             dim_names[3]: ["x", "y"],
+            dim_names[2]: ["centroid", "left", "right"],
+            dim_names[1]: [f"id_{i}" for i in range(1, n_individuals + 1)],
         },
         attrs={
             "fps": None,
@@ -515,7 +515,7 @@ def valid_poses_dataset_uniform_linear_motion(
             "source_file": "test_poses.h5",
             "ds_type": "poses",
         },
-    )
+    ).transpose("time", "space", "keypoints", "individuals")
 
 
 @pytest.fixture

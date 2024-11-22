@@ -699,9 +699,9 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: data.individual_names,
-            DIM_NAMES[2]: data.keypoint_names,
             DIM_NAMES[3]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[2]: data.keypoint_names,
+            DIM_NAMES[1]: data.individual_names,
         },
         attrs={
             "fps": data.fps,
@@ -710,4 +710,4 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "poses",
         },
-    )
+    ).transpose("time", "space", "keypoints", "individuals")

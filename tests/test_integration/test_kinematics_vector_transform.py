@@ -72,16 +72,16 @@ def test_cart2pol_transform_on_kinematics(
 
     # Build expected data array
     expected_array_pol = xr.DataArray(
-        np.stack(expected_kinematics_polar, axis=1),
+        np.stack(expected_kinematics_polar, axis=-1),
         # Stack along the "individuals" axis
-        dims=["time", "individuals", "space"],
+        dims=["time", "space", "individuals"],
     )
     if "keypoints" in ds.position.coords:
         expected_array_pol = expected_array_pol.expand_dims(
             {"keypoints": ds.position.coords["keypoints"].size}
         )
         expected_array_pol = expected_array_pol.transpose(
-            "time", "individuals", "keypoints", "space"
+            "time", "space", "keypoints", "individuals"
         )
 
     # Compare the values of the kinematic_array against the expected_array

@@ -35,13 +35,16 @@ def _ds_to_dlc_style_df(
 
     """
     # Concatenate the pose tracks and confidence scores into one array
+    # and reverse the order of the dimensions except for the time dimension
     tracks_with_scores = np.concatenate(
         (
             ds.position.data,
-            ds.confidence.data[..., np.newaxis],
+            ds.confidence.data[:, np.newaxis, ...],
         ),
-        axis=-1,
+        axis=1,
     )
+    transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
+    tracks_with_scores = tracks_with_scores.transpose(transpose_order)
 
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
@@ -320,9 +323,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
     pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
-    track_occupancy = (~np.all(np.isnan(pos_x), axis=2)).astype(int)
-    tracks = np.transpose(ds.position.data, (1, 3, 2, 0))
-    point_scores = np.transpose(ds.confidence.data, (1, 2, 0))
+    track_occupancy = (~np.all(np.isnan(pos_x), axis=1)).astype(int)
+    tracks = np.transpose(ds.position.data, (3, 1, 2, 0))
+    point_scores = np.transpose(ds.confidence.data, (2, 1, 0))
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     labels_path = (
