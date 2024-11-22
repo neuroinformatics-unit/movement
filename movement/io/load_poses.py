@@ -351,6 +351,41 @@ def from_dlc_file(
     )
 
 
+def from_multiview_files(
+    file_path_dict: dict[str, Path | str],
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Load and merge pose tracking data from multiple views (cameras).
+
+    Parameters
+    ----------
+    file_path_dict : dict[str, Union[Path, str]]
+        A dict whose keys are the view names and values are the paths to load.
+    source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
+        The source software of the file.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the `time` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata, with an additional ``views`` dimension.
+
+    """
+    views_list = list(file_path_dict.keys())
+    new_coord_views = xr.DataArray(views_list, dims="view")
+
+    dataset_list = [
+        from_file(f, source_software=source_software, fps=fps)
+        for f in file_path_dict.values()
+    ]
+
+    return xr.concat(dataset_list, dim=new_coord_views)
+
+
 def _ds_from_lp_or_dlc_file(
     file_path: Path | str,
     source_software: Literal["LightningPose", "DeepLabCut"],
