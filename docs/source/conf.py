@@ -205,3 +205,7 @@ intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }
+
+# From https://www.sphinx-doc.org/en/master/usage/advanced/intl.html 
+# locale_dirs = ["locale/"]  # path is example but recommended.
+# gettext_compact = False  # optional.
