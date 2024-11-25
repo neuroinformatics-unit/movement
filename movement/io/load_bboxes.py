@@ -700,4 +700,4 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "bboxes",
         },
-    )
+    ).transpose("time", "space", "individuals")

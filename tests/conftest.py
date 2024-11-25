@@ -318,7 +318,7 @@ def valid_bboxes_dataset(
             "source_file": "test_bboxes.csv",
             "ds_type": "bboxes",
         },
-    )
+    ).transpose("time", "space", "individuals")
 
 
 @pytest.fixture

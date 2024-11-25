@@ -206,16 +206,19 @@ def assert_dataset(
         assert isinstance(dataset[var], xr.DataArray)
     assert dataset.position.ndim == 3
     assert dataset.shape.ndim == 3
-    assert dataset.confidence.shape == dataset.position.shape[:-1]
-
+    position_shape = dataset.position.shape
+    # Confidence has the same shape as position, except for the space dim
+    assert dataset.confidence.shape == position_shape[:1] + position_shape[2:]
     # Check the dims and coords
     DIM_NAMES = ValidBboxesDataset.DIM_NAMES
-    assert all([i in dataset.dims for i in DIM_NAMES])
-    for d, dim in enumerate(DIM_NAMES[1:]):
-        assert dataset.sizes[dim] == dataset.position.shape[d + 1]
-        assert all([isinstance(s, str) for s in dataset.coords[dim].values])
-    assert all([i in dataset.coords["space"] for i in ["x", "y"]])
-
+    expected_dim_length_dict = {
+        DIM_NAMES[idx]: position_shape[i] for i, idx in enumerate([0, 2, 1])
+    }
+    assert expected_dim_length_dict == dataset.sizes
+    # Check the coords
+    for dim in DIM_NAMES[1:]:
+        assert all(isinstance(s, str) for s in dataset.coords[dim].values)
+    assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
     # Check the metadata attributes
     assert (
         dataset.source_file is None
