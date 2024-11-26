@@ -428,11 +428,11 @@ def _numpy_arrays_from_via_tracks_file(
             df[map_key_to_columns[key]].to_numpy(),
             indices_id_switch,  # indices along axis=0
         )
-        array_dict[key] = np.stack(list_arrays, axis=1)
+        array_dict[key] = np.stack(list_arrays, axis=-1)
 
         # squeeze only last dimension if it is 1
-        if array_dict[key].shape[-1] == 1:
-            array_dict[key] = array_dict[key].squeeze(axis=-1)
+        if array_dict[key].shape[1] == 1:
+            array_dict[key] = array_dict[key].squeeze(axis=1)
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
@@ -677,21 +677,21 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         time_unit = "seconds"
 
     # Convert data to an xarray.Dataset
-    # with dimensions ('time', 'individuals', 'space')
+    # with dimensions ('time', 'space', 'individuals')
     DIM_NAMES = ValidBboxesDataset.DIM_NAMES
-    n_space = data.position_array.shape[-1]
+    n_space = data.position_array.shape[1]
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:-1]
+                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
             ),
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: data.individual_names,
-            DIM_NAMES[2]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[2]: data.individual_names,
         },
         attrs={
             "fps": data.fps,
@@ -700,4 +700,4 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "bboxes",
         },
-    ).transpose("time", "space", "individuals")
+    )

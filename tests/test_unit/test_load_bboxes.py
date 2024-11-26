@@ -176,8 +176,8 @@ def create_valid_from_numpy_inputs():
     def _create_valid_from_numpy_inputs(with_frame_array=False):
         """Return a dictionary of valid inputs to the `from_numpy` function."""
         required_inputs = {
-            "position_array": rng.random((n_frames, n_individuals, n_space)),
-            "shape_array": rng.random((n_frames, n_individuals, n_space)),
+            "position_array": rng.random((n_frames, n_space, n_individuals)),
+            "shape_array": rng.random((n_frames, n_space, n_individuals)),
             "confidence_array": rng.random((n_frames, n_individuals)),
             "individual_names": [
                 f"id_{id}" for id in individual_names_array.squeeze()
@@ -210,13 +210,13 @@ def assert_dataset(
     # Confidence has the same shape as position, except for the space dim
     assert dataset.confidence.shape == position_shape[:1] + position_shape[2:]
     # Check the dims and coords
-    DIM_NAMES = ValidBboxesDataset.DIM_NAMES
-    expected_dim_length_dict = {
-        DIM_NAMES[idx]: position_shape[i] for i, idx in enumerate([0, 2, 1])
-    }
+    dim_names = ValidBboxesDataset.DIM_NAMES
+    expected_dim_length_dict = dict(
+        zip(dim_names, position_shape, strict=True)
+    )
     assert expected_dim_length_dict == dataset.sizes
     # Check the coords
-    for dim in DIM_NAMES[1:]:
+    for dim in dim_names[1:]:
         assert all(isinstance(s, str) for s in dataset.coords[dim].values)
     assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
     # Check the metadata attributes
@@ -746,6 +746,6 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
 
     # Compare to extracted position array
     assert np.allclose(
-        bboxes_arrays["position_array"],  # frames, individuals, xy
-        np.stack(list_derived_centroids, axis=1),
+        bboxes_arrays["position_array"],  # frames, xy, individuals
+        np.stack(list_derived_centroids, axis=-1),
     )

@@ -82,14 +82,13 @@ class TestLoadPoses:
             dataset.confidence.shape == position_shape[:1] + position_shape[2:]
         )
         # Check the dims
-        DIM_NAMES = ValidPosesDataset.DIM_NAMES
-        expected_dim_length_dict = {
-            DIM_NAMES[idx]: position_shape[i]
-            for i, idx in enumerate([0, 3, 2, 1])
-        }
+        dim_names = ValidPosesDataset.DIM_NAMES
+        expected_dim_length_dict = dict(
+            zip(dim_names, position_shape, strict=True)
+        )
         assert expected_dim_length_dict == dataset.sizes
         # Check the coords
-        for dim in DIM_NAMES[1:]:
+        for dim in dim_names[1:]:
             assert all(isinstance(s, str) for s in dataset.coords[dim].values)
         assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
         # Check the metadata attributes

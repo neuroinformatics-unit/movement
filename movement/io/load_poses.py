@@ -194,15 +194,17 @@ def from_dlc_style_df(
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
 
-    # reshape the data into (n_frames, n_individuals, n_keypoints, 3)
-    # where the last axis contains "x", "y", "likelihood"
-    tracks_with_scores = df.to_numpy().reshape(
-        (-1, len(individual_names), len(keypoint_names), 3)
+    # reshape the data into (n_frames, 3, n_keypoints, n_individuals)
+    # where the second axis contains "x", "y", "likelihood"
+    tracks_with_scores = (
+        df.to_numpy()
+        .reshape((-1, len(individual_names), len(keypoint_names), 3))
+        .transpose(0, 3, 2, 1)
     )
 
     return from_numpy(
-        position_array=tracks_with_scores[:, :, :, :-1],
-        confidence_array=tracks_with_scores[:, :, :, -1],
+        position_array=tracks_with_scores[:, :-1, :, :],
+        confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
@@ -460,10 +462,10 @@ def _ds_from_sleap_analysis_file(
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
 
     with h5py.File(file.path, "r") as f:
-        # transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)
-        tracks = f["tracks"][:].transpose((3, 0, 2, 1))
+        # transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
+        tracks = f["tracks"][:].transpose((3, 1, 2, 0))
         # Create an array of NaNs for the confidence scores
-        scores = np.full(tracks.shape[:-1], np.nan)
+        scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
             log_warning(
@@ -472,9 +474,9 @@ def _ds_from_sleap_analysis_file(
                 "default individual name."
             )
         # If present, read the point-wise scores,
-        # and transpose to shape: (n_frames, n_tracks, n_keypoints)
+        # and transpose to shape: (n_frames, n_keypoints, n_tracks)
         if "point_scores" in f:
-            scores = f["point_scores"][:].transpose((2, 0, 1))
+            scores = f["point_scores"][:].T
         return from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),
@@ -516,8 +518,8 @@ def _ds_from_sleap_labels_file(
             "default individual name."
         )
     return from_numpy(
-        position_array=tracks_with_scores[:, :, :, :-1],
-        confidence_array=tracks_with_scores[:, :, :, -1],
+        position_array=tracks_with_scores[:, :-1, :, :],
+        confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
@@ -538,7 +540,8 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     Returns
     -------
     numpy.ndarray
-        A NumPy array containing pose tracks and confidence scores.
+        A NumPy array containing pose tracks and confidence scores,
+        with shape ``(n_frames, 3, n_nodes, n_tracks)``.
 
     Notes
     -----
@@ -568,7 +571,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
-    tracks = np.full((n_frames, n_tracks, n_nodes, 3), np.nan, dtype="float32")
+    tracks = np.full((n_frames, 3, n_nodes, n_tracks), np.nan, dtype="float32")
 
     for lf in lfs:
         i = int(lf.frame_idx - first_frame)
@@ -584,12 +587,12 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
             # Use user-labelled instance if available
             if user_track_instances:
                 inst = user_track_instances[-1]
-                tracks[i, j] = np.hstack(
+                tracks[i, ..., j] = np.hstack(
                     (inst.numpy(), np.full((n_nodes, 1), np.nan))
-                )
+                ).T
             elif predicted_track_instances:
                 inst = predicted_track_instances[-1]
-                tracks[i, j] = inst.numpy(scores=True)
+                tracks[i, ..., j] = inst.numpy(scores=True).T
     return tracks
 
 
@@ -679,7 +682,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
     """
     n_frames = data.position_array.shape[0]
-    n_space = data.position_array.shape[-1]
+    n_space = data.position_array.shape[1]
 
     # Create the time coordinate, depending on the value of fps
     time_coords = np.arange(n_frames, dtype=int)
@@ -694,14 +697,14 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:-1]
+                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
             ),
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[3]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
             DIM_NAMES[2]: data.keypoint_names,
-            DIM_NAMES[1]: data.individual_names,
+            DIM_NAMES[3]: data.individual_names,
         },
         attrs={
             "fps": data.fps,
@@ -710,4 +713,4 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "poses",
         },
-    ).transpose("time", "space", "keypoints", "individuals")
+    )
