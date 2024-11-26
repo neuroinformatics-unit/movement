@@ -3,15 +3,40 @@
 
 ## Mission
 
-``movement`` aims to **facilitate the study of animal behaviour** by providing a suite of **Python tools to analyse body movements** across space and time.
+``movement`` aims to **facilitate the study of animal behaviour**
+by providing a suite of **Python tools to analyse body movements**
+across space and time.
 
 ## Scope
 
-At its core, movement handles trajectories of *keypoints*, which are specific body parts of an *individual*. An individual's posture or *pose* is represented by a set of keypoint coordinates, given in 2D (x,y) or 3D (x,y,z). The sequential collection of poses over time forms *pose tracks*. In neuroscience, these tracks are typically extracted from video data using software like [DeepLabCut](dlc:) or [SLEAP](sleap:).
+At its core, `movement` handles the positions of one or more individuals
+tracked over time. An individual's position at a given time can be represented
+in various ways: a single keypoint (usually the centroid), a set of keypoints
+(also known as the pose), a bounding box, or a segmentation mask.
+The spatial coordinates of these representations may be defined in 2D (x, y)
+or 3D (x, y, z). The pose and mask representations also carry some information
+about the individual's posture.
 
-With movement, our vision is to present a **consistent interface for pose tracks** and to **analyze them using modular and accessible tools**. We aim to accommodate data from a range of pose estimation packages, in **2D or 3D**, tracking **single or multiple individuals**. The focus will be on providing functionalities for data cleaning, visualisation and motion quantification (see the [Roadmap](target-roadmaps) for details).
+Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
+generate these representations from video data by detecting positions and
+tracking them across frames. In the context of `movement`, we refer to the
+resulting tracks according to their respective position representations—for
+example, pose tracks, bounding boxes' tracks, or motion tracks in general.
 
-While movement is not designed for behaviour classification or action segmentation, it may extract features useful for these tasks. We are planning to develop separate packages for this purpose, which will be compatible with movement and the existing ecosystem of related tools.
+Our vision is to present a **consistent interface for motion tracks** and to
+**analyze them using modular and accessible tools**. We aim to accommodate data
+from a range of animal tracking frameworks, in **2D or 3D**, tracking
+**single or multiple individuals**. As such, `movement` can be considered as
+downstream of tools like DeepLabCut and SLEAP. The focus is on providing
+functionalities for data cleaning, visualization, and motion quantification
+(see the [Roadmap](target-roadmaps) for details).
+
+In the study of animal behavior, motion tracks are often used to extract and
+label discrete actions, sometimes referred to as behavioral syllables or
+states. While `movement` is not designed for such tasks, it may generate
+features useful for action segmentation and recognition. We may develop
+packages specialized for this purpose, which will be compatible with
+`movement` and the existing ecosystem of related tools.
 
 ## Design principles
 
