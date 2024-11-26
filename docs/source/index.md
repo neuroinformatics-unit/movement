@@ -17,7 +17,7 @@ Installation, first steps and key concepts.
 :link: examples/index
 :link-type: doc
 
-A gallery of examples using movement.
+A gallery of examples using `movement`.
 :::
 
 :::{grid-item-card} {fas}`comments;sd-text-primary` Join the movement
