@@ -41,6 +41,5 @@ Learn about our data structures.
 
 installation
 input_output
-sample_data
 movement_dataset
 ```
