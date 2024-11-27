@@ -18,13 +18,13 @@ or 3D (x, y, z). The pose and mask representations also carry some information
 about the individual's posture.
 
 Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
-generate these representations from video data by detecting positions and
+generate these representations from video data by detecting body parts and
 tracking them across frames. In the context of `movement`, we refer to the
-resulting tracks according to their respective position representations—for
+resulting tracks according to their respective representations—for
 example, pose tracks, bounding boxes' tracks, or motion tracks in general.
 
-Our vision is to present a **consistent interface for motion tracks** and to
-**analyze them using modular and accessible tools**. We aim to accommodate data
+Our vision is to present a **consistent interface for motion tracks** paired
+with **modular and accessible analysis tools**. We aim to accommodate data
 from a range of animal tracking frameworks, in **2D or 3D**, tracking
 **single or multiple individuals**. As such, `movement` can be considered as
 downstream of tools like DeepLabCut and SLEAP. The focus is on providing
