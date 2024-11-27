@@ -6,7 +6,7 @@ A Python toolbox for analysing animal body movements across space and time.
 ::::{grid} 1 2 2 3
 :gutter: 3
 
-:::{grid-item-card} {fas}`rocket;sd-text-primary` User Guide
+:::{grid-item-card} {fas}`book;sd-text-primary` User Guide
 :link: user_guide/index
 :link-type: doc
 
