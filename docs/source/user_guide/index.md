@@ -1,4 +1,4 @@
-# Getting Started
+# User Guide
 
 Start by [installing the package](installation.md).
 
