@@ -8,8 +8,8 @@ Before you dive deeper, we highly recommend reading about the structure
 and usage of [movement datasets](movement_dataset.md), which are a central
 concept in the package.
 
-::::{grid} 1 2 2 4
-:gutter: 4
+::::{grid} 1 2 2 3
+:gutter: 3
 
 :::{grid-item-card} {fas}`wrench;sd-text-primary` Installation
 :link: installation
@@ -23,13 +23,6 @@ Install the package with `conda` or `pip`.
 :link-type: doc
 
 Load and save tracking data.
-:::
-
-:::{grid-item-card} {fas}`table;sd-text-primary` Sample data
-:link: sample_data
-:link-type: doc
-
-Play with some example datasets.
 :::
 
 :::{grid-item-card} {fas}`table;sd-text-primary` The movement datasets

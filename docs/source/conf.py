@@ -124,7 +124,6 @@ redirects = {
     "getting_started/input_output": "../user_guide/input_output.html",
     "getting_started/installation": "../user_guide/installation.html",
     "getting_started/movement_dataset": "../user_guide/movement_dataset.html",
-    "getting_started/sample_data": "../user_guide/sample_data.html",
 }
 
 # -- Options for HTML output -------------------------------------------------
