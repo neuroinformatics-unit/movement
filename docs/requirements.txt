@@ -8,5 +8,6 @@ sphinx
 sphinx-autodoc-typehints
 sphinx-design
 sphinx-gallery
+sphinx-reredirects
 sphinx-sitemap
 tables
