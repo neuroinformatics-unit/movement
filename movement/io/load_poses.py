@@ -463,7 +463,7 @@ def _ds_from_sleap_analysis_file(
 
     with h5py.File(file.path, "r") as f:
         # transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
-        tracks = f["tracks"][:].transpose((3, 1, 2, 0))
+        tracks = f["tracks"][:].transpose(3, 1, 2, 0)
         # Create an array of NaNs for the confidence scores
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
