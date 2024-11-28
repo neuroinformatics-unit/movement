@@ -890,7 +890,29 @@ class MovementDatasetAsserts:
 
     @staticmethod
     def valid_dataset(dataset, expected_values):
-        """Assert the dataset is a proper ``movement`` Dataset."""
+        """Assert the dataset is a proper ``movement`` Dataset.
+
+        Parameters
+        ----------
+        dataset : xr.Dataset
+            The dataset to validate.
+        expected_values : dict
+            A dictionary containing the expected values for the dataset.
+            It must contain the following keys:
+
+            - dim_names: list of expected dimension names as defined in
+              movement.validators.datasets
+            - vars_dims: dictionary of data variable names and the
+              corresponding dimension sizes
+
+            Optional keys include:
+
+            - file_path: Path to the source file
+            - fps: int, frames per second
+            - source_software: str, name of the software used to generate
+              the dataset
+
+        """
         expected_dim_names = expected_values.get("dim_names")
         expected_file_path = expected_values.get("file_path")
         assert isinstance(dataset, xr.Dataset)
