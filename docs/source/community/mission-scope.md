@@ -19,15 +19,13 @@ about the individual's posture.
 
 Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
 generate these representations from video data by detecting body parts and
-tracking them across frames. In the context of `movement`, we refer to the
-resulting tracks according to their respective representations—for
-example, pose tracks, bounding boxes' tracks, or motion tracks in general.
+tracking them across frames. In the context of `movement`, we refer to these trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories of a set of keypoints, _bounding boxes' tracks_ to refer to the trajectories of bounding boxes' centroids, or _motion tracks_ in the more general case. 
 
-Our vision is to present a **consistent interface for motion tracks** paired
-with **modular and accessible analysis tools**. We aim to accommodate data
+Our vision is to present a **consistent interface for representing motion tracks** along
+with **modular and accessible analysis tools**. We aim to support data
 from a range of animal tracking frameworks, in **2D or 3D**, tracking
 **single or multiple individuals**. As such, `movement` can be considered as
-downstream of tools like DeepLabCut and SLEAP. The focus is on providing
+operating downstream of tools like DeepLabCut and SLEAP. The focus is on providing
 functionalities for data cleaning, visualization, and motion quantification
 (see the [Roadmap](target-roadmaps) for details).
 

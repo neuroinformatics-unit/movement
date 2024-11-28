@@ -3,7 +3,7 @@
 
 This page outlines **current development priorities** and aims to **guide core developers** and to **encourage community contributions**. It is a living document and will be updated as the project evolves.
 
-The roadmaps are **not meant to limit** `movement` features, as we are open to suggestions and contributions. Join our [Zulip chat](movement-zulip:) to share your ideas. We will take community demand and feedback into account when planning future releases.
+The roadmaps are **not meant to limit** `movement` features, as we are open to suggestions and contributions. Join our [Zulip chat](movement-zulip:) to share your ideas. We will take community feedback into account when planning future releases.
 
 ## Long-term vision
 The following features are being considered for the first stable version `v1.0`.
