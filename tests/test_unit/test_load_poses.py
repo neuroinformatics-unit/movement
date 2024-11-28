@@ -68,48 +68,23 @@ def sleap_file_without_tracks(request):
     return request.getfixturevalue(request.param)
 
 
-def assert_dataset(dataset, file_path=None, expected_source_software=None):
-    """Assert that the dataset is a proper xarray Dataset."""
-    assert isinstance(dataset, xr.Dataset)
-    # Expected variables are present and of right shape/type
-    for var in ["position", "confidence"]:
-        assert var in dataset.data_vars
-        assert isinstance(dataset[var], xr.DataArray)
-    assert dataset.position.ndim == 4
-
-    position_shape = dataset.position.shape
-    # Confidence has the same shape as position, except for the space dim
-    assert dataset.confidence.shape == position_shape[:1] + position_shape[2:]
-    # Check the dims
-    dim_names = ValidPosesDataset.DIM_NAMES
-    expected_dim_length_dict = dict(
-        zip(dim_names, position_shape, strict=True)
-    )
-    assert expected_dim_length_dict == dataset.sizes
-    # Check the coords
-    for dim in dim_names[1:]:
-        assert all(isinstance(s, str) for s in dataset.coords[dim].values)
-    assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
-    # Check the metadata attributes
-    assert (
-        dataset.source_file is None
-        if file_path is None
-        else dataset.source_file == file_path.as_posix()
-    )
-    assert (
-        dataset.source_software is None
-        if expected_source_software is None
-        else dataset.source_software == expected_source_software
-    )
-    assert dataset.fps is None
+expected_values_poses = {
+    "vars_dims": {"position": 4, "confidence": 3},
+    "dim_names": ValidPosesDataset.DIM_NAMES,
+}
 
 
-def test_load_from_sleap_file(sleap_file):
+def test_load_from_sleap_file(sleap_file, movement_dataset_asserts):
     """Test that loading pose tracks from valid SLEAP files
     returns a proper Dataset.
     """
     ds = load_poses.from_sleap_file(sleap_file)
-    assert_dataset(ds, sleap_file, "SLEAP")
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "SLEAP",
+        "file_path": sleap_file,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
@@ -167,26 +142,37 @@ def test_load_from_sleap_slp_file_or_h5_file_returns_same(slp_file, h5_file):
         "DLC_two-mice.predictions.csv",
     ],
 )
-def test_load_from_dlc_file(file_name):
+def test_load_from_dlc_file(file_name, movement_dataset_asserts):
     """Test that loading pose tracks from valid DLC files
     returns a proper Dataset.
     """
     file_path = DATA_PATHS.get(file_name)
     ds = load_poses.from_dlc_file(file_path)
-    assert_dataset(ds, file_path, "DeepLabCut")
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "DeepLabCut",
+        "file_path": file_path,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 @pytest.mark.parametrize(
     "source_software", ["DeepLabCut", "LightningPose", None]
 )
-def test_load_from_dlc_style_df(dlc_style_df, source_software):
+def test_load_from_dlc_style_df(
+    dlc_style_df, source_software, movement_dataset_asserts
+):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
     ds = load_poses.from_dlc_style_df(
         dlc_style_df, source_software=source_software
     )
-    assert_dataset(ds, expected_source_software=source_software)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": source_software,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 def test_load_from_dlc_file_csv_or_h5_file_returns_same():
@@ -234,13 +220,18 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
         "LP_mouse-twoview_AIND.predictions.csv",
     ],
 )
-def test_load_from_lp_file(file_name):
+def test_load_from_lp_file(file_name, movement_dataset_asserts):
     """Test that loading pose tracks from valid LightningPose (LP) files
     returns a proper Dataset.
     """
     file_path = DATA_PATHS.get(file_name)
     ds = load_poses.from_lp_file(file_path)
-    assert_dataset(ds, file_path, "LightningPose")
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "LightningPose",
+        "file_path": file_path,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 def test_load_from_lp_or_dlc_file_returns_same():
@@ -289,14 +280,15 @@ def test_from_file_delegates_correctly(source_software, fps):
 
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
-def test_from_numpy_valid(valid_position_array, source_software):
+def test_from_numpy_valid(
+    valid_position_array, source_software, movement_dataset_asserts
+):
     """Test that loading pose tracks from a multi-animal numpy array
     with valid parameters returns a proper Dataset.
     """
     valid_position = valid_position_array("multi_individual_array")
     rng = np.random.default_rng(seed=42)
     valid_confidence = rng.random(valid_position.shape[:-1])
-
     ds = load_poses.from_numpy(
         valid_position,
         valid_confidence,
@@ -305,7 +297,11 @@ def test_from_numpy_valid(valid_position_array, source_software):
         fps=None,
         source_software=source_software,
     )
-    assert_dataset(ds, expected_source_software=source_software)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": source_software,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 def test_from_multiview_files():

@@ -882,3 +882,50 @@ class Helpers:
 def helpers():
     """Return an instance of the ``Helpers`` class."""
     return Helpers
+
+
+# --------- movement dataset assertion fixtures ---------
+class MovementDatasetAsserts:
+    """Class for asserting valid ``movement`` poses or bboxes datasets."""
+
+    @staticmethod
+    def valid_dataset(dataset, expected_values):
+        """Assert the dataset is a proper ``movement`` Dataset."""
+        expected_dim_names = expected_values.get("dim_names")
+        expected_file_path = expected_values.get("file_path")
+        assert isinstance(dataset, xr.Dataset)
+        # Expected variables are present and of right shape/type
+        for var, ndim in expected_values.get("vars_dims").items():
+            data_var = dataset.get(var)
+            assert isinstance(data_var, xr.DataArray)
+            assert data_var.ndim == ndim
+        position_shape = dataset.position.shape
+        # Confidence has the same shape as position, except for the space dim
+        assert (
+            dataset.confidence.shape == position_shape[:1] + position_shape[2:]
+        )
+        # Check the dims and coords
+        expected_dim_length_dict = dict(
+            zip(expected_dim_names, position_shape, strict=True)
+        )
+        assert expected_dim_length_dict == dataset.sizes
+        # Check the coords
+        for dim in expected_dim_names[1:]:
+            assert all(isinstance(s, str) for s in dataset.coords[dim].values)
+        assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
+        # Check the metadata attributes
+        assert dataset.source_file == (
+            expected_file_path.as_posix()
+            if expected_file_path is not None
+            else None
+        )
+        assert dataset.source_software == expected_values.get(
+            "source_software"
+        )
+        assert dataset.fps == expected_values.get("fps")
+
+
+@pytest.fixture
+def movement_dataset_asserts():
+    """Return an instance of the ``MovementDatasetAsserts`` class."""
+    return MovementDatasetAsserts

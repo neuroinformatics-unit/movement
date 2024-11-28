@@ -8,7 +8,6 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
-import xarray as xr
 
 from movement.io import load_bboxes
 from movement.validators.datasets import ValidBboxesDataset
@@ -188,53 +187,44 @@ def create_valid_from_numpy_inputs():
             required_inputs["frame_array"] = np.arange(
                 first_frame_number, first_frame_number + n_frames
             ).reshape(-1, 1)
-
         return required_inputs
 
     return _create_valid_from_numpy_inputs
 
 
-def assert_dataset(
-    dataset, file_path=None, expected_source_software=None, expected_fps=None
-):
-    """Assert that the dataset is a proper ``movement`` Dataset."""
-    assert isinstance(dataset, xr.Dataset)
+@pytest.fixture()
+def df_input_via_tracks_small(via_tracks_file):
+    """Return the first 3 rows of the VIA tracks .csv file as a dataframe."""
+    df = pd.read_csv(via_tracks_file, sep=",", header=0)
+    return df.loc[:2, :]
 
-    # Expected variables are present and of right shape/type
-    for var in ["position", "shape", "confidence"]:
-        assert var in dataset.data_vars
-        assert isinstance(dataset[var], xr.DataArray)
-    assert dataset.position.ndim == 3
-    assert dataset.shape.ndim == 3
-    position_shape = dataset.position.shape
-    # Confidence has the same shape as position, except for the space dim
-    assert dataset.confidence.shape == position_shape[:1] + position_shape[2:]
-    # Check the dims and coords
-    dim_names = ValidBboxesDataset.DIM_NAMES
-    expected_dim_length_dict = dict(
-        zip(dim_names, position_shape, strict=True)
+
+@pytest.fixture()
+def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks .csv file
+    and add confidence values to the bounding boxes.
+    """
+    df = update_attribute_column(
+        df_input=df_input_via_tracks_small,
+        attribute_column_name="region_attributes",
+        dict_to_append={"confidence": "0.5"},
     )
-    assert expected_dim_length_dict == dataset.sizes
-    # Check the coords
-    for dim in dim_names[1:]:
-        assert all(isinstance(s, str) for s in dataset.coords[dim].values)
-    assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
-    # Check the metadata attributes
-    assert (
-        dataset.source_file is None
-        if file_path is None
-        else dataset.source_file == file_path.as_posix()
+
+    return df
+
+
+@pytest.fixture()
+def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
+    """Return a dataframe with the first three rows of the VIA tracks .csv file
+    and add frame number values to the bounding boxes.
+    """
+    df = update_attribute_column(
+        df_input=df_input_via_tracks_small,
+        attribute_column_name="file_attributes",
+        dict_to_append={"frame": "1"},
     )
-    assert (
-        dataset.source_software is None
-        if expected_source_software is None
-        else dataset.source_software == expected_source_software
-    )
-    assert (
-        dataset.fps is None
-        if expected_fps is None
-        else dataset.fps == expected_fps
-    )
+
+    return df
 
 
 def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
@@ -303,6 +293,12 @@ def test_from_file(
             )
 
 
+expected_values_bboxes = {
+    "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
+    "dim_names": ValidBboxesDataset.DIM_NAMES,
+}
+
+
 @pytest.mark.parametrize(
     "via_file_path",
     [
@@ -318,6 +314,7 @@ def test_from_via_tracks_file(
     fps,
     use_frame_numbers_from_file,
     frame_regexp,
+    movement_dataset_asserts,
 ):
     """Test that loading tracked bounding box data from
     a valid VIA tracks .csv file returns a proper Dataset.
@@ -329,7 +326,13 @@ def test_from_via_tracks_file(
         **({"frame_regexp": frame_regexp} if frame_regexp is not None else {}),
     }
     ds = load_bboxes.from_via_tracks_file(**kwargs)
-    assert_dataset(ds, via_file_path, "VIA-tracks", fps)
+    expected_values = {
+        **expected_values_bboxes,
+        "source_software": "VIA-tracks",
+        "fps": fps,
+        "file_path": via_file_path,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
 
 
 @pytest.mark.parametrize(
@@ -388,6 +391,7 @@ def test_from_numpy(
     with_frame_array,
     fps,
     source_software,
+    movement_dataset_asserts,
 ):
     """Test that loading bounding boxes trajectories from the input
     numpy arrays returns a proper Dataset.
@@ -401,15 +405,18 @@ def test_from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    assert_dataset(
-        ds, expected_source_software=source_software, expected_fps=fps
-    )
-
+    expected_values = {
+        **expected_values_bboxes,
+        "source_software": source_software,
+        "fps": fps,
+    }
+    movement_dataset_asserts.valid_dataset(ds, expected_values)
     # check time coordinates are as expected
-    if "frame_array" in from_numpy_inputs:
-        start_frame = from_numpy_inputs["frame_array"][0, 0]
-    else:
-        start_frame = 0
+    start_frame = (
+        from_numpy_inputs["frame_array"][0, 0]
+        if "frame_array" in from_numpy_inputs
+        else 0
+    )
     assert_time_coordinates(ds, fps, start_frame)
 
 
