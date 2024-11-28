@@ -36,12 +36,12 @@ def from_numpy(
     Parameters
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding boxes' centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
@@ -56,7 +56,7 @@ def from_numpy(
         If None (default), bounding boxes are assigned names based on the size
         of the ``position_array``. The names will be in the format of
         ``id_<N>``, where <N>  is an integer from 0 to
-        ``position_array.shape[1]-1`` (i.e., "id_0", "id_1"...).
+        ``position_array.shape[-1]-1`` (i.e., "id_0", "id_1"...).
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
@@ -376,9 +376,9 @@ def _numpy_arrays_from_via_tracks_file(
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
 
-    - position_array (n_frames, n_individuals, n_space):
+    - position_array (n_frames, n_space, n_individuals):
         contains the trajectories of the bounding boxes' centroids.
-    - shape_array (n_frames, n_individuals, n_space):
+    - shape_array (n_frames, n_space, n_individuals):
         contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
         contains the confidence score of each bounding box.

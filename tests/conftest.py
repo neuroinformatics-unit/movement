@@ -358,10 +358,10 @@ def valid_position_array():
     def _valid_position_array(array_type):
         """Return a valid position array."""
         # Unless specified, default is a multi_individual_array with
-        # 10 frames, 2 individuals, and 2 keypoints.
+        # 10 frames, 2 keypoints, and 2 individuals.
         n_frames = 10
-        n_individuals = 2
         n_keypoints = 2
+        n_individuals = 2
         base = np.arange(n_frames, dtype=float)[
             :, np.newaxis, np.newaxis, np.newaxis
         ]
@@ -369,8 +369,8 @@ def valid_position_array():
             n_keypoints = 1
         elif array_type == "single_individual_array":
             n_individuals = 1
-        x_points = np.repeat(base * base, n_individuals * n_keypoints)
-        y_points = np.repeat(base * 4, n_individuals * n_keypoints)
+        x_points = np.repeat(base * base, n_keypoints * n_individuals)
+        y_points = np.repeat(base * 4, n_keypoints * n_individuals)
         position_array = np.vstack((x_points, y_points))
         return position_array.reshape(n_frames, 2, n_keypoints, n_individuals)
 
@@ -396,7 +396,7 @@ def valid_poses_dataset(valid_position_array, request):
             "confidence": xr.DataArray(
                 np.repeat(
                     np.linspace(0.1, 1.0, n_frames),
-                    n_individuals * n_keypoints,
+                    n_keypoints * n_individuals,
                 ).reshape(position_array.shape[:1] + position_array.shape[2:]),
                 dims=dim_names[:1] + dim_names[2:],  # exclude "space"
             ),

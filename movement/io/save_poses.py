@@ -45,7 +45,6 @@ def _ds_to_dlc_style_df(
     # Reverse the order of the dimensions except for the time dimension
     transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
     tracks_with_scores = tracks_with_scores.transpose(transpose_order)
-
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
         data=tracks_with_scores.reshape(ds.sizes["time"], -1),
@@ -53,7 +52,6 @@ def _ds_to_dlc_style_df(
         columns=columns,
         dtype=float,
     )
-
     return df
 
 

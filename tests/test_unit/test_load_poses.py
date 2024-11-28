@@ -269,7 +269,6 @@ def test_from_file_delegates_correctly(source_software, fps):
         "DeepLabCut": "movement.io.load_poses.from_dlc_file",
         "LightningPose": "movement.io.load_poses.from_lp_file",
     }
-
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
             load_poses.from_file("some_file", source_software)
@@ -316,7 +315,6 @@ def test_from_multiview_files():
     multi_view_ds = load_poses.from_multiview_files(
         file_path_dict, source_software="DeepLabCut"
     )
-
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names

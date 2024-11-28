@@ -22,7 +22,6 @@ def get_expected_attributes_dict():
         the input VIA file.
         """
         attributes_dict_per_test_file = {}
-
         # add expected attributes for the first 3 rows of
         # VIA_single-crab_MOCA-crab-1.csv
         attributes_dict_per_test_file["VIA_single-crab_MOCA-crab-1.csv"] = {
@@ -47,7 +46,6 @@ def get_expected_attributes_dict():
                 "track": np.ones((3,)),
             },
         }
-
         # add expected attributes for the first 3 rows of
         # "VIA_multiple-crabs_5-frames_labels.csv"
         attributes_dict_per_test_file[
@@ -70,7 +68,6 @@ def get_expected_attributes_dict():
                 "track": np.array([71, 70, 69]),
             },
         }
-
         # return ValueError if the filename is not defined
         if via_file_name not in attributes_dict_per_test_file:
             raise ValueError(
@@ -104,11 +101,9 @@ def create_df_input_via_tracks():
         """
         # read the VIA tracks .csv file as a dataframe
         df = pd.read_csv(via_file_path, sep=",", header=0)
-
         # optionally return the first 3 rows only
         if small:
             df = df.loc[:2, :]
-
         # optionally modify the dataframe to include data
         # under an attribute column
         if attribute_column_additions is None:
@@ -129,20 +124,17 @@ def update_attribute_column(
     """Update an attributes column in the dataframe."""
     # copy the dataframe
     df = df_input.copy()
-
     # update each attribute column in the dataframe
     for attribute_column_name in attribute_column_additions:
         # get the list of dicts to append to the column
         list_dicts_to_append = attribute_column_additions[
             attribute_column_name
         ]
-
         # get the column to update, and convert it to a list of dicts
         # (one dict per row)
         attributes_dicts = [
             ast.literal_eval(d) for d in df[attribute_column_name]
         ]
-
         # update each dict in the list
         # (if we only have one dict to append, append it to all rows)
         if len(list_dicts_to_append) == 1:
@@ -153,11 +145,9 @@ def update_attribute_column(
                 attributes_dicts, list_dicts_to_append, strict=True
             ):
                 d.update(dict_to_append)
-
         # update the relevant column in the dataframe and format
         # back to string
         df[attribute_column_name] = [str(d) for d in attributes_dicts]
-
     return df
 
 
@@ -165,8 +155,8 @@ def update_attribute_column(
 def create_valid_from_numpy_inputs():
     """Define a factory of valid inputs to "from_numpy" function."""
     n_frames = 5
-    n_individuals = 86
     n_space = 2
+    n_individuals = 86
     individual_names_array = np.arange(n_individuals).reshape(-1, 1)
     first_frame_number = 1  # should match sample file
 
@@ -182,7 +172,6 @@ def create_valid_from_numpy_inputs():
                 f"id_{id}" for id in individual_names_array.squeeze()
             ],
         }
-
         if with_frame_array:
             required_inputs["frame_array"] = np.arange(
                 first_frame_number, first_frame_number + n_frames
@@ -209,7 +198,6 @@ def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
         attribute_column_name="region_attributes",
         dict_to_append={"confidence": "0.5"},
     )
-
     return df
 
 
@@ -223,7 +211,6 @@ def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
         attribute_column_name="file_attributes",
         dict_to_append={"frame": "1"},
     )
-
     return df
 
 
@@ -234,7 +221,6 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     """
     # scale time coordinates with 1/fps if provided
     scale = 1 / fps if fps else 1
-
     # build frame array from start_frame if provided
     if start_frame is not None:
         frame_array = np.array(
@@ -246,7 +232,6 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
             "start_frame takes precedence over frame_array if "
             "both are provided."
         )
-
     # assert numpy array of time coordinates
     np.testing.assert_allclose(
         ds.coords["time"].data, np.array([f * scale for f in frame_array])
@@ -266,7 +251,6 @@ def test_from_file(
     software_to_loader = {
         "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
     }
-
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
             load_bboxes.from_file(
@@ -398,7 +382,6 @@ def test_from_numpy(
     """
     # get the input arrays
     from_numpy_inputs = create_valid_from_numpy_inputs(with_frame_array)
-
     # run general dataset checks
     ds = load_bboxes.from_numpy(
         **from_numpy_inputs,
@@ -471,7 +454,6 @@ def test_via_attribute_column_to_numpy(
         list_keys=list_keys,
         cast_fn=cast_fn,
     )
-
     attributes_dict = get_expected_attributes_dict(
         via_file_path.name
     )  # returns results for the first 3 rows
@@ -526,9 +508,7 @@ def test_extract_confidence_from_via_tracks_df(
         )
     else:
         df = create_df_input_via_tracks(via_file_path, small=True)
-
     confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
-
     assert np.array_equal(
         confidence_array, expected_confidence_array, equal_nan=True
     )
@@ -560,15 +540,12 @@ def test_extract_frame_number_from_via_tracks_df_filenames(
         via_file_path,
         small=True,
     )
-
     # the VIA tracks .csv files have no frames defined under the
     # "file_attributes" so the frame numbers should be extracted
     # from the filenames
     assert not all(["frame" in row for row in df["file_attributes"]])
-
     # extract frame number from df
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
-
     assert np.array_equal(frame_array, expected_frame_array)
 
 
@@ -615,11 +592,9 @@ def test_extract_frame_number_from_via_tracks_df_file_attributes(
         small=True,
         attribute_column_additions=attribute_column_additions,
     )
-
     # extract frame number from the dataframe
     # (should take precedence over the frame numbers in the filenames)
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
-
     assert np.array_equal(frame_array, expected_frame_array)
 
 
@@ -665,16 +640,13 @@ def test_fps_and_time_coords(
         fps=fps,
         use_frame_numbers_from_file=use_frame_numbers_from_file,
     )
-
     # check time unit
     assert ds.time_unit == expected_time_unit
-
     # check fps is as expected
     if bool(expected_fps):
         assert ds.fps == expected_fps
     else:
         assert ds.fps is None
-
     # check loading frame numbers from file
     if use_frame_numbers_from_file:
         assert_time_coordinates(
@@ -701,10 +673,7 @@ def test_df_from_via_tracks_file(
     """Test that the `_df_from_via_tracks_file` helper function correctly
     reads the VIA tracks .csv file as a dataframe.
     """
-    df = load_bboxes._df_from_via_tracks_file(
-        via_file_path,
-    )
-
+    df = load_bboxes._df_from_via_tracks_file(via_file_path)
     assert isinstance(df, pd.DataFrame)
     assert len(df.frame_number.unique()) == expected_n_frames
     assert len(df.ID.unique()) == expected_n_individuals
@@ -737,10 +706,8 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
     bboxes_arrays = load_bboxes._numpy_arrays_from_via_tracks_file(
         via_file_path
     )
-
     # Read VIA tracks .csv file as a dataframe
     df = load_bboxes._df_from_via_tracks_file(via_file_path)
-
     # Compute centroid positions from the dataframe
     # (go through in the same order as ID array)
     list_derived_centroids = []
@@ -750,7 +717,6 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
             [df_one_id.x + df_one_id.w / 2, df_one_id.y + df_one_id.h / 2]
         ).T  # frames, xy
         list_derived_centroids.append(centroid_position)
-
     # Compare to extracted position array
     assert np.allclose(
         bboxes_arrays["position_array"],  # frames, xy, individuals

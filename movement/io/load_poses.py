@@ -31,11 +31,11 @@ def from_numpy(
     Parameters
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+        Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses. It will be converted to a
         :class:`xarray.DataArray` object named "position".
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
@@ -70,7 +70,7 @@ def from_numpy(
     >>> import numpy as np
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_numpy(
-    ...     position_array=np.random.rand((100, 2, 3, 2)),
+    ...     position_array=np.random.rand(100, 2, 3, 2),
     ...     confidence_array=np.ones((100, 2, 3)),
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],
@@ -156,7 +156,7 @@ def from_dlc_style_df(
         be formatted as in DeepLabCut output files (see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
@@ -225,7 +225,7 @@ def from_sleap_file(
         also be supplied (but this feature is experimental, see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -299,7 +299,7 @@ def from_lp_file(
         Path to the file containing the predicted poses, in .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -330,7 +330,7 @@ def from_dlc_file(
         or .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -368,7 +368,7 @@ def from_multiview_files(
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -404,7 +404,7 @@ def _ds_from_lp_or_dlc_file(
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -422,10 +422,12 @@ def _ds_from_lp_or_dlc_file(
     )
 
     # Load the DeepLabCut poses into a DataFrame
-    if file.path.suffix == ".csv":
-        df = _df_from_dlc_csv(file.path)
-    else:  # file.path.suffix == ".h5"
-        df = _df_from_dlc_h5(file.path)
+
+    df = (
+        _df_from_dlc_csv(file.path)
+        if file.path.suffix == ".csv"
+        else _df_from_dlc_h5(file.path)
+    )
 
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
@@ -450,7 +452,7 @@ def _ds_from_sleap_analysis_file(
         Path to the SLEAP analysis file containing predicted pose tracks.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame units.
+        the ``time`` coordinates will be in frame units.
 
     Returns
     -------
@@ -462,7 +464,7 @@ def _ds_from_sleap_analysis_file(
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
 
     with h5py.File(file.path, "r") as f:
-        # transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
+        # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
         tracks = f["tracks"][:].transpose(3, 1, 2, 0)
         # Create an array of NaNs for the confidence scores
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
@@ -498,7 +500,7 @@ def _ds_from_sleap_labels_file(
         Path to the SLEAP labels file containing predicted pose tracks.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame units.
+        the ``time`` coordinates will be in frame units.
 
     Returns
     -------

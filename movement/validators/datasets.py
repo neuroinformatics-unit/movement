@@ -76,10 +76,11 @@ class ValidPosesDataset:
     The validator ensures that within the ``movement poses`` dataset:
 
     - The required ``position_array`` is a numpy array
-      with the last dimension containing 2 or 3 spatial coordinates.
+      with the ``space`` dimension containing 2 or 3 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      with its shape matching the first three dimensions of the
-      ``position_array``; otherwise, it defaults to an array of NaNs.
+      with its shape matching that of the ``position_array``,
+      excluding the ``space`` dimension;
+      otherwise, it defaults to an array of NaNs.
     - The optional ``individual_names`` and ``keypoint_names``,
       if provided, match the number of individuals and keypoints
       in the dataset, respectively; otherwise, default names are assigned.
@@ -90,10 +91,10 @@ class ValidPosesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+        Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses.
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores.
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
@@ -231,10 +232,11 @@ class ValidBboxesDataset:
     within the ``movement bboxes`` dataset:
 
     - The required ``position_array`` and ``shape_array`` are numpy arrays,
-      with the last dimension containing 2 spatial coordinates.
+      with the ``space`` dimension containing 2 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      with its shape matching the first two dimensions of the
-      ``position_array``; otherwise, it defaults to an array of NaNs.
+      with its shape matching that of the ``position_array``,
+      excluding the ``space`` dimension;
+      otherwise, it defaults to an array of NaNs.
     - The optional ``individual_names``, if provided, match the number of
       individuals in the dataset; otherwise, default names are assigned.
     - The optional ``frame_array``, if provided, is a column vector
@@ -247,10 +249,10 @@ class ValidBboxesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding boxes' centroids.
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image).
