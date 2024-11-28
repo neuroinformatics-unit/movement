@@ -259,7 +259,7 @@ def valid_bboxes_arrays():
     # if i is even: along x = y line
     # if i is odd: along x = -y line
     # moving one unit along each axis in each frame
-    position = np.empty((n_frames, n_space, n_individuals))
+    position = np.zeros((n_frames, n_space, n_individuals))
     for i in range(n_individuals):
         position[:, 0, i] = np.arange(n_frames)
         position[:, 1, i] = (-1) ** i * np.arange(n_frames)
@@ -322,7 +322,7 @@ def valid_bboxes_dataset(
             "source_file": "test_bboxes.csv",
             "ds_type": "bboxes",
         },
-    ).transpose("time", "space", "individuals")
+    )
 
 
 @pytest.fixture
@@ -443,7 +443,7 @@ def valid_poses_array_uniform_linear_motion():
     - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
-    n_frames, n_individuals, n_keypoints, n_space = (10, 2, 3, 2)
+    n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
 
     # define centroid (index=0) trajectory in position array
     # for each individual, the centroid moves along
@@ -452,9 +452,9 @@ def valid_poses_array_uniform_linear_motion():
     # - individual 1 moves along x = -y line
     # They move one unit along x and y axes in each frame
     frames = np.arange(n_frames)
-    position = np.empty((n_frames, n_individuals, n_keypoints, n_space))
-    position[:, :, 0, 0] = frames[:, None]  # reshape to (n_frames, 1)
-    position[:, 0, 0, 1] = frames
+    position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
+    position[:, 0, 0, :] = frames[:, None]  # reshape to (n_frames, 1)
+    position[:, 1, 0, 0] = frames
     position[:, 1, 0, 1] = -frames
 
     # define trajectory of left and right keypoints
@@ -470,21 +470,21 @@ def valid_poses_array_uniform_linear_motion():
     ]
     for i in range(n_individuals):
         for kpt in range(1, n_keypoints):
-            position[:, i, kpt, 0] = (
-                position[:, i, 0, 0] + offsets[i][kpt - 1][0]
+            position[:, 0, kpt, i] = (
+                position[:, 0, 0, i] + offsets[i][kpt - 1][0]
             )
-            position[:, i, kpt, 1] = (
-                position[:, i, 0, 1] + offsets[i][kpt - 1][1]
+            position[:, 1, kpt, i] = (
+                position[:, 1, 0, i] + offsets[i][kpt - 1][1]
             )
 
     # build an array of confidence values, all 0.9
-    confidence = np.full((n_frames, n_individuals, n_keypoints), 0.9)
+    confidence = np.full((n_frames, n_keypoints, n_individuals), 0.9)
     # set 5 low-confidence values
     # - set 3 confidence values for individual id_0's centroid to 0.1
     # - set 2 confidence values for individual id_1's centroid to 0.1
     idx_start = 2
     confidence[idx_start : idx_start + 3, 0, 0] = 0.1
-    confidence[idx_start : idx_start + 2, 1, 0] = 0.1
+    confidence[idx_start : idx_start + 2, 0, 1] = 0.1
 
     return {"position": position, "confidence": confidence}
 
@@ -496,24 +496,25 @@ def valid_poses_dataset_uniform_linear_motion(
     """Return a valid poses dataset for two individuals moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
     """
-    dim_names = ("time", "individuals", "keypoints", "space")
-    # ValidPosesDataset.DIM_NAMES
+    dim_names = ValidPosesDataset.DIM_NAMES
 
     position_array = valid_poses_array_uniform_linear_motion["position"]
     confidence_array = valid_poses_array_uniform_linear_motion["confidence"]
 
-    n_frames, n_individuals, _, _ = position_array.shape
+    n_frames, _, _, n_individuals = position_array.shape
 
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
-            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+            "confidence": xr.DataArray(
+                confidence_array, dims=dim_names[:1] + dim_names[2:]
+            ),
         },
         coords={
             dim_names[0]: np.arange(n_frames),
-            dim_names[3]: ["x", "y"],
+            dim_names[1]: ["x", "y"],
             dim_names[2]: ["centroid", "left", "right"],
-            dim_names[1]: [f"id_{i}" for i in range(1, n_individuals + 1)],
+            dim_names[3]: [f"id_{i}" for i in range(1, n_individuals + 1)],
         },
         attrs={
             "fps": None,
@@ -522,7 +523,7 @@ def valid_poses_dataset_uniform_linear_motion(
             "source_file": "test_poses.h5",
             "ds_type": "poses",
         },
-    ).transpose("time", "space", "keypoints", "individuals")
+    )
 
 
 @pytest.fixture
