@@ -31,10 +31,8 @@ functionalities for data cleaning, visualization, and motion quantification
 
 In the study of animal behavior, motion tracks are often used to extract and
 label discrete actions, sometimes referred to as behavioral syllables or
-states. While `movement` is not designed for such tasks, it may generate
-features useful for action segmentation and recognition. We may develop
-packages specialized for this purpose, which will be compatible with
-`movement` and the existing ecosystem of related tools.
+states. While `movement` is not designed for such tasks, it can be used to
+generate features that are relevant for action recognition.
 
 ## Design principles
 
