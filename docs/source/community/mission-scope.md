@@ -24,7 +24,7 @@ convenient. The spatial coordinates of these representations may be defined
 in 2D (x, y) or 3D (x, y, z).
 
 Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
-generate these representations from video data by detecting body parts and
+generate keypoint representations from video data by detecting body parts and
 tracking them across frames. In the context of `movement`, we refer to these
 trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories
 of a set of keypoints, _bounding boxes' tracks_ to refer to the trajectories
