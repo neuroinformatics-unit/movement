@@ -9,28 +9,37 @@ across space and time.
 
 ## Scope
 
-At its core, `movement` handles the positions of one or more individuals
-tracked over time. An individual's position at a given time can be represented
-in various ways: a single keypoint (usually the centroid), a set of keypoints
-(also known as the pose), a bounding box, or a segmentation mask.
-The spatial coordinates of these representations may be defined in 2D (x, y)
-or 3D (x, y, z). The pose and mask representations also carry some information
-about the individual's posture.
+At its core, `movement` handles the position and/or orientation
+of one or more individuals over time.
+
+There are a few common ways of representing animal motion from video
+recordings: an animal's position could be reduced to that of a single keypoint
+tracked on its body (usually the centroid), or instead a set of keypoints
+(often referred to as the pose) to better capture its orientation as well as
+the positions of limbs and appendages. The animal's position could be also
+tracked as a bounding box drawn around each individual, or as a segmentation
+mask that indicates the pixels belonging to each individual. Depending on the
+research question or the application, one or other format may be more
+convenient. The spatial coordinates of these representations may be defined
+in 2D (x, y) or 3D (x, y, z).
 
 Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
 generate these representations from video data by detecting body parts and
-tracking them across frames. In the context of `movement`, we refer to these trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories of a set of keypoints, _bounding boxes' tracks_ to refer to the trajectories of bounding boxes' centroids, or _motion tracks_ in the more general case.
+tracking them across frames. In the context of `movement`, we refer to these
+trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories
+of a set of keypoints, _bounding boxes' tracks_ to refer to the trajectories
+of bounding boxes' centroids, or _motion tracks_ in the more general case.
 
-Our vision is to present a **consistent interface for representing motion tracks** along
-with **modular and accessible analysis tools**. We aim to support data
-from a range of animal tracking frameworks, in **2D or 3D**, tracking
-**single or multiple individuals**. As such, `movement` can be considered as
-operating downstream of tools like DeepLabCut and SLEAP. The focus is on providing
-functionalities for data cleaning, visualization, and motion quantification
-(see the [Roadmap](target-roadmaps) for details).
+Our vision is to present a **consistent interface for representing motion
+tracks** along with **modular and accessible analysis tools**. We aim to
+support data from a range of animal tracking frameworks, in **2D or 3D**,
+tracking **single or multiple individuals**. As such, `movement` can be
+considered as operating downstream of tools like DeepLabCut and SLEAP.
+The focus is on providing functionalities for data cleaning, visualisation,
+and motion quantification (see the [Roadmap](target-roadmaps) for details).
 
-In the study of animal behavior, motion tracks are often used to extract and
-label discrete actions, sometimes referred to as behavioral syllables or
+In the study of animal behaviour, motion tracks are often used to extract and
+label discrete actions, sometimes referred to as behavioural syllables or
 states. While `movement` is not designed for such tasks, it can be used to
 generate features that are relevant for action recognition.
 
