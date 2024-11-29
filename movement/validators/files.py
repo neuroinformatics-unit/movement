@@ -12,6 +12,8 @@ from attrs import define, field, validators
 
 from movement.utils.logging import log_error
 
+DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
+
 
 @define
 class ValidFile:
