@@ -7,7 +7,7 @@ import numpy as np
 import pynwb
 import xarray as xr
 
-from movement.logging import log_error
+from movement.utils.logging import log_error
 
 
 def _create_pose_and_skeleton_objects(
