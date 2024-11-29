@@ -250,7 +250,7 @@ class ValidVIATracksCSV:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
-    frame_regexp: str = r"(0\d*)\.\w+$"
+    frame_regexp: str = DEFAULT_FRAME_REGEXP
 
     @path.validator
     def _file_contains_valid_header(self, attribute, value):
