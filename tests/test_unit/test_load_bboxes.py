@@ -14,8 +14,8 @@ from movement.validators.datasets import ValidBboxesDataset
 
 
 @pytest.fixture()
-def get_attributes_dict():
-    def _get_attributes_dict(via_file_name: str) -> dict:
+def get_expected_attributes_dict():
+    def _get_expected_attributes_dict(via_file_name: str) -> dict:
         # Should match the first 3 rows of each file!
         attributes_dict_per_test_file = {
             "VIA_single-crab_MOCA-crab-1.csv": {
@@ -65,7 +65,7 @@ def get_attributes_dict():
             )
         return attributes_dict_per_test_file[via_file_name]
 
-    return _get_attributes_dict
+    return _get_expected_attributes_dict
 
 
 @pytest.fixture()
@@ -73,26 +73,29 @@ def create_df_input_via_tracks():
     def _create_df_input_via_tracks(
         via_file_path: Path,
         small: bool = False,
-        attribute_column_name: str | None = None,
-        dict_to_append: dict | None = None,
+        attribute_column_additions: dict[str, list[dict]] | None = None,
     ) -> pd.DataFrame:
         """Return the dataframe that results from
         reading the input VIA tracks .csv filepath.
+
+        attribute_column_additions is a dictionary mapping the name of the
+        attribute column to a list of dictionaries to append to that column.
         """
         # read the VIA tracks .csv file as a dataframe
         df = pd.read_csv(via_file_path, sep=",", header=0)
+
         # optionally return the first 3 rows only
         if small:
             df = df.loc[:2, :]
 
-        # optionally modify the dataframe to include the attribute column
-        if attribute_column_name is None:
+        # optionally modify the dataframe to include data
+        # under an attribute column
+        if attribute_column_additions is None:
             return df
         else:
             return update_attribute_column(
                 df_input=df,
-                attribute_column_name=attribute_column_name,
-                dict_to_append=dict_to_append,
+                attribute_column_additions=attribute_column_additions,
             )
 
     return _create_df_input_via_tracks
@@ -128,20 +131,42 @@ def create_valid_from_numpy_inputs():
     return _create_valid_from_numpy_inputs
 
 
-def update_attribute_column(df_input, attribute_column_name, dict_to_append):
+def update_attribute_column(
+    df_input: pd.DataFrame,
+    attribute_column_additions: dict[str, list[dict]],
+):
     """Update an attributes column in the dataframe."""
     # copy the dataframe
     df = df_input.copy()
 
-    # get the attributes column and convert to dict
-    attributes_dicts = [ast.literal_eval(d) for d in df[attribute_column_name]]
+    # update each attribute column in the dataframe
+    for attribute_column_name in attribute_column_additions:
+        # get the list of dicts to append to the column
+        list_dicts_to_append = attribute_column_additions[
+            attribute_column_name
+        ]
 
-    # update the dict
-    for d in attributes_dicts:
-        d.update(dict_to_append)
+        # get the column to update, and convert it to a list of dicts
+        # (one dict per row)
+        attributes_dicts = [
+            ast.literal_eval(d) for d in df[attribute_column_name]
+        ]
 
-    # update the region_attributes column in the dataframe
-    df[attribute_column_name] = [str(d) for d in attributes_dicts]
+        # update each dict in the list
+        # (if we only have one dict to append, append it to all rows)
+        if len(list_dicts_to_append) == 1:
+            for d in attributes_dicts:
+                d.update(list_dicts_to_append[0])
+        else:
+            for d, dict_to_append in zip(
+                attributes_dicts, list_dicts_to_append, strict=True
+            ):
+                d.update(dict_to_append)
+
+        # update the relevant column in the dataframe and format
+        # back to string
+        df[attribute_column_name] = [str(d) for d in attributes_dicts]
+
     return df
 
 
@@ -336,7 +361,7 @@ def test_from_numpy(
 )
 def test_via_attribute_column_to_numpy(
     create_df_input_via_tracks,
-    get_attributes_dict,
+    get_expected_attributes_dict,
     via_file_path,
     via_column_name,
     list_keys,
@@ -354,7 +379,7 @@ def test_via_attribute_column_to_numpy(
         cast_fn=cast_fn,
     )
 
-    attributes_dict = get_attributes_dict(
+    attributes_dict = get_expected_attributes_dict(
         via_file_path.name
     )  # returns results for the first 3 rows
     expected_attribute_array = attributes_dict[via_column_name][
@@ -404,8 +429,9 @@ def test_extract_confidence_from_via_tracks_df(
         df = create_df_input_via_tracks(
             via_file_path,
             small=True,  # only get 3 rows
-            attribute_column_name="region_attributes",
-            dict_to_append={"confidence": input_confidence_value},
+            attribute_column_additions={
+                "region_attributes": [{"confidence": input_confidence_value}]
+            },
         )
     else:
         df = create_df_input_via_tracks(via_file_path, small=True)
@@ -430,15 +456,38 @@ def test_extract_confidence_from_via_tracks_df(
         ),
     ],
 )
+@pytest.mark.parametrize(
+    "attribute_column_additions",
+    [
+        (None),  # taking "frame" from the images' filenames
+        ({"file_attributes": []}),  # taking "frame" from the "file_attributes"
+    ],
+)
 def test_extract_frame_number_from_via_tracks_df(
     create_df_input_via_tracks,
     via_file_path,
+    attribute_column_additions,
     expected_frame_array,
 ):
     """Test that the function correctly extracts the frame number values from
     the VIA dataframe.
     """
-    df = create_df_input_via_tracks(via_file_path, small=True)
+    # If required: define the list of frames
+    # to append to the dataframe as file attributes
+    if attribute_column_additions:
+        attribute_column_additions["file_attributes"] = [
+            {"frame": f.item()} for f in expected_frame_array
+        ]
+
+    # create the dataframe with the frame number
+    # (either from the file name or from the file attributes)
+    df = create_df_input_via_tracks(
+        via_file_path,
+        small=True,
+        attribute_column_additions=attribute_column_additions,
+    )
+
+    # extract frame number from df
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
 
     assert np.array_equal(frame_array, expected_frame_array)
