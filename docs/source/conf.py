@@ -46,7 +46,6 @@ extensions = [
     "nbsphinx",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
-    "sphinx_reredirects",
     "sphinx_sitemap",
     "sphinx.ext.autosectionlabel",
 ]
@@ -115,16 +114,6 @@ sphinx_gallery_conf = {
     # do not render config params set as # sphinx_gallery_config [= value]
 }
 
-# Set up redirects for pages that were renamed or moved
-# using the sphinx-reredirects extension.
-# See: https://documatt.com/sphinx-reredirects/usage.html
-redirects = {
-    # from the old "getting_started" folder to the new "user_guide" folder
-    "getting_started/index": "../user_guide/index.html",
-    "getting_started/input_output": "../user_guide/input_output.html",
-    "getting_started/installation": "../user_guide/installation.html",
-    "getting_started/movement_dataset": "../user_guide/movement_dataset.html",
-}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
