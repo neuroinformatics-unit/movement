@@ -15,50 +15,63 @@ from movement.validators.datasets import ValidBboxesDataset
 
 @pytest.fixture()
 def get_expected_attributes_dict():
+    """Define a factory of expected attributes dictionaries."""
+
     def _get_expected_attributes_dict(via_file_name: str) -> dict:
-        # Should match the first 3 rows of each file!
-        attributes_dict_per_test_file = {
-            "VIA_single-crab_MOCA-crab-1.csv": {
-                "region_shape_attributes": {
-                    "name": np.array(["rect"] * 3),
-                    "x_y": np.array(
-                        [
-                            [957.85, 296.708],
-                            [919.149, 296.708],
-                            [889.317, 303.158],
-                        ]
-                    ).reshape(-1, 2),
-                    "width_height": np.array(
-                        [
-                            [320.09, 153.191],
-                            [357.984, 158.835],
-                            [366.853, 162.867],
-                        ]
-                    ).reshape(-1, 2),
-                },
-                "region_attributes": {
-                    "track": np.ones((3,)),
-                },
+        """Return the expected attributes dictionary for the first 3 rows of
+        the input VIA file.
+        """
+        attributes_dict_per_test_file = {}
+
+        # add expected attributes for the first 3 rows of
+        # VIA_single-crab_MOCA-crab-1.csv
+        attributes_dict_per_test_file["VIA_single-crab_MOCA-crab-1.csv"] = {
+            "region_shape_attributes": {
+                "name": np.array(["rect"] * 3),
+                "x_y": np.array(
+                    [
+                        [957.85, 296.708],
+                        [919.149, 296.708],
+                        [889.317, 303.158],
+                    ]
+                ).reshape(-1, 2),
+                "width_height": np.array(
+                    [
+                        [320.09, 153.191],
+                        [357.984, 158.835],
+                        [366.853, 162.867],
+                    ]
+                ).reshape(-1, 2),
             },
-            "VIA_multiple-crabs_5-frames_labels.csv": {
-                "region_shape_attributes": {
-                    "name": np.array(["rect"] * 3),
-                    "x_y": np.array(
-                        [
-                            [526.2366942646654, 393.280914246804],
-                            [2565, 468],
-                            [759.6484377108334, 136.60946673708338],
-                        ]
-                    ).reshape(-1, 2),
-                    "width_height": np.array(
-                        [[46, 38], [41, 30], [29, 25]]
-                    ).reshape(-1, 2),
-                },
-                "region_attributes": {
-                    "track": np.array([71, 70, 69]),
-                },
+            "region_attributes": {
+                "track": np.ones((3,)),
             },
         }
+
+        # add expected attributes for the first 3 rows of
+        # "VIA_multiple-crabs_5-frames_labels.csv"
+        attributes_dict_per_test_file[
+            "VIA_multiple-crabs_5-frames_labels.csv"
+        ] = {
+            "region_shape_attributes": {
+                "name": np.array(["rect"] * 3),
+                "x_y": np.array(
+                    [
+                        [526.2366942646654, 393.280914246804],
+                        [2565, 468],
+                        [759.6484377108334, 136.60946673708338],
+                    ]
+                ).reshape(-1, 2),
+                "width_height": np.array(
+                    [[46, 38], [41, 30], [29, 25]]
+                ).reshape(-1, 2),
+            },
+            "region_attributes": {
+                "track": np.array([71, 70, 69]),
+            },
+        }
+
+        # return ValueError if the filename is not defined
         if via_file_name not in attributes_dict_per_test_file:
             raise ValueError(
                 f"Attributes dict not defined for filename '{via_file_name}''."
@@ -70,16 +83,24 @@ def get_expected_attributes_dict():
 
 @pytest.fixture()
 def create_df_input_via_tracks():
+    """Define a factory of dataframes for testing."""
+
     def _create_df_input_via_tracks(
         via_file_path: Path,
         small: bool = False,
         attribute_column_additions: dict[str, list[dict]] | None = None,
     ) -> pd.DataFrame:
-        """Return the dataframe that results from
+        """Return an optionally modified dataframe that results from
         reading the input VIA tracks .csv filepath.
 
-        attribute_column_additions is a dictionary mapping the name of the
-        attribute column to a list of dictionaries to append to that column.
+        If small is True, only the first 3 rows are returned.
+
+        If attribute_column_additions is not None, the dataframe is modified
+        to include the data under the specified attribute column.
+
+        The variable attribute_column_additions is a dictionary mapping the
+        name of the attribute column to a list of dictionaries to append to
+        that column.
         """
         # read the VIA tracks .csv file as a dataframe
         df = pd.read_csv(via_file_path, sep=",", header=0)
@@ -99,36 +120,6 @@ def create_df_input_via_tracks():
             )
 
     return _create_df_input_via_tracks
-
-
-@pytest.fixture()
-def create_valid_from_numpy_inputs():
-    n_frames = 5
-    n_individuals = 86
-    n_space = 2
-    individual_names_array = np.arange(n_individuals).reshape(-1, 1)
-    first_frame_number = 1  # should match sample file
-
-    rng = np.random.default_rng(seed=42)
-
-    def _create_valid_from_numpy_inputs(with_frame_array=False):
-        required_inputs = {
-            "position_array": rng.random((n_frames, n_individuals, n_space)),
-            "shape_array": rng.random((n_frames, n_individuals, n_space)),
-            "confidence_array": rng.random((n_frames, n_individuals)),
-            "individual_names": [
-                f"id_{id}" for id in individual_names_array.squeeze()
-            ],
-        }
-
-        if with_frame_array:
-            required_inputs["frame_array"] = np.arange(
-                first_frame_number, first_frame_number + n_frames
-            ).reshape(-1, 1)
-
-        return required_inputs
-
-    return _create_valid_from_numpy_inputs
 
 
 def update_attribute_column(
@@ -168,6 +159,38 @@ def update_attribute_column(
         df[attribute_column_name] = [str(d) for d in attributes_dicts]
 
     return df
+
+
+@pytest.fixture()
+def create_valid_from_numpy_inputs():
+    """Define a factory of valid inputs to "from_numpy" function."""
+    n_frames = 5
+    n_individuals = 86
+    n_space = 2
+    individual_names_array = np.arange(n_individuals).reshape(-1, 1)
+    first_frame_number = 1  # should match sample file
+
+    rng = np.random.default_rng(seed=42)
+
+    def _create_valid_from_numpy_inputs(with_frame_array=False):
+        """Return a dictionary of valid inputs to the `from_numpy` function."""
+        required_inputs = {
+            "position_array": rng.random((n_frames, n_individuals, n_space)),
+            "shape_array": rng.random((n_frames, n_individuals, n_space)),
+            "confidence_array": rng.random((n_frames, n_individuals)),
+            "individual_names": [
+                f"id_{id}" for id in individual_names_array.squeeze()
+            ],
+        }
+
+        if with_frame_array:
+            required_inputs["frame_array"] = np.arange(
+                first_frame_number, first_frame_number + n_frames
+            ).reshape(-1, 1)
+
+        return required_inputs
+
+    return _create_valid_from_numpy_inputs
 
 
 def assert_dataset(
