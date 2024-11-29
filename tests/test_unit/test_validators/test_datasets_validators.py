@@ -360,12 +360,14 @@ def test_bboxes_dataset_validator_confidence_array(
             f"Expected a numpy array, but got {type(list())}.",
         ),  # not an ndarray, should raise ValueError
         (
-            np.array([1, 2, 3, 6, 7, 8, 4, 9, 10, 11]).reshape(-1, 1),
+            np.array([1, 10, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1),
             pytest.raises(ValueError),
             "Frame numbers in frame_array are not monotonically increasing.",
         ),
         (
-            np.array([1, 2, 3, 5, 6, 7, 8, 9, 10, 11]).reshape(-1, 1),
+            np.array([1, 2, 22, 23, 24, 25, 100, 101, 102, 103]).reshape(
+                -1, 1
+            ),
             does_not_raise(),
             "",
         ),  # valid, frame numbers are not continuous but are monotonically
