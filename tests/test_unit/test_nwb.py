@@ -2,6 +2,7 @@ import datetime
 
 import ndx_pose
 import numpy as np
+import pytest
 from ndx_pose import PoseEstimation, PoseEstimationSeries, Skeleton, Skeletons
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.file import Subject
@@ -68,10 +69,17 @@ def create_test_pose_estimation_series(
     )
 
 
-def test__convert_pose_estimation_series():
+@pytest.mark.parametrize(
+    "n_time, n_dims",
+    [
+        (100, 2),  # 2D data
+        (50, 3),  # 3D data
+    ],
+)
+def test_convert_pose_estimation_series(n_time, n_dims):
     # Create a sample PoseEstimationSeries object
     pose_estimation_series = create_test_pose_estimation_series(
-        n_time=100, n_dims=2, keypoint="front_left_paw"
+        n_time=n_time, n_dims=n_dims, keypoint="leftear"
     )
 
     # Call the function
@@ -85,10 +93,10 @@ def test__convert_pose_estimation_series():
 
     # Assert the dimensions of the movement dataset
     assert movement_dataset.sizes == {
-        "time": 100,
+        "time": n_time,
         "individuals": 1,
         "keypoints": 1,
-        "space": 2,
+        "space": n_dims,
     }
 
     # Assert the values of the position variable
@@ -109,17 +117,6 @@ def test__convert_pose_estimation_series():
         "time_units": pose_estimation_series.timestamps_unit,
         "source_software": "software1",
         "source_file": "file1",
-    }
-    pose_estimation_series = create_test_pose_estimation_series(
-        n_time=50, n_dims=3, keypoint="front_left_paw"
-    )
-
-    # Assert the dimensions of the movement dataset
-    assert movement_dataset.sizes == {
-        "time": 50,
-        "individuals": 1,
-        "keypoints": 1,
-        "space": 3,
     }
 
 
@@ -210,7 +207,7 @@ def create_test_pose_nwb(identifier="subject1", write_to_disk=False):
         name="PoseEstimation",
         pose_estimation_series=pose_estimation_series,
         description=(
-            "Estimated positions of front paws" "of subject1 using DeepLabCut."
+            "Estimated positions of front paws of subject1 using DeepLabCut."
         ),
         original_videos=["path/to/camera1.mp4"],
         labeled_videos=["path/to/camera1_labeled.mp4"],
