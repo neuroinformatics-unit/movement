@@ -252,6 +252,7 @@ def _convert_pose_estimation_series(
 
 def convert_nwb_to_movement(
     nwb_filepaths: str | list[str] | list[Path],
+    key_name: str = "PoseEstimation",
 ) -> xr.Dataset:
     """Convert a list of NWB files to a single ``movement`` dataset.
 
@@ -259,6 +260,9 @@ def convert_nwb_to_movement(
     ----------
     nwb_filepaths : str | Path | list[str] | list[Path]
         List of paths to NWB files to be converted.
+    key_name: str, optional
+        Name of the PoseEstimation object in the NWB "behavior"
+        processing module, by default "PoseEstimation".
 
     Returns
     -------
@@ -273,7 +277,7 @@ def convert_nwb_to_movement(
     for path in nwb_filepaths:
         with pynwb.NWBHDF5IO(path, mode="r") as io:
             nwbfile = io.read()
-            pose_estimation = nwbfile.processing["behavior"]["PoseEstimation"]
+            pose_estimation = nwbfile.processing["behavior"][key_name]
             source_software = pose_estimation.fields["source_software"]
             pose_estimation_series = pose_estimation.fields[
                 "pose_estimation_series"
