@@ -44,6 +44,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "myst_parser",
     "nbsphinx",
+    "notfound.extension",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
@@ -206,3 +207,22 @@ intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }
+
+
+# What to show on the 404 page
+notfound_context = {
+    "title": "Page Not Found",
+    "body": """
+<h1>Page Not Found</h1>
+
+<p>Sorry, we couldn't find that page.</p>
+
+<p>We occasionally restructure the movement website, and some links may have broken.</p> 
+
+<p>Try using the search box or go to the homepage.</p>
+""",
+}
+
+# needed for GH pages (vs readthedocs),
+# because we have no '/<language>/<version>/' in the URL
+notfound_urls_prefix = None
