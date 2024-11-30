@@ -1,4 +1,4 @@
-# User Guide
+# User guide
 
 Start by [installing the package](installation.md) and
 [loading your own tracking data](input_output.md), or playing with some
