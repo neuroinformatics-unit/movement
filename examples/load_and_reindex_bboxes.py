@@ -231,6 +231,8 @@ print(ds_interp.shape.data[:14, 0, :])
 # are plotted in blue, while the forward filled values are plotted in orange
 # and the linearly interpolated values in green.
 
+# sphinx_gallery_thumbnail_number = 2
+
 # initialise figure
 fig = plt.figure(figsize=(8, 8))
 
@@ -329,7 +331,6 @@ with open(filepath, mode="w", newline="") as file:
 # %%
 # Remove the output file
 # ----------------------
-# We can remove the output file we have just created.
-# "nbsphinx": "hidden"
-
+# To remove the output file we have just created, we can run the following
+# code.
 os.remove(filepath)
