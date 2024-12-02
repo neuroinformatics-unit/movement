@@ -14,6 +14,7 @@ it to every frame.
 # %matplotlib widget
 import csv
 import math
+import os
 
 import sleap_io as sio
 from matplotlib import pyplot as plt
@@ -26,7 +27,8 @@ from movement.io import load_bboxes
 # Load sample dataset
 # ------------------------
 # In this tutorial, we will use a sample bounding boxes dataset with
-# a single individual (a crab).
+# a single individual (a crab). The clip is part of the `Moving
+# Camouflaged Animals Dataset (MoCA) dataset <https://www.robots.ox.ac.uk/~vgg/data/MoCA/>`_.
 #
 # We will also download the associated video for visualising the data later.
 
@@ -49,11 +51,11 @@ print(ds)
 
 # %%
 # We can see the coordinates in the time dimension are expressed in frames,
-# and that only 1 in 5 frames of the video are annotated, plus
+# and that we only have data for 1 in 5 frames of the video, plus
 # the last frame (167).
 #
 # In the following sections of the notebook we will explore options to reindex
-# the dataset, and fill in the missing frames with reasonable values.
+# the dataset and fill in values for the frames with missing data.
 print(ds.time)
 
 # %%
@@ -87,7 +89,7 @@ data_start_idx = 0
 data_end_idx = 15
 
 # initialise figure
-fig = plt.figure(figsize=(15, 12))
+fig = plt.figure(figsize=(8, 20))  # width, height
 
 # get list of colors for plotting
 list_colors = plt.get_cmap("tab10").colors
@@ -95,7 +97,7 @@ list_colors = plt.get_cmap("tab10").colors
 # loop over data and plot over corresponding frame
 for p_i, data_idx in enumerate(range(data_start_idx, data_end_idx)):
     # add subplot axes
-    ax = plt.subplot(math.ceil(data_end_idx / 5), 5, p_i + 1)
+    ax = plt.subplot(math.ceil(data_end_idx / 2), 2, p_i + 1)
 
     # plot frame
     # note: the video is indexed at every frame, so
@@ -230,12 +232,12 @@ print(ds_interp.shape.data[:14, 0, :])
 # and the linearly interpolated values in green.
 
 # initialise figure
-fig = plt.figure(figsize=(15, 12))
+fig = plt.figure(figsize=(8, 8))
 
 # loop over frames
-for frame_n in range(5):
+for frame_n in range(6):
     # add subplot axes
-    ax = plt.subplot(1, 6, frame_n + 1)
+    ax = plt.subplot(3, 2, frame_n + 1)
 
     # plot frame
     # note: the video is indexed at every frame, so
@@ -282,6 +284,8 @@ for frame_n in range(5):
     if frame_n == 0:
         ax.legend()
     ax.set_title(f"Frame {frame_n}")
+    ax.set_xlabel("x (pixels)")
+    ax.set_ylabel("y (pixels)")
 
 fig.tight_layout()
 
@@ -321,3 +325,11 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow(
                 [frame, individual, x, y, width, height, confidence]
             )
+
+# %%
+# Remove the output file
+# ----------------------
+# We can remove the output file we have just created.
+# "nbsphinx": "hidden"
+
+os.remove(filepath)
