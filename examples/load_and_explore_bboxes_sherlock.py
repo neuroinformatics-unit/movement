@@ -113,7 +113,7 @@ for id_idx, id_str in enumerate(ds["individuals"].data):
     # need to uncomment the line below if position loaded is centroid
     top_left_corner = (
         ds.position.sel(individuals=id_str, time=frame_number).data
-        # - ds.shape.sel(individuals=id_str, time=frame_number).data / 2
+        - ds.shape.sel(individuals=id_str, time=frame_number).data / 2
     )
     bbox = plt.Rectangle(
         xy=tuple(top_left_corner),
