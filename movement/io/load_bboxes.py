@@ -62,7 +62,7 @@ def from_numpy(
         bounding boxes are defined. If None (default), frame numbers will
         be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
-        these need to be consecutive integers.
+        these need to be integers sorted in increasing order.
     fps : float, optional
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
