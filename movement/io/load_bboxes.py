@@ -155,6 +155,7 @@ def from_file(
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
+    frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
@@ -184,6 +185,12 @@ def from_file(
         full video as the time origin. If False (default), the frame numbers
         in the VIA tracks .csv file are instead mapped to a 0-based sequence of
         consecutive integers.
+    frame_regexp : str, optional
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
+
 
     Returns
     -------
@@ -218,6 +225,7 @@ def from_file(
             file_path,
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
+            frame_regexp=frame_regexp,
         )
     else:
         raise log_error(
@@ -229,6 +237,7 @@ def from_via_tracks_file(
     file_path: Path | str,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
+    frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a VIA tracks .csv file.
 
@@ -252,6 +261,11 @@ def from_via_tracks_file(
         but you want to maintain the start of the full video as the time
         origin. If False (default), the frame numbers in the VIA tracks .csv
         file are instead mapped to a 0-based sequence of consecutive integers.
+    frame_regexp : str, optional
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
 
     Returns
     -------
@@ -320,7 +334,7 @@ def from_via_tracks_file(
     )
 
     # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path)
+    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
     logger.debug(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
