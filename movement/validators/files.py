@@ -322,39 +322,33 @@ class ValidVIATracksCSV:
             for f_i, f in enumerate(df["filename"]):
                 try:
                     regex_match = re.search(self.frame_regexp, f)
-                except Exception as e:
+                    if not regex_match:
+                        raise ValueError(
+                            f"{f} (row {f_i}): The frame regexp did not "
+                            "return any matches and a frame number could not "
+                            "be extracted from the filename. If included in "
+                            "the filename, the frame number is expected as a "
+                            "zero-padded integer before the file extension "
+                            "(e.g. 00234.png)."
+                        )
+                    list_frame_numbers.append(int(regex_match.group(1)))  # type: ignore
+
+                except re.error as e:
                     raise log_error(
                         re.error,
-                        "The provided regular expression for the frame numbers"
-                        f" ({self.frame_regexp}) "
-                        "could not be compiled. Please review its syntax.",
+                        "The provided regular expression for the frame "
+                        f"numbers ({self.frame_regexp}) could not be compiled."
+                        " Please review its syntax.",
                     ) from e
 
-                # if there is a pattern match
-                if regex_match:
-                    try:
-                        list_frame_numbers.append(
-                            int(regex_match.group(1))  # type: ignore
-                        )
-                    except Exception as e:
-                        raise log_error(
-                            ValueError,
-                            f"{f} (row {f_i}): "
-                            "The frame number extracted from the filename "
-                            "using the provided regexp "
-                            f"({self.frame_regexp}) "
-                            "could not be cast as an integer.",
-                        ) from e
-                else:
+                except ValueError as e:
                     raise log_error(
                         ValueError,
                         f"{f} (row {f_i}): "
-                        "The frame regexp did not return any matches and a "
-                        "frame number could not be extracted from the "
-                        "filename. If included in the filename, the frame "
-                        "number is expected as a zero-padded integer before "
-                        "the file extension (e.g. 00234.png).",
-                    )
+                        "The frame number extracted from the filename using "
+                        f"the provided regexp ({self.frame_regexp}) could not "
+                        "be cast as an integer.",
+                    ) from e
 
         # Check we have as many unique frame numbers as unique image files
         if len(set(list_frame_numbers)) != len(df.filename.unique()):
