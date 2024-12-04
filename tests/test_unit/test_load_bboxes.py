@@ -241,13 +241,17 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     # scale time coordinates with 1/fps if provided
     scale = 1 / fps if fps else 1
 
-    # build frame array if not provided
+    # build frame array from start_frame if provided
     if start_frame is not None:
         frame_array = np.array(
             range(start_frame, len(ds.coords["time"].data) + start_frame)
         )
-    # elif not frame_array:
-    #     frame_array = np.arange(1, len(ds.coords["time"].data) + 1)
+    elif frame_array is None:
+        raise ValueError(
+            "Either start_frame or frame_array must be provided."
+            "start_frame takes precedence over frame_array if "
+            "both are provided."
+        )
 
     # assert numpy array of time coordinates
     np.testing.assert_allclose(
