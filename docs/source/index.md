@@ -6,11 +6,11 @@ A Python toolbox for analysing animal body movements across space and time.
 ::::{grid} 1 2 2 3
 :gutter: 3
 
-:::{grid-item-card} {fas}`rocket;sd-text-primary` Getting Started
-:link: getting_started/index
+:::{grid-item-card} {fas}`book;sd-text-primary` User guide
+:link: user_guide/index
 :link-type: doc
 
-Installation, first steps and key concepts.
+Installation, supported formats and key concepts.
 :::
 
 :::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Examples
@@ -60,7 +60,7 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :maxdepth: 2
 :hidden:
 
-getting_started/index
+user_guide/index
 examples/index
 community/index
 api_index

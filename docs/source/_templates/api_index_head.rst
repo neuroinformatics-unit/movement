@@ -3,7 +3,7 @@
 
 .. _target-api:
 
-API Reference
+API reference
 =============
 
 Information on specific functions, classes, and methods.
