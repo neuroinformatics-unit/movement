@@ -355,7 +355,6 @@ class ValidVIATracksCSV:
                     f"numbers ({self.frame_regexp}) could not be compiled."
                     " Please review its syntax.",
                 ) from e
-
             # try extracting the frame number from the filename using the
             # compiled regexp
             try:

@@ -68,11 +68,11 @@ def test_deeplabcut_csv_validator_with_invalid_input(
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception, log_message",
+    "invalid_input, error_type, log_message",
     [
         (
             "via_tracks_csv_with_invalid_header",
-            pytest.raises(ValueError),
+            ValueError,
             ".csv header row does not match the known format for "
             "VIA tracks .csv files. "
             "Expected "
@@ -83,7 +83,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "frame_number_in_file_attribute_not_integer",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
             "'frame' file attribute cannot be cast as an integer. "
             "Please review the file attributes: "
@@ -91,7 +91,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "frame_number_in_filename_wrong_pattern",
-            pytest.raises(AttributeError),
+            AttributeError,
             "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
             "The frame regexp did not return any matches and a "
             "frame number could not be extracted from the "
@@ -101,28 +101,28 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "more_frame_numbers_than_filenames",
-            pytest.raises(ValueError),
+            ValueError,
             "The number of unique frame numbers does not match the number "
             "of unique image files. Please review the VIA tracks .csv file "
             "and ensure a unique frame number is defined for each file. ",
         ),
         (
             "less_frame_numbers_than_filenames",
-            pytest.raises(ValueError),
+            ValueError,
             "The number of unique frame numbers does not match the number "
             "of unique image files. Please review the VIA tracks .csv file "
             "and ensure a unique frame number is defined for each file. ",
         ),
         (
             "region_shape_attribute_not_rect",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "bounding box shape must be 'rect' (rectangular) "
             "but instead got 'circle'.",
         ),
         (
             "region_shape_attribute_missing_x",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "at least one bounding box shape parameter is missing. "
             "Expected 'x', 'y', 'width', 'height' to exist as "
@@ -131,7 +131,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "region_attribute_missing_track",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "bounding box does not have a 'track' attribute defined "
             "under 'region_attributes'. "
@@ -139,7 +139,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "track_id_not_castable_as_int",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "the track ID for the bounding box cannot be cast "
             "as an integer. "
@@ -147,7 +147,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         ),
         (
             "track_ids_not_unique_per_frame",
-            pytest.raises(ValueError),
+            ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png: "
             "multiple bounding boxes in this file have the same track ID. "
             "Please review the VIA tracks .csv file.",
@@ -155,7 +155,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_input(
-    invalid_input, expected_exception, log_message, request
+    invalid_input, error_type, log_message, request
 ):
     """Test that invalid VIA tracks .csv files raise the appropriate errors.
 
@@ -172,7 +172,7 @@ def test_via_tracks_csv_validator_with_invalid_input(
     - error if bboxes IDs are not 1-based integers
     """
     file_path = request.getfixturevalue(invalid_input)
-    with expected_exception as excinfo:
+    with pytest.raises(error_type) as excinfo:
         ValidVIATracksCSV(file_path)
 
     assert str(excinfo.value) == log_message
