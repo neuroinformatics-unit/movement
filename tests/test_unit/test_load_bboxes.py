@@ -450,8 +450,6 @@ def test_extract_confidence_from_via_tracks_df(
     """
     # None of the sample files includes a confidence column
     # so we add it to the dataframe here
-    # ----> can I use a crab one from tracking output & replace
-    # VIA_multiple-crabs_5-frames_labels?
     if input_confidence_value:
         df = create_df_input_via_tracks(
             via_file_path,
