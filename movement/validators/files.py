@@ -322,17 +322,7 @@ class ValidVIATracksCSV:
             for f_i, f in enumerate(df["filename"]):
                 try:
                     regex_match = re.search(self.frame_regexp, f)
-                    if not regex_match:
-                        raise ValueError(
-                            f"{f} (row {f_i}): The frame regexp did not "
-                            "return any matches and a frame number could not "
-                            "be extracted from the filename. If included in "
-                            "the filename, the frame number is expected as a "
-                            "zero-padded integer before the file extension "
-                            "(e.g. 00234.png)."
-                        )
                     list_frame_numbers.append(int(regex_match.group(1)))  # type: ignore
-
                 except re.error as e:
                     raise log_error(
                         re.error,
@@ -340,7 +330,16 @@ class ValidVIATracksCSV:
                         f"numbers ({self.frame_regexp}) could not be compiled."
                         " Please review its syntax.",
                     ) from e
-
+                except AttributeError as e:
+                    raise log_error(
+                        ValueError,
+                        f"{f} (row {f_i}): The frame regexp did not "
+                        "return any matches and a frame number could not "
+                        "be extracted from the filename. If included in "
+                        "the filename, the frame number is expected as a "
+                        "zero-padded integer before the file extension "
+                        "(e.g. 00234.png).",
+                    ) from e
                 except ValueError as e:
                     raise log_error(
                         ValueError,
