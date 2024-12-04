@@ -289,7 +289,9 @@ class ValidVIATracksCSV:
           files.
 
         If the frame number is included as part of the image file name, then
-        it is expected as an integer led by at least one zero, followed by the
+        it is expected to be captured by the regular expression in the
+        `frame_regexp` attribute of the ValidVIATracksCSV object. The default
+        regexp matches an integer led by at least one zero, followed by the
         file extension.
 
         """
