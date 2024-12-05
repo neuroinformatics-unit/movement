@@ -189,11 +189,9 @@ def from_dlc_style_df(
         )
     else:
         individual_names = ["individual_0"]
-
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
-
     # reshape the data into (n_frames, 3, n_keypoints, n_individuals)
     # where the second axis contains "x", "y", "likelihood"
     tracks_with_scores = (
@@ -201,7 +199,6 @@ def from_dlc_style_df(
         .reshape((-1, len(individual_names), len(keypoint_names), 3))
         .transpose(0, 3, 2, 1)
     )
-
     return from_numpy(
         position_array=tracks_with_scores[:, :-1, :, :],
         confidence_array=tracks_with_scores[:, -1, :, :],
@@ -273,16 +270,13 @@ def from_sleap_file(
         expected_permission="r",
         expected_suffix=[".h5", ".slp"],
     )
-
     # Load and validate data
     if file.path.suffix == ".h5":
         ds = _ds_from_sleap_analysis_file(file.path, fps=fps)
     else:  # file.path.suffix == ".slp"
         ds = _ds_from_sleap_labels_file(file.path, fps=fps)
-
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
     return ds
@@ -379,12 +373,10 @@ def from_multiview_files(
     """
     views_list = list(file_path_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
-
     dataset_list = [
         from_file(f, source_software=source_software, fps=fps)
         for f in file_path_dict.values()
     ]
-
     return xr.concat(dataset_list, dim=new_coord_views)
 
 
@@ -416,26 +408,20 @@ def _ds_from_lp_or_dlc_file(
     expected_suffix = [".csv"]
     if source_software == "DeepLabCut":
         expected_suffix.append(".h5")
-
     file = ValidFile(
         file_path, expected_permission="r", expected_suffix=expected_suffix
     )
-
     # Load the DeepLabCut poses into a DataFrame
-
     df = (
         _df_from_dlc_csv(file.path)
         if file.path.suffix == ".csv"
         else _df_from_dlc_h5(file.path)
     )
-
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
     ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
-
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
     return ds
@@ -462,7 +448,6 @@ def _ds_from_sleap_analysis_file(
 
     """
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
-
     with h5py.File(file.path, "r") as f:
         # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
         tracks = f["tracks"][:].transpose(3, 1, 2, 0)
@@ -618,7 +603,6 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
 
     """
     file = ValidDeepLabCutCSV(file_path)
-
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
     with open(file.path) as f:
         # if line starts with a possible level name, split it into a list
@@ -628,14 +612,12 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
             for line in f.readlines()
             if line.split(",")[0] in possible_level_names
         ]
-
     # Form multi-index column names from the header lines
     level_names = [line[0] for line in header_lines]
     column_tuples = list(
         zip(*[line[1:] for line in header_lines], strict=False)
     )
     columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
-
     # Import the DeepLabCut poses as a DataFrame
     df = pd.read_csv(
         file.path,
@@ -685,14 +667,12 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """
     n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[1]
-
     # Create the time coordinate, depending on the value of fps
     time_coords = np.arange(n_frames, dtype=int)
     time_unit = "frames"
     if data.fps is not None:
         time_coords = time_coords / data.fps
         time_unit = "seconds"
-
     DIM_NAMES = ValidPosesDataset.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(

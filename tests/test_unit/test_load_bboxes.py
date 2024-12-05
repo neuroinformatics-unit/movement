@@ -181,39 +181,6 @@ def create_valid_from_numpy_inputs():
     return _create_valid_from_numpy_inputs
 
 
-@pytest.fixture()
-def df_input_via_tracks_small(via_tracks_file):
-    """Return the first 3 rows of the VIA tracks .csv file as a dataframe."""
-    df = pd.read_csv(via_tracks_file, sep=",", header=0)
-    return df.loc[:2, :]
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_confidence(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks .csv file
-    and add confidence values to the bounding boxes.
-    """
-    df = update_attribute_column(
-        df_input=df_input_via_tracks_small,
-        attribute_column_name="region_attributes",
-        dict_to_append={"confidence": "0.5"},
-    )
-    return df
-
-
-@pytest.fixture()
-def df_input_via_tracks_small_with_frame_number(df_input_via_tracks_small):
-    """Return a dataframe with the first three rows of the VIA tracks .csv file
-    and add frame number values to the bounding boxes.
-    """
-    df = update_attribute_column(
-        df_input=df_input_via_tracks_small,
-        attribute_column_name="file_attributes",
-        dict_to_append={"frame": "1"},
-    )
-    return df
-
-
 def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     """Assert that the time coordinates are as expected, depending on
     fps value and start_frame or time_array. start_frame takes precedence
