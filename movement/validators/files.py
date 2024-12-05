@@ -358,16 +358,14 @@ class ValidVIATracksCSV:
             # try extracting the frame number from the filename using the
             # compiled regexp
             try:
-                list_frame_numbers.append(int(regex_match.group(1)))  # type: ignore
+                list_frame_numbers.append(int(regex_match.group(1)))
             except AttributeError as e:
                 raise log_error(
                     AttributeError,
-                    f"{f} (row {f_i}): The frame regexp did not "
+                    f"{f} (row {f_i}): The provided frame regexp "
+                    f"({self.frame_regexp}) did not "
                     "return any matches and a frame number could not "
-                    "be extracted from the filename. If included in "
-                    "the filename, the frame number is expected as a "
-                    "zero-padded integer before the file extension "
-                    "(e.g. 00234.png).",
+                    "be extracted from the filename.",
                 ) from e
             except ValueError as e:
                 raise log_error(

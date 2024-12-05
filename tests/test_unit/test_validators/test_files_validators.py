@@ -93,11 +93,10 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "frame_number_in_filename_wrong_pattern",
             AttributeError,
             "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
-            "The frame regexp did not return any matches and a "
+            "The provided frame regexp ((0\d*)\.\w+$) did not return "
+            "any matches and a "
             "frame number could not be extracted from the "
-            "filename. If included in the filename, the frame "
-            "number is expected as a zero-padded integer before "
-            "the file extension (e.g. 00234.png).",
+            "filename.",
         ),
         (
             "more_frame_numbers_than_filenames",

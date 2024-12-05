@@ -342,11 +342,9 @@ def test_from_via_tracks_file(
             r"_(0\d*)_$",
             AttributeError,
             "/crab_1/00000.jpg (row 0): "
-            "The frame regexp did not return any matches and a "
-            "frame number could not be extracted from the filename. "
-            "If included in the filename, the frame number is expected "
-            "as a zero-padded integer before the file extension "
-            "(e.g. 00234.png).",
+            "The provided frame regexp (_(0\d*)_$) did not return any "
+            "matches and a frame number could not be extracted from "
+            "the filename.",
         ),
         (
             r"(0\d*\.\w+)$",
