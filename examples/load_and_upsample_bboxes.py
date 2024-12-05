@@ -80,31 +80,32 @@ print(f"Number of channels: {channels}")
 # Let's inspect the first 6 frames of the video for which we have
 # annotations, and plot the annotated bounding box and centroid at each frame.
 
-# select indices of data to plot
-data_start_idx = 0
-data_end_idx = 6
+# set last frame to plot
+end_frame_idx = 25
+# create list of frames to loop over with step=5
+list_frames = list(range(0, end_frame_idx + 1, 5))
 
 # initialise figure
 fig = plt.figure(figsize=(8, 8))  # width, height
 
-# loop over data and plot over corresponding frame
-for p_i, data_idx in enumerate(range(data_start_idx, data_end_idx)):
+# loop over selected frames and plot the data
+for i, frame_idx in enumerate(list_frames):
     # add subplot axes
-    ax = plt.subplot(math.ceil(data_end_idx / 2), 2, p_i + 1)
+    ax = plt.subplot(math.ceil(len(list_frames) / 2), 2, i + 1)
 
     # plot frame
-    # note: the video is indexed at every frame, so
-    # we use the frame number as index
-    ax.imshow(video[ds.time[data_idx].item()])
+    ax.imshow(video[frame_idx])
 
     # plot box at this frame
     top_left_corner = (
-        ds.position[data_idx, 0, :].data - ds.shape[data_idx, 0, :].data / 2
-    )
+        ds.position.sel(time=frame_idx).data
+        - ds.shape.sel(time=frame_idx).data / 2
+    ).squeeze()
+
     bbox = plt.Rectangle(
         xy=tuple(top_left_corner),
-        width=ds.shape[data_idx, 0, 0].data,  # x coordinate of shape array
-        height=ds.shape[data_idx, 0, 1].data,  # y coordinate of shape array
+        width=ds.shape.sel(time=frame_idx, space="x").item(),
+        height=ds.shape.sel(time=frame_idx, space="y").item(),
         edgecolor="red",
         facecolor="none",
         linewidth=1.5,
@@ -114,17 +115,17 @@ for p_i, data_idx in enumerate(range(data_start_idx, data_end_idx)):
 
     # plot box's centroid at this frame with red ring
     ax.scatter(
-        x=ds.position[data_idx, 0, 0].data,
-        y=ds.position[data_idx, 0, 1].data,
+        x=ds.position.sel(time=frame_idx, space="x"),
+        y=ds.position.sel(time=frame_idx, space="y"),
         s=15,
         color="red",
     )
 
     # plot past centroid positions in blue
-    if data_idx > 0:
+    if frame_idx > 0:
         ax.scatter(
-            x=ds.position[0:data_idx, 0, 0].data,
-            y=ds.position[0:data_idx, 0, 1].data,
+            x=ds.position.sel(time=slice(0, frame_idx - 1), space="x"),
+            y=ds.position.sel(time=slice(0, frame_idx - 1), space="y"),
             s=5,
             color="tab:blue",
             label="past frames",
@@ -132,23 +133,25 @@ for p_i, data_idx in enumerate(range(data_start_idx, data_end_idx)):
 
     # plot future centroid positions in white
     ax.scatter(
-        x=ds.position[data_idx + 1 : data_end_idx, 0, 0].data,
-        y=ds.position[data_idx + 1 : data_end_idx, 0, 1].data,
+        x=ds.position.sel(time=slice(frame_idx + 1, end_frame_idx), space="x"),
+        y=ds.position.sel(time=slice(frame_idx + 1, end_frame_idx), space="y"),
         s=5,
         color="white",
         label="future frames",
     )
 
-    ax.set_title(f"Frame {ds.time[data_idx].item()}")
+    ax.set_title(f"Frame {frame_idx}")
     ax.set_xlabel("x (pixles)")
     ax.set_ylabel("y (pixels)")
     ax.set_xlabel("")
-    if p_i == 1:
+    if frame_idx == 1:
         ax.legend()
 
 fig.tight_layout()
 
 # %%
+# We used ``xarray``'s ``.sel()`` method to select the data for the
+# relevant frames directly.
 #
 # The centroid at each frame is marked with a red marker. The past centroid
 # positions are shown in blue and the future centroid positions in white.
