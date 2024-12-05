@@ -175,14 +175,12 @@ ds_ff = ds.reindex(
 # %%
 # We can verify with a plot that the empty values have been filled in
 # using the last valid value in time.
+#
+# For this we define a convenience function to plot the x and y coordinates
+# of the ``position`` and  ``shape`` arrays, for the input dataset and for
+# a filled one.
 
-# %%
-# In the plot below, the original ``position`` and ``shape`` data is shown
-# in black, while the forward-filled values are shown in green.
 
-
-# We define a convenience function to plot the ``position`` and ``shape``
-# space coordinates for the input dataset and a filled one.
 def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
     """Compare the x and y coordinates of the position and shape arrays in time
     for the input and filled datasets.
@@ -227,7 +225,11 @@ def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
                 ax.set_xlabel("time (frames)")
 
 
-# plot
+# %%
+# In the plot below, the original ``position`` and ``shape`` data is shown
+# in black, while the forward-filled values are shown in green.
+
+
 plot_position_and_shape_xy_coords(
     ds, ds_filled=ds_ff, color_filled="tab:green"
 )
