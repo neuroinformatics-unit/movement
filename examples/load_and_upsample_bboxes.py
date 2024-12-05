@@ -185,7 +185,7 @@ def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
     """Compare the x and y coordinates of the position and shape arrays in time
     for the input and filled datasets.
     """
-    fig, axs = plt.subplots(2, 2, figsize=(8, 6))
+    _, axs = plt.subplots(2, 2, figsize=(8, 6))
     for row in range(axs.shape[0]):
         space_coord = ["x", "y"][row]
         for col in range(axs.shape[1]):
