@@ -23,7 +23,7 @@ conda activate movement-env
 ```
 
 > [!Note]
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/getting_started/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/user_guide/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 ## Overview
 
