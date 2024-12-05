@@ -13,7 +13,11 @@ import xarray as xr
 
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset
-from movement.validators.files import ValidFile, ValidVIATracksCSV
+from movement.validators.files import (
+    DEFAULT_FRAME_REGEXP,
+    ValidFile,
+    ValidVIATracksCSV,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +62,7 @@ def from_numpy(
         bounding boxes are defined. If None (default), frame numbers will
         be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
-        these need to be consecutive integers.
+        these need to be integers sorted in increasing order.
     fps : float, optional
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
@@ -151,6 +155,7 @@ def from_file(
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
+    frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
@@ -180,6 +185,13 @@ def from_file(
         full video as the time origin. If False (default), the frame numbers
         in the VIA tracks .csv file are instead mapped to a 0-based sequence of
         consecutive integers.
+    frame_regexp : str, optional
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension. Only used if ``use_frame_numbers_from_file`` is
+        True.
+
 
     Returns
     -------
@@ -214,6 +226,7 @@ def from_file(
             file_path,
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
+            frame_regexp=frame_regexp,
         )
     else:
         raise log_error(
@@ -225,6 +238,7 @@ def from_via_tracks_file(
     file_path: Path | str,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
+    frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
     """Create a ``movement`` dataset from a VIA tracks .csv file.
 
@@ -248,6 +262,12 @@ def from_via_tracks_file(
         but you want to maintain the start of the full video as the time
         origin. If False (default), the frame numbers in the VIA tracks .csv
         file are instead mapped to a 0-based sequence of consecutive integers.
+    frame_regexp : str, optional
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension. Only used if ``use_frame_numbers_from_file`` is
+        True.
 
     Returns
     -------
@@ -316,17 +336,19 @@ def from_via_tracks_file(
     )
 
     # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path)
+    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
     logger.debug(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(via_file.path)
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(
+        via_file.path, via_file.frame_regexp
+    )
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
         individual_names=[
-            f"id_{id}" for id in bboxes_arrays["ID_array"].squeeze()
+            f"id_{id.item()}" for id in bboxes_arrays["ID_array"]
         ],
         frame_array=(
             bboxes_arrays["frame_array"]
@@ -346,7 +368,9 @@ def from_via_tracks_file(
     return ds
 
 
-def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
+def _numpy_arrays_from_via_tracks_file(
+    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> dict:
     """Extract numpy arrays from the input VIA tracks .csv file.
 
     The extracted numpy arrays are returned in a dictionary with the following
@@ -369,6 +393,12 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     file_path : pathlib.Path
         Path to the VIA tracks .csv file containing the bounding boxes' tracks.
 
+    frame_regexp : str
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
+
     Returns
     -------
     dict
@@ -378,7 +408,7 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _df_from_via_tracks_file(file_path)
+    df = _df_from_via_tracks_file(file_path, frame_regexp)
 
     # Compute indices of the rows where the IDs switch
     bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
@@ -398,8 +428,11 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
             df[map_key_to_columns[key]].to_numpy(),
             indices_id_switch,  # indices along axis=0
         )
+        array_dict[key] = np.stack(list_arrays, axis=1)
 
-        array_dict[key] = np.stack(list_arrays, axis=1).squeeze()
+        # squeeze only last dimension if it is 1
+        if array_dict[key].shape[-1] == 1:
+            array_dict[key] = array_dict[key].squeeze(axis=-1)
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
@@ -413,7 +446,9 @@ def _numpy_arrays_from_via_tracks_file(file_path: Path) -> dict:
     return array_dict
 
 
-def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
+def _df_from_via_tracks_file(
+    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> pd.DataFrame:
     """Load VIA tracks .csv file as a dataframe.
 
     Read the VIA tracks .csv file as a pandas dataframe with columns:
@@ -429,6 +464,10 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
     empty frames are filled in with NaNs. The coordinates of the bboxes
     are assumed to be in the image coordinate system (i.e., the top-left
     corner of a bbox is its corner with minimum x and y coordinates).
+
+    The frame number is extracted from the filename using the provided
+    regexp if it is not defined as a 'file_attribute' in the VIA tracks .csv
+    file.
     """
     # Read VIA tracks .csv file as a pandas dataframe
     df_file = pd.read_csv(file_path, sep=",", header=0)
@@ -439,7 +478,9 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
             "ID": _via_attribute_column_to_numpy(
                 df_file, "region_attributes", ["track"], int
             ),
-            "frame_number": _extract_frame_number_from_via_tracks_df(df_file),
+            "frame_number": _extract_frame_number_from_via_tracks_df(
+                df_file, frame_regexp
+            ),
             "x": _via_attribute_column_to_numpy(
                 df_file, "region_shape_attributes", ["x"], float
             ),
@@ -473,7 +514,7 @@ def _df_from_via_tracks_file(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
+def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
     """Extract confidence scores from the VIA tracks input dataframe.
 
     Parameters
@@ -504,7 +545,9 @@ def _extract_confidence_from_via_tracks_df(df) -> np.ndarray:
     return bbox_confidence
 
 
-def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
+def _extract_frame_number_from_via_tracks_df(
+    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> np.ndarray:
     """Extract frame numbers from the VIA tracks input dataframe.
 
     Parameters
@@ -513,14 +556,20 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
         The VIA tracks input dataframe is the one obtained from
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
+    frame_regexp : str
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed by
+        the file extension.
+
     Returns
     -------
     np.ndarray
         A numpy array of size (n_frames, ) containing the frame numbers.
         In the VIA tracks .csv file, the frame number is expected to be
         defined as a 'file_attribute' , or encoded in the filename as an
-        integer number led by at least one zero, between "_" and ".", followed
-        by the file extension.
+        integer number led by at least one zero, followed by the file
+        extension.
 
     """
     # Extract frame number from file_attributes if exists
@@ -534,10 +583,9 @@ def _extract_frame_number_from_via_tracks_df(df) -> np.ndarray:
         )
     # Else extract from filename
     else:
-        pattern = r"_(0\d*)\.\w+$"
         list_frame_numbers = [
-            int(re.search(pattern, f).group(1))  # type: ignore
-            if re.search(pattern, f)
+            int(re.search(frame_regexp, f).group(1))  # type: ignore
+            if re.search(frame_regexp, f)
             else np.nan
             for f in df["filename"]
         ]

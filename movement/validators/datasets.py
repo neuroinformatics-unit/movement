@@ -349,11 +349,12 @@ class ValidBboxesDataset:
                 value,
                 expected_shape=(self.position_array.shape[0], 1),
             )
-            # check frames are continuous: exactly one frame number per row
-            if not np.all(np.diff(value, axis=0) == 1):
+            # check frames are monotonically increasing
+            if not np.all(np.diff(value, axis=0) >= 1):
                 raise log_error(
                     ValueError,
-                    f"Frame numbers in {attribute.name} are not continuous.",
+                    f"Frame numbers in {attribute.name} are not monotonically "
+                    "increasing.",
                 )
 
     # Define defaults
