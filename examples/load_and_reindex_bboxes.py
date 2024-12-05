@@ -330,7 +330,7 @@ with open(filepath, mode="w", newline="") as file:
             )
 
 # %%
-# Remove the output file
+# Clean-up
 # ----------------------
 # To remove the output file we have just created, we can run the following
 # code.
