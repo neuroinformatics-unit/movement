@@ -49,6 +49,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
     "sphinx.ext.autosectionlabel",
+    "ablog",
 ]
 
 # Configure the myst parser to enable cool markdown features
