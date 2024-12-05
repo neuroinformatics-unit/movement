@@ -1,8 +1,7 @@
-"""Load and reindex bounding boxes tracks
+"""Load and upsample bounding boxes tracks
 ==========================================
 
-Load an example dataset of bounding boxes' tracks and reindex
-it to every frame.
+Load bounding boxes tracks and upsample them to match the video frame rate.
 """
 
 # %%
