@@ -332,7 +332,7 @@ class ValidVIATracksCSV:
         for k_i, k in enumerate(file_attributes_dicts):
             try:
                 list_frame_numbers.append(int(k["frame"]))
-            except Exception as e:
+            except ValueError as e:
                 raise log_error(
                     ValueError,
                     f"{df.filename.iloc[k_i]} (row {k_i}): "
