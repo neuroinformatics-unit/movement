@@ -167,6 +167,12 @@ html_css_files = [
     ("css/custom.css", {"priority": 100}),
 ]
 html_favicon = "_static/light-logo-niu.png"
+html_sidebars = {
+   'blog/index': [
+       # Ablog sidebars (https://ablog.readthedocs.io/en/stable/manual/ablog-configuration-options.html#sidebars)
+       'ablog/recentposts.html'],  # 'ablog/archives.html << we may want to use archives when we have more posts.
+    "**": [],
+}
 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
