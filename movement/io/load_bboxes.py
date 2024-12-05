@@ -189,7 +189,8 @@ def from_file(
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
-        by the file extension.
+        by the file extension. Only used if ``use_frame_numbers_from_file`` is
+        True.
 
 
     Returns
@@ -265,7 +266,8 @@ def from_via_tracks_file(
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
-        by the file extension.
+        by the file extension. Only used if ``use_frame_numbers_from_file`` is
+        True.
 
     Returns
     -------
