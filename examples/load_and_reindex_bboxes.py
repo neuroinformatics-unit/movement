@@ -77,19 +77,20 @@ print(f"Number of channels: {channels}")
 # We can plot the data over the corresponding video frames to
 # visualise the bounding boxes around the tracked crab.
 #
-# Let's focus on the first 15 frames of the video, and plot the annotated
-# bounding box and centroid at each frame. The centroid at each frame is
-# marked as a blue marker with a red ring. The past centroid positions are
-# shown in blue and the future centroid positions in white.
+# Let's inspect the first 6 frames of the video for which we have
+# annotations, and plot the annotated bounding box and centroid at each frame.
+# The centroid at each frame is marked as a blue marker with a red ring.
+# The past centroid positions are shown in blue and the future centroid
+# positions in white.
 #
 # Note that in this case the camera is not static relative to the scene.
 
 # select indices of data to plot
 data_start_idx = 0
-data_end_idx = 15
+data_end_idx = 6
 
 # initialise figure
-fig = plt.figure(figsize=(8, 20))  # width, height
+fig = plt.figure(figsize=(8, 10))  # width, height
 
 # get list of colors for plotting
 list_colors = plt.get_cmap("tab10").colors
