@@ -50,12 +50,12 @@ ds = load_bboxes.from_via_tracks_file(
 print(ds)
 
 # %%
-# We can see the coordinates in the time dimension are expressed in frames,
+# We can see that coordinates in the time dimension are expressed in frames,
 # and that we only have data for 1 in 5 frames of the video, plus
 # the last frame (167).
 #
-# In the following sections of the notebook we will explore options to reindex
-# the dataset and fill in values for the frames with missing data.
+# In the following sections of the notebook we will explore options to upsample
+# the dataset by filling in values for video frames with no data.
 print(ds.time)
 
 # %%
