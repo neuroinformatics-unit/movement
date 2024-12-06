@@ -7,20 +7,52 @@ category: release
 language: English
 ---
 
-# movement end-of-year updates
+# Release v0.0.21 and next steps
 
-_This is our inaugaural blogpost, with a summary of the latest `v0.0.21` release and a preview of what's coming next in 2025._
-
-From now on, we'll be using this blog to post updates
-about releases, community news, or the occasional technical deep dive.
+_This is our inaugaural blogpost, containing a summary of the `v0.0.21` release and a preview of what's coming next in 2025._
 
 ## What's new in movement v0.0.21?
 
-This release packs many new features and improvements,
-which we are excited to share with you.
-
+:::{tip}
 See our [installation guide](target-installation) for instructions on how to
 install the latest version or upgrade from an existing installation.
+:::
+
+__Input/Output__
+
+- We have added the {func}`movement.io.load_poses.from_multiview_files` function to support loading pose tracking data from multiple camera views.
+- We have made several small improvements to reading bounding boxes tracks. See our new {ref}`example <sphx_glr_examples_load_and_upsample_bboxes.py>` to learn more about working with bounding boxes.
+- We have added a new {ref}`example <sphx_glr_examples_convert_file_formats.py>` on using `movement` to convert pose tracking data between different file formats.
+
+__Kinematics__
+
+The {mod}`kinematics <movement.kinematics>` module has been moved from `movement.analysis.kinematics` to `movement.kinematics` and packs a number of new functions:
+- {func}`compute_forward_vector <movement.kinematics.compute_forward_vector>`
+- {func}`compute_head_direction_vector <movement.kinematics.compute_head_direction_vector>`
+- {func}`compute_pairwise_distances <movement.kinematics.compute_pairwise_distances>`
+- {func}`compute_speed <movement.kinematics.compute_speed>`
+- {func}`compute_path_length <movement.kinematics.compute_path_length>`
+
+__Breaking changes__
+
+- We have dropped support for using filtering and
+kinematic functions via the `move` accessor syntax,
+because we've found the concept hard to convey to new users. All functions are henceforth solely accessible by importing them from the relevant modules. Having one way of doing things should reduce the maintenance burden on our end. See an example below:
+
+  ```python
+  # Instead of:
+  position_filt = ds.move.median_filter(window=5)
+  velocity = ds.move.compute_velocity()
+
+  # Use:
+  from movement.filtering import median_filter
+  from movement.kinematics import compute_velocity
+
+  position_filt = median_filter(ds.position, window=5)
+  velocity = compute_velocity(ds.position)
+  ```
+- We have slightly modified the [structure of movement datasets](target-poses-and-bboxes-dataset), by moving the `space` dimension from the last to the second position, following `time`. This should not affect you if you are indexing data by dimension names, i.e. using the {meth}`xarray.Dataset.sel` or {meth}`xarray.Dataset.isel` methods. However, you may need to update your code if you are indexing data by position.
+
 
 ## Looking to v0.1 and beyond
 
