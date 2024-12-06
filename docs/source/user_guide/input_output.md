@@ -238,7 +238,7 @@ Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
 ```python
 # define name for output csv file
-file = 'tracking_output.csv"
+filepath = "tracking_output.csv"
 
 # open the csv file in write mode
 with open(filepath, mode="w", newline="") as file:
