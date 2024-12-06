@@ -735,16 +735,12 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
     n_keypoints = len(keypoint_names)
 
     # Initialize arrays and fill
-    position_array = np.zeros(
-        (n_frames, 1, n_keypoints, 3)
-    )  # 1 for single individual
-    confidence_array = np.zeros((n_frames, 1, n_keypoints))
+    position_array = np.zeros((n_frames, 3, n_keypoints, 1))  # 1 for single individual
+    confidence_array = np.zeros((n_frames, n_keypoints, 1))
     for i, kp in enumerate(keypoint_names):
         for j, coord in enumerate(["x", "y", "z"]):
-            position_array[:, 0, i, j] = anipose_triangulation_df[
-                f"{kp}_{coord}"
-            ]
-        confidence_array[:, 0, i] = anipose_triangulation_df[f"{kp}_score"]
+            position_array[:, j, i, 0] = anipose_triangulation_df[f"{kp}_{coord}"]
+        confidence_array[:, i, 0] = anipose_triangulation_df[f"{kp}_score"]
 
     individual_names = [individual_name]
 
