@@ -168,7 +168,7 @@ fig.tight_layout()
 # has no annotation defined.
 
 ds_ff = ds.reindex(
-    {"time": list(range(ds.time[-1].item()))},
+    {"time": list(range(ds.time[-1].item() + 1))},
     method="ffill",  # propagate last valid index value forward
 )
 
@@ -242,7 +242,7 @@ plot_position_and_shape_xy_coords(
 # Alternatively, we can fill in the empty frames with NaN values.
 # This can be useful if we want to interpolate later.
 ds_nan = ds.reindex(
-    {"time": list(range(ds.time[-1].item()))},
+    {"time": list(range(ds.time[-1].item() + 1))},
     method=None,  # default
 )
 
