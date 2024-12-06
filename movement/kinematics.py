@@ -273,38 +273,32 @@ def compute_forward_vector(
             "Input data must have exactly 2 spatial dimensions, but "
             f"currently has {len(data.space)}.",
         )
-
     # Validate input keypoints
     if left_keypoint == right_keypoint:
         raise log_error(
             ValueError, "The left and right keypoints may not be identical."
         )
-
     # Define right-to-left vector
     right_to_left_vector = data.sel(
         keypoints=left_keypoint, drop=True
     ) - data.sel(keypoints=right_keypoint, drop=True)
-
     # Define upward vector
     # default: negative z direction in the image coordinate system
-    if camera_view == "top_down":
-        upward_vector = np.array([0, 0, -1])
-    else:
-        upward_vector = np.array([0, 0, 1])
-
+    upward_vector = (
+        np.array([0, 0, -1])
+        if camera_view == "top_down"
+        else np.array([0, 0, 1])
+    )
     upward_vector = xr.DataArray(
         np.tile(upward_vector.reshape(1, -1), [len(data.time), 1]),
         dims=["time", "space"],
     )
-
     # Compute forward direction as the cross product
     # (right-to-left) cross (forward) = up
     forward_vector = xr.cross(
         right_to_left_vector, upward_vector, dim="space"
     )[:, :, :-1]  # keep only the first 2 dimensions of the result
-
     # Return unit vector
-
     return forward_vector / compute_norm(forward_vector)
 
 
@@ -780,7 +774,6 @@ def compute_path_length(
                 time=slice(1, None)
             )  # skip first displacement (always 0)
         ).sum(dim="time", min_count=1)  # return NaN if no valid segment
-
     elif nan_policy == "scale":
         return _compute_scaled_path_length(data)
     else:
@@ -815,7 +808,6 @@ def _warn_about_nan_proportion(
             ValueError,
             "nan_warn_threshold must be between 0 and 1.",
         )
-
     n_nans = data.isnull().any(dim="space").sum(dim="time")
     data_to_warn_about = data.where(
         n_nans > data.sizes["time"] * nan_warn_threshold, drop=True

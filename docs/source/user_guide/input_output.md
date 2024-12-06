@@ -93,7 +93,7 @@ with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypo
 import numpy as np
 
 ds = load_poses.from_numpy(
-    position_array=np.random.rand((100, 2, 3, 2)),
+    position_array=np.random.rand(100, 2, 3, 2),
     confidence_array=np.ones((100, 2, 3)),
     individual_names=["Alice", "Bob"],
     keypoint_names=["snout", "centre", "tail_base"],
@@ -256,7 +256,7 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
-Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {func}`.xarray.DataArray.to_dataframe()` method, wrangle the dataframe as required, and then apply the {func}`.pandas.DataFrame.to_csv()` method to save the data as a .csv file.
+Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 
 
 (target-sample-data)=

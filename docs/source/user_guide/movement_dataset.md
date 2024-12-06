@@ -43,15 +43,15 @@ print(ds)
 and we would obtain an output such as:
 ```
 <xarray.Dataset> Size: 27kB
-Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
+Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-  * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
-  * keypoints    (keypoints) <U8 32B 'centroid'
   * space        (space) <U1 8B 'x' 'y'
+  * keypoints    (keypoints) <U8 32B 'centroid'
+  * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
 Data variables:
-    position     (time, individuals, keypoints, space) float32 14kB 770.3 ......
-    confidence   (time, individuals, keypoints) float32 7kB nan nan ... nan nan
+    position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
+    confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
 Attributes:
     fps:              50.0
     time_unit:        seconds
@@ -78,14 +78,14 @@ print(ds)
 and the last command would print out:
 ```
 <xarray.Dataset> Size: 19kB
-Dimensions:      (time: 5, individuals: 86, space: 2)
+Dimensions:      (time: 5, space: 2, individuals: 86)
 Coordinates:
   * time         (time) int64 40B 0 1 2 3 4
-  * individuals  (individuals) <U5 2kB 'id_1' 'id_2' 'id_3' ... 'id_89' 'id_90'
   * space        (space) <U1 8B 'x' 'y'
+  * individuals  (individuals) <U5 2kB 'id_1' 'id_2' 'id_3' ... 'id_89' 'id_90'
 Data variables:
-    position     (time, individuals, space) float64 7kB 871.8 ... 905.3
-    shape        (time, individuals, space) float64 7kB 60.0 53.0 ... 51.0 36.0
+    position     (time, space, individuals) float64 7kB 901.8 ... 923.3
+    shape        (time, space, individuals) float64 7kB 60.0 30.0 ... 72.0 36.0
     confidence   (time, individuals) float64 3kB nan nan nan nan ... nan nan nan
 Attributes:
     fps:              None
@@ -114,25 +114,25 @@ the labelled "ticks" along each axis are called **coordinates** (`coords`).
 :::{tab-item} Poses dataset
 A `movement` poses dataset has the following **dimensions**:
 - `time`, with size equal to the number of frames in the video.
-- `individuals`, with size equal to the number of tracked individuals/instances.
-- `keypoints`, with size equal to the number of tracked keypoints per individual.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D poses.
+- `keypoints`, with size equal to the number of tracked keypoints per individual.
+- `individuals`, with size equal to the number of tracked individuals/instances.
 :::
 
 :::{tab-item} Bounding boxes' dataset
 A `movement` bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
-- `individuals`, with size equal to the number of tracked individuals/instances.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
+- `individuals`, with size equal to the number of tracked individuals/instances.
 Notice that these are the same dimensions as for a poses dataset, except for the `keypoints` dimension.
 :::
 ::::
 
 In both cases, appropriate **coordinates** are assigned to each **dimension**.
-- `individuals` are labelled with a list of unique names (e.g. `mouse1`, `mouse2`, etc. or `id_0`, `id_1`, etc.).
-- `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc. Note that this dimension only exists in the poses dataset.
-- `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D). Note that bounding boxes datasets are restricted to 2D space.
 - `time` is labelled in seconds if `fps` is provided, otherwise the **coordinates** are expressed in frames (ascending 0-indexed integers).
+- `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D). Note that bounding boxes datasets are restricted to 2D space.
+- `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc. Note that this dimension only exists in the poses dataset.
+- `individuals` are labelled with a list of unique names (e.g. `mouse1`, `mouse2`, etc. or `id_0`, `id_1`, etc.).
 
 :::{dropdown} Additional dimensions
 :color: info
@@ -156,14 +156,14 @@ The specific data variables stored are slightly different between a `movement` p
 ::::{tab-set}
 :::{tab-item} Poses dataset
 A `movement` poses dataset contains two **data variables**:
-- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `individuals`, `keypoints`, `space`).
-- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `individuals`, `keypoints`).
+- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `space`, `keypoints`, `individuals`).
+- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `keypoints`, `individuals`).
 :::
 
 :::{tab-item} Bounding boxes' dataset
 A `movement` bounding boxes dataset contains three **data variables**:
-- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `individuals`, `space`).
-- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `individuals`, `space`).
+- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `space`, `individuals`).
+- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `space`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
 :::
 ::::
