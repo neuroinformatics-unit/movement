@@ -49,6 +49,7 @@ extensions = [
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
     "sphinx.ext.autosectionlabel",
+    "ablog",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -187,6 +188,7 @@ myst_url_schemes = {
     "mailto": None,
     "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
     "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
+    "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "conda": "https://docs.conda.io/en/latest/",
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
@@ -205,7 +207,7 @@ myst_url_schemes = {
 
 intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
 }
 
