@@ -698,9 +698,9 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     )
 
 
-def from_anipose_df(anipose_triangulation_df, individual_name="individual_0", fps=None):
+def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
     """Convert triangulation dataframe to xarray dataset.
-    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z, keypoint1_confidence_score, 
+    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z, keypoint1_confidence_score,
     keypoint2_x, keypoint2_y, keypoint2_z, keypoint2_confidence_score, ...
     to array of positions with dimensions time, individuals, keypoints, space,
     and array of confidence scores with dimensions time, individuals, keypoints
@@ -717,32 +717,47 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0", fp
     xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
+
     """
-    keypoint_names = sorted(list(set([col.rsplit('_', 1)[0] for col in anipose_triangulation_df.columns 
-                                   if any(col.endswith(f'_{s}') for s in ['x','y','z'])])))
+    keypoint_names = sorted(
+        list(
+            set(
+                [
+                    col.rsplit("_", 1)[0]
+                    for col in anipose_triangulation_df.columns
+                    if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
+                ]
+            )
+        )
+    )
 
     n_frames = len(anipose_triangulation_df)
     n_keypoints = len(keypoint_names)
 
     # Initialize arrays and fill
-    position_array = np.zeros((n_frames, 3, n_keypoints, 1))  # 1 for single individual
-    confidence_array = np.zeros((n_frames, n_keypoints, 1))
+    position_array = np.zeros(
+        (n_frames, 1, n_keypoints, 3)
+    )  # 1 for single individual
+    confidence_array = np.zeros((n_frames, 1, n_keypoints))
     for i, kp in enumerate(keypoint_names):
-        for j, coord in enumerate(['x', 'y', 'z']):
-            position_array[:, j, i, 0] = anipose_triangulation_df[f'{kp}_{coord}']
-        confidence_array[:, i, 0] = anipose_triangulation_df[f'{kp}_score']
+        for j, coord in enumerate(["x", "y", "z"]):
+            position_array[:, 0, i, j] = anipose_triangulation_df[
+                f"{kp}_{coord}"
+            ]
+        confidence_array[:, 0, i] = anipose_triangulation_df[f"{kp}_score"]
 
     individual_names = [individual_name]
 
-    return from_numpy(position_array=position_array,
-                      confidence_array=confidence_array, 
-                      individual_names=individual_names,
-                      keypoint_names=keypoint_names,
-                      source_software="anipose",
-                      fps=fps)
+    return from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        source_software="anipose_triangulation",
+    )
 
 
-def from_anipose_csv(anipose_csv_path, individual_name="individual_0", fps=None):
+def from_anipose_csv(anipose_csv_path, individual_name="individual_0"):
     """Convert anipose csv to xarray dataset.
 
     Parameters
@@ -757,9 +772,8 @@ def from_anipose_csv(anipose_csv_path, individual_name="individual_0", fps=None)
     xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
+
     """
     anipose_triangulation_df = pd.read_csv(anipose_csv_path)
     # TODO add a validator for the anipose csv file at this level?
-    ds = from_anipose_df(anipose_triangulation_df, individual_name, fps)
-    ds.attrs["source_file"] = anipose_csv_path.as_posix()
-    return ds
+    return from_anipose_df(anipose_triangulation_df, individual_name)
