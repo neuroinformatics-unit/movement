@@ -110,7 +110,7 @@ sphinx_gallery_conf = {
         "dependencies": ["environment.yml"],
     },
     "reference_url": {"movement": None},
-    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image  
+    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
     "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
@@ -206,6 +206,7 @@ myst_url_schemes = {
 intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
 }
 
 

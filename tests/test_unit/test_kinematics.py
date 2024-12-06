@@ -86,19 +86,19 @@ def test_kinematics_uniform_linear_motion(
     # and in the final xarray.DataArray
     expected_dims = ["time", "individuals"]
     if kinematic_variable in ["displacement", "velocity", "acceleration"]:
-        expected_dims.append("space")
+        expected_dims.insert(1, "space")
 
     # Build expected data array from the expected numpy array
     expected_array = xr.DataArray(
         # Stack along the "individuals" axis
-        np.stack(expected_kinematics, axis=1),
+        np.stack(expected_kinematics, axis=-1),
         dims=expected_dims,
     )
     if "keypoints" in position.coords:
         expected_array = expected_array.expand_dims(
             {"keypoints": position.coords["keypoints"].size}
         )
-        expected_dims.insert(2, "keypoints")
+        expected_dims.insert(-1, "keypoints")
         expected_array = expected_array.transpose(*expected_dims)
 
     # Compare the values of the kinematic_array against the expected_array
@@ -140,19 +140,15 @@ def test_kinematics_with_dataset_with_nans(
     kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
-
     # compute n nans in kinematic array per individual
     n_nans_kinematics_per_indiv = [
         helpers.count_nans(kinematic_array.isel(individuals=i))
         for i in range(valid_dataset.sizes["individuals"])
     ]
-
     # expected nans per individual adjusted for space and keypoints dimensions
-    if "space" in kinematic_array.dims:
-        n_space_dims = position.sizes["space"]
-    else:
-        n_space_dims = 1
-
+    n_space_dims = (
+        position.sizes["space"] if "space" in kinematic_array.dims else 1
+    )
     expected_nans_adjusted = [
         n * n_space_dims * valid_dataset.sizes.get("keypoints", 1)
         for n in expected_nans_per_individual
@@ -263,11 +259,11 @@ def test_path_length_across_time_ranges(
             num_segments -= 9 - np.floor(min(9, stop))
 
         expected_path_length = xr.DataArray(
-            np.ones((2, 3)) * np.sqrt(2) * num_segments,
-            dims=["individuals", "keypoints"],
+            np.ones((3, 2)) * np.sqrt(2) * num_segments,
+            dims=["keypoints", "individuals"],
             coords={
-                "individuals": position.coords["individuals"],
                 "keypoints": position.coords["keypoints"],
+                "individuals": position.coords["individuals"],
             },
         )
         xr.testing.assert_allclose(path_length, expected_path_length)

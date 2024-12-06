@@ -75,10 +75,10 @@ invalid_bboxes_arrays_and_expected_log = {
             f"Expected a numpy array, but got {type(list())}.",
         ),  # not an ndarray
         (
-            np.zeros((10, 2, 3)),
+            np.zeros((10, 3, 2)),
             f"Expected '{key}_array' to have 2 spatial "
             "coordinates, but got 3.",
-        ),  # last dim not 2
+        ),  # `space` dim (at idx 1) not 2
     ]
     for key in ["position", "shape"]
 }
@@ -101,10 +101,10 @@ invalid_bboxes_arrays_and_expected_log = {
             "Expected 'position_array' to have 4 dimensions, but got 3.",
         ),  # not 4d
         (
-            np.zeros((10, 2, 3, 4)),
+            np.zeros((10, 4, 3, 2)),
             "Expected 'position_array' to have 2 or 3 "
             "spatial dimensions, but got 4.",
-        ),  # last dim not 2 or 3
+        ),  # `space` dim (at idx 1) not 2 or 3
     ],
 )
 def test_poses_dataset_validator_with_invalid_position_array(

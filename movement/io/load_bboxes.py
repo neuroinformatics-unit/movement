@@ -36,12 +36,12 @@ def from_numpy(
     Parameters
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding boxes' centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
@@ -56,7 +56,7 @@ def from_numpy(
         If None (default), bounding boxes are assigned names based on the size
         of the ``position_array``. The names will be in the format of
         ``id_<N>``, where <N>  is an integer from 0 to
-        ``position_array.shape[1]-1`` (i.e., "id_0", "id_1"...).
+        ``position_array.shape[-1]-1`` (i.e., "id_0", "id_1"...).
     frame_array : np.ndarray, optional
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
@@ -376,9 +376,9 @@ def _numpy_arrays_from_via_tracks_file(
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
 
-    - position_array (n_frames, n_individuals, n_space):
+    - position_array (n_frames, n_space, n_individuals):
         contains the trajectories of the bounding boxes' centroids.
-    - shape_array (n_frames, n_individuals, n_space):
+    - shape_array (n_frames, n_space, n_individuals):
         contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
         contains the confidence score of each bounding box.
@@ -428,11 +428,11 @@ def _numpy_arrays_from_via_tracks_file(
             df[map_key_to_columns[key]].to_numpy(),
             indices_id_switch,  # indices along axis=0
         )
-        array_dict[key] = np.stack(list_arrays, axis=1)
+        array_dict[key] = np.stack(list_arrays, axis=-1)
 
         # squeeze only last dimension if it is 1
-        if array_dict[key].shape[-1] == 1:
-            array_dict[key] = array_dict[key].squeeze(axis=-1)
+        if array_dict[key].shape[1] == 1:
+            array_dict[key] = array_dict[key].squeeze(axis=1)
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
@@ -677,21 +677,21 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         time_unit = "seconds"
 
     # Convert data to an xarray.Dataset
-    # with dimensions ('time', 'individuals', 'space')
+    # with dimensions ('time', 'space', 'individuals')
     DIM_NAMES = ValidBboxesDataset.DIM_NAMES
-    n_space = data.position_array.shape[-1]
+    n_space = data.position_array.shape[1]
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:-1]
+                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
             ),
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: data.individual_names,
-            DIM_NAMES[2]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[2]: data.individual_names,
         },
         attrs={
             "fps": data.fps,

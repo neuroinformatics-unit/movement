@@ -223,10 +223,10 @@ def valid_bboxes_arrays_all_zeros():
     ValidBboxesDataset.
     """
     # define the shape of the arrays
-    n_frames, n_individuals, n_space = (10, 2, 2)
+    n_frames, n_space, n_individuals = (10, 2, 2)
 
     # build a valid array for position or shape with all zeros
-    valid_bbox_array_all_zeros = np.zeros((n_frames, n_individuals, n_space))
+    valid_bbox_array_all_zeros = np.zeros((n_frames, n_space, n_individuals))
 
     # return as a dict
     return {
@@ -252,21 +252,23 @@ def valid_bboxes_arrays():
     - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
-    n_frames, n_individuals, n_space = (10, 2, 2)
+    n_frames, n_space, n_individuals = (10, 2, 2)
 
     # build a valid array for position
     # make bbox with id_i move along x=((-1)**(i))*y line from the origin
     # if i is even: along x = y line
     # if i is odd: along x = -y line
     # moving one unit along each axis in each frame
-    position = np.empty((n_frames, n_individuals, n_space))
+    position = np.zeros((n_frames, n_space, n_individuals))
     for i in range(n_individuals):
-        position[:, i, 0] = np.arange(n_frames)
-        position[:, i, 1] = (-1) ** i * np.arange(n_frames)
+        position[:, 0, i] = np.arange(n_frames)
+        position[:, 1, i] = (-1) ** i * np.arange(n_frames)
 
     # build a valid array for constant bbox shape (60, 40)
     constant_shape = (60, 40)  # width, height in pixels
-    shape = np.tile(constant_shape, (n_frames, n_individuals, 1))
+    shape = np.tile(constant_shape, (n_frames, n_individuals, 1)).transpose(
+        0, 2, 1
+    )
 
     # build an array of confidence values, all 0.9
     confidence = np.full((n_frames, n_individuals), 0.9)
@@ -304,12 +306,14 @@ def valid_bboxes_dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
             "shape": xr.DataArray(shape_array, dims=dim_names),
-            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+            "confidence": xr.DataArray(
+                confidence_array, dims=dim_names[:1] + dim_names[2:]
+            ),
         },
         coords={
             dim_names[0]: np.arange(n_frames),
-            dim_names[1]: [f"id_{id}" for id in range(n_individuals)],
-            dim_names[2]: ["x", "y"],
+            dim_names[1]: ["x", "y"],
+            dim_names[2]: [f"id_{id}" for id in range(n_individuals)],
         },
         attrs={
             "fps": None,
@@ -354,10 +358,10 @@ def valid_position_array():
     def _valid_position_array(array_type):
         """Return a valid position array."""
         # Unless specified, default is a multi_individual_array with
-        # 10 frames, 2 individuals, and 2 keypoints.
+        # 10 frames, 2 keypoints, and 2 individuals.
         n_frames = 10
-        n_individuals = 2
         n_keypoints = 2
+        n_individuals = 2
         base = np.arange(n_frames, dtype=float)[
             :, np.newaxis, np.newaxis, np.newaxis
         ]
@@ -365,10 +369,10 @@ def valid_position_array():
             n_keypoints = 1
         elif array_type == "single_individual_array":
             n_individuals = 1
-        x_points = np.repeat(base * base, n_individuals * n_keypoints)
-        y_points = np.repeat(base * 4, n_individuals * n_keypoints)
-        position_array = np.ravel(np.column_stack((x_points, y_points)))
-        return position_array.reshape(n_frames, n_individuals, n_keypoints, 2)
+        x_points = np.repeat(base * base, n_keypoints * n_individuals)
+        y_points = np.repeat(base * 4, n_keypoints * n_individuals)
+        position_array = np.vstack((x_points, y_points))
+        return position_array.reshape(n_frames, 2, n_keypoints, n_individuals)
 
     return _valid_position_array
 
@@ -383,23 +387,25 @@ def valid_poses_dataset(valid_position_array, request):
     except AttributeError:
         array_format = "multi_individual_array"
     position_array = valid_position_array(array_format)
-    n_frames, n_individuals, n_keypoints = position_array.shape[:3]
+    n_frames, n_keypoints, n_individuals = (
+        position_array.shape[:1] + position_array.shape[2:]
+    )
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
             "confidence": xr.DataArray(
                 np.repeat(
                     np.linspace(0.1, 1.0, n_frames),
-                    n_individuals * n_keypoints,
-                ).reshape(position_array.shape[:-1]),
-                dims=dim_names[:-1],
+                    n_keypoints * n_individuals,
+                ).reshape(position_array.shape[:1] + position_array.shape[2:]),
+                dims=dim_names[:1] + dim_names[2:],  # exclude "space"
             ),
         },
         coords={
             "time": np.arange(n_frames),
-            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
-            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
             "space": ["x", "y"],
+            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
+            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
         },
         attrs={
             "fps": None,
@@ -437,7 +443,7 @@ def valid_poses_array_uniform_linear_motion():
     - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
-    n_frames, n_individuals, n_keypoints, n_space = (10, 2, 3, 2)
+    n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
 
     # define centroid (index=0) trajectory in position array
     # for each individual, the centroid moves along
@@ -446,9 +452,9 @@ def valid_poses_array_uniform_linear_motion():
     # - individual 1 moves along x = -y line
     # They move one unit along x and y axes in each frame
     frames = np.arange(n_frames)
-    position = np.empty((n_frames, n_individuals, n_keypoints, n_space))
-    position[:, :, 0, 0] = frames[:, None]  # reshape to (n_frames, 1)
-    position[:, 0, 0, 1] = frames
+    position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
+    position[:, 0, 0, :] = frames[:, None]  # reshape to (n_frames, 1)
+    position[:, 1, 0, 0] = frames
     position[:, 1, 0, 1] = -frames
 
     # define trajectory of left and right keypoints
@@ -464,21 +470,21 @@ def valid_poses_array_uniform_linear_motion():
     ]
     for i in range(n_individuals):
         for kpt in range(1, n_keypoints):
-            position[:, i, kpt, 0] = (
-                position[:, i, 0, 0] + offsets[i][kpt - 1][0]
+            position[:, 0, kpt, i] = (
+                position[:, 0, 0, i] + offsets[i][kpt - 1][0]
             )
-            position[:, i, kpt, 1] = (
-                position[:, i, 0, 1] + offsets[i][kpt - 1][1]
+            position[:, 1, kpt, i] = (
+                position[:, 1, 0, i] + offsets[i][kpt - 1][1]
             )
 
     # build an array of confidence values, all 0.9
-    confidence = np.full((n_frames, n_individuals, n_keypoints), 0.9)
+    confidence = np.full((n_frames, n_keypoints, n_individuals), 0.9)
     # set 5 low-confidence values
     # - set 3 confidence values for individual id_0's centroid to 0.1
     # - set 2 confidence values for individual id_1's centroid to 0.1
     idx_start = 2
     confidence[idx_start : idx_start + 3, 0, 0] = 0.1
-    confidence[idx_start : idx_start + 2, 1, 0] = 0.1
+    confidence[idx_start : idx_start + 2, 0, 1] = 0.1
 
     return {"position": position, "confidence": confidence}
 
@@ -495,18 +501,20 @@ def valid_poses_dataset_uniform_linear_motion(
     position_array = valid_poses_array_uniform_linear_motion["position"]
     confidence_array = valid_poses_array_uniform_linear_motion["confidence"]
 
-    n_frames, n_individuals, _, _ = position_array.shape
+    n_frames, _, _, n_individuals = position_array.shape
 
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
-            "confidence": xr.DataArray(confidence_array, dims=dim_names[:-1]),
+            "confidence": xr.DataArray(
+                confidence_array, dims=dim_names[:1] + dim_names[2:]
+            ),
         },
         coords={
             dim_names[0]: np.arange(n_frames),
-            dim_names[1]: [f"id_{i}" for i in range(1, n_individuals + 1)],
+            dim_names[1]: ["x", "y"],
             dim_names[2]: ["centroid", "left", "right"],
-            dim_names[3]: ["x", "y"],
+            dim_names[3]: [f"id_{i}" for i in range(1, n_individuals + 1)],
         },
         attrs={
             "fps": None,
@@ -874,3 +882,72 @@ class Helpers:
 def helpers():
     """Return an instance of the ``Helpers`` class."""
     return Helpers
+
+
+# --------- movement dataset assertion fixtures ---------
+class MovementDatasetAsserts:
+    """Class for asserting valid ``movement`` poses or bboxes datasets."""
+
+    @staticmethod
+    def valid_dataset(dataset, expected_values):
+        """Assert the dataset is a proper ``movement`` Dataset.
+
+        Parameters
+        ----------
+        dataset : xr.Dataset
+            The dataset to validate.
+        expected_values : dict
+            A dictionary containing the expected values for the dataset.
+            It must contain the following keys:
+
+            - dim_names: list of expected dimension names as defined in
+              movement.validators.datasets
+            - vars_dims: dictionary of data variable names and the
+              corresponding dimension sizes
+
+            Optional keys include:
+
+            - file_path: Path to the source file
+            - fps: int, frames per second
+            - source_software: str, name of the software used to generate
+              the dataset
+
+        """
+        expected_dim_names = expected_values.get("dim_names")
+        expected_file_path = expected_values.get("file_path")
+        assert isinstance(dataset, xr.Dataset)
+        # Expected variables are present and of right shape/type
+        for var, ndim in expected_values.get("vars_dims").items():
+            data_var = dataset.get(var)
+            assert isinstance(data_var, xr.DataArray)
+            assert data_var.ndim == ndim
+        position_shape = dataset.position.shape
+        # Confidence has the same shape as position, except for the space dim
+        assert (
+            dataset.confidence.shape == position_shape[:1] + position_shape[2:]
+        )
+        # Check the dims and coords
+        expected_dim_length_dict = dict(
+            zip(expected_dim_names, position_shape, strict=True)
+        )
+        assert expected_dim_length_dict == dataset.sizes
+        # Check the coords
+        for dim in expected_dim_names[1:]:
+            assert all(isinstance(s, str) for s in dataset.coords[dim].values)
+        assert all(coord in dataset.coords["space"] for coord in ["x", "y"])
+        # Check the metadata attributes
+        assert dataset.source_file == (
+            expected_file_path.as_posix()
+            if expected_file_path is not None
+            else None
+        )
+        assert dataset.source_software == expected_values.get(
+            "source_software"
+        )
+        assert dataset.fps == expected_values.get("fps")
+
+
+@pytest.fixture
+def movement_dataset_asserts():
+    """Return an instance of the ``MovementDatasetAsserts`` class."""
+    return MovementDatasetAsserts
