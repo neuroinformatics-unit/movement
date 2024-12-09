@@ -25,6 +25,7 @@ def pytest_configure():
         paths_dict = fetch_dataset_paths(file_name)
         data_path = paths_dict.get("poses") or paths_dict.get("bboxes")
         pytest.DATA_PATHS[file_name] = data_path
+        print(file_name, data_path)
 
 
 @pytest.fixture(autouse=True)
