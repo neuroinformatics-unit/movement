@@ -15,17 +15,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
@@ -35,13 +37,14 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
-    <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -49,9 +52,10 @@
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/load_poses.html" />
     <link rel="icon" href="../../../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
   </head>
   
   
@@ -67,19 +71,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../../../search.html"
       method="get">
@@ -87,7 +80,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -95,8 +87,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -125,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.20</p>
+    <p class="title logo__title">movement v0.0.21</p>
   
 </a></div>
     
@@ -140,8 +132,8 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -162,7 +154,14 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -177,29 +176,21 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
         <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -236,15 +227,11 @@ document.write(`
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -261,7 +248,8 @@ document.write(`
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -277,8 +265,8 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -299,7 +287,14 @@ document.write(`
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -315,15 +310,11 @@ document.write(`
         
           <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -379,8 +370,6 @@ document.write(`
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -392,7 +381,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">movement.io....</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.load_poses</span></li>
   </ul>
 </nav>
 </div>
@@ -408,8 +397,7 @@ document.write(`
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                  
-  <h1>Source code for movement.io.load_poses</h1><div class="highlight"><pre>
+                   <h1>Source code for movement.io.load_poses</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Load pose tracking data from various frameworks into ``movement``.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -423,7 +411,6 @@ document.write(`
 <span class="kn">from</span> <span class="nn">sleap_io.io.slp</span> <span class="kn">import</span> <span class="n">read_labels</span>
 <span class="kn">from</span> <span class="nn">sleap_io.model.labels</span> <span class="kn">import</span> <span class="n">Labels</span>
 
-<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">MovementDataset</span>
 <span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
 <span class="kn">from</span> <span class="nn">movement.validators.datasets</span> <span class="kn">import</span> <span class="n">ValidPosesDataset</span>
 <span class="kn">from</span> <span class="nn">movement.validators.files</span> <span class="kn">import</span> <span class="n">ValidDeepLabCutCSV</span><span class="p">,</span> <span class="n">ValidFile</span><span class="p">,</span> <span class="n">ValidHDF5</span>
@@ -446,11 +433,11 @@ document.write(`
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    position_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints, n_space)</span>
+<span class="sd">        Array of shape (n_frames, n_space, n_keypoints, n_individuals)</span>
 <span class="sd">        containing the poses. It will be converted to a</span>
 <span class="sd">        :class:`xarray.DataArray` object named &quot;position&quot;.</span>
 <span class="sd">    confidence_array : np.ndarray, optional</span>
-<span class="sd">        Array of shape (n_frames, n_individuals, n_keypoints) containing</span>
+<span class="sd">        Array of shape (n_frames, n_keypoints, n_individuals) containing</span>
 <span class="sd">        the point-wise confidence scores. It will be converted to a</span>
 <span class="sd">        :class:`xarray.DataArray` object named &quot;confidence&quot;.</span>
 <span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
@@ -485,7 +472,7 @@ document.write(`
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand((100, 2, 3, 2)),</span>
+<span class="sd">    ...     position_array=np.random.rand(100, 2, 3, 2),</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2, 3)),</span>
 <span class="sd">    ...     individual_names=[&quot;Alice&quot;, &quot;Bob&quot;],</span>
 <span class="sd">    ...     keypoint_names=[&quot;snout&quot;, &quot;centre&quot;, &quot;tail_base&quot;],</span>
@@ -577,7 +564,7 @@ document.write(`
 <span class="sd">        be formatted as in DeepLabCut output files (see Notes).</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame numbers.</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 <span class="sd">    source_software : str, optional</span>
 <span class="sd">        Name of the pose estimation software from which the data originate.</span>
 <span class="sd">        Defaults to &quot;DeepLabCut&quot;, but it can also be &quot;LightningPose&quot;</span>
@@ -610,20 +597,19 @@ document.write(`
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;individual_0&quot;</span><span class="p">]</span>
-
     <span class="n">keypoint_names</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;bodyparts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
     <span class="p">)</span>
-
-    <span class="c1"># reshape the data into (n_frames, n_individuals, n_keypoints, 3)</span>
-    <span class="c1"># where the last axis contains &quot;x&quot;, &quot;y&quot;, &quot;likelihood&quot;</span>
-    <span class="n">tracks_with_scores</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="c1"># reshape the data into (n_frames, 3, n_keypoints, n_individuals)</span>
+    <span class="c1"># where the second axis contains &quot;x&quot;, &quot;y&quot;, &quot;likelihood&quot;</span>
+    <span class="n">tracks_with_scores</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_names</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">)</span>
-
     <span class="k">return</span> <span class="n">from_numpy</span><span class="p">(</span>
-        <span class="n">position_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-        <span class="n">confidence_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="n">keypoint_names</span><span class="o">=</span><span class="n">keypoint_names</span><span class="p">,</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
@@ -647,7 +633,7 @@ document.write(`
 <span class="sd">        also be supplied (but this feature is experimental, see Notes).</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame numbers.</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -695,16 +681,13 @@ document.write(`
         <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
         <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;.slp&quot;</span><span class="p">],</span>
     <span class="p">)</span>
-
     <span class="c1"># Load and validate data</span>
     <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.h5&quot;</span><span class="p">:</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds_from_sleap_analysis_file</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># file.path.suffix == &quot;.slp&quot;</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds_from_sleap_labels_file</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
-
     <span class="c1"># Add metadata as attrs</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded pose tracks from </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
@@ -724,7 +707,7 @@ document.write(`
 <span class="sd">        Path to the file containing the predicted poses, in .csv format.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame numbers.</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -758,7 +741,7 @@ document.write(`
 <span class="sd">        or .csv format.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame numbers.</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -782,6 +765,42 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="from_multiview_files">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_multiview_files.html#movement.io.load_poses.from_multiview_files">[docs]</a>
+<span class="k">def</span> <span class="nf">from_multiview_files</span><span class="p">(</span>
+    <span class="n">file_path_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">],</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and merge pose tracking data from multiple views (cameras).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path_dict : dict[str, Union[Path, str]]</span>
+<span class="sd">        A dict whose keys are the view names and values are the paths to load.</span>
+<span class="sd">    source_software : {&#39;LightningPose&#39;, &#39;SLEAP&#39;, &#39;DeepLabCut&#39;}</span>
+<span class="sd">        The source software of the file.</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The number of frames per second in the video. If None (default),</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata, with an additional ``views`` dimension.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">views_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_path_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">new_coord_views</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">views_list</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;view&quot;</span><span class="p">)</span>
+    <span class="n">dataset_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">from_file</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_path_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">new_coord_views</span><span class="p">)</span></div>
+
+
+
 <span class="k">def</span> <span class="nf">_ds_from_lp_or_dlc_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">],</span>
@@ -798,7 +817,7 @@ document.write(`
 <span class="sd">        The source software of the file.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame numbers.</span>
+<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -810,24 +829,20 @@ document.write(`
     <span class="n">expected_suffix</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">:</span>
         <span class="n">expected_suffix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;.h5&quot;</span><span class="p">)</span>
-
     <span class="n">file</span> <span class="o">=</span> <span class="n">ValidFile</span><span class="p">(</span>
         <span class="n">file_path</span><span class="p">,</span> <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="n">expected_suffix</span>
     <span class="p">)</span>
-
     <span class="c1"># Load the DeepLabCut poses into a DataFrame</span>
-    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_dlc_csv</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># file.path.suffix == &quot;.h5&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_dlc_h5</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_df_from_dlc_csv</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span>
+        <span class="k">else</span> <span class="n">_df_from_dlc_h5</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded poses from </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> into a DataFrame.&quot;</span><span class="p">)</span>
     <span class="c1"># Convert the DataFrame to an xarray dataset</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">from_dlc_style_df</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">)</span>
-
     <span class="c1"># Add metadata as attrs</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded pose tracks from </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span>
@@ -844,7 +859,7 @@ document.write(`
 <span class="sd">        Path to the SLEAP analysis file containing predicted pose tracks.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame units.</span>
+<span class="sd">        the ``time`` coordinates will be in frame units.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -854,12 +869,11 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">ValidHDF5</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_datasets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">])</span>
-
     <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="c1"># transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)</span>
-        <span class="n">tracks</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)</span>
+        <span class="n">tracks</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="c1"># Create an array of NaNs for the confidence scores</span>
-        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">tracks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;track_names&quot;</span><span class="p">][:]]</span> <span class="ow">or</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">log_warning</span><span class="p">(</span>
@@ -868,9 +882,9 @@ document.write(`
                 <span class="s2">&quot;default individual name.&quot;</span>
             <span class="p">)</span>
         <span class="c1"># If present, read the point-wise scores,</span>
-        <span class="c1"># and transpose to shape: (n_frames, n_tracks, n_keypoints)</span>
+        <span class="c1"># and transpose to shape: (n_frames, n_keypoints, n_tracks)</span>
         <span class="k">if</span> <span class="s2">&quot;point_scores&quot;</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">scores</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;point_scores&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;point_scores&quot;</span><span class="p">][:]</span><span class="o">.</span><span class="n">T</span>
         <span class="k">return</span> <span class="n">from_numpy</span><span class="p">(</span>
             <span class="n">position_array</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
             <span class="n">confidence_array</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
@@ -892,7 +906,7 @@ document.write(`
 <span class="sd">        Path to the SLEAP labels file containing predicted pose tracks.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the `time` coordinates will be in frame units.</span>
+<span class="sd">        the ``time`` coordinates will be in frame units.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -912,8 +926,8 @@ document.write(`
             <span class="s2">&quot;default individual name.&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">from_numpy</span><span class="p">(</span>
-        <span class="n">position_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-        <span class="n">confidence_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">tracks_with_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="n">keypoint_names</span><span class="o">=</span><span class="p">[</span><span class="n">kp</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">skeletons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">],</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
@@ -934,7 +948,8 @@ document.write(`
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    numpy.ndarray</span>
-<span class="sd">        A NumPy array containing pose tracks and confidence scores.</span>
+<span class="sd">        A NumPy array containing pose tracks and confidence scores,</span>
+<span class="sd">        with shape ``(n_frames, 3, n_nodes, n_tracks)``.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -964,7 +979,7 @@ document.write(`
     <span class="n">skeleton</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">skeletons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Assume project only uses last skeleton</span>
     <span class="n">n_nodes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">skeleton</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_frame</span> <span class="o">-</span> <span class="n">first_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">tracks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">n_tracks</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">tracks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_frames</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_nodes</span><span class="p">,</span> <span class="n">n_tracks</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">lf</span> <span class="ow">in</span> <span class="n">lfs</span><span class="p">:</span>
         <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lf</span><span class="o">.</span><span class="n">frame_idx</span> <span class="o">-</span> <span class="n">first_frame</span><span class="p">)</span>
@@ -980,12 +995,12 @@ document.write(`
             <span class="c1"># Use user-labelled instance if available</span>
             <span class="k">if</span> <span class="n">user_track_instances</span><span class="p">:</span>
                 <span class="n">inst</span> <span class="o">=</span> <span class="n">user_track_instances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span>
+                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span>
                     <span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_nodes</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
-                <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">T</span>
             <span class="k">elif</span> <span class="n">predicted_track_instances</span><span class="p">:</span>
                 <span class="n">inst</span> <span class="o">=</span> <span class="n">predicted_track_instances</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">tracks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
     <span class="k">return</span> <span class="n">tracks</span>
 
 
@@ -1009,7 +1024,6 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">ValidDeepLabCutCSV</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-
     <span class="n">possible_level_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="c1"># if line starts with a possible level name, split it into a list</span>
@@ -1019,14 +1033,12 @@ document.write(`
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">possible_level_names</span>
         <span class="p">]</span>
-
     <span class="c1"># Form multi-index column names from the header lines</span>
     <span class="n">level_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">header_lines</span><span class="p">]</span>
     <span class="n">column_tuples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
         <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">header_lines</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">column_tuples</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">level_names</span><span class="p">)</span>
-
     <span class="c1"># Import the DeepLabCut poses as a DataFrame</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
         <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
@@ -1075,29 +1087,27 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
+    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="c1"># Create the time coordinate, depending on the value of fps</span>
     <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
     <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">time_coords</span> <span class="o">=</span> <span class="n">time_coords</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
         <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
-
-    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">MovementDataset</span><span class="o">.</span><span class="n">dim_names</span><span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">]</span>
+    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidPosesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
     <span class="c1"># Convert data to an xarray.Dataset</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
         <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
             <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
             <span class="p">),</span>
         <span class="p">},</span>
         <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
             <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
             <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">keypoint_names</span><span class="p">,</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;fps&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
@@ -1108,6 +1118,9 @@ document.write(`
         <span class="p">},</span>
     <span class="p">)</span>
 </pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
 
                 </article>
               
@@ -1136,8 +1149,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1145,13 +1158,13 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
     </p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.4.
+    0.16.0.
     </p></div>
       
     </div>

@@ -15,17 +15,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
@@ -35,13 +37,14 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
-    <script src="../../../_static/documentation_options.js?v=056c92e6"></script>
-    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -49,9 +52,10 @@
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/load_bboxes.html" />
     <link rel="icon" href="../../../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
   </head>
   
   
@@ -67,19 +71,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../../../search.html"
       method="get">
@@ -87,7 +80,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -95,8 +87,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -125,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.20</p>
+    <p class="title logo__title">movement v0.0.21</p>
   
 </a></div>
     
@@ -140,8 +132,8 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -162,7 +154,14 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -177,29 +176,21 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
         <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -236,15 +227,11 @@ document.write(`
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -261,7 +248,8 @@ document.write(`
       
         
       
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -277,8 +265,8 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -299,7 +287,14 @@ document.write(`
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -315,15 +310,11 @@ document.write(`
         
           <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -379,8 +370,6 @@ document.write(`
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -392,7 +381,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">movement.io....</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.load_bboxes</span></li>
   </ul>
 </nav>
 </div>
@@ -408,8 +397,7 @@ document.write(`
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                  
-  <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
+                   <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes&#39; tracking data into ``movement``.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">ast</span>
@@ -423,10 +411,13 @@ document.write(`
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">MovementDataset</span>
 <span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span>
 <span class="kn">from</span> <span class="nn">movement.validators.datasets</span> <span class="kn">import</span> <span class="n">ValidBboxesDataset</span>
-<span class="kn">from</span> <span class="nn">movement.validators.files</span> <span class="kn">import</span> <span class="n">ValidFile</span><span class="p">,</span> <span class="n">ValidVIATracksCSV</span>
+<span class="kn">from</span> <span class="nn">movement.validators.files</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
+    <span class="n">ValidFile</span><span class="p">,</span>
+    <span class="n">ValidVIATracksCSV</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -447,12 +438,12 @@ document.write(`
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    position_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_individuals, n_space)</span>
+<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the tracks of the bounding boxes&#39; centroids.</span>
 <span class="sd">        It will be converted to a :class:`xarray.DataArray` object</span>
 <span class="sd">        named &quot;position&quot;.</span>
 <span class="sd">    shape_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_individuals, n_space)</span>
+<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the shape of the bounding boxes. The shape of a bounding</span>
 <span class="sd">        box is its width (extent along the x-axis of the image) and height</span>
 <span class="sd">        (extent along the y-axis of the image). It will be converted to a</span>
@@ -467,13 +458,13 @@ document.write(`
 <span class="sd">        If None (default), bounding boxes are assigned names based on the size</span>
 <span class="sd">        of the ``position_array``. The names will be in the format of</span>
 <span class="sd">        ``id_&lt;N&gt;``, where &lt;N&gt;  is an integer from 0 to</span>
-<span class="sd">        ``position_array.shape[1]-1`` (i.e., &quot;id_0&quot;, &quot;id_1&quot;...).</span>
+<span class="sd">        ``position_array.shape[-1]-1`` (i.e., &quot;id_0&quot;, &quot;id_1&quot;...).</span>
 <span class="sd">    frame_array : np.ndarray, optional</span>
 <span class="sd">        Array of shape (n_frames, 1) containing the frame numbers for which</span>
 <span class="sd">        bounding boxes are defined. If None (default), frame numbers will</span>
 <span class="sd">        be assigned based on the first dimension of the ``position_array``,</span>
 <span class="sd">        starting from 0. If a specific array of frame numbers is provided,</span>
-<span class="sd">        these need to be consecutive integers.</span>
+<span class="sd">        these need to be integers sorted in increasing order.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
 <span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
@@ -569,6 +560,7 @@ document.write(`
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from a supported file.</span>
 
@@ -598,6 +590,13 @@ document.write(`
 <span class="sd">        full video as the time origin. If False (default), the frame numbers</span>
 <span class="sd">        in the VIA tracks .csv file are instead mapped to a 0-based sequence of</span>
 <span class="sd">        consecutive integers.</span>
+<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
+<span class="sd">        True.</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -632,6 +631,7 @@ document.write(`
             <span class="n">file_path</span><span class="p">,</span>
             <span class="n">fps</span><span class="p">,</span>
             <span class="n">use_frame_numbers_from_file</span><span class="o">=</span><span class="n">use_frame_numbers_from_file</span><span class="p">,</span>
+            <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
@@ -646,6 +646,7 @@ document.write(`
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` dataset from a VIA tracks .csv file.</span>
 
@@ -669,6 +670,12 @@ document.write(`
 <span class="sd">        but you want to maintain the start of the full video as the time</span>
 <span class="sd">        origin. If False (default), the frame numbers in the VIA tracks .csv</span>
 <span class="sd">        file are instead mapped to a 0-based sequence of consecutive integers.</span>
+<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
+<span class="sd">        True.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -737,17 +744,19 @@ document.write(`
     <span class="p">)</span>
 
     <span class="c1"># Specific VIA-tracks .csv file validation</span>
-    <span class="n">via_file</span> <span class="o">=</span> <span class="n">ValidVIATracksCSV</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">via_file</span> <span class="o">=</span> <span class="n">ValidVIATracksCSV</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validated VIA tracks .csv file </span><span class="si">{</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Create an xarray.Dataset from the data</span>
-    <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
+        <span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">via_file</span><span class="o">.</span><span class="n">frame_regexp</span>
+    <span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
         <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">],</span>
         <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">],</span>
         <span class="n">confidence_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;confidence_array&quot;</span><span class="p">],</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="nb">id</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span>
         <span class="p">],</span>
         <span class="n">frame_array</span><span class="o">=</span><span class="p">(</span>
             <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;frame_array&quot;</span><span class="p">]</span>
@@ -768,15 +777,17 @@ document.write(`
 
 
 
-<span class="k">def</span> <span class="nf">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract numpy arrays from the input VIA tracks .csv file.</span>
 
 <span class="sd">    The extracted numpy arrays are returned in a dictionary with the following</span>
 <span class="sd">    keys:</span>
 
-<span class="sd">    - position_array (n_frames, n_individuals, n_space):</span>
+<span class="sd">    - position_array (n_frames, n_space, n_individuals):</span>
 <span class="sd">        contains the trajectories of the bounding boxes&#39; centroids.</span>
-<span class="sd">    - shape_array (n_frames, n_individuals, n_space):</span>
+<span class="sd">    - shape_array (n_frames, n_space, n_individuals):</span>
 <span class="sd">        contains the shape of the bounding boxes (width and height).</span>
 <span class="sd">    - confidence_array (n_frames, n_individuals):</span>
 <span class="sd">        contains the confidence score of each bounding box.</span>
@@ -791,6 +802,12 @@ document.write(`
 <span class="sd">    file_path : pathlib.Path</span>
 <span class="sd">        Path to the VIA tracks .csv file containing the bounding boxes&#39; tracks.</span>
 
+<span class="sd">    frame_regexp : str</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
@@ -800,7 +817,7 @@ document.write(`
     <span class="c1"># Extract 2D dataframe from input data</span>
     <span class="c1"># (sort data by ID and frame number, and</span>
     <span class="c1"># fill empty frame-ID pairs with nans)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">)</span>
 
     <span class="c1"># Compute indices of the rows where the IDs switch</span>
     <span class="n">bool_id_diff_from_prev</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ne</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span>  <span class="c1"># pandas series</span>
@@ -820,8 +837,16 @@ document.write(`
             <span class="n">df</span><span class="p">[</span><span class="n">map_key_to_columns</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
             <span class="n">indices_id_switch</span><span class="p">,</span>  <span class="c1"># indices along axis=0</span>
         <span class="p">)</span>
+        <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">list_arrays</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">list_arrays</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="c1"># squeeze only last dimension if it is 1</span>
+        <span class="k">if</span> <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Transform position_array to represent centroid of bbox,</span>
+    <span class="c1"># rather than top-left corner</span>
+    <span class="c1"># (top left corner: corner of the bbox with minimum x and y coordinates)</span>
+    <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
 
     <span class="c1"># Add remaining arrays to dict</span>
     <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -830,20 +855,28 @@ document.write(`
     <span class="k">return</span> <span class="n">array_dict</span>
 
 
-<span class="k">def</span> <span class="nf">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_df_from_via_tracks_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load VIA tracks .csv file as a dataframe.</span>
 
 <span class="sd">    Read the VIA tracks .csv file as a pandas dataframe with columns:</span>
 <span class="sd">    - ID: the integer ID of the tracked bounding box.</span>
 <span class="sd">    - frame_number: the frame number of the tracked bounding box.</span>
-<span class="sd">    - x: the x-coordinate of the tracked bounding box centroid.</span>
-<span class="sd">    - y: the y-coordinate of the tracked bounding box centroid.</span>
+<span class="sd">    - x: the x-coordinate of the tracked bounding box&#39;s top-left corner.</span>
+<span class="sd">    - y: the y-coordinate of the tracked bounding box&#39;s top-left corner.</span>
 <span class="sd">    - w: the width of the tracked bounding box.</span>
 <span class="sd">    - h: the height of the tracked bounding box.</span>
 <span class="sd">    - confidence: the confidence score of the tracked bounding box.</span>
 
 <span class="sd">    The dataframe is sorted by ID and frame number, and for each ID,</span>
-<span class="sd">    empty frames are filled in with NaNs.</span>
+<span class="sd">    empty frames are filled in with NaNs. The coordinates of the bboxes</span>
+<span class="sd">    are assumed to be in the image coordinate system (i.e., the top-left</span>
+<span class="sd">    corner of a bbox is its corner with minimum x and y coordinates).</span>
+
+<span class="sd">    The frame number is extracted from the filename using the provided</span>
+<span class="sd">    regexp if it is not defined as a &#39;file_attribute&#39; in the VIA tracks .csv</span>
+<span class="sd">    file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Read VIA tracks .csv file as a pandas dataframe</span>
     <span class="n">df_file</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -854,7 +887,9 @@ document.write(`
             <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
                 <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">],</span> <span class="nb">int</span>
             <span class="p">),</span>
-            <span class="s2">&quot;frame_number&quot;</span><span class="p">:</span> <span class="n">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span><span class="n">df_file</span><span class="p">),</span>
+            <span class="s2">&quot;frame_number&quot;</span><span class="p">:</span> <span class="n">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="n">frame_regexp</span>
+            <span class="p">),</span>
             <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
                 <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="nb">float</span>
             <span class="p">),</span>
@@ -888,7 +923,7 @@ document.write(`
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_confidence_from_via_tracks_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_extract_confidence_from_via_tracks_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract confidence scores from the VIA tracks input dataframe.</span>
 
 <span class="sd">    Parameters</span>
@@ -919,7 +954,9 @@ document.write(`
     <span class="k">return</span> <span class="n">bbox_confidence</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract frame numbers from the VIA tracks input dataframe.</span>
 
 <span class="sd">    Parameters</span>
@@ -928,14 +965,20 @@ document.write(`
 <span class="sd">        The VIA tracks input dataframe is the one obtained from</span>
 <span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
 
+<span class="sd">    frame_regexp : str</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed by</span>
+<span class="sd">        the file extension.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    np.ndarray</span>
 <span class="sd">        A numpy array of size (n_frames, ) containing the frame numbers.</span>
 <span class="sd">        In the VIA tracks .csv file, the frame number is expected to be</span>
 <span class="sd">        defined as a &#39;file_attribute&#39; , or encoded in the filename as an</span>
-<span class="sd">        integer number led by at least one zero, between &quot;_&quot; and &quot;.&quot;, followed</span>
-<span class="sd">        by the file extension.</span>
+<span class="sd">        integer number led by at least one zero, followed by the file</span>
+<span class="sd">        extension.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract frame number from file_attributes if exists</span>
@@ -949,10 +992,9 @@ document.write(`
         <span class="p">)</span>
     <span class="c1"># Else extract from filename</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;_(0\d*)\.\w+$&quot;</span>
         <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
-            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
             <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
         <span class="p">]</span>
@@ -1044,21 +1086,21 @@ document.write(`
         <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
 
     <span class="c1"># Convert data to an xarray.Dataset</span>
-    <span class="c1"># with dimensions (&#39;time&#39;, &#39;individuals&#39;, &#39;space&#39;)</span>
-    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">MovementDataset</span><span class="o">.</span><span class="n">dim_names</span><span class="p">[</span><span class="s2">&quot;bboxes&quot;</span><span class="p">]</span>
-    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individuals&#39;)</span>
+    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidBboxesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
+    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
         <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
             <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
             <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
             <span class="p">),</span>
         <span class="p">},</span>
         <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
             <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;fps&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
@@ -1069,6 +1111,9 @@ document.write(`
         <span class="p">},</span>
     <span class="p">)</span>
 </pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
 
                 </article>
               
@@ -1097,8 +1142,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1106,13 +1151,13 @@ document.write(`
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
     </p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.4.
+    0.16.0.
     </p></div>
       
     </div>

@@ -1,0 +1,21 @@
+﻿movement.validators.arrays
+==========================
+
+.. rubric:: Description
+
+.. automodule:: movement.validators.arrays
+
+.. currentmodule:: movement.validators.arrays
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    validate_dims_coords
+    
+

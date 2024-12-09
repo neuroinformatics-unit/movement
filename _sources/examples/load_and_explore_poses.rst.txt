@@ -116,15 +116,15 @@ Load the data into movement
  .. code-block:: none
 
     <xarray.Dataset> Size: 27kB
-    Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
+    Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-      * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
-      * keypoints    (keypoints) <U8 32B 'centroid'
       * space        (space) <U1 8B 'x' 'y'
+      * keypoints    (keypoints) <U8 32B 'centroid'
+      * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
     Data variables:
-        position     (time, individuals, keypoints, space) float32 14kB 770.3 ......
-        confidence   (time, individuals, keypoints) float32 7kB nan nan ... nan nan
+        position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
+        confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
     Attributes:
         fps:              50.0
         time_unit:        seconds
@@ -182,9 +182,9 @@ for a single keypoint of the first individual:
     770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-        individuals  <U10 40B 'AEON3B_NTP'
-        keypoints    <U8 32B 'centroid'
       * space        (space) <U1 8B 'x' 'y'
+        keypoints    <U8 32B 'centroid'
+        individuals  <U10 40B 'AEON3B_NTP'
 
 
 
@@ -214,7 +214,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fbbfd7e4790>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fe0a403e850>
 
 
 
@@ -245,7 +245,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fbbfd7a13d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fe0a5b0bfd0>
 
 
 
@@ -289,14 +289,14 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7fbc0556f290>
+    <matplotlib.colorbar.Colorbar object at 0x7fe0a1d09350>
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.713 seconds)
+   **Total running time of the script:** (0 minutes 0.646 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

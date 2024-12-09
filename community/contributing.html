@@ -16,17 +16,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
@@ -36,13 +38,14 @@
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
-    <script src="../_static/documentation_options.js?v=056c92e6"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -52,9 +55,10 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Related projects" href="related-projects.html" />
-    <link rel="prev" title="Roadmaps" href="roadmaps.html" />
+    <link rel="prev" title="Roadmaps" href="roadmaps.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
   </head>
   
   
@@ -70,19 +74,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../search.html"
       method="get">
@@ -90,7 +83,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -98,8 +90,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -128,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.20</p>
+    <p class="title logo__title">movement v0.0.21</p>
   
 </a></div>
     
@@ -143,8 +135,8 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -165,7 +157,14 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -180,29 +179,21 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
         <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -239,15 +230,11 @@ document.write(`
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -266,7 +253,8 @@ document.write(`
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -282,8 +270,8 @@ document.write(`
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../getting_started/index.html">
-    Getting Started
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
   </a>
 </li>
 
@@ -304,7 +292,14 @@ document.write(`
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api_index.html">
-    API Reference
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
   </a>
 </li>
 
@@ -320,15 +315,11 @@ document.write(`
         
           <div class="navbar-item">
 
-<script>
-document.write(`
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
-  </button>
-`);
-</script></div>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -400,8 +391,6 @@ document.write(`
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -413,7 +402,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Community</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">How to Contribute</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Contribute</span></li>
   </ul>
 </nav>
 </div>
@@ -429,8 +418,7 @@ document.write(`
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                  
-  <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
+                   <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
 <span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading">#</a></h1>
 <section id="contributing-code">
 <h2>Contributing code<a class="headerlink" href="#contributing-code" title="Link to this heading">#</a></h2>
@@ -591,8 +579,12 @@ The deployment job is only triggered whenever a tag is pushed to the <em>main</e
 ensuring that the documentation is published in sync with each PyPI release.</p>
 <section id="editing-the-documentation">
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
-<p>To edit the documentation, first clone the repository, and install movement in a
+<p>To edit the documentation, first clone the repository, and install <code class="docutils literal notranslate"><span class="pre">movement</span></code> in a
 <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
+<p>Then, install a few additional dependencies in your development environment to be able to build the documentation locally. To do this, run the following command from the root of the repository:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>./docs/requirements.txt
+</pre></div>
+</div>
 <p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
 and commit your changes. Submit your documentation changes via a pull request,
 following the <a class="reference internal" href="#pull-requests">same guidelines as for code changes</a>.
@@ -682,7 +674,7 @@ Once the module is included in the mapping, use the same syntax as for <a class=
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 Markdown</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.7.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
 </pre></div>
 </div>
@@ -690,7 +682,7 @@ Markdown</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
 RestructuredText</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.7.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
 </pre></div>
 </div>
@@ -700,71 +692,30 @@ RestructuredText</label><div class="sd-tab-content docutils">
 </section>
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Link to this heading">#</a></h3>
-<p>We recommend that you build and view the documentation website locally, before you push it.
-To do so, first navigate to <code class="docutils literal notranslate"><span class="pre">docs/</span></code>.
-All subsequent commands should be run from within this directory.</p>
+<p>We recommend that you build and view the documentation website locally, before you push your proposed changes.</p>
+<p>First, ensure your development environment with the required dependencies is active (see <a class="reference internal" href="#editing-the-documentation">Editing the documentation</a> for details on how to create it). Then, navigate to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
 </pre></div>
 </div>
-<p>Install the requirements for building the documentation:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</pre></div>
-</div>
-<p>Build the documentation:</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
-Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
+<p>All subsequent commands should be run from this directory.</p>
+<p>To build the documentation, run:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>The local build can be viewed by opening <code class="docutils literal notranslate"><span class="pre">docs/build/html/index.html</span></code> in a browser.</p>
-</div>
-<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
-All platforms</label><div class="sd-tab-content docutils">
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>make_api_index.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-W<span class="w"> </span>--keep-going
-</pre></div>
-</div>
-<p>The local build can be viewed by opening <code class="docutils literal notranslate"><span class="pre">docs/build/index.html</span></code> in a browser.</p>
-</div>
-</div>
-<p>To refresh the documentation after making changes, remove all generated files in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>,
-including the auto-generated API index <code class="docutils literal notranslate"><span class="pre">source/api_index.rst</span></code>, and those in <code class="docutils literal notranslate"><span class="pre">build/</span></code>, <code class="docutils literal notranslate"><span class="pre">source/api/</span></code>, and <code class="docutils literal notranslate"><span class="pre">source/examples/</span></code>.
-Then, re-run the above command to rebuild the documentation.</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
-Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
+<p>To re-build the documentation after making changes,
+we recommend removing existing build files first.
+The following command will remove all generated files in <code class="docutils literal notranslate"><span class="pre">docs/</span></code>,
+including the auto-generated files <code class="docutils literal notranslate"><span class="pre">source/api_index.rst</span></code> and
+<code class="docutils literal notranslate"><span class="pre">source/snippets/admonitions.md</span></code>, as well as all files in
+<code class="docutils literal notranslate"><span class="pre">build/</span></code>, <code class="docutils literal notranslate"><span class="pre">source/api/</span></code>, and <code class="docutils literal notranslate"><span class="pre">source/examples/</span></code>.
+It will then re-build the documentation:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean<span class="w"> </span>html
 </pre></div>
 </div>
-</div>
-<input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
-All platforms</label><div class="sd-tab-content docutils">
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-f<span class="w"> </span>source/api_index.rst<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>source/api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>source/examples
-python<span class="w"> </span>make_api_index.py<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-W<span class="w"> </span>--keep-going
-</pre></div>
-</div>
-</div>
-</div>
 <p>To check that external links are correctly resolved, run:</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-4" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
-Unix platforms with <code class="docutils literal notranslate"><span class="pre">make</span></code></label><div class="sd-tab-content docutils">
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>linkcheck
 </pre></div>
-</div>
-</div>
-<input id="sd-tab-item-9" name="sd-tab-set-4" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-9">
-All platforms</label><div class="sd-tab-content docutils">
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-build<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build<span class="w"> </span>-b<span class="w"> </span>linkcheck<span class="w"> </span>-W<span class="w"> </span>--keep-going
-</pre></div>
-</div>
-</div>
 </div>
 <p>If the linkcheck step incorrectly marks links with valid anchors as broken, you can skip checking the anchors in specific links by adding the URLs to <code class="docutils literal notranslate"><span class="pre">linkcheck_anchors_ignore_for_url</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The linkcheck builder will skip verifying that anchors exist when checking</span>
@@ -774,6 +725,14 @@ All platforms</label><div class="sd-tab-content docutils">
     <span class="s2">&quot;https://neuroinformatics.zulipchat.com/&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">make</span></code> commands can be combined to run multiple tasks sequentially.
+For example, to re-build the documentation and check the links, run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean<span class="w"> </span>html<span class="w"> </span>linkcheck
+</pre></div>
+</div>
 </div>
 </section>
 </section>
@@ -822,22 +781,22 @@ To add a new file, you will need to:</p>
 <li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
 <li><p>Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-10" name="sd-tab-set-5" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-10">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
 Ubuntu</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sha256sum<span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-11" name="sd-tab-set-5" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-11">
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
 MacOS</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-12" name="sd-tab-set-5" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-12">
+<input id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
 Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>certutil<span class="w"> </span>-hashfile<span class="w"> </span>&lt;filename&gt;<span class="w"> </span>SHA256
 </pre></div>
@@ -876,6 +835,9 @@ Windows</label><div class="sd-tab-content docutils">
 </section>
 </section>
 
+<div class="section ablog__blog_comments">
+   
+</div>
 
                 </article>
               
@@ -911,7 +873,8 @@ Windows</label><div class="sd-tab-content docutils">
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -981,8 +944,8 @@ Windows</label><div class="sd-tab-content docutils">
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -990,13 +953,13 @@ Windows</label><div class="sd-tab-content docutils">
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
     </p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.15.4.
+    0.16.0.
     </p></div>
       
     </div>

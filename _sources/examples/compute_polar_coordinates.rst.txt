@@ -82,15 +82,15 @@ In this tutorial, we will use a sample dataset with a single individual
  .. code-block:: none
 
     <xarray.Dataset> Size: 1MB
-    Dimensions:      (time: 18485, individuals: 1, keypoints: 6, space: 2)
+    Dimensions:      (time: 18485, space: 2, keypoints: 6, individuals: 1)
     Coordinates:
       * time         (time) int64 148kB 0 1 2 3 4 ... 18480 18481 18482 18483 18484
-      * individuals  (individuals) <U12 48B 'individual_0'
-      * keypoints    (keypoints) <U9 216B 'snout' 'left_ear' ... 'tail_end'
       * space        (space) <U1 8B 'x' 'y'
+      * keypoints    (keypoints) <U9 216B 'snout' 'left_ear' ... 'tail_end'
+      * individuals  (individuals) <U12 48B 'individual_0'
     Data variables:
-        position     (time, individuals, keypoints, space) float32 887kB nan ... ...
-        confidence   (time, individuals, keypoints) float32 444kB nan nan ... 0.7607
+        position     (time, space, keypoints, individuals) float32 887kB nan ... ...
+        confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
     Attributes:
         fps:              None
         time_unit:        frames
@@ -411,7 +411,7 @@ expressing it in polar coordinates. We can do this with the vector function
 
  .. code-block:: none
 
-    <xarray.DataArray 'position' (time: 18485, individuals: 1, space_pol: 2)> Size: 148kB
+    <xarray.DataArray 'position' (time: 18485, space_pol: 2, individuals: 1)> Size: 148kB
     nan nan nan nan nan nan nan nan ... 1.247 18.14 1.126 20.92 1.19 15.59 1.28
     Coordinates:
       * time         (time) int64 148kB 0 1 2 3 4 ... 18480 18481 18482 18483 18484
@@ -657,7 +657,7 @@ a vector in polar coordinates back to cartesian.
 
  .. code-block:: none
 
-    <xarray.DataArray 'position' (time: 18485, individuals: 1, space: 2)> Size: 148kB
+    <xarray.DataArray 'position' (time: 18485, space: 2, individuals: 1)> Size: 148kB
     nan nan nan nan nan nan nan nan ... 17.93 7.802 16.38 7.777 19.42 4.465 14.94
     Coordinates:
       * time         (time) int64 148kB 0 1 2 3 4 ... 18480 18481 18482 18483 18484
@@ -675,7 +675,7 @@ with two coordinates: ``x`` and ``y``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 16.565 seconds)
+   **Total running time of the script:** (0 minutes 16.296 seconds)
 
 
 .. _sphx_glr_download_examples_compute_polar_coordinates.py:

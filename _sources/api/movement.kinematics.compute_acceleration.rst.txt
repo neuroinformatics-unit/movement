@@ -1,0 +1,6 @@
+compute\_acceleration
+=====================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_acceleration

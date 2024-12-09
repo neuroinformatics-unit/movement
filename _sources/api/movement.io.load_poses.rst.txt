@@ -24,6 +24,8 @@
     
     from_lp_file
     
+    from_multiview_files
+    
     from_numpy
     
     from_sleap_file

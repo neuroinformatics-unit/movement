@@ -17,6 +17,23 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Load and explore an example dataset of pose tracks.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_load_and_explore_poses_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_load_and_explore_poses.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load and explore pose tracks</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Filter out points with low confidence scores and interpolate over missing values.">
 
 .. only:: html
@@ -34,18 +51,18 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Load and explore an example dataset of pose tracks.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Load pose tracks from one file format, modify them, and save them to another file format.">
 
 .. only:: html
 
-  .. image:: /examples/images/thumb/sphx_glr_load_and_explore_poses_thumb.png
+  .. image:: /examples/images/thumb/sphx_glr_convert_file_formats_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_load_and_explore_poses.py`
+  :ref:`sphx_glr_examples_convert_file_formats.py`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load and explore pose tracks</div>
+      <div class="sphx-glr-thumbnail-title">Convert pose tracks between file formats</div>
     </div>
 
 
@@ -100,6 +117,23 @@ Below is a gallery of examples using ``movement``.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Load bounding boxes tracks and upsample them to match the video frame rate.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_load_and_upsample_bboxes_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_load_and_upsample_bboxes.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load and upsample bounding boxes tracks</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -110,11 +144,13 @@ Below is a gallery of examples using ``movement``.
 .. toctree::
    :hidden:
 
-   /examples/filter_and_interpolate
    /examples/load_and_explore_poses
+   /examples/filter_and_interpolate
+   /examples/convert_file_formats
    /examples/smooth
    /examples/compute_kinematics
    /examples/compute_polar_coordinates
+   /examples/load_and_upsample_bboxes
 
 
 .. only:: html

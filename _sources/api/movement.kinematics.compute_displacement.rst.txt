@@ -1,0 +1,6 @@
+compute\_displacement
+=====================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_displacement

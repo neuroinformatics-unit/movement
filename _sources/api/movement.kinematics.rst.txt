@@ -1,0 +1,37 @@
+﻿movement.kinematics
+===================
+
+.. rubric:: Description
+
+.. automodule:: movement.kinematics
+
+.. currentmodule:: movement.kinematics
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    compute_acceleration
+    
+    compute_displacement
+    
+    compute_forward_vector
+    
+    compute_head_direction_vector
+    
+    compute_pairwise_distances
+    
+    compute_path_length
+    
+    compute_speed
+    
+    compute_time_derivative
+    
+    compute_velocity
+    
+

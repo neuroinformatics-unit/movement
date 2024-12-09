@@ -1,9 +1,9 @@
 ..
-  This file is auto-generated.
+    This file is auto-generated.
 
 .. _target-api:
 
-API Reference
+API reference
 =============
 
 Information on specific functions, classes, and methods.
@@ -16,14 +16,14 @@ Information on specific functions, classes, and methods.
     :nosignatures:
 
     movement.filtering
-    movement.move_accessor
+    movement.io.load_bboxes
+    movement.io.load_poses
+    movement.io.save_poses
+    movement.kinematics
     movement.sample_data
     movement.utils.logging
     movement.utils.reports
     movement.utils.vector
-    movement.analysis.kinematics
+    movement.validators.arrays
     movement.validators.datasets
     movement.validators.files
-    movement.io.load_bboxes
-    movement.io.load_poses
-    movement.io.save_poses
