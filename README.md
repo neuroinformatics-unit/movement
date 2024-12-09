@@ -23,7 +23,7 @@ conda activate movement-env
 ```
 
 > [!Note]
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/getting_started/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
+> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/user_guide/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
 
 ## Overview
 
@@ -61,7 +61,9 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
 To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
 
-You are welcome to chat with the team on [zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement). You can also [open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
+- [Chat with the team on Zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement).
+- [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
+- [Follow this Zulip topic](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls) to receive updates about upcoming Community Calls.
 
 ## Citation
 

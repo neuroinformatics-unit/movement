@@ -64,4 +64,5 @@ user_guide/index
 examples/index
 community/index
 api_index
+blog/index
 ```
