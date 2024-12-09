@@ -25,7 +25,6 @@ def pytest_configure():
         paths_dict = fetch_dataset_paths(file_name)
         data_path = paths_dict.get("poses") or paths_dict.get("bboxes")
         pytest.DATA_PATHS[file_name] = data_path
-        print(file_name, data_path)
 
 
 @pytest.fixture(autouse=True)
@@ -198,6 +197,30 @@ def new_csv_file(tmp_path):
 def dlc_style_df():
     """Return a valid DLC-style DataFrame."""
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
+
+@pytest.fixture
+def missing_keypoint_headers_anipose_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "missing_keypoint_headers.csv"
+    headers = ["fnum", "center_0", "center_1", "center_2", "M_00", "M_01", "M_02", "M_10", "M_11", "M_12", "M_20", "M_21", "M_22"]
+    headers.extend(["kp0_x", "kp0_y", "kp0_score", "kp0_error", "kp0_ncams"])
+    with open(file_path, "w") as f:
+        f.write(",".join(headers))
+        f.write("\n")
+        f.write(",".join(["1"] * len(headers)))
+    return file_path
+
+@pytest.fixture
+def spurious_header_anipose_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "spurious_header.csv"
+    headers = ["fnum", "center_0", "center_1", "center_2", "M_00", "M_01", "M_02", "M_10", "M_11", "M_12", "M_20", "M_21", "M_22"]
+    headers.extend(["funny_header"])
+    with open(file_path, "w") as f:
+        f.write(",".join(headers))
+        f.write("\n")
+        f.write(",".join(["1"] * len(headers)))
+    return file_path
 
 
 @pytest.fixture(

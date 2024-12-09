@@ -5,6 +5,7 @@ from movement.validators.files import (
     ValidFile,
     ValidHDF5,
     ValidVIATracksCSV,
+    ValidAniposeCSV,
 )
 
 
@@ -175,3 +176,46 @@ def test_via_tracks_csv_validator_with_invalid_input(
         ValidVIATracksCSV(file_path)
 
     assert str(excinfo.value) == log_message
+
+@pytest.mark.parametrize(
+    "invalid_input, error_type, log_message",
+    [
+        (
+            "invalid_single_individual_csv_file",
+            ValueError,
+            "CSV file is missing some expected headers."
+        ),
+        (
+            "missing_keypoint_headers_anipose_csv_file",
+            ValueError,
+            "Base header kp0 is missing some expected suffixes."
+        ),
+        (
+            "spurious_header_anipose_csv_file",
+            ValueError,
+            "Header funny_header does not have an expected suffix."
+        ),
+    ],
+)
+def test_anipose_csv_validator_with_invalid_input(
+    invalid_input, error_type, log_message, request
+):
+    """Test that invalid Anipose .csv files raise the appropriate errors.
+
+    Errors to check:
+    - error if .csv header is wrong
+    - error if frame number is not defined in the file
+        (frame number extracted either from the filename or from attributes)
+    - error if extracted frame numbers are not 1-based integers
+    - error if region_shape_attributes "name" is not "rect"
+    - error if not all region_attributes have key "track"
+        (i.e., all regions must have an ID assigned)
+    - error if IDs are unique per frame
+        (i.e., bboxes IDs must exist only once per frame)
+    - error if bboxes IDs are not 1-based integers
+    """
+    file_path = request.getfixturevalue(invalid_input)
+    with pytest.raises(ValueError) as excinfo:
+        ValidAniposeCSV(file_path)
+
+    assert log_message in str(excinfo.value)
