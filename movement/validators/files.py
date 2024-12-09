@@ -219,6 +219,72 @@ class ValidDeepLabCutCSV:
                     ".csv header rows do not match the known format for "
                     "DeepLabCut pose estimation output files.",
                 )
+            
+@define
+class ValidAniposeCSV:
+    """Class for validating Anipose-style .csv files.
+
+    The validator ensures that the file contains the
+    expected index column levels.
+
+    Attributes
+    ----------
+    path : pathlib.Path
+        Path to the .csv file.
+
+    Raises
+    ------
+    ValueError
+        If the .csv file does not contain the expected DeepLabCut index column
+        levels among its top rows.
+
+    """
+
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def _file_contains_expected_headers(self, attribute, value):
+        """Ensure that the .csv file contains the expected headers.
+
+        These are to be found among the top 4 rows of the file.
+        """
+        expected_header_suffixes = ["_x", "_y", "_z", "_score", "_error", "_ncams"]
+        expected_headers = ["fnum", "center_0", "center_1", "center_2", 
+                            "M_00", "M_01", "M_02", "M_10", "M_11", 
+                            "M_12", "M_20", "M_21", "M_22"]
+        
+        # Read the first line of the CSV to get the headers
+        with open(value) as f:
+            headers = f.readline().strip().split(",")
+        
+        # Check that all expected headers are present
+        if not all(h in headers for h in expected_headers):
+            raise log_error(
+                ValueError,
+                "CSV file is missing some expected headers."
+                f"Expected: {expected_headers}."
+            )
+            
+        # For all other headers, check they have expected suffixes and base names
+        other_headers = [h for h in headers if h not in expected_headers]
+        for header in other_headers:
+            # Check suffix
+            if not any(header.endswith(suffix) for suffix in expected_header_suffixes):
+                raise log_error(
+                    ValueError,
+                    f"Header {header} does not have an expected suffix."
+                )
+            # Get base name by removing suffix
+            base = header.rsplit("_", 1)[0]
+            # Check base name has all expected suffixes
+            if not all(f"{base}{suffix}" in headers for suffix in expected_header_suffixes):
+                raise log_error(
+                    ValueError, 
+                    f"Base header {base} is missing some expected suffixes."
+                    f"Expected: {expected_header_suffixes};"
+                    f"Got: {headers}."
+                )
+        
 
 
 @define
