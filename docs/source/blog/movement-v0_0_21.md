@@ -37,7 +37,7 @@ __Breaking changes__
 
 - We have dropped support for using filtering and
 kinematic functions via the `move` accessor syntax,
-because we've found the concept hard to convey to new users. All functions are henceforth solely accessible by importing them from the relevant modules. Having one way of doing things should reduce the maintenance burden on our end. See an example below:
+because we've found the concept hard to convey to new users. All functions are henceforth solely accessible by importing them from the relevant modules. Having one way of doing things simplifies the mental model for users and reduces the maintenance effort on our side. See an example below:
 
   ```python
   # Instead of:
