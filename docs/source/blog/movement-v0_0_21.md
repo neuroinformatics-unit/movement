@@ -51,7 +51,20 @@ because we've found the concept hard to convey to new users. All functions are h
   position_filt = median_filter(ds.position, window=5)
   velocity = compute_velocity(ds.position)
   ```
-- We have slightly modified the [structure of movement datasets](target-poses-and-bboxes-dataset), by moving the `space` dimension from the last to the second position, following `time`. This should not affect you if you are indexing data by dimension names, i.e. using the {meth}`xarray.Dataset.sel` or {meth}`xarray.Dataset.isel` methods. However, you may need to update your code if you are indexing data by position.
+- We have slightly modified the [structure of movement datasets](target-poses-and-bboxes-dataset), by changing the order of dimensions. This should have no effect when indexing data by dimension names, i.e. using the {meth}`xarray.Dataset.sel` or {meth}`xarray.Dataset.isel` methods. However, you may need to update your code if you are using Numpy-style indexing, for example:
+
+  ```python
+  # Indexing with dimension names (recommended, works always)
+  position = ds.position.isel(
+      individuals=0, keypoints=-1     # first individual, last keypoint
+  )
+
+  # Numpy-style indexing with the old dimension order (will no longer work)
+  position = ds.position[:, 0, -1, :]  # time, individuals, keypoints, space
+
+  # Numpy-style indexing with the updated dimension order (use this instead)
+  position = ds.position[:, :, -1, 0]  # time, space, keypoints, individuals
+  ```
 
 
 ## Looking to v0.1 and beyond
