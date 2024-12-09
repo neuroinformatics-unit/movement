@@ -109,7 +109,7 @@ class TestPosesIO:
     @pytest.mark.parametrize(
         "file",
         ["anipose_mouse-paw_anipose-paper.triangulation.csv"],
-        )
+    )
     def test_load_anipose_csv(self, file):
         """Test that loading pose tracks from an Anipose triangulation
         csv file returns the same Dataset.
