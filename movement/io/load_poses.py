@@ -700,7 +700,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
 def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
     """Convert triangulation dataframe to xarray dataset.
-    
+
     Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
     keypoint1_confidence_score,keypoint2_x, keypoint2_y, keypoint2_z,
     keypoint2_confidence_score...to array of positions with dimensions
