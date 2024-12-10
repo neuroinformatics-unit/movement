@@ -226,7 +226,7 @@ class ValidAniposeCSV:
     """Class for validating Anipose-style 3D pose .csv files.
 
     The validator ensures that the file contains the
-    expected index column levels.
+    expected column names in its header (first row).
 
     Attributes
     ----------
