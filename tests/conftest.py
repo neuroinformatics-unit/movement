@@ -200,10 +200,10 @@ def dlc_style_df():
 
 
 @pytest.fixture
-def missing_keypoint_headers_anipose_csv_file(tmp_path):
+def missing_keypoint_columns_anipose_csv_file(tmp_path):
     """Return the file path for a fake single-individual .csv file."""
-    file_path = tmp_path / "missing_keypoint_headers.csv"
-    headers = [
+    file_path = tmp_path / "missing_keypoint_columns.csv"
+    columns = [
         "fnum",
         "center_0",
         "center_1",
@@ -219,19 +219,19 @@ def missing_keypoint_headers_anipose_csv_file(tmp_path):
         "M_22",
     ]
     # Here we are missing kp0_z:
-    headers.extend(["kp0_x", "kp0_y", "kp0_score", "kp0_error", "kp0_ncams"])
+    columns.extend(["kp0_x", "kp0_y", "kp0_score", "kp0_error", "kp0_ncams"])
     with open(file_path, "w") as f:
-        f.write(",".join(headers))
+        f.write(",".join(columns))
         f.write("\n")
-        f.write(",".join(["1"] * len(headers)))
+        f.write(",".join(["1"] * len(columns)))
     return file_path
 
 
 @pytest.fixture
-def spurious_header_anipose_csv_file(tmp_path):
+def spurious_column_anipose_csv_file(tmp_path):
     """Return the file path for a fake single-individual .csv file."""
-    file_path = tmp_path / "spurious_header.csv"
-    headers = [
+    file_path = tmp_path / "spurious_column.csv"
+    columns = [
         "fnum",
         "center_0",
         "center_1",
@@ -246,11 +246,11 @@ def spurious_header_anipose_csv_file(tmp_path):
         "M_21",
         "M_22",
     ]
-    headers.extend(["funny_header"])
+    columns.extend(["funny_column"])
     with open(file_path, "w") as f:
-        f.write(",".join(headers))
+        f.write(",".join(columns))
         f.write("\n")
-        f.write(",".join(["1"] * len(headers)))
+        f.write(",".join(["1"] * len(columns)))
     return file_path
 
 

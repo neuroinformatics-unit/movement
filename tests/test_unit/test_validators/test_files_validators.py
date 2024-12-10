@@ -183,15 +183,15 @@ def test_via_tracks_csv_validator_with_invalid_input(
     [
         (
             "invalid_single_individual_csv_file",
-            "CSV file is missing some expected headers.",
+            "CSV file is missing some expected columns.",
         ),
         (
-            "missing_keypoint_headers_anipose_csv_file",
-            "Base header kp0 is missing some expected suffixes.",
+            "missing_keypoint_columns_anipose_csv_file",
+            "Keypoint kp0 is missing some expected suffixes.",
         ),
         (
-            "spurious_header_anipose_csv_file",
-            "Header funny_header does not have an expected suffix.",
+            "spurious_column_anipose_csv_file",
+            "Column funny_column ends with an unexpected suffix.",
         ),
     ],
 )
