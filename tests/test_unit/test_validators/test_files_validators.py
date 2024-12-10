@@ -216,7 +216,7 @@ def test_anipose_csv_validator_with_invalid_input(
     - error if bboxes IDs are not 1-based integers
     """
     file_path = request.getfixturevalue(invalid_input)
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(error_type) as excinfo:
         ValidAniposeCSV(file_path)
 
     assert log_message in str(excinfo.value)
