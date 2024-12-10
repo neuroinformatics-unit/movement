@@ -758,9 +758,7 @@ def from_anipose_style_df(
     confidence_array = np.zeros((n_frames, n_keypoints, 1))
     for i, kp in enumerate(keypoint_names):
         for j, coord in enumerate(["x", "y", "z"]):
-            position_array[:, j, i, 0] = df[
-                f"{kp}_{coord}"
-            ]
+            position_array[:, j, i, 0] = df[f"{kp}_{coord}"]
         confidence_array[:, i, 0] = df[f"{kp}_score"]
 
     individual_names = [individual_name]
@@ -808,13 +806,13 @@ def from_anipose_file(
 
     """
     file = ValidFile(
-    file_path,
-    expected_permission="r",
-    expected_suffix=[".csv"],
-)
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".csv"],
+    )
     file = ValidAniposeCSV(file.path)
     anipose_triangulation_df = pd.read_csv(file.path)
 
-    return from_anipose_style_df(anipose_triangulation_df, 
-                                 fps=fps,
-                                 individual_name=individual_name)
+    return from_anipose_style_df(
+        anipose_triangulation_df, fps=fps, individual_name=individual_name
+    )

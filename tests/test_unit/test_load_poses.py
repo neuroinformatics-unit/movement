@@ -338,6 +338,3 @@ def test_load_from_anipose_file():
         "r-edge",
         "r-middle",
     ]
-
-
-
