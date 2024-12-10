@@ -258,13 +258,7 @@ def test_load_multi_individual_from_lp_file_raises():
 
 @pytest.mark.parametrize(
     "source_software",
-    [
-        "SLEAP",
-        "DeepLabCut",
-        "LightningPose",
-        "Anipose",
-        "Unknown",
-    ],
+    ["SLEAP", "DeepLabCut", "LightningPose", "Anipose", "Unknown"],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_from_file_delegates_correctly(source_software, fps):
