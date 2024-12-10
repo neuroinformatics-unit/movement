@@ -201,16 +201,10 @@ def test_anipose_csv_validator_with_invalid_input(
     """Test that invalid Anipose .csv files raise the appropriate errors.
 
     Errors to check:
-    - error if .csv header is wrong
-    - error if frame number is not defined in the file
-        (frame number extracted either from the filename or from attributes)
-    - error if extracted frame numbers are not 1-based integers
-    - error if region_shape_attributes "name" is not "rect"
-    - error if not all region_attributes have key "track"
-        (i.e., all regions must have an ID assigned)
-    - error if IDs are unique per frame
-        (i.e., bboxes IDs must exist only once per frame)
-    - error if bboxes IDs are not 1-based integers
+    - error if .csv is missing some columns
+    - error if .csv misses some of the expected columns for a keypoint
+    - error if .csv has columns that are not expected 
+    (either common ones or keypoint-specific ones)
     """
     file_path = request.getfixturevalue(invalid_input)
     with pytest.raises(ValueError) as excinfo:

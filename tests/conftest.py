@@ -218,6 +218,7 @@ def missing_keypoint_headers_anipose_csv_file(tmp_path):
         "M_21",
         "M_22",
     ]
+    # Here we are missing kp0_z:
     headers.extend(["kp0_x", "kp0_y", "kp0_score", "kp0_error", "kp0_ncams"])
     with open(file_path, "w") as f:
         f.write(",".join(headers))

@@ -236,20 +236,18 @@ class ValidAniposeCSV:
     Raises
     ------
     ValueError
-        If the .csv file does not contain the expected DeepLabCut index column
-        levels among its top rows.
+        If the .csv file does not contain the expected Anipose columns.
 
     """
 
     path: Path = field(validator=validators.instance_of(Path))
 
     @path.validator
-    def _file_contains_expected_headers(self, attribute, value):
-        """Ensure that the .csv file contains the expected headers.
+    def _file_contains_expected_columns(self, attribute, value):
+        """Ensure that the .csv file contains the expected columns.
 
-        These are to be found among the top 4 rows of the file.
         """
-        expected_header_suffixes = [
+        expected_column_suffixes = [
             "_x",
             "_y",
             "_z",
@@ -257,7 +255,7 @@ class ValidAniposeCSV:
             "_error",
             "_ncams",
         ]
-        expected_headers = [
+        expected_non_keypoint_columns = [
             "fnum",
             "center_0",
             "center_1",
@@ -275,39 +273,39 @@ class ValidAniposeCSV:
 
         # Read the first line of the CSV to get the headers
         with open(value) as f:
-            headers = f.readline().strip().split(",")
+            columns = f.readline().strip().split(",")
 
         # Check that all expected headers are present
-        if not all(h in headers for h in expected_headers):
+        if not all(col in columns for col in expected_non_keypoint_columns):
             raise log_error(
                 ValueError,
-                "CSV file is missing some expected headers."
-                f"Expected: {expected_headers}.",
+                "CSV file is missing some expected columns."
+                f"Expected: {expected_non_keypoint_columns}.",
             )
 
         # For other headers, check they have expected suffixes and base names
-        other_headers = [h for h in headers if h not in expected_headers]
-        for header in other_headers:
+        other_columns = [col for col in columns if col not in expected_non_keypoint_columns]
+        for column in other_columns:
             # Check suffix
             if not any(
-                header.endswith(suffix) for suffix in expected_header_suffixes
+                column.endswith(suffix) for suffix in expected_column_suffixes
             ):
                 raise log_error(
                     ValueError,
-                    f"Header {header} does not have an expected suffix.",
+                    f"Column {column} ends with an unexpected suffix.",
                 )
             # Get base name by removing suffix
-            base = header.rsplit("_", 1)[0]
+            base = column.rsplit("_", 1)[0]
             # Check base name has all expected suffixes
             if not all(
-                f"{base}{suffix}" in headers
-                for suffix in expected_header_suffixes
+                f"{base}{suffix}" in columns
+                for suffix in expected_column_suffixes
             ):
                 raise log_error(
                     ValueError,
-                    f"Base header {base} is missing some expected suffixes."
-                    f"Expected: {expected_header_suffixes};"
-                    f"Got: {headers}.",
+                    f"Keypoint {base} is missing some expected suffixes."
+                    f"Expected: {expected_column_suffixes};"
+                    f"Got: {columns}.",
                 )
 
 
