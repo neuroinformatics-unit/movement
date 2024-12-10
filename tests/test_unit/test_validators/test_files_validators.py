@@ -179,27 +179,24 @@ def test_via_tracks_csv_validator_with_invalid_input(
 
 
 @pytest.mark.parametrize(
-    "invalid_input, error_type, log_message",
+    "invalid_input, log_message",
     [
         (
             "invalid_single_individual_csv_file",
-            ValueError,
             "CSV file is missing some expected headers.",
         ),
         (
             "missing_keypoint_headers_anipose_csv_file",
-            ValueError,
             "Base header kp0 is missing some expected suffixes.",
         ),
         (
             "spurious_header_anipose_csv_file",
-            ValueError,
             "Header funny_header does not have an expected suffix.",
         ),
     ],
 )
 def test_anipose_csv_validator_with_invalid_input(
-    invalid_input, error_type, log_message, request
+    invalid_input, log_message, request
 ):
     """Test that invalid Anipose .csv files raise the appropriate errors.
 
@@ -216,7 +213,7 @@ def test_anipose_csv_validator_with_invalid_input(
     - error if bboxes IDs are not 1-based integers
     """
     file_path = request.getfixturevalue(invalid_input)
-    with pytest.raises(error_type) as excinfo:
+    with pytest.raises(ValueError) as excinfo:
         ValidAniposeCSV(file_path)
 
     assert log_message in str(excinfo.value)
