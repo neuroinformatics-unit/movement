@@ -247,7 +247,7 @@ class ValidAniposeCSV:
     def _file_contains_expected_headers(self, attribute, value):
         """Ensure that the .csv file contains the expected headers.
 
-        These are to be found among the top 4 rows of the file.
+        These are to be found in the first row of the .csv file.
         """
         expected_header_suffixes = [
             "_x",
