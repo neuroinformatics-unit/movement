@@ -801,4 +801,6 @@ def from_anipose_file(
     file = ValidAniposeCSV(file.path)
     anipose_triangulation_df = pd.read_csv(file.path)
 
-    return from_anipose_style_df(anipose_triangulation_df, individual_name)
+    return from_anipose_style_df(anipose_triangulation_df, 
+                                 fps=fps,
+                                 individual_name=individual_name)
