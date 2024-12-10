@@ -177,23 +177,24 @@ def test_via_tracks_csv_validator_with_invalid_input(
 
     assert str(excinfo.value) == log_message
 
+
 @pytest.mark.parametrize(
     "invalid_input, error_type, log_message",
     [
         (
             "invalid_single_individual_csv_file",
             ValueError,
-            "CSV file is missing some expected headers."
+            "CSV file is missing some expected headers.",
         ),
         (
             "missing_keypoint_headers_anipose_csv_file",
             ValueError,
-            "Base header kp0 is missing some expected suffixes."
+            "Base header kp0 is missing some expected suffixes.",
         ),
         (
             "spurious_header_anipose_csv_file",
             ValueError,
-            "Header funny_header does not have an expected suffix."
+            "Header funny_header does not have an expected suffix.",
         ),
     ],
 )
