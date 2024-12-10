@@ -96,7 +96,10 @@ def from_numpy(
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose", "Anipose"],
+    source_software: Literal["DeepLabCut",
+                             "SLEAP",
+                             "LightningPose",
+                             "Anipose"] | None = None,
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
