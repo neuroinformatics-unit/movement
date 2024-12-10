@@ -285,7 +285,7 @@ class ValidAniposeCSV:
                 f"Expected: {expected_headers}.",
             )
 
-        # For all other headers, check they have expected suffixes and base names
+        # For other headers, check they have expected suffixes and base names
         other_headers = [h for h in headers if h not in expected_headers]
         for header in other_headers:
             # Check suffix

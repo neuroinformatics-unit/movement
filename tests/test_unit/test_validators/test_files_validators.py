@@ -1,11 +1,11 @@
 import pytest
 
 from movement.validators.files import (
+    ValidAniposeCSV,
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
     ValidVIATracksCSV,
-    ValidAniposeCSV,
 )
 
 
