@@ -759,8 +759,12 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
     )
 
 
-def from_anipose_csv(anipose_csv_path, individual_name="individual_0"):
-    """Convert anipose csv to xarray dataset.
+def from_anipose_file(
+    file_path: Path | str,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
 
     Parameters
     ----------
