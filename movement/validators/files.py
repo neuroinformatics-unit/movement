@@ -244,9 +244,7 @@ class ValidAniposeCSV:
 
     @path.validator
     def _file_contains_expected_columns(self, attribute, value):
-        """Ensure that the .csv file contains the expected columns.
-
-        """
+        """Ensure that the .csv file contains the expected columns."""
         expected_column_suffixes = [
             "_x",
             "_y",
@@ -284,7 +282,9 @@ class ValidAniposeCSV:
             )
 
         # For other headers, check they have expected suffixes and base names
-        other_columns = [col for col in columns if col not in expected_non_keypoint_columns]
+        other_columns = [
+            col for col in columns if col not in expected_non_keypoint_columns
+        ]
         for column in other_columns:
             # Check suffix
             if not any(

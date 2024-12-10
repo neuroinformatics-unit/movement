@@ -203,7 +203,7 @@ def test_anipose_csv_validator_with_invalid_input(
     Errors to check:
     - error if .csv is missing some columns
     - error if .csv misses some of the expected columns for a keypoint
-    - error if .csv has columns that are not expected 
+    - error if .csv has columns that are not expected
     (either common ones or keypoint-specific ones)
     """
     file_path = request.getfixturevalue(invalid_input)
