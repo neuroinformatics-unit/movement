@@ -13,7 +13,7 @@ from sleap_io.model.labels import Labels
 
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
+from movement.validators.files import ValidAniposeCSV, ValidDeepLabCutCSV, ValidFile, ValidHDF5
 
 logger = logging.getLogger(__name__)
 
@@ -698,14 +698,12 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     )
 
 
-def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
-    """Convert triangulation dataframe to xarray dataset.
-
-    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
-    keypoint1_confidence_score,keypoint2_x, keypoint2_y, keypoint2_z,
-    keypoint2_confidence_score...to array of positions with dimensions
-    time, individuals, keypoints, space, and array of confidence scores
-    with dimensions time, individuals, keypoints.
+def from_anipose_style_df(
+    df: pd.DataFrame,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset
+    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
 
     Parameters
     ----------
@@ -720,20 +718,29 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
+
+    Notes
+    -----
+    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
+    keypoint1_confidence_score,keypoint2_x, keypoint2_y, keypoint2_z,
+    keypoint2_confidence_score...to array of positions with dimensions
+    time, individuals, keypoints, space, and array of confidence scores
+    with dimensions time, individuals, keypoints.
+
     """
     keypoint_names = sorted(
         list(
             set(
                 [
                     col.rsplit("_", 1)[0]
-                    for col in anipose_triangulation_df.columns
+                    for col in df.columns
                     if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
                 ]
             )
         )
     )
 
-    n_frames = len(anipose_triangulation_df)
+    n_frames = len(df)
     n_keypoints = len(keypoint_names)
 
     # Initialize arrays and fill
@@ -743,10 +750,10 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
     confidence_array = np.zeros((n_frames, n_keypoints, 1))
     for i, kp in enumerate(keypoint_names):
         for j, coord in enumerate(["x", "y", "z"]):
-            position_array[:, j, i, 0] = anipose_triangulation_df[
+            position_array[:, j, i, 0] = df[
                 f"{kp}_{coord}"
             ]
-        confidence_array[:, i, 0] = anipose_triangulation_df[f"{kp}_score"]
+        confidence_array[:, i, 0] = df[f"{kp}_score"]
 
     individual_names = [individual_name]
 
@@ -755,7 +762,8 @@ def from_anipose_df(anipose_triangulation_df, individual_name="individual_0"):
         confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
-        source_software="anipose_triangulation",
+        source_software="Anipose",
+        fps=fps,
     )
 
 
@@ -779,7 +787,18 @@ def from_anipose_file(
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
+    Notes
+    -----
+    We currently do not load all information, only x, y, z, and score (confidence)
+    for each keypoint. Future versions will load n of cameras and error.
+
     """
-    anipose_triangulation_df = pd.read_csv(anipose_csv_path)
-    # TODO add a validator for the anipose csv file at this level?
-    return from_anipose_df(anipose_triangulation_df, individual_name)
+    file = ValidFile(
+    file_path,
+    expected_permission="r",
+    expected_suffix=[".csv"],
+)
+    file = ValidAniposeCSV(file.path)
+    anipose_triangulation_df = pd.read_csv(file.path)
+
+    return from_anipose_style_df(anipose_triangulation_df, individual_name)
