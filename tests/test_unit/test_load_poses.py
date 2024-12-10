@@ -324,7 +324,9 @@ def test_load_from_anipose_file():
     """Test that loading pose tracks from an Anipose triangulation
     csv file returns the same Dataset.
     """
-    file_path = DATA_PATHS.get("anipose_mouse-paw_anipose-paper.triangulation.csv")
+    file_path = DATA_PATHS.get(
+        "anipose_mouse-paw_anipose-paper.triangulation.csv"
+    )
     ds = load_poses.from_anipose_file(file_path)
     assert ds.position.shape == (246, 3, 6, 1)
     assert ds.confidence.shape == (246, 6, 1)

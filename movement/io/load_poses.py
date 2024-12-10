@@ -13,7 +13,12 @@ from sleap_io.model.labels import Labels
 
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidAniposeCSV, ValidDeepLabCutCSV, ValidFile, ValidHDF5
+from movement.validators.files import (
+    ValidAniposeCSV,
+    ValidDeepLabCutCSV,
+    ValidFile,
+    ValidHDF5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -707,8 +712,11 @@ def from_anipose_style_df(
 
     Parameters
     ----------
-    anipose_triangulation_df : pd.DataFrame
+    df : pd.DataFrame
         Anipose triangulation dataframe
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
     individual_name : str, optional
         Name of the individual, by default "individual_0"
 
@@ -776,8 +784,13 @@ def from_anipose_file(
 
     Parameters
     ----------
-    anipose_csv_path : pathlib.Path
+    file_path : pathlib.Path
         Path to the Anipose triangulation csv file
+    individual_name : str, optional
+        Name of the individual, by default "individual_0"
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
     individual_name : str, optional
         Name of the individual, by default "individual_0"
 
@@ -789,8 +802,9 @@ def from_anipose_file(
 
     Notes
     -----
-    We currently do not load all information, only x, y, z, and score (confidence)
-    for each keypoint. Future versions will load n of cameras and error.
+    We currently do not load all information, only x, y, z, and score
+    (confidence) for each keypoint. Future versions will load n of cameras
+    and error.
 
     """
     file = ValidFile(
