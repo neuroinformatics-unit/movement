@@ -222,6 +222,94 @@ class ValidDeepLabCutCSV:
 
 
 @define
+class ValidAniposeCSV:
+    """Class for validating Anipose-style 3D pose .csv files.
+
+    The validator ensures that the file contains the
+    expected column names in its header (first row).
+
+    Attributes
+    ----------
+    path : pathlib.Path
+        Path to the .csv file.
+
+    Raises
+    ------
+    ValueError
+        If the .csv file does not contain the expected Anipose columns.
+
+    """
+
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def _file_contains_expected_columns(self, attribute, value):
+        """Ensure that the .csv file contains the expected columns."""
+        expected_column_suffixes = [
+            "_x",
+            "_y",
+            "_z",
+            "_score",
+            "_error",
+            "_ncams",
+        ]
+        expected_non_keypoint_columns = [
+            "fnum",
+            "center_0",
+            "center_1",
+            "center_2",
+            "M_00",
+            "M_01",
+            "M_02",
+            "M_10",
+            "M_11",
+            "M_12",
+            "M_20",
+            "M_21",
+            "M_22",
+        ]
+
+        # Read the first line of the CSV to get the headers
+        with open(value) as f:
+            columns = f.readline().strip().split(",")
+
+        # Check that all expected headers are present
+        if not all(col in columns for col in expected_non_keypoint_columns):
+            raise log_error(
+                ValueError,
+                "CSV file is missing some expected columns."
+                f"Expected: {expected_non_keypoint_columns}.",
+            )
+
+        # For other headers, check they have expected suffixes and base names
+        other_columns = [
+            col for col in columns if col not in expected_non_keypoint_columns
+        ]
+        for column in other_columns:
+            # Check suffix
+            if not any(
+                column.endswith(suffix) for suffix in expected_column_suffixes
+            ):
+                raise log_error(
+                    ValueError,
+                    f"Column {column} ends with an unexpected suffix.",
+                )
+            # Get base name by removing suffix
+            base = column.rsplit("_", 1)[0]
+            # Check base name has all expected suffixes
+            if not all(
+                f"{base}{suffix}" in columns
+                for suffix in expected_column_suffixes
+            ):
+                raise log_error(
+                    ValueError,
+                    f"Keypoint {base} is missing some expected suffixes."
+                    f"Expected: {expected_column_suffixes};"
+                    f"Got: {columns}.",
+                )
+
+
+@define
 class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
 

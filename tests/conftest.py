@@ -199,6 +199,61 @@ def dlc_style_df():
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
 
+@pytest.fixture
+def missing_keypoint_columns_anipose_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "missing_keypoint_columns.csv"
+    columns = [
+        "fnum",
+        "center_0",
+        "center_1",
+        "center_2",
+        "M_00",
+        "M_01",
+        "M_02",
+        "M_10",
+        "M_11",
+        "M_12",
+        "M_20",
+        "M_21",
+        "M_22",
+    ]
+    # Here we are missing kp0_z:
+    columns.extend(["kp0_x", "kp0_y", "kp0_score", "kp0_error", "kp0_ncams"])
+    with open(file_path, "w") as f:
+        f.write(",".join(columns))
+        f.write("\n")
+        f.write(",".join(["1"] * len(columns)))
+    return file_path
+
+
+@pytest.fixture
+def spurious_column_anipose_csv_file(tmp_path):
+    """Return the file path for a fake single-individual .csv file."""
+    file_path = tmp_path / "spurious_column.csv"
+    columns = [
+        "fnum",
+        "center_0",
+        "center_1",
+        "center_2",
+        "M_00",
+        "M_01",
+        "M_02",
+        "M_10",
+        "M_11",
+        "M_12",
+        "M_20",
+        "M_21",
+        "M_22",
+    ]
+    columns.extend(["funny_column"])
+    with open(file_path, "w") as f:
+        f.write(",".join(columns))
+        f.write("\n")
+        f.write(",".join(["1"] * len(columns)))
+    return file_path
+
+
 @pytest.fixture(
     params=[
         "SLEAP_single-mouse_EPM.analysis.h5",
