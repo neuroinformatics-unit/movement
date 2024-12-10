@@ -96,8 +96,9 @@ def from_numpy(
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose", "Anipose"],
     fps: float | None = None,
+    **kwargs,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from any supported file.
 
@@ -114,6 +115,8 @@ def from_file(
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to specific loading functions.
 
     Returns
     -------
@@ -126,6 +129,7 @@ def from_file(
     movement.io.load_poses.from_dlc_file
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
+    movement.io.load_poses.from_anipose_file
 
     Examples
     --------
@@ -141,6 +145,8 @@ def from_file(
         return from_sleap_file(file_path, fps)
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
+    elif source_software == "Anipose":
+        return from_anipose_file(file_path, fps, **kwargs)
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -808,10 +814,10 @@ def from_anipose_file(
 
     """
     file = ValidFile(
-    file_path,
-    expected_permission="r",
-    expected_suffix=[".csv"],
-)
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".csv"],
+    )
     file = ValidAniposeCSV(file.path)
     anipose_triangulation_df = pd.read_csv(file.path)
 
