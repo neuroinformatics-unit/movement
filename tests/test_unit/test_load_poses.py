@@ -318,3 +318,15 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_load_from_anipose_csv_file():
+    """Test that loading pose tracks from an Anipose triangulation
+    csv file returns the same Dataset.
+    """
+    file_path = DATA_PATHS.get("anipose_mouse-paw_anipose-paper.triangulation.csv")
+    ds = load_poses.from_anipose_csv(file_path)
+    print(ds.position.shape)
+    print(ds.coords["keypoints"].values)
+    assert False
+

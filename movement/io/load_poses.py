@@ -702,7 +702,7 @@ def from_anipose_style_df(
     df: pd.DataFrame,
     fps: float | None = None,
     individual_name: str = "individual_0",
-) -> xr.Dataset
+) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
 
     Parameters

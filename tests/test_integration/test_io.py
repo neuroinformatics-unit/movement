@@ -105,15 +105,3 @@ class TestPosesIO:
                 assert file_path.name in f["labels_path"][()].decode()
             else:
                 assert f["labels_path"][()].decode() == ""
-
-    @pytest.mark.parametrize(
-        "file",
-        ["anipose_mouse-paw_anipose-paper.triangulation.csv"],
-    )
-    def test_load_anipose_csv(self, file):
-        """Test that loading pose tracks from an Anipose triangulation
-        csv file returns the same Dataset.
-        """
-        file_path = DATA_PATHS.get(file)
-        ds = load_poses.from_anipose_csv(file_path)
-        print(ds)
