@@ -112,7 +112,7 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP" or "LightningPose"
+    source_software : "DeepLabCut", "SLEAP" "LightningPose", or "Anipose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -739,9 +739,9 @@ def from_anipose_style_df(
     Notes
     -----
     Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
-    keypoint1_confidence_score,keypoint2_x, keypoint2_y, keypoint2_z,
-    keypoint2_confidence_score...to array of positions with dimensions
-    time, space, keypoints, individuals, and array of confidence scores
+    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,
+    keypoint2_score...to array of positions with dimensions
+    time, space, keypoints, individuals, and array of confidence (from scores)
     with dimensions time, keypoints, individuals.
 
     """
