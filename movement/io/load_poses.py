@@ -118,7 +118,8 @@ def from_file(
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
     **kwargs : dict, optional
-        Additional keyword arguments to pass to specific loading functions.
+        Additional keyword arguments to pass to the software-specific
+        loading functions that are listed under "See Also".
 
     Returns
     -------
