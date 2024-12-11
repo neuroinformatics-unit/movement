@@ -741,8 +741,8 @@ def from_anipose_style_df(
     Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
     keypoint1_confidence_score,keypoint2_x, keypoint2_y, keypoint2_z,
     keypoint2_confidence_score...to array of positions with dimensions
-    time, individuals, keypoints, space, and array of confidence scores
-    with dimensions time, individuals, keypoints.
+    time, space, keypoints, individuals, and array of confidence scores
+    with dimensions time, keypoints, individuals.
 
     """
     keypoint_names = sorted(
