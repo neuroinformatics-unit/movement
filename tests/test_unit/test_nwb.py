@@ -49,9 +49,8 @@ def test_create_pose_and_skeleton_objects():
 def create_test_pose_estimation_series(
     n_time=100, n_dims=2, keypoint="front_left_paw"
 ):
-    data = np.random.rand(
-        n_time, n_dims
-    )  # num_frames x (x, y) but can be (x, y, z)
+    rng = np.random.default_rng(42)
+    data = rng.random((n_time, n_dims))  # num_frames x n_space_dims (2 or 3)
     timestamps = np.linspace(0, 10, num=n_time)  # a timestamp for every frame
     confidence = np.ones((n_time,))  # a confidence value for every frame
     reference_frame = "(0,0,0) corresponds to ..."
