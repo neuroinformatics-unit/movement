@@ -793,8 +793,6 @@ def from_anipose_file(
     ----------
     file_path : pathlib.Path
         Path to the Anipose triangulation csv file
-    individual_name : str, optional
-        Name of the individual, by default "individual_0"
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
