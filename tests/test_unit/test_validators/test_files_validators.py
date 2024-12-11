@@ -1,6 +1,7 @@
 import pytest
 
 from movement.validators.files import (
+    ValidAniposeCSV,
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
@@ -175,3 +176,38 @@ def test_via_tracks_csv_validator_with_invalid_input(
         ValidVIATracksCSV(file_path)
 
     assert str(excinfo.value) == log_message
+
+
+@pytest.mark.parametrize(
+    "invalid_input, log_message",
+    [
+        (
+            "invalid_single_individual_csv_file",
+            "CSV file is missing some expected columns.",
+        ),
+        (
+            "missing_keypoint_columns_anipose_csv_file",
+            "Keypoint kp0 is missing some expected suffixes.",
+        ),
+        (
+            "spurious_column_anipose_csv_file",
+            "Column funny_column ends with an unexpected suffix.",
+        ),
+    ],
+)
+def test_anipose_csv_validator_with_invalid_input(
+    invalid_input, log_message, request
+):
+    """Test that invalid Anipose .csv files raise the appropriate errors.
+
+    Errors to check:
+    - error if .csv is missing some columns
+    - error if .csv misses some of the expected columns for a keypoint
+    - error if .csv has columns that are not expected
+    (either common ones or keypoint-specific ones)
+    """
+    file_path = request.getfixturevalue(invalid_input)
+    with pytest.raises(ValueError) as excinfo:
+        ValidAniposeCSV(file_path)
+
+    assert log_message in str(excinfo.value)

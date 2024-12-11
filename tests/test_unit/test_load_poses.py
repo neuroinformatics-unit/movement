@@ -257,7 +257,8 @@ def test_load_multi_individual_from_lp_file_raises():
 
 
 @pytest.mark.parametrize(
-    "source_software", ["SLEAP", "DeepLabCut", "LightningPose", "Unknown"]
+    "source_software",
+    ["SLEAP", "DeepLabCut", "LightningPose", "Anipose", "Unknown"],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_from_file_delegates_correctly(source_software, fps):
@@ -268,6 +269,7 @@ def test_from_file_delegates_correctly(source_software, fps):
         "SLEAP": "movement.io.load_poses.from_sleap_file",
         "DeepLabCut": "movement.io.load_poses.from_dlc_file",
         "LightningPose": "movement.io.load_poses.from_lp_file",
+        "Anipose": "movement.io.load_poses.from_anipose_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
@@ -318,3 +320,23 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_load_from_anipose_file():
+    """Test that loading pose tracks from an Anipose triangulation
+    csv file returns the same Dataset.
+    """
+    file_path = DATA_PATHS.get(
+        "anipose_mouse-paw_anipose-paper.triangulation.csv"
+    )
+    ds = load_poses.from_anipose_file(file_path)
+    assert ds.position.shape == (246, 3, 6, 1)
+    assert ds.confidence.shape == (246, 6, 1)
+    assert ds.coords["keypoints"].values.tolist() == [
+        "l-base",
+        "l-edge",
+        "l-middle",
+        "r-base",
+        "r-edge",
+        "r-middle",
+    ]

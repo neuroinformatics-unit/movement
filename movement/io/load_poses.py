@@ -13,7 +13,12 @@ from sleap_io.model.labels import Labels
 
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
+from movement.validators.files import (
+    ValidAniposeCSV,
+    ValidDeepLabCutCSV,
+    ValidFile,
+    ValidHDF5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +96,11 @@ def from_numpy(
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_software: Literal[
+        "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
+    ],
     fps: float | None = None,
+    **kwargs,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from any supported file.
 
@@ -104,11 +112,14 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP" or "LightningPose"
+    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the software-specific
+        loading functions that are listed under "See Also".
 
     Returns
     -------
@@ -121,6 +132,7 @@ def from_file(
     movement.io.load_poses.from_dlc_file
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
+    movement.io.load_poses.from_anipose_file
 
     Examples
     --------
@@ -136,6 +148,8 @@ def from_file(
         return from_sleap_file(file_path, fps)
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
+    elif source_software == "Anipose":
+        return from_anipose_file(file_path, fps, **kwargs)
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -695,4 +709,117 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "poses",
         },
+    )
+
+
+def from_anipose_style_df(
+    df: pd.DataFrame,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Anipose triangulation dataframe
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
+    individual_name : str, optional
+        Name of the individual, by default "individual_0"
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+
+    Notes
+    -----
+    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
+    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,
+    keypoint2_score...to array of positions with dimensions
+    time, space, keypoints, individuals, and array of confidence (from scores)
+    with dimensions time, keypoints, individuals.
+
+    """
+    keypoint_names = sorted(
+        list(
+            set(
+                [
+                    col.rsplit("_", 1)[0]
+                    for col in df.columns
+                    if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
+                ]
+            )
+        )
+    )
+
+    n_frames = len(df)
+    n_keypoints = len(keypoint_names)
+
+    # Initialize arrays and fill
+    position_array = np.zeros(
+        (n_frames, 3, n_keypoints, 1)
+    )  # 1 for single individual
+    confidence_array = np.zeros((n_frames, n_keypoints, 1))
+    for i, kp in enumerate(keypoint_names):
+        for j, coord in enumerate(["x", "y", "z"]):
+            position_array[:, j, i, 0] = df[f"{kp}_{coord}"]
+        confidence_array[:, i, 0] = df[f"{kp}_score"]
+
+    individual_names = [individual_name]
+
+    return from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        source_software="Anipose",
+        fps=fps,
+    )
+
+
+def from_anipose_file(
+    file_path: Path | str,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the Anipose triangulation .csv file
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
+    individual_name : str, optional
+        Name of the individual, by default "individual_0"
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Notes
+    -----
+    We currently do not load all information, only x, y, z, and score
+    (confidence) for each keypoint. Future versions will load n of cameras
+    and error.
+
+    """
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".csv"],
+    )
+    anipose_file = ValidAniposeCSV(file.path)
+    anipose_df = pd.read_csv(anipose_file.path)
+
+    return from_anipose_style_df(
+        anipose_df, fps=fps, individual_name=individual_name
     )
