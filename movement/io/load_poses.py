@@ -112,7 +112,7 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP" "LightningPose", or "Anipose"
+    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),

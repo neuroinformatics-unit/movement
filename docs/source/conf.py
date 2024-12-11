@@ -201,6 +201,7 @@ myst_url_schemes = {
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
+    "anipose": "https://anipose.readthedocs.io/en/latest/",
 }
 
 intersphinx_mapping = {
