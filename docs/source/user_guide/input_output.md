@@ -10,6 +10,7 @@ To analyse pose tracks, `movement` supports loading data from various frameworks
 - [DeepLabCut](dlc:) (DLC)
 - [SLEAP](sleap:) (SLEAP)
 - [LightingPose](lp:) (LP)
+- [Anipose](anipose:) (Anipose)
 
 To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
 
@@ -81,6 +82,22 @@ ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 ds = load_poses.from_file(
     "/path/to/file.analysis.csv", source_software="LightningPose", fps=30
 )
+```
+:::
+
+:::{tab-item} Anipose
+
+To load Anipose files in .csv format:
+```python
+ds = load_poses.from_anipose_file(
+    "/path/to/file.analysis.csv", fps=30, individual_name="individual_0"
+)  # We can optionally specify the individual name, by default it is "individual_0"
+
+# or equivalently
+ds = load_poses.from_file(
+    "/path/to/file.analysis.csv", source_software="Anipose", fps=30, individual_name="individual_0"
+)
+
 ```
 :::
 
