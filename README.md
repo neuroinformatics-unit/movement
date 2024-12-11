@@ -1,4 +1,6 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/movement.svg)](https://pypi.org/project/movement)
+[![PyPI Version](https://img.shields.io/pypi/v/movement.svg)](https://pypi.org/project/movement)
+[![Conda Forge Version](https://anaconda.org/conda-forge/movement/badges/version.svg)](https://anaconda.org/conda-forge/movement)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-orange.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CI](https://img.shields.io/github/actions/workflow/status/neuroinformatics-unit/movement/test_and_deploy.yml?label=CI)](https://github.com/neuroinformatics-unit/movement/actions)
 [![codecov](https://codecov.io/gh/neuroinformatics-unit/movement/branch/main/graph/badge.svg?token=P8CCH3TI8K)](https://codecov.io/gh/neuroinformatics-unit/movement)
