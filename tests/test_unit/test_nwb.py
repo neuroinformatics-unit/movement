@@ -159,9 +159,9 @@ def test_add_movement_dataset_to_nwb_multiple_files():
     add_movement_dataset_to_nwb(nwbfiles, ds)
 
 
-def create_test_pose_nwb(identifier="subject1", write_to_disk=False):
+def create_test_pose_nwb(identifier="subject1") -> NWBFile:
     # initialize an NWBFile object
-    nwbfile = NWBFile(
+    nwb_file = NWBFile(
         session_description="session_description",
         identifier=identifier,
         session_start_time=datetime.datetime.now(datetime.timezone.utc),
@@ -169,19 +169,19 @@ def create_test_pose_nwb(identifier="subject1", write_to_disk=False):
 
     # add a subject to the NWB file
     subject = Subject(subject_id=identifier, species="Mus musculus")
-    nwbfile.subject = subject
+    nwb_file.subject = subject
 
+    # create a skeleton object
     skeleton = Skeleton(
         name="subject1_skeleton",
         nodes=["front_left_paw", "body", "front_right_paw"],
         edges=np.array([[0, 1], [1, 2]], dtype="uint8"),
         subject=subject,
     )
-
     skeletons = Skeletons(skeletons=[skeleton])
 
     # create a device for the camera
-    camera1 = nwbfile.create_device(
+    camera1 = nwb_file.create_device(
         name="camera1",
         description="camera for recording behavior",
         manufacturer="my manufacturer",
@@ -221,25 +221,25 @@ def create_test_pose_nwb(identifier="subject1", write_to_disk=False):
         skeleton=skeleton,  # link to the skeleton object
     )
 
-    behavior_pm = nwbfile.create_processing_module(
+    behavior_pm = nwb_file.create_processing_module(
         name="behavior",
         description="processed behavioral data",
     )
     behavior_pm.add(skeletons)
     behavior_pm.add(pose_estimation)
 
-    # write the NWBFile to disk
-    if write_to_disk:
-        path = "test_pose.nwb"
-        with NWBHDF5IO(path, mode="w") as io:
-            io.write(nwbfile)
-    else:
-        return nwbfile
+    return nwb_file
 
 
-def test_convert_nwb_to_movement():
-    create_test_pose_nwb(write_to_disk=True)
-    nwb_filepaths = ["test_pose.nwb"]
+def test_convert_nwb_to_movement(tmp_path):
+    nwb_file = create_test_pose_nwb()
+
+    # write the NWBFile to disk (temporary file)
+    file_path = tmp_path / "test_pose.nwb"
+    with NWBHDF5IO(file_path, mode="w") as io:
+        io.write(nwb_file)
+
+    nwb_filepaths = [file_path.as_posix()]
     movement_dataset = convert_nwb_to_movement(nwb_filepaths)
 
     assert movement_dataset.sizes == {
