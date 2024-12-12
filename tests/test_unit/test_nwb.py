@@ -23,7 +23,6 @@ def test_create_pose_and_skeleton_objects():
     # Call the function
     pose_estimation, skeletons = _create_pose_and_skeleton_objects(
         ds.sel(individuals="individual1"),
-        subject="individual1",
         pose_estimation_series_kwargs=None,
         pose_estimation_kwargs=None,
         skeleton_kwargs=None,
