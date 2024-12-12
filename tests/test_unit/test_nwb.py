@@ -9,9 +9,9 @@ from pynwb.file import Subject
 
 from movement import sample_data
 from movement.io.nwb import (
-    _convert_pose_estimation_series,
     _create_pose_and_skeleton_objects,
-    convert_nwb_to_movement,
+    _ds_from_pose_estimation_series,
+    ds_from_nwb_file,
     ds_to_nwb,
 )
 
@@ -50,7 +50,8 @@ def create_test_pose_estimation_series(
 ):
     rng = np.random.default_rng(42)
     data = rng.random((n_time, n_dims))  # num_frames x n_space_dims (2 or 3)
-    timestamps = np.linspace(0, 10, num=n_time)  # a timestamp for every frame
+    # Create an array of timestamps in seconds, assuming fps=10.0
+    timestamps = np.arange(n_time) / 10.0
     confidence = np.ones((n_time,))  # a confidence value for every frame
     reference_frame = "(0,0,0) corresponds to ..."
     confidence_definition = "Softmax output of the deep neural network."
@@ -74,19 +75,18 @@ def create_test_pose_estimation_series(
         (50, 3),  # 3D data
     ],
 )
-def test_convert_pose_estimation_series(n_time, n_dims):
+def test_ds_from_pose_estimation_series(n_time, n_dims):
     # Create a sample PoseEstimationSeries object
     pose_estimation_series = create_test_pose_estimation_series(
         n_time=n_time, n_dims=n_dims, keypoint="leftear"
     )
 
     # Call the function
-    movement_dataset = _convert_pose_estimation_series(
+    movement_dataset = _ds_from_pose_estimation_series(
         pose_estimation_series,
         keypoint="leftear",
         subject_name="individual1",
         source_software="software1",
-        source_file="file1",
     )
 
     # Assert the dimensions of the movement dataset
@@ -118,10 +118,10 @@ def test_convert_pose_estimation_series(n_time, n_dims):
     print(movement_dataset.attrs)
     assert movement_dataset.attrs == {
         "ds_type": "poses",
-        "fps": np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
+        "fps": 10.0,
         "time_unit": pose_estimation_series.timestamps_unit,
         "source_software": "software1",
-        "source_file": "file1",
+        "source_file": None,
     }
 
 
@@ -242,12 +242,18 @@ def test_convert_nwb_to_movement(tmp_path):
     with NWBHDF5IO(file_path, mode="w") as io:
         io.write(nwb_file)
 
-    nwb_filepaths = [file_path.as_posix()]
-    movement_dataset = convert_nwb_to_movement(nwb_filepaths)
+    movement_dataset = ds_from_nwb_file(file_path)
 
     assert movement_dataset.sizes == {
         "time": 100,
         "individuals": 1,
         "keypoints": 3,
         "space": 2,
+    }
+    assert movement_dataset.attrs == {
+        "ds_type": "poses",
+        "fps": 10.0,
+        "time_unit": "seconds",
+        "source_software": "DeepLabCut",
+        "source_file": file_path,
     }

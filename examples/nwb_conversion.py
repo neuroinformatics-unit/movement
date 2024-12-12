@@ -7,11 +7,12 @@ Export pose tracks to NWB
 # %% Load the sample data
 import datetime
 
+import xarray as xr
 from pynwb import NWBHDF5IO, NWBFile
 
 from movement import sample_data
 from movement.io.nwb import (
-    convert_nwb_to_movement,
+    ds_from_nwb_file,
     ds_to_nwb,
 )
 
@@ -48,8 +49,10 @@ for file in nwbfiles:
 # This will create a movement dataset with the same data as
 # the original dataset from the NWBFiles
 
-# Convert the NWBFiles to a movement dataset
-ds_from_nwb = convert_nwb_to_movement(
-    nwb_filepaths=["individual1.nwb", "individual2.nwb"]
-)
-ds_from_nwb
+# Convert each NWB file to a single-individual movement dataset
+datasets = [
+    ds_from_nwb_file(f) for f in ["individual1.nwb", "individual2.nwb"]
+]
+
+# Combine into a multi-individual dataset
+ds = xr.merge(datasets)

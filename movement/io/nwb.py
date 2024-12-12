@@ -13,6 +13,7 @@ import xarray as xr
 
 from movement.io.load_poses import from_numpy
 from movement.utils.logging import log_error
+from movement.validators.files import ValidFile
 
 # Default keyword arguments for Skeletons,
 # PoseEstimation and PoseEstimationSeries objects
@@ -146,7 +147,7 @@ def ds_to_nwb(
     Parameters
     ----------
     movement_dataset : xr.Dataset
-        ``movement`` poses dataset containing the data to be converted to NWB.
+        ``movement`` poses dataset containing the data to be converted to NWB
     nwb_files : list[pynwb.NWBFile] | pynwb.NWBFile
         An NWBFile object or a list of such objects to which the data
         will be added.
@@ -207,32 +208,119 @@ def ds_to_nwb(
             print("PoseEstimation already exists. Skipping...")
 
 
-def _convert_pose_estimation_series(
+def ds_from_nwb_file(
+    file: str | Path | pynwb.NWBFile,
+    key_name: str = "PoseEstimation",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an NWB file.
+
+    The input can be a path to an NWB file on disk or an open NWB file object.
+    The data will be extracted from the NWB file's behavior processing module,
+    which is assumed to contain a ``PoseEstimation`` object formatted according
+    to the ``ndx-pose`` NWB extension [1]_.
+
+    Parameters
+    ----------
+    file : str | Path | NWBFile
+        Path to the NWB file on disk (ending in ".nwb"),
+        or an open NWBFile object.
+    key_name: str, optional
+        Name of the ``PoseEstimation`` object in the NWB "behavior"
+        processing module, by default "PoseEstimation".
+
+    Returns
+    -------
+    movement_ds : xr.Dataset
+        A single-individual ``movement`` poses dataset
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
+
+    """
+    if isinstance(file, str | Path):
+        valid_file = ValidFile(
+            file, expected_permission="r", expected_suffix=[".nwb"]
+        )
+        with pynwb.NWBHDF5IO(valid_file.path, mode="r") as io:
+            nwb_file = io.read()
+            ds = _ds_from_nwb_object(nwb_file, key_name=key_name)
+            ds.attrs["source_file"] = valid_file.path
+    elif isinstance(file, pynwb.NWBFile):
+        ds = _ds_from_nwb_object(file, key_name=key_name)
+
+        ds.attrs["source_file"] = getattr(file, "path", None)
+    else:
+        raise log_error(
+            TypeError,
+            "Expected file to be one of following types: str, Path, "
+            f"pynwb.NWBFile. Got {type(file)} instead.",
+        )
+    return ds
+
+
+def _ds_from_nwb_object(
+    nwb_file: pynwb.NWBFile,
+    key_name: str = "PoseEstimation",
+) -> xr.Dataset:
+    """Extract a ``movement`` poses dataset from an open NWB file object.
+
+    Parameters
+    ----------
+    nwb_file : pynwb.NWBFile
+        An open NWB file object.
+    key_name: str
+        Name of the ``PoseEstimation`` object in the NWB "behavior"
+        processing module, by default "PoseEstimation".
+
+    Returns
+    -------
+    movement_ds : xr.Dataset
+        A single-individual ``movement`` poses dataset
+
+    """
+    pose_estimation = nwb_file.processing["behavior"][key_name]
+    source_software = pose_estimation.fields["source_software"]
+    pose_estimation_series = pose_estimation.fields["pose_estimation_series"]
+    single_keypoint_datasets = [
+        _ds_from_pose_estimation_series(
+            pes,
+            keypoint,
+            subject_name=nwb_file.identifier,
+            source_software=source_software,
+        )
+        for keypoint, pes in pose_estimation_series.items()
+    ]
+
+    return xr.merge(single_keypoint_datasets)
+
+
+def _ds_from_pose_estimation_series(
     pose_estimation_series: ndx_pose.PoseEstimationSeries,
     keypoint: str,
     subject_name: str,
     source_software: str,
-    source_file: str | None = None,
 ) -> xr.Dataset:
-    """Convert to single-keypoint, single-individual ``movement`` dataset.
+    """Create a ``movement`` poses dataset from a pose estimation series.
+
+    Note that the ``PoseEstimationSeries`` object only contains data for a
+    single point over time.
 
     Parameters
     ----------
     pose_estimation_series : ndx_pose.PoseEstimationSeries
-        PoseEstimationSeries NWB object to be converted.
+        PoseEstimationSeries NWB object to be converted
     keypoint : str
-        Name of the keypoint - body part.
+        Name of the keypoint (body part)
     subject_name : str
-        Name of the subject (individual).
+        Name of the subject (individual)
     source_software : str
-        Name of the software used to estimate the pose.
-    source_file : Optional[str], optional
-        File from which the data was extracted, by default None
+        Name of the software used to estimate the pose
 
     Returns
     -------
     movement_dataset : xr.Dataset
-        ``movement`` compatible dataset containing the pose estimation data.
+        A single-individual ``movement`` poses dataset with one keypoint
 
     """
     # extract pose_estimation series data (n_time, n_space)
@@ -244,63 +332,16 @@ def _convert_pose_estimation_series(
     else:
         confidence_array = np.asarray(pose_estimation_series.confidence)
 
+    # Compute fps from the time differences between timestamps
+    fps = np.nanmedian(1 / np.diff(pose_estimation_series.timestamps))
+
     # create movement dataset with 1 keypoint and 1 individual
     ds = from_numpy(
-        # reshape to (n_time, n_space, 1, 1)
-        position_array[:, :, np.newaxis, np.newaxis],
-        # reshape to (n_time, 1, 1)
-        confidence_array[:, np.newaxis, np.newaxis],
+        position_array[:, :, np.newaxis, np.newaxis],  # n_time, n_space, 1, 1
+        confidence_array[:, np.newaxis, np.newaxis],  # n_time, 1, 1
         individual_names=[subject_name],
         keypoint_names=[keypoint],
-        fps=np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
+        fps=round(fps, 6),
         source_software=source_software,
     )
-    ds.attrs["source_file"] = source_file
     return ds
-
-
-def convert_nwb_to_movement(
-    nwb_filepaths: str | list[str] | list[Path],
-    key_name: str = "PoseEstimation",
-) -> xr.Dataset:
-    """Convert a list of NWB files to a single ``movement`` dataset.
-
-    Parameters
-    ----------
-    nwb_filepaths : str | Path | list[str] | list[Path]
-        List of paths to NWB files to be converted.
-    key_name: str, optional
-        Name of the PoseEstimation object in the NWB "behavior"
-        processing module, by default "PoseEstimation".
-
-    Returns
-    -------
-    movement_ds : xr.Dataset
-        ``movement`` dataset containing the pose estimation data.
-
-    """
-    if isinstance(nwb_filepaths, str | Path):
-        nwb_filepaths = [nwb_filepaths]
-
-    datasets = []
-    for path in nwb_filepaths:
-        with pynwb.NWBHDF5IO(path, mode="r") as io:
-            nwbfile = io.read()
-            pose_estimation = nwbfile.processing["behavior"][key_name]
-            source_software = pose_estimation.fields["source_software"]
-            pose_estimation_series = pose_estimation.fields[
-                "pose_estimation_series"
-            ]
-
-            for keypoint, pes in pose_estimation_series.items():
-                datasets.append(
-                    _convert_pose_estimation_series(
-                        pes,
-                        keypoint,
-                        subject_name=nwbfile.identifier,
-                        source_software=source_software,
-                        source_file=None,
-                    )
-                )
-
-    return xr.merge(datasets)
