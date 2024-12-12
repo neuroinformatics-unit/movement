@@ -7,6 +7,7 @@ import numpy as np
 import pynwb
 import xarray as xr
 
+from movement.io.load_poses import from_numpy
 from movement.utils.logging import log_error
 
 
@@ -207,47 +208,28 @@ def _convert_pose_estimation_series(
         ``movement`` compatible dataset containing the pose estimation data.
 
     """
-    attrs = {
-        "fps": np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
-        "time_units": pose_estimation_series.timestamps_unit,
-        "source_software": source_software,
-        "source_file": source_file,
-    }
-    n_space_dims = pose_estimation_series.data.shape[1]
-    space_dims = ["x", "y", "z"]
+    # extract pose_estimation series data (n_time, n_space)
+    position_array = np.asarray(pose_estimation_series.data)
 
-    position_array = np.asarray(pose_estimation_series.data)[
-        :, np.newaxis, np.newaxis, :
-    ]
-
+    # extract confidence data (n_time,)
     if getattr(pose_estimation_series, "confidence", None) is None:
-        pose_estimation_series.confidence = np.full(
-            pose_estimation_series.data.shape[0], np.nan
-        )
+        confidence_array = np.full(position_array.shape[0], np.nan)
     else:
-        confidence_array = np.asarray(pose_estimation_series.confidence)[
-            :, np.newaxis, np.newaxis
-        ]
+        confidence_array = np.asarray(pose_estimation_series.confidence)
 
-    return xr.Dataset(
-        data_vars={
-            "position": (
-                ["time", "individuals", "keypoints", "space"],
-                position_array,
-            ),
-            "confidence": (
-                ["time", "individuals", "keypoints"],
-                confidence_array,
-            ),
-        },
-        coords={
-            "time": pose_estimation_series.timestamps,
-            "individuals": [subject_name],
-            "keypoints": [keypoint],
-            "space": space_dims[:n_space_dims],
-        },
-        attrs=attrs,
+    # create movement dataset with 1 keypoint and 1 individual
+    ds = from_numpy(
+        # reshape to (n_time, n_space, 1, 1)
+        position_array[:, :, np.newaxis, np.newaxis],
+        # reshape to (n_time, 1, 1)
+        confidence_array[:, np.newaxis, np.newaxis],
+        individual_names=[subject_name],
+        keypoint_names=[keypoint],
+        fps=np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
+        source_software=source_software,
     )
+    ds.attrs["source_file"] = source_file
+    return ds
 
 
 def convert_nwb_to_movement(
