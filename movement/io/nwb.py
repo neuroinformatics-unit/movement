@@ -1,4 +1,8 @@
-"""Functions to convert movement data to and from NWB format."""
+"""Functions to convert between movement poses datasets and NWB files.
+
+The pose tracks in NWB files are formatted according to the ``ndx-pose``
+NWB extension, see https://github.com/rly/ndx-pose.
+"""
 
 from pathlib import Path
 
