@@ -33,16 +33,16 @@ def test_create_pose_and_skeleton_objects():
     assert isinstance(pose_estimation, list)
     assert isinstance(skeletons, ndx_pose.Skeletons)
 
-    # Assert the length of pose_estimation list
+    # Assert the length of pose_estimation list (n_individuals)
     assert len(pose_estimation) == 1
 
-    # Assert the length of pose_estimation_series list
+    # Assert the length of pose_estimation_series list (n_keypoints)
     assert len(pose_estimation[0].pose_estimation_series) == 12
 
-    # Assert the name of the first PoseEstimationSeries
+    # Assert the name of the first PoseEstimationSeries (first keypoint)
     assert "snout" in pose_estimation[0].pose_estimation_series
 
-    # Assert the name of the Skeleton
+    # Assert the name of the Skeleton (individual1_skeleton)
     assert "individual1_skeleton" in skeletons.skeletons
 
 
@@ -91,17 +91,22 @@ def test_convert_pose_estimation_series(n_time, n_dims):
     )
 
     # Assert the dimensions of the movement dataset
-    assert movement_dataset.sizes == {
+    assert movement_dataset.position.sizes == {
         "time": n_time,
-        "individuals": 1,
-        "keypoints": 1,
         "space": n_dims,
+        "keypoints": 1,
+        "individuals": 1,
+    }
+    assert movement_dataset.confidence.sizes == {
+        "time": n_time,
+        "keypoints": 1,
+        "individuals": 1,
     }
 
     # Assert the values of the position variable
     np.testing.assert_array_equal(
         movement_dataset["position"].values,
-        pose_estimation_series.data[:, np.newaxis, np.newaxis, :],
+        pose_estimation_series.data[:, :, np.newaxis, np.newaxis],
     )
 
     # Assert the values of the confidence variable
@@ -111,9 +116,11 @@ def test_convert_pose_estimation_series(n_time, n_dims):
     )
 
     # Assert the attributes of the movement dataset
+    print(movement_dataset.attrs)
     assert movement_dataset.attrs == {
+        "ds_type": "poses",
         "fps": np.nanmedian(1 / np.diff(pose_estimation_series.timestamps)),
-        "time_units": pose_estimation_series.timestamps_unit,
+        "time_unit": pose_estimation_series.timestamps_unit,
         "source_software": "software1",
         "source_file": "file1",
     }
