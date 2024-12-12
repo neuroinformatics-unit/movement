@@ -11,8 +11,8 @@ from movement import sample_data
 from movement.io.nwb import (
     _convert_pose_estimation_series,
     _create_pose_and_skeleton_objects,
-    add_movement_dataset_to_nwb,
     convert_nwb_to_movement,
+    ds_to_nwb,
 )
 
 
@@ -126,7 +126,7 @@ def test_convert_pose_estimation_series(n_time, n_dims):
     }
 
 
-def test_add_movement_dataset_to_nwb_single_file():
+def test_ds_to_nwb_single_file():
     ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
     session_start_time = datetime.datetime.now(datetime.timezone.utc)
     nwbfile_individual1 = NWBFile(
@@ -134,9 +134,7 @@ def test_add_movement_dataset_to_nwb_single_file():
         identifier="individual1",
         session_start_time=session_start_time,
     )
-    add_movement_dataset_to_nwb(
-        nwbfile_individual1, ds.sel(individuals=["individual1"])
-    )
+    ds_to_nwb(ds.sel(individuals=["individual1"]), nwbfile_individual1)
     assert (
         "PoseEstimation"
         in nwbfile_individual1.processing["behavior"].data_interfaces
@@ -147,7 +145,7 @@ def test_add_movement_dataset_to_nwb_single_file():
     )
 
 
-def test_add_movement_dataset_to_nwb_multiple_files():
+def test_ds_to_nwb_multiple_files():
     ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
     session_start_time = datetime.datetime.now(datetime.timezone.utc)
     nwbfile_individual1 = NWBFile(
@@ -162,7 +160,7 @@ def test_add_movement_dataset_to_nwb_multiple_files():
     )
 
     nwbfiles = [nwbfile_individual1, nwbfile_individual2]
-    add_movement_dataset_to_nwb(nwbfiles, ds)
+    ds_to_nwb(ds, nwbfiles)
 
 
 def create_test_pose_nwb(identifier="subject1") -> NWBFile:
