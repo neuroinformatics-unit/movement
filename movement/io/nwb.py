@@ -10,6 +10,34 @@ import xarray as xr
 from movement.io.load_poses import from_numpy
 from movement.utils.logging import log_error
 
+# Default keyword arguments for Skeletons,
+# PoseEstimation and PoseEstimationSeries objects
+SKELETON_KWARGS = dict(edges=None)
+POSE_ESTIMATION_SERIES_KWARGS = dict(
+    reference_frame="(0,0,0) corresponds to ...",
+    confidence_definition=None,
+    conversion=1.0,
+    resolution=-1.0,
+    offset=0.0,
+    starting_time=None,
+    comments="no comments",
+    description="no description",
+    control=None,
+    control_description=None,
+)
+POSE_ESTIMATION_KWARGS = dict(
+    original_videos=None,
+    labeled_videos=None,
+    dimensions=None,
+    devices=None,
+    scorer=None,
+    source_software_version=None,
+)
+
+
+def _merge_kwargs(defaults, overrides):
+    return {**defaults, **(overrides or {})}
+
 
 def _create_pose_and_skeleton_objects(
     ds: xr.Dataset,
@@ -41,32 +69,14 @@ def _create_pose_and_skeleton_objects(
         Skeletons object containing all skeletons
 
     """
-    if pose_estimation_series_kwargs is None:
-        pose_estimation_series_kwargs = dict(
-            reference_frame="(0,0,0) corresponds to ...",
-            confidence_definition=None,
-            conversion=1.0,
-            resolution=-1.0,
-            offset=0.0,
-            starting_time=None,
-            comments="no comments",
-            description="no description",
-            control=None,
-            control_description=None,
-        )
-
-    if skeleton_kwargs is None:
-        skeleton_kwargs = dict(edges=None)
-
-    if pose_estimation_kwargs is None:
-        pose_estimation_kwargs = dict(
-            original_videos=None,
-            labeled_videos=None,
-            dimensions=None,
-            devices=None,
-            scorer=None,
-            source_software_version=None,
-        )
+    # Use default kwargs, but updated with any user-provided kwargs
+    pose_estimation_series_kwargs = _merge_kwargs(
+        POSE_ESTIMATION_SERIES_KWARGS, pose_estimation_series_kwargs
+    )
+    pose_estimation_kwargs = _merge_kwargs(
+        POSE_ESTIMATION_KWARGS, pose_estimation_kwargs
+    )
+    skeleton_kwargs = _merge_kwargs(SKELETON_KWARGS, skeleton_kwargs)
 
     pose_estimation_series = []
 
@@ -115,6 +125,7 @@ def _create_pose_and_skeleton_objects(
 def add_movement_dataset_to_nwb(
     nwbfiles: list[pynwb.NWBFile] | pynwb.NWBFile,
     movement_dataset: xr.Dataset,
+    *,  # Enforce keyword-only arguments henceforth
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
     skeletons_kwargs: dict | None = None,
