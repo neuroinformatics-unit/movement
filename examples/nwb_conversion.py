@@ -11,8 +11,8 @@ from pynwb import NWBHDF5IO, NWBFile
 
 from movement import sample_data
 from movement.io.nwb import (
-    add_movement_dataset_to_nwb,
     convert_nwb_to_movement,
+    ds_to_nwb,
 )
 
 ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
@@ -37,7 +37,7 @@ nwbfiles = [nwbfile_individual1, nwbfile_individual2]
 # %% Convert the dataset to NWB
 # This will create PoseEstimation and Skeleton objects for each
 # individual and add them to the NWBFile
-add_movement_dataset_to_nwb(nwbfiles, ds)
+ds_to_nwb(ds, nwbfiles)
 
 # %% Save the NWBFiles
 for file in nwbfiles:

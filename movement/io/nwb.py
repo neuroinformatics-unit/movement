@@ -122,28 +122,36 @@ def _create_pose_and_skeleton_objects(
     return pose_estimation, skeletons
 
 
-def add_movement_dataset_to_nwb(
-    nwbfiles: list[pynwb.NWBFile] | pynwb.NWBFile,
+def ds_to_nwb(
     movement_dataset: xr.Dataset,
+    nwb_files: pynwb.NWBFile | list[pynwb.NWBFile],
     *,  # Enforce keyword-only arguments henceforth
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
     skeletons_kwargs: dict | None = None,
 ) -> None:
-    """Add pose estimation data to NWB files for each individual.
+    """Write a ``movement`` dataset to one or more NWB file objects.
+
+    The data will be written to the NWB file(s) in the "behavior" processing
+    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
+    Each individual in the dataset will be written to a separate file object,
+    as required by the NWB format. Note that the NWBFile object(s) are not
+    automatically saved to disk.
 
     Parameters
     ----------
-    nwbfiles : list[pynwb.NWBFile] | pynwb.NWBFile
-        NWBFile object(s) to which the data will be added.
     movement_dataset : xr.Dataset
-        ``movement`` dataset containing the data to be converted to NWB.
+        ``movement`` poses dataset containing the data to be converted to NWB.
+    nwb_files : list[pynwb.NWBFile] | pynwb.NWBFile
+        An NWBFile object or a list of such objects to which the data
+        will be added.
     pose_estimation_series_kwargs : dict, optional
-        PoseEstimationSeries keyword arguments. See ndx_pose, by default None
+        PoseEstimationSeries keyword arguments.
+        See ``ndx-pose``, by default None
     pose_estimation_kwargs : dict, optional
-        PoseEstimation keyword arguments. See ndx_pose, by default None
+        PoseEstimation keyword arguments. See ``ndx-pose``, by default None
     skeletons_kwargs : dict, optional
-        Skeleton keyword arguments. See ndx_pose, by default None
+        Skeleton keyword arguments. See ``ndx-pose``, by default None
 
     Raises
     ------
@@ -151,19 +159,23 @@ def add_movement_dataset_to_nwb(
         If the number of NWBFiles is not equal to the number of individuals
         in the dataset.
 
-    """
-    if isinstance(nwbfiles, pynwb.NWBFile):
-        nwbfiles = [nwbfiles]
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
 
-    if len(nwbfiles) != len(movement_dataset.individuals):
+    """
+    if isinstance(nwb_files, pynwb.NWBFile):
+        nwb_files = [nwb_files]
+
+    if len(nwb_files) != len(movement_dataset.individuals):
         raise log_error(
             ValueError,
-            "Number of NWBFiles must be equal to the number of individuals. "
-            "NWB requires one file per individual.",
+            "Number of NWBFile objects must be equal to the number of "
+            "individuals, as NWB requires one file per individual (subject).",
         )
 
-    for nwbfile, subject in zip(
-        nwbfiles, movement_dataset.individuals.to_numpy(), strict=False
+    for nwb_file, subject in zip(
+        nwb_files, movement_dataset.individuals.values, strict=False
     ):
         pose_estimation, skeletons = _create_pose_and_skeleton_objects(
             movement_dataset.sel(individuals=subject),
@@ -173,13 +185,13 @@ def add_movement_dataset_to_nwb(
             skeletons_kwargs,
         )
         try:
-            behavior_pm = nwbfile.create_processing_module(
+            behavior_pm = nwb_file.create_processing_module(
                 name="behavior",
                 description="processed behavioral data",
             )
         except ValueError:
             print("Behavior processing module already exists. Skipping...")
-            behavior_pm = nwbfile.processing["behavior"]
+            behavior_pm = nwb_file.processing["behavior"]
 
         try:
             behavior_pm.add(skeletons)
