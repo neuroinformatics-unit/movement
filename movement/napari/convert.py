@@ -58,7 +58,7 @@ def poses_to_napari_tracks(ds: xr.Dataset) -> tuple[np.ndarray, pd.DataFrame]:
     n_tracks = n_individuals * n_keypoints
     # Construct the napari Tracks array
     # Reorder axes to (individuals, keypoints, frames, xy)
-    yx_cols = np.transpose(ds.position.values, (1, 2, 0, 3)).reshape(-1, 2)[
+    yx_cols = np.transpose(ds.position.values, (3, 2, 0, 1)).reshape(-1, 2)[
         :, [1, 0]  # swap x and y columns
     ]
     # Each keypoint of each individual is a separate track
