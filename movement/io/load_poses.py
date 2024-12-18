@@ -4,8 +4,10 @@ from pathlib import Path
 from typing import Literal
 
 import h5py
+import ndx_pose
 import numpy as np
 import pandas as pd
+import pynwb
 import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
@@ -95,7 +97,11 @@ def from_numpy(
 def from_file(
     file_path: Path | str,
     source_software: Literal[
-        "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
+        "DeepLabCut",
+        "SLEAP",
+        "LightningPose",
+        "Anipose",
+        "NWB",
     ],
     fps: float | None = None,
     **kwargs,
@@ -110,11 +116,14 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
+    source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
+        "NWB"}
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
+        The fps argument is ignored when source_software is "NWB", as the
+        frame rate will be estimated from timestamps in the file.
     **kwargs : dict, optional
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
@@ -131,6 +140,7 @@ def from_file(
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
     movement.io.load_poses.from_anipose_file
+    movement.io.load_poses.from_nwb_file
 
     Examples
     --------
@@ -140,6 +150,12 @@ def from_file(
     ... )
 
     """
+    if source_software == "NWB" and fps is not None:
+        log_warning(
+            "The fps argument is ignored when loading from an NWB file. "
+            "The frame rate will be estimated from timestamps in the file."
+        )
+
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)
     elif source_software == "SLEAP":
@@ -148,6 +164,8 @@ def from_file(
         return from_lp_file(file_path, fps)
     elif source_software == "Anipose":
         return from_anipose_file(file_path, fps, **kwargs)
+    elif source_software == "NWB":
+        return from_nwb_file(file_path, **kwargs)
     else:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
@@ -823,3 +841,142 @@ def from_anipose_file(
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
+
+
+def from_nwb_file(
+    file: str | Path | pynwb.NWBFile,
+    key_name: str = "PoseEstimation",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an NWB file.
+
+    The input can be a path to an NWB file on disk or an open NWB file object.
+    The data will be extracted from the NWB file's behavior processing module,
+    which is assumed to contain a ``PoseEstimation`` object formatted according
+    to the ``ndx-pose`` NWB extension [1]_.
+
+    Parameters
+    ----------
+    file : str | Path | NWBFile
+        Path to the NWB file on disk (ending in ".nwb"),
+        or an open NWBFile object.
+    key_name: str, optional
+        Name of the ``PoseEstimation`` object in the NWB "behavior"
+        processing module, by default "PoseEstimation".
+
+    Returns
+    -------
+    movement_ds : xr.Dataset
+        A single-individual ``movement`` dataset containing the pose tracks,
+        confidence scores, and associated metadata.
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
+
+    """
+    if isinstance(file, str | Path):
+        valid_file = ValidFile(
+            file, expected_permission="r", expected_suffix=[".nwb"]
+        )
+        with pynwb.NWBHDF5IO(valid_file.path, mode="r") as io:
+            nwb_file = io.read()
+            ds = _ds_from_nwb_object(nwb_file, key_name=key_name)
+            ds.attrs["source_file"] = valid_file.path
+    elif isinstance(file, pynwb.NWBFile):
+        ds = _ds_from_nwb_object(file, key_name=key_name)
+        ds.attrs["source_file"] = None
+    else:
+        raise log_error(
+            TypeError,
+            "Expected file to be one of following types: str, Path, "
+            f"pynwb.NWBFile. Got {type(file)} instead.",
+        )
+    return ds
+
+
+def _ds_from_nwb_object(
+    nwb_file: pynwb.NWBFile,
+    key_name: str = "PoseEstimation",
+) -> xr.Dataset:
+    """Extract a ``movement`` poses dataset from an open NWB file object.
+
+    Parameters
+    ----------
+    nwb_file : pynwb.NWBFile
+        An open NWB file object.
+    key_name: str
+        Name of the ``PoseEstimation`` object in the NWB "behavior"
+        processing module, by default "PoseEstimation".
+
+    Returns
+    -------
+    movement_ds : xr.Dataset
+        A single-individual ``movement`` poses dataset
+
+    """
+    pose_estimation = nwb_file.processing["behavior"][key_name]
+    source_software = pose_estimation.fields["source_software"]
+    pose_estimation_series = pose_estimation.fields["pose_estimation_series"]
+    single_keypoint_datasets = [
+        _ds_from_pose_estimation_series(
+            pes,
+            keypoint,
+            subject_name=nwb_file.identifier,
+            source_software=source_software,
+        )
+        for keypoint, pes in pose_estimation_series.items()
+    ]
+
+    return xr.merge(single_keypoint_datasets)
+
+
+def _ds_from_pose_estimation_series(
+    pose_estimation_series: ndx_pose.PoseEstimationSeries,
+    keypoint: str,
+    subject_name: str,
+    source_software: str,
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a pose estimation series.
+
+    Note that the ``PoseEstimationSeries`` object only contains data for a
+    single point over time.
+
+    Parameters
+    ----------
+    pose_estimation_series : ndx_pose.PoseEstimationSeries
+        PoseEstimationSeries NWB object to be converted
+    keypoint : str
+        Name of the keypoint (body part)
+    subject_name : str
+        Name of the subject (individual)
+    source_software : str
+        Name of the software used to estimate the pose
+
+    Returns
+    -------
+    movement_dataset : xr.Dataset
+        A single-individual ``movement`` poses dataset with one keypoint
+
+    """
+    # extract pose_estimation series data (n_time, n_space)
+    position_array = np.asarray(pose_estimation_series.data)
+
+    # extract confidence data (n_time,)
+    if getattr(pose_estimation_series, "confidence", None) is not None:
+        confidence_array = np.asarray(pose_estimation_series.confidence)
+    else:
+        confidence_array = np.full(position_array.shape[0], np.nan)
+
+    # Compute fps from the time differences between timestamps
+    fps = np.nanmedian(1 / np.diff(pose_estimation_series.timestamps))
+
+    # create movement dataset with 1 keypoint and 1 individual
+    ds = from_numpy(
+        position_array[:, :, np.newaxis, np.newaxis],  # n_time, n_space, 1, 1
+        confidence_array[:, np.newaxis, np.newaxis],  # n_time, 1, 1
+        individual_names=[subject_name],
+        keypoint_names=[keypoint],
+        fps=round(fps, 6),
+        source_software=source_software,
+    )
+    return ds
