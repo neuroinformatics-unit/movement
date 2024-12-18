@@ -682,11 +682,13 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[1]
     # Create the time coordinate, depending on the value of fps
-    time_coords = np.arange(n_frames, dtype=int)
-    time_unit = "frames"
     if data.fps is not None:
-        time_coords = time_coords / data.fps
+        time_coords = np.arange(n_frames, dtype=float) / data.fps
         time_unit = "seconds"
+    else:
+        time_coords = np.arange(n_frames, dtype=int)
+        time_unit = "frames"
+
     DIM_NAMES = ValidPosesDataset.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(
