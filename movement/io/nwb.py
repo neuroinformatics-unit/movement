@@ -44,7 +44,7 @@ def _merge_kwargs(defaults, overrides):
     return {**defaults, **(overrides or {})}
 
 
-def _create_pose_and_skeleton_objects(
+def _ds_to_pose_and_skeleton_objects(
     ds: xr.Dataset,
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
@@ -106,12 +106,12 @@ def _create_pose_and_skeleton_objects(
         )
     ]
 
+    # Group all PoseEstimationSeries into a PoseEstimation object
     bodyparts_str = ", ".join(ds.keypoints.to_numpy().tolist())
     description = (
-        f"Estimated positions of {bodyparts_str} of"
+        f"Estimated positions of {bodyparts_str} for "
         f"{individual} using {ds.source_software}."
     )
-
     pose_estimation = [
         ndx_pose.PoseEstimation(
             name="PoseEstimation",
@@ -122,7 +122,7 @@ def _create_pose_and_skeleton_objects(
             **pose_estimation_kwargs,
         )
     ]
-
+    # Create a Skeletons object
     skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
 
     return pose_estimation, skeletons
@@ -183,7 +183,7 @@ def ds_to_nwb(
     for nwb_file, individual in zip(
         nwb_files, movement_dataset.individuals.values, strict=False
     ):
-        pose_estimation, skeletons = _create_pose_and_skeleton_objects(
+        pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
             movement_dataset.sel(individuals=individual),
             pose_estimation_series_kwargs,
             pose_estimation_kwargs,
@@ -248,7 +248,6 @@ def ds_from_nwb_file(
             ds.attrs["source_file"] = valid_file.path
     elif isinstance(file, pynwb.NWBFile):
         ds = _ds_from_nwb_object(file, key_name=key_name)
-
         ds.attrs["source_file"] = getattr(file, "path", None)
     else:
         raise log_error(
