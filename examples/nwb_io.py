@@ -11,10 +11,7 @@ import xarray as xr
 from pynwb import NWBHDF5IO, NWBFile
 
 from movement import sample_data
-from movement.io.nwb import (
-    ds_from_nwb_file,
-    ds_to_nwb,
-)
+from movement.io import load_poses, save_poses
 
 ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
 
@@ -38,7 +35,7 @@ nwbfiles = [nwbfile_individual1, nwbfile_individual2]
 # %% Convert the dataset to NWB
 # This will create PoseEstimation and Skeleton objects for each
 # individual and add them to the NWBFile
-ds_to_nwb(ds, nwbfiles)
+save_poses.to_nwb_file(ds, nwbfiles)
 
 # %% Save the NWBFiles
 for file in nwbfiles:
@@ -51,7 +48,7 @@ for file in nwbfiles:
 
 # Convert each NWB file to a single-individual movement dataset
 datasets = [
-    ds_from_nwb_file(f) for f in ["individual1.nwb", "individual2.nwb"]
+    load_poses.from_nwb_file(f) for f in ["individual1.nwb", "individual2.nwb"]
 ]
 
 # Combine into a multi-individual dataset
