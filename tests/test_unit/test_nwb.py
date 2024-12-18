@@ -2,18 +2,14 @@ import datetime
 
 import ndx_pose
 import numpy as np
-import pytest
 import xarray as xr
 from ndx_pose import PoseEstimation, PoseEstimationSeries, Skeleton, Skeletons
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.file import Subject
 
 from movement import sample_data
-from movement.io.load_poses import (
-    _ds_from_pose_estimation_series,
-    from_nwb_file,
-)
-from movement.io.nwb import _ds_to_pose_and_skeleton_objects
+from movement.io._nwb import _ds_to_pose_and_skeleton_objects
+from movement.io.load_poses import from_nwb_file
 from movement.io.save_poses import to_nwb_file
 
 
@@ -67,63 +63,6 @@ def create_test_pose_estimation_series(
         confidence=confidence,
         confidence_definition=confidence_definition,
     )
-
-
-@pytest.mark.parametrize(
-    "n_time, n_dims",
-    [
-        (100, 2),  # 2D data
-        (50, 3),  # 3D data
-    ],
-)
-def test_ds_from_pose_estimation_series(n_time, n_dims):
-    # Create a sample PoseEstimationSeries object
-    pose_estimation_series = create_test_pose_estimation_series(
-        n_time=n_time, n_dims=n_dims, keypoint="leftear"
-    )
-
-    # Call the function
-    movement_dataset = _ds_from_pose_estimation_series(
-        pose_estimation_series,
-        keypoint="leftear",
-        subject_name="individual1",
-        source_software="software1",
-    )
-
-    # Assert the dimensions of the movement dataset
-    assert movement_dataset.position.sizes == {
-        "time": n_time,
-        "space": n_dims,
-        "keypoints": 1,
-        "individuals": 1,
-    }
-    assert movement_dataset.confidence.sizes == {
-        "time": n_time,
-        "keypoints": 1,
-        "individuals": 1,
-    }
-
-    # Assert the values of the position variable
-    np.testing.assert_array_equal(
-        movement_dataset["position"].values,
-        pose_estimation_series.data[:, :, np.newaxis, np.newaxis],
-    )
-
-    # Assert the values of the confidence variable
-    np.testing.assert_array_equal(
-        movement_dataset["confidence"].values,
-        pose_estimation_series.confidence[:, np.newaxis, np.newaxis],
-    )
-
-    # Assert the attributes of the movement dataset
-    print(movement_dataset.attrs)
-    assert movement_dataset.attrs == {
-        "ds_type": "poses",
-        "fps": 10.0,
-        "time_unit": pose_estimation_series.timestamps_unit,
-        "source_software": "software1",
-        "source_file": None,
-    }
 
 
 def test_save_poses_to_single_nwb_file():
