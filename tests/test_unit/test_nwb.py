@@ -9,19 +9,19 @@ from pynwb.file import Subject
 
 from movement import sample_data
 from movement.io.nwb import (
-    _create_pose_and_skeleton_objects,
     _ds_from_pose_estimation_series,
+    _ds_to_pose_and_skeleton_objects,
     ds_from_nwb_file,
     ds_to_nwb,
 )
 
 
-def test_create_pose_and_skeleton_objects():
+def test_ds_to_pose_and_skeleton_objects():
     # Create a sample dataset
     ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
 
     # Call the function
-    pose_estimation, skeletons = _create_pose_and_skeleton_objects(
+    pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
         ds.sel(individuals="individual1"),
         pose_estimation_series_kwargs=None,
         pose_estimation_kwargs=None,
