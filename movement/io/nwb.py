@@ -4,11 +4,15 @@ The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.
 """
 
+import logging
+
 import ndx_pose
 import pynwb
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_warning
+
+logger = logging.getLogger(__name__)
 
 # Default keyword arguments for Skeletons,
 # PoseEstimation and PoseEstimationSeries objects
@@ -123,81 +127,48 @@ def _ds_to_pose_and_skeleton_objects(
     return pose_estimation, skeletons
 
 
-def ds_to_nwb(
-    movement_dataset: xr.Dataset,
-    nwb_files: pynwb.NWBFile | list[pynwb.NWBFile],
-    *,  # Enforce keyword-only arguments henceforth
-    pose_estimation_series_kwargs: dict | None = None,
-    pose_estimation_kwargs: dict | None = None,
-    skeletons_kwargs: dict | None = None,
+def _write_behavior_processing_module(
+    nwb_file: pynwb.NWBFile,
+    pose_estimation: ndx_pose.PoseEstimation,
+    skeletons: ndx_pose.Skeletons,
 ) -> None:
-    """Write a ``movement`` dataset to one or more NWB file objects.
+    """Write behaviour processing data to an NWB file.
 
-    The data will be written to the NWB file(s) in the "behavior" processing
-    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
-    Each individual in the dataset will be written to a separate file object,
-    as required by the NWB format. Note that the NWBFile object(s) are not
-    automatically saved to disk.
+    PoseEstimation or Skeletons objects will be written to the NWB file's
+    "behavior" processing module, formatted according to the ``ndx-pose`` NWB
+    extension. If the module does not exist, it will be created.
+    Data will not overwrite any existing objects in the NWB file.
 
     Parameters
     ----------
-    movement_dataset : xr.Dataset
-        ``movement`` poses dataset containing the data to be converted to NWB
-    nwb_files : list[pynwb.NWBFile] | pynwb.NWBFile
-        An NWBFile object or a list of such objects to which the data
-        will be added.
-    pose_estimation_series_kwargs : dict, optional
-        PoseEstimationSeries keyword arguments.
-        See ``ndx-pose``, by default None
-    pose_estimation_kwargs : dict, optional
-        PoseEstimation keyword arguments. See ``ndx-pose``, by default None
-    skeletons_kwargs : dict, optional
-        Skeleton keyword arguments. See ``ndx-pose``, by default None
-
-    Raises
-    ------
-    ValueError
-        If the number of NWBFiles is not equal to the number of individuals
-        in the dataset.
-
-    References
-    ----------
-    .. [1] https://github.com/rly/ndx-pose
+    nwb_file : pynwb.NWBFile
+        The NWB file object to which the data will be added.
+    pose_estimation : ndx_pose.PoseEstimation
+        PoseEstimation object containing the pose data for an individual.
+    skeletons : ndx_pose.Skeletons
+        Skeletons object containing the skeleton data for an individual.
 
     """
-    if isinstance(nwb_files, pynwb.NWBFile):
-        nwb_files = [nwb_files]
-
-    if len(nwb_files) != len(movement_dataset.individuals):
-        raise log_error(
-            ValueError,
-            "Number of NWBFile objects must be equal to the number of "
-            "individuals, as NWB requires one file per individual (subject).",
+    try:
+        behavior_pm = nwb_file.create_processing_module(
+            name="behavior",
+            description="processed behavioral data",
         )
-
-    for nwb_file, individual in zip(
-        nwb_files, movement_dataset.individuals.values, strict=False
-    ):
-        pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
-            movement_dataset.sel(individuals=individual),
-            pose_estimation_series_kwargs,
-            pose_estimation_kwargs,
-            skeletons_kwargs,
+        logger.debug("Created behavior processing module in NWB file.")
+    except ValueError:
+        logger.debug(
+            "Data will be added to existing behavior processing module."
         )
-        try:
-            behavior_pm = nwb_file.create_processing_module(
-                name="behavior",
-                description="processed behavioral data",
-            )
-        except ValueError:
-            print("Behavior processing module already exists. Skipping...")
-            behavior_pm = nwb_file.processing["behavior"]
+        behavior_pm = nwb_file.processing["behavior"]
 
-        try:
-            behavior_pm.add(skeletons)
-        except ValueError:
-            print("Skeletons already exists. Skipping...")
-        try:
-            behavior_pm.add(pose_estimation)
-        except ValueError:
-            print("PoseEstimation already exists. Skipping...")
+    try:
+        behavior_pm.add(skeletons)
+        logger.info("Added Skeletons object to NWB file.")
+    except ValueError:
+        log_warning("Skeletons object already exists. Skipping...")
+
+    try:
+        behavior_pm.add(pose_estimation)
+        logger.info("Added PoseEstimation object to NWB file.")
+    except ValueError:
+        log_warning("PoseEstimation object already exists. Skipping...")
