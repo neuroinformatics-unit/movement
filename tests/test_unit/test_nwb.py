@@ -3,15 +3,18 @@ import datetime
 import ndx_pose
 import numpy as np
 import pytest
+import xarray as xr
 from ndx_pose import PoseEstimation, PoseEstimationSeries, Skeleton, Skeletons
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.file import Subject
 
 from movement import sample_data
-from movement.io.nwb import (
+from movement.io.load_poses import (
     _ds_from_pose_estimation_series,
+    from_nwb_file,
+)
+from movement.io.nwb import (
     _ds_to_pose_and_skeleton_objects,
-    ds_from_nwb_file,
     ds_to_nwb,
 )
 
@@ -234,7 +237,7 @@ def create_test_pose_nwb(identifier="subject1") -> NWBFile:
     return nwb_file
 
 
-def test_convert_nwb_to_movement(tmp_path):
+def test_load_poses_from_nwb_file(tmp_path):
     nwb_file = create_test_pose_nwb()
 
     # write the NWBFile to disk (temporary file)
@@ -242,18 +245,29 @@ def test_convert_nwb_to_movement(tmp_path):
     with NWBHDF5IO(file_path, mode="w") as io:
         io.write(nwb_file)
 
-    movement_dataset = ds_from_nwb_file(file_path)
+    # Read the dataset from the file path
+    ds_from_file_path = from_nwb_file(file_path)
 
-    assert movement_dataset.sizes == {
+    # Assert the dimensions and attributes of the dataset
+    assert ds_from_file_path.sizes == {
         "time": 100,
         "individuals": 1,
         "keypoints": 3,
         "space": 2,
     }
-    assert movement_dataset.attrs == {
+    assert ds_from_file_path.attrs == {
         "ds_type": "poses",
         "fps": 10.0,
         "time_unit": "seconds",
         "source_software": "DeepLabCut",
         "source_file": file_path,
     }
+
+    # Read the same dataset from an open NWB file
+    with NWBHDF5IO(file_path, mode="r") as io:
+        nwb_file = io.read()
+        ds_from_open_file = from_nwb_file(nwb_file)
+        # Check that it's identical to the dataset read from the file path
+        # except for the "source_file" attribute
+        ds_from_file_path.attrs["source_file"] = None
+        xr.testing.assert_identical(ds_from_file_path, ds_from_open_file)
