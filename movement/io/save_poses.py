@@ -400,8 +400,7 @@ def to_nwb_file(
     Raises
     ------
     ValueError
-        If the number of NWBFiles is not equal to the number of individuals
-        in the dataset.
+        If the number of NWBFiles is not equal to the number of individuals.
 
     Notes
     -----
