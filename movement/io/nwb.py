@@ -327,10 +327,10 @@ def _ds_from_pose_estimation_series(
     position_array = np.asarray(pose_estimation_series.data)
 
     # extract confidence data (n_time,)
-    if getattr(pose_estimation_series, "confidence", None) is None:
-        confidence_array = np.full(position_array.shape[0], np.nan)
-    else:
+    if getattr(pose_estimation_series, "confidence", None) is not None:
         confidence_array = np.asarray(pose_estimation_series.confidence)
+    else:
+        confidence_array = np.full(position_array.shape[0], np.nan)
 
     # Compute fps from the time differences between timestamps
     fps = np.nanmedian(1 / np.diff(pose_estimation_series.timestamps))
