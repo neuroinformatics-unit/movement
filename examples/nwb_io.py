@@ -1,7 +1,7 @@
-"""Converting movement dataset to NWB or loading from NWB to movement dataset.
-============================
+"""Interfacing with poses stored in NWB files
+=============================================
 
-Export pose tracks to NWB
+Save pose tracks to NWB files and load them back into ``movement``.
 """
 
 # %% Load the sample data
