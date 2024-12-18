@@ -413,6 +413,32 @@ def to_nwb_file(
     ----------
     .. [1] https://github.com/rly/ndx-pose
 
+    Examples
+    --------
+    Let's load a sample dataset containing pose tracks from two mice:
+
+    >>> from movement import sample_data
+    >>> ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
+
+    We will create two NWBFiles, one for each individual, save the pose
+    data to them, and then write the files to disk:
+
+    >>> import datetime as dt
+    >>> from pynwb import NWBFile, NWBHDF5IO
+    >>> from movement.io import save_poses
+    >>> nwb_files = [
+    ...     NWBFile(
+    ...         session_description="session_description",
+    ...         identifier=id,
+    ...         session_start_time=dt.datetime.now(dt.timezone.utc),
+    ...     )
+    ...     for id in ds.individuals.values
+    ... ]
+    >>> save_poses.to_nwb_file(ds, nwb_files)
+    >>> for file in nwb_files:
+    ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
+    ...         io.write(file)
+
     """
     if isinstance(nwb_files, pynwb.NWBFile):
         nwb_files = [nwb_files]
