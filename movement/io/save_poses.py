@@ -10,7 +10,7 @@ import pandas as pd
 import pynwb
 import xarray as xr
 
-from movement.io.nwb import (
+from movement.io._nwb import (
     _ds_to_pose_and_skeleton_objects,
     _write_behavior_processing_module,
 )
