@@ -872,6 +872,28 @@ def from_nwb_file(
     ----------
     .. [1] https://github.com/rly/ndx-pose
 
+    Examples
+    --------
+    Open an NWB file and load pose tracks from the file object:
+
+    >>> import pynwb
+    >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
+    ...     nwb_file = io.read()
+    ...     ds = load_poses.from_nwb_file(nwb_file)
+
+    Directly load pose tracks from an NWB file on disk:
+
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")
+
+    Load two single-individual datasets from two NWB files and merge them
+    into a multi-individual dataset:
+
+    >>> ds_singles = [
+    ...     load_poses.from_nwb_file(f) for f in ["id1.nwb", "id2.nwb"]
+    ... ]
+    >>> ds_multi = xr.merge(datasets)
+
     """
     if isinstance(file, str | Path):
         valid_file = ValidFile(
