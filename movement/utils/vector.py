@@ -1,6 +1,7 @@
 """Utility functions for vector operations."""
 
 import numpy as np
+import numpy.typing as npt
 import xarray as xr
 
 from movement.utils.logging import log_error
@@ -166,9 +167,14 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
 
 
 def signed_angle_between_2d_vectors(
-    test_vector: xr.DataArray, reference_vector: xr.DataArray | np.ndarray
+    test_vector: xr.DataArray, reference_vector: xr.DataArray | npt.NDArray
 ) -> xr.DataArray:
-    """Compute the signed angle between two 2-D vectors.
+    r"""Compute the signed angle between two 2D vectors.
+
+    Angles are returned in radians, spanning :math:`(-\pi, \pi]` according to
+    the arctan2 convention. The sign of the angle follows the sign of the 2D
+    cross product :``test_vector`` :math:`\times` ``reference_vector``
+    and depends on the orientation of the coordinate system.
 
     Parameters
     ----------
@@ -211,30 +217,25 @@ def signed_angle_between_2d_vectors(
     invalid.
 
     """
-    if isinstance(reference_vector, np.ndarray) and reference_vector.shape == (
-        2,
-    ):
-        reference_vector = reference_vector.reshape(1, 2)
+    # test_vector checks
+    validate_dims_coords(test_vector, {"space": ["x", "y"]}, exact_coords=True)
 
-    validate_dims_coords(test_vector, {"space": ["x", "y"]})
-    _validate_reference_vector(reference_vector, test_vector)
+    # reference_vector checks
+    reference_vector_xr = _validate_reference_vector(
+        reference_vector, test_vector
+    )
 
     test_unit = convert_to_unit(test_vector)
     test_x = test_unit.sel(space="x")
     test_y = test_unit.sel(space="y")
 
-    if isinstance(reference_vector, xr.DataArray):
-        ref_unit = convert_to_unit(reference_vector)
-        ref_x = ref_unit.sel(space="x")
-        ref_y = ref_unit.sel(space="y")
-    else:
-        ref_unit = reference_vector / np.linalg.norm(reference_vector)
-        ref_x = np.take(ref_unit, 0, axis=-1).reshape(-1, 1)
-        ref_y = np.take(ref_unit, 1, axis=-1).reshape(-1, 1)
+    ref_unit = convert_to_unit(reference_vector_xr)
+    ref_x = ref_unit.sel(space="x")
+    ref_y = ref_unit.sel(space="y")
 
     signed_angles = np.arctan2(
-        test_y * ref_x - test_x * ref_y,
-        test_x * ref_x + test_y * ref_y,
+        test_y * ref_x - test_x * ref_y,  # cross product test x ref
+        test_x * ref_x + test_y * ref_y,  # dot product   test . ref
     )
 
     return signed_angles
@@ -249,90 +250,97 @@ def _raise_error_for_missing_spatial_dim() -> None:
 
 
 def _validate_reference_vector(
-    reference_vector: xr.DataArray | np.ndarray, test_vector: xr.DataArray
-):
-    """Validate the reference vector has the correct type and dimensions.
+    reference_vector: xr.DataArray | np.ndarray,
+    test_vector: xr.DataArray,
+) -> xr.DataArray:
+    """Validate the reference vector.
 
     Parameters
     ----------
     reference_vector : xarray.DataArray | numpy.ndarray
-        The reference vector array to validate.
+        The reference vector to validate, and convert if necessary.
     test_vector : xarray.DataArray
-        The input data against which to validate the
-        reference vector.
+        The test vector to compare against. The reference vector must have
+        the same number of time points as the test vector.
 
     Returns
     -------
-    TypeError
-        If reference_vector is not an xarray DataArray or
-        a numpy array
+    xarray.DataArray
+        A validated xarray DataArray.
+
+    Raises
+    ------
     ValueError
-        If reference_vector does not have the correct dimensions
+        If shape or dimensions do not match the expected form.
+    TypeError
+        If reference_vector is neither a NumPy array nor an xarray DataArray.
 
     """
-    # Validate reference vector type
-    if not isinstance(reference_vector, (xr.DataArray | np.ndarray)):
-        raise log_error(
-            TypeError,
-            f"Reference vector must be an xarray.DataArray or a np.ndarray, "
-            f"but got {type(reference_vector)}.",
-        )
-    if isinstance(reference_vector, xr.DataArray):
-        validate_dims_coords(
-            reference_vector,
-            {
-                "space": ["x", "y"],
-            },
-        )
-        # Check reference_vector is 2D
-        if len(reference_vector.space) > 2:
+    if isinstance(reference_vector, np.ndarray):
+        # Check shape: must be 1D or 2D
+        if reference_vector.ndim > 2:
             raise log_error(
                 ValueError,
-                "Reference vector may not have more than 2 spatial "
-                "coordinates.",
+                "Reference vector must be 1D or 2D, but got "
+                f"{reference_vector.ndim}D array.",
             )
-        # Check reference vector has valid time dimension
-        if "time" in reference_vector.dims and not len(
-            reference_vector.time
-        ) == len(test_vector.time):
-            raise log_error(
-                ValueError,
-                "Input data and reference vector must have matching time "
-                "dimensions.",
-            )
-        if any(dim not in ["time", "space"] for dim in reference_vector.dims):
-            raise log_error(
-                ValueError, "Reference vector contains invalid dimensions."
-            )
-    else:
-        if not (reference_vector.dtype == int) or (
-            reference_vector.dtype == float
+        # Reshape 1D -> (1, -1) so axis 0 can be 'time'
+        if reference_vector.ndim == 1:
+            reference_vector = reference_vector.reshape(1, -1)
+
+        # If multiple time points, must match test_vector time length
+        if (
+            reference_vector.shape[0] > 1
+            and reference_vector.shape[0] != test_vector.sizes["time"]
         ):
             raise log_error(
                 ValueError,
-                "Reference vector may only contain values of type ``int``"
-                "or ``float``.",
+                "Reference vector must have the same number of time "
+                "points as the test vector.",
             )
-        if not (
-            reference_vector.shape[0] == 1
-            or reference_vector.shape[0] == len(test_vector.time)
-        ):  # Validate time dim
+
+        # Decide whether we have (time, space) or just (space)
+        if reference_vector.shape[0] == 1:
+            coords = {"space": ["x", "y"]}
+        else:
+            coords = {
+                "time": test_vector.get("time", None),
+                "space": ["x", "y"],
+            }
+
+        return xr.DataArray(
+            reference_vector, dims=list(coords.keys()), coords=coords
+        )
+
+    elif isinstance(reference_vector, xr.DataArray):
+        # Must contain exactly 'x' and 'y' in the space dimension
+        validate_dims_coords(
+            reference_vector, {"space": ["x", "y"]}, exact_coords=True
+        )
+
+        # If it has a time dimension, time size must match
+        if (
+            "time" in reference_vector.dims
+            and reference_vector.sizes["time"] != test_vector.sizes["time"]
+        ):
             raise log_error(
                 ValueError,
-                "Dimension ``0`` of the reference vector must have length "
-                "``1`` or be equal in length to the ``time`` dimension of the "
-                "test vector.",
+                "Reference vector must have the same number of time "
+                "points as the test vector.",
             )
-        if not reference_vector.shape[-1] == 2:  # Validate space dimension
+
+        # Only 'time' and 'space' are allowed
+        if any(d not in {"time", "space"} for d in reference_vector.dims):
             raise log_error(
                 ValueError,
-                "Dimension ``-1`` of the reference_vector must correspond to "
-                "coordinates in 2-D space, and may therefore only have size "
-                f"``2``. Instead, got size ``{reference_vector.shape[1]}``.",
+                "Only dimensions 'time' and 'space' dimensions "
+                "are allowed in reference_vector.",
             )
-        if len(reference_vector.shape) > 2:
-            raise log_error(
-                ValueError,
-                "Reference vector may not have more than 2 dimensions (time"
-                "and space, respectively)",
-            )
+        return reference_vector
+
+    # If it's neither a DataArray nor a NumPy array
+    raise log_error(
+        TypeError,
+        "Reference vector must be an xarray.DataArray or np.ndarray, "
+        f"but got {type(reference_vector)}.",
+    )
