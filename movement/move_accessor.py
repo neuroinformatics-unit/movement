@@ -5,8 +5,7 @@ from typing import ClassVar
 
 import xarray as xr
 
-from movement import filtering
-from movement.analysis import kinematics
+from movement import filtering, kinematics
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 

@@ -133,7 +133,7 @@ displacement = ds.move.compute_displacement()
 # kinematic variables) using the :mod:`movement.analysis.kinematics` module:
 
 # %%
-import movement.analysis.kinematics as kin
+import movement.kinematics as kin
 
 displacement_kin = kin.compute_displacement(position)
 
