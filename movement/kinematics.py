@@ -351,7 +351,7 @@ def compute_head_direction_vector(
     )
 
 
-def compute_heading(
+def compute_heading_angle(
     data: xr.DataArray,
     left_keypoint: str,
     right_keypoint: str,
@@ -359,13 +359,16 @@ def compute_heading(
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
     in_radians=False,
 ) -> xr.DataArray:
-    """Compute the 2D heading given two keypoints on the head.
+    r"""Compute the 2D heading angle given two left-right symmetric keypoints.
 
-    Heading is defined as the signed angle between the animal's forward
-    vector (see :func:`compute_forward_direction()\
-    <movement.analysis.kinematics.compute_forward_direction>`)
+    Heading angle is defined as the :func:`signed angle\
+    <movement.utils.vector.signed_angle_between_2d_vectors>`
+    between the animal's :func:`forward vector\
+    <movement.analysis.kinematics.compute_forward_vector>`)
     and a reference vector. By default, the reference vector
     corresponds to the direction of the positive x-axis.
+    The returned angles are in degrees, unless ``in_radians=True``,
+    and span the range (-180, 180] (or :math:`(-\pi, \pi]` in radians).
 
     Parameters
     ----------
@@ -397,9 +400,16 @@ def compute_heading(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed heading
-        timeseries, with dimensions matching the input data array,
+        An xarray DataArray containing the computed heading angles,
+        with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
+
+    See Also
+    --------
+    movement.utils.vector.signed_angle_between_2d_vectors : The underlying
+        function used to compute the signed angle between two 2D vectors.
+    movement.analysis.kinematics.compute_forward_vector : The function used
+        to compute the forward vector.
 
     """
     # Convert reference vector to np.array if list or tuple
