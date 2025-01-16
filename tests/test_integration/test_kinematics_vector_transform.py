@@ -1,33 +1,96 @@
-from contextlib import nullcontext as does_not_raise
+import math
 
+import numpy as np
 import pytest
 import xarray as xr
 
+import movement.kinematics as kin
 from movement.utils import vector
 
 
-class TestKinematicsVectorTransform:
-    """Test the vector transformation functionality with
-    various kinematic properties.
+@pytest.mark.parametrize(
+    "valid_dataset_uniform_linear_motion",
+    [
+        "valid_poses_dataset_uniform_linear_motion",
+        "valid_bboxes_dataset",
+    ],
+)
+@pytest.mark.parametrize(
+    "kinematic_variable, expected_kinematics_polar",
+    [
+        (
+            "displacement",
+            [
+                np.vstack(
+                    [
+                        np.zeros((1, 2)),
+                        np.tile([math.sqrt(2), math.atan(1)], (9, 1)),
+                    ],
+                ),  # Individual 0, rho=sqrt(2), phi=45deg
+                np.vstack(
+                    [
+                        np.zeros((1, 2)),
+                        np.tile([math.sqrt(2), -math.atan(1)], (9, 1)),
+                    ]
+                ),  # Individual 1, rho=sqrt(2), phi=-45deg
+            ],
+        ),
+        (
+            "velocity",
+            [
+                np.tile(
+                    [math.sqrt(2), math.atan(1)], (10, 1)
+                ),  # Individual O, rho, phi=45deg
+                np.tile(
+                    [math.sqrt(2), -math.atan(1)], (10, 1)
+                ),  # Individual 1, rho, phi=-45deg
+            ],
+        ),
+        (
+            "acceleration",
+            [
+                np.zeros((10, 2)),  # Individual 0
+                np.zeros((10, 2)),  # Individual 1
+            ],
+        ),
+    ],
+)
+def test_cart2pol_transform_on_kinematics(
+    valid_dataset_uniform_linear_motion,
+    kinematic_variable,
+    expected_kinematics_polar,
+    request,
+):
+    """Test transformation between Cartesian and polar coordinates
+    with various kinematic properties.
     """
-
-    @pytest.mark.parametrize(
-        "ds, expected_exception",
-        [
-            ("valid_poses_dataset", does_not_raise()),
-            ("valid_poses_dataset_with_nan", does_not_raise()),
-            ("missing_dim_poses_dataset", pytest.raises(RuntimeError)),
-        ],
+    ds = request.getfixturevalue(valid_dataset_uniform_linear_motion)
+    kinematic_array_cart = getattr(kin, f"compute_{kinematic_variable}")(
+        ds.position
     )
-    def test_cart_and_pol_transform(
-        self, ds, expected_exception, kinematic_property, request
-    ):
-        """Test transformation between Cartesian and polar coordinates
-        with various kinematic properties.
-        """
-        ds = request.getfixturevalue(ds)
-        with expected_exception:
-            data = getattr(ds.move, f"compute_{kinematic_property}")()
-            pol_data = vector.cart2pol(data)
-            cart_data = vector.pol2cart(pol_data)
-            xr.testing.assert_allclose(cart_data, data)
+    kinematic_array_pol = vector.cart2pol(kinematic_array_cart)
+
+    # Build expected data array
+    expected_array_pol = xr.DataArray(
+        np.stack(expected_kinematics_polar, axis=-1),
+        # Stack along the "individuals" axis
+        dims=["time", "space", "individuals"],
+    )
+    if "keypoints" in ds.position.coords:
+        expected_array_pol = expected_array_pol.expand_dims(
+            {"keypoints": ds.position.coords["keypoints"].size}
+        )
+        expected_array_pol = expected_array_pol.transpose(
+            "time", "space", "keypoints", "individuals"
+        )
+
+    # Compare the values of the kinematic_array against the expected_array
+    np.testing.assert_allclose(
+        kinematic_array_pol.values, expected_array_pol.values
+    )
+
+    # Check we can recover the original Cartesian array
+    kinematic_array_cart_recover = vector.pol2cart(kinematic_array_pol)
+    xr.testing.assert_allclose(
+        kinematic_array_cart, kinematic_array_cart_recover
+    )

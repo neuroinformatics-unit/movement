@@ -9,6 +9,8 @@ missing values.
 # Imports
 # -------
 from movement import sample_data
+from movement.filtering import filter_by_confidence, interpolate_over_time
+from movement.kinematics import compute_velocity
 
 # %%
 # Load a sample dataset
@@ -73,35 +75,19 @@ ds.confidence.squeeze().plot.line(
 # %%
 # Filter out points with low confidence
 # -------------------------------------
-# Using the
-# :meth:`filter_by_confidence()\
-# <movement.move_accessor.MovementDataset.filtering_wrapper>`
-# method of the ``move`` accessor,
-# we can filter out points with confidence scores below a certain threshold.
-# The default ``threshold=0.6`` will be used when ``threshold`` is not
-# provided.
-# This method will also report the number of NaN values in the dataset before
-# and after the filtering operation by default (``print_report=True``).
+# Using the :func:`movement.filtering.filter_by_confidence` function from the
+# :mod:`movement.filtering` module, we can filter out points with confidence
+# scores below a certain threshold. This function takes ``position`` and
+# ``confidence`` as required arguments, and accepts an optional ``threshold``
+# parameter, which defaults to ``threshold=0.6`` unless specified otherwise.
+# The function will also report the number of NaN values in the dataset before
+# and after the filtering operation by default, but you can disable this
+# by passing ``print_report=False``.
+#
 # We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
 
-ds.update({"position": ds.move.filter_by_confidence()})
-
-# %%
-# .. note::
-#    The ``move`` accessor :meth:`filter_by_confidence()\
-#    <movement.move_accessor.MovementDataset.filtering_wrapper>`
-#    method is a convenience method that applies
-#    :func:`movement.filtering.filter_by_confidence`,
-#    which takes ``position`` and ``confidence`` as arguments.
-#    The equivalent function call using the
-#    :mod:`movement.filtering` module would be:
-#
-#    .. code-block:: python
-#
-#       from movement.filtering import filter_by_confidence
-#
-#       ds.update({"position": filter_by_confidence(position, confidence)})
+ds.update({"position": filter_by_confidence(ds.position, ds.confidence)})
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
@@ -120,36 +106,16 @@ ds.position.squeeze().plot.line(
 # %%
 # Interpolate over missing values
 # -------------------------------
-# Using the
-# :meth:`interpolate_over_time()\
-# <movement.move_accessor.MovementDataset.filtering_wrapper>`
-# method of the ``move`` accessor,
-# we can interpolate over the gaps we've introduced in the pose tracks.
+# Using the :func:`movement.filtering.interpolate_over_time` function from the
+# :mod:`movement.filtering` module, we can interpolate over gaps
+# we've introduced in the pose tracks.
 # Here we use the default linear interpolation method (``method=linear``)
 # and interpolate over gaps of 40 frames or less (``max_gap=40``).
 # The default ``max_gap=None`` would interpolate over all gaps, regardless of
 # their length, but this should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-ds.update({"position": ds.move.interpolate_over_time(max_gap=40)})
-
-# %%
-# .. note::
-#    The ``move`` accessor :meth:`interpolate_over_time()\
-#    <movement.move_accessor.MovementDataset.filtering_wrapper>`
-#    is also a convenience method that applies
-#    :func:`movement.filtering.interpolate_over_time`
-#    to the ``position`` data variable.
-#    The equivalent function call using the
-#    :mod:`movement.filtering` module would be:
-#
-#    .. code-block:: python
-#
-#       from movement.filtering import interpolate_over_time
-#
-#       ds.update({"position": interpolate_over_time(
-#           position_filtered, max_gap=40
-#       )})
+ds.update({"position": interpolate_over_time(ds.position, max_gap=40)})
 
 # %%
 # We see that all NaN values have disappeared, meaning that all gaps were
@@ -176,27 +142,25 @@ for log_entry in ds.position.log:
 # %%
 # Filtering multiple data variables
 # ---------------------------------
-# All :mod:`movement.filtering` functions are available via the
-# ``move`` accessor. These ``move`` accessor methods operate on the
-# ``position`` data variable in the dataset ``ds`` by default.
-# There is also an additional argument ``data_vars`` that allows us to
-# specify which data variables in ``ds`` to filter.
-# When multiple data variable names are specified in ``data_vars``,
-# the method will return a dictionary with the data variable names as keys
-# and the filtered DataArrays as values, otherwise it will return a single
-# DataArray that is the filtered data.
-# This is useful when we want to apply the same filtering operation to
+# We can also apply the same filtering operation to
 # multiple data variables in ``ds`` at the same time.
 #
 # For instance, to filter both ``position`` and ``velocity`` data variables
-# in ``ds``, based on the confidence scores, we can specify
-# ``data_vars=["position", "velocity"]`` in the method call.
-# As the filtered data variables are returned as a dictionary, we can once
-# again use :meth:`xarray.Dataset.update` to update ``ds`` in-place
+# in ``ds``, based on the confidence scores, we can specify a dictionary
+# with the data variable names as keys and the corresponding filtered
+# DataArrays as values. Then we can once again use
+# :meth:`xarray.Dataset.update`  to update ``ds`` in-place
 # with the filtered data variables.
 
-ds["velocity"] = ds.move.compute_velocity()
-filtered_data_dict = ds.move.filter_by_confidence(
-    data_vars=["position", "velocity"]
-)
-ds.update(filtered_data_dict)
+# Add velocity data variable to the dataset
+ds["velocity"] = compute_velocity(ds.position)
+
+# Create a dictionary mapping data variable names to filtered DataArrays
+# We disable report printing for brevity
+update_dict = {
+    var: filter_by_confidence(ds[var], ds.confidence, print_report=False)
+    for var in ["position", "velocity"]
+}
+
+# Use the dictionary to update the dataset in-place
+ds.update(update_dict)

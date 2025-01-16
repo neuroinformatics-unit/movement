@@ -1,12 +1,14 @@
 -e .
+ablog
 linkify-it-py
 myst-parser
 nbsphinx
 pydata-sphinx-theme
 setuptools-scm
-sphinx>=7.0
+sphinx
 sphinx-autodoc-typehints
 sphinx-design
 sphinx-gallery
+sphinx-notfound-page
 sphinx-sitemap
 tables

@@ -11,10 +11,14 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement import MovementDataset
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidDeepLabCutCSV, ValidFile, ValidHDF5
+from movement.validators.files import (
+    ValidAniposeCSV,
+    ValidDeepLabCutCSV,
+    ValidFile,
+    ValidHDF5,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +36,11 @@ def from_numpy(
     Parameters
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+        Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses. It will be converted to a
         :class:`xarray.DataArray` object named "position".
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
@@ -71,7 +75,7 @@ def from_numpy(
     >>> import numpy as np
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_numpy(
-    ...     position_array=np.random.rand((100, 2, 3, 2)),
+    ...     position_array=np.random.rand(100, 2, 3, 2),
     ...     confidence_array=np.ones((100, 2, 3)),
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],
@@ -92,8 +96,11 @@ def from_numpy(
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_software: Literal[
+        "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
+    ],
     fps: float | None = None,
+    **kwargs,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from any supported file.
 
@@ -105,11 +112,14 @@ def from_file(
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP" or "LightningPose"
+    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the software-specific
+        loading functions that are listed under "See Also".
 
     Returns
     -------
@@ -122,6 +132,7 @@ def from_file(
     movement.io.load_poses.from_dlc_file
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
+    movement.io.load_poses.from_anipose_file
 
     Examples
     --------
@@ -137,6 +148,8 @@ def from_file(
         return from_sleap_file(file_path, fps)
     elif source_software == "LightningPose":
         return from_lp_file(file_path, fps)
+    elif source_software == "Anipose":
+        return from_anipose_file(file_path, fps, **kwargs)
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -157,7 +170,7 @@ def from_dlc_style_df(
         be formatted as in DeepLabCut output files (see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
@@ -190,20 +203,19 @@ def from_dlc_style_df(
         )
     else:
         individual_names = ["individual_0"]
-
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
-
-    # reshape the data into (n_frames, n_individuals, n_keypoints, 3)
-    # where the last axis contains "x", "y", "likelihood"
-    tracks_with_scores = df.to_numpy().reshape(
-        (-1, len(individual_names), len(keypoint_names), 3)
+    # reshape the data into (n_frames, 3, n_keypoints, n_individuals)
+    # where the second axis contains "x", "y", "likelihood"
+    tracks_with_scores = (
+        df.to_numpy()
+        .reshape((-1, len(individual_names), len(keypoint_names), 3))
+        .transpose(0, 3, 2, 1)
     )
-
     return from_numpy(
-        position_array=tracks_with_scores[:, :, :, :-1],
-        confidence_array=tracks_with_scores[:, :, :, -1],
+        position_array=tracks_with_scores[:, :-1, :, :],
+        confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
@@ -224,7 +236,7 @@ def from_sleap_file(
         also be supplied (but this feature is experimental, see Notes).
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -272,16 +284,13 @@ def from_sleap_file(
         expected_permission="r",
         expected_suffix=[".h5", ".slp"],
     )
-
     # Load and validate data
     if file.path.suffix == ".h5":
         ds = _ds_from_sleap_analysis_file(file.path, fps=fps)
     else:  # file.path.suffix == ".slp"
         ds = _ds_from_sleap_labels_file(file.path, fps=fps)
-
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
     return ds
@@ -298,7 +307,7 @@ def from_lp_file(
         Path to the file containing the predicted poses, in .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -329,7 +338,7 @@ def from_dlc_file(
         or .csv format.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -352,6 +361,39 @@ def from_dlc_file(
     )
 
 
+def from_multiview_files(
+    file_path_dict: dict[str, Path | str],
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Load and merge pose tracking data from multiple views (cameras).
+
+    Parameters
+    ----------
+    file_path_dict : dict[str, Union[Path, str]]
+        A dict whose keys are the view names and values are the paths to load.
+    source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
+        The source software of the file.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata, with an additional ``views`` dimension.
+
+    """
+    views_list = list(file_path_dict.keys())
+    new_coord_views = xr.DataArray(views_list, dims="view")
+    dataset_list = [
+        from_file(f, source_software=source_software, fps=fps)
+        for f in file_path_dict.values()
+    ]
+    return xr.concat(dataset_list, dim=new_coord_views)
+
+
 def _ds_from_lp_or_dlc_file(
     file_path: Path | str,
     source_software: Literal["LightningPose", "DeepLabCut"],
@@ -368,7 +410,7 @@ def _ds_from_lp_or_dlc_file(
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame numbers.
+        the ``time`` coordinates will be in frame numbers.
 
     Returns
     -------
@@ -380,24 +422,20 @@ def _ds_from_lp_or_dlc_file(
     expected_suffix = [".csv"]
     if source_software == "DeepLabCut":
         expected_suffix.append(".h5")
-
     file = ValidFile(
         file_path, expected_permission="r", expected_suffix=expected_suffix
     )
-
     # Load the DeepLabCut poses into a DataFrame
-    if file.path.suffix == ".csv":
-        df = _df_from_dlc_csv(file.path)
-    else:  # file.path.suffix == ".h5"
-        df = _df_from_dlc_h5(file.path)
-
+    df = (
+        _df_from_dlc_csv(file.path)
+        if file.path.suffix == ".csv"
+        else _df_from_dlc_h5(file.path)
+    )
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
     ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
-
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-
     logger.info(f"Loaded pose tracks from {file.path}:")
     logger.info(ds)
     return ds
@@ -414,7 +452,7 @@ def _ds_from_sleap_analysis_file(
         Path to the SLEAP analysis file containing predicted pose tracks.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame units.
+        the ``time`` coordinates will be in frame units.
 
     Returns
     -------
@@ -424,12 +462,11 @@ def _ds_from_sleap_analysis_file(
 
     """
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
-
     with h5py.File(file.path, "r") as f:
-        # transpose to shape: (n_frames, n_tracks, n_keypoints, n_space)
-        tracks = f["tracks"][:].transpose((3, 0, 2, 1))
+        # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
+        tracks = f["tracks"][:].transpose(3, 1, 2, 0)
         # Create an array of NaNs for the confidence scores
-        scores = np.full(tracks.shape[:-1], np.nan)
+        scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
             log_warning(
@@ -438,9 +475,9 @@ def _ds_from_sleap_analysis_file(
                 "default individual name."
             )
         # If present, read the point-wise scores,
-        # and transpose to shape: (n_frames, n_tracks, n_keypoints)
+        # and transpose to shape: (n_frames, n_keypoints, n_tracks)
         if "point_scores" in f:
-            scores = f["point_scores"][:].transpose((2, 0, 1))
+            scores = f["point_scores"][:].T
         return from_numpy(
             position_array=tracks.astype(np.float32),
             confidence_array=scores.astype(np.float32),
@@ -462,7 +499,7 @@ def _ds_from_sleap_labels_file(
         Path to the SLEAP labels file containing predicted pose tracks.
     fps : float, optional
         The number of frames per second in the video. If None (default),
-        the `time` coordinates will be in frame units.
+        the ``time`` coordinates will be in frame units.
 
     Returns
     -------
@@ -482,8 +519,8 @@ def _ds_from_sleap_labels_file(
             "default individual name."
         )
     return from_numpy(
-        position_array=tracks_with_scores[:, :, :, :-1],
-        confidence_array=tracks_with_scores[:, :, :, -1],
+        position_array=tracks_with_scores[:, :-1, :, :],
+        confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
@@ -504,7 +541,8 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     Returns
     -------
     numpy.ndarray
-        A NumPy array containing pose tracks and confidence scores.
+        A NumPy array containing pose tracks and confidence scores,
+        with shape ``(n_frames, 3, n_nodes, n_tracks)``.
 
     Notes
     -----
@@ -534,7 +572,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
-    tracks = np.full((n_frames, n_tracks, n_nodes, 3), np.nan, dtype="float32")
+    tracks = np.full((n_frames, 3, n_nodes, n_tracks), np.nan, dtype="float32")
 
     for lf in lfs:
         i = int(lf.frame_idx - first_frame)
@@ -550,12 +588,12 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
             # Use user-labelled instance if available
             if user_track_instances:
                 inst = user_track_instances[-1]
-                tracks[i, j] = np.hstack(
+                tracks[i, ..., j] = np.hstack(
                     (inst.numpy(), np.full((n_nodes, 1), np.nan))
-                )
+                ).T
             elif predicted_track_instances:
                 inst = predicted_track_instances[-1]
-                tracks[i, j] = inst.numpy(scores=True)
+                tracks[i, ..., j] = inst.numpy(scores=True).T
     return tracks
 
 
@@ -579,7 +617,6 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
 
     """
     file = ValidDeepLabCutCSV(file_path)
-
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
     with open(file.path) as f:
         # if line starts with a possible level name, split it into a list
@@ -589,14 +626,12 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
             for line in f.readlines()
             if line.split(",")[0] in possible_level_names
         ]
-
     # Form multi-index column names from the header lines
     level_names = [line[0] for line in header_lines]
     column_tuples = list(
         zip(*[line[1:] for line in header_lines], strict=False)
     )
     columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
-
     # Import the DeepLabCut poses as a DataFrame
     df = pd.read_csv(
         file.path,
@@ -645,7 +680,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
     """
     n_frames = data.position_array.shape[0]
-    n_space = data.position_array.shape[-1]
+    n_space = data.position_array.shape[1]
     # Create the time coordinate, depending on the value of fps
     if data.fps is not None:
         time_coords = np.arange(n_frames, dtype=float) / data.fps
@@ -654,20 +689,20 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         time_coords = np.arange(n_frames, dtype=int)
         time_unit = "frames"
 
-    DIM_NAMES = MovementDataset.dim_names["poses"]
+    DIM_NAMES = ValidPosesDataset.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:-1]
+                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
             ),
         },
         coords={
             DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: data.individual_names,
+            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
             DIM_NAMES[2]: data.keypoint_names,
-            DIM_NAMES[3]: ["x", "y", "z"][:n_space],
+            DIM_NAMES[3]: data.individual_names,
         },
         attrs={
             "fps": data.fps,
@@ -676,4 +711,117 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
             "source_file": None,
             "ds_type": "poses",
         },
+    )
+
+
+def from_anipose_style_df(
+    df: pd.DataFrame,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Anipose triangulation dataframe
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
+    individual_name : str, optional
+        Name of the individual, by default "individual_0"
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+
+    Notes
+    -----
+    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
+    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,
+    keypoint2_score...to array of positions with dimensions
+    time, space, keypoints, individuals, and array of confidence (from scores)
+    with dimensions time, keypoints, individuals.
+
+    """
+    keypoint_names = sorted(
+        list(
+            set(
+                [
+                    col.rsplit("_", 1)[0]
+                    for col in df.columns
+                    if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
+                ]
+            )
+        )
+    )
+
+    n_frames = len(df)
+    n_keypoints = len(keypoint_names)
+
+    # Initialize arrays and fill
+    position_array = np.zeros(
+        (n_frames, 3, n_keypoints, 1)
+    )  # 1 for single individual
+    confidence_array = np.zeros((n_frames, n_keypoints, 1))
+    for i, kp in enumerate(keypoint_names):
+        for j, coord in enumerate(["x", "y", "z"]):
+            position_array[:, j, i, 0] = df[f"{kp}_{coord}"]
+        confidence_array[:, i, 0] = df[f"{kp}_score"]
+
+    individual_names = [individual_name]
+
+    return from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        source_software="Anipose",
+        fps=fps,
+    )
+
+
+def from_anipose_file(
+    file_path: Path | str,
+    fps: float | None = None,
+    individual_name: str = "individual_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the Anipose triangulation .csv file
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame units.
+    individual_name : str, optional
+        Name of the individual, by default "individual_0"
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Notes
+    -----
+    We currently do not load all information, only x, y, z, and score
+    (confidence) for each keypoint. Future versions will load n of cameras
+    and error.
+
+    """
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".csv"],
+    )
+    anipose_file = ValidAniposeCSV(file.path)
+    anipose_df = pd.read_csv(anipose_file.path)
+
+    return from_anipose_style_df(
+        anipose_df, fps=fps, individual_name=individual_name
     )

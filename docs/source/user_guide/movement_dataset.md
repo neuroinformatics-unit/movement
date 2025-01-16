@@ -16,7 +16,6 @@ To discuss the specifics of both types of `movement` datasets, it is useful to c
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
 
-
 ## Dataset structure
 
 ```{figure} ../_static/dataset_structure.png
@@ -44,15 +43,15 @@ print(ds)
 and we would obtain an output such as:
 ```
 <xarray.Dataset> Size: 27kB
-Dimensions:      (time: 601, individuals: 3, keypoints: 1, space: 2)
+Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-  * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
-  * keypoints    (keypoints) <U8 32B 'centroid'
   * space        (space) <U1 8B 'x' 'y'
+  * keypoints    (keypoints) <U8 32B 'centroid'
+  * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
 Data variables:
-    position     (time, individuals, keypoints, space) float32 14kB 770.3 ......
-    confidence   (time, individuals, keypoints) float32 7kB nan nan ... nan nan
+    position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
+    confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
 Attributes:
     fps:              50.0
     time_unit:        seconds
@@ -79,14 +78,14 @@ print(ds)
 and the last command would print out:
 ```
 <xarray.Dataset> Size: 19kB
-Dimensions:      (time: 5, individuals: 86, space: 2)
+Dimensions:      (time: 5, space: 2, individuals: 86)
 Coordinates:
   * time         (time) int64 40B 0 1 2 3 4
-  * individuals  (individuals) <U5 2kB 'id_1' 'id_2' 'id_3' ... 'id_89' 'id_90'
   * space        (space) <U1 8B 'x' 'y'
+  * individuals  (individuals) <U5 2kB 'id_1' 'id_2' 'id_3' ... 'id_89' 'id_90'
 Data variables:
-    position     (time, individuals, space) float64 7kB 871.8 ... 905.3
-    shape        (time, individuals, space) float64 7kB 60.0 53.0 ... 51.0 36.0
+    position     (time, space, individuals) float64 7kB 901.8 ... 923.3
+    shape        (time, space, individuals) float64 7kB 60.0 30.0 ... 72.0 36.0
     confidence   (time, individuals) float64 3kB nan nan nan nan ... nan nan nan
 Attributes:
     fps:              None
@@ -115,25 +114,39 @@ the labelled "ticks" along each axis are called **coordinates** (`coords`).
 :::{tab-item} Poses dataset
 A `movement` poses dataset has the following **dimensions**:
 - `time`, with size equal to the number of frames in the video.
-- `individuals`, with size equal to the number of tracked individuals/instances.
-- `keypoints`, with size equal to the number of tracked keypoints per individual.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D poses.
+- `keypoints`, with size equal to the number of tracked keypoints per individual.
+- `individuals`, with size equal to the number of tracked individuals/instances.
 :::
 
 :::{tab-item} Bounding boxes' dataset
 A `movement` bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
-- `individuals`, with size equal to the number of tracked individuals/instances.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
+- `individuals`, with size equal to the number of tracked individuals/instances.
 Notice that these are the same dimensions as for a poses dataset, except for the `keypoints` dimension.
 :::
 ::::
 
 In both cases, appropriate **coordinates** are assigned to each **dimension**.
-- `individuals` are labelled with a list of unique names (e.g. `mouse1`, `mouse2`, etc. or `id_0`, `id_1`, etc.).
-- `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc. Note that this dimension only exists in the poses dataset.
-- `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D). Note that bounding boxes datasets are restricted to 2D space.
 - `time` is labelled in seconds if `fps` is provided, otherwise the **coordinates** are expressed in frames (ascending 0-indexed integers).
+- `space` is labelled with either `x`, `y` (2D) or `x`, `y`, `z` (3D). Note that bounding boxes datasets are restricted to 2D space.
+- `keypoints` are likewise labelled with a list of unique body part names, e.g. `snout`, `right_ear`, etc. Note that this dimension only exists in the poses dataset.
+- `individuals` are labelled with a list of unique names (e.g. `mouse1`, `mouse2`, etc. or `id_0`, `id_1`, etc.).
+
+:::{dropdown} Additional dimensions
+:color: info
+:icon: info
+The above **dimensions** and **coordinates** are created
+by default when loading a `movement` dataset from a single
+file containing pose or bounding boxes tracks.
+
+In some cases, you may encounter or create datasets with extra
+**dimensions**. For example, the
+{func}`movement.io.load_poses.from_multiview_files()` function
+creates an additional `views` **dimension**,
+with the **coordinates** being the names given to each camera view.
+:::
 
 ### Data variables
 The data variables in a `movement` dataset are the arrays that hold the actual data, as {class}`xarray.DataArray` objects.
@@ -143,14 +156,14 @@ The specific data variables stored are slightly different between a `movement` p
 ::::{tab-set}
 :::{tab-item} Poses dataset
 A `movement` poses dataset contains two **data variables**:
-- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `individuals`, `keypoints`, `space`).
-- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `individuals`, `keypoints`).
+- `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `space`, `keypoints`, `individuals`).
+- `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `keypoints`, `individuals`).
 :::
 
 :::{tab-item} Bounding boxes' dataset
 A `movement` bounding boxes dataset contains three **data variables**:
-- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `individuals`, `space`).
-- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `individuals`, `space`).
+- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `space`, `individuals`).
+- `shape`: the width and height of the bounding boxes over time, with shape (`time`, `space`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
 :::
 ::::
@@ -195,7 +208,7 @@ For example, you can:
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
 
-As an example, here's how you can use the `sel` method to select subsets of
+As an example, here's how you can use {meth}`xarray.Dataset.sel` to select subsets of
 data:
 
 ```python
@@ -223,55 +236,45 @@ position = ds.position.sel(
 )  # the output is a data array
 ```
 
-### Accessing movement-specific functionality
-
-`movement` extends `xarray`'s functionality with a number of convenience
-methods that are specific to `movement` datasets. These `movement`-specific methods are accessed using the
-`move` keyword.
-
-For example, to compute the velocity and acceleration vectors for all individuals and keypoints across time, we provide the `move.compute_velocity` and `move.compute_acceleration` methods:
-
-```python
-velocity = ds.move.compute_velocity()
-acceleration = ds.move.compute_acceleration()
-```
-
-The `movement`-specific functionalities are implemented in the
-{class}`movement.move_accessor.MovementDataset` class, which is an [accessor](https://docs.xarray.dev/en/stable/internals/extending-xarray.html) to the
-underlying {class}`xarray.Dataset` object. Defining a custom accessor is convenient
-to avoid conflicts with `xarray`'s built-in methods.
-
 ### Modifying movement datasets
 
-The `velocity` and `acceleration` produced in the above example are {class}`xarray.DataArray` objects, with the same **dimensions** as the
-original `position` **data variable**.
+Datasets can be modified by adding new **data variables** and **attributes**,
+or updating existing ones.
 
-In some cases, you may wish to
-add these or other new **data variables** to the `movement` dataset for
-convenience. This can be done by simply assigning them to the dataset
-with an appropriate name:
+Let's imagine we want to compute the instantaneous velocity of all tracked
+points and store the results within the same dataset, for convenience.
 
 ```python
-ds["velocity"] = velocity
-ds["acceleration"] = acceleration
+from movement.kinematics import compute_velocity
 
-# we can now access these using dot notation on the dataset
+# compute velocity from position
+velocity = compute_velocity(ds.position)
+# add it to the dataset as a new data variable
+ds["velocity"] = velocity
+
+# we could have also done both steps in a single line
+ds["velocity"] = compute_velocity(ds.position)
+
+# we can now access velocity like any other data variable
 ds.velocity
-ds.acceleration
 ```
 
-Custom **attributes** can also be added to the dataset:
+The output of {func}`movement.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
+with the same **dimensions** as the original `position` **data variable**,
+so adding it to the existing `ds` makes sense and works seamlessly.
+
+We can also update existing **data variables** in-place, using {meth}`xarray.Dataset.update`. For example, if we wanted to update the `position`
+and `velocity` arrays in our dataset, we could do:
+
+```python
+ds.update({"position": position_filtered, "velocity": velocity_filtered})
+```
+
+Custom **attributes** can be added to the dataset with:
 
 ```python
 ds.attrs["my_custom_attribute"] = "my_custom_value"
 
 # we can now access this value using dot notation on the dataset
 ds.my_custom_attribute
-```
-
-We can also update existing **data variables** in-place, using the `update()` method. For example, if we wanted to update the `position`
-and `velocity` arrays in our dataset, we could do:
-
-```python
-ds.update({"position": position_filtered, "velocity": velocity_filtered})
 ```

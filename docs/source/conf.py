@@ -44,10 +44,12 @@ extensions = [
     "sphinx.ext.intersphinx",
     "myst_parser",
     "nbsphinx",
+    "notfound.extension",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
     "sphinx_sitemap",
     "sphinx.ext.autosectionlabel",
+    "ablog",
 ]
 
 # Configure the myst parser to enable cool markdown features
@@ -109,9 +111,11 @@ sphinx_gallery_conf = {
         "dependencies": ["environment.yml"],
     },
     "reference_url": {"movement": None},
+    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
     "remove_config_comments": True,
     # do not render config params set as # sphinx_gallery_config [= value]
 }
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -174,6 +178,7 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
+    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
 ]
 
 myst_url_schemes = {
@@ -183,6 +188,7 @@ myst_url_schemes = {
     "mailto": None,
     "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
     "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
+    "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "conda": "https://docs.conda.io/en/latest/",
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
@@ -197,9 +203,30 @@ myst_url_schemes = {
     "xarray": "https://docs.xarray.dev/en/stable/{{path}}#{{fragment}}",
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
+    "anipose": "https://anipose.readthedocs.io/en/latest/",
 }
 
 intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
 }
+
+
+# What to show on the 404 page
+notfound_context = {
+    "title": "Page Not Found",
+    "body": """
+<h1>Page Not Found</h1>
+
+<p>Sorry, we couldn't find that page.</p>
+
+<p>We occasionally restructure the movement website, and some links may have broken.</p> 
+
+<p>Try using the search box or go to the homepage.</p>
+""",
+}
+
+# needed for GH pages (vs readthedocs),
+# because we have no '/<language>/<version>/' in the URL
+notfound_urls_prefix = None

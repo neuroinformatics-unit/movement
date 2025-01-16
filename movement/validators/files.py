@@ -12,6 +12,8 @@ from attrs import define, field, validators
 
 from movement.utils.logging import log_error
 
+DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
+
 
 @define
 class ValidFile:
@@ -220,6 +222,94 @@ class ValidDeepLabCutCSV:
 
 
 @define
+class ValidAniposeCSV:
+    """Class for validating Anipose-style 3D pose .csv files.
+
+    The validator ensures that the file contains the
+    expected column names in its header (first row).
+
+    Attributes
+    ----------
+    path : pathlib.Path
+        Path to the .csv file.
+
+    Raises
+    ------
+    ValueError
+        If the .csv file does not contain the expected Anipose columns.
+
+    """
+
+    path: Path = field(validator=validators.instance_of(Path))
+
+    @path.validator
+    def _file_contains_expected_columns(self, attribute, value):
+        """Ensure that the .csv file contains the expected columns."""
+        expected_column_suffixes = [
+            "_x",
+            "_y",
+            "_z",
+            "_score",
+            "_error",
+            "_ncams",
+        ]
+        expected_non_keypoint_columns = [
+            "fnum",
+            "center_0",
+            "center_1",
+            "center_2",
+            "M_00",
+            "M_01",
+            "M_02",
+            "M_10",
+            "M_11",
+            "M_12",
+            "M_20",
+            "M_21",
+            "M_22",
+        ]
+
+        # Read the first line of the CSV to get the headers
+        with open(value) as f:
+            columns = f.readline().strip().split(",")
+
+        # Check that all expected headers are present
+        if not all(col in columns for col in expected_non_keypoint_columns):
+            raise log_error(
+                ValueError,
+                "CSV file is missing some expected columns."
+                f"Expected: {expected_non_keypoint_columns}.",
+            )
+
+        # For other headers, check they have expected suffixes and base names
+        other_columns = [
+            col for col in columns if col not in expected_non_keypoint_columns
+        ]
+        for column in other_columns:
+            # Check suffix
+            if not any(
+                column.endswith(suffix) for suffix in expected_column_suffixes
+            ):
+                raise log_error(
+                    ValueError,
+                    f"Column {column} ends with an unexpected suffix.",
+                )
+            # Get base name by removing suffix
+            base = column.rsplit("_", 1)[0]
+            # Check base name has all expected suffixes
+            if not all(
+                f"{base}{suffix}" in columns
+                for suffix in expected_column_suffixes
+            ):
+                raise log_error(
+                    ValueError,
+                    f"Keypoint {base} is missing some expected suffixes."
+                    f"Expected: {expected_column_suffixes};"
+                    f"Got: {columns}.",
+                )
+
+
+@define
 class ValidVIATracksCSV:
     """Class for validating VIA tracks .csv files.
 
@@ -234,6 +324,11 @@ class ValidVIATracksCSV:
     ----------
     path : pathlib.Path
         Path to the VIA tracks .csv file.
+    frame_regexp : str
+        Regular expression pattern to extract the frame number from the
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed
+        by the file extension.
 
     Raises
     ------
@@ -243,6 +338,7 @@ class ValidVIATracksCSV:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
+    frame_regexp: str = DEFAULT_FRAME_REGEXP
 
     @path.validator
     def _file_contains_valid_header(self, attribute, value):
@@ -281,8 +377,10 @@ class ValidVIATracksCSV:
           files.
 
         If the frame number is included as part of the image file name, then
-        it is expected as an integer led by at least one zero, between "_" and
-        ".", followed by the file extension.
+        it is expected to be captured by the regular expression in the
+        `frame_regexp` attribute of the ValidVIATracksCSV object. The default
+        regexp matches an integer led by at least one zero, followed by the
+        file extension.
 
         """
         df = pd.read_csv(value, sep=",", header=0)
@@ -294,40 +392,15 @@ class ValidVIATracksCSV:
 
         # If 'frame' is a file_attribute for all files:
         # extract frame number
-        list_frame_numbers = []
         if all(["frame" in d for d in file_attributes_dicts]):
-            for k_i, k in enumerate(file_attributes_dicts):
-                try:
-                    list_frame_numbers.append(int(k["frame"]))
-                except Exception as e:
-                    raise log_error(
-                        ValueError,
-                        f"{df.filename.iloc[k_i]} (row {k_i}): "
-                        "'frame' file attribute cannot be cast as an integer. "
-                        f"Please review the file attributes: {k}.",
-                    ) from e
-
+            list_frame_numbers = (
+                self._extract_frame_numbers_from_file_attributes(
+                    df, file_attributes_dicts
+                )
+            )
         # else: extract frame number from filename.
         else:
-            pattern = r"_(0\d*)\.\w+$"
-
-            for f_i, f in enumerate(df["filename"]):
-                regex_match = re.search(pattern, f)
-                if regex_match:  # if there is a pattern match
-                    list_frame_numbers.append(
-                        int(regex_match.group(1))  # type: ignore
-                        # the match will always be castable as integer
-                    )
-                else:
-                    raise log_error(
-                        ValueError,
-                        f"{f} (row {f_i}): "
-                        "a frame number could not be extracted from the "
-                        "filename. If included in the filename, the frame "
-                        "number is expected as a zero-padded integer between "
-                        "an underscore '_' and the file extension "
-                        "(e.g. img_00234.png).",
-                    )
+            list_frame_numbers = self._extract_frame_numbers_using_regexp(df)
 
         # Check we have as many unique frame numbers as unique image files
         if len(set(list_frame_numbers)) != len(df.filename.unique()):
@@ -338,6 +411,60 @@ class ValidVIATracksCSV:
                 "file and ensure a unique frame number is defined for each "
                 "file. ",
             )
+
+    def _extract_frame_numbers_from_file_attributes(
+        self, df, file_attributes_dicts
+    ):
+        """Get frame numbers from the 'frame' key under 'file_attributes'."""
+        list_frame_numbers = []
+        for k_i, k in enumerate(file_attributes_dicts):
+            try:
+                list_frame_numbers.append(int(k["frame"]))
+            except ValueError as e:
+                raise log_error(
+                    ValueError,
+                    f"{df.filename.iloc[k_i]} (row {k_i}): "
+                    "'frame' file attribute cannot be cast as an integer. "
+                    f"Please review the file attributes: {k}.",
+                ) from e
+        return list_frame_numbers
+
+    def _extract_frame_numbers_using_regexp(self, df):
+        """Get frame numbers from the file names using the provided regexp."""
+        list_frame_numbers = []
+        for f_i, f in enumerate(df["filename"]):
+            # try compiling the frame regexp
+            try:
+                regex_match = re.search(self.frame_regexp, f)
+            except re.error as e:
+                raise log_error(
+                    re.error,
+                    "The provided regular expression for the frame "
+                    f"numbers ({self.frame_regexp}) could not be compiled."
+                    " Please review its syntax.",
+                ) from e
+            # try extracting the frame number from the filename using the
+            # compiled regexp
+            try:
+                list_frame_numbers.append(int(regex_match.group(1)))
+            except AttributeError as e:
+                raise log_error(
+                    AttributeError,
+                    f"{f} (row {f_i}): The provided frame regexp "
+                    f"({self.frame_regexp}) did not "
+                    "return any matches and a frame number could not "
+                    "be extracted from the filename.",
+                ) from e
+            except ValueError as e:
+                raise log_error(
+                    ValueError,
+                    f"{f} (row {f_i}): "
+                    "The frame number extracted from the filename using "
+                    f"the provided regexp ({self.frame_regexp}) could not "
+                    "be cast as an integer.",
+                ) from e
+
+        return list_frame_numbers
 
     @path.validator
     def _file_contains_tracked_bboxes(self, attribute, value):

@@ -10,6 +10,7 @@ import pandas as pd
 import xarray as xr
 
 from movement.utils.logging import log_error
+from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile
 
 logger = logging.getLogger(__name__)
@@ -37,11 +38,13 @@ def _ds_to_dlc_style_df(
     tracks_with_scores = np.concatenate(
         (
             ds.position.data,
-            ds.confidence.data[..., np.newaxis],
+            ds.confidence.data[:, np.newaxis, ...],
         ),
-        axis=-1,
+        axis=1,
     )
-
+    # Reverse the order of the dimensions except for the time dimension
+    transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
+    tracks_with_scores = tracks_with_scores.transpose(transpose_order)
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
         data=tracks_with_scores.reshape(ds.sizes["time"], -1),
@@ -49,7 +52,6 @@ def _ds_to_dlc_style_df(
         columns=columns,
         dtype=float,
     )
-
     return df
 
 
@@ -319,9 +321,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     n_frames = frame_idxs[-1] - frame_idxs[0] + 1
     pos_x = ds.position.sel(space="x").values
     # Mask denoting which individuals are present in each frame
-    track_occupancy = (~np.all(np.isnan(pos_x), axis=2)).astype(int)
-    tracks = np.transpose(ds.position.data, (1, 3, 2, 0))
-    point_scores = np.transpose(ds.confidence.data, (1, 2, 0))
+    track_occupancy = (~np.all(np.isnan(pos_x), axis=1)).astype(int)
+    tracks = ds.position.data.transpose(3, 1, 2, 0)
+    point_scores = ds.confidence.data.T
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     labels_path = (
@@ -424,12 +426,25 @@ def _validate_dataset(ds: xr.Dataset) -> None:
 
     Raises
     ------
+    TypeError
+        If the input is not an xarray Dataset.
     ValueError
-        If `ds` is not an a valid ``movement`` dataset.
+        If the dataset is missing required data variables or dimensions.
 
     """
     if not isinstance(ds, xr.Dataset):
         raise log_error(
-            ValueError, f"Expected an xarray Dataset, but got {type(ds)}."
+            TypeError, f"Expected an xarray Dataset, but got {type(ds)}."
         )
-    ds.move.validate()  # validate the dataset
+
+    missing_vars = set(ValidPosesDataset.VAR_NAMES) - set(ds.data_vars)
+    if missing_vars:
+        raise ValueError(
+            f"Missing required data variables: {sorted(missing_vars)}"
+        )  # sort for a reproducible error message
+
+    missing_dims = set(ValidPosesDataset.DIM_NAMES) - set(ds.dims)
+    if missing_dims:
+        raise ValueError(
+            f"Missing required dimensions: {sorted(missing_dims)}"
+        )  # sort for a reproducible error message

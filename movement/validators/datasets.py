@@ -1,7 +1,7 @@
 """``attrs`` classes for validating data structures."""
 
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, ClassVar
 
 import attrs
 import numpy as np
@@ -76,10 +76,11 @@ class ValidPosesDataset:
     The validator ensures that within the ``movement poses`` dataset:
 
     - The required ``position_array`` is a numpy array
-      with the last dimension containing 2 or 3 spatial coordinates.
+      with the ``space`` dimension containing 2 or 3 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      with its shape matching the first three dimensions of the
-      ``position_array``; otherwise, it defaults to an array of NaNs.
+      with its shape matching that of the ``position_array``,
+      excluding the ``space`` dimension;
+      otherwise, it defaults to an array of NaNs.
     - The optional ``individual_names`` and ``keypoint_names``,
       if provided, match the number of individuals and keypoints
       in the dataset, respectively; otherwise, default names are assigned.
@@ -90,10 +91,10 @@ class ValidPosesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_keypoints, n_space)
+        Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses.
     confidence_array : np.ndarray, optional
-        Array of shape (n_frames, n_individuals, n_keypoints) containing
+        Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores.
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
@@ -142,29 +143,40 @@ class ValidPosesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
+    # Class variables
+    DIM_NAMES: ClassVar[tuple] = ("time", "space", "keypoints", "individuals")
+    VAR_NAMES: ClassVar[tuple] = ("position", "confidence")
+
     # Add validators
     @position_array.validator
     def _validate_position_array(self, attribute, value):
         _validate_type_ndarray(value)
-        if value.ndim != 4:
+        n_dims = value.ndim
+        if n_dims != 4:
             raise log_error(
                 ValueError,
                 f"Expected '{attribute.name}' to have 4 dimensions, "
-                f"but got {value.ndim}.",
+                f"but got {n_dims}.",
             )
-        if value.shape[-1] not in [2, 3]:
+        space_dim_shape = value.shape[1]
+        if space_dim_shape not in [2, 3]:
             raise log_error(
                 ValueError,
                 f"Expected '{attribute.name}' to have 2 or 3 spatial "
-                f"dimensions, but got {value.shape[-1]}.",
+                f"dimensions, but got {space_dim_shape}.",
             )
 
     @confidence_array.validator
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
+            # Expected shape is the same as position_array,
+            # but without the `space` dim
+            expected_shape = (
+                self.position_array.shape[:1] + self.position_array.shape[2:]
+            )
             _validate_array_shape(
-                attribute, value, expected_shape=self.position_array.shape[:-1]
+                attribute, value, expected_shape=expected_shape
             )
 
     @individual_names.validator
@@ -174,7 +186,7 @@ class ValidPosesDataset:
             _validate_list_length(attribute, value, 1)
         else:
             _validate_list_length(
-                attribute, value, self.position_array.shape[1]
+                attribute, value, self.position_array.shape[-1]
             )
 
     @keypoint_names.validator
@@ -183,9 +195,12 @@ class ValidPosesDataset:
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
+        position_array_shape = self.position_array.shape
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                (self.position_array.shape[:-1]), np.nan, dtype="float32"
+                position_array_shape[:1] + position_array_shape[2:],
+                np.nan,
+                dtype="float32",
             )
             log_warning(
                 "Confidence array was not provided."
@@ -193,7 +208,7 @@ class ValidPosesDataset:
             )
         if self.individual_names is None:
             self.individual_names = [
-                f"individual_{i}" for i in range(self.position_array.shape[1])
+                f"individual_{i}" for i in range(position_array_shape[-1])
             ]
             log_warning(
                 "Individual names were not provided. "
@@ -201,7 +216,7 @@ class ValidPosesDataset:
             )
         if self.keypoint_names is None:
             self.keypoint_names = [
-                f"keypoint_{i}" for i in range(self.position_array.shape[2])
+                f"keypoint_{i}" for i in range(position_array_shape[2])
             ]
             log_warning(
                 "Keypoint names were not provided. "
@@ -217,10 +232,11 @@ class ValidBboxesDataset:
     within the ``movement bboxes`` dataset:
 
     - The required ``position_array`` and ``shape_array`` are numpy arrays,
-      with the last dimension containing 2 spatial coordinates.
+      with the ``space`` dimension containing 2 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      with its shape matching the first two dimensions of the
-      ``position_array``; otherwise, it defaults to an array of NaNs.
+      with its shape matching that of the ``position_array``,
+      excluding the ``space`` dimension;
+      otherwise, it defaults to an array of NaNs.
     - The optional ``individual_names``, if provided, match the number of
       individuals in the dataset; otherwise, default names are assigned.
     - The optional ``frame_array``, if provided, is a column vector
@@ -233,10 +249,10 @@ class ValidBboxesDataset:
     Attributes
     ----------
     position_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding boxes' centroids.
     shape_array : np.ndarray
-        Array of shape (n_frames, n_individuals, n_space)
+        Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image).
@@ -293,25 +309,30 @@ class ValidBboxesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
+    DIM_NAMES: ClassVar[tuple] = ("time", "space", "individuals")
+    VAR_NAMES: ClassVar[tuple] = ("position", "shape", "confidence")
+
     # Validators
     @position_array.validator
     @shape_array.validator
     def _validate_position_and_shape_arrays(self, attribute, value):
         _validate_type_ndarray(value)
-        # check last dimension (spatial) has 2 coordinates
+        # check `space` dim (at idx 1) has 2 coordinates
         n_expected_spatial_coordinates = 2
-        if value.shape[-1] != n_expected_spatial_coordinates:
+        n_spatial_coordinates = value.shape[1]
+        if n_spatial_coordinates != n_expected_spatial_coordinates:
             raise log_error(
                 ValueError,
-                f"Expected '{attribute.name}' to have 2 spatial coordinates, "
-                f"but got {value.shape[-1]}.",
+                f"Expected '{attribute.name}' to have "
+                f"{n_expected_spatial_coordinates} spatial coordinates, "
+                f"but got {n_spatial_coordinates}.",
             )
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
         if value is not None:
             _validate_list_length(
-                attribute, value, self.position_array.shape[1]
+                attribute, value, self.position_array.shape[-1]
             )
             # check n_individual_names are unique
             # NOTE: combined with the requirement above, we are enforcing
@@ -328,8 +349,13 @@ class ValidBboxesDataset:
     def _validate_confidence_array(self, attribute, value):
         if value is not None:
             _validate_type_ndarray(value)
+            # Expected shape is the same as position_array,
+            # but without the `space` dim
+            expected_shape = (
+                self.position_array.shape[:1] + self.position_array.shape[2:]
+            )
             _validate_array_shape(
-                attribute, value, expected_shape=self.position_array.shape[:-1]
+                attribute, value, expected_shape=expected_shape
             )
 
     @frame_array.validator
@@ -342,11 +368,12 @@ class ValidBboxesDataset:
                 value,
                 expected_shape=(self.position_array.shape[0], 1),
             )
-            # check frames are continuous: exactly one frame number per row
-            if not np.all(np.diff(value, axis=0) == 1):
+            # check frames are monotonically increasing
+            if not np.all(np.diff(value, axis=0) >= 1):
                 raise log_error(
                     ValueError,
-                    f"Frame numbers in {attribute.name} are not continuous.",
+                    f"Frame numbers in {attribute.name} are not monotonically "
+                    "increasing.",
                 )
 
     # Define defaults
@@ -357,10 +384,11 @@ class ValidBboxesDataset:
         If no individual names are provided, assign them unique IDs per frame,
         starting with 0 ("id_0").
         """
+        position_array_shape = self.position_array.shape
         # assign default confidence_array
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                (self.position_array.shape[:-1]),
+                position_array_shape[:1] + position_array_shape[2:],
                 np.nan,
                 dtype="float32",
             )
@@ -371,7 +399,7 @@ class ValidBboxesDataset:
         # assign default individual_names
         if self.individual_names is None:
             self.individual_names = [
-                f"id_{i}" for i in range(self.position_array.shape[1])
+                f"id_{i}" for i in range(position_array_shape[-1])
             ]
             log_warning(
                 "Individual names for the bounding boxes "
@@ -381,7 +409,7 @@ class ValidBboxesDataset:
             )
         # assign default frame_array
         if self.frame_array is None:
-            n_frames = self.position_array.shape[0]
+            n_frames = position_array_shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
             log_warning(
                 "Frame numbers were not provided. "

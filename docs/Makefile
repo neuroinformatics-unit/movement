@@ -4,8 +4,7 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 # -W: if there are warnings, treat them as errors and exit with status 1.
-# --keep-going: run sphinx-build to completion and exit with status 1 if errors.
-SPHINXOPTS    ?= -W --keep-going
+SPHINXOPTS    ?= -W
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
@@ -20,14 +19,20 @@ help:
 api_index.rst:
 	python make_api_index.py
 
+# Generate the snippets/admonitions.md file
+# by converting the admonitions in the repo's README.md to MyST format
+admonitions.md:
+	python convert_admonitions.py
+
 # Remove all generated files
 clean:
 	rm -rf ./build
 	rm -f ./source/api_index.rst
 	rm -rf ./source/api
 	rm -rf ./source/examples
+	rm -rf ./source/snippets/admonitions.md
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile api_index.rst
+%: Makefile api_index.rst admonitions.md
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

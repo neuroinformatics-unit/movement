@@ -75,10 +75,10 @@ invalid_bboxes_arrays_and_expected_log = {
             f"Expected a numpy array, but got {type(list())}.",
         ),  # not an ndarray
         (
-            np.zeros((10, 2, 3)),
+            np.zeros((10, 3, 2)),
             f"Expected '{key}_array' to have 2 spatial "
             "coordinates, but got 3.",
-        ),  # last dim not 2
+        ),  # `space` dim (at idx 1) not 2
     ]
     for key in ["position", "shape"]
 }
@@ -101,10 +101,10 @@ invalid_bboxes_arrays_and_expected_log = {
             "Expected 'position_array' to have 4 dimensions, but got 3.",
         ),  # not 4d
         (
-            np.zeros((10, 2, 3, 4)),
+            np.zeros((10, 4, 3, 2)),
             "Expected 'position_array' to have 2 or 3 "
             "spatial dimensions, but got 4.",
-        ),  # last dim not 2 or 3
+        ),  # `space` dim (at idx 1) not 2 or 3
     ],
 )
 def test_poses_dataset_validator_with_invalid_position_array(
@@ -352,7 +352,7 @@ def test_bboxes_dataset_validator_confidence_array(
         (
             np.arange(10).reshape(-1, 2),
             pytest.raises(ValueError),
-            "Expected 'frame_array' to have shape (10, 1), " "but got (5, 2).",
+            "Expected 'frame_array' to have shape (10, 1), but got (5, 2).",
         ),  # frame_array should be a column vector
         (
             [1, 2, 3],
@@ -360,10 +360,18 @@ def test_bboxes_dataset_validator_confidence_array(
             f"Expected a numpy array, but got {type(list())}.",
         ),  # not an ndarray, should raise ValueError
         (
-            np.array([1, 2, 3, 4, 6, 7, 8, 9, 10, 11]).reshape(-1, 1),
+            np.array([1, 10, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1),
             pytest.raises(ValueError),
-            "Frame numbers in frame_array are not continuous.",
-        ),  # frame numbers are not continuous
+            "Frame numbers in frame_array are not monotonically increasing.",
+        ),
+        (
+            np.array([1, 2, 22, 23, 24, 25, 100, 101, 102, 103]).reshape(
+                -1, 1
+            ),
+            does_not_raise(),
+            "",
+        ),  # valid, frame numbers are not continuous but are monotonically
+        # increasing
         (
             None,
             does_not_raise(),
@@ -389,10 +397,10 @@ def test_bboxes_dataset_validator_frame_array(
             frame_array=frame_array,
         )
 
-    if frame_array is None:
+    if frame_array is not None:
+        assert str(getattr(excinfo, "value", "")) == log_message
+    else:
         n_frames = ds.position_array.shape[0]
         default_frame_array = np.arange(n_frames).reshape(-1, 1)
         assert np.array_equal(ds.frame_array, default_frame_array)
         assert ds.frame_array.shape == (ds.position_array.shape[0], 1)
-    else:
-        assert str(excinfo.value) == log_message

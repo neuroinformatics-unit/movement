@@ -234,6 +234,53 @@ def test_filter_with_nans_on_position(
 
 
 @pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    list_valid_datasets_with_nans,
+)
+@pytest.mark.parametrize(
+    "window",
+    [3, 5, 6, 10],  # data is nframes = 10
+)
+@pytest.mark.parametrize(
+    "filter_func",
+    [median_filter, savgol_filter],
+)
+def test_filter_with_nans_on_position_varying_window(
+    valid_dataset_with_nan, window, filter_func, helpers, request
+):
+    """Test that the number of NaNs in the filtered position data
+    increases at most by the filter's window length minus one
+    multiplied by the number of consecutive NaNs in the input data.
+    """
+    # Prepare kwargs per filter
+    kwargs = {"window": window}
+    if filter_func == savgol_filter:
+        kwargs["polyorder"] = 2
+
+    # Filter position
+    valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
+    position_filtered = filter_func(
+        valid_input_dataset.position,
+        **kwargs,
+    )
+
+    # Count number of NaNs in the input and filtered position data
+    n_total_nans_initial = helpers.count_nans(valid_input_dataset.position)
+    n_consecutive_nans_initial = helpers.count_consecutive_nans(
+        valid_input_dataset.position
+    )
+
+    n_total_nans_filtered = helpers.count_nans(position_filtered)
+
+    max_nans_increase = (window - 1) * n_consecutive_nans_initial
+
+    # Check that filtering does not reduce number of nans
+    assert n_total_nans_filtered >= n_total_nans_initial
+    # Check that the increase in nans is below the expected threshold
+    assert n_total_nans_filtered - n_total_nans_initial <= max_nans_increase
+
+
+@pytest.mark.parametrize(
     "valid_dataset",
     list_all_valid_datasets,
 )

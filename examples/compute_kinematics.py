@@ -117,27 +117,22 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
+# The :mod:`movement.kinematics` module provides functions to compute
+# various kinematic quantities,
+# such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
-# their trajectories.
-# For this, we can use the ``compute_displacement`` method of the
-# ``move`` accessor.
-displacement = ds.move.compute_displacement()
+# their trajectories:
 
-# %%
-# This method will return a data array equivalent to the ``position`` one,
-# but holding displacement data along the ``space`` axis, rather than
-# position data.
-
-# %%
-# Notice that we could also compute the displacement (and all the other
-# kinematic variables) using the :mod:`movement.analysis.kinematics` module:
-
-# %%
 import movement.kinematics as kin
 
-displacement_kin = kin.compute_displacement(position)
+displacement = kin.compute_displacement(position)
 
 # %%
+# The :func:`movement.kinematics.compute_displacement`
+# function will return a data array equivalent to the ``position`` one,
+# but holding displacement data along the ``space`` axis, rather than
+# position data.
+#
 # The ``displacement`` data array holds, for a given individual and keypoint
 # at timestep ``t``, the vector that goes from its previous position at time
 # ``t-1`` to its current position at time ``t``.
@@ -271,13 +266,14 @@ print(
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
 # array:
-velocity = ds.move.compute_velocity()
+velocity = kin.compute_velocity(position)
 
 # %%
-# The ``velocity`` method will return a data array equivalent to the
-# ``position`` one, but holding velocity data along the ``space`` axis, rather
-# than position data. Notice how ``xarray`` nicely deals with the different
-# individuals and spatial dimensions for us! ✨
+# The :func:`movement.kinematics.compute_velocity`
+# function will return a data array equivalent to
+# the ``position`` one, but holding velocity data along the ``space`` axis,
+# rather than position data. Notice how ``xarray`` nicely deals with the
+# different individuals and spatial dimensions for us! ✨
 
 # %%
 # We can plot the components of the velocity vector against time
@@ -350,8 +346,9 @@ fig.show()
 # %%
 # Compute acceleration
 # ---------------------
-# We can compute the acceleration of the data with an equivalent method:
-accel = ds.move.compute_acceleration()
+# Let's now compute the acceleration for all individuals in our data
+# array:
+accel = kin.compute_acceleration(position)
 
 # %%
 # and plot of the components of the acceleration vector ``ax``, ``ay`` per
@@ -375,8 +372,8 @@ for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
 fig.tight_layout()
 
 # %%
-# The can also represent the magnitude (norm) of the acceleration vector
-# for each individual:
+# We can also compute and visualise the magnitude (norm) of the
+# acceleration vector for each individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
 for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     # compute magnitude of the acceleration vector for one mouse

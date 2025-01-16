@@ -1,6 +1,9 @@
+..
+    This file is auto-generated.
+
 .. _target-api:
 
-API Reference
+API reference
 =============
 
 Information on specific functions, classes, and methods.
