@@ -364,7 +364,7 @@ def compute_heading_angle(
     Heading angle is defined as the :func:`signed angle\
     <movement.utils.vector.signed_angle_between_2d_vectors>`
     between the animal's :func:`forward vector\
-    <movement.analysis.kinematics.compute_forward_vector>`)
+    <movement.kinematics.compute_forward_vector>`)
     and a reference vector. By default, the reference vector
     corresponds to the direction of the positive x-axis.
     The returned angles are in degrees, unless ``in_radians=True``,
@@ -408,7 +408,7 @@ def compute_heading_angle(
     --------
     movement.utils.vector.signed_angle_between_2d_vectors : The underlying
         function used to compute the signed angle between two 2D vectors.
-    movement.analysis.kinematics.compute_forward_vector : The function used
+    movement.kinematics.compute_forward_vector : The function used
         to compute the forward vector.
 
     """

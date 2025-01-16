@@ -173,7 +173,7 @@ def signed_angle_between_2d_vectors(
 
     Angles are returned in radians, spanning :math:`(-\pi, \pi]` according to
     the arctan2 convention. The sign of the angle follows the sign of the 2D
-    cross product :``test_vector`` :math:`\times` ``reference_vector``
+    cross product ``test_vector``  :math:`\times` ``reference_vector``
     and depends on the orientation of the coordinate system.
 
     Parameters
@@ -203,14 +203,15 @@ def signed_angle_between_2d_vectors(
 
     If passed as a numpy array, the reference vector must have
     one of three shapes:
-        1. ``(2,)`` - Where dimension ``0`` contains spatial
-        coordinates (x,y), and no time dimension is specified.
-        2. ``(1,2)`` - Where dimension ``0`` corresponds to a
-        single time-point and dimension ``1`` contains spatial
-        coordinates (x,y).
-        3. ``(n,2)`` - Where dimension ``0`` corresponds to
-        time and dimension ``1`` contains spatial coordinates
-        (x,y), and where ``n == len(test_vector.time)``.
+
+    - ``(2,)``: where dimension ``0`` contains spatial
+      coordinates (x,y), and no time dimension is specified.
+    - ``(1,2)``:, where dimension ``0`` corresponds to a
+      single time-point and dimension ``1`` contains spatial
+      coordinates (x,y).
+    - ``(n,2)``: where dimension ``0`` corresponds to
+      time and dimension ``1`` contains spatial coordinates
+      (x,y), and where ``n == len(test_vector.time)``.
 
     Reference vectors containing more dimensions, or with shapes
     otherwise different from those defined above are considered
