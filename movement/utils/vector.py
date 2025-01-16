@@ -166,7 +166,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     ).transpose(*dims)
 
 
-def signed_angle_between_2d_vectors(
+def compute_signed_angle_2d(
     test_vector: xr.DataArray, reference_vector: xr.DataArray | npt.NDArray
 ) -> xr.DataArray:
     r"""Compute the signed angle between two 2D vectors.

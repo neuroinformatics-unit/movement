@@ -12,8 +12,8 @@ from movement.utils.logging import log_error, log_warning
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import (
     compute_norm,
+    compute_signed_angle_2d,
     convert_to_unit,
-    signed_angle_between_2d_vectors,
 )
 from movement.validators.arrays import validate_dims_coords
 
@@ -430,9 +430,7 @@ def compute_heading_angle(
     )
 
     # Compute signed angle between forward vector and reference vector
-    heading_array = signed_angle_between_2d_vectors(
-        forward_vector, reference_vector
-    )
+    heading_array = compute_signed_angle_2d(forward_vector, reference_vector)
 
     # Convert to degrees
     if not in_radians:
