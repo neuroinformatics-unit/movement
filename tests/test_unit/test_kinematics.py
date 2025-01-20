@@ -297,19 +297,6 @@ def test_path_length_with_nan(
 ):
     """Test path length computation for a uniform linear motion case,
     with varying number of missing values per individual and keypoint.
-
-    The test dataset ``valid_poses_dataset_uniform_linear_motion_with_nan``
-    contains 2 individuals ("id_0" and "id_1"), moving
-    along x=y and x=-y lines, respectively, at a constant velocity.
-    At each frame they cover a distance of sqrt(2) in x-y space.
-
-    Individual "id_0" has some missing values per keypoint:
-    - "centroid" is missing a value on the very first frame
-    - "left" is missing 5 values in middle frames (not at the edges)
-    - "right" is missing values in all frames
-
-    Individual "id_1" has no missing values.
-
     Because the underlying motion is uniform linear, the "scale" policy should
     perfectly restore the path length for individual "id_0" to its true value.
     The "ffill" policy should do likewise if frames are missing in the middle,
@@ -345,9 +332,6 @@ def test_path_length_warns_about_nans(
 ):
     """Test that a warning is raised when the number of missing values
     exceeds a given threshold.
-
-    See the docstring of ``test_path_length_with_nans`` for details
-    about what's in the dataset.
     """
     position = valid_poses_dataset_uniform_linear_motion_with_nan.position
     with expected_exception:
@@ -364,7 +348,7 @@ def test_path_length_warns_about_nans(
             assert caplog.records[1].levelname == "INFO"
             assert "Individual: id_0" in caplog.records[1].message
             assert "Individual: id_1" not in caplog.records[1].message
-            assert "left: 5/10 (50.0%)" in caplog.records[1].message
+            assert "left: 3/10 (30.0%)" in caplog.records[1].message
             assert "right: 10/10 (100.0%)" in caplog.records[1].message
             assert "centroid" not in caplog.records[1].message
 
