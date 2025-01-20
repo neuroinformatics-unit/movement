@@ -271,7 +271,7 @@ def test_path_length_across_time_ranges(
 
 
 @pytest.mark.parametrize(
-    "nan_policy, expected_path_lengths_id_1, expected_exception",
+    "nan_policy, expected_path_lengths_id_0, expected_exception",
     [
         (
             "ffill",
@@ -293,7 +293,7 @@ def test_path_length_across_time_ranges(
 def test_path_length_with_nans(
     valid_poses_dataset_uniform_linear_motion_with_nans,
     nan_policy,
-    expected_path_lengths_id_1,
+    expected_path_lengths_id_0,
     expected_exception,
 ):
     """Test path length computation for a uniform linear motion case,
@@ -304,15 +304,15 @@ def test_path_length_with_nans(
     along x=y and x=-y lines, respectively, at a constant velocity.
     At each frame they cover a distance of sqrt(2) in x-y space.
 
-    Individual "id_1" has some missing values per keypoint:
+    Individual "id_0" has some missing values per keypoint:
     - "centroid" is missing a value on the very first frame
     - "left" is missing 5 values in middle frames (not at the edges)
     - "right" is missing values in all frames
 
-    Individual "id_0" has no missing values.
+    Individual "id_1" has no missing values.
 
     Because the underlying motion is uniform linear, the "scale" policy should
-    perfectly restore the path length for individual "id_1" to its true value.
+    perfectly restore the path length for individual "id_0" to its true value.
     The "ffill" policy should do likewise if frames are missing in the middle,
     but will not "correct" for missing values at the edges.
     """
@@ -322,11 +322,11 @@ def test_path_length_with_nans(
             position,
             nan_policy=nan_policy,
         )
-        # Get path_length for individual "id_1" as a numpy array
-        path_length_id_1 = path_length.sel(individuals="id_1").values
+        # Get path_length for individual "id_0" as a numpy array
+        path_length_id_0 = path_length.sel(individuals="id_0").values
         # Check them against the expected values
         np.testing.assert_allclose(
-            path_length_id_1, expected_path_lengths_id_1
+            path_length_id_0, expected_path_lengths_id_0
         )
 
 
@@ -363,8 +363,8 @@ def test_path_length_warns_about_nans(
             # Make sure that the NaN report only mentions
             # the individual and keypoint that violate the threshold
             assert caplog.records[1].levelname == "INFO"
-            assert "Individual: id_1" in caplog.records[1].message
-            assert "Individual: id_2" not in caplog.records[1].message
+            assert "Individual: id_0" in caplog.records[1].message
+            assert "Individual: id_1" not in caplog.records[1].message
             assert "left: 5/10 (50.0%)" in caplog.records[1].message
             assert "right: 10/10 (100.0%)" in caplog.records[1].message
             assert "centroid" not in caplog.records[1].message
@@ -688,12 +688,12 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
 @pytest.mark.parametrize(
     "dim, pairs, expected_data_vars",
     [
-        ("individuals", {"id_1": ["id_2"]}, None),  # list input
-        ("individuals", {"id_1": "id_2"}, None),  # string input
+        ("individuals", {"id_0": ["id_1"]}, None),  # list input
+        ("individuals", {"id_0": "id_1"}, None),  # string input
         (
             "individuals",
-            {"id_1": ["id_2"], "id_2": "id_1"},
-            [("id_1", "id_2"), ("id_2", "id_1")],
+            {"id_0": ["id_1"], "id_1": "id_0"},
+            [("id_0", "id_1"), ("id_1", "id_0")],
         ),
         ("individuals", "all", None),  # all pairs
         ("keypoints", {"centroid": ["left"]}, None),  # list input
@@ -734,7 +734,7 @@ def test_compute_pairwise_distances_with_valid_pairs(
         (
             "valid_poses_dataset_uniform_linear_motion",
             "invalid_dim",
-            {"id_1": "id_2"},
+            {"id_0": "id_1"},
         ),  # invalid dim
         (
             "valid_poses_dataset_uniform_linear_motion",
