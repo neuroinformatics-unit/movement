@@ -488,7 +488,10 @@ def valid_poses_array_uniform_linear_motion():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
 
-    It represents 2 individuals with 3 keypoints, for 10 frames, in 2D space.
+    It represents 2 individuals with 3 keypoints,
+    moving at constant velocity for 10 frames in 2D space.
+    At each frame they cover a distance of sqrt(2) in x-y space.
+    Specifically:
     - Individual 0 moves along the x=y line from the origin.
     - Individual 1 moves along the x=-y line line from the origin.
 
@@ -548,8 +551,12 @@ def valid_poses_array_uniform_linear_motion():
 def valid_poses_dataset_uniform_linear_motion(
     valid_poses_array_uniform_linear_motion,
 ):
-    """Return a valid poses dataset for two individuals moving in uniform
-    linear motion, with 5 frames with low confidence values and time in frames.
+    """Return a valid poses dataset.
+
+    The dataset represents 2 individuals ("id_0" and "id_1")
+    with 3 keypoints ("centroid", "left", "right") moving in uniform linear
+    motion for 10 frames in 2D space.
+    See the ``valid_poses_array_uniform_linear_motion`` fixture for details.
     """
     dim_names = ValidPosesDataset.DIM_NAMES
 
@@ -585,12 +592,15 @@ def valid_poses_dataset_uniform_linear_motion(
 def valid_poses_dataset_uniform_linear_motion_with_nan(
     valid_poses_dataset_uniform_linear_motion,
 ):
-    """Return a valid poses dataset with NaN values in the position array.
+    """Return a valid poses dataset with NaNs introduced in the position array.
 
-    Specifically, we will introducde:
-    - 1 NaN value in the centroid keypoint of individual id_0 at time=0
-    - 5 NaN values in the left keypoint of individual id_0 (frames 3-7)
-    - 10 NaN values in the right keypoint of individual id_0 (all frames)
+    Using ``valid_poses_dataset_uniform_linear_motion`` as the base dataset,
+    the following NaN values are introduced:
+    - Individual "id_0":
+        - 1 NaN value in the centroid keypoint of individual id_0 at time=0
+        - 3 NaN values in the left keypoint of individual id_0 (frames 3, 7, 8)
+        - 10 NaN values in the right keypoint of individual id_0 (all frames)
+    - Individual "id_1" has no missing values.
     """
     valid_poses_dataset_uniform_linear_motion.position.loc[
         {
@@ -603,7 +613,7 @@ def valid_poses_dataset_uniform_linear_motion_with_nan(
         {
             "individuals": "id_0",
             "keypoints": "left",
-            "time": slice(3, 7),
+            "time": [3, 7, 8],
         }
     ] = np.nan
     valid_poses_dataset_uniform_linear_motion.position.loc[
@@ -930,7 +940,7 @@ class Helpers:
     @staticmethod
     def count_consecutive_nans(da):
         """Count occurrences of consecutive NaNs in a DataArray."""
-        return (da.isnull().astype(int).diff("time") == 1).sum().item()
+        return (da.isnull().astype(int).diff("time") != 0).sum().item()
 
 
 @pytest.fixture
