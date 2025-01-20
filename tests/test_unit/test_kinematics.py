@@ -290,8 +290,8 @@ def test_path_length_across_time_ranges(
         ),
     ],
 )
-def test_path_length_with_nans(
-    valid_poses_dataset_uniform_linear_motion_with_nans,
+def test_path_length_with_nan(
+    valid_poses_dataset_uniform_linear_motion_with_nan,
     nan_policy,
     expected_path_lengths_id_0,
     expected_exception,
@@ -299,7 +299,7 @@ def test_path_length_with_nans(
     """Test path length computation for a uniform linear motion case,
     with varying number of missing values per individual and keypoint.
 
-    The test dataset ``valid_poses_dataset_uniform_linear_motion_with_nans``
+    The test dataset ``valid_poses_dataset_uniform_linear_motion_with_nan``
     contains 2 individuals ("id_0" and "id_1"), moving
     along x=y and x=-y lines, respectively, at a constant velocity.
     At each frame they cover a distance of sqrt(2) in x-y space.
@@ -316,7 +316,7 @@ def test_path_length_with_nans(
     The "ffill" policy should do likewise if frames are missing in the middle,
     but will not "correct" for missing values at the edges.
     """
-    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    position = valid_poses_dataset_uniform_linear_motion_with_nan.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
             position,
@@ -339,7 +339,7 @@ def test_path_length_with_nans(
     ],
 )
 def test_path_length_warns_about_nans(
-    valid_poses_dataset_uniform_linear_motion_with_nans,
+    valid_poses_dataset_uniform_linear_motion_with_nan,
     nan_warn_threshold,
     expected_exception,
     caplog,
@@ -350,7 +350,7 @@ def test_path_length_warns_about_nans(
     See the docstring of ``test_path_length_with_nans`` for details
     about what's in the dataset.
     """
-    position = valid_poses_dataset_uniform_linear_motion_with_nans.position
+    position = valid_poses_dataset_uniform_linear_motion_with_nan.position
     with expected_exception:
         kinematics.compute_path_length(
             position, nan_warn_threshold=nan_warn_threshold
@@ -426,7 +426,7 @@ def invalid_spatial_dimensions_for_forward_vector(
 
 
 @pytest.fixture
-def valid_data_array_for_forward_vector_with_nans(
+def valid_data_array_for_forward_vector_with_nan(
     valid_data_array_for_forward_vector,
 ):
     """Return a position DataArray where position values are NaN for the
@@ -522,7 +522,7 @@ def test_compute_forward_vector_with_invalid_input(
 
 
 def test_nan_behavior_forward_vector(
-    valid_data_array_for_forward_vector_with_nans: xr.DataArray,
+    valid_data_array_for_forward_vector_with_nan,
 ):
     """Test that ``compute_forward_vector()`` generates the
     expected output for a valid input DataArray containing ``NaN``
@@ -531,7 +531,7 @@ def test_nan_behavior_forward_vector(
     """
     nan_time = 1
     forward_vector = kinematics.compute_forward_vector(
-        valid_data_array_for_forward_vector_with_nans, "left_ear", "right_ear"
+        valid_data_array_for_forward_vector_with_nan, "left_ear", "right_ear"
     )
     # Check coord preservation
     for preserved_coord in ["time", "space", "individuals"]:

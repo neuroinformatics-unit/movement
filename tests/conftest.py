@@ -582,7 +582,7 @@ def valid_poses_dataset_uniform_linear_motion(
 
 
 @pytest.fixture
-def valid_poses_dataset_uniform_linear_motion_with_nans(
+def valid_poses_dataset_uniform_linear_motion_with_nan(
     valid_poses_dataset_uniform_linear_motion,
 ):
     """Return a valid poses dataset with NaN values in the position array.
