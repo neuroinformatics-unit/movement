@@ -569,7 +569,7 @@ def valid_poses_dataset_uniform_linear_motion(
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: ["x", "y"],
             dim_names[2]: ["centroid", "left", "right"],
-            dim_names[3]: [f"id_{i}" for i in range(1, n_individuals + 1)],
+            dim_names[3]: [f"id_{i}" for i in range(n_individuals)],
         },
         attrs={
             "fps": None,
@@ -588,27 +588,27 @@ def valid_poses_dataset_uniform_linear_motion_with_nans(
     """Return a valid poses dataset with NaN values in the position array.
 
     Specifically, we will introducde:
-    - 1 NaN value in the centroid keypoint of individual id_1 at time=0
-    - 5 NaN values in the left keypoint of individual id_1 (frames 3-7)
-    - 10 NaN values in the right keypoint of individual id_1 (all frames)
+    - 1 NaN value in the centroid keypoint of individual id_0 at time=0
+    - 5 NaN values in the left keypoint of individual id_0 (frames 3-7)
+    - 10 NaN values in the right keypoint of individual id_0 (all frames)
     """
     valid_poses_dataset_uniform_linear_motion.position.loc[
         {
-            "individuals": "id_1",
+            "individuals": "id_0",
             "keypoints": "centroid",
             "time": 0,
         }
     ] = np.nan
     valid_poses_dataset_uniform_linear_motion.position.loc[
         {
-            "individuals": "id_1",
+            "individuals": "id_0",
             "keypoints": "left",
             "time": slice(3, 7),
         }
     ] = np.nan
     valid_poses_dataset_uniform_linear_motion.position.loc[
         {
-            "individuals": "id_1",
+            "individuals": "id_0",
             "keypoints": "right",
         }
     ] = np.nan
