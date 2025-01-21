@@ -405,7 +405,7 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
 
 # --------------------- Poses dataset fixtures ----------------------------
 @pytest.fixture
-def valid_poses_array_uniform_linear_motion():
+def valid_poses_arrays():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
 
@@ -426,7 +426,7 @@ def valid_poses_array_uniform_linear_motion():
     - Individual 1 at frames 2, 3
     """
 
-    def _valid_poses_array(array_type):
+    def _valid_poses_arrays(array_type):
         """Return a dictionary of valid arrays for a ValidPosesDataset."""
         # Unless specified, default is a ``multi_individual_array`` with
         # 10 frames, 3 keypoints, and 2 individuals in 2D space.
@@ -489,11 +489,11 @@ def valid_poses_array_uniform_linear_motion():
             confidence = confidence[:, :, :1]
         return {"position": position, "confidence": confidence}
 
-    return _valid_poses_array
+    return _valid_poses_arrays
 
 
 @pytest.fixture
-def valid_poses_dataset(valid_poses_array_uniform_linear_motion, request):
+def valid_poses_dataset(valid_poses_arrays, request):
     """Return a valid poses dataset.
 
     Depending on the ``array_type`` requested (``multi_individual_array``,
@@ -502,15 +502,15 @@ def valid_poses_dataset(valid_poses_array_uniform_linear_motion, request):
     with up to 3 keypoints ("centroid", "left", "right")
     moving in uniform linear motion for 10 frames in 2D space.
     Default is a ``multi_individual_array``.
-    See the ``valid_poses_array_uniform_linear_motion`` fixture for details.
+    See the ``valid_poses_arrays`` fixture for details.
     """
     dim_names = ValidPosesDataset.DIM_NAMES
     # create a multi_individual_array by default unless overridden via param
     try:
-        array_format = request.param
+        array_type = request.param
     except AttributeError:
-        array_format = "multi_individual_array"
-    poses_array = valid_poses_array_uniform_linear_motion(array_format)
+        array_type = "multi_individual_array"
+    poses_array = valid_poses_arrays(array_type)
     position_array = poses_array["position"]
     confidence_array = poses_array["confidence"]
     n_frames, _, n_keypoints, n_individuals = position_array.shape
@@ -538,9 +538,7 @@ def valid_poses_dataset(valid_poses_array_uniform_linear_motion, request):
 
 
 @pytest.fixture
-def valid_poses_dataset_with_nan(
-    valid_poses_dataset,
-):
+def valid_poses_dataset_with_nan(valid_poses_dataset):
     """Return a valid poses dataset with NaNs introduced in the position array.
 
     Using ``valid_poses_dataset`` as the base dataset,
