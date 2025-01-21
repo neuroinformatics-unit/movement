@@ -433,57 +433,6 @@ def valid_position_array():
 
 
 @pytest.fixture
-def valid_poses_dataset(valid_position_array, request):
-    """Return a valid pose tracks dataset."""
-    dim_names = ValidPosesDataset.DIM_NAMES
-    # create a multi_individual_array by default unless overridden via param
-    try:
-        array_format = request.param
-    except AttributeError:
-        array_format = "multi_individual_array"
-    position_array = valid_position_array(array_format)
-    n_frames, n_keypoints, n_individuals = (
-        position_array.shape[:1] + position_array.shape[2:]
-    )
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(position_array, dims=dim_names),
-            "confidence": xr.DataArray(
-                np.repeat(
-                    np.linspace(0.1, 1.0, n_frames),
-                    n_keypoints * n_individuals,
-                ).reshape(position_array.shape[:1] + position_array.shape[2:]),
-                dims=dim_names[:1] + dim_names[2:],  # exclude "space"
-            ),
-        },
-        coords={
-            "time": np.arange(n_frames),
-            "space": ["x", "y"],
-            "keypoints": [f"key{i}" for i in range(1, n_keypoints + 1)],
-            "individuals": [f"ind{i}" for i in range(1, n_individuals + 1)],
-        },
-        attrs={
-            "fps": None,
-            "time_unit": "frames",
-            "source_software": "SLEAP",
-            "source_file": "test.h5",
-            "ds_type": "poses",
-        },
-    )
-
-
-@pytest.fixture
-def valid_poses_dataset_with_nan(valid_poses_dataset):
-    """Return a valid pose tracks dataset with NaN values."""
-    # Sets position for all keypoints in individual ind1 to NaN
-    # at timepoints 3, 7, 8
-    valid_poses_dataset.position.loc[
-        {"individuals": "ind1", "time": [3, 7, 8]}
-    ] = np.nan
-    return valid_poses_dataset
-
-
-@pytest.fixture
 def valid_poses_array_uniform_linear_motion():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
