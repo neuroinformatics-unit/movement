@@ -669,9 +669,9 @@ def empty_dataset():
 
 
 @pytest.fixture
-def missing_var_poses_dataset(valid_poses_dataset):
+def missing_var_poses_dataset(valid_poses_dataset_uniform_linear_motion):
     """Return a poses dataset missing position variable."""
-    return valid_poses_dataset.drop_vars("position")
+    return valid_poses_dataset_uniform_linear_motion.drop_vars("position")
 
 
 @pytest.fixture
@@ -687,9 +687,9 @@ def missing_two_vars_bboxes_dataset(valid_bboxes_dataset):
 
 
 @pytest.fixture
-def missing_dim_poses_dataset(valid_poses_dataset):
+def missing_dim_poses_dataset(valid_poses_dataset_uniform_linear_motion):
     """Return a poses dataset missing the time dimension."""
-    return valid_poses_dataset.rename({"time": "tame"})
+    return valid_poses_dataset_uniform_linear_motion.rename({"time": "tame"})
 
 
 @pytest.fixture
