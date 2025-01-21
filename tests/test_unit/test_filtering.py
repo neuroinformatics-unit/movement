@@ -51,10 +51,7 @@ class TestFilteringValidDataset:
         """
         # Expected number of nans in the position array per individual
         expected_nans_in_filtered_position_per_indiv = {
-            "valid_poses_dataset": [
-                0,
-                0,
-            ],  # no nans in input
+            "valid_poses_dataset": [0, 0],  # no nans in input
             "valid_bboxes_dataset": [0, 0],  # no nans in input
             "valid_poses_dataset_with_nan": [38, 0],
             "valid_bboxes_dataset_with_nan": [14, 0],

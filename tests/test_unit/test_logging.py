@@ -48,10 +48,7 @@ def test_log_warning(caplog):
 
 @pytest.mark.parametrize(
     "input_data",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-    ],
+    ["valid_poses_dataset", "valid_bboxes_dataset"],
 )
 @pytest.mark.parametrize(
     "selector_fn, expected_selector_type",

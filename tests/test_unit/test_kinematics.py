@@ -11,10 +11,7 @@ from movement import kinematics
 
 @pytest.mark.parametrize(
     "valid_dataset_uniform_linear_motion",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-    ],
+    ["valid_poses_dataset", "valid_bboxes_dataset"],
 )
 @pytest.mark.parametrize(
     "kinematic_variable, expected_kinematics",
@@ -91,10 +88,7 @@ def test_kinematics_uniform_linear_motion(
 
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
-    [
-        "valid_poses_dataset_with_nan",
-        "valid_bboxes_dataset_with_nan",
-    ],
+    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
 )
 @pytest.mark.parametrize(
     "kinematic_variable, expected_nans_per_individual",
@@ -223,10 +217,7 @@ time_points_value_error = pytest.raises(
     ],
 )
 def test_path_length_across_time_ranges(
-    valid_poses_dataset,
-    start,
-    stop,
-    expected_exception,
+    valid_poses_dataset, start, stop, expected_exception
 ):
     """Test path length computation for a uniform linear motion case,
     across different time ranges.
@@ -592,10 +583,7 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
 
 @pytest.mark.parametrize(
     "valid_dataset",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-    ],
+    ["valid_poses_dataset", "valid_bboxes_dataset"],
 )
 @pytest.mark.parametrize(
     "selection_fn",
@@ -718,11 +706,7 @@ def test_compute_pairwise_distances_with_valid_pairs(
             "keypoints",
             "invalid_string",
         ),  # invalid pairs
-        (
-            "valid_poses_dataset",
-            "individuals",
-            {},
-        ),  # empty pairs
+        ("valid_poses_dataset", "individuals", {}),  # empty pairs
         ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
         (
             "missing_dim_bboxes_dataset",

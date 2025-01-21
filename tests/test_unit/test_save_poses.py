@@ -122,10 +122,7 @@ class TestSavePoses:
                 ]
 
     def test_to_dlc_file_valid_dataset(
-        self,
-        output_file_params,
-        valid_poses_dataset,
-        request,
+        self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
         DeepLabCut-style file returns the appropriate errors.
@@ -178,9 +175,7 @@ class TestSavePoses:
         indirect=["valid_poses_dataset"],
     )
     def test_to_dlc_style_df_split_individuals(
-        self,
-        valid_poses_dataset,
-        split_individuals,
+        self, valid_poses_dataset, split_individuals
     ):
         """Test that the `split_individuals` argument affects the behaviour
         of the `to_dlc_style_df` function as expected.
@@ -234,9 +229,7 @@ class TestSavePoses:
         """
         with expected_exception:
             save_poses.to_dlc_file(
-                valid_poses_dataset,
-                new_h5_file,
-                split_individuals,
+                valid_poses_dataset, new_h5_file, split_individuals
             )
             # Get the names of the individuals in the dataset
             ind_names = valid_poses_dataset.individuals.values
@@ -255,10 +248,7 @@ class TestSavePoses:
                     file_path_ind.unlink()
 
     def test_to_lp_file_valid_dataset(
-        self,
-        output_file_params,
-        valid_poses_dataset,
-        request,
+        self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
         LightningPose-style file returns the appropriate errors.
@@ -286,10 +276,7 @@ class TestSavePoses:
             )
 
     def test_to_sleap_analysis_file_valid_dataset(
-        self,
-        output_file_params,
-        valid_poses_dataset,
-        request,
+        self, output_file_params, valid_poses_dataset, request
     ):
         """Test that saving a valid pose dataset to a valid/invalid
         SLEAP-style file returns the appropriate errors.
