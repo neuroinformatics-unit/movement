@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,11 +27,11 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.21</p>
+    <p class="title logo__title">movement v0.0.22</p>
   
 </a></div>
     
@@ -373,9 +373,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -444,11 +449,11 @@ to multiple files at once.</p>
 </section>
 <section id="imports">
 <h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
-<span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span><span class="p">,</span> <span class="n">save_poses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span><span class="p">,</span> <span class="n">save_poses</span>
 </pre></div>
 </div>
 </section>
@@ -514,7 +519,7 @@ to explore the dataset interactively.</p>
 <p>We start with a dictionary that maps old keypoint names to new ones.
 Next, we define a function that takes that dictionary and a dataset
 as inputs, and returns a modified dataset. Notice that under the hood
-this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
+this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;snout&quot;</span><span class="p">:</span> <span class="s2">&quot;nose&quot;</span><span class="p">,</span>
     <span class="s2">&quot;left_ear&quot;</span><span class="p">:</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span>
@@ -525,7 +530,7 @@ this function calls <a class="reference external" href="https://docs.xarray.dev/
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">rename_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">rename_dict</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rename_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">rename_dict</span><span class="p">):</span>
     <span class="c1"># get the current names of the keypoints</span>
     <span class="n">keypoint_names</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.coords.html#xarray.Dataset.coords" title="xarray.Dataset.coords" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">coords</span></a><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
@@ -553,12 +558,12 @@ this function calls <a class="reference external" href="https://docs.xarray.dev/
 <p>Let’s create a list of keypoints to delete.
 In this case, we choose to get rid of the <code class="docutils literal notranslate"><span class="pre">tailend</span></code> keypoint,
 which is often hard to reliably track.
-We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
+We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
 wrapped in an appropriately named function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">keypoints_to_delete</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tailend&quot;</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">delete_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">delete_keypoints</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">delete_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">delete_keypoints</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">delete_keypoints</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No keypoints to delete. Skipping deleting step.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -579,11 +584,11 @@ wrapped in an appropriately named function.</p>
 <h2>Reorder keypoints<a class="headerlink" href="#reorder-keypoints" title="Link to this heading">#</a></h2>
 <p>We start with a list of keypoints in the desired order
 (in this case, we’ll just swap the order of the left and right ears).
-We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
+We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ordered_keypoints</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nose&quot;</span><span class="p">,</span> <span class="s2">&quot;earR&quot;</span><span class="p">,</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span> <span class="s2">&quot;middle&quot;</span><span class="p">,</span> <span class="s2">&quot;tailbase&quot;</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">reorder_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">ordered_keypoints</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">reorder_keypoints</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">,</span> <span class="n">ordered_keypoints</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ordered_keypoints</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No keypoints to reorder. Skipping reordering step.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -617,7 +622,7 @@ the <code class="docutils literal notranslate"><span class="pre">dest_path</span
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved modified dataset to </span><span class="si">{</span><span class="n">dest_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmpr8e5hfhq/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmpk_nh35s9/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 </pre></div>
 </div>
 <div class="admonition note">
@@ -645,7 +650,7 @@ we’ve defined above, and saved to the target directory.</p>
 <span class="n">target_dir</span> <span class="o">=</span> <span class="s2">&quot;/path/to/your/target/data/&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">convert_all</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.slp&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_all</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.slp&quot;</span><span class="p">):</span>
     <span class="n">source_folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
     <span class="n">file_paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">source_folder</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
 
@@ -678,7 +683,7 @@ we’ve defined above, and saved to the target directory.</p>
             <span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.276 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.355 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-convert-file-formats-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/convert_file_formats.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
@@ -760,13 +765,13 @@ we’ve defined above, and saved to the target directory.</p>
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/examples/convert_file_formats.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/convert_file_formats.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -781,8 +786,8 @@ we’ve defined above, and saved to the target directory.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -796,7 +801,7 @@ we’ve defined above, and saved to the target directory.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.16.0.
+    0.16.1.
     </p></div>
       
     </div>

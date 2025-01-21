@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,11 +26,11 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=5dc116f1" />
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.21</p>
+    <p class="title logo__title">movement v0.0.22</p>
   
 </a></div>
     
@@ -350,9 +350,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -400,22 +405,22 @@
                    <h1>Source code for movement.kinematics</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Compute kinematic variables like velocity and acceleration.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">scipy.spatial.distance</span> <span class="kn">import</span> <span class="n">cdist</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdist</span>
 
-<span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
-<span class="kn">from</span> <span class="nn">movement.utils.reports</span> <span class="kn">import</span> <span class="n">report_nan_values</span>
-<span class="kn">from</span> <span class="nn">movement.utils.vector</span> <span class="kn">import</span> <span class="n">compute_norm</span>
-<span class="kn">from</span> <span class="nn">movement.validators.arrays</span> <span class="kn">import</span> <span class="n">validate_dims_coords</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_nan_values</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
 
 
 <div class="viewcode-block" id="compute_displacement">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_displacement.html#movement.kinematics.compute_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute displacement array in cartesian coordinates.</span>
 
 <span class="sd">    The displacement array is defined as the difference between the position</span>
@@ -461,7 +466,7 @@
 
 <div class="viewcode-block" id="compute_velocity">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity array in cartesian coordinates.</span>
 
 <span class="sd">    The velocity array is the first time-derivative of the position</span>
@@ -503,7 +508,7 @@
 
 <div class="viewcode-block" id="compute_acceleration">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration array in cartesian coordinates.</span>
 
 <span class="sd">    The acceleration array is the second time-derivative of the</span>
@@ -546,7 +551,7 @@
 
 <div class="viewcode-block" id="compute_time_derivative">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the time-derivative of an array using numerical differentiation.</span>
 
 <span class="sd">    This function uses :meth:`xarray.DataArray.differentiate`,</span>
@@ -588,7 +593,7 @@
 
 <div class="viewcode-block" id="compute_speed">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_speed.html#movement.kinematics.compute_speed">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_speed</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_speed</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute instantaneous speed at each time point.</span>
 
 <span class="sd">    Speed is a scalar quantity computed as the Euclidean norm (magnitude)</span>
@@ -615,7 +620,7 @@
 
 <div class="viewcode-block" id="compute_forward_vector">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_forward_vector</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_forward_vector</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -709,12 +714,17 @@
     <span class="n">upward_vector</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">upward_vector</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">),</span> <span class="mi">1</span><span class="p">]),</span>
         <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
     <span class="p">)</span>
     <span class="c1"># Compute forward direction as the cross product</span>
     <span class="c1"># (right-to-left) cross (forward) = up</span>
     <span class="n">forward_vector</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span>
         <span class="n">right_to_left_vector</span><span class="p">,</span> <span class="n">upward_vector</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span>
-    <span class="p">)[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># keep only the first 2 dimensions of the result</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop_sel</span><span class="p">(</span>
+        <span class="n">space</span><span class="o">=</span><span class="s2">&quot;z&quot;</span>
+    <span class="p">)</span>  <span class="c1"># keep only the first 2 spatal dimensions of the result</span>
     <span class="c1"># Return unit vector</span>
     <span class="k">return</span> <span class="n">forward_vector</span> <span class="o">/</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">forward_vector</span><span class="p">)</span></div>
 
@@ -722,7 +732,7 @@
 
 <div class="viewcode-block" id="compute_head_direction_vector">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_head_direction_vector</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_head_direction_vector</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -766,7 +776,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_cdist</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cdist</span><span class="p">(</span>
     <span class="n">a</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">b</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">],</span>
@@ -863,7 +873,7 @@
 
 <div class="viewcode-block" id="compute_pairwise_distances">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_pairwise_distances</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_pairwise_distances</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">],</span>
     <span class="n">pairs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">],</span>
@@ -1071,7 +1081,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_validate_labels_dimension</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_labels_dimension</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input data contains the ``dim`` for labelling dimensions.</span>
 
 <span class="sd">    This function ensures the input data contains the ``dim``</span>
@@ -1099,7 +1109,7 @@
     <span class="k">return</span> <span class="n">data</span>
 
 
-<span class="k">def</span> <span class="nf">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input data is an xarray DataArray.</span>
 
 <span class="sd">    Parameters</span>
@@ -1122,7 +1132,7 @@
 
 <div class="viewcode-block" id="compute_path_length">
 <a class="viewcode-back" href="../../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">[docs]</a>
-<span class="k">def</span> <span class="nf">compute_path_length</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_length</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1211,7 +1221,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print a warning if the proportion of NaN values exceeds a threshold.</span>
@@ -1248,7 +1258,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_to_warn_about</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_scaled_path_length</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_scaled_path_length</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute scaled path length based on proportion of valid segments.</span>
@@ -1312,8 +1322,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1327,7 +1337,7 @@
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.16.0.
+    0.16.1.
     </p></div>
       
     </div>

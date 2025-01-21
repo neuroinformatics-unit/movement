@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,11 +27,11 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.21</p>
+    <p class="title logo__title">movement v0.0.22</p>
   
 </a></div>
     
@@ -373,9 +373,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -434,10 +439,10 @@ visualise the results.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For interactive plots: install ipympl with `pip install ipympl` and uncomment</span>
 <span class="c1"># the following line in your notebook</span>
 <span class="c1"># %matplotlib widget</span>
-<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 
-<span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
-<span class="kn">from</span> <span class="nn">movement.utils.vector</span> <span class="kn">import</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a>
 </pre></div>
 </div>
 </section>
@@ -539,7 +544,7 @@ moved around the circle in clockwise direction, and
 the third mouse (<code class="docutils literal notranslate"><span class="pre">AEON3B_TP2</span></code>) followed an anti-clockwise direction.</p>
 <p>We can also easily plot the components of the position vector against time
 using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods. We use
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
 remove the dimension of length 1 from the data (the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -556,7 +561,7 @@ various kinematic quantities,
 such as displacement, velocity, and acceleration.
 We can start off by computing the distance travelled by the mice along
 their trajectories:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">movement.kinematics</span> <span class="k">as</span> <span class="nn">kin</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kin</span>
 
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">displacement</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_displacement.html#movement.kinematics.compute_displacement" title="movement.kinematics.compute_displacement" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_displacement</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">)</span>
 </pre></div>
@@ -620,7 +625,7 @@ we focus on the mouse <code class="docutils literal notranslate"><span class="pr
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fe08d517b90&gt;
+<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fa0e451edd0&gt;
 </pre></div>
 </div>
 <p>Notice that this figure is not very useful as a visual check:
@@ -673,7 +678,7 @@ the plot above:</p>
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fe08d579510&gt;
+<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7fa0e43f58d0&gt;
 </pre></div>
 </div>
 <p>Now we can visually verify that indeed the displacement vector
@@ -712,7 +717,7 @@ rather than position data. Notice how <code class="docutils literal notranslate"
 different individuals and spatial dimensions for us! ✨</p>
 <p>We can plot the components of the velocity vector against time
 using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods. We use
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
 remove the dimension of length 1 from the data (the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension).</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">velocity</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -817,7 +822,7 @@ acceleration vector for each individual:</p>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.024 seconds)</p>
+<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.833 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-kinematics-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_kinematics.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
@@ -897,13 +902,13 @@ acceleration vector for each individual:</p>
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/examples/compute_kinematics.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/compute_kinematics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -918,8 +923,8 @@ acceleration vector for each individual:</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -933,7 +938,7 @@ acceleration vector for each individual:</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.16.0.
+    0.16.1.
     </p></div>
       
     </div>

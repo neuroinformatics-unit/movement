@@ -1,0 +1,6 @@
+from\_anipose\_style\_df
+========================
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_anipose_style_df

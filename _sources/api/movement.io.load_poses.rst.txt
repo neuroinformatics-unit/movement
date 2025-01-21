@@ -16,6 +16,10 @@
     :toctree: .
     :nosignatures:
     
+    from_anipose_file
+    
+    from_anipose_style_df
+    
     from_dlc_file
     
     from_dlc_style_df

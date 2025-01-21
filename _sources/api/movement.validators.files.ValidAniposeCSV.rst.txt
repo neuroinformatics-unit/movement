@@ -1,0 +1,20 @@
+ValidAniposeCSV
+===============
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidAniposeCSV
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,11 +26,11 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.21</p>
+    <p class="title logo__title">movement v0.0.22</p>
   
 </a></div>
     
@@ -350,9 +350,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -400,27 +405,32 @@
                    <h1>Source code for movement.io.load_poses</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Load pose tracking data from various frameworks into ``movement``.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">import</span> <span class="nn">h5py</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">sleap_io.io.slp</span> <span class="kn">import</span> <span class="n">read_labels</span>
-<span class="kn">from</span> <span class="nn">sleap_io.model.labels</span> <span class="kn">import</span> <span class="n">Labels</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.slp</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_labels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.model.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">Labels</span>
 
-<span class="kn">from</span> <span class="nn">movement.utils.logging</span> <span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
-<span class="kn">from</span> <span class="nn">movement.validators.datasets</span> <span class="kn">import</span> <span class="n">ValidPosesDataset</span>
-<span class="kn">from</span> <span class="nn">movement.validators.files</span> <span class="kn">import</span> <span class="n">ValidDeepLabCutCSV</span><span class="p">,</span> <span class="n">ValidFile</span><span class="p">,</span> <span class="n">ValidHDF5</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidPosesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ValidAniposeCSV</span><span class="p">,</span>
+    <span class="n">ValidDeepLabCutCSV</span><span class="p">,</span>
+    <span class="n">ValidFile</span><span class="p">,</span>
+    <span class="n">ValidHDF5</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="from_numpy">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy">[docs]</a>
-<span class="k">def</span> <span class="nf">from_numpy</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_numpy</span><span class="p">(</span>
     <span class="n">position_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">confidence_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -494,10 +504,13 @@
 
 <div class="viewcode-block" id="from_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">[docs]</a>
-<span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">],</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+        <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="s2">&quot;Anipose&quot;</span>
+    <span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from any supported file.</span>
 
@@ -509,11 +522,14 @@
 <span class="sd">        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these</span>
 <span class="sd">        these functions will be called internally, based on</span>
 <span class="sd">        the value of ``source_software``.</span>
-<span class="sd">    source_software : &quot;DeepLabCut&quot;, &quot;SLEAP&quot; or &quot;LightningPose&quot;</span>
+<span class="sd">    source_software : &quot;DeepLabCut&quot;, &quot;SLEAP&quot;, &quot;LightningPose&quot;, or &quot;Anipose&quot;</span>
 <span class="sd">        The source software of the file.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
+<span class="sd">    **kwargs : dict, optional</span>
+<span class="sd">        Additional keyword arguments to pass to the software-specific</span>
+<span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -526,6 +542,7 @@
 <span class="sd">    movement.io.load_poses.from_dlc_file</span>
 <span class="sd">    movement.io.load_poses.from_sleap_file</span>
 <span class="sd">    movement.io.load_poses.from_lp_file</span>
+<span class="sd">    movement.io.load_poses.from_anipose_file</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -541,6 +558,8 @@
         <span class="k">return</span> <span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">from_lp_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;Anipose&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">from_anipose_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -550,7 +569,7 @@
 
 <div class="viewcode-block" id="from_dlc_style_df">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_style_df.html#movement.io.load_poses.from_dlc_style_df">[docs]</a>
-<span class="k">def</span> <span class="nf">from_dlc_style_df</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_dlc_style_df</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
@@ -620,7 +639,7 @@
 
 <div class="viewcode-block" id="from_sleap_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file">[docs]</a>
-<span class="k">def</span> <span class="nf">from_sleap_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_sleap_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from a SLEAP file.</span>
@@ -696,7 +715,7 @@
 
 <div class="viewcode-block" id="from_lp_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file">[docs]</a>
-<span class="k">def</span> <span class="nf">from_lp_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_lp_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from a LightningPose file.</span>
@@ -729,7 +748,7 @@
 
 <div class="viewcode-block" id="from_dlc_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file">[docs]</a>
-<span class="k">def</span> <span class="nf">from_dlc_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_dlc_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from a DeepLabCut file.</span>
@@ -767,7 +786,7 @@
 
 <div class="viewcode-block" id="from_multiview_files">
 <a class="viewcode-back" href="../../../api/movement.io.load_poses.from_multiview_files.html#movement.io.load_poses.from_multiview_files">[docs]</a>
-<span class="k">def</span> <span class="nf">from_multiview_files</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_multiview_files</span><span class="p">(</span>
     <span class="n">file_path_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -801,7 +820,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_ds_from_lp_or_dlc_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_lp_or_dlc_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -848,7 +867,7 @@
     <span class="k">return</span> <span class="n">ds</span>
 
 
-<span class="k">def</span> <span class="nf">_ds_from_sleap_analysis_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_sleap_analysis_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.</span>
@@ -895,7 +914,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_ds_from_sleap_labels_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_sleap_labels_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.</span>
@@ -935,7 +954,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_sleap_labels_to_numpy</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Labels</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_sleap_labels_to_numpy</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">Labels</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a SLEAP ``Labels`` object to a NumPy array.</span>
 
 <span class="sd">    The output array contains pose tracks and point-wise confidence scores.</span>
@@ -1004,7 +1023,7 @@
     <span class="k">return</span> <span class="n">tracks</span>
 
 
-<span class="k">def</span> <span class="nf">_df_from_dlc_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_df_from_dlc_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a DeepLabCut-style DataFrame from a .csv file.</span>
 
 <span class="sd">    If poses are loaded from a DeepLabCut-style .csv file, the DataFrame</span>
@@ -1050,7 +1069,7 @@
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span> <span class="nf">_df_from_dlc_h5</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_df_from_dlc_h5</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a DeepLabCut-style DataFrame from a .h5 file.</span>
 
 <span class="sd">    Parameters</span>
@@ -1071,7 +1090,7 @@
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span> <span class="nf">_ds_from_valid_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">ValidPosesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_valid_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">ValidPosesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from validated pose tracking data.</span>
 
 <span class="sd">    Parameters</span>
@@ -1089,11 +1108,13 @@
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="c1"># Create the time coordinate, depending on the value of fps</span>
-    <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-    <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
     <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">time_coords</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
+        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
         <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
+
     <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidPosesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
     <span class="c1"># Convert data to an xarray.Dataset</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
@@ -1117,6 +1138,125 @@
             <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
+
+
+<div class="viewcode-block" id="from_anipose_style_df">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_anipose_style_df.html#movement.io.load_poses.from_anipose_style_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_anipose_style_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from an Anipose 3D dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Anipose triangulation dataframe</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The number of frames per second in the video. If None (default),</span>
+<span class="sd">        the ``time`` coordinates will be in frame units.</span>
+<span class="sd">    individual_name : str, optional</span>
+<span class="sd">        Name of the individual, by default &quot;individual_0&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,</span>
+<span class="sd">    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,</span>
+<span class="sd">    keypoint2_score...to array of positions with dimensions</span>
+<span class="sd">    time, space, keypoints, individuals, and array of confidence (from scores)</span>
+<span class="sd">    with dimensions time, keypoints, individuals.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keypoint_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">set</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">col</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">])</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">n_keypoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_names</span><span class="p">)</span>
+
+    <span class="c1"># Initialize arrays and fill</span>
+    <span class="n">position_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">n_keypoints</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># 1 for single individual</span>
+    <span class="n">confidence_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">n_keypoints</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">kp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">keypoint_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]):</span>
+            <span class="n">position_array</span><span class="p">[:,</span> <span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kp</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">coord</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="n">confidence_array</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kp</span><span class="si">}</span><span class="s2">_score&quot;</span><span class="p">]</span>
+
+    <span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">individual_name</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">from_numpy</span><span class="p">(</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">position_array</span><span class="p">,</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">confidence_array</span><span class="p">,</span>
+        <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
+        <span class="n">keypoint_names</span><span class="o">=</span><span class="n">keypoint_names</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;Anipose&quot;</span><span class="p">,</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="from_anipose_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_anipose_file.html#movement.io.load_poses.from_anipose_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_anipose_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from an Anipose 3D .csv file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : pathlib.Path</span>
+<span class="sd">        Path to the Anipose triangulation .csv file</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The number of frames per second in the video. If None (default),</span>
+<span class="sd">        the ``time`` coordinates will be in frame units.</span>
+<span class="sd">    individual_name : str, optional</span>
+<span class="sd">        Name of the individual, by default &quot;individual_0&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    We currently do not load all information, only x, y, z, and score</span>
+<span class="sd">    (confidence) for each keypoint. Future versions will load n of cameras</span>
+<span class="sd">    and error.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">ValidFile</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span>
+        <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+        <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">anipose_file</span> <span class="o">=</span> <span class="n">ValidAniposeCSV</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">anipose_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">anipose_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">from_anipose_style_df</span><span class="p">(</span>
+        <span class="n">anipose_df</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="n">individual_name</span>
+    <span class="p">)</span></div>
+
 </pre></div>
 <div class="section ablog__blog_comments">
    
@@ -1149,8 +1289,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1164,7 +1304,7 @@
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.16.0.
+    0.16.1.
     </p></div>
       
     </div>

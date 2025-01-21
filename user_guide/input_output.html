@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,11 +27,11 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=a11416ff"></script>
+    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.21</p>
+    <p class="title logo__title">movement v0.0.22</p>
   
 </a></div>
     
@@ -369,9 +369,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -426,6 +431,7 @@
 <li><p><a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> (DLC)</p></li>
 <li><p><a class="reference external" href="https://sleap.ai/#">SLEAP</a> (SLEAP)</p></li>
 <li><p><a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightingPose</a> (LP)</p></li>
+<li><p><a class="reference external" href="https://anipose.readthedocs.io/en/latest/">Anipose</a> (Anipose)</p></li>
 </ul>
 <p>To analyse bounding boxes’ tracks, <code class="docutils literal notranslate"><span class="pre">movement</span></code> currently supports the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a> (VIA) format for <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">tracks annotation</a>.</p>
 <div class="admonition note">
@@ -439,7 +445,7 @@ included with the package.</p>
 <span id="target-loading-pose-tracks"></span><h2>Loading pose tracks<a class="headerlink" href="#loading-pose-tracks" title="Link to this heading">#</a></h2>
 <p>The pose tracks loading functionalities are provided by the
 <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, which can be imported as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_poses</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
 </pre></div>
 </div>
 <p>To read a pose tracks file into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a>, we provide specific functions for each of the supported formats. We additionally provide a more general <code class="docutils literal notranslate"><span class="pre">from_numpy()</span></code> method, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a> from a set of NumPy arrays.</p>
@@ -493,10 +499,26 @@ LightningPose</label><div class="sd-tab-content docutils">
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
+Anipose</label><div class="sd-tab-content docutils">
+<p>To load Anipose files in .csv format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_anipose_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span>
+<span class="p">)</span>  <span class="c1"># We can optionally specify the individual name, by default it is &quot;individual_0&quot;</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;Anipose&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span>
+<span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two individuals, <code class="docutils literal notranslate"><span class="pre">Alice</span></code> and <code class="docutils literal notranslate"><span class="pre">Bob</span></code>,
 with three keypoints each: <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, and <code class="docutils literal notranslate"><span class="pre">tail_base</span></code>. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
     <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
@@ -518,13 +540,13 @@ the pose estimation software.</p>
 <span id="target-loading-bbox-tracks"></span><h2>Loading bounding boxes’ tracks<a class="headerlink" href="#loading-bounding-boxes-tracks" title="Link to this heading">#</a></h2>
 <p>To load bounding boxes’ tracks into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a>, we need the functions from the
 <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module. This module can be imported as:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">load_bboxes</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 </pre></div>
 </div>
 <p>We currently support loading bounding boxes’ tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a <code class="docutils literal notranslate"><span class="pre">from_numpy()</span></code> method, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
+<input checked="checked" id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
 VGG Image Annotator</label><div class="sd-tab-content docutils">
 <p>To load a VIA tracks .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span><span class="s2">&quot;path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -538,12 +560,12 @@ VGG Image Annotator</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
+<input id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two bounding boxes, <code class="docutils literal notranslate"><span class="pre">id_0</span></code> and <code class="docutils literal notranslate"><span class="pre">id_1</span></code>,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
     <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
@@ -564,13 +586,13 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
 formats, including DeepLabCut-style files (.h5 or .csv) and
 <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP-style analysis files</a> (.h5).</p>
 <p>To export pose tracks from <code class="docutils literal notranslate"><span class="pre">movement</span></code>, first import the <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> module:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement.io</span> <span class="kn">import</span> <span class="n">save_poses</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
 </pre></div>
 </div>
 <p>Then, depending on the desired format, use one of the following functions:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
+<input checked="checked" id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
 SLEAP</label><div class="sd-tab-content docutils">
 <p>To save as a SLEAP analysis file in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>
@@ -588,8 +610,8 @@ each attribute and data variable represents, see the
 <a class="reference external" href="https://sleap.ai/api/sleap.info.write_tracking_h5.html#module-sleap.info.write_tracking_h5">SLEAP documentation</a>.</p>
 </div>
 </div>
-<input id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
+<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
 DeepLabCut</label><div class="sd-tab-content docutils">
 <p>To save as a DeepLabCut file, in .h5 or .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>  <span class="c1"># preferred format</span>
@@ -600,8 +622,8 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 a <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> boolean argument. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the function will
 save the data as separate single-animal DeepLabCut-style files.</p>
 </div>
-<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
+<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
 LightningPose</label><div class="sd-tab-content docutils">
 <p>To save as a LightningPose file in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
@@ -642,7 +664,7 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 
 </pre></div>
 </div>
-<p>Alternatively, we can convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes’ dataset to a pandas DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2024.11.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.2.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
+<p>Alternatively, we can convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes’ dataset to a pandas DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.2.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
 </section>
 <section id="sample-data">
 <span id="target-sample-data"></span><h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
@@ -650,7 +672,7 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 try the package out. These files contain pose and bounding boxes’ tracks from
 various <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported formats</span></a>.</p>
 <p>You can list the available sample data files using:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">movement</span> <span class="kn">import</span> <span class="n">sample_data</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
 <span class="n">file_names</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">file_names</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>  <span class="c1"># print each sample file in a separate line</span>
@@ -751,13 +773,13 @@ and its path is stored in the <code class="docutils literal notranslate"><span c
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/user_guide/input_output.md.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/input_output.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -772,8 +794,8 @@ and its path is stored in the <code class="docutils literal notranslate"><span c
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -787,7 +809,7 @@ and its path is stored in the <code class="docutils literal notranslate"><span c
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.16.0.
+    0.16.1.
     </p></div>
       
     </div>
