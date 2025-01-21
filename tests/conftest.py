@@ -488,83 +488,113 @@ def valid_poses_array_uniform_linear_motion():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
 
-    It represents 2 individuals with 3 keypoints,
+    Depending on the ``array_type`` requested (``multi_individual_array``,
+    ``single_keypoint_array``, or ``single_individual_array``),
+    the arrays can represent up to 2 individuals with up to 3 keypoints,
     moving at constant velocity for 10 frames in 2D space.
-    At each frame they cover a distance of sqrt(2) in x-y space.
+    Default is a ``multi_individual_array``.
+    At each frame the individuals cover a distance of sqrt(2) in x-y space.
     Specifically:
     - Individual 0 moves along the x=y line from the origin.
     - Individual 1 moves along the x=-y line line from the origin.
 
     All confidence values for all keypoints are set to 0.9 except
-    for the keypoints at the following frames which are set to 0.1:
+    for the "centroid" (index=0) at the following frames,
+    which are set to 0.1:
     - Individual 0 at frames 2, 3, 4
     - Individual 1 at frames 2, 3
     """
-    # define the shape of the arrays
-    n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
 
-    # define centroid (index=0) trajectory in position array
-    # for each individual, the centroid moves along
-    # the x=+/-y line, starting from the origin.
-    # - individual 0 moves along x = y line
-    # - individual 1 moves along x = -y line
-    # They move one unit along x and y axes in each frame
-    frames = np.arange(n_frames)
-    position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
-    position[:, 0, 0, :] = frames[:, None]  # reshape to (n_frames, 1)
-    position[:, 1, 0, 0] = frames
-    position[:, 1, 0, 1] = -frames
+    def _valid_poses_array(array_type):
+        """Return a dictionary of valid arrays for a ValidPosesDataset."""
+        # Unless specified, default is a ``multi_individual_array`` with
+        # 10 frames, 3 keypoints, and 2 individuals in 2D space.
+        n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
 
-    # define trajectory of left and right keypoints
-    # for individual 0, at each timepoint:
-    # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
-    # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
-    # for individual 1, at each timepoint:
-    # - the left keypoint (index=1) is at x_centroid - 1, y_centroid
-    # - the right keypoint (index=2) is at x_centroid, y_centroid + 1
-    offsets = [
-        [(0, 1), (1, 0)],  # individual 0: left, right keypoints (x,y) offsets
-        [(-1, 0), (0, 1)],  # individual 1: left, right keypoints (x,y) offsets
-    ]
-    for i in range(n_individuals):
-        for kpt in range(1, n_keypoints):
-            position[:, 0, kpt, i] = (
-                position[:, 0, 0, i] + offsets[i][kpt - 1][0]
-            )
-            position[:, 1, kpt, i] = (
-                position[:, 1, 0, i] + offsets[i][kpt - 1][1]
-            )
+        # define centroid (index=0) trajectory in position array
+        # for each individual, the centroid moves along
+        # the x=+/-y line, starting from the origin.
+        # - individual 0 moves along x = y line
+        # - individual 1 moves along x = -y line (if applicable)
+        # They move one unit along x and y axes in each frame
+        frames = np.arange(n_frames)
+        position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
+        position[:, 0, 0, :] = frames[:, None]  # reshape to (n_frames, 1)
+        position[:, 1, 0, 0] = frames
+        position[:, 1, 0, 1] = -frames
 
-    # build an array of confidence values, all 0.9
-    confidence = np.full((n_frames, n_keypoints, n_individuals), 0.9)
-    # set 5 low-confidence values
-    # - set 3 confidence values for individual id_0's centroid to 0.1
-    # - set 2 confidence values for individual id_1's centroid to 0.1
-    idx_start = 2
-    confidence[idx_start : idx_start + 3, 0, 0] = 0.1
-    confidence[idx_start : idx_start + 2, 0, 1] = 0.1
+        # define trajectory of left and right keypoints
+        # for individual 0, at each timepoint:
+        # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
+        # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
+        # for individual 1, at each timepoint:
+        # - the left keypoint (index=1) is at x_centroid - 1, y_centroid
+        # - the right keypoint (index=2) is at x_centroid, y_centroid + 1
+        offsets = [
+            [
+                (0, 1),
+                (1, 0),
+            ],  # individual 0: left, right keypoints (x,y) offsets
+            [
+                (-1, 0),
+                (0, 1),
+            ],  # individual 1: left, right keypoints (x,y) offsets
+        ]
+        for i in range(n_individuals):
+            for kpt in range(1, n_keypoints):
+                position[:, 0, kpt, i] = (
+                    position[:, 0, 0, i] + offsets[i][kpt - 1][0]
+                )
+                position[:, 1, kpt, i] = (
+                    position[:, 1, 0, i] + offsets[i][kpt - 1][1]
+                )
 
-    return {"position": position, "confidence": confidence}
+        # build an array of confidence values, all 0.9
+        confidence = np.full((n_frames, n_keypoints, n_individuals), 0.9)
+        # set 5 low-confidence values
+        # - set 3 confidence values for individual id_0's centroid to 0.1
+        # - set 2 confidence values for individual id_1's centroid to 0.1
+        idx_start = 2
+        confidence[idx_start : idx_start + 3, 0, 0] = 0.1
+        confidence[idx_start : idx_start + 2, 0, 1] = 0.1
+
+        if array_type == "single_keypoint_array":
+            # return only the centroid keypoint
+            position = position[:, :, :1, :]
+            confidence = confidence[:, :1, :]
+        elif array_type == "single_individual_array":
+            # return only the first individual
+            position = position[:, :, :, :1]
+            confidence = confidence[:, :, :1]
+        return {"position": position, "confidence": confidence}
+
+    return _valid_poses_array
 
 
 @pytest.fixture
 def valid_poses_dataset_uniform_linear_motion(
-    valid_poses_array_uniform_linear_motion,
+    valid_poses_array_uniform_linear_motion, request
 ):
     """Return a valid poses dataset.
 
-    The dataset represents 2 individuals ("id_0" and "id_1")
-    with 3 keypoints ("centroid", "left", "right") moving in uniform linear
-    motion for 10 frames in 2D space.
+    Depending on the ``array_type`` requested (``multi_individual_array``,
+    ``single_keypoint_array``, or ``single_individual_array``),
+    the dataset can represent up to 2 individuals ("id_0" and "id_1")
+    with up to 3 keypoints ("centroid", "left", "right")
+    moving in uniform linear motion for 10 frames in 2D space.
+    Default is a ``multi_individual_array``.
     See the ``valid_poses_array_uniform_linear_motion`` fixture for details.
     """
     dim_names = ValidPosesDataset.DIM_NAMES
-
-    position_array = valid_poses_array_uniform_linear_motion["position"]
-    confidence_array = valid_poses_array_uniform_linear_motion["confidence"]
-
-    n_frames, _, _, n_individuals = position_array.shape
-
+    # create a multi_individual_array by default unless overridden via param
+    try:
+        array_format = request.param
+    except AttributeError:
+        array_format = "multi_individual_array"
+    poses_array = valid_poses_array_uniform_linear_motion(array_format)
+    position_array = poses_array["position"]
+    confidence_array = poses_array["confidence"]
+    n_frames, _, n_keypoints, n_individuals = position_array.shape
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
@@ -575,7 +605,7 @@ def valid_poses_dataset_uniform_linear_motion(
         coords={
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: ["x", "y"],
-            dim_names[2]: ["centroid", "left", "right"],
+            dim_names[2]: ["centroid", "left", "right"][:n_keypoints],
             dim_names[3]: [f"id_{i}" for i in range(n_individuals)],
         },
         attrs={
