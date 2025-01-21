@@ -30,9 +30,7 @@ class TestPosesIO:
         loading them back in returns the same Dataset.
         """
         save_poses.to_dlc_file(
-            valid_poses_dataset,
-            dlc_output_file,
-            split_individuals=False,
+            valid_poses_dataset, dlc_output_file, split_individuals=False
         )
         ds = load_poses.from_dlc_file(dlc_output_file)
         xr.testing.assert_allclose(ds, valid_poses_dataset)

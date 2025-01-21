@@ -10,10 +10,7 @@ from movement.utils import vector
 
 @pytest.mark.parametrize(
     "valid_dataset_uniform_linear_motion",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-    ],
+    ["valid_poses_dataset", "valid_bboxes_dataset"],
 )
 @pytest.mark.parametrize(
     "kinematic_variable, expected_kinematics_polar",

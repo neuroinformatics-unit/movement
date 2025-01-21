@@ -46,9 +46,7 @@ invalid_cases = [
     valid_cases + invalid_cases,
 )
 def test_validate_dims_coords(
-    valid_poses_dataset,  # fixture from conftest.py
-    required_dims_coords,
-    expected_exception,
+    valid_poses_dataset, required_dims_coords, expected_exception
 ):
     """Test validate_dims_coords for both valid and invalid inputs."""
     position_array = valid_poses_dataset["position"]

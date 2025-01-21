@@ -53,10 +53,7 @@ def test_report_nan_values_in_position_selecting_individual(
 
 @pytest.mark.parametrize(
     "valid_dataset",
-    [
-        "valid_poses_dataset",
-        "valid_poses_dataset_with_nan",
-    ],
+    ["valid_poses_dataset", "valid_poses_dataset_with_nan"],
 )
 @pytest.mark.parametrize(
     "data_selection, expected_keypoints, expected_individuals",
