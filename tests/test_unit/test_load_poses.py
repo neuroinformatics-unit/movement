@@ -282,16 +282,12 @@ def test_from_file_delegates_correctly(source_software, fps):
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
 def test_from_numpy_valid(
-    valid_poses_array_uniform_linear_motion,
-    source_software,
-    movement_dataset_asserts,
+    valid_poses_arrays, source_software, movement_dataset_asserts
 ):
     """Test that loading pose tracks from a multi-animal numpy array
     with valid parameters returns a proper Dataset.
     """
-    poses_arrays = valid_poses_array_uniform_linear_motion(
-        "multi_individual_array"
-    )
+    poses_arrays = valid_poses_arrays("multi_individual_array")
     ds = load_poses.from_numpy(
         poses_arrays["position"],
         poses_arrays["confidence"],
