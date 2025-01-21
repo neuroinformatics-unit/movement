@@ -120,9 +120,9 @@ def test_poses_dataset_validator_with_invalid_position_array(
     "confidence_array, expected_exception",
     [
         (
-            np.ones((10, 3, 2)),
+            np.ones((10, 2, 2)),
             pytest.raises(ValueError),
-        ),  # will not match position_array shape
+        ),  # will not match position_array shape (10, 2, 3, 2)
         (
             [1, 2, 3],
             pytest.raises(ValueError),
@@ -136,12 +136,14 @@ def test_poses_dataset_validator_with_invalid_position_array(
 def test_poses_dataset_validator_confidence_array(
     confidence_array,
     expected_exception,
-    valid_position_array,
+    valid_poses_array_uniform_linear_motion,
 ):
     """Test that invalid confidence arrays raise the appropriate errors."""
     with expected_exception:
         poses = ValidPosesDataset(
-            position_array=valid_position_array("multi_individual_array"),
+            position_array=valid_poses_array_uniform_linear_motion(
+                "multi_individual_array"
+            )["position"],
             confidence_array=confidence_array,
         )
         if confidence_array is None:
@@ -149,28 +151,28 @@ def test_poses_dataset_validator_confidence_array(
 
 
 def test_poses_dataset_validator_keypoint_names(
-    position_array_params, valid_position_array
+    position_array_params, valid_poses_array_uniform_linear_motion
 ):
     """Test that invalid keypoint names raise the appropriate errors."""
     with position_array_params.get("keypoint_names_expected_exception") as e:
         poses = ValidPosesDataset(
-            position_array=valid_position_array(
+            position_array=valid_poses_array_uniform_linear_motion(
                 position_array_params.get("array_type")
-            ),
+            )["position"][:, :, :2, :],  # select up to the first 2 keypoints
             keypoint_names=position_array_params.get("names"),
         )
         assert poses.keypoint_names == e
 
 
 def test_poses_dataset_validator_individual_names(
-    position_array_params, valid_position_array
+    position_array_params, valid_poses_array_uniform_linear_motion
 ):
     """Test that invalid keypoint names raise the appropriate errors."""
     with position_array_params.get("individual_names_expected_exception") as e:
         poses = ValidPosesDataset(
-            position_array=valid_position_array(
+            position_array=valid_poses_array_uniform_linear_motion(
                 position_array_params.get("array_type")
-            ),
+            )["position"],
             individual_names=position_array_params.get("names"),
         )
         assert poses.individual_names == e
@@ -188,14 +190,18 @@ def test_poses_dataset_validator_individual_names(
     ],
 )
 def test_poses_dataset_validator_source_software(
-    valid_position_array, source_software, expected_exception
+    valid_poses_array_uniform_linear_motion,
+    source_software,
+    expected_exception,
 ):
     """Test that the source_software attribute is validated properly.
     LightnigPose is incompatible with multi-individual arrays.
     """
     with expected_exception:
         ds = ValidPosesDataset(
-            position_array=valid_position_array("multi_individual_array"),
+            position_array=valid_poses_array_uniform_linear_motion(
+                "multi_individual_array"
+            )["position"],
             source_software=source_software,
         )
 
