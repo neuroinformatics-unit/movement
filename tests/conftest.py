@@ -405,34 +405,6 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
 
 # --------------------- Poses dataset fixtures ----------------------------
 @pytest.fixture
-def valid_position_array():
-    """Return a function that generates different kinds
-    of a valid position array.
-    """
-
-    def _valid_position_array(array_type):
-        """Return a valid position array."""
-        # Unless specified, default is a multi_individual_array with
-        # 10 frames, 2 keypoints, and 2 individuals.
-        n_frames = 10
-        n_keypoints = 2
-        n_individuals = 2
-        base = np.arange(n_frames, dtype=float)[
-            :, np.newaxis, np.newaxis, np.newaxis
-        ]
-        if array_type == "single_keypoint_array":
-            n_keypoints = 1
-        elif array_type == "single_individual_array":
-            n_individuals = 1
-        x_points = np.repeat(base * base, n_keypoints * n_individuals)
-        y_points = np.repeat(base * 4, n_keypoints * n_individuals)
-        position_array = np.vstack((x_points, y_points))
-        return position_array.reshape(n_frames, 2, n_keypoints, n_individuals)
-
-    return _valid_position_array
-
-
-@pytest.fixture
 def valid_poses_array_uniform_linear_motion():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
