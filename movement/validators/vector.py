@@ -65,10 +65,10 @@ def validate_reference_vector(
         # Decide whether we have (time, space) or just (space)
         if reference_vector.shape[0] == 1:
             coords = {"space": ["x", "y"]}
-            # reference_vector = reference_vector.squeeze()
+            reference_vector = reference_vector.squeeze()
         else:
             coords = {
-                "time": test_vector.get("time", None),
+                "time": test_vector["time"],
                 "space": ["x", "y"],
             }
 
