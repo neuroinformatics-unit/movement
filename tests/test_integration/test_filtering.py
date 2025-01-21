@@ -68,8 +68,13 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     # Check that the increase in nans is below the expected threshold
     assert n_total_nans_savgol - n_total_nans_input <= max_nans_increase
 
-    # Interpolate data (without max_gap) and check it eliminates all NaNs
+    # Interpolate data (without max_gap) and with extrapolation
+    # and check it eliminates all NaNs
     sample_dataset.update(
-        {"position": interpolate_over_time(sample_dataset.position)}
+        {
+            "position": interpolate_over_time(
+                sample_dataset.position, fill_value="extrapolate"
+            )
+        }
     )
     assert helpers.count_nans(sample_dataset.position) == 0
