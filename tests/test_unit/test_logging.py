@@ -49,7 +49,7 @@ def test_log_warning(caplog):
 @pytest.mark.parametrize(
     "input_data",
     [
-        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset",
         "valid_bboxes_dataset",
     ],
 )

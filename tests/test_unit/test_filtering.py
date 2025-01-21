@@ -12,7 +12,7 @@ from movement.filtering import (
 
 # Dataset fixtures
 list_valid_datasets_without_nans = [
-    "valid_poses_dataset_uniform_linear_motion",
+    "valid_poses_dataset",
     "valid_bboxes_dataset",
 ]
 list_valid_datasets_with_nans = [
@@ -51,12 +51,12 @@ class TestFilteringValidDataset:
         """
         # Expected number of nans in the position array per individual
         expected_nans_in_filtered_position_per_indiv = {
-            "valid_poses_dataset_uniform_linear_motion": [
+            "valid_poses_dataset": [
                 0,
                 0,
             ],  # no nans in input
             "valid_bboxes_dataset": [0, 0],  # no nans in input
-            "valid_poses_dataset_uniform_linear_motion_with_nan": [38, 0],
+            "valid_poses_dataset_with_nan": [38, 0],
             "valid_bboxes_dataset_with_nan": [14, 0],
         }
         # Filter position

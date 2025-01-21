@@ -521,9 +521,7 @@ def valid_poses_array_uniform_linear_motion():
 
 
 @pytest.fixture
-def valid_poses_dataset_uniform_linear_motion(
-    valid_poses_array_uniform_linear_motion, request
-):
+def valid_poses_dataset(valid_poses_array_uniform_linear_motion, request):
     """Return a valid poses dataset.
 
     Depending on the ``array_type`` requested (``multi_individual_array``,
@@ -568,12 +566,12 @@ def valid_poses_dataset_uniform_linear_motion(
 
 
 @pytest.fixture
-def valid_poses_dataset_uniform_linear_motion_with_nan(
-    valid_poses_dataset_uniform_linear_motion,
+def valid_poses_dataset_with_nan(
+    valid_poses_dataset,
 ):
     """Return a valid poses dataset with NaNs introduced in the position array.
 
-    Using ``valid_poses_dataset_uniform_linear_motion`` as the base dataset,
+    Using ``valid_poses_dataset`` as the base dataset,
     the following NaN values are introduced:
     - Individual "id_0":
         - 1 NaN value in the centroid keypoint of individual id_0 at time=0
@@ -581,27 +579,27 @@ def valid_poses_dataset_uniform_linear_motion_with_nan(
         - 10 NaN values in the right keypoint of individual id_0 (all frames)
     - Individual "id_1" has no missing values.
     """
-    valid_poses_dataset_uniform_linear_motion.position.loc[
+    valid_poses_dataset.position.loc[
         {
             "individuals": "id_0",
             "keypoints": "centroid",
             "time": 0,
         }
     ] = np.nan
-    valid_poses_dataset_uniform_linear_motion.position.loc[
+    valid_poses_dataset.position.loc[
         {
             "individuals": "id_0",
             "keypoints": "left",
             "time": [3, 7, 8],
         }
     ] = np.nan
-    valid_poses_dataset_uniform_linear_motion.position.loc[
+    valid_poses_dataset.position.loc[
         {
             "individuals": "id_0",
             "keypoints": "right",
         }
     ] = np.nan
-    return valid_poses_dataset_uniform_linear_motion
+    return valid_poses_dataset
 
 
 # -------------------- Invalid datasets fixtures ------------------------------
@@ -618,9 +616,9 @@ def empty_dataset():
 
 
 @pytest.fixture
-def missing_var_poses_dataset(valid_poses_dataset_uniform_linear_motion):
+def missing_var_poses_dataset(valid_poses_dataset):
     """Return a poses dataset missing position variable."""
-    return valid_poses_dataset_uniform_linear_motion.drop_vars("position")
+    return valid_poses_dataset.drop_vars("position")
 
 
 @pytest.fixture
@@ -636,9 +634,9 @@ def missing_two_vars_bboxes_dataset(valid_bboxes_dataset):
 
 
 @pytest.fixture
-def missing_dim_poses_dataset(valid_poses_dataset_uniform_linear_motion):
+def missing_dim_poses_dataset(valid_poses_dataset):
     """Return a poses dataset missing the time dimension."""
-    return valid_poses_dataset_uniform_linear_motion.rename({"time": "tame"})
+    return valid_poses_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture
