@@ -12,7 +12,7 @@ from movement import kinematics
 @pytest.mark.parametrize(
     "valid_dataset_uniform_linear_motion",
     [
-        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset",
         "valid_bboxes_dataset",
     ],
 )
@@ -92,7 +92,7 @@ def test_kinematics_uniform_linear_motion(
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
     [
-        "valid_poses_dataset_uniform_linear_motion_with_nan",
+        "valid_poses_dataset_with_nan",
         "valid_bboxes_dataset_with_nan",
     ],
 )
@@ -102,28 +102,28 @@ def test_kinematics_uniform_linear_motion(
         (
             "displacement",
             {
-                "valid_poses_dataset_uniform_linear_motion_with_nan": [30, 0],
+                "valid_poses_dataset_with_nan": [30, 0],
                 "valid_bboxes_dataset_with_nan": [10, 0],
             },  # [individual 0, individual 1]
         ),
         (
             "velocity",
             {
-                "valid_poses_dataset_uniform_linear_motion_with_nan": [36, 0],
+                "valid_poses_dataset_with_nan": [36, 0],
                 "valid_bboxes_dataset_with_nan": [12, 0],
             },
         ),
         (
             "acceleration",
             {
-                "valid_poses_dataset_uniform_linear_motion_with_nan": [40, 0],
+                "valid_poses_dataset_with_nan": [40, 0],
                 "valid_bboxes_dataset_with_nan": [14, 0],
             },
         ),
         (
             "speed",
             {
-                "valid_poses_dataset_uniform_linear_motion_with_nan": [18, 0],
+                "valid_poses_dataset_with_nan": [18, 0],
                 "valid_bboxes_dataset_with_nan": [6, 0],
             },
         ),
@@ -223,7 +223,7 @@ time_points_value_error = pytest.raises(
     ],
 )
 def test_path_length_across_time_ranges(
-    valid_poses_dataset_uniform_linear_motion,
+    valid_poses_dataset,
     start,
     stop,
     expected_exception,
@@ -231,14 +231,14 @@ def test_path_length_across_time_ranges(
     """Test path length computation for a uniform linear motion case,
     across different time ranges.
 
-    The test dataset ``valid_poses_dataset_uniform_linear_motion``
+    The test dataset ``valid_poses_dataset``
     contains 2 individuals ("id_0" and "id_1"), moving
     along x=y and x=-y lines, respectively, at a constant velocity.
     At each frame they cover a distance of sqrt(2) in x-y space, so in total
     we expect a path length of sqrt(2) * num_segments, where num_segments is
     the number of selected frames minus 1.
     """
-    position = valid_poses_dataset_uniform_linear_motion.position
+    position = valid_poses_dataset.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
             position, start=start, stop=stop
@@ -286,7 +286,7 @@ def test_path_length_across_time_ranges(
     ],
 )
 def test_path_length_with_nan(
-    valid_poses_dataset_uniform_linear_motion_with_nan,
+    valid_poses_dataset_with_nan,
     nan_policy,
     expected_path_lengths_id_0,
     expected_exception,
@@ -298,7 +298,7 @@ def test_path_length_with_nan(
     The "ffill" policy should do likewise if frames are missing in the middle,
     but will not "correct" for missing values at the edges.
     """
-    position = valid_poses_dataset_uniform_linear_motion_with_nan.position
+    position = valid_poses_dataset_with_nan.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
             position,
@@ -321,7 +321,7 @@ def test_path_length_with_nan(
     ],
 )
 def test_path_length_warns_about_nans(
-    valid_poses_dataset_uniform_linear_motion_with_nan,
+    valid_poses_dataset_with_nan,
     nan_warn_threshold,
     expected_exception,
     caplog,
@@ -329,7 +329,7 @@ def test_path_length_warns_about_nans(
     """Test that a warning is raised when the number of missing values
     exceeds a given threshold.
     """
-    position = valid_poses_dataset_uniform_linear_motion_with_nan.position
+    position = valid_poses_dataset_with_nan.position
     with expected_exception:
         kinematics.compute_path_length(
             position, nan_warn_threshold=nan_warn_threshold
@@ -565,12 +565,10 @@ def test_nan_behavior_forward_vector(
         ),
     ],
 )
-def test_cdist_with_known_values(
-    dim, expected_data, valid_poses_dataset_uniform_linear_motion
-):
+def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
     """Test the computation of pairwise distances with known values."""
     labels_dim = "keypoints" if dim == "individuals" else "individuals"
-    input_dataarray = valid_poses_dataset_uniform_linear_motion.position.sel(
+    input_dataarray = valid_poses_dataset.position.sel(
         time=slice(0, 1)
     )  # Use only the first two frames for simplicity
     pairs = input_dataarray[dim].values[:2]
@@ -595,7 +593,7 @@ def test_cdist_with_known_values(
 @pytest.mark.parametrize(
     "valid_dataset",
     [
-        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset",
         "valid_bboxes_dataset",
     ],
 )
@@ -690,13 +688,13 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
     ],
 )
 def test_compute_pairwise_distances_with_valid_pairs(
-    valid_poses_dataset_uniform_linear_motion, dim, pairs, expected_data_vars
+    valid_poses_dataset, dim, pairs, expected_data_vars
 ):
     """Test that the expected pairwise distances are computed
     for valid ``pairs`` inputs.
     """
     result = kinematics.compute_pairwise_distances(
-        valid_poses_dataset_uniform_linear_motion.position, dim, pairs
+        valid_poses_dataset.position, dim, pairs
     )
     if isinstance(result, dict):
         expected_data_vars = [
@@ -711,17 +709,17 @@ def test_compute_pairwise_distances_with_valid_pairs(
     "ds, dim, pairs",
     [
         (
-            "valid_poses_dataset_uniform_linear_motion",
+            "valid_poses_dataset",
             "invalid_dim",
             {"id_0": "id_1"},
         ),  # invalid dim
         (
-            "valid_poses_dataset_uniform_linear_motion",
+            "valid_poses_dataset",
             "keypoints",
             "invalid_string",
         ),  # invalid pairs
         (
-            "valid_poses_dataset_uniform_linear_motion",
+            "valid_poses_dataset",
             "individuals",
             {},
         ),  # empty pairs

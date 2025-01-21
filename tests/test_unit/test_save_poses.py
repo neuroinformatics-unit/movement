@@ -124,7 +124,7 @@ class TestSavePoses:
     def test_to_dlc_file_valid_dataset(
         self,
         output_file_params,
-        valid_poses_dataset_uniform_linear_motion,
+        valid_poses_dataset,
         request,
     ):
         """Test that saving a valid pose dataset to a valid/invalid
@@ -134,9 +134,7 @@ class TestSavePoses:
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
             file_path = val.get("file_path") if isinstance(val, dict) else val
-            save_poses.to_dlc_file(
-                valid_poses_dataset_uniform_linear_motion, file_path
-            )
+            save_poses.to_dlc_file(valid_poses_dataset, file_path)
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
@@ -156,48 +154,40 @@ class TestSavePoses:
             )
 
     @pytest.mark.parametrize(
-        "valid_poses_dataset_uniform_linear_motion, split_value",
+        "valid_poses_dataset, split_value",
         [("single_individual_array", True), ("multi_individual_array", False)],
-        indirect=["valid_poses_dataset_uniform_linear_motion"],
+        indirect=["valid_poses_dataset"],
     )
-    def test_auto_split_individuals(
-        self, valid_poses_dataset_uniform_linear_motion, split_value
-    ):
+    def test_auto_split_individuals(self, valid_poses_dataset, split_value):
         """Test that setting 'split_individuals' to 'auto' yields True
         for single-individual datasets and False for multi-individual ones.
         """
         assert (
-            save_poses._auto_split_individuals(
-                valid_poses_dataset_uniform_linear_motion
-            )
+            save_poses._auto_split_individuals(valid_poses_dataset)
             == split_value
         )
 
     @pytest.mark.parametrize(
-        "valid_poses_dataset_uniform_linear_motion, split_individuals",
+        "valid_poses_dataset, split_individuals",
         [
             ("single_individual_array", True),  # single-individual, split
             ("multi_individual_array", False),  # multi-individual, no split
             ("single_individual_array", False),  # single-individual, no split
             ("multi_individual_array", True),  # multi-individual, split
         ],
-        indirect=["valid_poses_dataset_uniform_linear_motion"],
+        indirect=["valid_poses_dataset"],
     )
     def test_to_dlc_style_df_split_individuals(
         self,
-        valid_poses_dataset_uniform_linear_motion,
+        valid_poses_dataset,
         split_individuals,
     ):
         """Test that the `split_individuals` argument affects the behaviour
         of the `to_dlc_style_df` function as expected.
         """
-        df = save_poses.to_dlc_style_df(
-            valid_poses_dataset_uniform_linear_motion, split_individuals
-        )
+        df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
         # Get the names of the individuals in the dataset
-        ind_names = (
-            valid_poses_dataset_uniform_linear_motion.individuals.values
-        )
+        ind_names = valid_poses_dataset.individuals.values
         if split_individuals is False:
             # this should produce a single df in multi-animal DLC format
             assert isinstance(df, pd.DataFrame)
@@ -234,7 +224,7 @@ class TestSavePoses:
     )
     def test_to_dlc_file_split_individuals(
         self,
-        valid_poses_dataset_uniform_linear_motion,
+        valid_poses_dataset,
         new_h5_file,
         split_individuals,
         expected_exception,
@@ -244,14 +234,12 @@ class TestSavePoses:
         """
         with expected_exception:
             save_poses.to_dlc_file(
-                valid_poses_dataset_uniform_linear_motion,
+                valid_poses_dataset,
                 new_h5_file,
                 split_individuals,
             )
             # Get the names of the individuals in the dataset
-            ind_names = (
-                valid_poses_dataset_uniform_linear_motion.individuals.values
-            )
+            ind_names = valid_poses_dataset.individuals.values
             # "auto" becomes False, default valid dataset is multi-individual
             if split_individuals in [False, "auto"]:
                 # this should save only one file
@@ -269,7 +257,7 @@ class TestSavePoses:
     def test_to_lp_file_valid_dataset(
         self,
         output_file_params,
-        valid_poses_dataset_uniform_linear_motion,
+        valid_poses_dataset,
         request,
     ):
         """Test that saving a valid pose dataset to a valid/invalid
@@ -279,9 +267,7 @@ class TestSavePoses:
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
             file_path = val.get("file_path") if isinstance(val, dict) else val
-            save_poses.to_lp_file(
-                valid_poses_dataset_uniform_linear_motion, file_path
-            )
+            save_poses.to_lp_file(valid_poses_dataset, file_path)
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
@@ -302,7 +288,7 @@ class TestSavePoses:
     def test_to_sleap_analysis_file_valid_dataset(
         self,
         output_file_params,
-        valid_poses_dataset_uniform_linear_motion,
+        valid_poses_dataset,
         request,
     ):
         """Test that saving a valid pose dataset to a valid/invalid
@@ -312,9 +298,7 @@ class TestSavePoses:
             file_fixture = output_file_params.get("file_fixture")
             val = request.getfixturevalue(file_fixture)
             file_path = val.get("file_path") if isinstance(val, dict) else val
-            save_poses.to_sleap_analysis_file(
-                valid_poses_dataset_uniform_linear_motion, file_path
-            )
+            save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
 
     @pytest.mark.parametrize(
         "invalid_poses_dataset, expected_exception",
@@ -332,16 +316,12 @@ class TestSavePoses:
                 new_h5_file,
             )
 
-    def test_remove_unoccupied_tracks(
-        self, valid_poses_dataset_uniform_linear_motion
-    ):
+    def test_remove_unoccupied_tracks(self, valid_poses_dataset):
         """Test that removing unoccupied tracks from a valid pose dataset
         returns the expected result.
         """
         new_individuals = [f"id_{i}" for i in range(3)]
         # Add new individual with NaN data
-        ds = valid_poses_dataset_uniform_linear_motion.reindex(
-            individuals=new_individuals
-        )
+        ds = valid_poses_dataset.reindex(individuals=new_individuals)
         ds = save_poses._remove_unoccupied_tracks(ds)
-        xr.testing.assert_equal(ds, valid_poses_dataset_uniform_linear_motion)
+        xr.testing.assert_equal(ds, valid_poses_dataset)

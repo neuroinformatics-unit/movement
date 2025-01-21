@@ -59,13 +59,13 @@ invalid_cases = [
     valid_cases + invalid_cases,
 )
 def test_validate_dims_coords(
-    valid_poses_dataset_uniform_linear_motion,  # fixture from conftest.py
+    valid_poses_dataset,  # fixture from conftest.py
     required_dims_coords,
     exact_coords,
     expected_exception,
 ):
     """Test validate_dims_coords for both valid and invalid inputs."""
-    position_array = valid_poses_dataset_uniform_linear_motion["position"]
+    position_array = valid_poses_dataset["position"]
     with expected_exception:
         validate_dims_coords(
             position_array, required_dims_coords, exact_coords=exact_coords

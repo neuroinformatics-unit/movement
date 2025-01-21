@@ -6,9 +6,9 @@ from movement.utils.reports import report_nan_values
 @pytest.mark.parametrize(
     "valid_dataset",
     [
-        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset",
         "valid_bboxes_dataset",
-        "valid_poses_dataset_uniform_linear_motion_with_nan",
+        "valid_poses_dataset_with_nan",
         "valid_bboxes_dataset_with_nan",
     ],
 )
@@ -54,8 +54,8 @@ def test_report_nan_values_in_position_selecting_individual(
 @pytest.mark.parametrize(
     "valid_dataset",
     [
-        "valid_poses_dataset_uniform_linear_motion",
-        "valid_poses_dataset_uniform_linear_motion_with_nan",
+        "valid_poses_dataset",
+        "valid_poses_dataset_with_nan",
     ],
 )
 @pytest.mark.parametrize(

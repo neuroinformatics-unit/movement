@@ -11,7 +11,7 @@ from movement.utils import vector
 @pytest.mark.parametrize(
     "valid_dataset_uniform_linear_motion",
     [
-        "valid_poses_dataset_uniform_linear_motion",
+        "valid_poses_dataset",
         "valid_bboxes_dataset",
     ],
 )
