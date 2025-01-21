@@ -60,21 +60,7 @@ def test_kinematics_uniform_linear_motion(
     expected_kinematics,  # 2D: n_frames, n_space_dims
     request,
 ):
-    """Test computed kinematics for a uniform linear motion case.
-
-    Uniform linear motion means the individuals move along a line
-    at constant velocity.
-
-    We consider 2 individuals ("id_0" and "id_1"),
-    tracked for 10 frames, along x and y:
-    - id_0 moves along x=y line from the origin
-    - id_1 moves along x=-y line from the origin
-    - they both move one unit (pixel) along each axis in each frame
-
-    If the dataset is a poses dataset, we consider 3 keypoints per individual
-    (centroid, left, right), that are always in front of the centroid keypoint
-    at 45deg from the trajectory.
-    """
+    """Test computed kinematics for a uniform linear motion case."""
     # Compute kinematic array from input dataset
     position = request.getfixturevalue(
         valid_dataset_uniform_linear_motion
@@ -82,13 +68,11 @@ def test_kinematics_uniform_linear_motion(
     kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
         position
     )
-
     # Figure out which dimensions to expect in kinematic_array
     # and in the final xarray.DataArray
     expected_dims = ["time", "individuals"]
     if kinematic_variable in ["displacement", "velocity", "acceleration"]:
         expected_dims.insert(1, "space")
-
     # Build expected data array from the expected numpy array
     expected_array = xr.DataArray(
         # Stack along the "individuals" axis
@@ -101,7 +85,6 @@ def test_kinematics_uniform_linear_motion(
         )
         expected_dims.insert(-1, "keypoints")
         expected_array = expected_array.transpose(*expected_dims)
-
     # Compare the values of the kinematic_array against the expected_array
     np.testing.assert_allclose(kinematic_array.values, expected_array.values)
 
@@ -109,17 +92,41 @@ def test_kinematics_uniform_linear_motion(
 @pytest.mark.parametrize(
     "valid_dataset_with_nan",
     [
-        "valid_poses_dataset_with_nan",
+        "valid_poses_dataset_uniform_linear_motion_with_nan",
         "valid_bboxes_dataset_with_nan",
     ],
 )
 @pytest.mark.parametrize(
     "kinematic_variable, expected_nans_per_individual",
     [
-        ("displacement", [5, 0]),  # individual 0, individual 1
-        ("velocity", [6, 0]),
-        ("acceleration", [7, 0]),
-        ("speed", [6, 0]),
+        (
+            "displacement",
+            {
+                "valid_poses_dataset_uniform_linear_motion_with_nan": [30, 0],
+                "valid_bboxes_dataset_with_nan": [10, 0],
+            },  # [individual 0, individual 1]
+        ),
+        (
+            "velocity",
+            {
+                "valid_poses_dataset_uniform_linear_motion_with_nan": [36, 0],
+                "valid_bboxes_dataset_with_nan": [12, 0],
+            },
+        ),
+        (
+            "acceleration",
+            {
+                "valid_poses_dataset_uniform_linear_motion_with_nan": [40, 0],
+                "valid_bboxes_dataset_with_nan": [14, 0],
+            },
+        ),
+        (
+            "speed",
+            {
+                "valid_poses_dataset_uniform_linear_motion_with_nan": [18, 0],
+                "valid_bboxes_dataset_with_nan": [6, 0],
+            },
+        ),
     ],
 )
 def test_kinematics_with_dataset_with_nans(
@@ -129,12 +136,7 @@ def test_kinematics_with_dataset_with_nans(
     helpers,
     request,
 ):
-    """Test kinematics computation for a dataset with nans.
-
-    We test that the kinematics can be computed and that the number
-    of nan values in the kinematic array is as expected.
-
-    """
+    """Test kinematics computation for a dataset with nans."""
     # compute kinematic array
     valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
     position = valid_dataset.position
@@ -146,17 +148,10 @@ def test_kinematics_with_dataset_with_nans(
         helpers.count_nans(kinematic_array.isel(individuals=i))
         for i in range(valid_dataset.sizes["individuals"])
     ]
-    # expected nans per individual adjusted for space and keypoints dimensions
-    n_space_dims = (
-        position.sizes["space"] if "space" in kinematic_array.dims else 1
-    )
-    expected_nans_adjusted = [
-        n * n_space_dims * valid_dataset.sizes.get("keypoints", 1)
-        for n in expected_nans_per_individual
-    ]
-    # check number of nans per individual is as expected in kinematic array
-    np.testing.assert_array_equal(
-        n_nans_kinematics_per_indiv, expected_nans_adjusted
+    # assert n nans in kinematic array per individual matches expected
+    assert (
+        n_nans_kinematics_per_indiv
+        == expected_nans_per_individual[valid_dataset_with_nan]
     )
 
 
