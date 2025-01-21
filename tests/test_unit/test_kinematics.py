@@ -462,11 +462,14 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
     )
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
-    assert (
-        isinstance(forward_vector, xr.DataArray)
-        and ("space" in forward_vector.dims)
-        and ("keypoints" not in forward_vector.dims)
-    )
+    for output_array in [forward_vector, forward_vector_flipped, head_vector]:
+        assert isinstance(output_array, xr.DataArray)
+        for preserved_coord in ["time", "space", "individuals"]:
+            assert np.all(
+                output_array[preserved_coord]
+                == valid_data_array_for_forward_vector[preserved_coord]
+            )
+        assert set(output_array["space"].values) == {"x", "y"}
     assert np.equal(forward_vector.values, known_vectors).all()
     assert np.equal(forward_vector_flipped.values, known_vectors * -1).all()
     assert head_vector.equals(forward_vector)
@@ -518,20 +521,40 @@ def test_compute_forward_vector_with_invalid_input(
 
 
 def test_nan_behavior_forward_vector(
-    valid_data_array_for_forward_vector_with_nans,
+    valid_data_array_for_forward_vector_with_nans: xr.DataArray,
 ):
     """Test that ``compute_forward_vector()`` generates the
     expected output for a valid input DataArray containing ``NaN``
     position values at a single time (``1``) and keypoint
     (``left_ear``).
     """
+    nan_time = 1
     forward_vector = kinematics.compute_forward_vector(
         valid_data_array_for_forward_vector_with_nans, "left_ear", "right_ear"
     )
-    assert (
-        np.isnan(forward_vector.values[1, 0, :]).all()
-        and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
-    )
+    # Check coord preservation
+    for preserved_coord in ["time", "space", "individuals"]:
+        assert np.all(
+            forward_vector[preserved_coord]
+            == valid_data_array_for_forward_vector_with_nans[preserved_coord]
+        )
+    assert set(forward_vector["space"].values) == {"x", "y"}
+    # Should have NaN values in the forward vector at time 1 and left_ear
+    nan_values = forward_vector.sel(time=nan_time)
+    assert nan_values.shape == (1, 2)
+    assert np.isnan(
+        nan_values
+    ).all(), "NaN values not returned where expected!"
+    # Should have no NaN values in the forward vector in other positions
+    assert not np.isnan(
+        forward_vector.sel(
+            time=[
+                t
+                for t in valid_data_array_for_forward_vector_with_nans.time
+                if t != nan_time
+            ]
+        )
+    ).any()
 
 
 @pytest.mark.parametrize(
