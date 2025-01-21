@@ -75,11 +75,13 @@ ds.confidence.squeeze().plot.line(
 # %%
 # Filter out points with low confidence
 # -------------------------------------
-# Using the :func:`movement.filtering.filter_by_confidence` function from the
-# :mod:`movement.filtering` module, we can filter out points with confidence
-# scores below a certain threshold. This function takes ``position`` and
-# ``confidence`` as required arguments, and accepts an optional ``threshold``
-# parameter, which defaults to ``threshold=0.6`` unless specified otherwise.
+# Using the
+# :func:`filter_by_confidence()<movement.filtering.filter_by_confidence>`
+# function from the :mod:`movement.filtering` module,
+# we can filter out points with confidence scores below a certain threshold.
+# This function takes ``position`` and ``confidence`` as required arguments,
+# and accepts an optional ``threshold`` parameter,
+# which defaults to ``threshold=0.6`` unless specified otherwise.
 # The function will also report the number of NaN values in the dataset before
 # and after the filtering operation by default, but you can disable this
 # by passing ``print_report=False``.
@@ -106,10 +108,11 @@ ds.position.squeeze().plot.line(
 # %%
 # Interpolate over missing values
 # -------------------------------
-# Using the :func:`movement.filtering.interpolate_over_time` function from the
-# :mod:`movement.filtering` module, we can interpolate over gaps
-# we've introduced in the pose tracks.
-# Here we use the default linear interpolation method (``method=linear``)
+# Using the
+# :func:`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+# function from the :mod:`movement.filtering` module, we can interpolate over
+# gaps we've introduced in the pose tracks.
+# Here we use the default linear interpolation method (``method="linear"``)
 # and interpolate over gaps of 40 frames or less (``max_gap=40``).
 # The default ``max_gap=None`` would interpolate over all gaps, regardless of
 # their length, but this should be used with caution as it can introduce
@@ -118,13 +121,25 @@ ds.position.squeeze().plot.line(
 ds.update({"position": interpolate_over_time(ds.position, max_gap=40)})
 
 # %%
-# We see that all NaN values have disappeared, meaning that all gaps were
-# indeed shorter than 40 frames.
+# We see that most, but not all, NaN values have disappeared, meaning that
+# most gaps were indeed shorter than 40 frames.
 # Let's visualise the interpolated pose tracks.
 
 ds.position.squeeze().plot.line(
     x="time", row="keypoints", hue="space", aspect=2, size=2.5
 )
+
+# %%
+# .. note::
+#   By default, interpolation does not apply to gaps at either end of the time
+#   series. In our case, the last few frames removed by filtering were not
+#   replaced by interpolation. Passing ``fill_value="extrapolate"`` to the
+#   :func:`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+#   function would extrapolate the data to also fill the gaps at either end.
+#
+#   In general, you may pass any keyword arguments that are accepted by
+#   :meth:`xarray.DataArray.interpolate_na` and its underlying methods.
+
 
 # %%
 # Log of processing steps
