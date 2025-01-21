@@ -24,16 +24,20 @@ class TestPosesIO:
         np.testing.assert_allclose(df.values, dlc_style_df.values)
 
     def test_save_and_load_dlc_file(
-        self, dlc_output_file, valid_poses_dataset
+        self, dlc_output_file, valid_poses_dataset_uniform_linear_motion
     ):
         """Test that saving pose tracks to DLC .h5 and .csv files and then
         loading them back in returns the same Dataset.
         """
         save_poses.to_dlc_file(
-            valid_poses_dataset, dlc_output_file, split_individuals=False
+            valid_poses_dataset_uniform_linear_motion,
+            dlc_output_file,
+            split_individuals=False,
         )
         ds = load_poses.from_dlc_file(dlc_output_file)
-        xr.testing.assert_allclose(ds, valid_poses_dataset)
+        xr.testing.assert_allclose(
+            ds, valid_poses_dataset_uniform_linear_motion
+        )
 
     def test_convert_sleap_to_dlc_file(self, sleap_file, dlc_output_file):
         """Test that pose tracks loaded from SLEAP .slp and .h5 files,
