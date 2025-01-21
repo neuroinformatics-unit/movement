@@ -214,7 +214,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fa0ef568750>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f9bcc5df990>
 
 
 
@@ -245,7 +245,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fa0ef591b50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f9bcc6aac10>
 
 
 
@@ -289,7 +289,7 @@ For example, we can use ``matplotlib`` to plot trajectories
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7fa0ef291f10>
+    <matplotlib.colorbar.Colorbar object at 0x7f9bcc60a110>
 
 
 
