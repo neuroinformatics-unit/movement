@@ -297,7 +297,7 @@ def compute_forward_vector(
     # (right-to-left) cross (forward) = up
     forward_vector = xr.cross(
         right_to_left_vector, upward_vector, dim="space"
-    )[:, -1, :]  # keep only the first 2 dimensions of the result
+    )[:, :, :-1]  # keep only the first 2 dimensions of the result
     # Return unit vector
     return forward_vector / compute_norm(forward_vector)
 
