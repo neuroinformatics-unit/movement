@@ -10,5 +10,6 @@ def scale(
     scaled_data_array = data_array * factor
     if unit is not None:
         scaled_data_array.attrs["unit"] = unit
-
+    elif unit is None:
+        scaled_data_array.attrs.pop("unit", None)
     return scaled_data_array
