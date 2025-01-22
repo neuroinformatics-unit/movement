@@ -64,6 +64,20 @@ def data_array_with_dims_and_coords(
             ),
             id="Halve, add unit",
         ),
+        pytest.param(
+            {"factor": [0.5, 2]},
+            data_array_with_dims_and_coords(
+                nparray_0_to_23() * [0.5, 2],
+            ),
+            id="x / 2, y * 2",
+        ),
+        pytest.param(
+            {"factor": np.array([0.5, 2]).reshape(1, 2)},
+            data_array_with_dims_and_coords(
+                nparray_0_to_23() * [0.5, 2],
+            ),
+            id="x / 2, y * 2, should squeeze to cast across space",
+        ),
     ],
 )
 def test_scale(
@@ -80,6 +94,38 @@ def test_scale(
     output_data_array = scale(sample_data_array, **optional_arguments)
     xr.testing.assert_equal(output_data_array, expected_output)
     assert output_data_array.attrs == expected_output.attrs
+
+
+def test_scale_inverted_data() -> None:
+    factor = [0.5, 2]
+    transposed_data = data_array_with_dims_and_coords(
+        nparray_0_to_23().transpose(), dims=["space", "time"]
+    )
+    output_array = scale(transposed_data, factor=factor)
+    expected_output = data_array_with_dims_and_coords(
+        (nparray_0_to_23() * factor).transpose(), dims=["space", "time"]
+    )
+    xr.testing.assert_equal(output_array, expected_output)
+
+    factor = [0.1, 0.2, 0.3, 0.4]
+    data_shape = (3, 5, 4, 2)
+    numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
+    input_data = xr.DataArray(numerical_data, dims=["w", "x", "y", "z"])
+    output_array = scale(input_data, factor=factor)
+    assert output_array.shape == input_data.shape
+    xr.testing.assert_equal(
+        output_array, input_data * np.array(factor).reshape(1, 1, 4, 1)
+    )
+
+    factor = [0.5, 1]
+    data_shape = (2, 2)
+    numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
+    input_data = xr.DataArray(numerical_data, dims=["x", "y"])
+    output_array = scale(input_data, factor=factor)
+    assert output_array.shape == input_data.shape
+    assert np.isclose(input_data.values[0] * 0.5, output_array.values[0]).all()
+    assert np.isclose(input_data.values[1], output_array.values[1]).all()
+    pass
 
 
 @pytest.mark.parametrize(
