@@ -8,11 +8,12 @@ from movement.transforms import scale
 
 
 def nparray_0_to_23() -> np.ndarray:
+    """Create a 2D nparray from 0 to 23."""
     return np.arange(0, 24).reshape(12, 2)
 
 
 @pytest.fixture
-def sample_data_array() -> xr.DataArray:
+def sample_data() -> xr.DataArray:
     """Turn the nparray_0_to_23 into a DataArray."""
     return data_array_with_dims_and_coords(nparray_0_to_23())
 
@@ -23,7 +24,9 @@ def data_array_with_dims_and_coords(
     coords: dict[str, list[str]] = {"space": ["x", "y"]},
     **attributes: Any,
 ) -> xr.DataArray:
-    """"""
+    """Create a DataArray with given data, dimensions, coordinates, and
+    attributes (e.g. unit or factor).
+    """
     return xr.DataArray(
         data,
         dims=dims,
@@ -81,22 +84,22 @@ def data_array_with_dims_and_coords(
     ],
 )
 def test_scale(
-    sample_data_array: xr.DataArray,
+    sample_data: xr.DataArray,
     optional_arguments: dict[str, Any],
     expected_output: xr.DataArray,
 ):
-    expected_output = xr.DataArray(
-        expected_output,
-        dims=["time", "space"],
-        coords={"space": ["x", "y"]},
-    )
-
-    output_data_array = scale(sample_data_array, **optional_arguments)
-    xr.testing.assert_equal(output_data_array, expected_output)
-    assert output_data_array.attrs == expected_output.attrs
+    """Test scaling with different factors and units."""
+    scaled_data = scale(sample_data, **optional_arguments)
+    xr.testing.assert_equal(scaled_data, expected_output)
+    assert scaled_data.attrs == expected_output.attrs
 
 
-def test_scale_inverted_data() -> None:
+def test_scale_inverted_data():
+    """Test scaling with transposed data along the correct dimension.
+
+    The factor is reshaped to (1, 1, 4, 1) so that it can be broadcasted along
+    the third dimension ("y") which matches the length of the scaling factor.
+    """
     factor = [0.5, 2]
     transposed_data = data_array_with_dims_and_coords(
         nparray_0_to_23().transpose(), dims=["space", "time"]
@@ -117,6 +120,11 @@ def test_scale_inverted_data() -> None:
         output_array, input_data * np.array(factor).reshape(1, 1, 4, 1)
     )
 
+
+def test_scale_first_matching_axis():
+    """Test scaling when multiple axes match the scaling factor's length.
+    The scaling factor should be broadcasted along the first matching axis.
+    """
     factor = [0.5, 1]
     data_shape = (2, 2)
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
@@ -125,7 +133,6 @@ def test_scale_inverted_data() -> None:
     assert output_array.shape == input_data.shape
     assert np.isclose(input_data.values[0] * 0.5, output_array.values[0]).all()
     assert np.isclose(input_data.values[1], output_array.values[1]).all()
-    pass
 
 
 @pytest.mark.parametrize(
@@ -154,13 +161,17 @@ def test_scale_inverted_data() -> None:
     ],
 )
 def test_scale_twice(
-    sample_data_array: xr.DataArray,
+    sample_data: xr.DataArray,
     optional_arguments_1: dict[str, Any],
     optional_arguments_2: dict[str, Any],
     expected_output: xr.DataArray,
 ):
+    """Test scaling when applied twice.
+    The second scaling operation should update the unit attribute if provided,
+    or remove it if None is passed explicitly or by default.
+    """
     output_data_array = scale(
-        scale(sample_data_array, **optional_arguments_1),
+        scale(sample_data, **optional_arguments_1),
         **optional_arguments_2,
     )
 
