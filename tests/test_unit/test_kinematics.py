@@ -507,7 +507,7 @@ def test_nan_behavior_forward_vector(
     for preserved_coord in ["time", "space", "individuals"]:
         assert np.all(
             forward_vector[preserved_coord]
-            == valid_data_array_for_forward_vector_with_nans[preserved_coord]
+            == valid_data_array_for_forward_vector_with_nan[preserved_coord]
         )
     assert set(forward_vector["space"].values) == {"x", "y"}
     # Should have NaN values in the forward vector at time 1 and left_ear
@@ -521,7 +521,7 @@ def test_nan_behavior_forward_vector(
         forward_vector.sel(
             time=[
                 t
-                for t in valid_data_array_for_forward_vector_with_nans.time
+                for t in valid_data_array_for_forward_vector_with_nan.time
                 if t != nan_time
             ]
         )
