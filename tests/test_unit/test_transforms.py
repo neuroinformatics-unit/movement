@@ -6,6 +6,8 @@ import xarray as xr
 
 from movement.transforms import scale
 
+DEFAULT_SPATIAL_COORDS = {"space": ["x", "y"]}
+
 
 def nparray_0_to_23() -> np.ndarray:
     """Create a 2D nparray from 0 to 23."""
@@ -20,8 +22,8 @@ def sample_data() -> xr.DataArray:
 
 def data_array_with_dims_and_coords(
     data: np.ndarray,
-    dims: list[str] = ("time", "space"),
-    coords: dict[str, list[str]] = {"space": ["x", "y"]},
+    dims: list | tuple = ("time", "space"),
+    coords: dict[str, list[str]] = DEFAULT_SPATIAL_COORDS,
     **attributes: Any,
 ) -> xr.DataArray:
     """Create a DataArray with given data, dimensions, coordinates, and

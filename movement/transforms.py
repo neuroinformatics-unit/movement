@@ -6,7 +6,7 @@ import xarray as xr
 
 def scale(
     data: xr.DataArray,
-    factor: float | np.ndarray[float] = 1.0,
+    factor: float | np.ndarray = 1.0,
     unit: str | None = None,
 ) -> xr.DataArray:
     """Scale data by a given factor with an optional unit.
