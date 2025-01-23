@@ -10,175 +10,128 @@ from movement import kinematics
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_uniform_linear_motion",
-    ["valid_poses_dataset", "valid_bboxes_dataset"],
+    "kinematic_variable", ["displacement", "velocity", "acceleration", "speed"]
 )
-@pytest.mark.parametrize(
-    "kinematic_variable, expected_kinematics",
-    [
-        (
-            "displacement",
-            [
-                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),  # Individual 0
-                np.multiply(
-                    np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
-                    np.array([1, -1]),
-                ),  # Individual 1
-            ],
-        ),
-        (
-            "velocity",
-            [
-                np.ones((10, 2)),  # Individual 0
-                np.multiply(
-                    np.ones((10, 2)), np.array([1, -1])
-                ),  # Individual 1
-            ],
-        ),
-        (
-            "acceleration",
-            [
-                np.zeros((10, 2)),  # Individual 0
-                np.zeros((10, 2)),  # Individual 1
-            ],
-        ),
-        (
-            "speed",  # magnitude of velocity
-            [
-                np.ones(10) * np.sqrt(2),  # Individual 0
-                np.ones(10) * np.sqrt(2),  # Individual 1
-            ],
-        ),
-    ],
-)
-def test_kinematics_uniform_linear_motion(
-    valid_dataset_uniform_linear_motion,
-    kinematic_variable,
-    expected_kinematics,  # 2D: n_frames, n_space_dims
-    request,
-):
-    """Test computed kinematics for a uniform linear motion case."""
-    # Compute kinematic array from input dataset
-    position = request.getfixturevalue(
-        valid_dataset_uniform_linear_motion
-    ).position
-    kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
-        position
+class TestComputeKinematics:
+    """Test ``compute_[kinematic_variable]`` with valid and invalid inputs."""
+
+    expected_kinematics = {
+        "displacement": [
+            np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
+            np.multiply(
+                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
+                np.array([1, -1]),
+            ),
+        ],  # [Individual 0, Individual 1]
+        "velocity": [
+            np.ones((10, 2)),
+            np.multiply(np.ones((10, 2)), np.array([1, -1])),
+        ],
+        "acceleration": [np.zeros((10, 2)), np.zeros((10, 2))],
+        "speed": [np.ones(10) * np.sqrt(2), np.ones(10) * np.sqrt(2)],
+    }  # 2D: n_frames, n_space_dims
+
+    @pytest.mark.parametrize(
+        "valid_dataset", ["valid_poses_dataset", "valid_bboxes_dataset"]
     )
-    # Figure out which dimensions to expect in kinematic_array
-    # and in the final xarray.DataArray
-    expected_dims = ["time", "individuals"]
-    if kinematic_variable in ["displacement", "velocity", "acceleration"]:
-        expected_dims.insert(1, "space")
-    # Build expected data array from the expected numpy array
-    expected_array = xr.DataArray(
-        # Stack along the "individuals" axis
-        np.stack(expected_kinematics, axis=-1),
-        dims=expected_dims,
-    )
-    if "keypoints" in position.coords:
-        expected_array = expected_array.expand_dims(
-            {"keypoints": position.coords["keypoints"].size}
+    def test_kinematics(self, valid_dataset, kinematic_variable, request):
+        """Test computed kinematics for a uniform linear motion case."""
+        # Compute kinematic array from input dataset
+        position = request.getfixturevalue(valid_dataset).position
+        kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
+            position
         )
-        expected_dims.insert(-1, "keypoints")
-        expected_array = expected_array.transpose(*expected_dims)
-    # Compare the values of the kinematic_array against the expected_array
-    np.testing.assert_allclose(kinematic_array.values, expected_array.values)
+        # Figure out which dimensions to expect in kinematic_array
+        # and in the final xarray.DataArray
+        expected_dims = ["time", "individuals"]
+        if kinematic_variable in ["displacement", "velocity", "acceleration"]:
+            expected_dims.insert(1, "space")
+        # Build expected data array from the expected numpy array
+        expected_array = xr.DataArray(
+            # Stack along the "individuals" axis
+            np.stack(
+                self.expected_kinematics.get(kinematic_variable), axis=-1
+            ),
+            dims=expected_dims,
+        )
+        if "keypoints" in position.coords:
+            expected_array = expected_array.expand_dims(
+                {"keypoints": position.coords["keypoints"].size}
+            )
+            expected_dims.insert(-1, "keypoints")
+            expected_array = expected_array.transpose(*expected_dims)
+        # Compare the values of the kinematic_array against the expected_array
+        np.testing.assert_allclose(
+            kinematic_array.values, expected_array.values
+        )
 
-
-@pytest.mark.parametrize(
-    "valid_dataset_with_nan",
-    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
-)
-@pytest.mark.parametrize(
-    "kinematic_variable, expected_nans_per_individual",
-    [
-        (
-            "displacement",
-            {
-                "valid_poses_dataset_with_nan": [30, 0],
-                "valid_bboxes_dataset_with_nan": [10, 0],
-            },  # [individual 0, individual 1]
-        ),
-        (
-            "velocity",
-            {
-                "valid_poses_dataset_with_nan": [36, 0],
-                "valid_bboxes_dataset_with_nan": [12, 0],
-            },
-        ),
-        (
-            "acceleration",
-            {
-                "valid_poses_dataset_with_nan": [40, 0],
-                "valid_bboxes_dataset_with_nan": [14, 0],
-            },
-        ),
-        (
-            "speed",
-            {
-                "valid_poses_dataset_with_nan": [18, 0],
-                "valid_bboxes_dataset_with_nan": [6, 0],
-            },
-        ),
-    ],
-)
-def test_kinematics_with_dataset_with_nans(
-    valid_dataset_with_nan,
-    kinematic_variable,
-    expected_nans_per_individual,
-    helpers,
-    request,
-):
-    """Test kinematics computation for a dataset with nans."""
-    # compute kinematic array
-    valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
-    position = valid_dataset.position
-    kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
-        position
+    @pytest.mark.parametrize(
+        "valid_dataset_with_nan, expected_nans_per_individual",
+        [
+            (
+                "valid_poses_dataset_with_nan",
+                {
+                    "displacement": [30, 0],
+                    "velocity": [36, 0],
+                    "acceleration": [40, 0],
+                    "speed": [18, 0],
+                },
+            ),
+            (
+                "valid_bboxes_dataset_with_nan",
+                {
+                    "displacement": [10, 0],
+                    "velocity": [12, 0],
+                    "acceleration": [14, 0],
+                    "speed": [6, 0],
+                },
+            ),
+        ],
     )
-    # compute n nans in kinematic array per individual
-    n_nans_kinematics_per_indiv = [
-        helpers.count_nans(kinematic_array.isel(individuals=i))
-        for i in range(valid_dataset.sizes["individuals"])
-    ]
-    # assert n nans in kinematic array per individual matches expected
-    assert (
-        n_nans_kinematics_per_indiv
-        == expected_nans_per_individual[valid_dataset_with_nan]
+    def test_kinematics_with_dataset_with_nans(
+        self,
+        valid_dataset_with_nan,
+        expected_nans_per_individual,
+        kinematic_variable,
+        helpers,
+        request,
+    ):
+        """Test kinematics computation for a dataset with nans."""
+        # compute kinematic array
+        valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
+        position = valid_dataset.position
+        kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
+            position
+        )
+        # compute n nans in kinematic array per individual
+        n_nans_kinematics_per_indiv = [
+            helpers.count_nans(kinematic_array.isel(individuals=i))
+            for i in range(valid_dataset.sizes["individuals"])
+        ]
+        # assert n nans in kinematic array per individual matches expected
+        assert (
+            n_nans_kinematics_per_indiv
+            == expected_nans_per_individual[kinematic_variable]
+        )
+
+    @pytest.mark.parametrize(
+        "invalid_dataset, expected_exception",
+        [
+            ("not_a_dataset", pytest.raises(AttributeError)),
+            ("empty_dataset", pytest.raises(AttributeError)),
+            ("missing_var_poses_dataset", pytest.raises(AttributeError)),
+            ("missing_var_bboxes_dataset", pytest.raises(AttributeError)),
+            ("missing_dim_poses_dataset", pytest.raises(ValueError)),
+            ("missing_dim_bboxes_dataset", pytest.raises(ValueError)),
+        ],
     )
-
-
-@pytest.mark.parametrize(
-    "invalid_dataset, expected_exception",
-    [
-        ("not_a_dataset", pytest.raises(AttributeError)),
-        ("empty_dataset", pytest.raises(AttributeError)),
-        ("missing_var_poses_dataset", pytest.raises(AttributeError)),
-        ("missing_var_bboxes_dataset", pytest.raises(AttributeError)),
-        ("missing_dim_poses_dataset", pytest.raises(ValueError)),
-        ("missing_dim_bboxes_dataset", pytest.raises(ValueError)),
-    ],
-)
-@pytest.mark.parametrize(
-    "kinematic_variable",
-    [
-        "displacement",
-        "velocity",
-        "acceleration",
-        "speed",
-    ],
-)
-def test_kinematics_with_invalid_dataset(
-    invalid_dataset,
-    expected_exception,
-    kinematic_variable,
-    request,
-):
-    """Test kinematics computation with an invalid dataset."""
-    with expected_exception:
-        position = request.getfixturevalue(invalid_dataset).position
-        getattr(kinematics, f"compute_{kinematic_variable}")(position)
+    def test_kinematics_with_invalid_dataset(
+        self, invalid_dataset, expected_exception, kinematic_variable, request
+    ):
+        """Test kinematics computation with an invalid dataset."""
+        with expected_exception:
+            position = request.getfixturevalue(invalid_dataset).position
+            getattr(kinematics, f"compute_{kinematic_variable}")(position)
 
 
 @pytest.mark.parametrize("order", [0, -1, 1.0, "1"])
@@ -325,19 +278,19 @@ def test_path_length_warns_about_nans(
         kinematics.compute_path_length(
             position, nan_warn_threshold=nan_warn_threshold
         )
-
-        if (nan_warn_threshold > 0.1) and (nan_warn_threshold < 0.5):
+        if 0.1 < nan_warn_threshold < 0.5:
             # Make sure that a warning was emitted
             assert caplog.records[0].levelname == "WARNING"
             assert "The result may be unreliable" in caplog.records[0].message
             # Make sure that the NaN report only mentions
             # the individual and keypoint that violate the threshold
+            info_msg = caplog.records[1].message
             assert caplog.records[1].levelname == "INFO"
-            assert "Individual: id_0" in caplog.records[1].message
-            assert "Individual: id_1" not in caplog.records[1].message
-            assert "left: 3/10 (30.0%)" in caplog.records[1].message
-            assert "right: 10/10 (100.0%)" in caplog.records[1].message
-            assert "centroid" not in caplog.records[1].message
+            assert "Individual: id_0" in info_msg
+            assert "Individual: id_1" not in info_msg
+            assert "left: 3/10 (30.0%)" in info_msg
+            assert "right: 10/10 (100.0%)" in info_msg
+            assert "centroid" not in info_msg
 
 
 @pytest.fixture
