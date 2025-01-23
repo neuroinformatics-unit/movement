@@ -176,6 +176,30 @@ def test_scale_twice(
         scale(sample_data, **optional_arguments_1),
         **optional_arguments_2,
     )
-
     xr.testing.assert_equal(output_data_array, expected_output)
     assert output_data_array.attrs == expected_output.attrs
+
+
+@pytest.mark.parametrize(
+    "invalid_factor, expected_error_message",
+    [
+        (
+            np.zeros((3, 3, 4)),
+            "Factor must be a scalar or a 1D array, got 3D",
+        ),
+        (
+            np.zeros(3),
+            "Factor shape (3,) does not match the length of"
+            " any data axes: (12, 2)",
+        ),
+    ],
+)
+def test_scale_value_error(
+    sample_data: xr.DataArray,
+    invalid_factor: np.ndarray,
+    expected_error_message: str,
+):
+    """Test invalid factors raise correct error type and message."""
+    with pytest.raises(ValueError) as error:
+        scale(sample_data, factor=invalid_factor)
+    assert str(error.value) == expected_error_message
