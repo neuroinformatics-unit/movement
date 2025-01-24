@@ -70,7 +70,8 @@ ds.confidence.squeeze().plot.line(
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
 # to the implausible jumps and spikes we had seen in the position.
-# We can use that to our advantage.
+# We can use that to our advantage, by leveraging functions from the
+# :mod:`movement.filtering` module.
 
 # %%
 # Filter out points with low confidence
@@ -106,9 +107,8 @@ ds.position.squeeze().plot.line(
 # %%
 # Interpolate over missing values
 # -------------------------------
-# Using  :func:`movement.filtering.interpolate_over_time`,
-# we can interpolate over
-# gaps we've introduced in the pose tracks.
+# Using  :func:`movement.filtering.interpolate_over_time`, we can
+# interpolate over gaps we've introduced in the pose tracks.
 # Here we use the default linear interpolation method (``method="linear"``)
 # and interpolate over gaps of 40 frames or less (``max_gap=40``).
 # The default ``max_gap=None`` would interpolate over all gaps, regardless of
@@ -134,9 +134,9 @@ ds.position.squeeze().plot.line(
 #   :func:`interpolate_over_time()<movement.filtering.interpolate_over_time>`
 #   function would extrapolate the data to also fill the gaps at either end.
 #
-#   In general, you may pass any keyword arguments that are accepted by
-#   :meth:`xarray.DataArray.interpolate_na` and its underlying methods.
-
+#   In general, you may pass any keyword arguments that are acceptable as
+#   ``**kwargs`` by :meth:`xarray.DataArray.interpolate_na`, which in turn
+#   passes them to its underlying interpolation methods.
 
 # %%
 # Log of processing steps
