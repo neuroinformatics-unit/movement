@@ -738,3 +738,74 @@ def test_compute_pairwise_distances_with_invalid_input(
         kinematics.compute_pairwise_distances(
             request.getfixturevalue(ds).position, dim, pairs
         )
+
+
+class TestForwardVectorAngle:
+    """Test the compute_forward_vector_angle function.
+
+    def compute_forward_vector_angle(
+        data: xr.DataArray,
+        left_keypoint: str,
+        right_keypoint: str,
+        reference_vector: xr.DataArray | np.ndarray | list | tuple = (1, 0),
+        camera_view: Literal["top_down", "bottom_up"] = "top_down",
+        in_radians: bool = False,
+        angle_rotates: Literal[
+            "ref to forward", "forward to ref"
+        ] = "ref to forward",
+    ) -> xr.DataArray:
+    """
+
+    x_axis = np.array([1.0, 0.0])
+    y_axis = np.array([0.0, 1.0])
+    sqrt_2 = np.sqrt(2.0)
+
+    @pytest.fixture
+    def spinning_on_the_spot(self) -> xr.DataArray:
+        """Simulate data for an individual's head spinning on the spot.
+
+        The left / right keypoints move in a circular motion counter-clockwise
+        around the unit circle centred on the origin, always opposite each
+        other.
+        The left keypoint starts on the negative x-axis, and the motion is
+        split into 8 time points of uniform rotation angles.
+        """
+        data = np.zeros(shape=(8, 2, 2), dtype=float)
+        data[:, :, 0] = np.array(
+            [
+                -self.x_axis,
+                (-self.x_axis - self.y_axis) / self.sqrt_2,
+                -self.y_axis,
+                (self.x_axis - self.y_axis) / self.sqrt_2,
+                self.x_axis,
+                (self.x_axis + self.y_axis) / self.sqrt_2,
+                self.y_axis,
+                (-self.x_axis + self.y_axis) / self.sqrt_2,
+            ]
+        )
+        data[:, :, 1] = -data[:, :, 0]
+        return xr.DataArray(
+            data=data,
+            dims=["time", "space", "keypoints"],
+            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+        )
+
+    def test_forward_vector_angle(
+        self, spinning_on_the_spot: xr.DataArray
+    ) -> None:
+        """Pass."""
+        got = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", self.x_axis
+        )
+        expect = [
+            np.pi / 2,
+            3 * np.pi / 4,
+            np.pi,
+            -3 * np.pi / 4,
+            -np.pi / 2,
+            -np.pi / 4,
+            0.0,
+            np.pi / 4,
+        ]
+        pass
+        assert got == expect
