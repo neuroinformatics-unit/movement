@@ -244,6 +244,12 @@ class TestComputeSignedAngle:
                 [np.pi] * 4,
                 id="Two DataArrays given",
             ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                np.array([x_axis, -x_axis]),
+                [np.pi, np.pi],
+                id="Rotation by '-pi' should map to pi.",
+            ),
         ],
     )
     def test_compute_signed_angle_2d(
@@ -256,7 +262,8 @@ class TestComputeSignedAngle:
 
         This test also checks the antisymmetry of the function in question.
         Swapping the ``u`` and ``v`` arguments should produce an array of
-        angles with the same magnitude but opposite signs.
+        angles with the same magnitude but opposite signs
+        (except for pi -> -pi).
         """
         if not isinstance(left_vector, xr.DataArray):
             left_vector = xr.DataArray(
@@ -275,6 +282,9 @@ class TestComputeSignedAngle:
                 if "time" in left_vector.dims
                 else None,
             )
+        # pi and -pi should map to the same angle, regardless!
+        expected_angles_reversed = expected_angles.copy(deep=True)
+        expected_angles_reversed[expected_angles < np.pi] *= -1.0
 
         computed_angles = vector.compute_signed_angle_2d(
             left_vector, right_vector
@@ -285,5 +295,5 @@ class TestComputeSignedAngle:
 
         xr.testing.assert_allclose(computed_angles, expected_angles)
         xr.testing.assert_allclose(
-            computed_angles, -1.0 * computed_angles_reversed
+            computed_angles_reversed, expected_angles_reversed
         )

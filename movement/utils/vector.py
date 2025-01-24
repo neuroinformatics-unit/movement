@@ -248,7 +248,12 @@ def compute_signed_angle_2d(
     if v_as_left_operand:
         cross *= -1.0
     dot = u_x * v_x + u_y * v_y
-    return np.arctan2(cross, dot)
+
+    angles = np.arctan2(cross, dot)
+    # arctan2 returns values in [-pi, pi].
+    # We need to map -pi angles to pi, to stay in the (-pi, pi] range
+    angles[angles <= -np.pi] = np.pi
+    return angles
 
 
 def _raise_error_for_missing_spatial_dim() -> None:
