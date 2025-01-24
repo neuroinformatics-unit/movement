@@ -60,20 +60,24 @@ def filter_by_confidence(
 @log_to_attrs
 def interpolate_over_time(
     data: xr.DataArray,
+    method: str = "linear",
     max_gap: int | None = None,
     print_report: bool = True,
     **kwargs: dict | None,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
-    This method uses :meth:`xarray.DataArray.interpolate_na` under the
-    hood and can pass additional keyword arguments to it, such as ``method``.
-    See the xarray documentation for more details on these arguments.
+    This function calls :meth:`xarray.DataArray.interpolate_na` and can pass
+    additional keyword arguments to it, depending on the chosen ``method``.
+    See the xarray documentation for more details.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data to be interpolated.
+    method : str
+        String indicating which method to use for interpolation.
+        Default is ``linear``.
     max_gap : int, optional
         Maximum size of gap, a continuous sequence of missing observations
         (represented as NaNs), to fill.
@@ -84,8 +88,8 @@ def interpolate_over_time(
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``True``.
     **kwargs : dict
-        Additional keyword arguments are passed verbatim to
-        :meth:`xarray.DataArray.interpolate_na` and its underlying
+        Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
+        which in turn passes them verbatim to the underlying
         interpolation methods.
 
     Returns
@@ -104,6 +108,7 @@ def interpolate_over_time(
     """
     data_interpolated = data.interpolate_na(
         dim="time",
+        method=method,
         use_coordinate=False,
         max_gap=max_gap + 1 if max_gap is not None else None,
         **kwargs,
