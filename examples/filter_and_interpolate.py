@@ -75,9 +75,7 @@ ds.confidence.squeeze().plot.line(
 # %%
 # Filter out points with low confidence
 # -------------------------------------
-# Using the
-# :func:`filter_by_confidence()<movement.filtering.filter_by_confidence>`
-# function from the :mod:`movement.filtering` module,
+# Using :func:`movement.filtering.filter_by_confidence`,
 # we can filter out points with confidence scores below a certain threshold.
 # This function takes ``position`` and ``confidence`` as required arguments,
 # and accepts an optional ``threshold`` parameter,
@@ -108,9 +106,8 @@ ds.position.squeeze().plot.line(
 # %%
 # Interpolate over missing values
 # -------------------------------
-# Using the
-# :func:`interpolate_over_time()<movement.filtering.interpolate_over_time>`
-# function from the :mod:`movement.filtering` module, we can interpolate over
+# Using  :func:`movement.filtering.interpolate_over_time`,
+# we can interpolate over
 # gaps we've introduced in the pose tracks.
 # Here we use the default linear interpolation method (``method="linear"``)
 # and interpolate over gaps of 40 frames or less (``max_gap=40``).
