@@ -287,16 +287,16 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     Using ``valid_poses_dataset`` as the base dataset,
     the following NaN values are introduced:
     - Individual "id_0":
-        - 1 NaN value in the centroid keypoint of individual id_0 at time=0
-        - 3 NaN values in the left keypoint of individual id_0 (frames 3, 7, 8)
-        - 10 NaN values in the right keypoint of individual id_0 (all frames)
+        - 3 NaNs in the centroid keypoint of individual id_0 (frames 3, 7, 8)
+        - 1 NaN in the left keypoint of individual id_0 at time=0
+        - 10 NaNs in the right keypoint of individual id_0 (all frames)
     - Individual "id_1" has no missing values.
     """
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "centroid", "time": 0}
+        {"individuals": "id_0", "keypoints": "centroid", "time": [3, 7, 8]}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "left", "time": [3, 7, 8]}
+        {"individuals": "id_0", "keypoints": "left", "time": 0}
     ] = np.nan
     valid_poses_dataset.position.loc[
         {"individuals": "id_0", "keypoints": "right"}

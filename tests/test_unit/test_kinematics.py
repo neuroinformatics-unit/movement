@@ -214,7 +214,7 @@ def test_path_length_across_time_ranges(
     [
         (
             "ffill",
-            np.array([np.sqrt(2) * 8, np.sqrt(2) * 9, np.nan]),
+            np.array([np.sqrt(2) * 9, np.sqrt(2) * 8, np.nan]),
             does_not_raise(),
         ),
         (
@@ -288,9 +288,9 @@ def test_path_length_warns_about_nans(
             assert caplog.records[1].levelname == "INFO"
             assert "Individual: id_0" in info_msg
             assert "Individual: id_1" not in info_msg
-            assert "left: 3/10 (30.0%)" in info_msg
+            assert "centroid: 3/10 (30.0%)" in info_msg
             assert "right: 10/10 (100.0%)" in info_msg
-            assert "centroid" not in info_msg
+            assert "left" not in info_msg
 
 
 @pytest.fixture
@@ -299,7 +299,7 @@ def valid_data_array_for_forward_vector():
     (left ear, right ear and nose), tracked for 4 frames, in x-y space.
     """
     time = [0, 1, 2, 3]
-    individuals = ["individual_0"]
+    individuals = ["id_0"]
     keypoints = ["left_ear", "right_ear", "nose"]
     space = ["x", "y"]
 
