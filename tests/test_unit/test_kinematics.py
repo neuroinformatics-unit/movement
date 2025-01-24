@@ -1,6 +1,6 @@
 import re
 from contextlib import nullcontext as does_not_raise
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import pytest
@@ -989,3 +989,66 @@ class TestForwardVectorAngle:
         )
 
         xr.testing.assert_allclose(untranslated_output, translated_output)
+
+    @pytest.mark.parametrize(
+        ["args_to_fn", "expected_error"],
+        [
+            pytest.param(
+                {
+                    "reference_vector": x_axis,
+                    "angle_rotates": "elephants first",
+                },
+                ValueError("Unknown angle convention: 'elephants first'"),
+                id="Unknown angle orientation",
+            ),
+            pytest.param(
+                {
+                    "reference_vector": np.array([1.0, 0.0, 0.0]),
+                },
+                ValueError(
+                    "Reference vector must be two-dimensional (with"
+                    " shape ``(2,)``), but got (3,)."
+                ),
+                id="Reference vector not of shape (2,)",
+            ),
+        ],
+    )
+    def test_error_cases(
+        self,
+        spinning_on_the_spot: xr.DataArray,
+        args_to_fn: dict[str, Any],
+        expected_error: Exception,
+    ) -> None:
+        """Test that the angle orientation provided has to be recognised."""
+        with pytest.raises(
+            type(expected_error),
+            match=re.escape(str(expected_error)),
+        ):
+            kinematics.compute_forward_vector_angle(
+                spinning_on_the_spot,
+                "left",
+                "right",
+                **args_to_fn,
+            )
+
+    def test_casts_from_tuple(
+        self, spinning_on_the_spot: xr.DataArray
+    ) -> None:
+        """Test that tuples and lists are cast to numpy arrays,
+        when given as the reference vector.
+        """
+        x_axis_as_tuple = (1.0, 0.0)
+        x_axis_as_list = [1.0, 0.0]
+
+        pass_numpy = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", self.x_axis
+        )
+        pass_tuple = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", x_axis_as_tuple
+        )
+        pass_list = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", x_axis_as_list
+        )
+
+        xr.testing.assert_allclose(pass_numpy, pass_tuple)
+        xr.testing.assert_allclose(pass_numpy, pass_list)
