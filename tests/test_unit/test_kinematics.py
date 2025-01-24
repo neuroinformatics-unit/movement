@@ -1,5 +1,6 @@
 import re
 from contextlib import nullcontext as does_not_raise
+from typing import Literal
 
 import numpy as np
 import pytest
@@ -766,17 +767,13 @@ def test_compute_pairwise_distances_with_invalid_input(
 class TestForwardVectorAngle:
     """Test the compute_forward_vector_angle function.
 
-    def compute_forward_vector_angle(
-        data: xr.DataArray,
-        left_keypoint: str,
-        right_keypoint: str,
-        reference_vector: xr.DataArray | np.ndarray | list | tuple = (1, 0),
-        camera_view: Literal["top_down", "bottom_up"] = "top_down",
-        in_radians: bool = False,
-        angle_rotates: Literal[
-            "ref to forward", "forward to ref"
-        ] = "ref to forward",
-    ) -> xr.DataArray:
+    These tests are grouped together into a class to distinguish them from the
+    other methods that are tested in the Kinematics module.
+
+    Note that since this method is a combination of calls to two lower-level
+    methods, we run limited input/output checks in this collection.
+    Correctness of the results is delegated to the tests of the dependent
+    methods, as appropriate.
     """
 
     x_axis = np.array([1.0, 0.0])
@@ -933,3 +930,62 @@ class TestForwardVectorAngle:
         xr.testing.assert_allclose(
             with_orientations_swapped, expected_orientations
         )
+
+    @pytest.mark.parametrize(
+        ["transformation"],
+        [pytest.param("scale"), pytest.param("translation")],
+    )
+    def test_transformation_invariance(
+        self,
+        spinning_on_the_spot: xr.DataArray,
+        transformation: Literal["scale", "translation"],
+    ) -> None:
+        """Test that certain transforms of the data have no effect on
+        the relative angle computed.
+
+        - Translations applied to both keypoints (even if the translation
+        changes with time) should not affect the result, so long as both
+        keypoints receive the same translation (at each timepoint).
+        - Scaling the right to left keypoint vector should not produce a
+        different angle.
+        """
+        left_keypoint = "left"
+        right_keypoint = "right"
+        reference_vector = self.x_axis
+
+        translated_data = spinning_on_the_spot.values.copy()
+        n_time_pts = translated_data.shape[0]
+
+        if transformation == "translation":
+            # Effectively, the data is being translated (1,1)/time-point,
+            # but its keypoints are staying in the same relative positions.
+            translated_data += np.arange(n_time_pts).reshape(n_time_pts, 1, 1)
+        elif transformation == "scale":
+            # The left keypoint position is "stretched" further away from the
+            # origin over time; for the time-point at index t,
+            # a scale factor of (t+1) is applied to the left keypoint.
+            # The right keypoint remains unscaled, but remains in the same
+            # direction away from the left keypoint.
+            translated_data[:, :, 0] *= np.arange(1, n_time_pts + 1).reshape(
+                n_time_pts, 1
+            )
+        else:
+            raise ValueError(f"Did not recognise case: {transformation}")
+        translated_data = spinning_on_the_spot.copy(
+            deep=True, data=translated_data
+        )
+
+        untranslated_output = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+        )
+        translated_output = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+        )
+
+        xr.testing.assert_allclose(untranslated_output, translated_output)
