@@ -296,13 +296,17 @@ def compute_forward_vector(
     upward_vector = xr.DataArray(
         np.tile(upward_vector.reshape(1, -1), [len(data.time), 1]),
         dims=["time", "space"],
+        coords={
+            "space": ["x", "y", "z"],
+        },
     )
     # Compute forward direction as the cross product
     # (right-to-left) cross (forward) = up
     forward_vector = xr.cross(
         right_to_left_vector, upward_vector, dim="space"
-    )[:, :, :-1]  # keep only the first 2 dimensions of the result
-
+    ).drop_sel(
+        space="z"
+    )  # keep only the first 2 spatal dimensions of the result
     # Return unit vector
     return convert_to_unit(forward_vector)
 
