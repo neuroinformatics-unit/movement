@@ -5,11 +5,10 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import h5py
-import pandas as pd
 import pytest
 
 
-# --------- File validator fixtures ---------------------------------
+# ------------------ Generic file fixtures ----------------------
 @pytest.fixture
 def unreadable_file(tmp_path):
     """Return a dictionary containing the file path and
@@ -81,20 +80,7 @@ def nonexistent_file(tmp_path):
 
 
 @pytest.fixture
-def directory(tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for a directory.
-    """
-    file_path = tmp_path / "directory"
-    file_path.mkdir()
-    return {
-        "file_path": file_path,
-        "expected_permission": "r",
-    }
-
-
-@pytest.fixture
-def h5_file_no_dataframe(tmp_path):
+def no_dataframe_h5_file(tmp_path):
     """Return a dictionary containing the file path and
     expected datasets for a .h5 file with no dataframe.
     """
@@ -110,7 +96,7 @@ def h5_file_no_dataframe(tmp_path):
 @pytest.fixture
 def fake_h5_file(tmp_path):
     """Return a dictionary containing the file path,
-    expected exception, and expected datasets for
+    expected permission, and expected datasets for
     a file with .h5 extension that is not in HDF5 format.
     """
     file_path = tmp_path / "fake.h5"
@@ -146,9 +132,22 @@ def invalid_multi_individual_csv_file(tmp_path):
 
 
 @pytest.fixture
-def new_file_wrong_ext(tmp_path):
+def wrong_ext_new_file(tmp_path):
     """Return the file path for a new file with the wrong extension."""
-    return tmp_path / "new_file_wrong_ext.txt"
+    return tmp_path / "wrong_ext_new_file.txt"
+
+
+@pytest.fixture
+def directory(tmp_path):
+    """Return a dictionary containing the file path and
+    expected permission for a directory.
+    """
+    file_path = tmp_path / "directory"
+    file_path.mkdir()
+    return {
+        "file_path": file_path,
+        "expected_permission": "r",
+    }
 
 
 @pytest.fixture
@@ -163,12 +162,7 @@ def new_csv_file(tmp_path):
     return tmp_path / "new_file.csv"
 
 
-@pytest.fixture
-def dlc_style_df():
-    """Return a valid DLC-style DataFrame."""
-    return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
-
-
+# ---------------- Anipose file fixtures ----------------------------
 @pytest.fixture
 def missing_keypoint_columns_anipose_csv_file(tmp_path):
     """Return the file path for a fake single-individual .csv file."""
@@ -224,6 +218,7 @@ def spurious_column_anipose_csv_file(tmp_path):
     return file_path
 
 
+# ---------------- SLEAP file fixtures ----------------------------
 @pytest.fixture(
     params=[
         "SLEAP_single-mouse_EPM.analysis.h5",
@@ -240,247 +235,201 @@ def sleap_file(request):
 
 
 # ---------------- VIA tracks CSV file fixtures ----------------------------
-@pytest.fixture
-def via_tracks_csv_with_invalid_header(tmp_path):
-    """Return the file path for a file with invalid header."""
-    file_path = tmp_path / "invalid_via_tracks.csv"
-    with open(file_path, "w") as f:
-        f.write("filename,file_size,file_attributes\n")
-        f.write("1,2,3")
-    return file_path
+via_tracks_csv_file_valid_header = (
+    "filename,file_size,file_attributes,region_count,"
+    "region_id,region_shape_attributes,region_attributes\n"
+)
 
 
 @pytest.fixture
-def via_tracks_csv_with_valid_header(tmp_path):
-    file_path = tmp_path / "sample_via_tracks.csv"
-    with open(file_path, "w") as f:
-        f.write(
-            "filename,"
-            "file_size,"
-            "file_attributes,"
-            "region_count,"
-            "region_id,"
-            "region_shape_attributes,"
-            "region_attributes"
-        )
-        f.write("\n")
-    return file_path
+def invalid_via_tracks_csv_file(tmp_path, request):
+    """Return the file path for an invalid VIA tracks .csv file."""
+
+    def _invalid_via_tracks_csv_file(invalid_content):
+        file_path = tmp_path / "invalid_via_tracks.csv"
+        with open(file_path, "w") as f:
+            f.write(request.getfixturevalue(invalid_content))
+        return file_path
+
+    return _invalid_via_tracks_csv_file
 
 
 @pytest.fixture
-def frame_number_in_file_attribute_not_integer(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with invalid frame
+def via_invalid_header():
+    """Return the content of a VIA tracks .csv file with invalid header."""
+    return "filename,file_size,file_attributes\n1,2,3"
+
+
+@pytest.fixture
+def via_frame_number_in_file_attribute_not_integer():
+    """Return the content of a VIA tracks .csv file with invalid frame
     number defined as file_attribute.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_A.png,"
-            "26542080,"
-            '"{""clip"":123, ""frame"":""FOO""}",'  # frame number is a string
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_A.png,"
+        "26542080,"
+        '"{""clip"":123, ""frame"":""FOO""}",'  # frame number is a string
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+    )
 
 
 @pytest.fixture
-def frame_number_in_filename_wrong_pattern(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with invalid frame
+def via_frame_number_in_filename_wrong_pattern():
+    """Return the content of a VIA tracks .csv file with invalid frame
     number defined in the frame's filename.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_1.png,"  # frame not zero-padded
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_1.png,"  # frame not zero-padded
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+    )
 
 
 @pytest.fixture
-def more_frame_numbers_than_filenames(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with more
+def via_more_frame_numbers_than_filenames():
+    """Return the content of a VIA tracks .csv file with more
     frame numbers than filenames.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test.png,"
-            "26542080,"
-            '"{""clip"":123, ""frame"":24}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-        f.write("\n")
-        f.write(
-            "04.09.2023-04-Right_RE_test.png,"  # same filename as previous row
-            "26542080,"
-            '"{""clip"":123, ""frame"":25}",'  # different frame number
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header + "04.09.2023-04-Right_RE_test.png,"
+        "26542080,"
+        '"{""clip"":123, ""frame"":24}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+        "\n"
+        "04.09.2023-04-Right_RE_test.png,"  # same filename as previous row
+        "26542080,"
+        '"{""clip"":123, ""frame"":25}",'  # different frame number
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+    )
 
 
 @pytest.fixture
-def less_frame_numbers_than_filenames(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with with less
+def via_less_frame_numbers_than_filenames():
+    """Return the content of a VIA tracks .csv file with with less
     frame numbers than filenames.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_A.png,"
-            "26542080,"
-            '"{""clip"":123, ""frame"":24}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-        f.write("\n")
-        f.write(
-            "04.09.2023-04-Right_RE_test_B.png,"  # different filename
-            "26542080,"
-            '"{""clip"":123, ""frame"":24}",'  # same frame as previous row
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header + "04.09.2023-04-Right_RE_test_A.png,"
+        "26542080,"
+        '"{""clip"":123, ""frame"":24}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+        "\n"
+        "04.09.2023-04-Right_RE_test_B.png,"  # different filename
+        "26542080,"
+        '"{""clip"":123, ""frame"":24}",'  # same frame as previous row
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+    )
 
 
 @pytest.fixture
-def region_shape_attribute_not_rect(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with invalid shape in
+def via_region_shape_attribute_not_rect():
+    """Return the content of a VIA tracks .csv file with invalid shape in
     region_shape_attributes.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""circle"",""cx"":1049,""cy"":1006,""r"":125}",'
-            '"{""track"":""71""}"'
-        )  # annotation of circular shape
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""circle"",""cx"":1049,""cy"":1006,""r"":125}",'
+        '"{""track"":""71""}"'
+    )  # annotation of circular shape
 
 
 @pytest.fixture
-def region_shape_attribute_missing_x(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with missing `x` key in
+def via_region_shape_attribute_missing_x():
+    """Return the content of a VIA tracks .csv file with missing `x` key in
     region_shape_attributes.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )  # region_shape_attributes is missing ""x"" key
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+    )  # region_shape_attributes is missing ""x"" key
 
 
 @pytest.fixture
-def region_attribute_missing_track(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with missing track
+def via_region_attribute_missing_track():
+    """Return the content of a VIA tracks .csv file with missing track
     attribute in region_attributes.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""foo"":""71""}"'  # missing ""track""
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""foo"":""71""}"'  # missing ""track""
+    )
 
 
 @pytest.fixture
-def track_id_not_castable_as_int(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with a track ID
+def via_track_id_not_castable_as_int():
+    """Return the content of a VIA tracks .csv file with a track ID
     attribute not castable as an integer.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""FOO""}"'  # ""track"" not castable as int
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""FOO""}"'  # ""track"" not castable as int
+    )
 
 
 @pytest.fixture
-def track_ids_not_unique_per_frame(
-    via_tracks_csv_with_valid_header,
-):
-    """Return the file path for a VIA tracks .csv file with a track ID
+def via_track_ids_not_unique_per_frame():
+    """Return the content of a VIA tracks .csv file with a track ID
     that appears twice in the same frame.
     """
-    file_path = via_tracks_csv_with_valid_header
-    with open(file_path, "a") as f:
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-            '"{""track"":""71""}"'
-        )
-        f.write("\n")
-        f.write(
-            "04.09.2023-04-Right_RE_test_frame_01.png,"
-            "26542080,"
-            '"{""clip"":123}",'
-            "1,"
-            "0,"
-            '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
-            '"{""track"":""71""}"'  # same track ID as the previous row
-        )
-    return file_path
+    return (
+        via_tracks_csv_file_valid_header
+        + "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
+        '"{""track"":""71""}"'
+        "\n"
+        "04.09.2023-04-Right_RE_test_frame_01.png,"
+        "26542080,"
+        '"{""clip"":123}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
+        '"{""track"":""71""}"'  # same track ID as the previous row
+    )

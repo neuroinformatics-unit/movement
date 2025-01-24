@@ -9,13 +9,13 @@ from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
 
 
-def to_pytest_plugin_path(string: str) -> str:
-    """Convert a file path to a pytest-compatible plugin path."""
-    return string.replace("/", ".").replace("\\", ".").replace(".py", "")
+def _to_module_string(path: str) -> str:
+    """Convert a file path to a module string."""
+    return path.replace("/", ".").replace("\\", ".").replace(".py", "")
 
 
 pytest_plugins = [
-    to_pytest_plugin_path(fixture)
+    _to_module_string(fixture)
     for fixture in glob("tests/fixtures/*.py")
     if "__" not in fixture
 ]

@@ -31,7 +31,7 @@ class TestSavePoses:
             # invalid file path
         },
         {
-            "file_fixture": "new_file_wrong_ext",
+            "file_fixture": "wrong_ext_new_file",
             "to_dlc_file_expected_exception": pytest.raises(ValueError),
             "to_sleap_file_expected_exception": pytest.raises(ValueError),
             "to_lp_file_expected_exception": pytest.raises(ValueError),

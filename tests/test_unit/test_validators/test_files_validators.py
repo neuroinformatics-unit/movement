@@ -36,7 +36,7 @@ def test_file_validator_with_invalid_input(
 @pytest.mark.parametrize(
     "invalid_input, expected_exception",
     [
-        ("h5_file_no_dataframe", pytest.raises(ValueError)),
+        ("no_dataframe_h5_file", pytest.raises(ValueError)),
         ("fake_h5_file", pytest.raises(ValueError)),
     ],
 )
@@ -72,7 +72,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
     "invalid_input, error_type, log_message",
     [
         (
-            "via_tracks_csv_with_invalid_header",
+            "via_invalid_header",
             ValueError,
             ".csv header row does not match the known format for "
             "VIA tracks .csv files. "
@@ -83,7 +83,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "but got ['filename', 'file_size', 'file_attributes'].",
         ),
         (
-            "frame_number_in_file_attribute_not_integer",
+            "via_frame_number_in_file_attribute_not_integer",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
             "'frame' file attribute cannot be cast as an integer. "
@@ -91,7 +91,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "{'clip': 123, 'frame': 'FOO'}.",
         ),
         (
-            "frame_number_in_filename_wrong_pattern",
+            "via_frame_number_in_filename_wrong_pattern",
             AttributeError,
             "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
             "The provided frame regexp ((0\d*)\.\w+$) did not return "
@@ -100,28 +100,28 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "filename.",
         ),
         (
-            "more_frame_numbers_than_filenames",
+            "via_more_frame_numbers_than_filenames",
             ValueError,
             "The number of unique frame numbers does not match the number "
             "of unique image files. Please review the VIA tracks .csv file "
             "and ensure a unique frame number is defined for each file. ",
         ),
         (
-            "less_frame_numbers_than_filenames",
+            "via_less_frame_numbers_than_filenames",
             ValueError,
             "The number of unique frame numbers does not match the number "
             "of unique image files. Please review the VIA tracks .csv file "
             "and ensure a unique frame number is defined for each file. ",
         ),
         (
-            "region_shape_attribute_not_rect",
+            "via_region_shape_attribute_not_rect",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "bounding box shape must be 'rect' (rectangular) "
             "but instead got 'circle'.",
         ),
         (
-            "region_shape_attribute_missing_x",
+            "via_region_shape_attribute_missing_x",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "at least one bounding box shape parameter is missing. "
@@ -130,7 +130,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "'['name', 'y', 'width', 'height']'.",
         ),
         (
-            "region_attribute_missing_track",
+            "via_region_attribute_missing_track",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "bounding box does not have a 'track' attribute defined "
@@ -138,7 +138,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "Please review the VIA tracks .csv file.",
         ),
         (
-            "track_id_not_castable_as_int",
+            "via_track_id_not_castable_as_int",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
             "the track ID for the bounding box cannot be cast "
@@ -146,7 +146,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "Please review the VIA tracks .csv file.",
         ),
         (
-            "track_ids_not_unique_per_frame",
+            "via_track_ids_not_unique_per_frame",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png: "
             "multiple bounding boxes in this file have the same track ID. "
@@ -155,7 +155,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_input(
-    invalid_input, error_type, log_message, request
+    invalid_via_tracks_csv_file, invalid_input, error_type, log_message
 ):
     """Test that invalid VIA tracks .csv files raise the appropriate errors.
 
@@ -171,7 +171,7 @@ def test_via_tracks_csv_validator_with_invalid_input(
         (i.e., bboxes IDs must exist only once per frame)
     - error if bboxes IDs are not 1-based integers
     """
-    file_path = request.getfixturevalue(invalid_input)
+    file_path = invalid_via_tracks_csv_file(invalid_input)
     with pytest.raises(error_type) as excinfo:
         ValidVIATracksCSV(file_path)
 
