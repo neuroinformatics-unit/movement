@@ -1,10 +1,18 @@
-"""Valid and invalid movement datasets and arrays fixtures."""
+"""Valid and invalid data fixtures."""
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
 from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
+
+
+# -------------------- Valid DLC-style DataFrame --------------------
+@pytest.fixture
+def dlc_style_df():
+    """Return a valid DLC-style DataFrame."""
+    return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
 
 # -------------------- Valid bboxes datasets and arrays --------------------
@@ -285,24 +293,13 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     - Individual "id_1" has no missing values.
     """
     valid_poses_dataset.position.loc[
-        {
-            "individuals": "id_0",
-            "keypoints": "centroid",
-            "time": 0,
-        }
+        {"individuals": "id_0", "keypoints": "centroid", "time": 0}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {
-            "individuals": "id_0",
-            "keypoints": "left",
-            "time": [3, 7, 8],
-        }
+        {"individuals": "id_0", "keypoints": "left", "time": [3, 7, 8]}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {
-            "individuals": "id_0",
-            "keypoints": "right",
-        }
+        {"individuals": "id_0", "keypoints": "right"}
     ] = np.nan
     return valid_poses_dataset
 
