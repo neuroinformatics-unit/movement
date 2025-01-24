@@ -4,7 +4,6 @@ import itertools
 from typing import Literal
 
 import numpy as np
-import numpy.typing as npt
 import xarray as xr
 from scipy.spatial.distance import cdist
 
@@ -351,24 +350,24 @@ def compute_head_direction_vector(
     )
 
 
-def compute_heading_angle(
+def compute_forward_vector_angle(
     data: xr.DataArray,
     left_keypoint: str,
     right_keypoint: str,
-    reference_vector: npt.NDArray | list | tuple = (1, 0),
+    reference_vector: xr.DataArray | np.ndarray | list | tuple = (1, 0),
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-    in_radians=False,
+    in_radians: bool = False,
+    angle_rotates: Literal[
+        "ref to forward", "forward to ref"
+    ] = "ref to forward",
 ) -> xr.DataArray:
-    r"""Compute the 2D heading angle given two left-right symmetric keypoints.
+    r"""Compute the signed angle between a forward and reference vector.
 
-    Heading angle is defined as the :func:`signed angle\
+    Forward vector angle, or 'heading angle', is the :func:`signed angle\
     <movement.utils.vector.signed_angle_between_2d_vectors>`
-    between the animal's :func:`forward vector\
-    <movement.kinematics.compute_forward_vector>`)
-    and a reference vector. By default, the reference vector
-    corresponds to the direction of the positive x-axis.
-    The returned angles are in degrees, unless ``in_radians=True``,
-    and span the range (-180, 180] (or :math:`(-\pi, \pi]` in radians).
+    between the reference vector and the animal's :func:`forward vector\
+    <movement.kinematics.compute_forward_vector>`).
+    The returned angles are in degrees, spanning the range :math:`(-180, 180]`.
 
     Parameters
     ----------
@@ -377,10 +376,12 @@ def compute_heading_angle(
         the two symmetrical keypoints located on the left and
         right sides of the body, respectively.
     left_keypoint : str
-        Name of the left keypoint, e.g., "left_ear"
+        Name of the left keypoint, e.g., "left_ear", used to compute the
+        forward vector.
     right_keypoint : str
-        Name of the right keypoint, e.g., "right_ear"
-    reference_vector : ndt.NDArray | list | tuple, optional
+        Name of the right keypoint, e.g., "right_ear", used to compute the
+        forward vector.
+    reference_vector : xr.DataArray | np.ndarray | list | tuple, optional
         The reference vector against which the ```forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
         in the form [x,y] - where reference_vector[0] corresponds to the
@@ -396,6 +397,9 @@ def compute_heading_angle(
     in_radians : bool, optional
         If true, the returned heading array is given in radians.
         If false, the array is given in degrees. False by default.
+    angle_rotates : Literal["ref to forward", "forward to ref"], optional
+        Determines the sign convention for the returned signed angle.
+        (See Notes).
 
     Returns
     -------
@@ -403,6 +407,21 @@ def compute_heading_angle(
         An xarray DataArray containing the computed heading angles,
         with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
+
+    Notes
+    -----
+    There are different conventions for the sign of the forward vector angle.
+    The ``angle_rotates`` argument can be used to select which behaviour the
+    function should use.
+
+    By default, the ``angle_rotates`` is set to ``ref to forward``, which
+    results in the signed angle between the reference vector and the forward
+    vector being returned. That is, the angle which the reference vector would
+    need to be rotated by, to align with the forward vector.
+    Setting ``angle_rotates`` to ``forward to ref`` reverses this convention,
+    returning the signed angle between the forward vector and the reference
+    vector; that is, the rotation that would need to be applied to the forward
+    vector to return the reference vector.
 
     See Also
     --------
@@ -412,6 +431,13 @@ def compute_heading_angle(
         to compute the forward vector.
 
     """
+    if angle_rotates.lower() == "ref to forward":
+        ref_is_left_operand = True
+    elif angle_rotates.lower() == "forward to ref":
+        ref_is_left_operand = False
+    else:
+        raise ValueError(f"Unknown angle convention: '{angle_rotates}'")
+
     # Convert reference vector to np.array if list or tuple
     if isinstance(reference_vector, (list | tuple)):
         reference_vector = np.array(reference_vector)
@@ -430,7 +456,9 @@ def compute_heading_angle(
     )
 
     # Compute signed angle between forward vector and reference vector
-    heading_array = compute_signed_angle_2d(forward_vector, reference_vector)
+    heading_array = compute_signed_angle_2d(
+        forward_vector, reference_vector, v_as_left_operand=ref_is_left_operand
+    )
 
     # Convert to degrees
     if not in_radians:
