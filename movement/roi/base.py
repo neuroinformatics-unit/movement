@@ -57,7 +57,11 @@ class BaseRegionOfInterest:
         - A polygon (2D RoI).
         - A 1D LoI whose final point connects back to its first.
         """
-        return not isinstance(self.region, shapely.LineString)
+        b = isinstance(self.region, shapely.Polygon)
+        return b or (
+            self.dimensions == 1
+            and self.region.coords[0] == self.region.coords[-1]
+        )
 
     @property
     def name(self) -> str:
@@ -77,19 +81,47 @@ class BaseRegionOfInterest:
         holes: Sequence[PointLikeList] | None = None,
         name: str | None = None,
     ) -> None:
-        """Initialise a region of interest."""
+        """Initialise a region of interest.
+
+        Parameters
+        ----------
+        points : Sequence of (x, y) values
+            Sequence of (x, y) coordinate pairs that will form the region.
+        dimensions : Literal[1, 2], default 2
+            The dimensionality of the region to construct.
+            '1' creates a sequence of joined line segments,
+            '2' creates a polygon whose boundary is defined by ``points``.
+        closed : bool, default False
+            Whether the line to be created should be closed. That is, whether
+            the final point should also link to the first point.
+            Ignored if ``dimensions`` is 2.
+        holes : sequence of sequence of (x, y) pairs, default None
+            A sequence of items, where each item will be interpreted like
+            ``points``. These items will be used to construct internal holes
+            within the region. See the ``holes`` argument to
+            ``shapely.Polygon`` for details. Ignored if ``dimensions`` is 1.
+        name : str, default None
+            Human-readable name to assign to the given region, for
+            user-friendliness.
+
+        """
         self._name = name
         if len(points) < dimensions + 1:
-            log_error(
+            raise log_error(
                 ValueError,
                 f"Need at least {dimensions + 1} points to define a "
                 f"{dimensions}D region (got {len(points)}).",
             )
         elif dimensions < 1 or dimensions > 2:
-            log_error(
+            raise log_error(
                 ValueError,
                 "Only regions of interest of dimension 1 or 2 are supported "
                 f"(requested {dimensions})",
+            )
+        elif dimensions == 1 and len(points) < 3 and closed:
+            raise log_error(
+                ValueError,
+                "Cannot create a loop from a single line segment.",
             )
         self._shapely_geometry = (
             shapely.Polygon(shell=points, holes=holes)
@@ -109,5 +141,4 @@ class BaseRegionOfInterest:
         return (
             f"{self.__class__.__name__} {self.name} "
             f"({len(self.region.coords)}{display_type})\n"
-            " -> ".join(f"({c[0]}, {c[1]})" for c in self.region.coords)
-        )
+        ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.region.coords)
