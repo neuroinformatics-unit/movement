@@ -39,10 +39,11 @@ class PolygonOfInterest(BaseRegionOfInterest):
         boundary : tuple of (x, y) pairs
             The points (in sequence) that make up the boundary of the region.
             At least three points must be provided.
-        holes : sequence of tuples of (x, y) pairs
-            A sequence of items that will be interpreted like ``boundary``,
-            that will be used to construct internal holes within the region.
-            See the ``holes`` argument to ``shapely.Polygon`` for details.
+        holes : sequence of sequence of (x, y) pairs
+            A sequence of items, where each item will be interpreted like
+            ``boundary``. These items will be used to construct internal holes
+            within the region. See the ``holes`` argument to
+            ``shapely.Polygon`` for details.
         name : str
             Name of the RoI that is to be created.
 
