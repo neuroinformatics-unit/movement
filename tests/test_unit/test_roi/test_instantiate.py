@@ -8,19 +8,6 @@ import shapely
 from movement.roi.base import BaseRegionOfInterest
 
 
-@pytest.fixture()
-def unit_square_pts() -> np.ndarray:
-    return np.array(
-        [
-            [0.0, 0.0],
-            [1.0, 0.0],
-            [1.0, 1.0],
-            [0.0, 1.0],
-        ],
-        dtype=float,
-    )
-
-
 @pytest.mark.parametrize(
     ["input_pts", "kwargs_for_creation", "expected_results"],
     [
