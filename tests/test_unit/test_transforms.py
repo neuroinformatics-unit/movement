@@ -27,7 +27,7 @@ def data_array_with_dims_and_coords(
     **attributes: Any,
 ) -> xr.DataArray:
     """Create a DataArray with given data, dimensions, coordinates, and
-    attributes (e.g. unit or factor).
+    attributes (e.g. space_unit or factor).
     """
     return xr.DataArray(
         data,
@@ -46,28 +46,28 @@ def data_array_with_dims_and_coords(
             id="Do nothing",
         ),
         pytest.param(
-            {"unit": "elephants"},
+            {"space_unit": "elephants"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23(), unit="elephants"
+                nparray_0_to_23(), space_unit="elephants"
             ),
-            id="No scaling, add unit",
+            id="No scaling, add space_unit",
         ),
         pytest.param(
             {"factor": 2},
             data_array_with_dims_and_coords(nparray_0_to_23() * 2),
-            id="Double, no unit",
+            id="Double, no space_unit",
         ),
         pytest.param(
             {"factor": 0.5},
             data_array_with_dims_and_coords(nparray_0_to_23() * 0.5),
-            id="Halve, no unit",
+            id="Halve, no space_unit",
         ),
         pytest.param(
-            {"factor": 0.5, "unit": "elephants"},
+            {"factor": 0.5, "space_unit": "elephants"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23() * 0.5, unit="elephants"
+                nparray_0_to_23() * 0.5, space_unit="elephants"
             ),
-            id="Halve, add unit",
+            id="Halve, add space_unit",
         ),
         pytest.param(
             {"factor": [0.5, 2]},
@@ -90,7 +90,7 @@ def test_scale(
     optional_arguments: dict[str, Any],
     expected_output: xr.DataArray,
 ):
-    """Test scaling with different factors and units."""
+    """Test scaling with different factors and space_units."""
     scaled_data = scale(sample_data, **optional_arguments)
     xr.testing.assert_equal(scaled_data, expected_output)
     assert scaled_data.attrs == expected_output.attrs
@@ -141,24 +141,26 @@ def test_scale_first_matching_axis():
     ["optional_arguments_1", "optional_arguments_2", "expected_output"],
     [
         pytest.param(
-            {"factor": 2, "unit": "elephants"},
-            {"factor": 0.5, "unit": "crabs"},
-            data_array_with_dims_and_coords(nparray_0_to_23(), unit="crabs"),
-            id="No net scaling, final crabs unit",
-        ),
-        pytest.param(
-            {"factor": 2, "unit": "elephants"},
-            {"factor": 0.5, "unit": None},
-            data_array_with_dims_and_coords(nparray_0_to_23()),
-            id="No net scaling, no final unit",
-        ),
-        pytest.param(
-            {"factor": 2, "unit": None},
-            {"factor": 0.5, "unit": "elephants"},
+            {"factor": 2, "space_unit": "elephants"},
+            {"factor": 0.5, "space_unit": "crabs"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23(), unit="elephants"
+                nparray_0_to_23(), space_unit="crabs"
             ),
-            id="No net scaling, final elephant unit",
+            id="No net scaling, final crabs space_unit",
+        ),
+        pytest.param(
+            {"factor": 2, "space_unit": "elephants"},
+            {"factor": 0.5, "space_unit": None},
+            data_array_with_dims_and_coords(nparray_0_to_23()),
+            id="No net scaling, no final space_unit",
+        ),
+        pytest.param(
+            {"factor": 2, "space_unit": None},
+            {"factor": 0.5, "space_unit": "elephants"},
+            data_array_with_dims_and_coords(
+                nparray_0_to_23(), space_unit="elephants"
+            ),
+            id="No net scaling, final elephant space_unit",
         ),
     ],
 )
@@ -169,8 +171,8 @@ def test_scale_twice(
     expected_output: xr.DataArray,
 ):
     """Test scaling when applied twice.
-    The second scaling operation should update the unit attribute if provided,
-    or remove it if None is passed explicitly or by default.
+    The second scaling operation should update the space_unit attribute if
+    provided, or remove it if None is passed explicitly or by default.
     """
     output_data_array = scale(
         scale(sample_data, **optional_arguments_1),
@@ -185,7 +187,8 @@ def test_scale_twice(
     [
         (
             np.zeros((3, 3, 4)),
-            "Factor must be a scalar or a 1D array, got 3D",
+            "Factor must be an object that can be converted to a 1D numpy"
+            " array, got 3D",
         ),
         (
             np.zeros(3),
