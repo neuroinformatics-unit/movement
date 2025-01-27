@@ -109,7 +109,7 @@ class TestFilteringValidDatasetWithNaNs:
 
     @pytest.mark.parametrize(
         "max_gap, expected_n_nans_in_position",
-        [(None, [20, 0]), (0, [26, 6]), (1, [24, 4]), (2, [20, 0])],
+        [(None, [22, 0]), (0, [28, 6]), (1, [26, 4]), (2, [22, 0])],
         # expected total n nans: [poses, bboxes]
     )
     def test_interpolate_over_time_on_position(
