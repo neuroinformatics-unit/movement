@@ -57,8 +57,7 @@ class BaseRegionOfInterest:
         - A polygon (2D RoI).
         - A 1D LoI whose final point connects back to its first.
         """
-        b = isinstance(self.region, shapely.Polygon)
-        return b or (
+        return isinstance(self.region, shapely.Polygon) or (
             self.dimensions == 1
             and self.region.coords[0] == self.region.coords[-1]
         )
