@@ -102,8 +102,14 @@ def test_scale(
         (["time", "space"], (3, 2)),
         (["space", "time"], (2, 3)),
         (["time", "individuals", "keypoints", "space"], (3, 6, 4, 2)),
+        (["time", "individuals", "keypoints", "space"], (2, 2, 2, 2)),
     ],
-    ids=["time-space", "space-time", "time-individuals-keypoints-space"],
+    ids=[
+        "time-space",
+        "space-time",
+        "time-individuals-keypoints-space",
+        "2x2x2x2",
+    ],
 )
 def test_scale_space_dimension(dims: list[str], data_shape):
     """Test scaling with transposed data along the correct dimension.
@@ -180,8 +186,8 @@ def test_scale_twice(
         ),
         pytest.param(
             np.zeros(3),
-            "Factor length 3 does not match the length "
-            "of the space dimension 2",
+            "Factor shape (3,) does not match the shape "
+            "of the space dimension (2,)",
             id="space dimension mismatch",
         ),
     ],
