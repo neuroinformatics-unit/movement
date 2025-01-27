@@ -51,10 +51,25 @@ class PolygonOfInterest(BaseRegionOfInterest):
         super().__init__(points=boundary, dimensions=2, holes=holes, name=name)
 
     @property
-    def boundary(self) -> LineOfInterest:
-        """The boundary of this RoI."""
+    def exterior(self) -> LineOfInterest:
+        """The (exterior) boundary of this RoI."""
         return LineOfInterest(
-            self.region.boundary.coords,
+            self.region.exterior.coords,
             loop=True,
-            name=f"Boundary of {self.name}",
+            name=f"Exterior boundary of {self.name}",
+        )
+
+    @property
+    def interiors(self) -> tuple[LineOfInterest, ...]:
+        """The (interior) boundaries of this RoI.
+
+        A region with no interior boundaries returns the empty tuple.
+        """
+        return tuple(
+            LineOfInterest(
+                int_boundary.coords,
+                loop=True,
+                name=f"Interior boundary {i} of {self.name}",
+            )
+            for i, int_boundary in enumerate(self.region.interiors)
         )
