@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from typing import Literal, TypeAlias
 
 import shapely
+from shapely.coords import CoordinateSequence
 
 from movement.utils.logging import log_error
 
@@ -45,6 +46,22 @@ class BaseRegionOfInterest:
     _shapely_geometry: __supported_type
 
     @property
+    def coords(self) -> CoordinateSequence:
+        """Coordinates of the points that define the region.
+
+        These are the points passed to the constructor argument ``points``.
+
+        Note that for Polygonal regions, these are the coordinates of the
+        exterior boundary, interior boundaries must be accessed via
+        ``self.region.interior.coords``.
+        """
+        return (
+            self.region.coords
+            if self.dimensions < 2
+            else self.region.exterior.coords
+        )
+
+    @property
     def dimensions(self) -> int:
         """Dimensionality of the region."""
         return shapely.get_dimensions(self.region)
@@ -57,7 +74,7 @@ class BaseRegionOfInterest:
         - A polygon (2D RoI).
         - A 1D LoI whose final point connects back to its first.
         """
-        return isinstance(self.region, shapely.Polygon) or (
+        return self.dimensions > 1 or (
             self.dimensions == 1
             and self.region.coords[0] == self.region.coords[-1]
         )
@@ -136,8 +153,9 @@ class BaseRegionOfInterest:
         return str(self)
 
     def __str__(self) -> str:  # noqa: D105
-        display_type = "-gon" if self.dimensions > 1 else "line segment(s)"
+        display_type = "-gon" if self.dimensions > 1 else " line segment(s)"
+        n_points = len(self.coords) - 1
         return (
             f"{self.__class__.__name__} {self.name} "
-            f"({len(self.region.coords)}{display_type})\n"
-        ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.region.coords)
+            f"({n_points}{display_type})\n"
+        ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
