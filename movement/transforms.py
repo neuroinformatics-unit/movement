@@ -4,6 +4,8 @@ import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
+from movement.validators.arrays import validate_dims_coords
+
 
 def scale(
     data: xr.DataArray,
@@ -44,6 +46,8 @@ def scale(
     factor is broadcasted along the first matching dimension.
 
     """
+    validate_dims_coords(data, {"space": ["x", "y"]})
+
     if not np.isscalar(factor):
         factor = np.array(factor).squeeze()
         if factor.ndim != 1:
@@ -51,10 +55,10 @@ def scale(
                 "Factor must be an object that can be converted to a 1D numpy"
                 f" array, got {factor.ndim}D"
             )
-        elif factor.shape[0] != data.space.values.shape[0]:
+        elif factor.shape != data.space.values.shape:
             raise ValueError(
-                f"Factor length {factor.shape[0]} does not match the length "
-                f"of the space dimension {data.space.values.shape[0]}"
+                f"Factor shape {factor.shape} does not match the shape "
+                f"of the space dimension {data.space.values.shape}"
             )
         else:
             factor_dims = [1] * data.ndim  # 1s array matching data dimensions

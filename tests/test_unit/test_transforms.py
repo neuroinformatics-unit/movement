@@ -113,7 +113,9 @@ def test_scale_space_dimension(dims: list[str], data_shape):
     """
     factor = [0.5, 2]
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
-    data = xr.DataArray(numerical_data, dims=dims)
+    data = xr.DataArray(
+        numerical_data, dims=dims, coords=DEFAULT_SPATIAL_COORDS
+    )
     scaled_data = scale(data, factor=factor)
     broadcast_list = [1 if dim != "space" else len(factor) for dim in dims]
     expected_output_data = data * np.array(factor).reshape(broadcast_list)
