@@ -96,45 +96,49 @@ def test_scale(
     assert scaled_data.attrs == expected_output.attrs
 
 
-def test_scale_inverted_data():
+def test_scale_space_dimension_two_dims():
     """Test scaling with transposed data along the correct dimension.
 
-    The factor is reshaped to (1, 1, 4, 1) so that it can be broadcasted along
-    the third dimension ("y") which matches the length of the scaling factor.
+    The scaling factor should be broadcasted along the space axis irrespective
+    of the order of the dimensions in the input data.
     """
     factor = [0.5, 2]
-    transposed_data = data_array_with_dims_and_coords(
+
+    data_space_second = data_array_with_dims_and_coords(
+        nparray_0_to_23(), dims=["time", "space"]
+    )
+    data_space_first = data_array_with_dims_and_coords(
         nparray_0_to_23().transpose(), dims=["space", "time"]
     )
-    output_array = scale(transposed_data, factor=factor)
-    expected_output = data_array_with_dims_and_coords(
-        (nparray_0_to_23() * factor).transpose(), dims=["space", "time"]
-    )
-    xr.testing.assert_equal(output_array, expected_output)
 
-    factor = [0.1, 0.2, 0.3, 0.4]
-    data_shape = (3, 5, 4, 2)
-    numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
-    input_data = xr.DataArray(numerical_data, dims=["w", "x", "y", "z"])
-    output_array = scale(input_data, factor=factor)
-    assert output_array.shape == input_data.shape
+    scaled_data_space_second = scale(data_space_second, factor=factor)
+    scaled_data_space_first = scale(data_space_first, factor=factor)
+
     xr.testing.assert_equal(
-        output_array, input_data * np.array(factor).reshape(1, 1, 4, 1)
+        scaled_data_space_second, scaled_data_space_first.transpose()
     )
 
 
-def test_scale_first_matching_axis():
-    """Test scaling when multiple axes match the scaling factor's length.
-    The scaling factor should be broadcasted along the first matching axis.
+def test_scale_space_dimension_four_dims():
+    """Test scaling with data having four dimensions.
+
+    The scaling factor should be broadcasted along the space axis irrespective
+    of the order of the dimensions in the input data.
     """
-    factor = [0.5, 1]
-    data_shape = (2, 2)
+    factor = [0.5, 2]
+    data_shape = (3, 6, 4, 2)
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
-    input_data = xr.DataArray(numerical_data, dims=["x", "y"])
-    output_array = scale(input_data, factor=factor)
-    assert output_array.shape == input_data.shape
-    assert np.isclose(input_data.values[0] * 0.5, output_array.values[0]).all()
-    assert np.isclose(input_data.values[1], output_array.values[1]).all()
+    data_space_fourth = xr.DataArray(
+        numerical_data, dims=["time", "individuals", "keypoints", "space"]
+    )
+    scaled_data_space_fourth = scale(data_space_fourth, factor=factor)
+
+    assert scaled_data_space_fourth.shape == data_space_fourth.shape
+
+    expected_output_data = data_space_fourth * np.array(factor).reshape(
+        1, 1, 1, 2
+    )
+    xr.testing.assert_equal(scaled_data_space_fourth, expected_output_data)
 
 
 @pytest.mark.parametrize(
@@ -185,15 +189,17 @@ def test_scale_twice(
 @pytest.mark.parametrize(
     "invalid_factor, expected_error_message",
     [
-        (
+        pytest.param(
             np.zeros((3, 3, 4)),
             "Factor must be an object that can be converted to a 1D numpy"
             " array, got 3D",
+            id="3D factor",
         ),
-        (
+        pytest.param(
             np.zeros(3),
-            "Factor shape (3,) does not match the length of"
-            " any data axes: (12, 2)",
+            "Factor length 3 does not match the length "
+            "of the space dimension 2",
+            id="space dimension mismatch",
         ),
     ],
 )

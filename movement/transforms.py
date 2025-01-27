@@ -51,16 +51,14 @@ def scale(
                 "Factor must be an object that can be converted to a 1D numpy"
                 f" array, got {factor.ndim}D"
             )
-        elif factor.shape[0] not in data.shape:
+        elif factor.shape[0] != data.space.values.shape[0]:
             raise ValueError(
-                f"Factor shape {factor.shape} does not match "
-                f"the length of any data axes: {data.shape}"
+                f"Factor length {factor.shape[0]} does not match the length "
+                f"of the space dimension {data.space.values.shape[0]}"
             )
         else:
-            matching_dims = np.array(data.shape) == factor.shape[0]
-            first_matching_dim = np.argmax(matching_dims).item()
-            factor_dims = [1] * data.ndim
-            factor_dims[first_matching_dim] = factor.shape[0]
+            factor_dims = [1] * data.ndim  # 1s array matching data dimensions
+            factor_dims[data.get_axis_num("space")] = factor.shape[0]
             factor = factor.reshape(factor_dims)
     scaled_data = data * factor
 
