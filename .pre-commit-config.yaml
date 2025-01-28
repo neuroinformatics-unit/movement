@@ -20,6 +20,7 @@ repos:
             args: [--fix=lf]
           - id: name-tests-test
             args: ["--pytest-test-first"]
+            exclude: ^tests/fixtures/
           - id: requirements-txt-fixer
           - id: trailing-whitespace
     - repo: https://github.com/pre-commit/pygrep-hooks
