@@ -853,7 +853,7 @@ class TestForwardVectorAngle:
         )
 
     @pytest.mark.parametrize(
-        ["swap_left_right", "swap_camera_angle", "swap_angle_rotation"],
+        ["swap_left_right", "swap_camera_view", "swap_angle_rotation"],
         [
             pytest.param(True, True, True, id="(TTT) LR, Camera, Angle"),
             pytest.param(True, True, False, id="(TTF) LR, Camera"),
@@ -869,7 +869,7 @@ class TestForwardVectorAngle:
         self,
         spinning_on_the_spot: xr.DataArray,
         swap_left_right: bool,
-        swap_camera_angle: bool,
+        swap_camera_view: bool,
         swap_angle_rotation: bool,
     ) -> None:
         r"""Test antisymmetry arises where expected.
@@ -896,7 +896,7 @@ class TestForwardVectorAngle:
         else:
             args_to_function["left_keypoint"] = left_keypoint
             args_to_function["right_keypoint"] = right_keypoint
-        if swap_camera_angle:
+        if swap_camera_view:
             args_to_function["camera_view"] = "bottom_up"
         if swap_angle_rotation:
             args_to_function["angle_rotates"] = "forward to ref"
@@ -919,7 +919,7 @@ class TestForwardVectorAngle:
             expected_orientations = self.push_into_range(
                 expected_orientations + 180.0
             )
-        if swap_camera_angle:
+        if swap_camera_view:
             expected_orientations = self.push_into_range(
                 expected_orientations + 180.0
             )
