@@ -9,7 +9,7 @@ from movement.validators.arrays import validate_dims_coords
 
 def scale(
     data: xr.DataArray,
-    factor: ArrayLike = 1.0,
+    factor: ArrayLike | float = 1.0,
     space_unit: str | None = None,
 ) -> xr.DataArray:
     """Scale data by a given factor with an optional unit.
@@ -18,13 +18,13 @@ def scale(
     ----------
     data : xarray.DataArray
         The input data to be scaled.
-    factor : ArrayLike
-        The scaling factor to apply to the data. Any object that can be
-        converted to a 1D numpy array is valid (e.g. a single float or a list
-        of floats). If factor is a single float, the data array is uniformly
-        scaled by the same factor. If factor contains multiple floats, the
-        length of the resulting array must match the length of data array's
-        unit dimension along which it will be broadcasted.
+    factor : ArrayLike or float
+        The scaling factor to apply to the data. If factor is a scalar (a
+        single float), the data array is uniformly scaled by the same factor.
+        If factor is an object that can be converted to a 1D numpy array (e.g.
+        a list of floats), the length of the resulting array must match the
+        length of data array's space dimension along which it will be
+        broadcasted.
     space_unit : str or None
         The unit of the scaled data stored as a property in
         xarray.DataArray.attrs['space_unit']. In case of the default (``None``)
