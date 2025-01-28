@@ -5,11 +5,16 @@ from typing import Literal
 
 import numpy as np
 import xarray as xr
+from numpy.typing import ArrayLike
 from scipy.spatial.distance import cdist
 
 from movement.utils.logging import log_error, log_warning
 from movement.utils.reports import report_nan_values
-from movement.utils.vector import compute_norm
+from movement.utils.vector import (
+    compute_norm,
+    compute_signed_angle_2d,
+    convert_to_unit,
+)
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -203,7 +208,7 @@ def compute_forward_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-):
+) -> xr.DataArray:
     """Compute a 2D forward vector given two left-right symmetric keypoints.
 
     The forward vector is computed as a vector perpendicular to the
@@ -304,7 +309,7 @@ def compute_forward_vector(
         space="z"
     )  # keep only the first 2 spatal dimensions of the result
     # Return unit vector
-    return forward_vector / compute_norm(forward_vector)
+    return convert_to_unit(forward_vector)
 
 
 def compute_head_direction_vector(
@@ -350,6 +355,116 @@ def compute_head_direction_vector(
     )
 
 
+def compute_forward_vector_angle(
+    data: xr.DataArray,
+    left_keypoint: str,
+    right_keypoint: str,
+    reference_vector: xr.DataArray | ArrayLike = (1, 0),
+    camera_view: Literal["top_down", "bottom_up"] = "top_down",
+    in_radians: bool = False,
+    angle_rotates: Literal[
+        "ref to forward", "forward to ref"
+    ] = "ref to forward",
+) -> xr.DataArray:
+    r"""Compute the signed angle between a forward and reference vector.
+
+    Forward vector angle is the :func:`signed angle\
+    <movement.utils.vector.compute_signed_angle_2d>`
+    between the reference vector and the animal's :func:`forward vector\
+    <movement.kinematics.compute_forward_vector>`).
+    The returned angles are in degrees, spanning the range :math:`(-180, 180]`,
+    unless ``in_radians`` is set to ``True``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data representing position. This must contain
+        the two symmetrical keypoints located on the left and
+        right sides of the body, respectively.
+    left_keypoint : str
+        Name of the left keypoint, e.g., "left_ear", used to compute the
+        forward vector.
+    right_keypoint : str
+        Name of the right keypoint, e.g., "right_ear", used to compute the
+        forward vector.
+    reference_vector : xr.DataArray | ArrayLike, optional
+        The reference vector against which the ``forward_vector`` is
+        compared to compute 2D heading. Must be a two-dimensional vector,
+        in the form [x,y] - where ``reference_vector[0]`` corresponds to the
+        x-coordinate and ``reference_vector[1]`` corresponds to the
+        y-coordinate. If left unspecified, the vector [1, 0] is used by
+        default.
+    camera_view : Literal["top_down", "bottom_up"], optional
+        The camera viewing angle, used to determine the upwards
+        direction of the animal. Can be either ``"top_down"`` (where the
+        upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
+        upwards direction is [0, 0, 1]). If left unspecified, the camera
+        view is assumed to be ``"top_down"``.
+    in_radians : bool, optional
+        If true, the returned heading array is given in radians.
+        If false, the array is given in degrees. False by default.
+    angle_rotates : Literal["ref to forward", "forward to ref"], optional
+        Determines the sign convention for the returned signed angle.
+        (See Notes).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed forward vector angles,
+        with dimensions matching the input data array,
+        but without the ``keypoints`` and ``space`` dimensions.
+
+    Notes
+    -----
+    There are different conventions for the sign of the forward vector angle.
+    The ``angle_rotates`` argument can be used to select which behaviour the
+    function should use.
+
+    By default, ``angle_rotates`` is set to ``"ref to forward"``, which
+    results in the signed angle between the reference vector and the forward
+    vector being returned. That is, the angle which the reference vector would
+    need to be rotated by, to align with the forward vector.
+    Setting ``angle_rotates`` to ``"forward to ref"`` reverses this convention,
+    returning the signed angle between the forward vector and the reference
+    vector; that is, the rotation that would need to be applied to the forward
+    vector to return the reference vector.
+
+    See Also
+    --------
+    movement.utils.vector.compute_signed_angle_2d : The underlying
+        function used to compute the signed angle between two 2D vectors.
+    movement.kinematics.compute_forward_vector : The function used
+        to compute the forward vector.
+
+    """
+    if angle_rotates.lower() == "ref to forward":
+        ref_is_left_operand = True
+    elif angle_rotates.lower() == "forward to ref":
+        ref_is_left_operand = False
+    else:
+        raise ValueError(f"Unknown angle convention: '{angle_rotates}'")
+
+    # Convert reference vector to np.array if not already a valid array
+    if not isinstance(reference_vector, np.ndarray | xr.DataArray):
+        reference_vector = np.array(reference_vector)
+
+    # Compute forward vector
+    forward_vector = compute_forward_vector(
+        data, left_keypoint, right_keypoint, camera_view=camera_view
+    )
+
+    # Compute signed angle between forward vector and reference vector
+    heading_array = compute_signed_angle_2d(
+        forward_vector, reference_vector, v_as_left_operand=ref_is_left_operand
+    )
+
+    # Convert to degrees
+    if not in_radians:
+        heading_array = np.rad2deg(heading_array)
+
+    return heading_array
+
+
 def _cdist(
     a: xr.DataArray,
     b: xr.DataArray,
@@ -388,6 +503,7 @@ def _cdist(
     **kwargs : dict
         Additional keyword arguments to pass to
         :func:`scipy.spatial.distance.cdist`.
+
 
     Returns
     -------
