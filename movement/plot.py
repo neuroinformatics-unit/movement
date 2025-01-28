@@ -6,9 +6,6 @@ import numpy as np
 import xarray as xr
 from matplotlib import pyplot as plt
 
-from movement import sample_data
-from movement.io import load_poses
-
 
 def trajectory(
     ds: xr.DataArray,
@@ -37,9 +34,6 @@ def trajectory(
         individual = np.str_(individual)
 
     fig, ax = plt.subplots(1, 1)
-    if frame_path is not None:
-        frame = plt.imread(frame_path)
-        ax.imshow(frame)
 
     sc = ax.scatter(
         midpoint.sel(individuals=individual, space="x"),
@@ -50,9 +44,6 @@ def trajectory(
         marker="o",
     )
 
-    if frame_path is not None:
-        sc.set_alpha(0.5)
-
     ax.axis("equal")
     ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
@@ -60,23 +51,12 @@ def trajectory(
     ax.set_title(f"{individual} trajectory of {midpoint_name}")
     fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
 
+    if frame_path is not None:
+        sc.set_alpha(0.05)
+        frame = plt.imread(frame_path)
+        ax.invert_yaxis()
+        ax.imshow(frame)
+        # Ivert the y-axis back again since the the image is plotted
+        # using a coordinate system with origin on the top left of the image
+
     return fig
-
-
-ds_path = sample_data.fetch_dataset_paths(
-    "SLEAP_single-mouse_EPM.analysis.h5"
-)["poses"]
-ds = load_poses.from_sleap_file(ds_path, fps=None)
-
-frame_path = sample_data.fetch_dataset_paths(
-    "SLEAP_single-mouse_EPM.analysis.h5"
-)["frame"]
-
-
-head_trajectory = trajectory(
-    ds, ["left_ear", "right_ear"], individual=0, frame_path=frame_path
-)
-
-plt.ion()  # Enable interactive mode
-head_trajectory.show()
-input("Press Enter to exit...")

@@ -14,7 +14,7 @@ coordinates.
 import numpy as np
 from matplotlib import pyplot as plt
 
-from movement import sample_data
+from movement import plot, sample_data
 from movement.io import load_poses
 from movement.utils.vector import cart2pol, pol2cart
 
@@ -69,30 +69,14 @@ head_vector = head_vector.drop_vars("keypoints")
 # We can plot the data to check that our computation of the head vector is
 # correct.
 #
-# We can start by plotting the trajectory of the midpoint between the ears. We
-# will refer to this as the head trajectory.
-
-fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
-
-sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x"),
-    midpoint_ears.sel(individuals=mouse_name, space="y"),
-    s=15,
-    c=midpoint_ears.time,
-    cmap="viridis",
-    marker="o",
-)
-
-ax.axis("equal")
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.invert_yaxis()
-ax.set_title(f"Head trajectory ({mouse_name})")
-fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
-fig.show()
+# We can start by plotting the head trajectory, defined here as the midpoint
+# between the ears.
+head_trajectory = plot.trajectory(ds, ["left_ear", "right_ear"], individual=0)
+head_trajectory.show()
 
 # %%
+# Overlay trajectory on Elevated Plus Maze and adjust plot title
+# ----------------------------------------------------------------
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
 # `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
@@ -103,32 +87,13 @@ fig.show()
 frame_path = sample_data.fetch_dataset_paths(
     "SLEAP_single-mouse_EPM.analysis.h5"
 )["frame"]
-im = plt.imread(frame_path)
 
-
-# plot sample frame
-fig, ax = plt.subplots(1, 1)
-ax.imshow(im)
-
-# plot head trajectory with semi-transparent markers
-sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x"),
-    midpoint_ears.sel(individuals=mouse_name, space="y"),
-    s=15,
-    c=midpoint_ears.time,
-    cmap="viridis",
-    marker="o",
-    alpha=0.05,  # transparency
+head_trajectory = plot.trajectory(
+    ds, ["left_ear", "right_ear"], individual=0, frame_path=frame_path
 )
-
-ax.axis("equal")
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-# No need to invert the y-axis now, since the image is plotted
-# using a pixel coordinate system with origin on the top left of the image
-ax.set_title(f"Head trajectory ({mouse_name})")
-
-fig.show()
+head_trajectory.axes[0].set_title("")  # remove generated title
+head_trajectory.suptitle("Head trajectory")  # add new title
+head_trajectory.show()
 
 # %%
 # The overlaid plot suggests the mouse spends most of its time in the
