@@ -368,10 +368,11 @@ def compute_forward_vector_angle(
     r"""Compute the signed angle between a forward and reference vector.
 
     Forward vector angle, or 'heading angle', is the :func:`signed angle\
-    <movement.utils.vector.signed_angle_between_2d_vectors>`
+    <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
     <movement.kinematics.compute_forward_vector>`).
-    The returned angles are in degrees, spanning the range :math:`(-180, 180]`.
+    The returned angles are in degrees, spanning the range :math:`(-180, 180]`,
+    unless ``in_radians`` is set to ``True``.
 
     Parameters
     ----------
@@ -386,7 +387,7 @@ def compute_forward_vector_angle(
         Name of the right keypoint, e.g., "right_ear", used to compute the
         forward vector.
     reference_vector : xr.DataArray | np.ndarray | list | tuple, optional
-        The reference vector against which the ```forward_vector`` is
+        The reference vector against which the ``forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
         in the form [x,y] - where reference_vector[0] corresponds to the
         x-coordinate and reference_vector[1] corresponds to the
@@ -418,18 +419,18 @@ def compute_forward_vector_angle(
     The ``angle_rotates`` argument can be used to select which behaviour the
     function should use.
 
-    By default, the ``angle_rotates`` is set to ``ref to forward``, which
+    By default, the ``angle_rotates`` is set to ``"ref to forward"``, which
     results in the signed angle between the reference vector and the forward
     vector being returned. That is, the angle which the reference vector would
     need to be rotated by, to align with the forward vector.
-    Setting ``angle_rotates`` to ``forward to ref`` reverses this convention,
+    Setting ``angle_rotates`` to ``"forward to ref"`` reverses this convention,
     returning the signed angle between the forward vector and the reference
     vector; that is, the rotation that would need to be applied to the forward
     vector to return the reference vector.
 
     See Also
     --------
-    movement.utils.vector.signed_angle_between_2d_vectors : The underlying
+    movement.utils.vector.compute_signed_angle_2d : The underlying
         function used to compute the signed angle between two 2D vectors.
     movement.kinematics.compute_forward_vector : The function used
         to compute the forward vector.

@@ -97,7 +97,7 @@ def validate_reference_vector(
         if any(d not in {"time", "space"} for d in reference_vector.dims):
             raise log_error(
                 ValueError,
-                "Only dimensions 'time' and 'space' dimensions "
+                "Only 'time' and 'space' dimensions "
                 "are allowed in reference_vector.",
             )
         return reference_vector

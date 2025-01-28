@@ -103,7 +103,7 @@ def x_axis_over_time(n_time_pts: int = 10) -> xr.DataArray:
             ),
             x_axis_over_time(10),
             ValueError(
-                "Only dimensions 'time' and 'space' dimensions "
+                "Only 'time' and 'space' dimensions "
                 "are allowed in reference_vector.",
             ),
             id="Extra dimension in reference vector",
