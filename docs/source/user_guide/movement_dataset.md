@@ -1,14 +1,14 @@
 (target-poses-and-bboxes-dataset)=
 # The movement datasets
 
-In `movement`, poses or bounding boxes' tracks are represented
+In `movement`, poses or bounding boxes tracks are represented
 as an {class}`xarray.Dataset` object.
 
 An {class}`xarray.Dataset` object is a container for multiple arrays. Each array is an {class}`xarray.DataArray` object holding different aspects of the collected data (position, time, confidence scores...). You can think of a {class}`xarray.DataArray` object as a multi-dimensional {class}`numpy.ndarray`
 with pandas-style indexing and labelling.
 
 So a `movement` dataset is simply an {class}`xarray.Dataset` with a specific
-structure to represent pose tracks or bounding boxes' tracks. Because pose data and bounding boxes data are somewhat different, `movement` provides two types of datasets: `poses` datasets and `bboxes` datasets.
+structure to represent pose tracks or bounding boxes tracks. Because pose data and bounding boxes data are somewhat different, `movement` provides two types of datasets: `poses` datasets and `bboxes` datasets.
 
 To discuss the specifics of both types of `movement` datasets, it is useful to clarify some concepts such as **data variables**, **dimensions**,
 **coordinates** and **attributes**. In the next section, we will describe these concepts and the `movement` datasets' structure in some detail.

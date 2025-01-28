@@ -27,7 +27,7 @@ Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
 generate keypoint representations from video data by detecting body parts and
 tracking them across frames. In the context of `movement`, we refer to these
 trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories
-of a set of keypoints, _bounding boxes' tracks_ to refer to the trajectories
+of a set of keypoints, _bounding boxes tracks_ to refer to the trajectories
 of bounding boxes' centroids, or _motion tracks_ in the more general case.
 
 Our vision is to present a **consistent interface for representing motion
