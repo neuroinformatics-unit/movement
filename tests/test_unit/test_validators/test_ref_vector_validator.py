@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.validators.vector import validate_reference_vector
+from movement.validators.arrays import validate_reference_vector
 
 
 @pytest.fixture
