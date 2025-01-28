@@ -8,7 +8,7 @@ Before you dive deeper, we highly recommend reading about the structure
 and usage of [movement datasets](movement_dataset.md), which are a central
 concept in the package.
 
-::::{grid} 1 2 2 3
+::::{grid} 1 2 2 4
 :gutter: 3
 
 :::{grid-item-card} {fas}`wrench;sd-text-primary` Installation
@@ -32,6 +32,13 @@ Load and save tracking data.
 Learn about our data structures.
 :::
 
+:::{grid-item-card} {fas}`line-chart;sd-text-primary` The napari plugin
+:link: napari_plugin
+:link-type: doc
+
+Visualise data in `napari`.
+:::
+
 ::::
 
 
@@ -42,4 +49,5 @@ Learn about our data structures.
 installation
 input_output
 movement_dataset
+napari_plugin
 ```
