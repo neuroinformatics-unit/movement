@@ -31,26 +31,29 @@ def mock_dataset() -> xr.DataArray:
 
 
 @pytest.mark.parametrize(
-    ["along_dimension", "expected_output", "mimic_fn", "fn_kwargs"],
+    ["along_dimension", "expected_output", "mimic_fn", "fn_args", "fn_kwargs"],
     [
-        pytest.param(
-            "space",
-            data_in_shape(mock_shape()).sum(axis=1),
-            sum,
-            {},
-            id="Mimic sum",
-        ),
         pytest.param(
             "space",
             np.zeros(mock_shape()).sum(axis=1),
             lambda x: 0.0,
+            tuple(),
             {},
             id="Zero everything",
+        ),
+        pytest.param(
+            "space",
+            data_in_shape(mock_shape()).sum(axis=1),
+            sum,
+            tuple(),
+            {},
+            id="Mimic sum",
         ),
         pytest.param(
             "time",
             data_in_shape(mock_shape()).prod(axis=0),
             np.prod,
+            tuple(),
             {},
             id="Mimic prod, on non-space dimensions",
         ),
@@ -58,6 +61,7 @@ def mock_dataset() -> xr.DataArray:
             "space",
             5.0 * data_in_shape(mock_shape()).sum(axis=1),
             lambda x, **kwargs: kwargs.get("multiplier", 1.0) * sum(x),
+            tuple(),
             {"multiplier": 5.0},
             id="Preserve kwargs",
         ),
@@ -65,6 +69,7 @@ def mock_dataset() -> xr.DataArray:
             "space",
             data_in_shape(mock_shape()).sum(axis=1),
             lambda x, **kwargs: kwargs.get("multiplier", 1.0) * sum(x),
+            tuple(),
             {},
             id="Preserve kwargs [fall back on default]",
         ),
@@ -72,13 +77,15 @@ def mock_dataset() -> xr.DataArray:
             "space",
             5.0 * data_in_shape(mock_shape()).sum(axis=1),
             lambda x, multiplier=1.0: multiplier * sum(x),
-            {"multiplier": 5.0},
+            (5,),
+            {},
             id="Preserve args",
         ),
         pytest.param(
             "space",
             data_in_shape(mock_shape()).sum(axis=1),
             lambda x, multiplier=1.0: multiplier * sum(x),
+            tuple(),
             {},
             id="Preserve args [fall back on default]",
         ),
@@ -89,6 +96,7 @@ def test_make_broadcastable(
     along_dimension: str,
     expected_output: xr.DataArray,
     mimic_fn: Callable[Concatenate[Any, KeywordArgs], Scalar],
+    fn_args: Any,
     fn_kwargs: Any,
 ) -> None:
     if isinstance(expected_output, np.ndarray):
@@ -103,7 +111,10 @@ def test_make_broadcastable(
     decorated_fn = make_broadcastable(mimic_fn)
 
     decorated_output = decorated_fn(
-        mock_dataset, broadcast_dimension=along_dimension, **fn_kwargs
+        mock_dataset,
+        *fn_args,
+        broadcast_dimension=along_dimension,  # type: ignore
+        **fn_kwargs,
     )
 
     assert decorated_output.shape == expected_output.shape
@@ -113,7 +124,7 @@ def test_make_broadcastable(
     if along_dimension == "space":
         decorated_fn_space_only = make_broadcastable_over_space(mimic_fn)
         decorated_output_space = decorated_fn_space_only(
-            mock_dataset, **fn_kwargs
+            mock_dataset, *fn_args, **fn_kwargs
         )
 
         assert decorated_output_space.shape == expected_output.shape

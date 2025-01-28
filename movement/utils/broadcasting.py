@@ -41,18 +41,16 @@ def make_broadcastable(
 
     """
 
-    def f_along_axis(
-        data: ArrayLike, axis: int, *f_args, **f_kwargs
-    ) -> np.ndarray:
-        return np.apply_along_axis(f, axis, data, *f_args, **f_kwargs)
-
     def inner(
         data: DataArray,
         *args: KeywordArgs.args,
         broadcast_dimension: str = "space",
         **kwargs: KeywordArgs.kwargs,
     ) -> DataArray:
-        return data.reduce(f_along_axis, broadcast_dimension, *args, **kwargs)
+        def f_along_axis(data: ArrayLike, axis: int) -> np.ndarray:
+            return np.apply_along_axis(f, axis, data, *args, **kwargs)
+
+        return data.reduce(f_along_axis, broadcast_dimension)
 
     return inner
 
