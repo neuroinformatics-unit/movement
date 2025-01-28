@@ -1006,8 +1006,8 @@ class TestForwardVectorAngle:
                     "reference_vector": np.array([1.0, 0.0, 0.0]),
                 },
                 ValueError(
-                    "Reference vector must be two-dimensional (with"
-                    " shape ``(2,)``), but got (3,)."
+                    "conflicting sizes for dimension 'space': length 3 on the "
+                    "data but length 2 on coordinate 'space'"
                 ),
                 id="Reference vector not of shape (2,)",
             ),

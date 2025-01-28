@@ -5,6 +5,7 @@ from typing import Literal
 
 import numpy as np
 import xarray as xr
+from numpy.typing import ArrayLike
 from scipy.spatial.distance import cdist
 
 from movement.utils.logging import log_error, log_warning
@@ -358,7 +359,7 @@ def compute_forward_vector_angle(
     data: xr.DataArray,
     left_keypoint: str,
     right_keypoint: str,
-    reference_vector: xr.DataArray | np.ndarray | list | tuple = (1, 0),
+    reference_vector: xr.DataArray | ArrayLike = (1, 0),
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
     in_radians: bool = False,
     angle_rotates: Literal[
@@ -386,7 +387,7 @@ def compute_forward_vector_angle(
     right_keypoint : str
         Name of the right keypoint, e.g., "right_ear", used to compute the
         forward vector.
-    reference_vector : xr.DataArray | np.ndarray | list | tuple, optional
+    reference_vector : xr.DataArray | ArrayLike, optional
         The reference vector against which the ``forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
         in the form [x,y] - where ``reference_vector[0]`` corresponds to the
@@ -443,8 +444,8 @@ def compute_forward_vector_angle(
     else:
         raise ValueError(f"Unknown angle convention: '{angle_rotates}'")
 
-    # Convert reference vector to np.array if list or tuple
-    if isinstance(reference_vector, (list | tuple)):
+    # Convert reference vector to np.array if not already a valid array
+    if not isinstance(reference_vector, np.ndarray | xr.DataArray):
         reference_vector = np.array(reference_vector)
 
     # Compute forward vector
