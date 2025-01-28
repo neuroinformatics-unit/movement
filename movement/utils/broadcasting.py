@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from xarray import DataArray
 
-Scalar = TypeVar("Scalar", float, int)
+Scalar = TypeVar("Scalar")
 KeywordArgs = ParamSpec("KeywordArgs")
 
 
@@ -21,37 +21,38 @@ def make_broadcastable(
         Concatenate[ArrayLike, KeywordArgs],
         Scalar,
     ],
-) -> Callable[Concatenate[DataArray, str, KeywordArgs], DataArray]:
+) -> Callable[Concatenate[DataArray, KeywordArgs], DataArray]:
     """Broadcast a 1D function along a ``xr.DataArray`` dimension.
 
     Parameters
     ----------
     f : Callable
         1D function to be converted into a broadcast-able function.
-        ``f`` should be callable as ``f([x, y, ...], **kwargs), and return
-        a scalar variable.
+        ``f`` should be callable as ``f([x, y, ...], *args, **kwargs), and
+        return a scalar variable.
 
     Returns
     -------
     Callable
-        Callable with args ``data, broadcast_dimension = str, **kwargs)``
+        Callable with ``data, *args, broadcast_dimension = str, **kwargs)``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
-        ``kwargs`` match those passed to ``f``, and retain the same
-        interpretations.
+        ``args`` and ``kwargs`` match those passed to ``f``, and retain the
+        same interpretations.
 
     """
 
     def f_along_axis(
-        data: ArrayLike, axis: int, **f_kwargs: KeywordArgs.kwargs
+        data: ArrayLike, axis: int, *f_args, **f_kwargs
     ) -> np.ndarray:
-        return np.apply_along_axis(f, axis=axis, arr=data, **f_kwargs)
+        return np.apply_along_axis(f, axis, data, *f_args, **f_kwargs)
 
     def inner(
         data: DataArray,
+        *args: KeywordArgs.args,
         broadcast_dimension: str = "space",
         **kwargs: KeywordArgs.kwargs,
     ) -> DataArray:
-        return data.reduce(f_along_axis, dim=broadcast_dimension, **kwargs)
+        return data.reduce(f_along_axis, broadcast_dimension, *args, **kwargs)
 
     return inner
 
@@ -68,24 +69,25 @@ def make_broadcastable_over_space(
     ----------
     f : Callable
         1D function to be converted into a broadcast-able function.
-        ``f`` should be callable as ``f([x, y, ...], **kwargs), and return
-        a scalar variable.
+        ``f`` should be callable as ``f([x, y, ...], *args, **kwargs), and
+        return a scalar variable.
 
     Returns
     -------
     Callable
-        Callable with args ``(data, **kwargs)`` that applies ``f`` along the
-        ``"space"`` dimension of ``data``. ``kwargs`` match those passed to
-        ``f``, and retain the same interpretations.
+        Callable with ``data, *args, **kwargs)``, that applies ``f`` along the
+        ``broadcast_dimension`` of ``data``. ``args`` and ``kwargs`` match
+        those passed to ``f``, and retain the same interpretations.
 
     Notes
     -----
     This is a convenience alias for
 
     ```python
-    def(data, **kwargs):
+    def(data, *args, **kwargs):
         return make_broadcastable(f)(
             data,
+            *args,
             broadcast_dimension = "space",
             **kwargs,
         )
@@ -98,7 +100,14 @@ def make_broadcastable_over_space(
     """
     decorate = make_broadcastable(f)
 
-    def inner(data: DataArray, **kwargs: KeywordArgs.kwargs) -> DataArray:
-        return decorate(data, broadcast_dimension="space", **kwargs)
+    def inner(
+        data: DataArray, *args: KeywordArgs.args, **kwargs: KeywordArgs.kwargs
+    ) -> DataArray:
+        return decorate(
+            data,
+            *args,
+            **kwargs,
+            broadcast_dimension="space",  # type: ignore
+        )
 
     return inner
