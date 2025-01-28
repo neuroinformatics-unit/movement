@@ -188,3 +188,112 @@ class TestVector:
             expected_unit_pol.loc[{"space_pol": "rho"}] = 1
             expected_unit_pol = expected_unit_pol.where(~expected_nan_idxs)
             xr.testing.assert_allclose(unit_pol, expected_unit_pol)
+
+
+class TestComputeSignedAngle:
+    """Tests for the compute_signed_angle_2d method."""
+
+    x_axis = np.array([1.0, 0.0])
+    y_axis = np.array([0.0, 1.0])
+    coord_axes_array = np.array([x_axis, y_axis, -x_axis, -y_axis])
+
+    @pytest.mark.parametrize(
+        ["left_vector", "right_vector", "expected_angles"],
+        [
+            pytest.param(
+                x_axis.reshape(1, 2),
+                x_axis,
+                [0.0],
+                id="x-axis to x-axis",
+            ),
+            pytest.param(
+                coord_axes_array,
+                x_axis,
+                [0.0, -np.pi / 2.0, np.pi, np.pi / 2.0],
+                id="+/- axes to x-axis",
+            ),
+            pytest.param(
+                coord_axes_array,
+                -x_axis,
+                [np.pi, np.pi / 2.0, 0.0, -np.pi / 2.0],
+                id="+/- axes to -ve x-axis",
+            ),
+            pytest.param(
+                np.array([[1.0, 1.0], [-1.0, 1.0], [-1.0, -1.0], [1.0, -1.0]]),
+                coord_axes_array,
+                [-np.pi / 4.0] * 4,
+                id="-pi/4 trailing axes",
+            ),
+            pytest.param(
+                xr.DataArray(
+                    data=coord_axes_array,
+                    dims=["time", "space"],
+                    coords={
+                        "time": np.arange(coord_axes_array.shape[0]),
+                        "space": ["x", "y"],
+                    },
+                ),
+                xr.DataArray(
+                    data=-1.0 * coord_axes_array,
+                    dims=["time", "space"],
+                    coords={
+                        "time": np.arange(coord_axes_array.shape[0]),
+                        "space": ["x", "y"],
+                    },
+                ),
+                [np.pi] * 4,
+                id="Two DataArrays given",
+            ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                np.array([x_axis, -x_axis]),
+                [np.pi, np.pi],
+                id="Rotation by '-pi' should map to pi.",
+            ),
+        ],
+    )
+    def test_compute_signed_angle_2d(
+        self,
+        left_vector: xr.DataArray | np.ndarray,
+        right_vector: xr.DataArray | np.ndarray,
+        expected_angles: xr.DataArray,
+    ) -> None:
+        """Test computed angles are what we expect.
+
+        This test also checks the antisymmetry of the function in question.
+        Swapping the ``u`` and ``v`` arguments should produce an array of
+        angles with the same magnitude but opposite signs
+        (except for pi -> -pi).
+        """
+        if not isinstance(left_vector, xr.DataArray):
+            left_vector = xr.DataArray(
+                data=left_vector,
+                dims=["time", "space"],
+                coords={
+                    "time": np.arange(left_vector.shape[0]),
+                    "space": ["x", "y"],
+                },
+            )
+        if not isinstance(expected_angles, xr.DataArray):
+            expected_angles = xr.DataArray(
+                data=np.array(expected_angles),
+                dims=["time"],
+                coords={"time": left_vector["time"]}
+                if "time" in left_vector.dims
+                else None,
+            )
+        # pi and -pi should map to the same angle, regardless!
+        expected_angles_reversed = expected_angles.copy(deep=True)
+        expected_angles_reversed[expected_angles < np.pi] *= -1.0
+
+        computed_angles = vector.compute_signed_angle_2d(
+            left_vector, right_vector
+        )
+        computed_angles_reversed = vector.compute_signed_angle_2d(
+            left_vector, right_vector, v_as_left_operand=True
+        )
+
+        xr.testing.assert_allclose(computed_angles, expected_angles)
+        xr.testing.assert_allclose(
+            computed_angles_reversed, expected_angles_reversed
+        )

@@ -1,5 +1,6 @@
 import re
 from contextlib import nullcontext as does_not_raise
+from typing import Any, Literal
 
 import numpy as np
 import pytest
@@ -462,11 +463,14 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
     )
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
-    assert (
-        isinstance(forward_vector, xr.DataArray)
-        and ("space" in forward_vector.dims)
-        and ("keypoints" not in forward_vector.dims)
-    )
+    for output_array in [forward_vector, forward_vector_flipped, head_vector]:
+        assert isinstance(output_array, xr.DataArray)
+        for preserved_coord in ["time", "space", "individuals"]:
+            assert np.all(
+                output_array[preserved_coord]
+                == valid_data_array_for_forward_vector[preserved_coord]
+            )
+        assert set(output_array["space"].values) == {"x", "y"}
     assert np.equal(forward_vector.values, known_vectors).all()
     assert np.equal(forward_vector_flipped.values, known_vectors * -1).all()
     assert head_vector.equals(forward_vector)
@@ -518,20 +522,40 @@ def test_compute_forward_vector_with_invalid_input(
 
 
 def test_nan_behavior_forward_vector(
-    valid_data_array_for_forward_vector_with_nans,
+    valid_data_array_for_forward_vector_with_nans: xr.DataArray,
 ):
     """Test that ``compute_forward_vector()`` generates the
     expected output for a valid input DataArray containing ``NaN``
     position values at a single time (``1``) and keypoint
     (``left_ear``).
     """
+    nan_time = 1
     forward_vector = kinematics.compute_forward_vector(
         valid_data_array_for_forward_vector_with_nans, "left_ear", "right_ear"
     )
-    assert (
-        np.isnan(forward_vector.values[1, 0, :]).all()
-        and not np.isnan(forward_vector.values[[0, 2, 3], 0, :]).any()
-    )
+    # Check coord preservation
+    for preserved_coord in ["time", "space", "individuals"]:
+        assert np.all(
+            forward_vector[preserved_coord]
+            == valid_data_array_for_forward_vector_with_nans[preserved_coord]
+        )
+    assert set(forward_vector["space"].values) == {"x", "y"}
+    # Should have NaN values in the forward vector at time 1 and left_ear
+    nan_values = forward_vector.sel(time=nan_time)
+    assert nan_values.shape == (1, 2)
+    assert np.isnan(
+        nan_values
+    ).all(), "NaN values not returned where expected!"
+    # Should have no NaN values in the forward vector in other positions
+    assert not np.isnan(
+        forward_vector.sel(
+            time=[
+                t
+                for t in valid_data_array_for_forward_vector_with_nans.time
+                if t != nan_time
+            ]
+        )
+    ).any()
 
 
 @pytest.mark.parametrize(
@@ -738,3 +762,293 @@ def test_compute_pairwise_distances_with_invalid_input(
         kinematics.compute_pairwise_distances(
             request.getfixturevalue(ds).position, dim, pairs
         )
+
+
+class TestForwardVectorAngle:
+    """Test the compute_forward_vector_angle function.
+
+    These tests are grouped together into a class to distinguish them from the
+    other methods that are tested in the Kinematics module.
+
+    Note that since this method is a combination of calls to two lower-level
+    methods, we run limited input/output checks in this collection.
+    Correctness of the results is delegated to the tests of the dependent
+    methods, as appropriate.
+    """
+
+    x_axis = np.array([1.0, 0.0])
+    y_axis = np.array([0.0, 1.0])
+    sqrt_2 = np.sqrt(2.0)
+
+    @staticmethod
+    def push_into_range(
+        numeric_values: xr.DataArray | np.ndarray,
+        lower: float = -180.0,
+        upper: float = 180.0,
+    ) -> xr.DataArray | np.ndarray:
+        """Translate values into the range (lower, upper].
+
+        The interval width is the value ``upper - lower``.
+        Each ``v`` in ``values`` that starts less than or equal to the
+        ``lower`` bound has multiples of the interval width added to it,
+        until the result lies in the desirable interval.
+
+        Each ``v`` in ``values`` that starts greater than the ``upper``
+        bound has multiples of the interval width subtracted from it,
+        until the result lies in the desired interval.
+        """
+        translated_values = (
+            numeric_values.values.copy()
+            if isinstance(numeric_values, xr.DataArray)
+            else numeric_values.copy()
+        )
+
+        interval_width = upper - lower
+        if interval_width <= 0:
+            raise ValueError(
+                f"Upper bound ({upper}) must be strictly "
+                f"greater than lower bound ({lower})"
+            )
+
+        while np.any(
+            (translated_values <= lower) | (translated_values > upper)
+        ):
+            translated_values[translated_values <= lower] += interval_width
+            translated_values[translated_values > upper] -= interval_width
+
+        if isinstance(numeric_values, xr.DataArray):
+            translated_values = numeric_values.copy(
+                deep=True, data=translated_values
+            )
+        return translated_values
+
+    @pytest.fixture
+    def spinning_on_the_spot(self) -> xr.DataArray:
+        """Simulate data for an individual's head spinning on the spot.
+
+        The left / right keypoints move in a circular motion counter-clockwise
+        around the unit circle centred on the origin, always opposite each
+        other.
+        The left keypoint starts on the negative x-axis, and the motion is
+        split into 8 time points of uniform rotation angles.
+        """
+        data = np.zeros(shape=(8, 2, 2), dtype=float)
+        data[:, :, 0] = np.array(
+            [
+                -self.x_axis,
+                (-self.x_axis - self.y_axis) / self.sqrt_2,
+                -self.y_axis,
+                (self.x_axis - self.y_axis) / self.sqrt_2,
+                self.x_axis,
+                (self.x_axis + self.y_axis) / self.sqrt_2,
+                self.y_axis,
+                (-self.x_axis + self.y_axis) / self.sqrt_2,
+            ]
+        )
+        data[:, :, 1] = -data[:, :, 0]
+        return xr.DataArray(
+            data=data,
+            dims=["time", "space", "keypoints"],
+            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+        )
+
+    @pytest.mark.parametrize(
+        ["swap_left_right", "swap_camera_view", "swap_angle_rotation"],
+        [
+            pytest.param(True, True, True, id="(TTT) LR, Camera, Angle"),
+            pytest.param(True, True, False, id="(TTF) LR, Camera"),
+            pytest.param(True, False, True, id="(TFT) LR, Angle"),
+            pytest.param(True, False, False, id="(TFF) LR"),
+            pytest.param(False, True, True, id="(FTT) Camera, Angle"),
+            pytest.param(False, True, False, id="(FTF) Camera"),
+            pytest.param(False, False, True, id="(FFT) Angle"),
+            pytest.param(False, False, False, id="(FFF)"),
+        ],
+    )
+    def test_antisymmetry_properties(
+        self,
+        spinning_on_the_spot: xr.DataArray,
+        swap_left_right: bool,
+        swap_camera_view: bool,
+        swap_angle_rotation: bool,
+    ) -> None:
+        r"""Test antisymmetry arises where expected.
+
+        Reversing the right and left keypoints, or the camera position, has the
+        effect of mapping angles to the "opposite side" of the unit circle.
+        Explicitly;
+        - :math:`\theta <= 0` is mapped to :math:`\theta + 180`,
+        - :math:`\theta > 0` is mapped to :math:`\theta - 180`.
+
+        In theory, the antisymmetry of ``angle_rotates`` should be covered by
+        the underlying tests for ``compute_signed_angle_2d``, however we
+        include this case here for additional checks in conjunction with other
+        behaviour.
+        """
+        reference_vector = self.x_axis
+        left_keypoint = "left"
+        right_keypoint = "right"
+
+        args_to_function = {}
+        if swap_left_right:
+            args_to_function["left_keypoint"] = right_keypoint
+            args_to_function["right_keypoint"] = left_keypoint
+        else:
+            args_to_function["left_keypoint"] = left_keypoint
+            args_to_function["right_keypoint"] = right_keypoint
+        if swap_camera_view:
+            args_to_function["camera_view"] = "bottom_up"
+        if swap_angle_rotation:
+            args_to_function["angle_rotates"] = "forward to ref"
+
+        # mypy call here is angry, https://github.com/python/mypy/issues/1969
+        with_orientations_swapped = kinematics.compute_forward_vector_angle(
+            data=spinning_on_the_spot,
+            reference_vector=reference_vector,
+            **args_to_function,  # type: ignore[arg-type]
+        )
+        without_orientations_swapped = kinematics.compute_forward_vector_angle(
+            data=spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+        )
+
+        expected_orientations = without_orientations_swapped.copy(deep=True)
+        if swap_left_right:
+            expected_orientations = self.push_into_range(
+                expected_orientations + 180.0
+            )
+        if swap_camera_view:
+            expected_orientations = self.push_into_range(
+                expected_orientations + 180.0
+            )
+        if swap_angle_rotation:
+            expected_orientations *= -1.0
+        expected_orientations = self.push_into_range(expected_orientations)
+
+        xr.testing.assert_allclose(
+            with_orientations_swapped, expected_orientations
+        )
+
+    @pytest.mark.parametrize(
+        ["transformation"],
+        [pytest.param("scale"), pytest.param("translation")],
+    )
+    def test_transformation_invariance(
+        self,
+        spinning_on_the_spot: xr.DataArray,
+        transformation: Literal["scale", "translation"],
+    ) -> None:
+        """Test that certain transforms of the data have no effect on
+        the relative angle computed.
+
+        - Translations applied to both keypoints (even if the translation
+        changes with time) should not affect the result, so long as both
+        keypoints receive the same translation (at each timepoint).
+        - Scaling the right to left keypoint vector should not produce a
+        different angle.
+        """
+        left_keypoint = "left"
+        right_keypoint = "right"
+        reference_vector = self.x_axis
+
+        translated_data = spinning_on_the_spot.values.copy()
+        n_time_pts = translated_data.shape[0]
+
+        if transformation == "translation":
+            # Effectively, the data is being translated (1,1)/time-point,
+            # but its keypoints are staying in the same relative positions.
+            translated_data += np.arange(n_time_pts).reshape(n_time_pts, 1, 1)
+        elif transformation == "scale":
+            # The left keypoint position is "stretched" further away from the
+            # origin over time; for the time-point at index t,
+            # a scale factor of (t+1) is applied to the left keypoint.
+            # The right keypoint remains unscaled, but remains in the same
+            # direction away from the left keypoint.
+            translated_data[:, :, 0] *= np.arange(1, n_time_pts + 1).reshape(
+                n_time_pts, 1
+            )
+        else:
+            raise ValueError(f"Did not recognise case: {transformation}")
+        translated_data = spinning_on_the_spot.copy(
+            deep=True, data=translated_data
+        )
+
+        untranslated_output = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+        )
+        translated_output = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+        )
+
+        xr.testing.assert_allclose(untranslated_output, translated_output)
+
+    @pytest.mark.parametrize(
+        ["args_to_fn", "expected_error"],
+        [
+            pytest.param(
+                {
+                    "reference_vector": x_axis,
+                    "angle_rotates": "elephants first",
+                },
+                ValueError("Unknown angle convention: 'elephants first'"),
+                id="Unknown angle orientation",
+            ),
+            pytest.param(
+                {
+                    "reference_vector": np.array([1.0, 0.0, 0.0]),
+                },
+                ValueError(
+                    "conflicting sizes for dimension 'space': length 3 on the "
+                    "data but length 2 on coordinate 'space'"
+                ),
+                id="Reference vector not of shape (2,)",
+            ),
+        ],
+    )
+    def test_error_cases(
+        self,
+        spinning_on_the_spot: xr.DataArray,
+        args_to_fn: dict[str, Any],
+        expected_error: Exception,
+    ) -> None:
+        """Test that the angle orientation provided has to be recognised."""
+        with pytest.raises(
+            type(expected_error),
+            match=re.escape(str(expected_error)),
+        ):
+            kinematics.compute_forward_vector_angle(
+                spinning_on_the_spot,
+                "left",
+                "right",
+                **args_to_fn,
+            )
+
+    def test_casts_from_tuple(
+        self, spinning_on_the_spot: xr.DataArray
+    ) -> None:
+        """Test that tuples and lists are cast to numpy arrays,
+        when given as the reference vector.
+        """
+        x_axis_as_tuple = (1.0, 0.0)
+        x_axis_as_list = [1.0, 0.0]
+
+        pass_numpy = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", self.x_axis
+        )
+        pass_tuple = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", x_axis_as_tuple
+        )
+        pass_list = kinematics.compute_forward_vector_angle(
+            spinning_on_the_spot, "left", "right", x_axis_as_list
+        )
+
+        xr.testing.assert_allclose(pass_numpy, pass_tuple)
+        xr.testing.assert_allclose(pass_numpy, pass_list)
