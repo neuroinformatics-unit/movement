@@ -4,7 +4,10 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import log_error
-from movement.validators.arrays import validate_dims_coords
+from movement.validators.arrays import (
+    validate_dims_coords,
+    validate_reference_vector,
+)
 
 
 def compute_norm(data: xr.DataArray) -> xr.DataArray:
@@ -163,6 +166,96 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         ],
         concat_dim="space",
     ).transpose(*dims)
+
+
+def compute_signed_angle_2d(
+    u: xr.DataArray,
+    v: xr.DataArray | np.ndarray,
+    v_as_left_operand: bool = False,
+) -> xr.DataArray:
+    r"""Compute the signed angle from the vector ``u`` to the vector ``v``.
+
+    The signed angle between ``u`` and ``v`` is the rotation that needs to be
+    applied to ``u`` to have it point in the same direction as ``v`` (see
+    Notes). Angles are returned in radians, spanning :math:`(-\pi, \pi]`
+    according to the ``arctan2`` convention.
+
+    Parameters
+    ----------
+    u : xarray.DataArray
+        An array of position vectors containing the ``space``
+        dimension with only ``"x"`` and ``"y"`` coordinates.
+    v : xarray.DataArray | numpy.ndarray
+        A 2D vector (or array of 2D vectors) against which to
+        compare ``u``. May either be an xarray
+        DataArray containing the ``"space"``  dimension or a numpy
+        array containing one or more 2D vectors. (See Notes)
+    v_as_left_operand : bool, default False
+        If True, the signed angle between ``v`` and ``u`` is returned, instead
+        of the signed angle between ``u`` and ``v``. This is a convenience
+        wrapper for when one of the two vectors to be used does not have time
+        points, and the other does.
+
+    Returns
+    -------
+    xarray.DataArray :
+        An xarray DataArray containing signed angle between
+        ``u`` and ``v`` for every time point. Matches the dimensions of
+        ``u``, but without the ``space`` dimension.
+
+    Notes
+    -----
+    Given two vectors :math:`u = (u_x, u_y)` and :math:`v = (v_x, v_y)`,
+    the signed angle :math:`\alpha` between ``u`` and ``v`` is computed as
+
+    .. math::
+        \alpha &= \mathrm{arctan2}(u \times v, u\cdot v) \\
+        &= \mathrm{arctan2}(u_x v_y - u_y v_x, u_x v_x + u_y v_y),
+
+    which corresponds to the rotation that needs to be applied to ``u`` for it
+    to point in the direction of ``v``.
+
+    If ``v`` is passed as an ``xarray.DataArray``, ``v`` must have the spatial
+    coordinates ``"x"`` and ``"y"`` only, and must have a ``time`` dimension
+    matching that of ``u``.
+
+    If passed as a numpy array, the ``v`` must have one of three shapes:
+
+    - ``(2,)``: where dimension ``0`` contains spatial
+      coordinates (x,y), and no time dimension is specified.
+    - ``(1,2)``:, where dimension ``0`` corresponds to a
+      single time-point and dimension ``1`` contains spatial
+      coordinates (x,y).
+    - ``(n,2)``: where dimension ``0`` corresponds to
+      time and dimension ``1`` contains spatial coordinates
+      (x,y), and where ``n == len(u.time)``.
+
+    Vectors given as ``v`` that contain more dimensions, or have shapes
+    otherwise different from those defined above are considered invalid.
+
+    """
+    validate_dims_coords(u, {"space": ["x", "y"]}, exact_coords=True)
+    # ensure v can be broadcast over u
+    v_with_matching_dims = validate_reference_vector(v, u)
+
+    u_unit = convert_to_unit(u)
+    u_x = u_unit.sel(space="x")
+    u_y = u_unit.sel(space="y")
+
+    v_unit = convert_to_unit(v_with_matching_dims)
+    v_x = v_unit.sel(space="x")
+    v_y = v_unit.sel(space="y")
+
+    cross = u_x * v_y - u_y * v_x
+    if v_as_left_operand:
+        cross *= -1.0
+    dot = u_x * v_x + u_y * v_y
+
+    angles = np.arctan2(cross, dot)
+    # arctan2 returns values in [-pi, pi].
+    # We need to map -pi angles to pi, to stay in the (-pi, pi] range
+    angles[angles <= -np.pi] = np.pi
+    return angles
 
 
 def _raise_error_for_missing_spatial_dim() -> None:
