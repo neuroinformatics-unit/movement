@@ -74,7 +74,7 @@ expected_values_poses = {
 }
 
 
-def test_load_from_sleap_file(sleap_file, movement_dataset_asserts):
+def test_load_from_sleap_file(sleap_file, helpers):
     """Test that loading pose tracks from valid SLEAP files
     returns a proper Dataset.
     """
@@ -84,7 +84,7 @@ def test_load_from_sleap_file(sleap_file, movement_dataset_asserts):
         "source_software": "SLEAP",
         "file_path": sleap_file,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
@@ -142,7 +142,7 @@ def test_load_from_sleap_slp_file_or_h5_file_returns_same(slp_file, h5_file):
         "DLC_two-mice.predictions.csv",
     ],
 )
-def test_load_from_dlc_file(file_name, movement_dataset_asserts):
+def test_load_from_dlc_file(file_name, helpers):
     """Test that loading pose tracks from valid DLC files
     returns a proper Dataset.
     """
@@ -153,15 +153,13 @@ def test_load_from_dlc_file(file_name, movement_dataset_asserts):
         "source_software": "DeepLabCut",
         "file_path": file_path,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 @pytest.mark.parametrize(
     "source_software", ["DeepLabCut", "LightningPose", None]
 )
-def test_load_from_dlc_style_df(
-    dlc_style_df, source_software, movement_dataset_asserts
-):
+def test_load_from_dlc_style_df(dlc_style_df, source_software, helpers):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
@@ -172,7 +170,7 @@ def test_load_from_dlc_style_df(
         **expected_values_poses,
         "source_software": source_software,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 def test_load_from_dlc_file_csv_or_h5_file_returns_same():
@@ -220,7 +218,7 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
         "LP_mouse-twoview_AIND.predictions.csv",
     ],
 )
-def test_load_from_lp_file(file_name, movement_dataset_asserts):
+def test_load_from_lp_file(file_name, helpers):
     """Test that loading pose tracks from valid LightningPose (LP) files
     returns a proper Dataset.
     """
@@ -231,7 +229,7 @@ def test_load_from_lp_file(file_name, movement_dataset_asserts):
         "source_software": "LightningPose",
         "file_path": file_path,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 def test_load_from_lp_or_dlc_file_returns_same():
@@ -281,9 +279,7 @@ def test_from_file_delegates_correctly(source_software, fps):
 
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
-def test_from_numpy_valid(
-    valid_poses_arrays, source_software, movement_dataset_asserts
-):
+def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
     """Test that loading pose tracks from a multi-animal numpy array
     with valid parameters returns a proper Dataset.
     """
@@ -300,7 +296,7 @@ def test_from_numpy_valid(
         **expected_values_poses,
         "source_software": source_software,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 def test_from_multiview_files():
