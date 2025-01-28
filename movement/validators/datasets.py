@@ -226,7 +226,7 @@ class ValidPosesDataset:
 
 @define(kw_only=True)
 class ValidBboxesDataset:
-    """Class for validating bounding boxes' data for a ``movement`` dataset.
+    """Class for validating bounding boxes data for a ``movement`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
     within the ``movement bboxes`` dataset:
@@ -250,7 +250,7 @@ class ValidBboxesDataset:
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
-        containing the tracks of the bounding boxes' centroids.
+        containing the tracks of the bounding boxes centroids.
     shape_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding

@@ -64,8 +64,8 @@ Attributes:
 
 :::
 
-:::{tab-item} Bounding boxes' dataset
-To inspect a sample bounding boxes' dataset, we can run:
+:::{tab-item} Bounding boxes dataset
+To inspect a sample bounding boxes dataset, we can run:
 ```python
 from movement import sample_data
 
@@ -119,7 +119,7 @@ A `movement` poses dataset has the following **dimensions**:
 - `individuals`, with size equal to the number of tracked individuals/instances.
 :::
 
-:::{tab-item} Bounding boxes' dataset
+:::{tab-item} Bounding boxes dataset
 A `movement` bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
@@ -160,9 +160,9 @@ A `movement` poses dataset contains two **data variables**:
 - `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `keypoints`, `individuals`).
 :::
 
-:::{tab-item} Bounding boxes' dataset
+:::{tab-item} Bounding boxes dataset
 A `movement` bounding boxes dataset contains three **data variables**:
-- `position`: the 2D locations of the bounding boxes' centroids over time, with shape (`time`, `space`, `individuals`).
+- `position`: the 2D locations of the bounding boxes centroids over time, with shape (`time`, `space`, `individuals`).
 - `shape`: the width and height of the bounding boxes over time, with shape (`time`, `space`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
 :::

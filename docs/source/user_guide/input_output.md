@@ -4,7 +4,7 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes tracks_).
+`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes centroids (_bounding boxes tracks_).
 
 To analyse pose tracks, `movement` supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)
@@ -249,7 +249,7 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 (target-saving-bboxes-tracks)=
 ## Saving bounding boxes tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
+We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes trajectories to a .csv file using the standard Python library `csv`.
 
 Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
@@ -273,7 +273,7 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
-Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+Alternatively, we can convert the `movement` bounding boxes dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 
 
 (target-sample-data)=
