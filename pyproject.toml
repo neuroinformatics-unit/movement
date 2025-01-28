@@ -48,7 +48,9 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 [project.optional-dependencies]
 napari = [
   "napari[all]>=0.5.0",
-  "brainglobe-utils[qt]>=0.6"  # needed for collapsible widgets
+  "brainglobe-utils[qt]>=0.6",  # needed for collapsible widgets
+  "napari-video",
+  "pyvideoreader>=0.5.3",  # since switching to depend on openCV-headless
 ]
 dev = [
   "pytest",
