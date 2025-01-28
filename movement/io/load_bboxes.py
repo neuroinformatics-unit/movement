@@ -391,7 +391,7 @@ def _numpy_arrays_from_via_tracks_file(
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the VIA tracks .csv file containing the bounding boxes' tracks.
+        Path to the VIA tracks .csv file containing the bounding boxes tracks.
 
     frame_regexp : str
         Regular expression pattern to extract the frame number from the frame
