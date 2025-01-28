@@ -447,14 +447,6 @@ def compute_forward_vector_angle(
     if isinstance(reference_vector, (list | tuple)):
         reference_vector = np.array(reference_vector)
 
-    # Validate that reference vector has correct dimensionality
-    if reference_vector.shape != (2,):
-        raise log_error(
-            ValueError,
-            f"Reference vector must be two-dimensional (with"
-            f" shape ``(2,)``), but got {reference_vector.shape}.",
-        )
-
     # Compute forward vector
     forward_vector = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
