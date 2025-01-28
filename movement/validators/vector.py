@@ -14,9 +14,9 @@ def validate_reference_vector(
     """Validate a reference vector being used in a calculation.
 
     Reference vectors must contain the same number of time points as the
-    `test_vector`, in order to be used in computations with them.
-    Vector-like objects that are passed in are converted into `xr.DataArray`s
-    and inherit the `test_vector`s `time` axes.
+    ``test_vector``, in order to be used in computations with them.
+    Vector-like objects that are passed in are converted into ``xr.DataArray``s
+    and inherit the ``test_vector``s ``"time"`` axis.
 
     Parameters
     ----------
