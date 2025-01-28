@@ -367,7 +367,7 @@ def compute_forward_vector_angle(
 ) -> xr.DataArray:
     r"""Compute the signed angle between a forward and reference vector.
 
-    Forward vector angle, or 'heading angle', is the :func:`signed angle\
+    Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
     <movement.kinematics.compute_forward_vector>`).
@@ -389,8 +389,8 @@ def compute_forward_vector_angle(
     reference_vector : xr.DataArray | np.ndarray | list | tuple, optional
         The reference vector against which the ``forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
-        in the form [x,y] - where reference_vector[0] corresponds to the
-        x-coordinate and reference_vector[1] corresponds to the
+        in the form [x,y] - where ``reference_vector[0]`` corresponds to the
+        x-coordinate and ``reference_vector[1]`` corresponds to the
         y-coordinate. If left unspecified, the vector [1, 0] is used by
         default.
     camera_view : Literal["top_down", "bottom_up"], optional
@@ -409,7 +409,7 @@ def compute_forward_vector_angle(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed heading angles,
+        An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
 
@@ -419,7 +419,7 @@ def compute_forward_vector_angle(
     The ``angle_rotates`` argument can be used to select which behaviour the
     function should use.
 
-    By default, the ``angle_rotates`` is set to ``"ref to forward"``, which
+    By default, ``angle_rotates`` is set to ``"ref to forward"``, which
     results in the signed angle between the reference vector and the forward
     vector being returned. That is, the angle which the reference vector would
     need to be rotated by, to align with the forward vector.
