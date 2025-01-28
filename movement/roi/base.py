@@ -35,7 +35,7 @@ class BaseRegionOfInterest:
     otherwise interpret in a set-theoretic sense, giving confusing answers to
     users).
 
-    This class is not designed to be instantiated directly. It _can be_
+    This class is not designed to be instantiated directly. It can be
     instantiated, however its primary purpose is to reduce code duplication.
     """
 
