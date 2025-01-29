@@ -14,7 +14,7 @@ from movement.roi.base import BaseRegionOfInterest
         pytest.param(
             "unit_square_pts",
             {"dimensions": 2, "closed": False},
-            {"is_closed": True, "dimensions": 2, "name": "Un-named"},
+            {"is_closed": True, "dimensions": 2, "name": "Unnamed region"},
             id="Polygon, closed is ignored",
         ),
         pytest.param(
