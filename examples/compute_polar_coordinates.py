@@ -70,8 +70,9 @@ head_vector = head_vector.drop_vars("keypoints")
 # correct.
 #
 # We can start by plotting the head trajectory, defined here as the midpoint
-# between the ears.
-head_trajectory = plot.trajectory(ds, ["left_ear", "right_ear"], individual=0)
+# between the ears. By default, the trajectory of the first listed individual
+# is shown.
+head_trajectory = plot.trajectory(ds, ["left_ear", "right_ear"])
 head_trajectory.show()
 
 # %%
@@ -89,10 +90,17 @@ frame_path = sample_data.fetch_dataset_paths(
 )["frame"]
 
 head_trajectory = plot.trajectory(
-    ds, ["left_ear", "right_ear"], individual=0, frame_path=frame_path
+    ds,
+    ["left_ear", "right_ear"],
+    individual=0,
+    frame_path=frame_path,
+    s=10,
+    cmap="plasma",
+    marker="o",
+    alpha=0.05,
+    title="Head trajectory of individual 0",
 )
-head_trajectory.axes[0].set_title("")  # remove generated title
-head_trajectory.suptitle("Head trajectory")  # add new title
+
 head_trajectory.show()
 
 # %%
