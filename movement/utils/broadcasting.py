@@ -31,7 +31,7 @@ def make_broadcastable(  # noqa: C901
     is_classmethod: bool = False,
     only_broadcastable_along: str | None = None,
 ) -> Decorator:
-    """Create a decorator that allows a function to be broadcast.
+    r"""Create a decorator that allows a function to be broadcast.
 
     Parameters
     ----------
@@ -64,16 +64,17 @@ def make_broadcastable(  # noqa: C901
     of an ``xarray.DataArray``.
 
     If ``f`` is a class method, it should be callable as
-    ``f(self, [x, y, ...], *args, **kwargs)``.
-    Otherwise, ``f`` should be callable as ``f([x, y, ...], *args, **kwargs).
+    ``f(self, [x, y, ...], \*args, \*\*kwargs)``.
+    Otherwise, ``f`` should be callable as
+    ``f([x, y, ...], \*args, \*\*kwargs)``.
 
     The function ``fr`` returned by the ``r_decorator`` is callable with the
     signature
-    ``fr([self,] data, *args, broadcast_dimension = str, **kwargs``),
+    ``fr([self,] data, \*args, broadcast_dimension = str, \*\*kwargs)``,
     where the ``self`` argument is present only if ``f`` was a class method.
     ``fr`` applies ``f`` along the ``broadcast_dimension`` of ``data``.
-    The ``args`` and ``kwargs`` match those passed to ``f``, and retain the
-    same interpretations and effects on the result.
+    The ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and retain
+    the same interpretations and effects on the result.
 
     See Also
     --------
@@ -86,35 +87,29 @@ def make_broadcastable(  # noqa: C901
     Make a standalone function broadcast along the ``"space"`` axis of an
     ``xarray.DataArray``.
 
-    ```python
-    @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
-    def my_function(xyz_data, *args, **kwargs)
-
-    # Call via the usual arguments, replacing the xyz_data argument with
-    # the DataArray to broadcast over
-    my_function(data_array, *args, **kwargs)
+    >>> @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
+    ... def my_function(xyz_data, *args, **kwargs)
+    ...
+    ... # Call via the usual arguments, replacing the xyz_data argument with
+    ... # the DataArray to broadcast over
+    ... my_function(data_array, *args, **kwargs)
     ```
 
     Make a class method broadcast along any axis of an `xarray.DataArray`.
 
-    ```python
-    from dataclasses import dataclass
-
-
-    @dataclass
-    class MyClass:
-        factor: float
-        offset: float
-
-        @make_broadcastable(is_classmethod=True)
-        def manipulate_values(self, xyz_values, *args, **kwargs):
-            return self.factor * sum(xyz_values) + self.offset
-
-
-    m = MyClass(factor=5.9, offset=1.0)
-    m.manipulate_values(
-        data_array, *args, broadcast_dimension="time", **kwargs
-    )
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class MyClass:
+    ...     factor: float
+    ...     offset: float
+    ...
+    ... @make_broadcastable(is_classmethod=True)
+    ... def manipulate_values(self, xyz_values, *args, **kwargs):
+    ...     return self.factor * sum(xyz_values) + self.offset
+    >>> m = MyClass(factor=5.9, offset=1.0)
+    >>> m.manipulate_values(
+    ...     data_array, *args, broadcast_dimension="time", **kwargs
+    ... )
     ```
 
     """
