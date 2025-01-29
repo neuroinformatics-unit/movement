@@ -1,14 +1,14 @@
 (target-poses-and-bboxes-dataset)=
 # The movement datasets
 
-In `movement`, poses or bounding boxes tracks are represented
+In `movement`, poses or bounding box tracks are represented
 as an {class}`xarray.Dataset` object.
 
 An {class}`xarray.Dataset` object is a container for multiple arrays. Each array is an {class}`xarray.DataArray` object holding different aspects of the collected data (position, time, confidence scores...). You can think of a {class}`xarray.DataArray` object as a multi-dimensional {class}`numpy.ndarray`
 with pandas-style indexing and labelling.
 
 So a `movement` dataset is simply an {class}`xarray.Dataset` with a specific
-structure to represent pose tracks or bounding boxes tracks. Because pose data and bounding boxes data are somewhat different, `movement` provides two types of datasets: `poses` datasets and `bboxes` datasets.
+structure to represent pose tracks or bounding box tracks. Because pose data and bounding box data are somewhat different, `movement` provides two types of datasets: `poses` datasets and `bboxes` datasets.
 
 To discuss the specifics of both types of `movement` datasets, it is useful to clarify some concepts such as **data variables**, **dimensions**,
 **coordinates** and **attributes**. In the next section, we will describe these concepts and the `movement` datasets' structure in some detail.
@@ -139,7 +139,7 @@ In both cases, appropriate **coordinates** are assigned to each **dimension**.
 :icon: info
 The above **dimensions** and **coordinates** are created
 by default when loading a `movement` dataset from a single
-file containing pose or bounding boxes tracks.
+file containing pose or bounding box tracks.
 
 In some cases, you may encounter or create datasets with extra
 **dimensions**. For example, the
@@ -179,7 +179,7 @@ Both poses and bounding boxes datasets in `movement` have associated metadata. T
 Right after loading a `movement` dataset, the following **attributes** are created:
 - `fps`: the number of frames per second in the video. If not provided, it is set to `None`.
 - `time_unit`: the unit of the `time` **coordinates** (either `frames` or `seconds`).
-- `source_software`: the software that produced the pose or bounding boxes tracks.
+- `source_software`: the software that produced the pose or bounding box tracks.
 - `source_file`: the path to the file from which the data were loaded.
 - `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 
