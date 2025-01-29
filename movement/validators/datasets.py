@@ -250,7 +250,7 @@ class ValidBboxesDataset:
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
-        containing the tracks of the bounding boxes centroids.
+        containing the tracks of the bounding box centroids.
     shape_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding

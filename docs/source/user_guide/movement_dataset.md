@@ -162,7 +162,7 @@ A `movement` poses dataset contains two **data variables**:
 
 :::{tab-item} Bounding boxes dataset
 A `movement` bounding boxes dataset contains three **data variables**:
-- `position`: the 2D locations of the bounding boxes centroids over time, with shape (`time`, `space`, `individuals`).
+- `position`: the 2D locations of the bounding box centroids over time, with shape (`time`, `space`, `individuals`).
 - `shape`: the width and height of the bounding boxes over time, with shape (`time`, `space`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
 :::

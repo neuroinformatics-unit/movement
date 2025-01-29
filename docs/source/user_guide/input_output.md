@@ -4,7 +4,7 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes centroids (_bounding box tracks_).
+`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_).
 
 To analyse pose tracks, `movement` supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)

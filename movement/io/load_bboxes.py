@@ -37,7 +37,7 @@ def from_numpy(
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
-        containing the tracks of the bounding boxes centroids.
+        containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
@@ -377,7 +377,7 @@ def _numpy_arrays_from_via_tracks_file(
     keys:
 
     - position_array (n_frames, n_space, n_individuals):
-        contains the trajectories of the bounding boxes centroids.
+        contains the trajectories of the bounding box centroids.
     - shape_array (n_frames, n_space, n_individuals):
         contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
