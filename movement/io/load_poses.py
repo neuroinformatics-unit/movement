@@ -94,6 +94,10 @@ def from_numpy(
     return _ds_from_valid_data(valid_data)
 
 
+def from_trex():
+    pass
+
+    
 def from_file(
     file_path: Path | str,
     source_software: Literal[
