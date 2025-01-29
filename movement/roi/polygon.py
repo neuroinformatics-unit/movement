@@ -22,8 +22,6 @@ class PolygonOfInterest(BaseRegionOfInterest):
     (closed) ``LineOfInterest``, and may be treated accordingly.
     """
 
-    __default_name: str = "Un-named polygon"
-
     def __init__(
         self,
         boundary: PointLikeList,
