@@ -25,7 +25,7 @@ class BaseRegionOfInterest:
     there are a number of discussions concerning subclassing ``shapely``
     objects;
 
-    - https://github.com/shapely/shapely/issues/1233#issuecomment-977837620.
+    - https://github.com/shapely/shapely/issues/1233.
     - https://stackoverflow.com/questions/10788976/how-do-i-properly-inherit-from-a-superclass-that-has-a-new-method
 
     To avoid the complexities of subclassing ourselves, we simply elect to wrap
