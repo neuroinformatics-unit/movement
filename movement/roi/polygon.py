@@ -1,9 +1,8 @@
 """2-dimensional regions of interest."""
 
 from collections.abc import Sequence
-from typing import TypeAlias
 
-from movement.roi.base import BaseRegionOfInterest, PointLikeList, RegionLike
+from movement.roi.base import BaseRegionOfInterest, PointLikeList
 from movement.roi.line import LineOfInterest
 
 
@@ -24,7 +23,6 @@ class PolygonOfInterest(BaseRegionOfInterest):
     """
 
     __default_name: str = "Un-named polygon"
-    __supported_type: TypeAlias = RegionLike
 
     def __init__(
         self,
