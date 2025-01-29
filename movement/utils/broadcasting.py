@@ -1,13 +1,15 @@
 """Broadcasting operations across ``xarray.DataArray`` dimensions."""
 
 from collections.abc import Callable
-from typing import Any, Concatenate, ParamSpec, TypeAlias, TypeVar
+from functools import wraps
+from typing import Concatenate, ParamSpec, TypeAlias, TypeVar
 
 import numpy as np
 from numpy.typing import ArrayLike
 from xarray import DataArray
 
 Scalar = TypeVar("Scalar")
+Self = TypeVar("Self")
 KeywordArgs = ParamSpec("KeywordArgs")
 DecoratorInput: TypeAlias = (
     Callable[
@@ -15,14 +17,13 @@ DecoratorInput: TypeAlias = (
         Scalar,
     ]
     | Callable[
-        Concatenate[Any, ArrayLike, KeywordArgs],
+        Concatenate[Self, ArrayLike, KeywordArgs],
         Scalar,
     ]
 )
-DecoratorOutput: TypeAlias = (
-    Callable[Concatenate[DataArray, KeywordArgs], DataArray]
-    | Callable[Concatenate[Any, DataArray, KeywordArgs], DataArray]
-)
+DecoratorOutput: TypeAlias = Callable[
+    Concatenate[DataArray, KeywordArgs], DataArray
+]
 Decorator: TypeAlias = Callable[[DecoratorInput], DecoratorOutput]
 
 
@@ -159,6 +160,7 @@ def make_broadcastable(  # noqa: C901
 
         """
 
+        @wraps(f)
         def inner_clsmethod(  # type: ignore[valid-type]
             self,
             data: DataArray,
@@ -177,6 +179,7 @@ def make_broadcastable(  # noqa: C901
 
             return data.reduce(f_along_axis, broadcast_dimension)
 
+        @wraps(f)
         def inner_clsmethod_fixeddim(
             self,
             data: DataArray,
@@ -191,6 +194,7 @@ def make_broadcastable(  # noqa: C901
                 **kwargs,
             )
 
+        @wraps(f)
         def inner(  # type: ignore[valid-type]
             data: DataArray,
             *args: KeywordArgs.args,
@@ -202,6 +206,7 @@ def make_broadcastable(  # noqa: C901
 
             return data.reduce(f_along_axis, broadcast_dimension)
 
+        @wraps(f)
         def inner_fixeddim(
             data: DataArray,
             *args: KeywordArgs.args,
