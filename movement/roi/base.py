@@ -164,7 +164,7 @@ class BaseRegionOfInterest:
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
     @broadcastable_method(only_broadcastable_along="space")
-    def is_inside(
+    def points_are_inside(
         self,
         /,
         position: ArrayLike,
@@ -180,6 +180,12 @@ class BaseRegionOfInterest:
         include_boundary : bool
             Whether to treat a position on the region's boundary as inside the
             region (True) or outside the region (False). Default True.
+
+        Returns
+        -------
+        bool
+            True if the ``position`` provided is within the region of interest.
+            False otherwise.
 
         """
         point = shapely.Point(position)

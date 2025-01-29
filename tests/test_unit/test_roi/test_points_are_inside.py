@@ -124,7 +124,7 @@ def unit_square_with_hole(
         ),
     ],
 )
-def test_is_inside(
+def test_points_are_inside(
     region: BaseRegionOfInterest,
     data: xr.DataArray,
     fn_kwargs: dict[str, Any],
@@ -136,7 +136,7 @@ def test_is_inside(
     if not isinstance(expected_result, np.ndarray):
         expected_result = np.array(expected_result)
 
-    result = region.is_inside(data, **fn_kwargs)
+    result = region.points_are_inside(data, **fn_kwargs)
 
     assert isinstance(result, xr.DataArray)
     assert result.shape == expected_result.shape
