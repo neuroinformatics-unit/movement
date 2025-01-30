@@ -10,7 +10,7 @@ from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 
 # -------------------- Valid DLC-style DataFrame --------------------
 @pytest.fixture
-def dlc_style_df():
+def valid_dlc_style_df():
     """Return a valid DLC-style DataFrame."""
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
@@ -152,11 +152,11 @@ def valid_poses_arrays():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
 
-    Depending on the ``array_type`` requested (``multi_individual_array``,
+    This fixture is a factory of fixtures. Depending on the ``array_type`` requested (``multi_individual_array``,
     ``single_keypoint_array``, or ``single_individual_array``),
-    the arrays can represent up to 2 individuals with up to 3 keypoints,
+    the returned array can represent up to 2 individuals with up to 3 keypoints,
     moving at constant velocity for 10 frames in 2D space.
-    Default is a ``multi_individual_array``.
+    Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
     At each frame the individuals cover a distance of sqrt(2) in x-y space.
     Specifically:
     - Individual 0 moves along the x=y line from the origin.
@@ -244,7 +244,7 @@ def valid_poses_dataset(valid_poses_arrays, request):
     the dataset can represent up to 2 individuals ("id_0" and "id_1")
     with up to 3 keypoints ("centroid", "left", "right")
     moving in uniform linear motion for 10 frames in 2D space.
-    Default is a ``multi_individual_array``.
+    Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
     See the ``valid_poses_arrays`` fixture for details.
     """
     dim_names = ValidPosesDataset.DIM_NAMES
