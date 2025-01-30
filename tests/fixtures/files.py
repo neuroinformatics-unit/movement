@@ -52,10 +52,10 @@ def unwriteable_file(tmp_path):
 
 
 @pytest.fixture
-def wrong_ext_file(tmp_path):
+def wrong_extension_file(tmp_path):
     """Return a dictionary containing the file path,
     expected permission, and expected suffix for a file
-    with an incorrect extension.
+    with unsupported extension.
     """
     file_path = tmp_path / "wrong_extension.txt"
     with open(file_path, "w") as f:
@@ -82,7 +82,8 @@ def nonexistent_file(tmp_path):
 @pytest.fixture
 def no_dataframe_h5_file(tmp_path):
     """Return a dictionary containing the file path and
-    expected datasets for a .h5 file with no dataframe.
+    expected datasets for a .h5 file that lacks the
+    dataset "dataframe".
     """
     file_path = tmp_path / "no_dataframe.h5"
     with h5py.File(file_path, "w") as f:
@@ -132,9 +133,9 @@ def invalid_multi_individual_csv_file(tmp_path):
 
 
 @pytest.fixture
-def wrong_ext_new_file(tmp_path):
-    """Return the file path for a new file with the wrong extension."""
-    return tmp_path / "wrong_ext_new_file.txt"
+def wrong_extension_new_file(tmp_path):
+    """Return the file path for a new file with unsupported extension."""
+    return tmp_path / "wrong_extension_new_file.txt"
 
 
 @pytest.fixture
@@ -165,7 +166,9 @@ def new_csv_file(tmp_path):
 # ---------------- Anipose file fixtures ----------------------------
 @pytest.fixture
 def missing_keypoint_columns_anipose_csv_file(tmp_path):
-    """Return the file path for a single-individual anipose .csv file. with the z-coordinate of keypoint kp0 missing"""
+    """Return the file path for a single-individual anipose .csv file
+    missing the z-coordinate of keypoint kp0 "kp0_z".
+    """
     file_path = tmp_path / "missing_keypoint_columns.csv"
     columns = [
         "fnum",
@@ -193,7 +196,9 @@ def missing_keypoint_columns_anipose_csv_file(tmp_path):
 
 @pytest.fixture
 def spurious_column_anipose_csv_file(tmp_path):
-    """Return the file path for a single-individual anipose .csv file with an additional unexpected column."""
+    """Return the file path for a single-individual anipose .csv file
+    with an unexpected column.
+    """
     file_path = tmp_path / "spurious_column.csv"
     columns = [
         "fnum",

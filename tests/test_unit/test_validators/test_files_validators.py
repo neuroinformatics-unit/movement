@@ -15,7 +15,7 @@ from movement.validators.files import (
         ("unreadable_file", pytest.raises(PermissionError)),
         ("unwriteable_file", pytest.raises(PermissionError)),
         ("fake_h5_file", pytest.raises(FileExistsError)),
-        ("wrong_ext_file", pytest.raises(ValueError)),
+        ("wrong_extension_file", pytest.raises(ValueError)),
         ("nonexistent_file", pytest.raises(FileNotFoundError)),
         ("directory", pytest.raises(IsADirectoryError)),
     ],
