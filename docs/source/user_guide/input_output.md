@@ -247,9 +247,9 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 
 
 (target-saving-bboxes-tracks)=
-## Saving bounding boxes tracks
+## Saving bounding box tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes trajectories to a .csv file using the standard Python library `csv`.
+We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding box tracks to a .csv file using the standard Python library `csv`.
 
 Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
