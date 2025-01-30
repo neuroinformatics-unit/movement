@@ -35,7 +35,10 @@ class TestComputeKinematics:
         "valid_dataset", ["valid_poses_dataset", "valid_bboxes_dataset"]
     )
     def test_kinematics(self, valid_dataset, kinematic_variable, request):
-        """Test computed kinematics for a uniform linear motion case."""
+        """Test computed kinematics for a uniform linear motion case.
+        See the ``valid_poses_dataset`` and ``valid_bboxes_dataset`` fixtures
+        for details.
+        """
         # Compute kinematic array from input dataset
         position = request.getfixturevalue(valid_dataset).position
         kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
@@ -96,7 +99,10 @@ class TestComputeKinematics:
         helpers,
         request,
     ):
-        """Test kinematics computation for a dataset with nans."""
+        """Test kinematics computation for a dataset with nans.
+        See the ``valid_poses_dataset_with_nan`` and
+        ``valid_bboxes_dataset_with_nan`` fixtures for details.
+        """
         # compute kinematic array
         valid_dataset = request.getfixturevalue(valid_dataset_with_nan)
         position = valid_dataset.position
