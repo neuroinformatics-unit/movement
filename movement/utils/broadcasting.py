@@ -1,35 +1,132 @@
-"""Broadcasting operations across ``xarray.DataArray`` dimensions."""
+r"""Broadcasting operations across ``xarray.xr.DataArray`` dimensions.
+
+This module essentially provides an equivalent functionality to
+`numpy.apply_along_axis``, but for ``xarray.DataArray``s.
+This functionality is provided as a decorator, so it can be applied to both
+functions within the package and be available to users who would like to use it
+in their analysis.
+
+In essence; suppose that we have a function which takes a 1-slice of a
+``xarray.DataArray`` and returns either a scalar value, or another 1D array.
+Typically, one would either have to call this function successively in a
+``for`` loop, looping over all the 1D slices in a ``xarray.DataArray`` that
+need to be examined, or re-write the function to be able to broadcast along the
+necessary dimension of the data structure.
+
+The ``make_broadcastable`` decorator takes care of the latter piece of work,
+allowing us to write functions that operate on 1D slices, then apply this
+decorator to have them work across ``xarray.DataArray``s. The function
+
+>>> def my_function(input_1d, *args, **kwargs):
+...     # do something
+...     return scalar_or_1d_output
+
+which previously only worked with 1D-slices can be decorated
+
+>>> @make_broadcastable()
+... def my_function(input_1d, *args, **kwargs):
+...     # do something
+...     return scalar_or_1d_output
+
+effectively changing it's call signature to
+
+>>> def my_function(data_array, *args, dimension, **kwargs)
+
+which will perform the action of `my_function` along the `dimension` given.
+The ``\*args`` and ``\*\*kwargs`` retain their original interpretations from
+``my_function`` too.
+"""
 
 from collections.abc import Callable
 from functools import wraps
 from typing import Concatenate, ParamSpec, TypeAlias, TypeVar
 
 import numpy as np
+import xarray as xr
 from numpy.typing import ArrayLike
-from xarray import DataArray
 
-Scalar = TypeVar("Scalar")
+ScalarOr1D = TypeVar("ScalarOr1D", float, int, bool, ArrayLike)
 Self = TypeVar("Self")
 KeywordArgs = ParamSpec("KeywordArgs")
-DecoratorInput: TypeAlias = (
-    Callable[
-        Concatenate[ArrayLike, KeywordArgs],
-        Scalar,
-    ]
-    | Callable[
-        Concatenate[Self, ArrayLike, KeywordArgs],
-        Scalar,
-    ]
-)
-DecoratorOutput: TypeAlias = Callable[
-    Concatenate[DataArray, KeywordArgs], DataArray
+ClsMethod1DTo1D = Callable[
+    Concatenate[Self, ArrayLike, KeywordArgs],
+    ScalarOr1D,
 ]
-Decorator: TypeAlias = Callable[[DecoratorInput], DecoratorOutput]
+Function1DTo1D: TypeAlias = Callable[
+    Concatenate[ArrayLike, KeywordArgs],
+    ScalarOr1D,
+]
+FunctionDaToDa: TypeAlias = Callable[
+    Concatenate[xr.DataArray, KeywordArgs], xr.DataArray
+]
+DecoratorInput: TypeAlias = Function1DTo1D | ClsMethod1DTo1D
+Decorator: TypeAlias = Callable[[DecoratorInput], FunctionDaToDa]
+
+
+def apply_along_da_axis(
+    f: Callable[[ArrayLike], ScalarOr1D],
+    data: xr.DataArray,
+    dimension: str,
+    new_dimension_name: str | None = None,
+) -> xr.DataArray:
+    """Apply a function ``f`` across ``dimension`` of ``data``.
+
+    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a one-
+    dimensional ``numpy.typing.ArrayLike`` object. It should return either a
+    scalar or one-dimensional ``numpy.typing.ArrayLike`` object.
+
+    Parameters
+    ----------
+    f : Callable
+        Function that takes 1D inputs and returns either scalar or 1D outputs.
+        This will be cast across the ``dimension`` of the ``data``.
+    data: xarray.DataArray
+        Values to be cast over.
+    dimension : str
+        Dimension of ``data`` to broadcast ``f`` across.
+    new_dimension_name : str, optional
+        If ``f`` returns non-scalar values, the dimension in the output that
+        these values are returned along is given the name
+        ``new_dimension_name``.
+
+    Returns
+    -------
+    xarray.DataArray
+        Result of broadcasting ``f`` along the ``dimension`` of ``data``.
+
+        If ``f`` returns a scalar or ``(1,)``-shaped output, the output has one
+        fewer dimension than ``data``, with ``dimension`` being dropped. All
+        other dimensions retain their names and sizes.
+
+        If ``f`` returns a ``(n,)``-shaped output for ``n > 1``; all non-
+        ``dimension`` dimensions of ``data`` retain their shapes. The
+        ``dimension`` dimension itself is replaced with a new dimension,
+        ``new_dimension_name``, containing the output of the application of
+        ``f``.
+
+    """
+    output: xr.DataArray = xr.apply_ufunc(
+        lambda input_1D: np.atleast_1d(f(input_1D)),
+        data,
+        input_core_dims=[[dimension]],
+        exclude_dims=set((dimension,)),
+        output_core_dims=[[dimension]],
+        vectorize=True,
+    )
+    if len(output[dimension]) < 2:
+        output = output.squeeze(dim=dimension)
+    else:
+        # Rename the non-1D output dimension according to request
+        output = output.rename(
+            {dimension: new_dimension_name if new_dimension_name else "result"}
+        )
+    return output
 
 
 def make_broadcastable(  # noqa: C901
     is_classmethod: bool = False,
     only_broadcastable_along: str | None = None,
+    new_dimension_name: str | None = None,
 ) -> Decorator:
     r"""Create a decorator that allows a function to be broadcast.
 
@@ -44,6 +141,8 @@ def make_broadcastable(  # noqa: C901
         this dimension. The returned function will not take the
         ``broadcast_dimension`` argument, and will use the dimension provided
         here as the value for this argument.
+    new_dimension_name : str, optional
+        Passed to ``apply_along_da_axis``.
 
     Returns
     -------
@@ -56,12 +155,12 @@ def make_broadcastable(  # noqa: C901
     -----
     The returned decorator (the "``r_decorator``") extends a function that
     acts on a 1D sequence of values, allowing it to be broadcast along the
-    axes of an input ``xarray.DataArray``.
+    axes of an input ``xarray.xr.DataArray``.
 
     The ``r_decorator`` takes a single parameter, ``f``. ``f`` should be a
     ``Callable`` that acts on 1D data, that is to be converted into a
     broadcast-able function ``fr``, applying the action of ``f`` along an axis
-    of an ``xarray.DataArray``.
+    of an ``xarray.xr.DataArray``.
 
     If ``f`` is a class method, it should be callable as
     ``f(self, [x, y, ...], \*args, \*\*kwargs)``.
@@ -85,17 +184,17 @@ def make_broadcastable(  # noqa: C901
     Examples
     --------
     Make a standalone function broadcast along the ``"space"`` axis of an
-    ``xarray.DataArray``.
+    ``xarray.xr.DataArray``.
 
     >>> @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
     ... def my_function(xyz_data, *args, **kwargs)
     ...
     ... # Call via the usual arguments, replacing the xyz_data argument with
-    ... # the DataArray to broadcast over
+    ... # the xr.DataArray to broadcast over
     ... my_function(data_array, *args, **kwargs)
     ```
 
-    Make a class method broadcast along any axis of an `xarray.DataArray`.
+    Make a class method broadcast along any axis of an `xarray.xr.DataArray`.
 
     >>> from dataclasses import dataclass
     >>> @dataclass
@@ -118,7 +217,7 @@ def make_broadcastable(  # noqa: C901
 
     def make_broadcastable_inner(
         f: DecoratorInput,
-    ) -> DecoratorOutput:
+    ) -> FunctionDaToDa:
         """Broadcast a 1D function along a ``xr.DataArray`` dimension.
 
         Parameters
@@ -158,29 +257,25 @@ def make_broadcastable(  # noqa: C901
         @wraps(f)
         def inner_clsmethod(  # type: ignore[valid-type]
             self,
-            data: DataArray,
+            data: xr.DataArray,
             *args: KeywordArgs.args,
             broadcast_dimension: str = "space",
             **kwargs: KeywordArgs.kwargs,
-        ) -> DataArray:
-            def f_along_axis(data: ArrayLike, axis: int) -> np.ndarray:
-                return np.apply_along_axis(
-                    lambda xyz, *a, **kw: f(self, xyz, *a, **kw),
-                    axis,
-                    data,
-                    *args,
-                    **kwargs,
-                )
-
-            return data.reduce(f_along_axis, broadcast_dimension)
+        ) -> xr.DataArray:
+            return apply_along_da_axis(
+                lambda input_1D: f(self, input_1D, *args, **kwargs),
+                data,
+                broadcast_dimension,
+                new_dimension_name=new_dimension_name,
+            )
 
         @wraps(f)
         def inner_clsmethod_fixeddim(
             self,
-            data: DataArray,
+            data: xr.DataArray,
             *args: KeywordArgs.args,
             **kwargs: KeywordArgs.kwargs,
-        ) -> DataArray:
+        ) -> xr.DataArray:
             return inner_clsmethod(
                 self,
                 data,
@@ -191,22 +286,24 @@ def make_broadcastable(  # noqa: C901
 
         @wraps(f)
         def inner(  # type: ignore[valid-type]
-            data: DataArray,
+            data: xr.DataArray,
             *args: KeywordArgs.args,
             broadcast_dimension: str = "space",
             **kwargs: KeywordArgs.kwargs,
-        ) -> DataArray:
-            def f_along_axis(data: ArrayLike, axis: int) -> np.ndarray:
-                return np.apply_along_axis(f, axis, data, *args, **kwargs)
-
-            return data.reduce(f_along_axis, broadcast_dimension)
+        ) -> xr.DataArray:
+            return apply_along_da_axis(
+                lambda input_1D: f(input_1D, *args, **kwargs),
+                data,
+                broadcast_dimension,
+                new_dimension_name=new_dimension_name,
+            )
 
         @wraps(f)
         def inner_fixeddim(
-            data: DataArray,
+            data: xr.DataArray,
             *args: KeywordArgs.args,
             **kwargs: KeywordArgs.kwargs,
-        ) -> DataArray:
+        ) -> xr.DataArray:
             return inner(
                 data,
                 *args,
@@ -228,6 +325,7 @@ def make_broadcastable(  # noqa: C901
 
 def space_broadcastable(
     is_classmethod: bool = False,
+    new_dimension_name: str | None = None,
 ) -> Decorator:
     """Broadcast a 1D function along a ``xr.DataArray`` dimension.
 
@@ -235,7 +333,7 @@ def space_broadcastable(
     ``make_broadcastable(only_broadcastable_along='space')``,
     and is primarily useful when we want to write a function that acts on
     coordinates, that can only be cast across the 'space' dimension of an
-    ``xarray.DataArray``.
+    ``xarray.xr.DataArray``.
 
     See Also
     --------
@@ -243,19 +341,22 @@ def space_broadcastable(
 
     """
     return make_broadcastable(
-        is_classmethod=is_classmethod, only_broadcastable_along="space"
+        is_classmethod=is_classmethod,
+        only_broadcastable_along="space",
+        new_dimension_name=new_dimension_name,
     )
 
 
 def broadcastable_method(
     only_broadcastable_along: str | None = None,
+    new_dimension_name: str | None = None,
 ) -> Decorator:
     """Broadcast a class method along a ``xr.DataArray`` dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(is_classmethod = True)``,
     for use when extending class methods that act on coordinates, that we wish
-    to cast across the axes of an ``xarray.DataArray``.
+    to cast across the axes of an ``xarray.xr.DataArray``.
 
     See Also
     --------
@@ -263,5 +364,7 @@ def broadcastable_method(
 
     """
     return make_broadcastable(
-        is_classmethod=True, only_broadcastable_along=only_broadcastable_along
+        is_classmethod=True,
+        only_broadcastable_along=only_broadcastable_along,
+        new_dimension_name=new_dimension_name,
     )
