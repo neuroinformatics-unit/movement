@@ -305,25 +305,29 @@ def valid_dlc_poses_df():
 # -------------------- Invalid bboxes datasets --------------------
 @pytest.fixture
 def missing_var_bboxes_dataset(valid_bboxes_dataset):
-    """Return a bboxes dataset missing position variable."""
+    """Return a bboxes dataset missing the required position variable."""
     return valid_bboxes_dataset.drop_vars("position")
 
 
 @pytest.fixture
 def missing_two_vars_bboxes_dataset(valid_bboxes_dataset):
-    """Return a bboxes dataset missing position and shape variables."""
+    """Return a bboxes dataset missing the required position
+    and shape variables.
+    """
     return valid_bboxes_dataset.drop_vars(["position", "shape"])
 
 
 @pytest.fixture
 def missing_dim_bboxes_dataset(valid_bboxes_dataset):
-    """Return a bboxes dataset missing the time dimension."""
+    """Return a bboxes dataset missing the required time dimension."""
     return valid_bboxes_dataset.rename({"time": "tame"})
 
 
 @pytest.fixture
 def missing_two_dims_bboxes_dataset(valid_bboxes_dataset):
-    """Return a bboxes dataset missing the time and space dimensions."""
+    """Return a bboxes dataset missing the required time
+    and space dimensions.
+    """
     return valid_bboxes_dataset.rename({"time": "tame", "space": "spice"})
 
 
@@ -342,11 +346,11 @@ def empty_dataset():
 
 @pytest.fixture
 def missing_var_poses_dataset(valid_poses_dataset):
-    """Return a poses dataset missing position variable."""
+    """Return a poses dataset missing the required position variable."""
     return valid_poses_dataset.drop_vars("position")
 
 
 @pytest.fixture
 def missing_dim_poses_dataset(valid_poses_dataset):
-    """Return a poses dataset missing the time dimension."""
+    """Return a poses dataset missing the required time dimension."""
     return valid_poses_dataset.rename({"time": "tame"})

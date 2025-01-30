@@ -1,4 +1,4 @@
-"""Fixtures and configurations applied to the entire test suite."""
+"""Fixtures and configurations shared by the entire test suite."""
 
 import logging
 from glob import glob
