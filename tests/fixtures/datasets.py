@@ -79,9 +79,7 @@ def valid_bboxes_arrays():
 
 
 @pytest.fixture
-def valid_bboxes_dataset(
-    valid_bboxes_arrays,
-):
+def valid_bboxes_dataset(valid_bboxes_arrays):
     """Return a valid bboxes dataset for two individuals moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
     """
