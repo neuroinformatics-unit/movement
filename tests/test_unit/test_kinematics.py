@@ -140,12 +140,19 @@ class TestComputeKinematics:
             getattr(kinematics, f"compute_{kinematic_variable}")(position)
 
 
-@pytest.mark.parametrize("order", [0, -1, 1.0, "1"])
-def test_approximate_derivative_with_invalid_order(order):
+@pytest.mark.parametrize(
+    "order, expected_exception",
+    [
+        (0, pytest.raises(ValueError)),
+        (-1, pytest.raises(ValueError)),
+        (1.0, pytest.raises(TypeError)),
+        ("1", pytest.raises(TypeError)),
+    ],
+)
+def test_time_derivative_with_invalid_order(order, expected_exception):
     """Test that an error is raised when the order is non-positive."""
     data = np.arange(10)
-    expected_exception = ValueError if isinstance(order, int) else TypeError
-    with pytest.raises(expected_exception):
+    with expected_exception:
         kinematics.compute_time_derivative(data, order=order)
 
 
