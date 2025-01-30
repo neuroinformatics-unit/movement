@@ -159,12 +159,12 @@ def test_load_from_dlc_file(file_name, helpers):
 @pytest.mark.parametrize(
     "source_software", ["DeepLabCut", "LightningPose", None]
 )
-def test_load_from_dlc_style_df(dlc_style_df, source_software, helpers):
+def test_load_from_dlc_style_df(valid_dlc_poses_df, source_software, helpers):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
     ds = load_poses.from_dlc_style_df(
-        dlc_style_df, source_software=source_software
+        valid_dlc_poses_df, source_software=source_software
     )
     expected_values = {
         **expected_values_poses,

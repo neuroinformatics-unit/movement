@@ -8,13 +8,6 @@ import xarray as xr
 from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
 
 
-# -------------------- Valid DLC-style DataFrame --------------------
-@pytest.fixture
-def valid_dlc_style_df():
-    """Return a valid DLC-style DataFrame."""
-    return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
-
-
 # -------------------- Valid bboxes datasets and arrays --------------------
 @pytest.fixture
 def valid_bboxes_arrays_all_zeros():
@@ -152,10 +145,11 @@ def valid_poses_arrays():
     """Return a dictionary of valid arrays for a
     ValidPosesDataset representing a uniform linear motion.
 
-    This fixture is a factory of fixtures. Depending on the ``array_type`` requested (``multi_individual_array``,
+    This fixture is a factory of fixtures.
+    Depending on the ``array_type`` requested (``multi_individual_array``,
     ``single_keypoint_array``, or ``single_individual_array``),
-    the returned array can represent up to 2 individuals with up to 3 keypoints,
-    moving at constant velocity for 10 frames in 2D space.
+    the returned array can represent up to 2 individuals with
+    up to 3 keypoints, moving at constant velocity for 10 frames in 2D space.
     Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
     At each frame the individuals cover a distance of sqrt(2) in x-y space.
     Specifically:
@@ -302,6 +296,12 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
         {"individuals": "id_0", "keypoints": "right"}
     ] = np.nan
     return valid_poses_dataset
+
+
+@pytest.fixture
+def valid_dlc_poses_df():
+    """Return a valid DLC-style poses DataFrame."""
+    return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
 
 # -------------------- Invalid bboxes datasets --------------------
