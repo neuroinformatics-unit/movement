@@ -41,12 +41,11 @@ def scale(
     xarray.DataArray.attrs["space_unit"] is overwritten each time or is dropped
     if ``None`` is passed by default or explicitly.
 
-    When the factor is a scalar (a single number), the scaling factor is
-    applied to all dimensions, while if the factor is a list or array, the
-    factor is broadcasted along the first matching dimension.
-
     """
-    validate_dims_coords(data, {"space": ["x", "y"]})
+    if len(data.coords["space"]) == 2:
+        validate_dims_coords(data, {"space": ["x", "y"]})
+    else:
+        validate_dims_coords(data, {"space": ["x", "y", "z"]})
 
     if not np.isscalar(factor):
         factor = np.array(factor).squeeze()
