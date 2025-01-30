@@ -174,7 +174,9 @@ def make_broadcastable(  # noqa: C901
     where the ``self`` argument is present only if ``f`` was a class method.
     ``fr`` applies ``f`` along the ``broadcast_dimension`` of ``data``.
     The ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and retain
-    the same interpretations and effects on the result.
+    the same interpretations and effects on the result. If ``data`` provided to
+    ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour
+    of ``f`` (and ignore the ``broadcast_dimension`` argument).
 
     See the docstring of ``make_broadcastable_inner`` in the source code for a
     more explicit explanation of the returned decorator.
@@ -268,6 +270,9 @@ def make_broadcastable(  # noqa: C901
             broadcast_dimension: str = "space",
             **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
+            # Preserve original functionality
+            if not isinstance(data, xr.DataArray):
+                return f(self, data, *args, **kwargs)
             return apply_along_da_axis(
                 lambda input_1D: f(self, input_1D, *args, **kwargs),
                 data,
@@ -297,6 +302,9 @@ def make_broadcastable(  # noqa: C901
             broadcast_dimension: str = "space",
             **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
+            # Preserve original functionality
+            if not isinstance(data, xr.DataArray):
+                return f(data, *args, **kwargs)
             return apply_along_da_axis(
                 lambda input_1D: f(input_1D, *args, **kwargs),
                 data,
