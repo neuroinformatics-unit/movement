@@ -147,9 +147,9 @@ def make_broadcastable(  # noqa: C901
     Returns
     -------
     Decorator
-        Decorator function that can be applied with the usual ``@decorator``
-        syntax. See Notes for a description of the action of the returned
-        decorator.
+        Decorator function that can be applied with the
+        ``@make_broadcastable(...)`` syntax. See Notes for a description of
+        the action of the returned decorator.
 
     Notes
     -----
@@ -158,9 +158,10 @@ def make_broadcastable(  # noqa: C901
     axes of an input ``xarray.xr.DataArray``.
 
     The ``r_decorator`` takes a single parameter, ``f``. ``f`` should be a
-    ``Callable`` that acts on 1D data, that is to be converted into a
+    ``Callable`` that acts on 1D inputs, that is to be converted into a
     broadcast-able function ``fr``, applying the action of ``f`` along an axis
-    of an ``xarray.xr.DataArray``.
+    of an ``xarray.xr.DataArray``. ``f`` should return either scalar or 1D
+    outputs.
 
     If ``f`` is a class method, it should be callable as
     ``f(self, [x, y, ...], \*args, \*\*kwargs)``.
@@ -174,6 +175,9 @@ def make_broadcastable(  # noqa: C901
     ``fr`` applies ``f`` along the ``broadcast_dimension`` of ``data``.
     The ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and retain
     the same interpretations and effects on the result.
+
+    See the docstring of ``make_broadcastable_inner`` in the source code for a
+    more explicit explanation of the returned decorator.
 
     See Also
     --------
@@ -218,15 +222,17 @@ def make_broadcastable(  # noqa: C901
     def make_broadcastable_inner(
         f: DecoratorInput,
     ) -> FunctionDaToDa:
-        """Broadcast a 1D function along a ``xr.DataArray`` dimension.
+        r"""Broadcast a 1D function along a ``xr.DataArray`` dimension.
 
         Parameters
         ----------
         f : Callable
             1D function to be converted into a broadcast-able function,, that
-            returns a scalar value. If ``f`` is a class method, it should be
-            callable as ``f(self, [x, y, ...], *args, **kwargs)``. Otherwise,
-            ``f`` should be callable as ``f([x, y, ...], *args, **kwargs).
+            returns either a scalar value or 1D output. If ``f`` is a class
+            method, it should be callable as
+            ``f(self, [x, y, ...], *args, **kwargs)``.
+            Otherwise, ``f`` should be callable as
+            ``f([x, y, ...], *args, **kwargs).
 
         Returns
         -------
@@ -234,8 +240,8 @@ def make_broadcastable(  # noqa: C901
             Callable with signature
             ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
             that applies ``f`` along the ``broadcast_dimension`` of ``data``.
-            ``args`` and ``kwargs`` match those passed to ``f``, and retain the
-            same interpretations.
+            ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+            retain the same interpretations.
 
         Notes
         -----
