@@ -187,7 +187,7 @@ def test_nearest_point_to(
         ),
     ],
 )
-def test_tie_breaks(
+def test_nearest_point_to_tie_breaks(
     region: BaseRegionOfInterest,
     position: np.ndarray,
     fn_kwargs: dict[str, Any],
@@ -223,3 +223,73 @@ def test_tie_breaks(
         if np.isclose(nearest_point_found, possibility).all():
             n_matches += 1
     assert n_matches == 1
+
+
+@pytest.mark.parametrize(
+    ["region", "fn_kwargs", "expected_distances"],
+    [
+        pytest.param(
+            "unit_square_with_hole",
+            {"boundary": True},
+            np.array(
+                [
+                    0.5,
+                    0.0,
+                    0.15,
+                    1.0,
+                    0.0,
+                    0.05,
+                    np.sqrt((1.0 / 20.0) ** 2 + (1.0 / 100.0) ** 2),
+                ]
+            ),
+            id="Unit square w/ hole, boundary",
+        ),
+        pytest.param(
+            "unit_square_with_hole",
+            {},
+            np.array([0.5, 0.0, 0.15, 1.0, 0.0, 0.0, 0.0]),
+            id="Unit square w/ hole, whole region",
+        ),
+        pytest.param(
+            "unit_line_in_x",
+            {},
+            np.array(
+                [0.5 * np.sqrt(2.0), 0.5, 0.45, np.sqrt(2.0), 0.75, 0.9, 0.76]
+            ),
+            id="Unit line in x",
+        ),
+        pytest.param(
+            "unit_line_in_x",
+            {"boundary": True},
+            np.array(
+                [
+                    0.5 * np.sqrt(2.0),
+                    0.5,
+                    np.sqrt(0.4**2 + 0.45**2),
+                    np.sqrt(2.0),
+                    np.sqrt(0.4**2 + 0.75**2),
+                    np.sqrt(0.05**2 + 0.9**2),
+                    np.sqrt(0.2**2 + 0.76**2),
+                ]
+            ),
+            id="Unit line in x, endpoints only",
+        ),
+    ],
+)
+def test_distance_to(
+    region: BaseRegionOfInterest,
+    points_of_interest: xr.DataArray,
+    fn_kwargs: dict[str, Any],
+    expected_distances: xr.DataArray,
+    request,
+) -> None:
+    if isinstance(region, str):
+        region = request.getfixturevalue(region)
+    if isinstance(expected_distances, np.ndarray):
+        expected_distances = xr.DataArray(
+            data=expected_distances, dims=["time"]
+        )
+
+    computed_distances = region.distance_to(points_of_interest, **fn_kwargs)
+
+    xr.testing.assert_allclose(computed_distances, expected_distances)
