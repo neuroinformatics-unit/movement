@@ -66,7 +66,11 @@ def trajectory(
         ax.set_title(title)
     else:
         ax.set_title(f"{individual} trajectory of {plotting_point_name}")
-    fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
+
+    if ds.attrs.get("time_unit") is not None:
+        fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
+    else:
+        fig.colorbar(sc, ax=ax, label="time steps (frames)")
 
     if frame_path is not None:
         frame = plt.imread(frame_path)
