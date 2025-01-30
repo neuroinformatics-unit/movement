@@ -68,25 +68,20 @@ class TestFilteringValidDataset:
         )
 
     @pytest.mark.parametrize(
-        "override_kwargs",
+        "override_kwargs, expected_exception",
         [
-            {"mode": "nearest"},
-            {"axis": 1},
-            {"mode": "nearest", "axis": 1},
+            ({"mode": "nearest"}, does_not_raise()),
+            ({"axis": 1}, pytest.raises(ValueError)),
+            ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
         ],
     )
     def test_savgol_filter_kwargs_override(
-        self, valid_dataset, override_kwargs, request
+        self, valid_dataset, override_kwargs, expected_exception, request
     ):
         """Test that overriding keyword arguments in the
         Savitzky-Golay filter works, except for the ``axis`` argument,
         which should raise a ValueError.
         """
-        expected_exception = (
-            pytest.raises(ValueError)
-            if "axis" in override_kwargs
-            else does_not_raise()
-        )
         with expected_exception:
             savgol_filter(
                 request.getfixturevalue(valid_dataset).position,
@@ -158,7 +153,7 @@ class TestFilteringValidDatasetWithNaNs:
 
     @pytest.mark.parametrize(
         "window",
-        [3, 5, 6, 10],  # data is nframes = 10
+        [3, 5, 6, 10],  # input data has 10 frames
     )
     @pytest.mark.parametrize("filter_func", [median_filter, savgol_filter])
     def test_filter_with_nans_on_position_varying_window(
