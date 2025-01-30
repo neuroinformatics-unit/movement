@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Literal, TypeAlias
 
+import numpy as np
 import shapely
 from shapely.coords import CoordinateSequence
 
@@ -202,3 +203,44 @@ class BaseRegionOfInterest:
                     point
                 )
         return point_is_inside
+
+    @broadcastable_method(only_broadcastable_along="space")
+    def nearest_point_to(
+        self, /, position: ArrayLike, boundary: bool = False
+    ) -> np.ndarray:
+        """Compute the nearest point in ``self`` to the ``position``.
+
+        Parameters
+        ----------
+        position : ArrayLike
+            Coordinates of a point, from which to find the nearest point in the
+            region defined by ``self``.
+        boundary : bool, optional
+            If True, compute the nearest point to ``position`` that is on the
+            boundary of ``self``. Otherwise, the nearest point returned may be
+            inside ``self`` (see Notes).
+
+        Returns
+        -------
+        np.ndarray
+            Coordinates of the point on ``self`` that is closest to
+            ``position``.
+
+        Notes
+        -----
+        This function computes the nearest point to ``position`` in the region
+        defined by ``self``. This means that, given a ``position`` inside the
+        region, ``position`` itself will be returned. To find the nearest point
+        to ``position`` on the boundary of a region, pass the ``boundary`
+        argument as ``True`` to this method. Take care though - the boundary of
+        a line is considered to be its endpoints.
+
+        """
+        from_where = self.region.boundary if boundary else self.region
+        # shortest_line returns a line from 1st arg to 2nd arg,
+        # therefore the point on self is the 0th coordinate
+        return np.array(
+            shapely.shortest_line(from_where, shapely.Point(position)).coords[
+                0
+            ]
+        )

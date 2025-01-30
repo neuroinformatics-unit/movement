@@ -5,7 +5,6 @@ import pytest
 import xarray as xr
 
 from movement.roi.base import BaseRegionOfInterest
-from movement.roi.polygon import PolygonOfInterest
 
 
 def walk_inside_unit_square() -> np.ndarray:
@@ -37,20 +36,6 @@ def walk_from_left_to_right() -> np.ndarray:
     x_points = np.linspace(-0.05, 1.05, num=5, endpoint=True)
     y_points = np.linspace(0.05, 0.95, num=5, endpoint=True)
     return np.array([x_points, y_points]).transpose()
-
-
-@pytest.fixture
-def unit_square(unit_square_pts: xr.DataArray) -> PolygonOfInterest:
-    return PolygonOfInterest(unit_square_pts, name="Unit square")
-
-
-@pytest.fixture
-def unit_square_with_hole(
-    unit_square_pts: xr.DataArray, unit_square_hole: xr.DataArray
-) -> PolygonOfInterest:
-    return PolygonOfInterest(
-        unit_square_pts, holes=[unit_square_hole], name="Unit square with hole"
-    )
 
 
 @pytest.mark.parametrize(
