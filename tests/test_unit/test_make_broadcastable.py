@@ -241,3 +241,25 @@ def test_vector_outputs(
         else:
             assert d in mock_dataset.dims
             assert len(output[d]) == len(mock_dataset[d])
+
+
+def test_retain_underlying_function() -> None:
+    value_for_arg = 5.0
+    value_for_kwarg = 7.0
+    value_for_simple_input = [0.0, 1.0, 2.0]
+
+    def simple_function(input_1D, arg, kwarg=3.0):
+        return arg * sum(input_1D) + kwarg
+
+    @make_broadcastable()
+    def simple_function_broadcastable(input_1D, arg, kwarg=3.0):
+        return simple_function(input_1D, arg, kwarg=kwarg)
+
+    result_from_broadcastable = simple_function_broadcastable(
+        value_for_simple_input, value_for_arg, kwarg=value_for_kwarg
+    )
+    result_from_original = simple_function(
+        value_for_simple_input, value_for_arg, kwarg=value_for_kwarg
+    )
+    assert isinstance(result_from_broadcastable, float)
+    assert np.isclose(result_from_broadcastable, result_from_original)
