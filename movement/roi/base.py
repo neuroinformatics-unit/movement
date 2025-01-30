@@ -210,7 +210,7 @@ class BaseRegionOfInterest:
     def nearest_point_to(
         self, /, position: ArrayLike, boundary: bool = False
     ) -> np.ndarray:
-        """Compute the nearest point in ``self`` to the ``position``.
+        """Compute the nearest point in the region to the ``position``.
 
         Parameters
         ----------
@@ -250,3 +250,40 @@ class BaseRegionOfInterest:
                 0
             ]
         )
+
+    @broadcastable_method(only_broadcastable_along="space")
+    def distance_to(self, point: ArrayLike, boundary: bool = False) -> float:
+        """Compute the distance from the region to a point.
+
+        Parameters
+        ----------
+        point : ArrayLike
+            Coordinates of a point, from which to find the nearest point in the
+            region defined by ``self``.
+        boundary : bool, optional
+            If True, compute the distance from ``point`` to the boundary of
+            the region. Otherwise, the distance returned may be 0 for interior
+            points (see Notes).
+
+        Returns
+        -------
+        float
+            Euclidean distance from the ``point`` to the (closest point on the)
+            region.
+
+        Notes
+        -----
+        A point within the interior of a region is considered to be a distance
+        0 from the region. This is desirable for 1-dimensional regions, but may
+        not be desirable for 2D regions. As such, passing the ``boundary``
+        argument as ``True`` makes the function compute the distance from the
+        ``point`` to the boundary of the region, even if ``point`` is in the
+        interior of the region.
+
+        See Also
+        --------
+        shapely.distance : Underlying used to compute the nearest point.
+
+        """
+        from_where = self.region.boundary if boundary else self.region
+        return shapely.distance(from_where, shapely.Point(point))
