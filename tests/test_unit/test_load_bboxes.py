@@ -261,11 +261,7 @@ expected_values_bboxes = {
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 @pytest.mark.parametrize("frame_regexp", [None, r"(00\d*)\.\w+$"])
 def test_from_via_tracks_file(
-    via_file_path,
-    fps,
-    use_frame_numbers_from_file,
-    frame_regexp,
-    helpers,
+    via_file_path, fps, use_frame_numbers_from_file, frame_regexp, helpers
 ):
     """Test that loading tracked bounding box data from
     a valid VIA tracks .csv file returns a proper Dataset.

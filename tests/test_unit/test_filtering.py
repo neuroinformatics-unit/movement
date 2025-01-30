@@ -38,12 +38,7 @@ class TestFilteringValidDataset:
         ],
     )
     def test_filter_with_nans_on_position(
-        self,
-        filter_func,
-        filter_kwargs,
-        valid_dataset,
-        helpers,
-        request,
+        self, filter_func, filter_kwargs, valid_dataset, helpers, request
     ):
         """Test NaN behaviour of the median and SG filters.
         Both filters should set all values to NaN if one element of the
