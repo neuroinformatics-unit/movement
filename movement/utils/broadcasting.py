@@ -1,12 +1,11 @@
-r"""Broadcasting operations across ``xarray.xr.DataArray`` dimensions.
+r"""Broadcasting operations across ``xarray.DataArray`` dimensions.
 
 This module essentially provides an equivalent functionality to
-`numpy.apply_along_axis``, but for ``xarray.DataArray``s.
+``numpy.apply_along_axis``, but for ``xarray.DataArray`` objects.
 This functionality is provided as a decorator, so it can be applied to both
 functions within the package and be available to users who would like to use it
 in their analysis.
-
-In essence; suppose that we have a function which takes a 1-slice of a
+In essence; suppose that we have a function which takes a 1D-slice of a
 ``xarray.DataArray`` and returns either a scalar value, or another 1D array.
 Typically, one would either have to call this function successively in a
 ``for`` loop, looping over all the 1D slices in a ``xarray.DataArray`` that
@@ -15,7 +14,8 @@ necessary dimension of the data structure.
 
 The ``make_broadcastable`` decorator takes care of the latter piece of work,
 allowing us to write functions that operate on 1D slices, then apply this
-decorator to have them work across ``xarray.DataArray``s. The function
+decorator to have them work across ``xarray.DataArray`` dimensions. The
+function
 
 >>> def my_function(input_1d, *args, **kwargs):
 ...     # do something
@@ -32,7 +32,7 @@ effectively changing it's call signature to
 
 >>> def my_function(data_array, *args, dimension, **kwargs)
 
-which will perform the action of `my_function` along the `dimension` given.
+which will perform the action of ``my_function`` along the ``dimension`` given.
 The ``\*args`` and ``\*\*kwargs`` retain their original interpretations from
 ``my_function`` too.
 """
