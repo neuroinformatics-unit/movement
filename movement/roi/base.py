@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
-PointLike: TypeAlias = tuple[float, float]
+PointLike: TypeAlias = tuple[float, ...] | list[float]
 PointLikeList: TypeAlias = Sequence[PointLike]
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
@@ -204,7 +204,9 @@ class BaseRegionOfInterest:
                 )
         return point_is_inside
 
-    @broadcastable_method(only_broadcastable_along="space")
+    @broadcastable_method(
+        only_broadcastable_along="space", new_dimension_name="nearest point"
+    )
     def nearest_point_to(
         self, /, position: ArrayLike, boundary: bool = False
     ) -> np.ndarray:
@@ -233,7 +235,11 @@ class BaseRegionOfInterest:
         region, ``position`` itself will be returned. To find the nearest point
         to ``position`` on the boundary of a region, pass the ``boundary`
         argument as ``True`` to this method. Take care though - the boundary of
-        a line is considered to be its endpoints.
+        a line is considered to be just its endpoints.
+
+        See Also
+        --------
+        shapely.shortest_line : Underlying used to compute the nearest point.
 
         """
         from_where = self.region.boundary if boundary else self.region
