@@ -241,4 +241,3 @@ def test_vector_outputs(
         else:
             assert d in mock_dataset.dims
             assert len(output[d]) == len(mock_dataset[d])
-    pass
