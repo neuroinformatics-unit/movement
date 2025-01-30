@@ -7,7 +7,7 @@ import xarray as xr
 
 from movement.utils.broadcasting import (
     KeywordArgs,
-    Scalar,
+    ScalarOr1D,
     broadcastable_method,
     make_broadcastable,
     space_broadcastable,
@@ -109,7 +109,7 @@ def test_make_broadcastable(
     mock_dataset: xr.DataArray,
     along_dimension: str,
     expected_output: xr.DataArray,
-    mimic_fn: Callable[Concatenate[Any, KeywordArgs], Scalar],
+    mimic_fn: Callable[Concatenate[Any, KeywordArgs], ScalarOr1D],
     fn_args: list[Any],
     fn_kwargs: dict[str, Any],
 ) -> None:
@@ -202,3 +202,43 @@ def test_make_broadcastable_classmethod(
 
     assert decorated_output.shape == expected_output.shape
     xr.testing.assert_allclose(decorated_output, expected_output)
+
+
+@pytest.mark.parametrize(
+    ["broadcast_dim", "new_dim_length", "new_dim_name"],
+    [
+        pytest.param("space", 3, None, id="(3,), default dim name"),
+        pytest.param("space", 5, "elephants", id="(5,), custom dim name"),
+    ],
+)
+def test_vector_outputs(
+    mock_dataset: xr.DataArray,
+    broadcast_dim: str,
+    new_dim_length: int,
+    new_dim_name: str | None,
+) -> None:
+    """Test make_broadcastable when 1D vector outputs are provided."""
+    if not new_dim_name:
+        # Take on the default value given in the method,
+        # if not provided
+        new_dim_name = "result"
+
+    @make_broadcastable(
+        only_broadcastable_along=broadcast_dim, new_dimension_name=new_dim_name
+    )
+    def two_to_some(xy_pair) -> np.ndarray:
+        # A 1D -> 1D function, rather than a function that returns a scalar.
+        return np.linspace(
+            xy_pair[0], xy_pair[1], num=new_dim_length, endpoint=True
+        )
+
+    output = two_to_some(mock_dataset)
+
+    assert isinstance(output, xr.DataArray)
+    for d in output.dims:
+        if d == new_dim_name:
+            assert len(output[d]) == new_dim_length
+        else:
+            assert d in mock_dataset.dims
+            assert len(output[d]) == len(mock_dataset[d])
+    pass
