@@ -165,7 +165,7 @@ def new_csv_file(tmp_path):
 # ---------------- Anipose file fixtures ----------------------------
 @pytest.fixture
 def missing_keypoint_columns_anipose_csv_file(tmp_path):
-    """Return the file path for a fake single-individual .csv file."""
+    """Return the file path for a single-individual anipose .csv file. with the z-coordinate of keypoint kp0 missing"""
     file_path = tmp_path / "missing_keypoint_columns.csv"
     columns = [
         "fnum",
@@ -193,7 +193,7 @@ def missing_keypoint_columns_anipose_csv_file(tmp_path):
 
 @pytest.fixture
 def spurious_column_anipose_csv_file(tmp_path):
-    """Return the file path for a fake single-individual .csv file."""
+    """Return the file path for a single-individual anipose .csv file with an additional unexpected column."""
     file_path = tmp_path / "spurious_column.csv"
     columns = [
         "fnum",
