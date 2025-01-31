@@ -255,11 +255,30 @@ def test_retain_underlying_function() -> None:
     def simple_function_broadcastable(input_1d, arg, kwarg=3.0):
         return simple_function(input_1d, arg, kwarg=kwarg)
 
-    result_from_broadcastable = simple_function_broadcastable(
-        value_for_simple_input, value_for_arg, kwarg=value_for_kwarg
-    )
+    class DummyClass:
+        factor: float
+
+        def __init__(self, factor: float = 1.0):
+            self.factor = factor
+
+        @broadcastable_method(only_broadcastable_along="space")
+        def simple_broadcastable_method(self, values, kwarg=3.0) -> float:
+            return simple_function(values, self.factor, kwarg=kwarg)
+
     result_from_original = simple_function(
         value_for_simple_input, value_for_arg, kwarg=value_for_kwarg
     )
+    result_from_broadcastable = simple_function_broadcastable(
+        value_for_simple_input, value_for_arg, kwarg=value_for_kwarg
+    )
+    result_from_clsmethod = DummyClass(
+        value_for_arg
+    ).simple_broadcastable_method(
+        value_for_simple_input, kwarg=value_for_kwarg
+    )
+
     assert isinstance(result_from_broadcastable, float)
+    assert isinstance(result_from_clsmethod, float)
+
     assert np.isclose(result_from_broadcastable, result_from_original)
+    assert np.isclose(result_from_clsmethod, result_from_original)
