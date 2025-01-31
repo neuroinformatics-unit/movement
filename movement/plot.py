@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-import numpy as np
 import xarray as xr
 from matplotlib import pyplot as plt
 
@@ -10,7 +9,7 @@ DEFAULT_PLOTTING_ARGS = {
     "s": 15,
     "cmap": "viridis",
     "marker": "o",
-    "alpha": 0.5,
+    "alpha": 1.0,
 }
 
 
@@ -64,12 +63,12 @@ def trajectory(
         plotting_point = position.sel(keypoints=keypoint)
         plotting_point_name = keypoint
 
-    if isinstance(individual, int):
-        # Index-based individual reference
-        individual = da.individuals.values[individual]
-    elif isinstance(individual, str):
-        # Label-based individual reference
-        individual = np.str_(individual)
+    # recover individual's coordinate (name), if provided an integer
+    individual = (
+        da.individuals.values[individual]
+        if isinstance(individual, int)
+        else str(individual)
+    )
 
     fig, ax = plt.subplots(1, 1)
 
@@ -89,15 +88,21 @@ def trajectory(
     ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
     ax.invert_yaxis()
-    if title is not None:
-        ax.set_title(title)
-    else:
-        ax.set_title(f"{individual} trajectory of {plotting_point_name}")
+    title = (
+        f"{individual} trajectory of {plotting_point_name}"
+        if title is not None
+        else title
+    )
+    ax.set_title(title)
 
-    if da.attrs.get("time_unit") is not None:
-        fig.colorbar(sc, ax=ax, label=f"time ({da.attrs['time_unit']})")
-    else:
-        fig.colorbar(sc, ax=ax, label="time steps (frames)")
+    label = (
+        f"time ({da.attrs['time_unit']})"
+        if da.attrs.get("time_unit") is not None
+        else "time steps (frames)"
+    )
+    colourbar = fig.colorbar(sc, ax=ax, label=label)
+    # ensure colourbar does not suffer from transparency
+    colourbar.solids.set(alpha=1.0)
 
     if frame_path is not None:
         frame = plt.imread(frame_path)
