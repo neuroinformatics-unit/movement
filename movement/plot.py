@@ -15,7 +15,7 @@ DEFAULT_PLOTTING_ARGS = {
 
 
 def trajectory(
-    ds: xr.DataArray,
+    da: xr.DataArray,
     keypoint: str | list[str],
     individual: int | str = 0,
     frame_path: None | Path = None,
@@ -28,8 +28,35 @@ def trajectory(
     between two keypoints for a given individual. The individual can be
     specified by their index or name. By default, the first individual
     is selected.
+
+    Parameters
+    ----------
+    da: xr.DataArray
+        Movement poses data.
+    keypoint: str | list[str]
+        Either one or two keypoints, from which to form the trajectory.
+        If a single keypoint is given, a trajectory of that keypoint is
+        plotted. If two keypoints are given, the trajectory of their centroid
+        is plotted.
+    individual: int | str
+        Individual index or name. By default, the first individual is chosen.
+    frame_path: None | Path, optional
+        Path to the frame image for the trajectory data to be overlaid on top
+        of.
+    title: str | None, optional
+        Title of the plot. If no title is provided, it is generated based on
+        the keypoint names and individual name.
+    kwargs: Any
+        Arguments passed to ``matplotlib.pyplot.Figure`` when creating the
+        plot.
+
+    Returns
+    -------
+    matplotlib.pyplot.Figure
+        Figure handler for the created plot.
+
     """
-    position = ds.position
+    position = da.position
     if isinstance(keypoint, list):
         plotting_point = position.sel(keypoints=keypoint).mean(dim="keypoints")
         plotting_point_name = "midpoint between " + " and ".join(keypoint)
@@ -39,7 +66,7 @@ def trajectory(
 
     if isinstance(individual, int):
         # Index-based individual reference
-        individual = ds.individuals.values[individual]
+        individual = da.individuals.values[individual]
     elif isinstance(individual, str):
         # Label-based individual reference
         individual = np.str_(individual)
@@ -67,47 +94,16 @@ def trajectory(
     else:
         ax.set_title(f"{individual} trajectory of {plotting_point_name}")
 
-    if ds.attrs.get("time_unit") is not None:
-        fig.colorbar(sc, ax=ax, label=f"time ({ds.attrs['time_unit']})")
+    if da.attrs.get("time_unit") is not None:
+        fig.colorbar(sc, ax=ax, label=f"time ({da.attrs['time_unit']})")
     else:
         fig.colorbar(sc, ax=ax, label="time steps (frames)")
 
     if frame_path is not None:
         frame = plt.imread(frame_path)
-        # Ivert the y-axis back again since the the image is plotted
+        # Invert the y-axis back again since the the image is plotted
         # using a coordinate system with origin on the top left of the image
         ax.invert_yaxis()
         ax.imshow(frame)
 
     return fig
-
-
-# FOR TESTING
-# from movement import sample_data
-# from movement.io import load_poses
-
-# ds_path = sample_data.fetch_dataset_paths(
-#     "SLEAP_single-mouse_EPM.analysis.h5"
-# )["poses"]
-# ds = load_poses.from_sleap_file(ds_path, fps=None)
-# # force time_unit = frames
-# frame_path = sample_data.fetch_dataset_paths(
-#     "SLEAP_single-mouse_EPM.analysis.h5"
-# )["frame"]
-
-# head_trajectory = trajectory(
-#     ds,
-#     ["left_ear", "right_ear"],
-#     individual=0,
-#     frame_path=frame_path,
-#     s=10,  # We could leave these options off
-#     cmap="viridis",  # if we include the default
-#     marker="o",  # argument setting-block above
-#     alpha=0.05,
-#     title="Head trajectory of individual 0",
-# )
-
-# plt.ion()
-# head_trajectory.show()
-# # user input to close window
-# input("Press Enter to continue...")
