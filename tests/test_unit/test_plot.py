@@ -63,15 +63,31 @@ def sample_data():
     return ds
 
 
-def test_trajectory(sample_data):
+@pytest.mark.parametrize(
+    ["frame"],
+    [
+        pytest.param(True, id="with_frame"),
+        pytest.param(False, id="without_frame"),
+    ],
+)
+def test_trajectory(sample_data, frame, tmp_path):
     """Test midpoint between left and right keypoints."""
     plt.switch_backend("Agg")  # to avoid pop-up window
-    fig_centre = trajectory(sample_data, keypoint="centre")
+
+    if frame:
+        frame_path = tmp_path / "frame.png"
+        fig, ax = plt.subplots()
+        ax.imshow(np.zeros((10, 10)))
+        fig.savefig(frame_path)
+        kwargs = {"frame_path": frame_path}
+    else:
+        kwargs = {"frame_path": None}
+    fig_centre = trajectory(sample_data, keypoint="centre", **kwargs)
     fig_left_right_midpoint = trajectory(
-        sample_data, keypoint=["left", "right"]
+        sample_data, keypoint=["left", "right"], **kwargs
     )
 
-    expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]])
+    expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
 
     # Retrieve data points from figures
     ax_centre = fig_centre.axes[0]
@@ -80,33 +96,5 @@ def test_trajectory(sample_data):
     ax_left_right = fig_left_right_midpoint.axes[0]
     left_right_data = ax_left_right.collections[0].get_offsets().data
 
-    np.testing.assert_array_almost_equal(centre_data, left_right_data)
-    np.testing.assert_array_almost_equal(centre_data, expected_data)
-    np.testing.assert_array_almost_equal(left_right_data, expected_data)
-
-
-def test_trajectory_with_frame(sample_data, tmp_path):
-    """Test plot trajectory with frame."""
-    frame_path = tmp_path / "frame.png"
-    fig, ax = plt.subplots()
-    ax.imshow(np.zeros((10, 10)))
-    fig.savefig(frame_path)
-
-    fig_centre = trajectory(
-        sample_data, keypoint="centre", frame_path=frame_path
-    )
-    fig_left_right_midpoint = trajectory(
-        sample_data, keypoint=["left", "right"], frame_path=frame_path
-    )
-
-    # Retrieve data points from figures
-    ax_centre = fig_centre.axes[0]
-    centre_data = ax_centre.collections[0].get_offsets().data
-
-    ax_left_right = fig_left_right_midpoint.axes[0]
-    left_right_data = ax_left_right.collections[0].get_offsets().data
-
-    expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]])
-    np.testing.assert_array_almost_equal(centre_data, left_right_data)
     np.testing.assert_array_almost_equal(centre_data, expected_data)
     np.testing.assert_array_almost_equal(left_right_data, expected_data)
