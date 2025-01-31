@@ -14,7 +14,7 @@ from movement.roi.base import BaseRegionOfInterest
         pytest.param(
             "unit_square_pts",
             {"dimensions": 2, "closed": False},
-            {"is_closed": True, "dimensions": 2, "name": "Un-named"},
+            {"is_closed": True, "dimensions": 2, "name": "Un-named region"},
             id="Polygon, closed is ignored",
         ),
         pytest.param(
@@ -59,6 +59,15 @@ from movement.roi.base import BaseRegionOfInterest
             ValueError("Cannot create a loop from a single line segment."),
             id="Cannot close single line segment.",
         ),
+        pytest.param(
+            "unit_square_pts",
+            {"dimensions": 3, "closed": False},
+            ValueError(
+                "Only regions of interest of dimension 1 or 2 "
+                "are supported (requested 3)"
+            ),
+            id="Bad dimensionality",
+        ),
     ],
 )
 def test_creation(
@@ -82,10 +91,18 @@ def test_creation(
         expected_closure = kwargs_for_creation.pop("closed", False)
         if expected_dim == 2:
             assert isinstance(roi.region, shapely.Polygon)
+            assert len(roi.coords) == len(input_pts) + 1
+            string_should_contain = "-gon"
         elif expected_closure:
             assert isinstance(roi.region, shapely.LinearRing)
+            assert len(roi.coords) == len(input_pts) + 1
+            string_should_contain = "line segment(s)"
         else:
             assert isinstance(roi.region, shapely.LineString)
+            assert len(roi.coords) == len(input_pts)
+            string_should_contain = "line segment(s)"
+        assert string_should_contain in roi.__str__()
+        assert string_should_contain in roi.__repr__()
 
         for attribute_name, expected_value in expected_results.items():
             assert getattr(roi, attribute_name) == expected_value

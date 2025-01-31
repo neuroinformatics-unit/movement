@@ -39,11 +39,10 @@ class BaseRegionOfInterest:
     instantiated, however its primary purpose is to reduce code duplication.
     """
 
-    __default_name: str = "Un-named"
-    __supported_type: TypeAlias = SupportedGeometry
+    __default_name: str = "Un-named region"
 
     _name: str | None
-    _shapely_geometry: __supported_type
+    _shapely_geometry: SupportedGeometry
 
     @property
     def coords(self) -> CoordinateSequence:
@@ -85,7 +84,7 @@ class BaseRegionOfInterest:
         return self._name if self._name else self.__default_name
 
     @property
-    def region(self) -> __supported_type:
+    def region(self) -> SupportedGeometry:
         """``shapely.Geometry`` representation of the region."""
         return self._shapely_geometry
 
@@ -139,15 +138,14 @@ class BaseRegionOfInterest:
                 ValueError,
                 "Cannot create a loop from a single line segment.",
             )
-        self._shapely_geometry = (
-            shapely.Polygon(shell=points, holes=holes)
-            if dimensions == 2
-            else (
+        if dimensions == 2:
+            self._shapely_geometry = shapely.Polygon(shell=points, holes=holes)
+        else:
+            self._shapely_geometry = (
                 shapely.LinearRing(coordinates=points)
                 if closed
                 else shapely.LineString(coordinates=points)
             )
-        )
 
     def __repr__(self) -> str:  # noqa: D105
         return str(self)

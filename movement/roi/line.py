@@ -1,8 +1,6 @@
 """1-dimensional lines of interest."""
 
-from typing import TypeAlias
-
-from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
+from movement.roi.base import BaseRegionOfInterest, PointLikeList
 
 
 class LineOfInterest(BaseRegionOfInterest):
@@ -21,9 +19,6 @@ class LineOfInterest(BaseRegionOfInterest):
     will then be joined (in sequence) by straight lines between consecutive
     pairs of points, to form the LoI that is to be studied.
     """
-
-    __default_name: str = "Un-named line"
-    __supported_type: TypeAlias = LineLike
 
     def __init__(
         self,
