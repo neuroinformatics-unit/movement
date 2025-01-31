@@ -31,7 +31,7 @@ class TestSavePoses:
             # invalid file path
         },
         {
-            "file_fixture": "new_file_wrong_ext",
+            "file_fixture": "wrong_extension_new_file",
             "to_dlc_file_expected_exception": pytest.raises(ValueError),
             "to_sleap_file_expected_exception": pytest.raises(ValueError),
             "to_lp_file_expected_exception": pytest.raises(ValueError),
@@ -175,9 +175,7 @@ class TestSavePoses:
         indirect=["valid_poses_dataset"],
     )
     def test_to_dlc_style_df_split_individuals(
-        self,
-        valid_poses_dataset,
-        split_individuals,
+        self, valid_poses_dataset, split_individuals
     ):
         """Test that the `split_individuals` argument affects the behaviour
         of the `to_dlc_style_df` function as expected.
@@ -231,9 +229,7 @@ class TestSavePoses:
         """
         with expected_exception:
             save_poses.to_dlc_file(
-                valid_poses_dataset,
-                new_h5_file,
-                split_individuals,
+                valid_poses_dataset, new_h5_file, split_individuals
             )
             # Get the names of the individuals in the dataset
             ind_names = valid_poses_dataset.individuals.values
@@ -311,7 +307,7 @@ class TestSavePoses:
         """Test that removing unoccupied tracks from a valid pose dataset
         returns the expected result.
         """
-        new_individuals = [f"ind{i}" for i in range(1, 4)]
+        new_individuals = [f"id_{i}" for i in range(3)]
         # Add new individual with NaN data
         ds = valid_poses_dataset.reindex(individuals=new_individuals)
         ds = save_poses._remove_unoccupied_tracks(ds)
