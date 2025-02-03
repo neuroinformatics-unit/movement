@@ -79,17 +79,3 @@ def occupancy_histogram(
     ax.set_ylabel(y_coord)
 
     return fig
-
-
-if __name__ == "__main__":
-    from movement import sample_data
-    from movement.io import load_poses
-
-    ds_path = sample_data.fetch_dataset_paths(
-        "SLEAP_single-mouse_EPM.analysis.h5"
-    )["poses"]
-    position = load_poses.from_sleap_file(ds_path, fps=None).position
-
-    f = occupancy_histogram(position)
-    plt.show(block=True)
-    pass
