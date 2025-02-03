@@ -14,7 +14,7 @@ coordinates.
 import numpy as np
 from matplotlib import pyplot as plt
 
-from movement import sample_data
+from movement import plot, sample_data
 from movement.io import load_poses
 from movement.utils.vector import cart2pol, pol2cart
 
@@ -137,87 +137,44 @@ fig.show()
 # %%
 # Visualise the head vector
 # ---------------------------
+# The plot.vector function plots the vector from the midpoint between two
+# reference points to another keypoint (vector_point) an runs perpendicular to
+# the line connecting the reference points.
+#
+# In the case of the head vector, the reference points are "left_ear" and
+# "right_ear", and the vector_point is "snout". The head vector is represented
+# by an arrow that goes from the midpoint between the ears to the snout.
+#
+# By default, plot.vector will plot a vector for the first individual in the
+# dataset, during the first 15 timepoints with non-NaN location coordinates
+# for the keypoints of interest.
+fig_head_vector = plot.vector(
+    ds, reference_points=["left_ear", "right_ear"], vector_point="snout"
+)
+fig_head_vector.show()
+
+# %%
 # To visually check our computation of the head vector, it is easier to select
 # a subset of the data. We can focus on the trajectory of the head when the
 # mouse is within a small rectangular area and time window.
 
 # area of interest
-xmin, ymin = 600, 665  # pixels
-x_delta, y_delta = 125, 100  # pixels
-
-# time window
+xmin, ymin = 600.0, 665.0  # pixels
+x_delta, y_delta = 125.0, 100.0  # pixels
 time_window = range(1650, 1671)  # frames
 
-
-# %%
-# For that subset of the data, we now plot the head vector.
-
-fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
-
-# plot midpoint between the ears, and color based on time
-sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    s=50,
-    c=midpoint_ears.time[time_window],
-    cmap="viridis",
-    marker="*",
+fig_head_vector = plot.vector(
+    ds,
+    reference_points=["left_ear", "right_ear"],
+    vector_point="snout",
+    individual="individual_0",
+    x_lim=(xmin, xmin + x_delta),
+    y_lim=(ymin, ymin + y_delta),
+    time_points=tuple(time_window),
+    title="Zoomed in head vector (individual_0)",
 )
 
-# plot snout, and color based on time
-sc = ax.scatter(
-    position.sel(
-        individuals=mouse_name, space="x", time=time_window, keypoints="snout"
-    ),
-    position.sel(
-        individuals=mouse_name, space="y", time=time_window, keypoints="snout"
-    ),
-    s=50,
-    c=position.time[time_window],
-    cmap="viridis",
-    marker="o",
-)
-
-# plot the computed head vector
-ax.quiver(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="x", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="y", time=time_window),
-    angles="xy",
-    scale=1,
-    scale_units="xy",
-    headwidth=7,
-    headlength=9,
-    headaxislength=9,
-    color="gray",
-)
-
-ax.axis("equal")
-ax.set_xlim(xmin, xmin + x_delta)
-ax.set_ylim(ymin, ymin + y_delta)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in head vector ({mouse_name})")
-ax.invert_yaxis()
-fig.colorbar(
-    sc,
-    ax=ax,
-    label=f"time ({ds.attrs['time_unit']})",
-    ticks=list(time_window)[0::2],
-)
-
-ax.legend(
-    [
-        "midpoint_ears",
-        "snout",
-        "head_vector",
-    ],
-    loc="best",
-)
-
-fig.show()
+fig_head_vector.show()
 
 # %%
 # From the plot we can confirm the head vector goes from the midpoint between

@@ -1,23 +1,28 @@
 """Wrappers to plot movement data."""
 
-import numpy as np
 import xarray as xr
 from matplotlib import pyplot as plt
 
-DEFAULT_PLOTTING_ARGS = {
-    "s": 15,
+DEFAULT_ARROW_ARGS = {
+    "scale": 1.05,
+    "headwidth": 3,
+    "headlength": 4,
+    "headaxislength": 4,
+    "color": "gray",
+}
+
+DEFAULT_SCATTER_ARGS = {
+    "s": 50,
     "cmap": "viridis",
-    "marker": "o",
-    "alpha": 0.5,
 }
 
 
 def vector(
     ds: xr.DataArray,
     individual: int | str = 0,
-    x: tuple[int] | None = None,
-    y: tuple[int] | None = None,
-    time_range: range | None = None,
+    x_lim: tuple[float, float] | None = None,
+    y_lim: tuple[float, float] | None = None,
+    time_points: tuple[int, ...] | None = None,
     reference_points: list[str] | tuple[str, str] = (
         "left_ear",
         "right_ear",
@@ -26,95 +31,142 @@ def vector(
     title: str | None = None,
     **kwargs,
 ) -> plt.Figure:
-    """Plot head vector for a specified subset of the data."""
-    position = ds.position
+    """Plot head vector for a specified subset of the data.
+
+    Parameters
+    ----------
+    ds : xr.DataArray
+        The dataset containing the movement data.
+    individual : int | str, optional
+        The individual to plot the vector for. Can be either the index
+        of the individual in the dataset or the label of the individual.
+        Default is 0.
+    x_lim : tuple[float] | None, optional
+        The x-axis limits for the plot. If None, the limits are set to
+        the minimum and maximum x-values of the reference individual.
+        Default is None.
+    y_lim : tuple[float] | None, optional
+        The y-axis limits for the plot. If None, the limits are set to
+        the minimum and maximum y-values of the reference individual.
+        Default is None.
+    time_points : tuple[int] | None, optional
+        The time points to plot the vector for, specified as a tuple
+        containing the starting and ending frame. If None, the first
+        15 frames with non-NaN space coordinates for the keypoints of
+        interest are selected.
+    reference_points : list[str] | tuple[str, str], optional
+        The reference points to calculate the vector from. Default is
+        ("left_ear", "right_ear").
+    vector_point : str, optional
+        The point to plot the vector for. Default is "snout".
+    title : str | None, optional
+        The title of the plot. If None, a title is generated using the
+        name of the vector point and the individual. Default is None.
+    **kwargs : dict
+        Additional keyword arguments to pass to `plt.quiver` to create
+        the arrows in the vector plot.
+
+
+    Returns
+    -------
+    plt.Figure
+        The figure containing the plot.
+
+    """
+    individual = (
+        ds.individuals.values[individual]
+        if isinstance(individual, int)
+        else str(individual)
+    )
+
+    keypoints_of_interest = list(reference_points) + [vector_point]
+
+    ds_sel = ds.sel(individuals=individual, keypoints=keypoints_of_interest)
+
+    valid_time_points = ds_sel.position.dropna(
+        dim="time", how="any"
+    ).time.values
+    time_points = time_points or valid_time_points[:15]
+
+    position = ds_sel.position.sel(time=list(time_points))
+
+    x_lim = x_lim or (
+        position.sel(space="x").min(),
+        position.sel(space="x").max(),
+    )
+    y_lim = y_lim or (
+        position.sel(space="y").min(),
+        position.sel(space="y").max(),
+    )
+
     reference = position.sel(keypoints=list(reference_points)).mean(
         dim="keypoints"
     )
     vector = position.sel(keypoints=vector_point) - reference
     vector = vector.drop_vars("keypoints")
 
-    if isinstance(individual, int):
-        individual = ds.individuals.values[individual]  # Index-based reference
-    elif isinstance(individual, str):
-        individual = np.str_(individual)  # Label-based reference
-
-    if time_range is None:
-        time_range = range(len(ds.time))
-
-    for coord in ["x", "y"]:
-        if locals()[coord] is None:
-            locals()[coord] = (
-                reference.sel(
-                    individuals=individual, space=coord, time=time_range
-                ).min(),
-                reference.sel(
-                    individuals=individual, space=coord, time=time_range
-                ).max(),
-            )
+    arrow_kwargs = {
+        key: kwargs.get(key, value)
+        for key, value in DEFAULT_ARROW_ARGS.items()
+    }
+    scatter_kwargs = {
+        key: kwargs.get(key, value)
+        for key, value in DEFAULT_SCATTER_ARGS.items()
+    }
 
     fig, ax = plt.subplots(1, 1)
 
     # Plot midpoint between the reference points
     sc = ax.scatter(
-        reference.sel(individuals=individual, space="x", time=time_range),
-        reference.sel(individuals=individual, space="y", time=time_range),
-        label="reference",
+        reference.sel(space="x"),
+        reference.sel(space="y"),
+        c=time_points,
+        marker="*",
     )
 
     # plot vector point
     ax.scatter(
         position.sel(
-            individuals=individual,
             space="x",
-            time=time_range,
             keypoints=vector_point,
         ),
         position.sel(
-            individuals=individual,
             space="y",
-            time=time_range,
             keypoints=vector_point,
         ),
         label=vector_point,
+        c=time_points,
+        marker="o",
+        **scatter_kwargs,
     )
 
     # Plot vector of the vector point relative
     # to the midpoint between the reference points
     ax.quiver(
-        reference.sel(individuals=individual, space="x", time=time_range),
-        reference.sel(individuals=individual, space="y", time=time_range),
-        vector.sel(individuals=individual, space="x", time=time_range),
-        vector.sel(individuals=individual, space="y", time=time_range),
+        reference.sel(space="x"),
+        reference.sel(space="y"),
+        vector.sel(space="x"),
+        vector.sel(space="y"),
         angles="xy",
-        scale=1,
         scale_units="xy",
-        headwidth=7,
-        headlength=9,
-        headaxislength=9,
-        color="gray",
+        **arrow_kwargs,
     )
 
     ax.axis("equal")
-    ax.set_xlim(x)
-    ax.set_ylim(y)
+    ax.set_xlim(x_lim)
+    ax.set_ylim(y_lim)
     ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
-    if title is not None:
-        ax.set_title(title)
-    else:
-        ax.set_title(f"Head vector ({individual})")
+    ax.set_title(title or f"{vector_point} vector ({individual})")
     ax.invert_yaxis()
+    colorbar_label = f"time ({position.attrs.get('time_unit', 'frames')})"
     fig.colorbar(
-        sc,
-        ax=ax,
-        label=f"time ({ds.attrs['time_unit']})",
-        ticks=list(time_range)[0::2],
+        sc, ax=ax, label=colorbar_label, ticks=list(time_points)[0::2]
     )
 
     ax.legend(
         [
-            "reference",
+            f"midpoint ({reference_points[0]}, {reference_points[1]})",
             f"{vector_point}",
             "vector",
         ],
@@ -124,7 +176,7 @@ def vector(
     return fig
 
 
-# # FOR TESTING
+# # # FOR TESTING
 # from movement import sample_data
 # from movement.io import load_poses
 
@@ -137,24 +189,39 @@ def vector(
 #     "SLEAP_single-mouse_EPM.analysis.h5"
 # )["frame"]
 
+# # head_trajectory = vector(
+# #     ds,
+# #     reference_points=("left_ear", "right_ear"),
+# #     vector_point="snout",
+# #     time_points=None,
+# #     x_lim=None,
+# #     y_lim=None,
+# #     individual=0,
+# # )
+
+# # plt.ion()
+# # head_trajectory.show()
+# # # user input to close window
+# # input("Press Enter to continue...")
+
+
 # # area of interest
-# xmin, ymin = 600, 665  # pixels
-# x_delta, y_delta = 125, 100  # pixels
+# xmin, ymin = 600.0, 665.0  # pixels
+# x_delta, y_delta = 125.0, 100.0  # pixels
 
 # # time window
-# time_window = range(1650, 1671)  # frames
+# time_window = tuple(range(1650, 1671))  # tuple of frame numbers
 
-# # Plot the head vector for the specified subset of the data
-# head_vector = vector(
+# fig_head_vector = vector(
 #     ds,
-#     individual=0,
-#     x=(xmin, xmin + x_delta),
-#     y=(ymin, ymin + y_delta),
-#     time_range=time_window,
-#     reference_points=("left_ear", "right_ear"),
+#     reference_points=["left_ear", "right_ear"],
 #     vector_point="snout",
+#     individual="individual_0",
+#     x_lim=(xmin, xmin + x_delta),
+#     y_lim=(ymin, ymin + y_delta),
+#     time_points=time_window,
+#     title="Zoomed in head vector (individual_0)",
 # )
 
-# plt.ion()
-# head_vector.show()
+# fig_head_vector.show()
 # input("Press Enter to continue...")
