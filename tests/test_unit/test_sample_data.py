@@ -55,15 +55,15 @@ def validate_metadata(metadata: dict[str, dict]) -> None:
         "note",
     ]
     check_yaml_msg = "Check the format of the metadata .yaml file."
-    assert isinstance(
-        metadata, dict
-    ), f"Expected metadata to be a dictionary. {check_yaml_msg}"
-    assert all(
-        isinstance(ds, str) for ds in metadata
-    ), f"Expected metadata keys to be strings. {check_yaml_msg}"
-    assert all(
-        isinstance(val, dict) for val in metadata.values()
-    ), f"Expected metadata values to be dicts. {check_yaml_msg}"
+    assert isinstance(metadata, dict), (
+        f"Expected metadata to be a dictionary. {check_yaml_msg}"
+    )
+    assert all(isinstance(ds, str) for ds in metadata), (
+        f"Expected metadata keys to be strings. {check_yaml_msg}"
+    )
+    assert all(isinstance(val, dict) for val in metadata.values()), (
+        f"Expected metadata values to be dicts. {check_yaml_msg}"
+    )
     assert all(
         set(val.keys()) == set(metadata_fields) for val in metadata.values()
     ), f"Found issues with the names of metadata fields. {check_yaml_msg}"
