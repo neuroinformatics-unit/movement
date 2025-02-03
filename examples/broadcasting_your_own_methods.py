@@ -1,8 +1,8 @@
 """Extend your analysis methods along data dimensions
 =====================================================
 
-Learn how to use the `make_broadcastable` decorator, to easily write functions
-that can then be cast across an entire ``DataArray``.
+Learn how to use the ``make_broadcastable`` decorator, to easily write
+functions that can then be cast across an entire ``xarray.DataArray``.
 """
 
 # %%
@@ -13,13 +13,13 @@ that can then be cast across an entire ``DataArray``.
 # the following lines in your notebook
 # %matplotlib widget
 
-# We will need numpy and xarray to make our custom data for this example,
-# and matplotlib to show what it contains.
+# We will need ``numpy`` and ``xarray`` to make our custom data for this
+# example, and ``matplotlib`` to show what it contains.
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 
-# We will be using the the movement.utils.broadcasting module to
+# We will be using the the ``movement.utils.broadcasting`` module to
 # turn our one-dimensional functions into functions that work across
 # entire ``DataArray`` objects.
 from movement.utils.broadcasting import (
@@ -51,7 +51,7 @@ left_keypoint[:, 0, :] -= 0.5
 right_keypoint = centroid_keypoint.copy()
 right_keypoint[:, 0, :] += 0.5
 
-# Create a sample DataArray just for the centroid keypoint
+# Create a sample ``DataArray`` just for the centroid keypoint
 da_centroid = xr.DataArray(
     data=centroid_keypoint,
     dims=["time", "space", "individuals"],
@@ -155,10 +155,22 @@ def in_camera_fov(xy_position, fov_angle, direction_camera_faces):
 # positive x, positive y quadrant and nothing else.
 degrees_45 = np.pi / 4.0
 camera_direction = (1.0, 1.0)
-print(in_camera_fov((1, 1), degrees_45, camera_direction))
-print(in_camera_fov((-1, 1), degrees_45, camera_direction))
-print(in_camera_fov((1, -1), degrees_45, camera_direction))
-print(in_camera_fov((-1, -1), degrees_45, camera_direction))
+print(
+    "Can see +ve x, +ve y:",
+    in_camera_fov((1, 1), degrees_45, camera_direction),
+)
+print(
+    "Can see -ve x, +ve y:",
+    in_camera_fov((-1, 1), degrees_45, camera_direction),
+)
+print(
+    "Can see +ve x, -ve y:",
+    in_camera_fov((1, -1), degrees_45, camera_direction),
+)
+print(
+    "Can see -ve x, -ve y:",
+    in_camera_fov((-1, -1), degrees_45, camera_direction),
+)
 
 # %%
 # We can visualise the relation between our camera's field of view and our
@@ -251,7 +263,7 @@ for time_index in range(len(da_centroid["time"])):
         in_view[time_index, individual_index] = was_in_view
 
 # %%
-# We could then build a new DataArray to store our results, so that we can
+# We could then build a new ``DataArray`` to store our results, so that we can
 # access the results in the same way that we did our original data
 was_in_view_da = xr.DataArray(
     in_view,
@@ -268,22 +280,24 @@ print(was_in_view_da)
 # %%
 # Data Generalisation Issues
 # --------------------------
-# The shape our the resulting DataArray is the same as our original DataArray,
-# but without the space dimension. Indeed, we have essentially collapsed the
-# space dimension, since our ``in_camera_fov`` function takes in a 1D data
-# slice (the position) and returns a scalar value.
-# However, the fact that we have to construct a new DataArray after running our
-# function over all space slices in our DataArray is not scalable - our ``for``
-# loop approach relied on knowing how many dimensions our data had (and the
-# size of those dimensions). We don't have a guarantee that future DataArrays
-# we are given will have the same structure.
+# The shape our the resulting ``DataArray`` is the same as our original
+# ``DataArray``, but without the space dimension. Indeed, we have essentially
+# collapsed the space dimension, since our ``in_camera_fov`` function takes in
+# a 1D data slice (the position) and returns a scalar value.
+# However, the fact that we have to construct a new ``DataArray`` after running
+# our function over all space slices in our ``DataArray`` is not scalable - our
+# ``for`` loop approach relied on knowing how many dimensions our data had (and
+# the size of those dimensions). We don't have a guarantee that the next
+# ``DataArray`` that comes in will have the same structure.
 
 # %%
 # Making our Function Broadcastable
 # ---------------------------------
-# To combat this problem, we can make the observation that given any DataArray,
-# we always want to broadcast our ``in_camera_fov`` function along the
-# ``"space"`` dimension. As such, we can decorate our function with the
+# To combat this problem, we can make the observation that given any
+# ``DataArray``, we always want to broadcast our ``in_camera_fov`` function
+# along the ``"space"`` dimension. That is, we always want to run our function
+# for each 1D-slice in the ``"space"`` dimension, since these are the (x, y)
+# coordinates. As such, we can decorate our function with the
 # ``make_broadcastable`` decorator:
 
 
@@ -307,17 +321,29 @@ def in_camera_fov_broadcastable(
 # ``in_camera_fov_broadcastable`` is usable in exactly the same ways as
 # ``in_camera_fov`` was:
 
-print(in_camera_fov_broadcastable((1, 1), degrees_45, camera_direction))
-print(in_camera_fov_broadcastable((-1, 1), degrees_45, camera_direction))
-print(in_camera_fov_broadcastable((1, -1), degrees_45, camera_direction))
-print(in_camera_fov_broadcastable((-1, -1), degrees_45, camera_direction))
+print(
+    "Can see +ve x, +ve y:",
+    in_camera_fov_broadcastable((1, 1), degrees_45, camera_direction),
+)
+print(
+    "Can see -ve x, +ve y:",
+    in_camera_fov_broadcastable((-1, 1), degrees_45, camera_direction),
+)
+print(
+    "Can see +ve x, -ve y:",
+    in_camera_fov_broadcastable((1, -1), degrees_45, camera_direction),
+)
+print(
+    "Can see -ve x, -ve y:",
+    in_camera_fov_broadcastable((-1, -1), degrees_45, camera_direction),
+)
 
 # %%
-# However, ``in_camera_fov_broadcastable`` also takes a DataArray as the first
-# (``xy_position``) argument, and an extra keyword argument
+# However, ``in_camera_fov_broadcastable`` also takes a ``DataArray`` as the
+# first (``xy_position``) argument, and an extra keyword argument
 # "``broadcast_dimension``"". These arguments let us broadcast across the given
-# dimension of the input DataArray, treating each 1D-slice as a separate input
-# to ``in_camera_fov``.
+# dimension of the input ``DataArray``, treating each 1D-slice as a separate
+# input to ``in_camera_fov``.
 
 was_in_view_da_broadcasting = in_camera_fov_broadcastable(
     da_centroid,  # Now a DataArray input
@@ -330,12 +356,13 @@ print("DataArray output using broadcasting:")
 print(was_in_view_da_broadcasting)
 
 # %%
-# Calling ``in_camera_fov_broadcastable`` in this way gives us a DataArray
+# Calling ``in_camera_fov_broadcastable`` in this way gives us a ``DataArray``
 # output - and one that retains any information that was in our original
-# DataArray to boot!
+# ``DataArray`` to boot!
 # The result is exactly the same as what we got from using our ``for`` loop,
 # and then adding the extra information to the result.
 
+# Throws an AssertionError if the two inputs are not the same
 xr.testing.assert_equal(was_in_view_da, was_in_view_da_broadcasting)
 
 # %%
@@ -377,7 +404,7 @@ print(silly_broadcast)
 # (EG x) for each individual, at every time! So from an analysis standpoint,
 # doing this doesn't make sense and isn't how we intend our function to be
 # used.
-
+#
 # We can pass the ``only_broadcastable_along`` keyword argument to
 # ``make_broadcastable`` to prevent these kinds of mistakes, and make our
 # intentions clearer.
