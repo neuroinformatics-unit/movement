@@ -1,7 +1,11 @@
 """Wrappers to plot movement data."""
 
+from typing import Any
+
 import matplotlib.pyplot as plt
 import xarray as xr
+
+DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
 
 def occupancy_histogram(
@@ -9,6 +13,7 @@ def occupancy_histogram(
     keypoint: int | str = 0,
     individual: int | str = 0,
     title: str | None = None,
+    **kwargs: Any,
 ) -> plt.Figure:
     """Create a 2D histogram of the occupancy data given.
 
@@ -23,6 +28,8 @@ def occupancy_histogram(
     title : str, optional
         Title to give to the plot. Default will be generated from the
         ``keypoint`` and ``individual``
+    kwargs : Any
+        Keyword arguments passed to ``matplotlib.pyplot.hist2d``
 
     Returns
     -------
@@ -51,10 +58,14 @@ def occupancy_histogram(
     x_coord = data["space"].values[0]
     y_coord = data["space"].values[1]
 
+    # Inherit our defaults if not otherwise provided
+    for key, value in DEFAULT_HIST_ARGS.items():
+        if key not in kwargs:
+            kwargs[key] = value
     # Now it should just be a case of creating the histogram
     fig, ax = plt.subplots()
     _, _, _, hist_image = ax.hist2d(
-        data.sel(space=x_coord), data.sel(space=y_coord)
+        data.sel(space=x_coord), data.sel(space=y_coord), **kwargs
     )  # counts, xedges, yedges, image
     colourbar = fig.colorbar(hist_image, ax=ax)
     colourbar.solids.set(alpha=1.0)
