@@ -64,36 +64,34 @@ def sample_data():
 
 
 @pytest.mark.parametrize(
-    ["frame"],
+    ["image"],
     [
-        pytest.param(True, id="with_frame"),
-        pytest.param(False, id="without_frame"),
+        pytest.param(True, id="with_image"),
+        pytest.param(False, id="without_image"),
     ],
 )
-def test_trajectory(sample_data, frame, tmp_path):
+def test_trajectory(sample_data, image, tmp_path):
     """Test midpoint between left and right keypoints."""
     plt.switch_backend("Agg")  # to avoid pop-up window
 
-    if frame:
-        frame_path = tmp_path / "frame.png"
+    if image:
+        image_path = tmp_path / "image.png"
         fig, ax = plt.subplots()
         ax.imshow(np.zeros((10, 10)))
-        fig.savefig(frame_path)
-        kwargs = {"frame_path": frame_path}
+        fig.savefig(image_path)
+        kwargs = {"image_path": image_path}
     else:
-        kwargs = {"frame_path": None}
-    fig_centre = trajectory(sample_data, keypoint="centre", **kwargs)
-    fig_left_right_midpoint = trajectory(
-        sample_data, keypoint=["left", "right"], **kwargs
+        kwargs = {"image_path": None}
+    da_position = sample_data.position
+    _, ax_centre = trajectory(da_position, keypoint="centre", **kwargs)
+    _, ax_left_right = trajectory(
+        da_position, keypoint=["left", "right"], **kwargs
     )
 
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
 
     # Retrieve data points from figures
-    ax_centre = fig_centre.axes[0]
     centre_data = ax_centre.collections[0].get_offsets().data
-
-    ax_left_right = fig_left_right_midpoint.axes[0]
     left_right_data = ax_left_right.collections[0].get_offsets().data
 
     np.testing.assert_array_almost_equal(centre_data, expected_data)
