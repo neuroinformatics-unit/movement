@@ -1,0 +1,21 @@
+﻿movement.roi.base
+=================
+
+.. rubric:: Description
+
+.. automodule:: movement.roi.base
+
+.. currentmodule:: movement.roi.base
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    BaseRegionOfInterest
+    
+
+
+

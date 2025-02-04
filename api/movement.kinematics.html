@@ -44,11 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../_static/documentation_options.js?v=3294188c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
@@ -120,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -395,6 +397,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_displacement.html">compute_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector.html">compute_forward_vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html">compute_forward_vector_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
@@ -403,10 +406,26 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.base.html">movement.roi.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.line.html">movement.roi.line</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.line.LineOfInterest.html">LineOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.polygon.html">movement.roi.polygon</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.polygon.PolygonOfInterest.html">PolygonOfInterest</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset.html">fetch_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset_paths.html">fetch_dataset_paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -424,12 +443,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.vector.html">movement.utils.vector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.cart2pol.html">cart2pol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_norm.html">compute_norm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html">compute_signed_angle_2d</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.convert_to_unit.html">convert_to_unit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.pol2cart.html">pol2cart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html">validate_reference_vector</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -520,22 +541,25 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector</span></code></a></p></td>
 <td><p>Compute a 2D forward vector given two left-right symmetric keypoints.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_head_direction_vector</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_forward_vector_angle</span></code></a></p></td>
+<td><p>Compute the signed angle between a forward and reference vector.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_head_direction_vector</span></code></a></p></td>
 <td><p>Compute the 2D head direction vector given two keypoints on the head.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pairwise_distances</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_pairwise_distances</span></code></a></p></td>
 <td><p>Compute pairwise distances between <code class="docutils literal notranslate"><span class="pre">individuals</span></code> or <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></p></td>
 <td><p>Compute the length of a path travelled between two time points.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_speed.html#movement.kinematics.compute_speed" title="movement.kinematics.compute_speed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_speed</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_speed.html#movement.kinematics.compute_speed" title="movement.kinematics.compute_speed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_speed</span></code></a></p></td>
 <td><p>Compute instantaneous speed at each time point.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative" title="movement.kinematics.compute_time_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_time_derivative</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative" title="movement.kinematics.compute_time_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_time_derivative</span></code></a></p></td>
 <td><p>Compute the time-derivative of an array using numerical differentiation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_velocity</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_velocity</span></code></a></p></td>
 <td><p>Compute velocity array in cartesian coordinates.</p></td>
 </tr>
 </tbody>

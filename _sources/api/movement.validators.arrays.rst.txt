@@ -18,4 +18,6 @@
     
     validate_dims_coords
     
+    validate_reference_vector
+    
 

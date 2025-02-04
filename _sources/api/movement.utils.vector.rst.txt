@@ -20,6 +20,8 @@
     
     compute_norm
     
+    compute_signed_angle_2d
+    
     convert_to_unit
     
     pol2cart

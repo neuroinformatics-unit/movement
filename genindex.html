@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="_static/documentation_options.js?v=3294188c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -380,13 +380,17 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#C"><strong>C</strong></a>
+ <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -394,6 +398,14 @@
  | <a href="#V"><strong>V</strong></a>
  
 </div>
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest">BaseRegionOfInterest (class in movement.roi.base)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -407,15 +419,19 @@
 </li>
       <li><a href="api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector">compute_forward_vector() (in module movement.kinematics)</a>
 </li>
+      <li><a href="api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle">compute_forward_vector_angle() (in module movement.kinematics)</a>
+</li>
       <li><a href="api/movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector">compute_head_direction_vector() (in module movement.kinematics)</a>
 </li>
       <li><a href="api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm">compute_norm() (in module movement.utils.vector)</a>
 </li>
       <li><a href="api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances">compute_pairwise_distances() (in module movement.kinematics)</a>
 </li>
+      <li><a href="api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">compute_path_length() (in module movement.kinematics)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">compute_path_length() (in module movement.kinematics)</a>
+      <li><a href="api/movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d">compute_signed_angle_2d() (in module movement.utils.vector)</a>
 </li>
       <li><a href="api/movement.kinematics.compute_speed.html#movement.kinematics.compute_speed">compute_speed() (in module movement.kinematics)</a>
 </li>
@@ -433,6 +449,28 @@
 </li>
       <li><a href="api/movement.utils.vector.convert_to_unit.html#movement.utils.vector.convert_to_unit">convert_to_unit() (in module movement.utils.vector)</a>
 </li>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.coords">coords (movement.roi.base.BaseRegionOfInterest property)</a>
+
+      <ul>
+        <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.coords">(movement.roi.line.LineOfInterest property)</a>
+</li>
+        <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.coords">(movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.dimensions">dimensions (movement.roi.base.BaseRegionOfInterest property)</a>
+
+      <ul>
+        <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.dimensions">(movement.roi.line.LineOfInterest property)</a>
+</li>
+        <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.dimensions">(movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -441,11 +479,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5.expected_datasets">expected_datasets (movement.validators.files.ValidHDF5 attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile.expected_permission">expected_permission (movement.validators.files.ValidFile attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile.expected_suffix">expected_suffix (movement.validators.files.ValidFile attribute)</a>
+</li>
+      <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.exterior_boundary">exterior_boundary (movement.roi.polygon.PolygonOfInterest property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -502,6 +542,14 @@
   </ul></td>
 </tr></table>
 
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.holes">holes (movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -511,10 +559,20 @@
         <li><a href="api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset.individual_names">(movement.validators.datasets.ValidPosesDataset attribute)</a>
 </li>
       </ul></li>
+      <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.interior_boundaries">interior_boundaries (movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time">interpolate_over_time() (in module movement.filtering)</a>
 </li>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.is_closed">is_closed (movement.roi.base.BaseRegionOfInterest property)</a>
+
+      <ul>
+        <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.is_closed">(movement.roi.line.LineOfInterest property)</a>
+</li>
+        <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.is_closed">(movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -529,12 +587,14 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">list_datasets() (in module movement.sample_data)</a>
+      <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest">LineOfInterest (class in movement.roi.line)</a>
 </li>
-      <li><a href="api/movement.utils.logging.log_error.html#movement.utils.logging.log_error">log_error() (in module movement.utils.logging)</a>
+      <li><a href="api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">list_datasets() (in module movement.sample_data)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.utils.logging.log_error.html#movement.utils.logging.log_error">log_error() (in module movement.utils.logging)</a>
+</li>
       <li><a href="api/movement.utils.logging.log_to_attrs.html#movement.utils.logging.log_to_attrs">log_to_attrs() (in module movement.utils.logging)</a>
 </li>
       <li><a href="api/movement.utils.logging.log_warning.html#movement.utils.logging.log_warning">log_warning() (in module movement.utils.logging)</a>
@@ -561,7 +621,15 @@
 </li>
         <li><a href="api/movement.kinematics.html#module-movement.kinematics">movement.kinematics</a>
 </li>
+        <li><a href="api/movement.roi.base.html#module-movement.roi.base">movement.roi.base</a>
+</li>
+        <li><a href="api/movement.roi.line.html#module-movement.roi.line">movement.roi.line</a>
+</li>
+        <li><a href="api/movement.roi.polygon.html#module-movement.roi.polygon">movement.roi.polygon</a>
+</li>
         <li><a href="api/movement.sample_data.html#module-movement.sample_data">movement.sample_data</a>
+</li>
+        <li><a href="api/movement.transforms.html#module-movement.transforms">movement.transforms</a>
 </li>
         <li><a href="api/movement.utils.logging.html#module-movement.utils.logging">movement.utils.logging</a>
 </li>
@@ -597,8 +665,6 @@
         <li><a href="api/movement.io.load_poses.html#module-movement.io.load_poses">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     movement.io.save_poses
 
@@ -606,6 +672,8 @@
         <li><a href="api/movement.io.save_poses.html#module-movement.io.save_poses">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     movement.kinematics
 
@@ -614,10 +682,38 @@
 </li>
       </ul></li>
       <li>
+    movement.roi.base
+
+      <ul>
+        <li><a href="api/movement.roi.base.html#module-movement.roi.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.roi.line
+
+      <ul>
+        <li><a href="api/movement.roi.line.html#module-movement.roi.line">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.roi.polygon
+
+      <ul>
+        <li><a href="api/movement.roi.polygon.html#module-movement.roi.polygon">module</a>
+</li>
+      </ul></li>
+      <li>
     movement.sample_data
 
       <ul>
         <li><a href="api/movement.sample_data.html#module-movement.sample_data">module</a>
+</li>
+      </ul></li>
+      <li>
+    movement.transforms
+
+      <ul>
+        <li><a href="api/movement.transforms.html#module-movement.transforms">module</a>
 </li>
       </ul></li>
       <li>
@@ -665,6 +761,20 @@
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.name">name (movement.roi.base.BaseRegionOfInterest property)</a>
+
+      <ul>
+        <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.name">(movement.roi.line.LineOfInterest property)</a>
+</li>
+        <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.name">(movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -684,6 +794,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart">pol2cart() (in module movement.utils.vector)</a>
 </li>
+      <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest">PolygonOfInterest (class in movement.roi.polygon)</a>
+</li>
       <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.position_array">position_array (movement.validators.datasets.ValidBboxesDataset attribute)</a>
 
       <ul>
@@ -696,6 +808,16 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.region">region (movement.roi.base.BaseRegionOfInterest property)</a>
+
+      <ul>
+        <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.region">(movement.roi.line.LineOfInterest property)</a>
+</li>
+        <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.region">(movement.roi.polygon.PolygonOfInterest property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.utils.reports.report_nan_values.html#movement.utils.reports.report_nan_values">report_nan_values() (in module movement.utils.reports)</a>
 </li>
   </ul></td>
@@ -706,10 +828,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter">savgol_filter() (in module movement.filtering)</a>
 </li>
-      <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.shape_array">shape_array (movement.validators.datasets.ValidBboxesDataset attribute)</a>
+      <li><a href="api/movement.transforms.scale.html#movement.transforms.scale">scale() (in module movement.transforms)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.shape_array">shape_array (movement.validators.datasets.ValidBboxesDataset attribute)</a>
+</li>
       <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.source_software">source_software (movement.validators.datasets.ValidBboxesDataset attribute)</a>
 
       <ul>
@@ -742,12 +866,14 @@
 </li>
       <li><a href="api/movement.validators.arrays.validate_dims_coords.html#movement.validators.arrays.validate_dims_coords">validate_dims_coords() (in module movement.validators.arrays)</a>
 </li>
-      <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset">ValidBboxesDataset (class in movement.validators.datasets)</a>
+      <li><a href="api/movement.validators.arrays.validate_reference_vector.html#movement.validators.arrays.validate_reference_vector">validate_reference_vector() (in module movement.validators.arrays)</a>
 </li>
-      <li><a href="api/movement.validators.files.ValidDeepLabCutCSV.html#movement.validators.files.ValidDeepLabCutCSV">ValidDeepLabCutCSV (class in movement.validators.files)</a>
+      <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset">ValidBboxesDataset (class in movement.validators.datasets)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.validators.files.ValidDeepLabCutCSV.html#movement.validators.files.ValidDeepLabCutCSV">ValidDeepLabCutCSV (class in movement.validators.files)</a>
+</li>
       <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile">ValidFile (class in movement.validators.files)</a>
 </li>
       <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5">ValidHDF5 (class in movement.validators.files)</a>

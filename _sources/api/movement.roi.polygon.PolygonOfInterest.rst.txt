@@ -1,0 +1,20 @@
+PolygonOfInterest
+=================
+
+.. currentmodule:: movement.roi.polygon
+
+.. autoclass:: PolygonOfInterest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

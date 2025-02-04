@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../_static/documentation_options.js?v=3294188c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -395,6 +395,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_displacement.html">compute_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector.html">compute_forward_vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html">compute_forward_vector_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
@@ -403,10 +404,26 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.base.html">movement.roi.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.line.html">movement.roi.line</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.line.LineOfInterest.html">LineOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.polygon.html">movement.roi.polygon</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.polygon.PolygonOfInterest.html">PolygonOfInterest</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset.html">fetch_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset_paths.html">fetch_dataset_paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -424,12 +441,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.vector.html">movement.utils.vector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.cart2pol.html">cart2pol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_norm.html">compute_norm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html">compute_signed_angle_2d</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.convert_to_unit.html">convert_to_unit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.pol2cart.html">pol2cart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html">validate_reference_vector</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -511,23 +530,27 @@
 <h1>interpolate_over_time<a class="headerlink" href="#interpolate-over-time" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.filtering.interpolate_over_time">
-<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">interpolate_over_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#interpolate_over_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.interpolate_over_time" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">interpolate_over_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_gap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#interpolate_over_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.interpolate_over_time" title="Link to this definition">#</a></dt>
 <dd><p>Fill in NaN values by interpolating over the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension.</p>
-<p>This method uses <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a> under the
-hood and passes the <code class="docutils literal notranslate"><span class="pre">method</span></code> and <code class="docutils literal notranslate"><span class="pre">max_gap</span></code> parameters to it.
-See the xarray documentation for more details on these parameters.</p>
+<p>This function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a> and can pass
+additional keyword arguments to it, depending on the chosen <code class="docutils literal notranslate"><span class="pre">method</span></code>.
+See the xarray documentation for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.2.dev0)"><em>xarray.DataArray</em></a>) – The input data to be interpolated.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – The input data to be interpolated.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – String indicating which method to use for interpolation.
 Default is <code class="docutils literal notranslate"><span class="pre">linear</span></code>.</p></li>
 <li><p><strong>max_gap</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum size of gap, a continuous sequence of missing observations
 (represented as NaNs), to fill.
 The default value is <code class="docutils literal notranslate"><span class="pre">None</span></code> (no limit).
-Gap size is defined as the number of consecutive NaNs.</p></li>
+Gap size is defined as the number of consecutive NaNs
+(see Notes for more information).</p></li>
 <li><p><strong>print_report</strong> (<em>bool</em>) – Whether to print a report on the number of NaNs in the dataset
 before and after interpolation. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Any <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> accepted by <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>,
+which in turn passes them verbatim to the underlying
+interpolation methods.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -535,12 +558,12 @@ before and after interpolation. Default is <code class="docutils literal notrans
 using the parameters provided.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.2.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)">xarray.DataArray</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">max_gap</span></code> parameter differs slightly from that in
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>, in which the gap size
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>, in which the gap size
 is defined as the difference between the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinate values
 at the first data point after a gap and the last value before a gap.</p>
 </dd></dl>

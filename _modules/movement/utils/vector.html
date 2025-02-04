@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../../../_static/documentation_options.js?v=3294188c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -409,7 +409,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">validate_dims_coords</span><span class="p">,</span>
+    <span class="n">validate_reference_vector</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="compute_norm">
@@ -579,6 +582,99 @@
         <span class="p">],</span>
         <span class="n">concat_dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compute_signed_angle_2d">
+<a class="viewcode-back" href="../../../api/movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_signed_angle_2d</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">v_as_left_operand</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the signed angle from the vector ``u`` to the vector ``v``.</span>
+
+<span class="sd">    The signed angle between ``u`` and ``v`` is the rotation that needs to be</span>
+<span class="sd">    applied to ``u`` to have it point in the same direction as ``v`` (see</span>
+<span class="sd">    Notes). Angles are returned in radians, spanning :math:`(-\pi, \pi]`</span>
+<span class="sd">    according to the ``arctan2`` convention.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : xarray.DataArray</span>
+<span class="sd">        An array of position vectors containing the ``space``</span>
+<span class="sd">        dimension with only ``&quot;x&quot;`` and ``&quot;y&quot;`` coordinates.</span>
+<span class="sd">    v : xarray.DataArray | numpy.ndarray</span>
+<span class="sd">        A 2D vector (or array of 2D vectors) against which to</span>
+<span class="sd">        compare ``u``. May either be an xarray</span>
+<span class="sd">        DataArray containing the ``&quot;space&quot;``  dimension or a numpy</span>
+<span class="sd">        array containing one or more 2D vectors. (See Notes)</span>
+<span class="sd">    v_as_left_operand : bool, default False</span>
+<span class="sd">        If True, the signed angle between ``v`` and ``u`` is returned, instead</span>
+<span class="sd">        of the signed angle between ``u`` and ``v``. This is a convenience</span>
+<span class="sd">        wrapper for when one of the two vectors to be used does not have time</span>
+<span class="sd">        points, and the other does.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray :</span>
+<span class="sd">        An xarray DataArray containing signed angle between</span>
+<span class="sd">        ``u`` and ``v`` for every time point. Matches the dimensions of</span>
+<span class="sd">        ``u``, but without the ``space`` dimension.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Given two vectors :math:`u = (u_x, u_y)` and :math:`v = (v_x, v_y)`,</span>
+<span class="sd">    the signed angle :math:`\alpha` between ``u`` and ``v`` is computed as</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \alpha &amp;= \mathrm{arctan2}(u \times v, u\cdot v) \\</span>
+<span class="sd">        &amp;= \mathrm{arctan2}(u_x v_y - u_y v_x, u_x v_x + u_y v_y),</span>
+
+<span class="sd">    which corresponds to the rotation that needs to be applied to ``u`` for it</span>
+<span class="sd">    to point in the direction of ``v``.</span>
+
+<span class="sd">    If ``v`` is passed as an ``xarray.DataArray``, ``v`` must have the spatial</span>
+<span class="sd">    coordinates ``&quot;x&quot;`` and ``&quot;y&quot;`` only, and must have a ``time`` dimension</span>
+<span class="sd">    matching that of ``u``.</span>
+
+<span class="sd">    If passed as a numpy array, the ``v`` must have one of three shapes:</span>
+
+<span class="sd">    - ``(2,)``: where dimension ``0`` contains spatial</span>
+<span class="sd">      coordinates (x,y), and no time dimension is specified.</span>
+<span class="sd">    - ``(1,2)``:, where dimension ``0`` corresponds to a</span>
+<span class="sd">      single time-point and dimension ``1`` contains spatial</span>
+<span class="sd">      coordinates (x,y).</span>
+<span class="sd">    - ``(n,2)``: where dimension ``0`` corresponds to</span>
+<span class="sd">      time and dimension ``1`` contains spatial coordinates</span>
+<span class="sd">      (x,y), and where ``n == len(u.time)``.</span>
+
+<span class="sd">    Vectors given as ``v`` that contain more dimensions, or have shapes</span>
+<span class="sd">    otherwise different from those defined above are considered invalid.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># ensure v can be broadcast over u</span>
+    <span class="n">v_with_matching_dims</span> <span class="o">=</span> <span class="n">validate_reference_vector</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+    <span class="n">u_unit</span> <span class="o">=</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="n">u_x</span> <span class="o">=</span> <span class="n">u_unit</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">u_y</span> <span class="o">=</span> <span class="n">u_unit</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+
+    <span class="n">v_unit</span> <span class="o">=</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">v_with_matching_dims</span><span class="p">)</span>
+    <span class="n">v_x</span> <span class="o">=</span> <span class="n">v_unit</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="n">v_y</span> <span class="o">=</span> <span class="n">v_unit</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+
+    <span class="n">cross</span> <span class="o">=</span> <span class="n">u_x</span> <span class="o">*</span> <span class="n">v_y</span> <span class="o">-</span> <span class="n">u_y</span> <span class="o">*</span> <span class="n">v_x</span>
+    <span class="k">if</span> <span class="n">v_as_left_operand</span><span class="p">:</span>
+        <span class="n">cross</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+    <span class="n">dot</span> <span class="o">=</span> <span class="n">u_x</span> <span class="o">*</span> <span class="n">v_x</span> <span class="o">+</span> <span class="n">u_y</span> <span class="o">*</span> <span class="n">v_y</span>
+
+    <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">cross</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
+    <span class="c1"># arctan2 returns values in [-pi, pi].</span>
+    <span class="c1"># We need to map -pi angles to pi, to stay in the (-pi, pi] range</span>
+    <span class="n">angles</span><span class="p">[</span><span class="n">angles</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">return</span> <span class="n">angles</span></div>
 
 
 

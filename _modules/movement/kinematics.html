@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../../_static/documentation_options.js?v=3294188c"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -410,11 +410,16 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdist</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_nan_values</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_norm</span><span class="p">,</span>
+    <span class="n">compute_signed_angle_2d</span><span class="p">,</span>
+    <span class="n">convert_to_unit</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
 
 
@@ -625,7 +630,7 @@
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a 2D forward vector given two left-right symmetric keypoints.</span>
 
 <span class="sd">    The forward vector is computed as a vector perpendicular to the</span>
@@ -726,7 +731,7 @@
         <span class="n">space</span><span class="o">=</span><span class="s2">&quot;z&quot;</span>
     <span class="p">)</span>  <span class="c1"># keep only the first 2 spatal dimensions of the result</span>
     <span class="c1"># Return unit vector</span>
-    <span class="k">return</span> <span class="n">forward_vector</span> <span class="o">/</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">forward_vector</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">forward_vector</span><span class="p">)</span></div>
 
 
 
@@ -776,6 +781,119 @@
 
 
 
+<div class="viewcode-block" id="compute_forward_vector_angle">
+<a class="viewcode-back" href="../../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_forward_vector_angle</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">reference_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">ArrayLike</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+    <span class="n">in_radians</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">angle_rotates</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
+        <span class="s2">&quot;ref to forward&quot;</span><span class="p">,</span> <span class="s2">&quot;forward to ref&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ref to forward&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the signed angle between a forward and reference vector.</span>
+
+<span class="sd">    Forward vector angle is the :func:`signed angle\</span>
+<span class="sd">    &lt;movement.utils.vector.compute_signed_angle_2d&gt;`</span>
+<span class="sd">    between the reference vector and the animal&#39;s :func:`forward vector\</span>
+<span class="sd">    &lt;movement.kinematics.compute_forward_vector&gt;`).</span>
+<span class="sd">    The returned angles are in degrees, spanning the range :math:`(-180, 180]`,</span>
+<span class="sd">    unless ``in_radians`` is set to ``True``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data representing position. This must contain</span>
+<span class="sd">        the two symmetrical keypoints located on the left and</span>
+<span class="sd">        right sides of the body, respectively.</span>
+<span class="sd">    left_keypoint : str</span>
+<span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;, used to compute the</span>
+<span class="sd">        forward vector.</span>
+<span class="sd">    right_keypoint : str</span>
+<span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;, used to compute the</span>
+<span class="sd">        forward vector.</span>
+<span class="sd">    reference_vector : xr.DataArray | ArrayLike, optional</span>
+<span class="sd">        The reference vector against which the ``forward_vector`` is</span>
+<span class="sd">        compared to compute 2D heading. Must be a two-dimensional vector,</span>
+<span class="sd">        in the form [x,y] - where ``reference_vector[0]`` corresponds to the</span>
+<span class="sd">        x-coordinate and ``reference_vector[1]`` corresponds to the</span>
+<span class="sd">        y-coordinate. If left unspecified, the vector [1, 0] is used by</span>
+<span class="sd">        default.</span>
+<span class="sd">    camera_view : Literal[&quot;top_down&quot;, &quot;bottom_up&quot;], optional</span>
+<span class="sd">        The camera viewing angle, used to determine the upwards</span>
+<span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
+<span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
+<span class="sd">        upwards direction is [0, 0, 1]). If left unspecified, the camera</span>
+<span class="sd">        view is assumed to be ``&quot;top_down&quot;``.</span>
+<span class="sd">    in_radians : bool, optional</span>
+<span class="sd">        If true, the returned heading array is given in radians.</span>
+<span class="sd">        If false, the array is given in degrees. False by default.</span>
+<span class="sd">    angle_rotates : Literal[&quot;ref to forward&quot;, &quot;forward to ref&quot;], optional</span>
+<span class="sd">        Determines the sign convention for the returned signed angle.</span>
+<span class="sd">        (See Notes).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the computed forward vector angles,</span>
+<span class="sd">        with dimensions matching the input data array,</span>
+<span class="sd">        but without the ``keypoints`` and ``space`` dimensions.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    There are different conventions for the sign of the forward vector angle.</span>
+<span class="sd">    The ``angle_rotates`` argument can be used to select which behaviour the</span>
+<span class="sd">    function should use.</span>
+
+<span class="sd">    By default, ``angle_rotates`` is set to ``&quot;ref to forward&quot;``, which</span>
+<span class="sd">    results in the signed angle between the reference vector and the forward</span>
+<span class="sd">    vector being returned. That is, the angle which the reference vector would</span>
+<span class="sd">    need to be rotated by, to align with the forward vector.</span>
+<span class="sd">    Setting ``angle_rotates`` to ``&quot;forward to ref&quot;`` reverses this convention,</span>
+<span class="sd">    returning the signed angle between the forward vector and the reference</span>
+<span class="sd">    vector; that is, the rotation that would need to be applied to the forward</span>
+<span class="sd">    vector to return the reference vector.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.utils.vector.compute_signed_angle_2d : The underlying</span>
+<span class="sd">        function used to compute the signed angle between two 2D vectors.</span>
+<span class="sd">    movement.kinematics.compute_forward_vector : The function used</span>
+<span class="sd">        to compute the forward vector.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">angle_rotates</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ref to forward&quot;</span><span class="p">:</span>
+        <span class="n">ref_is_left_operand</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">angle_rotates</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;forward to ref&quot;</span><span class="p">:</span>
+        <span class="n">ref_is_left_operand</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown angle convention: &#39;</span><span class="si">{</span><span class="n">angle_rotates</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Convert reference vector to np.array if not already a valid array</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="n">reference_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">)</span>
+
+    <span class="c1"># Compute forward vector</span>
+    <span class="n">forward_vector</span> <span class="o">=</span> <span class="n">compute_forward_vector</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">left_keypoint</span><span class="p">,</span> <span class="n">right_keypoint</span><span class="p">,</span> <span class="n">camera_view</span><span class="o">=</span><span class="n">camera_view</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Compute signed angle between forward vector and reference vector</span>
+    <span class="n">heading_array</span> <span class="o">=</span> <span class="n">compute_signed_angle_2d</span><span class="p">(</span>
+        <span class="n">forward_vector</span><span class="p">,</span> <span class="n">reference_vector</span><span class="p">,</span> <span class="n">v_as_left_operand</span><span class="o">=</span><span class="n">ref_is_left_operand</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert to degrees</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_radians</span><span class="p">:</span>
+        <span class="n">heading_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">heading_array</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">heading_array</span></div>
+
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_cdist</span><span class="p">(</span>
     <span class="n">a</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">b</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -814,6 +932,7 @@
 <span class="sd">    **kwargs : dict</span>
 <span class="sd">        Additional keyword arguments to pass to</span>
 <span class="sd">        :func:`scipy.spatial.distance.cdist`.</span>
+
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1054,8 +1173,7 @@
         <span class="n">paired_elements</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="n">elem1</span><span class="p">,</span> <span class="n">elem2</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">elem1</span><span class="p">,</span> <span class="n">elem2_list</span> <span class="ow">in</span> <span class="n">pairs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">elem2</span> <span class="ow">in</span>
-            <span class="p">(</span>
+            <span class="k">for</span> <span class="n">elem2</span> <span class="ow">in</span> <span class="p">(</span>
                 <span class="c1"># Ensure elem2_list is a list</span>
                 <span class="p">[</span><span class="n">elem2_list</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem2_list</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">elem2_list</span>
             <span class="p">)</span>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../../../_static/documentation_options.js?v=3294188c"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -403,7 +403,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes&#39; tracking data into ``movement``.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes tracking data into ``movement``.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -444,7 +444,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    position_array : np.ndarray</span>
 <span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
-<span class="sd">        containing the tracks of the bounding boxes&#39; centroids.</span>
+<span class="sd">        containing the tracks of the bounding box centroids.</span>
 <span class="sd">        It will be converted to a :class:`xarray.DataArray` object</span>
 <span class="sd">        named &quot;position&quot;.</span>
 <span class="sd">    shape_array : np.ndarray</span>
@@ -690,7 +690,7 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    The bounding boxes&#39; IDs specified in the &quot;track&quot; field of the VIA</span>
+<span class="sd">    The bounding boxes IDs specified in the &quot;track&quot; field of the VIA</span>
 <span class="sd">    tracks .csv file are mapped to the &quot;individual_name&quot; column of the</span>
 <span class="sd">    ``movement`` dataset. The individual names follow the format ``id_&lt;N&gt;``,</span>
 <span class="sd">    with N being the bounding box ID.</span>
@@ -791,7 +791,7 @@
 <span class="sd">    keys:</span>
 
 <span class="sd">    - position_array (n_frames, n_space, n_individuals):</span>
-<span class="sd">        contains the trajectories of the bounding boxes&#39; centroids.</span>
+<span class="sd">        contains the trajectories of the bounding box centroids.</span>
 <span class="sd">    - shape_array (n_frames, n_space, n_individuals):</span>
 <span class="sd">        contains the shape of the bounding boxes (width and height).</span>
 <span class="sd">    - confidence_array (n_frames, n_individuals):</span>
@@ -805,7 +805,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_path : pathlib.Path</span>
-<span class="sd">        Path to the VIA tracks .csv file containing the bounding boxes&#39; tracks.</span>
+<span class="sd">        Path to the VIA tracks .csv file containing the bounding box tracks.</span>
 
 <span class="sd">    frame_regexp : str</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
@@ -816,7 +816,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
-<span class="sd">        The validated bounding boxes&#39; arrays.</span>
+<span class="sd">        The validated bounding boxes arrays.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Extract 2D dataframe from input data</span>

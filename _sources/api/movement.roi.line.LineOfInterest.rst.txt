@@ -1,0 +1,20 @@
+LineOfInterest
+==============
+
+.. currentmodule:: movement.roi.line
+
+.. autoclass:: LineOfInterest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

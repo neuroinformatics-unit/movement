@@ -20,7 +20,11 @@ Information on specific functions, classes, and methods.
     movement.io.load_poses
     movement.io.save_poses
     movement.kinematics
+    movement.roi.base
+    movement.roi.line
+    movement.roi.polygon
     movement.sample_data
+    movement.transforms
     movement.utils.logging
     movement.utils.reports
     movement.utils.vector

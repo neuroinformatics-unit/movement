@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../_static/documentation_options.js?v=3294188c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -425,7 +425,7 @@
 <span id="target-io"></span><h1>Input/Output<a class="headerlink" href="#input-output" title="Link to this heading">#</a></h1>
 <section id="supported-formats">
 <span id="target-formats"></span><h2>Supported formats<a class="headerlink" href="#supported-formats" title="Link to this heading">#</a></h2>
-<p id="target-supported-formats"><code class="docutils literal notranslate"><span class="pre">movement</span></code> supports the analysis of trajectories of keypoints (<em>pose tracks</em>) and of bounding boxes’ centroids (<em>bounding boxes’ tracks</em>).</p>
+<p id="target-supported-formats"><code class="docutils literal notranslate"><span class="pre">movement</span></code> supports the analysis of trajectories of keypoints (<em>pose tracks</em>) and of bounding box centroids (<em>bounding box tracks</em>).</p>
 <p>To analyse pose tracks, <code class="docutils literal notranslate"><span class="pre">movement</span></code> supports loading data from various frameworks:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.mackenziemathislab.org/deeplabcut/">DeepLabCut</a> (DLC)</p></li>
@@ -433,12 +433,12 @@
 <li><p><a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightingPose</a> (LP)</p></li>
 <li><p><a class="reference external" href="https://anipose.readthedocs.io/en/latest/">Anipose</a> (Anipose)</p></li>
 </ul>
-<p>To analyse bounding boxes’ tracks, <code class="docutils literal notranslate"><span class="pre">movement</span></code> currently supports the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a> (VIA) format for <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">tracks annotation</a>.</p>
+<p>To analyse bounding box tracks, <code class="docutils literal notranslate"><span class="pre">movement</span></code> currently supports the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a> (VIA) format for <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">tracks annotation</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>At the moment <code class="docutils literal notranslate"><span class="pre">movement</span></code> only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).</p>
 </div>
-<p>Below we explain how you can load pose tracks and bounding boxes’ tracks into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, and how you can export a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to different file formats. You can also try <code class="docutils literal notranslate"><span class="pre">movement</span></code> out on some <a class="reference internal" href="#target-sample-data"><span class="std std-ref">sample data</span></a>
+<p>Below we explain how you can load pose tracks and bounding box tracks into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, and how you can export a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to different file formats. You can also try <code class="docutils literal notranslate"><span class="pre">movement</span></code> out on some <a class="reference internal" href="#target-sample-data"><span class="std std-ref">sample data</span></a>
 included with the package.</p>
 </section>
 <section id="loading-pose-tracks">
@@ -536,14 +536,14 @@ keypoint, as well as the associated point-wise confidence values reported by
 the pose estimation software.</p>
 <p>For more information on the poses data structure, see the <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses dataset</span></a> page.</p>
 </section>
-<section id="loading-bounding-boxes-tracks">
-<span id="target-loading-bbox-tracks"></span><h2>Loading bounding boxes’ tracks<a class="headerlink" href="#loading-bounding-boxes-tracks" title="Link to this heading">#</a></h2>
-<p>To load bounding boxes’ tracks into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a>, we need the functions from the
+<section id="loading-bounding-box-tracks">
+<span id="target-loading-bbox-tracks"></span><h2>Loading bounding box tracks<a class="headerlink" href="#loading-bounding-box-tracks" title="Link to this heading">#</a></h2>
+<p>To load bounding box tracks into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a>, we need the functions from the
 <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module. This module can be imported as:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 </pre></div>
 </div>
-<p>We currently support loading bounding boxes’ tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a <code class="docutils literal notranslate"><span class="pre">from_numpy()</span></code> method, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
+<p>We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a <code class="docutils literal notranslate"><span class="pre">from_numpy()</span></code> method, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-5">
@@ -640,9 +640,9 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 </div>
 </div>
 </section>
-<section id="saving-bounding-boxes-tracks">
-<span id="target-saving-bboxes-tracks"></span><h2>Saving bounding boxes’ tracks<a class="headerlink" href="#saving-bounding-boxes-tracks" title="Link to this heading">#</a></h2>
-<p>We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes’ trajectories to a .csv file using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
+<section id="saving-bounding-box-tracks">
+<span id="target-saving-bboxes-tracks"></span><h2>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h2>
+<p>We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding box tracks to a .csv file using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
 <p>Here is an example of how you can save a bounding boxes dataset to a .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define name for output csv file</span>
 <span class="n">filepath</span> <span class="o">=</span> <span class="s2">&quot;tracking_output.csv&quot;</span>
@@ -664,12 +664,12 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 
 </pre></div>
 </div>
-<p>Alternatively, we can convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes’ dataset to a pandas DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.1.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.2.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
+<p>Alternatively, we can convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset to a pandas DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.2.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
 </section>
 <section id="sample-data">
 <span id="target-sample-data"></span><h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> includes some sample data files that you can use to
-try the package out. These files contain pose and bounding boxes’ tracks from
+try the package out. These files contain pose and bounding box tracks from
 various <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported formats</span></a>.</p>
 <p>You can list the available sample data files using:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
@@ -765,9 +765,9 @@ and its path is stored in the <code class="docutils literal notranslate"><span c
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-formats">Supported formats</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-pose-tracks">Loading pose tracks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-bounding-boxes-tracks">Loading bounding boxes’ tracks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-bounding-box-tracks">Loading bounding box tracks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-pose-tracks">Saving pose tracks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-bounding-boxes-tracks">Saving bounding boxes’ tracks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-bounding-box-tracks">Saving bounding box tracks</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-data">Sample data</a></li>
 </ul>
   </nav></div>

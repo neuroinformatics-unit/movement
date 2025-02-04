@@ -22,6 +22,8 @@
     
     compute_forward_vector
     
+    compute_forward_vector_angle
+    
     compute_head_direction_vector
     
     compute_pairwise_distances

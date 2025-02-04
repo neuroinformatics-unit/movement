@@ -1,0 +1,6 @@
+validate\_reference\_vector
+===========================
+
+.. currentmodule:: movement.validators.arrays
+
+.. autofunction:: validate_reference_vector

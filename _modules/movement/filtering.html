@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../../_static/documentation_options.js?v=3294188c"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -473,12 +473,13 @@
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
     <span class="n">max_gap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in NaN values by interpolating over the ``time`` dimension.</span>
 
-<span class="sd">    This method uses :meth:`xarray.DataArray.interpolate_na` under the</span>
-<span class="sd">    hood and passes the ``method`` and ``max_gap`` parameters to it.</span>
-<span class="sd">    See the xarray documentation for more details on these parameters.</span>
+<span class="sd">    This function calls :meth:`xarray.DataArray.interpolate_na` and can pass</span>
+<span class="sd">    additional keyword arguments to it, depending on the chosen ``method``.</span>
+<span class="sd">    See the xarray documentation for more details.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -491,10 +492,15 @@
 <span class="sd">        Maximum size of gap, a continuous sequence of missing observations</span>
 <span class="sd">        (represented as NaNs), to fill.</span>
 <span class="sd">        The default value is ``None`` (no limit).</span>
-<span class="sd">        Gap size is defined as the number of consecutive NaNs.</span>
+<span class="sd">        Gap size is defined as the number of consecutive NaNs</span>
+<span class="sd">        (see Notes for more information).</span>
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
 <span class="sd">        before and after interpolation. Default is ``True``.</span>
+<span class="sd">    **kwargs : dict</span>
+<span class="sd">        Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,</span>
+<span class="sd">        which in turn passes them verbatim to the underlying</span>
+<span class="sd">        interpolation methods.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -515,7 +521,7 @@
         <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="n">use_coordinate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">max_gap</span><span class="o">=</span><span class="n">max_gap</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">max_gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=96ec9c95"></script>
+    <script src="../_static/documentation_options.js?v=3294188c"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.22</p>
+    <p class="title logo__title">movement v0.0.23</p>
   
 </a></div>
     
@@ -395,6 +395,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_displacement.html">compute_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector.html">compute_forward_vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html">compute_forward_vector_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
@@ -403,10 +404,26 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.base.html">movement.roi.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.line.html">movement.roi.line</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.line.LineOfInterest.html">LineOfInterest</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.polygon.html">movement.roi.polygon</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.polygon.PolygonOfInterest.html">PolygonOfInterest</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset.html">fetch_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset_paths.html">fetch_dataset_paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -424,12 +441,14 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.vector.html">movement.utils.vector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.cart2pol.html">cart2pol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_norm.html">compute_norm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html">compute_signed_angle_2d</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.convert_to_unit.html">convert_to_unit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.pol2cart.html">pol2cart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.validators.arrays</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html">validate_reference_vector</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -513,6 +532,9 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html#movement.validators.arrays.validate_dims_coords" title="movement.validators.arrays.validate_dims_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_dims_coords</span></code></a></p></td>
 <td><p>Validate dimensions and coordinates in a data array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html#movement.validators.arrays.validate_reference_vector" title="movement.validators.arrays.validate_reference_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_reference_vector</span></code></a></p></td>
+<td><p>Validate a reference vector being used in a calculation.</p></td>
 </tr>
 </tbody>
 </table>

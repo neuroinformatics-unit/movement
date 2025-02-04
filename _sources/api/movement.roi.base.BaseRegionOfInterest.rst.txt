@@ -1,0 +1,20 @@
+BaseRegionOfInterest
+====================
+
+.. currentmodule:: movement.roi.base
+
+.. autoclass:: BaseRegionOfInterest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

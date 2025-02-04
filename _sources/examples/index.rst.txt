@@ -119,7 +119,7 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Load bounding boxes tracks and upsample them to match the video frame rate.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Load bounding box tracks and upsample them to match the video frame rate.">
 
 .. only:: html
 
@@ -130,7 +130,7 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Load and upsample bounding boxes tracks</div>
+      <div class="sphx-glr-thumbnail-title">Load and upsample bounding box tracks</div>
     </div>
 
 
