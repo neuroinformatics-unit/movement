@@ -742,8 +742,7 @@ def compute_pairwise_distances(
         paired_elements = [
             (elem1, elem2)
             for elem1, elem2_list in pairs.items()
-            for elem2 in
-            (
+            for elem2 in (
                 # Ensure elem2_list is a list
                 [elem2_list] if isinstance(elem2_list, str) else elem2_list
             )

@@ -1,7 +1,7 @@
-"""Load and upsample bounding boxes tracks
+"""Load and upsample bounding box tracks
 ==========================================
 
-Load bounding boxes tracks and upsample them to match the video frame rate.
+Load bounding box tracks and upsample them to match the video frame rate.
 """
 
 # %%

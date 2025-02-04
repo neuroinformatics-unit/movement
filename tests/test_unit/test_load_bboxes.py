@@ -261,11 +261,7 @@ expected_values_bboxes = {
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 @pytest.mark.parametrize("frame_regexp", [None, r"(00\d*)\.\w+$"])
 def test_from_via_tracks_file(
-    via_file_path,
-    fps,
-    use_frame_numbers_from_file,
-    frame_regexp,
-    movement_dataset_asserts,
+    via_file_path, fps, use_frame_numbers_from_file, frame_regexp, helpers
 ):
     """Test that loading tracked bounding box data from
     a valid VIA tracks .csv file returns a proper Dataset.
@@ -283,7 +279,7 @@ def test_from_via_tracks_file(
         "fps": fps,
         "file_path": via_file_path,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
 
 
 @pytest.mark.parametrize(
@@ -342,7 +338,7 @@ def test_from_numpy(
     with_frame_array,
     fps,
     source_software,
-    movement_dataset_asserts,
+    helpers,
 ):
     """Test that loading bounding boxes trajectories from the input
     numpy arrays returns a proper Dataset.
@@ -360,7 +356,7 @@ def test_from_numpy(
         "source_software": source_software,
         "fps": fps,
     }
-    movement_dataset_asserts.valid_dataset(ds, expected_values)
+    helpers.assert_valid_dataset(ds, expected_values)
     # check time coordinates are as expected
     start_frame = (
         from_numpy_inputs["frame_array"][0, 0]

@@ -1,4 +1,4 @@
-"""Load bounding boxes' tracking data into ``movement``."""
+"""Load bounding boxes tracking data into ``movement``."""
 
 import ast
 import logging
@@ -37,7 +37,7 @@ def from_numpy(
     ----------
     position_array : np.ndarray
         Array of shape (n_frames, n_space, n_individuals)
-        containing the tracks of the bounding boxes' centroids.
+        containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array : np.ndarray
@@ -277,7 +277,7 @@ def from_via_tracks_file(
 
     Notes
     -----
-    The bounding boxes' IDs specified in the "track" field of the VIA
+    The bounding boxes IDs specified in the "track" field of the VIA
     tracks .csv file are mapped to the "individual_name" column of the
     ``movement`` dataset. The individual names follow the format ``id_<N>``,
     with N being the bounding box ID.
@@ -377,7 +377,7 @@ def _numpy_arrays_from_via_tracks_file(
     keys:
 
     - position_array (n_frames, n_space, n_individuals):
-        contains the trajectories of the bounding boxes' centroids.
+        contains the trajectories of the bounding box centroids.
     - shape_array (n_frames, n_space, n_individuals):
         contains the shape of the bounding boxes (width and height).
     - confidence_array (n_frames, n_individuals):
@@ -391,7 +391,7 @@ def _numpy_arrays_from_via_tracks_file(
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the VIA tracks .csv file containing the bounding boxes' tracks.
+        Path to the VIA tracks .csv file containing the bounding box tracks.
 
     frame_regexp : str
         Regular expression pattern to extract the frame number from the frame
@@ -402,7 +402,7 @@ def _numpy_arrays_from_via_tracks_file(
     Returns
     -------
     dict
-        The validated bounding boxes' arrays.
+        The validated bounding boxes arrays.
 
     """
     # Extract 2D dataframe from input data
