@@ -19,6 +19,7 @@ dependencies = [
   "attrs",
   "pooch",
   "tqdm",
+  "shapely",
   "sleap-io",
   "xarray[accel,viz]",
   "PyYAML",
@@ -43,7 +44,6 @@ classifiers = [
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-roi = ["shapely"]
 dev = [
   "pytest",
   "pytest-cov",
