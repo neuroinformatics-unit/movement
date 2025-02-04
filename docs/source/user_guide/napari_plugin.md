@@ -112,3 +112,50 @@ the napari window. Alternatively, you can use the `File > Open File(s)` menu
 option and select the file from the file dialog.
 In any case, the image will be loaded as a static
 [image layer](napari:howtos/layers/image.html).
+
+## Load the poses dataset
+
+Now you are ready to load some pose tracks over your chosen background layer.
+
+The `movement` plugin on the right-hand side of the window should contain
+an expanded `Load poses` menu. This contains a `source software` dropdown,
+an `fps`  (frames per second) input field, and a `Browse` button to select
+a file containing predicted poses.
+You may also directly paste a file path into the homonymous field.
+
+::: {note}
+See [supported formats](target-supported-formats) for more information on
+the expected software and file formats.
+:::
+
+Once the file path is set, click the `Load` button to load the poses dataset
+into `napari`. The plugin will create a new
+[points layer](napari:howtos/layers/points.html) on top of the existing
+image layer.
+
+You will see a view similar to the one below:
+
+![napari plugin with poses dataset loaded](../_static/napari_plugin_with_poses_as_points.png)
+
+The predicted keypoints are represented as points, colour-coded by
+keypoint ID for single-individual datasets, or by individual ID for
+multi-individual datasets. Hovering with your mouse over a point will
+bring up a tooltip containing the names of the individual and keypoint,
+the point-wise confidence score (as predicted by the source software),
+and the time in seconds (this is calculated from the frame number and
+the `fps` value you provided).
+
+Using the slider at the bottom of the window, you can navigate through
+the frames of the poses dataset. The points will update accordingly, allowing
+you to inspect the predicted keypoints at different time points.
+If you loaded a video as a background layer, the video will also update
+in sync with the poses dataset.
+
+::: {admonition} Stay tuned
+Though the display style of the points layer is currently fixed, we are
+working on adding more customisation options in future releases, such as
+enabling you to change the point size, colour, or shape.
+
+We are also working on enabling the visualisation of
+[bounding boxes datasets](target-poses-and-bboxes-dataset) in the plugin.
+:::
