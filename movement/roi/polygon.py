@@ -35,7 +35,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
         boundary : tuple of (x, y) pairs
             The points (in sequence) that make up the boundary of the region.
             At least three points must be provided.
-        holes : sequence of sequence of (x, y) pairs
+        holes : sequence of sequences of (x, y) pairs, default None
             A sequence of items, where each item will be interpreted like
             ``boundary``. These items will be used to construct internal holes
             within the region. See the ``holes`` argument to
@@ -48,7 +48,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
     @property
     def exterior(self) -> LineOfInterest:
-        """The (exterior) boundary of this RoI."""
+        """The exterior boundary of this RoI."""
         return LineOfInterest(
             self.region.exterior.coords,
             loop=True,
@@ -57,7 +57,9 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
     @property
     def interiors(self) -> tuple[LineOfInterest, ...]:
-        """The (interior) boundaries of this RoI.
+        """The interior boundaries of this RoI.
+        
+        Interior boundaries are the boundaries of holes contained within the polygon.
 
         A region with no interior boundaries returns the empty tuple.
         """

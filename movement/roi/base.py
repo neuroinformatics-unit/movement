@@ -1,4 +1,4 @@
-"""Class for representing 2-dimensional regions of interest (RoIs)."""
+"""Class for representing 1- or 2-dimensional regions of interest (RoIs)."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ SupportedGeometry: TypeAlias = LineLike | RegionLike
 
 
 class BaseRegionOfInterest:
-    """Base class for representing regions of interest (RoI)s.
+    """Base class for representing regions of interest (RoIs).
 
     Regions of interest can be either 1 or 2 dimensional, and are represented
     by appropriate ``shapely.Geometry`` objects depending on which. Note that
@@ -110,7 +110,7 @@ class BaseRegionOfInterest:
             Whether the line to be created should be closed. That is, whether
             the final point should also link to the first point.
             Ignored if ``dimensions`` is 2.
-        holes : sequence of sequence of (x, y) pairs, default None
+        holes : sequence of sequences of (x, y) pairs, default None
             A sequence of items, where each item will be interpreted like
             ``points``. These items will be used to construct internal holes
             within the region. See the ``holes`` argument to
