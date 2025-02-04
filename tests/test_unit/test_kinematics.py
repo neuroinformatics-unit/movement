@@ -479,9 +479,9 @@ def test_nan_behavior_forward_vector(
     # Should have NaN values in the forward vector at time 1 and left_ear
     nan_values = forward_vector.sel(time=nan_time)
     assert nan_values.shape == (1, 2)
-    assert np.isnan(
-        nan_values
-    ).all(), "NaN values not returned where expected!"
+    assert np.isnan(nan_values).all(), (
+        "NaN values not returned where expected!"
+    )
     # Should have no NaN values in the forward vector in other positions
     assert not np.isnan(
         forward_vector.sel(
