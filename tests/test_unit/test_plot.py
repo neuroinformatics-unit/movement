@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
+from matplotlib.collections import QuadMesh
 from numpy.random import RandomState
 
 from movement.plot import occupancy_histogram
@@ -197,7 +199,7 @@ def test_occupancy_histogram(
         # when examining the xy data later in the test.
         kwargs_to_select_xy_data.pop(d, None)
 
-    _, histogram_info = occupancy_histogram(
+    _, _, histogram_info = occupancy_histogram(
         data, individual=individual, keypoint=keypoint, bins=n_bins
     )
     plotted_values = histogram_info["counts"]
@@ -265,3 +267,35 @@ def test_occupancy_histogram(
     else:
         # No non-nan values were given
         assert plotted_values.sum() == 0
+
+
+def test_respects_axes(histogram_data: xr.DataArray) -> None:
+    """Check that existing axes objects are respected if passed."""
+    # Plotting on existing axes
+    existing_fig, existing_ax = plt.subplots(1, 2)
+
+    existing_ax[0].plot(
+        np.linspace(0.0, 10.0, num=100), np.linspace(0.0, 10.0, num=100)
+    )
+
+    _, _, hist_info_existing = occupancy_histogram(
+        histogram_data, ax=existing_ax[1]
+    )
+    hist_plots_added = [
+        qm for qm in existing_ax[1].get_children() if isinstance(qm, QuadMesh)
+    ]
+    assert len(hist_plots_added) == 1
+
+    # Plot on new axis and create a new figure
+    new_fig, new_ax, hist_info_new = occupancy_histogram(histogram_data)
+    hist_plots_created = [
+        qm for qm in new_ax.get_children() if isinstance(qm, QuadMesh)
+    ]
+    assert len(hist_plots_created) == 1
+
+    # Check that the same plot was made for each
+    assert set(hist_info_new.keys()) == set(hist_info_existing.keys())
+    for key, new_ax_value in hist_info_new.items():
+        existing_ax_value = hist_info_existing[key]
+
+        assert np.allclose(new_ax_value, existing_ax_value)

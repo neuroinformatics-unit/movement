@@ -16,8 +16,9 @@ def occupancy_histogram(
     keypoint: int | str = 0,
     individual: int | str = 0,
     title: str | None = None,
+    ax: plt.Axes | None = None,
     **kwargs: Any,
-) -> tuple[plt.Figure, dict[HistInfoKeys, np.ndarray]]:
+) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
     """Create a 2D histogram of the occupancy data given.
 
     Time-points whose corresponding spatial coordinates have NaN values
@@ -35,13 +36,20 @@ def occupancy_histogram(
     title : str, optional
         Title to give to the plot. Default will be generated from the
         ``keypoint`` and ``individual``
+    ax : matplotlib.axes.Axes, optional
+        Axes object on which to draw the histogram. If not provided, a new
+        figure and axes are created and returned.
     kwargs : Any
         Keyword arguments passed to ``matplotlib.pyplot.hist2d``
 
     Returns
     -------
     matplotlib.pyplot.Figure
-        Plot handle containing the rendered 2D histogram.
+        Plot handle containing the rendered 2D histogram. If ``ax`` is
+        supplied, this will be the figure that ``ax`` belongs to.
+    matplotlib.axes.Axes
+        Axes on which the histogram was drawn. If ``ax`` was supplied,
+        the input will be directly modified and returned in this value.
     dict[str, numpy.ndarray]
         Information about the created histogram (see Notes).
 
@@ -99,7 +107,10 @@ def occupancy_histogram(
         if key not in kwargs:
             kwargs[key] = value
     # Now it should just be a case of creating the histogram
-    fig, ax = plt.subplots()
+    if ax is not None:
+        fig = ax.get_figure()
+    else:
+        fig, ax = plt.subplots()
     counts, xedges, yedges, hist_image = ax.hist2d(
         data.sel(space=x_coord), data.sel(space=y_coord), **kwargs
     )
@@ -114,4 +125,4 @@ def occupancy_histogram(
     ax.set_xlabel(x_coord)
     ax.set_ylabel(y_coord)
 
-    return fig, {"counts": counts, "xedges": xedges, "yedges": yedges}
+    return fig, ax, {"counts": counts, "xedges": xedges, "yedges": yedges}
