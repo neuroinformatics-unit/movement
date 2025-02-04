@@ -122,7 +122,8 @@ def occupancy_histogram(
         title = "Occupancy of " + ", ".join(title_components)
     if title:
         ax.set_title(title)
-    ax.set_xlabel(x_coord)
-    ax.set_ylabel(y_coord)
+    space_unit = data.attrs.get("space_unit", "pixels")
+    ax.set_xlabel(f"{x_coord} ({space_unit})")
+    ax.set_ylabel(f"{y_coord} ({space_unit})")
 
     return fig, ax, {"counts": counts, "xedges": xedges, "yedges": yedges}
