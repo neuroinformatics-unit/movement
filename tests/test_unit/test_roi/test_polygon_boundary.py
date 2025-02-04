@@ -40,8 +40,8 @@ def test_boundary(exterior_boundary, interior_boundaries, request) -> None:
         shapely.LinearRing(ib) for ib in interior_boundaries
     )
 
-    computed_exterior = polygon.exterior
-    computed_interiors = polygon.interiors
+    computed_exterior = polygon.exterior_boundary
+    computed_interiors = polygon.interior_boundaries
 
     assert isinstance(computed_exterior, LineOfInterest)
     assert expected_exterior.equals_exact(computed_exterior.region, tolerance)

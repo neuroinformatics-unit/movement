@@ -117,7 +117,8 @@ class BaseRegionOfInterest:
             ``shapely.Polygon`` for details. Ignored if ``dimensions`` is 1.
         name : str, default None
             Human-readable name to assign to the given region, for
-            user-friendliness.
+            user-friendliness. Default name given is 'Un-named region' if no
+            explicit name is provided.
 
         """
         self._name = name

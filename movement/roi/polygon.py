@@ -1,5 +1,7 @@
 """2-dimensional regions of interest."""
 
+from __future__ import annotations
+
 from collections.abc import Sequence
 
 from movement.roi.base import BaseRegionOfInterest, PointLikeList
@@ -18,13 +20,21 @@ class PolygonOfInterest(BaseRegionOfInterest):
     interest (RoIs) in an analysis. The basic usage is to construct an
     instance of this class by passing in a list of points, which will then be
     joined (in sequence) by straight lines between consecutive pairs of points,
-    to form the boundary of the RoI. Note that the boundary itself is a
-    (closed) ``LineOfInterest``, and may be treated accordingly.
+    to form the exterior boundary of the RoI. Note that the exterior boundary
+    (accessible as via the ``.exterior`` property) is a (closed)
+    ``LineOfInterest``, and may be treated accordingly.
+
+    The class also supports holes - subregions properly contained inside the
+    region that are not part of the region itself. These can be specified by
+    the ``holes`` argument, and define the interior boundaries of the region.
+    These interior boundaries are accessible via the ``.interior_boundaries``
+    property, and the polygonal regions that make up the holes are accessible
+    via the ``holes`` property.
     """
 
     def __init__(
         self,
-        boundary: PointLikeList,
+        exterior_boundary: PointLikeList,
         holes: Sequence[PointLikeList] | None = None,
         name: str | None = None,
     ) -> None:
@@ -32,7 +42,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         Parameters
         ----------
-        boundary : tuple of (x, y) pairs
+        exterior_boundary : tuple of (x, y) pairs
             The points (in sequence) that make up the boundary of the region.
             At least three points must be provided.
         holes : sequence of sequences of (x, y) pairs, default None
@@ -40,14 +50,23 @@ class PolygonOfInterest(BaseRegionOfInterest):
             ``boundary``. These items will be used to construct internal holes
             within the region. See the ``holes`` argument to
             ``shapely.Polygon`` for details.
-        name : str
-            Name of the RoI that is to be created.
+        name : str, optional
+            Name of the RoI that is to be created. A default name will be
+            inherited from the base class if not provided.
+
+        See Also
+        --------
+        movement.roi.base.BaseRegionOfInterest
+            The base class that constructor arguments are passed to, and
+            defaults are inherited from.
 
         """
-        super().__init__(points=boundary, dimensions=2, holes=holes, name=name)
+        super().__init__(
+            points=exterior_boundary, dimensions=2, holes=holes, name=name
+        )
 
     @property
-    def exterior(self) -> LineOfInterest:
+    def exterior_boundary(self) -> LineOfInterest:
         """The exterior boundary of this RoI."""
         return LineOfInterest(
             self.region.exterior.coords,
@@ -56,12 +75,26 @@ class PolygonOfInterest(BaseRegionOfInterest):
         )
 
     @property
-    def interiors(self) -> tuple[LineOfInterest, ...]:
+    def holes(self) -> tuple[PolygonOfInterest, ...]:
+        """The interior holes of this RoI.
+
+        Holes are regions properly contained within the exterior boundary of
+        the RoI that are not part of the RoI itself (like the centre of a
+        doughnut, for example). A region with no holes returns the empty tuple.
+        """
+        return tuple(
+            PolygonOfInterest(
+                int_boundary.coords, name=f"Hole {i} of {self.name}"
+            )
+            for i, int_boundary in enumerate(self.region.interiors)
+        )
+
+    @property
+    def interior_boundaries(self) -> tuple[LineOfInterest, ...]:
         """The interior boundaries of this RoI.
 
-        Interior boundaries are the boundaries of holes contained within the polygon.
-
-        A region with no interior boundaries returns the empty tuple.
+        Interior boundaries are the boundaries of holes contained within the
+        polygon.  A region with no holes returns the empty tuple.
         """
         return tuple(
             LineOfInterest(

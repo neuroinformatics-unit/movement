@@ -37,8 +37,10 @@ class LineOfInterest(BaseRegionOfInterest):
             If True, the final point in ``points`` will be connected by an
             additional line segment to the first, creating a closed loop.
             (See Notes).
-        name : str
-            Name of the LoI that is to be created.
+        name : str, optional
+            Name of the LoI that is to be created. A default name will be
+            inherited from the base class if not provided, and
+            defaults are inherited from.
 
         Notes
         -----
@@ -46,6 +48,11 @@ class LineOfInterest(BaseRegionOfInterest):
         argument. However, if you want to define an enclosed region for your
         analysis, we recommend you create a ``PolygonOfInterest`` and use
         its ``boundary`` property instead.
+
+        See Also
+        --------
+        movement.roi.base.BaseRegionOfInterest
+            The base class that constructor arguments are passed to.
 
         """
         super().__init__(points, dimensions=1, closed=loop, name=name)
