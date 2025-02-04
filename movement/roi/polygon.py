@@ -58,7 +58,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
     @property
     def interiors(self) -> tuple[LineOfInterest, ...]:
         """The interior boundaries of this RoI.
-        
+
         Interior boundaries are the boundaries of holes contained within the polygon.
 
         A region with no interior boundaries returns the empty tuple.
