@@ -138,15 +138,14 @@ fig.show()
 # Visualise the head vector
 # ---------------------------
 # The plot.vector function plots the vector from the midpoint between two
-# reference points to another keypoint (vector_point) an runs perpendicular to
-# the line connecting the reference points.
+# reference points to another keypoint (vector_point).
 #
 # In the case of the head vector, the reference points are "left_ear" and
 # "right_ear", and the vector_point is "snout". The head vector is represented
 # by an arrow that goes from the midpoint between the ears to the snout.
 #
 # By default, plot.vector will plot a vector for the first individual in the
-# dataset, during the first 15 timepoints with non-NaN location coordinates
+# dataset, during the first 15 timepoints with location coordinates
 # for the keypoints of interest.
 fig_head_vector = plot.vector(
     ds, reference_points=["left_ear", "right_ear"], vector_point="snout"
