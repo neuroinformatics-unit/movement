@@ -1,20 +1,9 @@
-from itertools import product
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
-from matplotlib.collections import QuadMesh
 from numpy.random import RandomState
 
 from movement.plot import occupancy_histogram
-
-
-def get_histogram_binning_data(fig: plt.Figure) -> list[QuadMesh]:
-    """Fetch 2D array data from a histogram plot."""
-    return [
-        qm for qm in fig.axes[0].get_children() if isinstance(qm, QuadMesh)
-    ]
 
 
 @pytest.fixture
@@ -72,19 +61,30 @@ def histogram_data_with_nans(
 ) -> xr.DataArray:
     """DataArray whose data is the ``normal_dist_2d`` points.
 
-    Each datapoint has a chance of being turned into a NaN value.
-
     Axes 2 and 3 are the individuals and keypoints axes, respectively.
     These dimensions are given coordinates {i,k}{0,1,2,3,4,5,...} for
     the purposes of indexing.
+
+    For individual i0, keypoint k0, the following (time, space) values are
+    converted into NaNs:
+    - (100, "x")
+    - (200, "y")
+    - (150, "x")
+    - (150, "y")
+
     """
+    individual_0 = "i0"
+    keypoint_0 = "k0"
     data_with_nans = histogram_data.copy(deep=True)
-    data_shape = data_with_nans.shape
-    nan_chance = 1.0 / 25.0
-    index_ranges = [range(dim_length) for dim_length in data_shape]
-    for multiindex in product(*index_ranges):
-        if rng.uniform() < nan_chance:
-            data_with_nans[*multiindex] = float("nan")
+    for time_index, space_coord in [
+        (100, "x"),
+        (200, "y"),
+        (150, "x"),
+        (150, "y"),
+    ]:
+        data_with_nans.loc[
+            time_index, space_coord, individual_0, keypoint_0
+        ] = float("nan")
     return data_with_nans
 
 
@@ -97,7 +97,29 @@ def histogram_data_with_nans(
 
 @pytest.mark.parametrize(
     ["data", "individual", "keypoint", "n_bins"],
-    [pytest.param("histogram_data", "i0", "k0", 30, id="30 bins each axis")],
+    [
+        pytest.param(
+            "histogram_data",
+            "i0",
+            "k0",
+            30,
+            id="30 bins each axis",
+        ),
+        pytest.param(
+            "histogram_data",
+            "i1",
+            "k0",
+            (20, 30),
+            id="(20, 30) bins",
+        ),
+        pytest.param(
+            "histogram_data_with_nans",
+            "i0",
+            "k0",
+            30,
+            id="NaNs should be removed",
+        ),
+    ],
 )
 def test_occupancy_histogram(
     data: xr.DataArray,
@@ -110,56 +132,51 @@ def test_occupancy_histogram(
     if isinstance(data, str):
         data = request.getfixturevalue(data)
 
-    plotted_hist = occupancy_histogram(
+    _, histogram_info = occupancy_histogram(
         data, individual=individual, keypoint=keypoint, bins=n_bins
     )
-
-    # Confirm that a histogram was made
-    plotted_data = get_histogram_binning_data(plotted_hist)
-    assert len(plotted_data) == 1
-    plotted_data = plotted_data[0]
-    plotting_coords = plotted_data.get_coordinates()
-    plotted_values = plotted_data.get_array()
+    plotted_values = histogram_info["counts"]
 
     # Confirm the binned array has the correct size
     if not isinstance(n_bins, tuple):
         n_bins = (n_bins, n_bins)
-    assert plotted_data.get_array().shape == n_bins
+    assert plotted_values.shape == n_bins
 
     # Confirm that each bin has the correct number of assignments
     data_time_xy = data.sel(individuals=individual, keypoints=keypoint)
-    x_values = data_time_xy.sel(space="x").values
-    y_values = data_time_xy.sel(space="y").values
+    data_time_xy = data_time_xy.dropna(dim="time", how="any")
+    plotted_x_values = data_time_xy.sel(space="x").values
+    plotted_y_values = data_time_xy.sel(space="y").values
+    assert plotted_x_values.shape == plotted_y_values.shape
+    # This many non-NaN values were plotted
+    n_non_nan_values = plotted_x_values.shape[0]
+
     reconstructed_bins_limits_x = np.linspace(
-        x_values.min(),
-        x_values.max(),
+        plotted_x_values.min(),
+        plotted_x_values.max(),
         num=n_bins[0] + 1,
         endpoint=True,
     )
-    assert all(
-        np.allclose(reconstructed_bins_limits_x, plotting_coords[i, :, 0])
-        for i in range(n_bins[0])
-    )
+    assert np.allclose(reconstructed_bins_limits_x, histogram_info["xedges"])
     reconstructed_bins_limits_y = np.linspace(
-        y_values.min(),
-        y_values.max(),
+        plotted_y_values.min(),
+        plotted_y_values.max(),
         num=n_bins[1] + 1,
         endpoint=True,
     )
-    assert all(
-        np.allclose(reconstructed_bins_limits_y, plotting_coords[:, j, 1])
-        for j in range(n_bins[1])
-    )
+    assert np.allclose(reconstructed_bins_limits_y, histogram_info["yedges"])
 
     reconstructed_bin_counts = np.zeros(shape=n_bins, dtype=float)
     for i, xi in enumerate(reconstructed_bins_limits_x[:-1]):
         xi_p1 = reconstructed_bins_limits_x[i + 1]
 
-        x_pts_in_range = (x_values >= xi) & (x_values <= xi_p1)
+        x_pts_in_range = (plotted_x_values >= xi) & (plotted_x_values <= xi_p1)
         for j, yj in enumerate(reconstructed_bins_limits_y[:-1]):
             yj_p1 = reconstructed_bins_limits_y[j + 1]
 
-            y_pts_in_range = (y_values >= yj) & (y_values <= yj_p1)
+            y_pts_in_range = (plotted_y_values >= yj) & (
+                plotted_y_values <= yj_p1
+            )
 
             pts_in_this_bin = (x_pts_in_range & y_pts_in_range).sum()
             reconstructed_bin_counts[i, j] = pts_in_this_bin
@@ -167,5 +184,9 @@ def test_occupancy_histogram(
             if pts_in_this_bin != plotted_values[i, j]:
                 pass
 
+    # We agree with a manual count
     assert reconstructed_bin_counts.sum() == plotted_values.sum()
+    # All non-NaN values were plotted
+    assert n_non_nan_values == plotted_values.sum()
+    # The counts were actually correct
     assert np.all(reconstructed_bin_counts == plotted_values)

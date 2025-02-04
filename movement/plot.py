@@ -1,9 +1,12 @@
 """Wrappers to plot movement data."""
 
-from typing import Any
+from typing import Any, Literal, TypeAlias
 
 import matplotlib.pyplot as plt
+import numpy as np
 import xarray as xr
+
+HistInfoKeys: TypeAlias = Literal["counts", "xedges", "yedges"]
 
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
@@ -14,8 +17,12 @@ def occupancy_histogram(
     individual: int | str = 0,
     title: str | None = None,
     **kwargs: Any,
-) -> plt.Figure:
+) -> tuple[plt.Figure, dict[HistInfoKeys, np.ndarray]]:
     """Create a 2D histogram of the occupancy data given.
+
+    Time-points whose corresponding spatial coordinates have NaN values
+    are ignored. Histogram information is returned as the second output
+    value (see Notes).
 
     Parameters
     ----------
@@ -35,6 +42,35 @@ def occupancy_histogram(
     -------
     matplotlib.pyplot.Figure
         Plot handle containing the rendered 2D histogram.
+    dict[str, numpy.ndarray]
+        Information about the created histogram (see Notes).
+
+    Notes
+    -----
+    In instances where the counts or information about the histogram bins is
+    desired, the ``return_hist_info`` argument should be provided as ``True``.
+    This will force the function to return a second output value, which is a
+    dictionary containing the bin edges and bin counts that were used to create
+    the histogram.
+
+    For data with ``N`` time-points, the dictionary output has key-value pairs;
+    - ``xedges``, an ``(N+1,)`` ``numpy`` array specifying the bin edges in the
+    first spatial dimension.
+    - ``yedges``, same as ``xedges`` but for the second spatial dimension.
+    - ``counts``, an ``(N, N)`` ``numpy`` array with the count for each bin.
+
+    ``counts[x, y]`` is the number of datapoints in the
+    ``(xedges[x], xedges[x+1]), (yedges[y], yedges[y+1])`` bin. These values
+    are those returned from ``matplotlib.pyplot.Axes.hist2d``.
+
+    Note that the ``counts`` values do not necessarily match the mappable
+    values that one gets from extracting the data from the
+    ``matplotlib.collections.QuadMesh`` object (that represents the rendered
+    histogram) via its ``get_array()`` attribute.
+
+    See Also
+    --------
+    matplotlib.pyplot.Axes.hist2d : The underlying plotting function.
 
     """
     data = da.position if isinstance(da, xr.Dataset) else da
@@ -64,9 +100,9 @@ def occupancy_histogram(
             kwargs[key] = value
     # Now it should just be a case of creating the histogram
     fig, ax = plt.subplots()
-    _, _, _, hist_image = ax.hist2d(
+    counts, xedges, yedges, hist_image = ax.hist2d(
         data.sel(space=x_coord), data.sel(space=y_coord), **kwargs
-    )  # counts, xedges, yedges, image
+    )
     colourbar = fig.colorbar(hist_image, ax=ax)
     colourbar.solids.set(alpha=1.0)
 
@@ -78,4 +114,4 @@ def occupancy_histogram(
     ax.set_xlabel(x_coord)
     ax.set_ylabel(y_coord)
 
-    return fig
+    return fig, {"counts": counts, "xedges": xedges, "yedges": yedges}
