@@ -39,15 +39,26 @@ def test_boundary(exterior_boundary, interior_boundaries, request) -> None:
     expected_interiors = tuple(
         shapely.LinearRing(ib) for ib in interior_boundaries
     )
+    expected_holes = tuple(shapely.Polygon(ib) for ib in interior_boundaries)
 
     computed_exterior = polygon.exterior_boundary
     computed_interiors = polygon.interior_boundaries
+    computed_holes = polygon.holes
 
     assert isinstance(computed_exterior, LineOfInterest)
     assert expected_exterior.equals_exact(computed_exterior.region, tolerance)
     assert isinstance(computed_interiors, tuple)
+    assert isinstance(computed_holes, tuple)
     assert len(computed_interiors) == len(expected_interiors)
-    for i, item in enumerate(computed_interiors):
-        assert isinstance(item, LineOfInterest)
+    assert len(computed_holes) == len(expected_holes)
+    assert len(computed_holes) == len(computed_interiors)
+    for i, interior_line in enumerate(computed_interiors):
+        assert isinstance(interior_line, LineOfInterest)
 
-        assert expected_interiors[i].equals_exact(item.region, tolerance)
+        assert expected_interiors[i].equals_exact(
+            interior_line.region, tolerance
+        )
+    for i, interior_hole in enumerate(computed_holes):
+        assert isinstance(interior_hole, PolygonOfInterest)
+
+        assert expected_holes[i].equals_exact(interior_hole.region, tolerance)
