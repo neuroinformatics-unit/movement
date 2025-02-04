@@ -19,6 +19,7 @@ dependencies = [
   "attrs",
   "pooch",
   "tqdm",
+  "shapely",
   "sleap-io",
   "xarray[accel,viz]",
   "PyYAML",
