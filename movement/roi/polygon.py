@@ -46,19 +46,18 @@ class PolygonOfInterest(BaseRegionOfInterest):
             The points (in sequence) that make up the boundary of the region.
             At least three points must be provided.
         holes : sequence of sequences of (x, y) pairs, default None
-            A sequence of items, where each item will be interpreted like
-            ``boundary``. These items will be used to construct internal holes
-            within the region. See the ``holes`` argument to
-            ``shapely.Polygon`` for details.
+            A sequence of items, where each item will be interpreted as the
+            ``exterior_boundary`` of an internal hole within the region. See
+            the ``holes`` argument to ``shapely.Polygon`` for details.
         name : str, optional
             Name of the RoI that is to be created. A default name will be
             inherited from the base class if not provided.
 
         See Also
         --------
-        movement.roi.base.BaseRegionOfInterest
-            The base class that constructor arguments are passed to, and
-            defaults are inherited from.
+        movement.roi.base.BaseRegionOfInterest : The base class that
+            constructor arguments are passed to, and defaults are inherited
+            from.
 
         """
         super().__init__(
