@@ -88,18 +88,25 @@ def histogram_data_with_nans(
     return data_with_nans
 
 
-# def test_histogram_ignores_missing_dims(
-#     input_does_not_have_dimensions: list[str],
-# ) -> None:
-#     """Test that ``occupancy_histogram`` ignores non-present dimensions."""
-#     input_data = 0
+@pytest.fixture
+def entirely_nan_data(histogram_data: xr.DataArray) -> xr.DataArray:
+    return histogram_data.copy(
+        deep=True, data=histogram_data.values * float("nan")
+    )
 
 
 @pytest.mark.parametrize(
-    ["data", "individual", "keypoint", "n_bins"],
+    [
+        "data",
+        "remove_dims_from_data_before_starting",
+        "individual",
+        "keypoint",
+        "n_bins",
+    ],
     [
         pytest.param(
             "histogram_data",
+            [],
             "i0",
             "k0",
             30,
@@ -107,6 +114,7 @@ def histogram_data_with_nans(
         ),
         pytest.param(
             "histogram_data",
+            [],
             "i1",
             "k0",
             (20, 30),
@@ -114,23 +122,80 @@ def histogram_data_with_nans(
         ),
         pytest.param(
             "histogram_data_with_nans",
+            [],
             "i0",
             "k0",
             30,
             id="NaNs should be removed",
         ),
+        pytest.param(
+            "entirely_nan_data",
+            [],
+            "i0",
+            "k0",
+            10,
+            id="All NaN-data",
+        ),
+        pytest.param(
+            "histogram_data",
+            ["individuals"],
+            "i0",
+            "k0",
+            30,
+            id="Ignores individual if not a dimension",
+        ),
+        pytest.param(
+            "histogram_data",
+            ["keypoints"],
+            "i0",
+            "k1",
+            30,
+            id="Ignores keypoint if not a dimension",
+        ),
+        pytest.param(
+            "histogram_data",
+            ["individuals", "keypoints"],
+            "i0",
+            "k0",
+            30,
+            id="Can handle raw xy data",
+        ),
     ],
 )
 def test_occupancy_histogram(
     data: xr.DataArray,
+    remove_dims_from_data_before_starting: list[str],
     individual: int | str,
     keypoint: int | str,
     n_bins: int | tuple[int, int],
     request,
 ) -> None:
-    """Test that occupancy histograms correctly plot data."""
+    """Test that occupancy histograms correctly plot data.
+
+    Specifically, check that:
+    - The bin edges are what we expect.
+    - The bin counts can be manually verified and are in agreement.
+    - Only non-NaN values are plotted, but NaN values do not throw errors.
+    """
     if isinstance(data, str):
         data = request.getfixturevalue(data)
+
+    # We will need to only select the xy data later in the test,
+    # but if we are dropping dimensions we might need to call it
+    # in different ways.
+    kwargs_to_select_xy_data = {
+        "individuals": individual,
+        "keypoints": keypoint,
+    }
+    for d in remove_dims_from_data_before_starting:
+        # Retain the 0th value in the corresponding dimension,
+        # then drop that dimension.
+        data = data.sel({d: getattr(data, d)[0]}).squeeze()
+        assert d not in data.dims
+
+        # We no longer need to filter this dimension out
+        # when examining the xy data later in the test.
+        kwargs_to_select_xy_data.pop(d, None)
 
     _, histogram_info = occupancy_histogram(
         data, individual=individual, keypoint=keypoint, bins=n_bins
@@ -143,7 +208,7 @@ def test_occupancy_histogram(
     assert plotted_values.shape == n_bins
 
     # Confirm that each bin has the correct number of assignments
-    data_time_xy = data.sel(individuals=individual, keypoints=keypoint)
+    data_time_xy = data.sel(**kwargs_to_select_xy_data)
     data_time_xy = data_time_xy.dropna(dim="time", how="any")
     plotted_x_values = data_time_xy.sel(space="x").values
     plotted_y_values = data_time_xy.sel(space="y").values
@@ -151,42 +216,52 @@ def test_occupancy_histogram(
     # This many non-NaN values were plotted
     n_non_nan_values = plotted_x_values.shape[0]
 
-    reconstructed_bins_limits_x = np.linspace(
-        plotted_x_values.min(),
-        plotted_x_values.max(),
-        num=n_bins[0] + 1,
-        endpoint=True,
-    )
-    assert np.allclose(reconstructed_bins_limits_x, histogram_info["xedges"])
-    reconstructed_bins_limits_y = np.linspace(
-        plotted_y_values.min(),
-        plotted_y_values.max(),
-        num=n_bins[1] + 1,
-        endpoint=True,
-    )
-    assert np.allclose(reconstructed_bins_limits_y, histogram_info["yedges"])
+    if n_non_nan_values > 0:
+        reconstructed_bins_limits_x = np.linspace(
+            plotted_x_values.min(),
+            plotted_x_values.max(),
+            num=n_bins[0] + 1,
+            endpoint=True,
+        )
+        assert np.allclose(
+            reconstructed_bins_limits_x, histogram_info["xedges"]
+        )
+        reconstructed_bins_limits_y = np.linspace(
+            plotted_y_values.min(),
+            plotted_y_values.max(),
+            num=n_bins[1] + 1,
+            endpoint=True,
+        )
+        assert np.allclose(
+            reconstructed_bins_limits_y, histogram_info["yedges"]
+        )
 
-    reconstructed_bin_counts = np.zeros(shape=n_bins, dtype=float)
-    for i, xi in enumerate(reconstructed_bins_limits_x[:-1]):
-        xi_p1 = reconstructed_bins_limits_x[i + 1]
+        reconstructed_bin_counts = np.zeros(shape=n_bins, dtype=float)
+        for i, xi in enumerate(reconstructed_bins_limits_x[:-1]):
+            xi_p1 = reconstructed_bins_limits_x[i + 1]
 
-        x_pts_in_range = (plotted_x_values >= xi) & (plotted_x_values <= xi_p1)
-        for j, yj in enumerate(reconstructed_bins_limits_y[:-1]):
-            yj_p1 = reconstructed_bins_limits_y[j + 1]
-
-            y_pts_in_range = (plotted_y_values >= yj) & (
-                plotted_y_values <= yj_p1
+            x_pts_in_range = (plotted_x_values >= xi) & (
+                plotted_x_values <= xi_p1
             )
+            for j, yj in enumerate(reconstructed_bins_limits_y[:-1]):
+                yj_p1 = reconstructed_bins_limits_y[j + 1]
 
-            pts_in_this_bin = (x_pts_in_range & y_pts_in_range).sum()
-            reconstructed_bin_counts[i, j] = pts_in_this_bin
+                y_pts_in_range = (plotted_y_values >= yj) & (
+                    plotted_y_values <= yj_p1
+                )
 
-            if pts_in_this_bin != plotted_values[i, j]:
-                pass
+                pts_in_this_bin = (x_pts_in_range & y_pts_in_range).sum()
+                reconstructed_bin_counts[i, j] = pts_in_this_bin
 
-    # We agree with a manual count
-    assert reconstructed_bin_counts.sum() == plotted_values.sum()
-    # All non-NaN values were plotted
-    assert n_non_nan_values == plotted_values.sum()
-    # The counts were actually correct
-    assert np.all(reconstructed_bin_counts == plotted_values)
+                if pts_in_this_bin != plotted_values[i, j]:
+                    pass
+
+        # We agree with a manual count
+        assert reconstructed_bin_counts.sum() == plotted_values.sum()
+        # All non-NaN values were plotted
+        assert n_non_nan_values == plotted_values.sum()
+        # The counts were actually correct
+        assert np.all(reconstructed_bin_counts == plotted_values)
+    else:
+        # No non-nan values were given
+        assert plotted_values.sum() == 0
