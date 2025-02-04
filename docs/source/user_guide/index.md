@@ -8,7 +8,7 @@ Before you dive deeper, we highly recommend reading about the structure
 and usage of [movement datasets](movement_dataset.md), which are a central
 concept in the package.
 
-::::{grid} 1 2 2 4
+::::{grid} 1 1 2 2
 :gutter: 3
 
 :::{grid-item-card} {fas}`wrench;sd-text-primary` Installation
