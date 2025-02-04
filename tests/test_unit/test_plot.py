@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from matplotlib.collections import QuadMesh
-from numpy.random import RandomState
+from numpy.random import Generator, default_rng
 
 from movement.plot import occupancy_histogram
 
@@ -14,17 +14,17 @@ def seed() -> int:
 
 
 @pytest.fixture(scope="function")
-def rng(seed: int) -> RandomState:
+def rng(seed: int) -> Generator:
     """Create a RandomState to use in testing.
 
     This ensures the repeatability of histogram tests, that require large
     datasets that would be tedious to create manually.
     """
-    return RandomState(seed)
+    return default_rng(seed)
 
 
 @pytest.fixture
-def normal_dist_2d(rng: RandomState) -> np.ndarray:
+def normal_dist_2d(rng: Generator) -> np.ndarray:
     """Points distributed by the standard multivariate normal.
 
     The standard multivariate normal is just two independent N(0, 1)
@@ -59,7 +59,7 @@ def histogram_data(normal_dist_2d: np.ndarray) -> xr.DataArray:
 
 @pytest.fixture
 def histogram_data_with_nans(
-    histogram_data: xr.DataArray, rng: RandomState
+    histogram_data: xr.DataArray, rng: Generator
 ) -> xr.DataArray:
     """DataArray whose data is the ``normal_dist_2d`` points.
 
@@ -255,9 +255,6 @@ def test_occupancy_histogram(
                 pts_in_this_bin = (x_pts_in_range & y_pts_in_range).sum()
                 reconstructed_bin_counts[i, j] = pts_in_this_bin
 
-                if pts_in_this_bin != plotted_values[i, j]:
-                    pass
-
         # We agree with a manual count
         assert reconstructed_bin_counts.sum() == plotted_values.sum()
         # All non-NaN values were plotted
@@ -272,7 +269,7 @@ def test_occupancy_histogram(
 def test_respects_axes(histogram_data: xr.DataArray) -> None:
     """Check that existing axes objects are respected if passed."""
     # Plotting on existing axes
-    existing_fig, existing_ax = plt.subplots(1, 2)
+    _, existing_ax = plt.subplots(1, 2)
 
     existing_ax[0].plot(
         np.linspace(0.0, 10.0, num=100), np.linspace(0.0, 10.0, num=100)
@@ -288,6 +285,8 @@ def test_respects_axes(histogram_data: xr.DataArray) -> None:
 
     # Plot on new axis and create a new figure
     new_fig, new_ax, hist_info_new = occupancy_histogram(histogram_data)
+    assert isinstance(new_fig, plt.Figure)
+    assert isinstance(new_ax, plt.Axes)
     hist_plots_created = [
         qm for qm in new_ax.get_children() if isinstance(qm, QuadMesh)
     ]
