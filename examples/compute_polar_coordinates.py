@@ -90,8 +90,8 @@ frame_path = sample_data.fetch_dataset_paths(
 )["frame"]
 
 fig, ax = plot.trajectory(
-    ds,
-    ["left_ear", "right_ear"],
+    ds.position,
+    keypoint=["left_ear", "right_ear"],
     individual=0,
     image_path=frame_path,
     s=10,
