@@ -4,7 +4,7 @@
 (target-formats)=
 ## Supported formats
 (target-supported-formats)=
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding boxes' centroids (_bounding boxes' tracks_).
+`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_).
 
 To analyse pose tracks, `movement` supports loading data from various frameworks:
 - [DeepLabCut](dlc:) (DLC)
@@ -12,13 +12,13 @@ To analyse pose tracks, `movement` supports loading data from various frameworks
 - [LightingPose](lp:) (LP)
 - [Anipose](anipose:) (Anipose)
 
-To analyse bounding boxes' tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
+To analyse bounding box tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
 
 :::{note}
 At the moment `movement` only deals with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, for a consecutive set of frames. For the pose estimation case, this means it only deals with the predictions output by the software packages above. It currently does not support loading manually labelled data (since this is most often defined over a non-continuous set of frames).
 :::
 
-Below we explain how you can load pose tracks and bounding boxes' tracks into `movement`, and how you can export a `movement` poses dataset to different file formats. You can also try `movement` out on some [sample data](target-sample-data)
+Below we explain how you can load pose tracks and bounding box tracks into `movement`, and how you can export a `movement` poses dataset to different file formats. You can also try `movement` out on some [sample data](target-sample-data)
 included with the package.
 
 
@@ -129,15 +129,15 @@ For more information on the poses data structure, see the [movement poses datase
 
 
 (target-loading-bbox-tracks)=
-## Loading bounding boxes' tracks
-To load bounding boxes' tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
+## Loading bounding box tracks
+To load bounding box tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
 {mod}`movement.io.load_bboxes` module. This module can be imported as:
 
 ```python
 from movement.io import load_bboxes
 ```
 
-We currently support loading bounding boxes' tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a `from_numpy()` method, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a `from_numpy()` method, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 :::{tab-item} VGG Image Annotator
@@ -247,9 +247,9 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 
 
 (target-saving-bboxes-tracks)=
-## Saving bounding boxes' tracks
+## Saving bounding box tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding boxes' trajectories to a .csv file using the standard Python library `csv`.
+We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding box tracks to a .csv file using the standard Python library `csv`.
 
 Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
@@ -273,14 +273,14 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
-Alternatively, we can convert the `movement` bounding boxes' dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+Alternatively, we can convert the `movement` bounding boxes dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 
 
 (target-sample-data)=
 ## Sample data
 
 `movement` includes some sample data files that you can use to
-try the package out. These files contain pose and bounding boxes' tracks from
+try the package out. These files contain pose and bounding box tracks from
 various [supported formats](target-supported-formats).
 
 You can list the available sample data files using:

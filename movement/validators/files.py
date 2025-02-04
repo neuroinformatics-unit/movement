@@ -156,7 +156,7 @@ class ValidHDF5:
         except Exception as e:
             raise log_error(
                 ValueError,
-                f"File {value} does not seem to be in valid" "HDF5 format.",
+                f"File {value} does not seem to be in validHDF5 format.",
             ) from e
 
     @path.validator

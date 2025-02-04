@@ -15,13 +15,13 @@ class TestPosesIO:
         """Return the output file path for a DLC .h5 or .csv file."""
         return tmp_path / request.param
 
-    def test_load_and_save_to_dlc_style_df(self, dlc_style_df):
+    def test_load_and_save_to_dlc_style_df(self, valid_dlc_poses_df):
         """Test that loading pose tracks from a DLC-style DataFrame and
         converting back to a DataFrame returns the same data values.
         """
-        ds = load_poses.from_dlc_style_df(dlc_style_df)
+        ds = load_poses.from_dlc_style_df(valid_dlc_poses_df)
         df = save_poses.to_dlc_style_df(ds, split_individuals=False)
-        np.testing.assert_allclose(df.values, dlc_style_df.values)
+        np.testing.assert_allclose(df.values, valid_dlc_poses_df.values)
 
     def test_save_and_load_dlc_file(
         self, dlc_output_file, valid_poses_dataset
