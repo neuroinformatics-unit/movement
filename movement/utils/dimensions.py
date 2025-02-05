@@ -1,13 +1,13 @@
 """Utilities for manipulating dimensions of ``xarray.DataArray`` objects."""
 
-from collections.abc import Iterable
+from collections.abc import Hashable, Iterable
 
 import xarray as xr
 
 
 def collapse_extra_dimensions(
     da: xr.DataArray,
-    preserve_dims: Iterable[int | str] = ("time", "space"),
+    preserve_dims: Iterable[str] = ("time", "space"),
     **selection: int | str,
 ) -> xr.DataArray:
     """Collapse a ``DataArray``, preserving only the specified dimensions.
@@ -20,7 +20,7 @@ def collapse_extra_dimensions(
     ----------
     da : xarray.DataArray
         DataArray of multiple dimensions, which is to be collapsed.
-    preserve_dims : Iterable[int | str]
+    preserve_dims : Iterable[str]
         The dimensions of ``da`` that should not be collapsed.
     selection : int | str
         Mapping from dimension names to a particular index in that dimension.
@@ -70,10 +70,44 @@ def collapse_extra_dimensions(
     """
     data = da.copy(deep=True)
     dims_to_collapse = [d for d in data.dims if d not in preserve_dims]
+    make_selection = {
+        d: coord_of_dimension(da, d, selection.pop(d, 0))
+        for d in dims_to_collapse
+    }
+    return data.sel(make_selection)
 
-    for d in dims_to_collapse:
-        index_to_keep = selection.pop(d, 0)
-        if isinstance(index_to_keep, int):
-            index_to_keep = getattr(data, d)[index_to_keep]
-        data = data.sel({d: index_to_keep})
-    return data
+
+def coord_of_dimension(
+    da: xr.DataArray, dimension: str, coord_index: int | str
+) -> Hashable:
+    """Retrieve a coordinate of a given dimension.
+
+    This method handles the case where the coordinate is known either by name
+    or only known by its index within the coordinates of the ``dimension``. It
+    is predominantly useful when we want to give the user the flexibility to
+    refer to (part of) a ``DataArray`` by index (as in regular ``numpy``-style
+    array slicing) or by name (via ``xarray`` coordinates).
+
+    If ``coord_index`` is an element of ``da.dimension``, it can just be
+    returned. Otherwise, we need to return ``da.dimension[coord_index]``.
+
+    Out of bounds index errors, or non existent dimension errors are handled by
+    the underlying ``xarray.DataArray`` implementation.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        DataArray to retrieve a coordinate from.
+    dimension : str
+        Dimension of the DataArray to fetch the coordinate from.
+    coord_index : int | str
+        The index of the coordinate along ``dimension`` to fetch.
+
+    Returns
+    -------
+    Hashable
+        The requested coordinate name at ``da.dimension[coord_index]``.
+
+    """
+    dim = getattr(da, dimension)
+    return dim[coord_index] if coord_index not in dim else coord_index
