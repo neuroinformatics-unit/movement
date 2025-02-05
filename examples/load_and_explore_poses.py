@@ -7,9 +7,8 @@ Load and explore an example dataset of pose tracks.
 # %%
 # Imports
 # -------
-from matplotlib import pyplot as plt
 
-from movement import sample_data
+from movement import plot, sample_data
 from movement.io import load_poses
 
 # %%
@@ -74,15 +73,4 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # (using scatter plots):
 
 mouse_name = "AEON3B_TP1"
-
-plt.scatter(
-    da.sel(individuals=mouse_name, space="x"),
-    da.sel(individuals=mouse_name, space="y"),
-    s=2,
-    c=da.time,
-    cmap="viridis",
-)
-plt.title(f"Trajectory of {mouse_name}")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.colorbar(label="time (sec)")
+fig, ax = plot.trajectory(da, selection={"individuals": mouse_name})

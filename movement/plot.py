@@ -102,16 +102,15 @@ def trajectory(
     fig, ax = plt.subplots(figsize=(6, 6)) if ax is None else (ax.figure, ax)
 
     # Merge default plotting args with user-provided kwargs
-    kwargs = {
-        key: kwargs.setdefault(key, value)
-        for key, value in DEFAULT_PLOTTING_ARGS.items()
-    }
+    for key, value in DEFAULT_PLOTTING_ARGS.items():
+        kwargs.setdefault(key, value)
 
-    # Plot the scatter, coloring by time
+    if "c" not in kwargs:
+        kwargs["c"] = plot_point.time
+    # Plot the scatter, coloring by time or user-provided color
     sc = ax.scatter(
         plot_point.sel(space="x"),
         plot_point.sel(space="y"),
-        c=plot_point.time,
         **kwargs,
     )
 
@@ -131,9 +130,17 @@ def trajectory(
     # Add colorbar for time dimension
     time_unit = da.attrs.get("time_unit")
     time_label = f"time ({time_unit})" if time_unit else "time steps (frames)"
-    colorbar = fig.colorbar(sc, ax=ax, label=time_label)
-    # Ensure colorbar is fully opaque
-    colorbar.solids.set(alpha=1.0)
+    # colorbar = (
+    #     fig.colorbar(sc, ax=ax, label=time_label, alpha=1.0)
+    #     if color_arg is plot_point.time
+    #     else None
+    # )
+
+    fig.colorbar(sc, ax=ax, label=time_label, alpha=1.0) if kwargs[
+        "c"
+    ] is plot_point.time else None
+    # # Ensure colorbar is fully opaque
+    # colorbar.solids.set(alpha=1.0) if colorbar else None
 
     if image_path is not None:
         frame = plt.imread(image_path)

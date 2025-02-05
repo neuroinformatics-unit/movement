@@ -72,8 +72,13 @@ head_vector = head_vector.drop_vars("keypoints")
 # We can start by plotting the head trajectory, defined here as the midpoint
 # between the ears. By default, the trajectory of the first listed individual
 # is shown.
-fig, ax = plot.trajectory(ds.position)
+
+fig, ax = plot.trajectory(
+    position, selection={"keypoints": ["left_ear", "right_ear"]}
+)
+
 fig.show()
+
 
 # %%
 # Overlay trajectory on Elevated Plus Maze and adjust plot title
@@ -97,11 +102,13 @@ fig, ax = plot.trajectory(
     },
     image_path=frame_path,
     s=10,
-    cmap="plasma",
+    cmap="viridis",
     marker="o",
     alpha=0.05,
 )
 
+# adjust title
+ax.set_title("Head trajectory (individual_0)")
 fig.show()
 
 # %%

@@ -15,7 +15,7 @@ visualise the results.
 # %matplotlib widget
 from matplotlib import pyplot as plt
 
-from movement import sample_data
+from movement import plot, sample_data
 from movement.utils.vector import compute_norm
 
 # %%
@@ -80,19 +80,13 @@ for mouse_name, col in zip(
 # We can also color the data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
-    sc = ax.scatter(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
+    fig, ax = plot.trajectory(
+        position,
+        individual=mouse_name,
+        ax=ax,
+        title=mouse_name,
         s=2,
-        c=position.time,
-        cmap="viridis",
     )
-    ax.invert_yaxis()
-    ax.set_title(mouse_name)
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
-    fig.colorbar(sc, ax=ax, label="time (s)")
 fig.tight_layout()
 
 # %%
