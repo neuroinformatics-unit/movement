@@ -15,10 +15,9 @@ DEFAULT_PLOTTING_ARGS = {
 
 def trajectory(
     da: xr.DataArray,
-    individual: int | str = 0,
-    keypoint: None | str | list[str] = None,
+    selection: dict[str, str | int | list[str | int] | None]
+    | None = None,  # TODO: make less complex!
     image_path: None | Path = None,
-    title: str | None = None,
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
@@ -36,20 +35,17 @@ def trajectory(
         A data array containing position information, with `time` and `space`
         as required dimensions. Optionally, it may have `individuals` and/or
         `keypoints` dimensions.
-    individual : int or str, default=0
-        Individual index or name. By default, the first individual is chosen.
-        If there is no `individuals` dimension, this argument is ignored.
-    keypoint : None, str or list of str, optional
-        - If None, the centroid of **all** keypoints is plotted (default).
-        - If str, that single keypoint's trajectory is plotted.
-        - If a list of keypoints, their centroid is plotted.
-        If there is no `keypoints` dimension, this argument is ignored.
+    selection : dict, optional
+        A dictionary specifying the selection criteria for the individual and
+        point to plot. The dictionary keys should be the dimension names
+        (e.g., "individuals", "keypoints") and the values should be the index
+        or name of an individual and a keypoint, or a list of keypoints
+        (their centroid will be plotted). By default, the first individual is
+        chosen and the centroid of all keypoints is plotted. If there is no
+        `individuals` or `keypoints` dimension, this argument is ignored.
     image_path : None or Path, optional
         Path to an image over which the trajectory data can be overlaid,
         e.g., a reference video frame.
-    title : str or None, optional
-        Title of the plot. If not provided, one is generated based on
-        the individual's name (if applicable).
     ax : matplotlib.axes.Axes or None, optional
         Axes object on which to draw the trajectory. If None, a new
         figure and axes are created.
@@ -64,44 +60,46 @@ def trajectory(
 
     """
     # Construct selection dict for individuals and keypoints
-    selection = {}
+    selection = selection or {}
 
-    # Determine which individual to select (if any)
-    if "individuals" in da.dims:
-        # Convert int index to actual individual name if needed
-        selection["individuals"] = chosen_ind = (
-            da.individuals.values[individual]
-            if isinstance(individual, int)
-            else str(individual)
-        )
-        title_suffix = f" of {chosen_ind}"
-    else:
-        title_suffix = ""
+    # Set default values for individuals and keypoints if they are in da.dims
+    selection.setdefault(
+        "individuals",
+        str(da.individuals.values[0]) if "individuals" in da.dims else None,
+    )  # First individual by index
+    selection.setdefault("keypoints", None) if "keypoints" in da.dims else None
+
+    chosen_ind = selection["individuals"] if "individuals" in da.dims else None
+    title_suffix = f" of {chosen_ind}" if chosen_ind is not None else ""
 
     # Determine which keypoint(s) to select (if any)
-    if "keypoints" in da.dims:
-        if keypoint is None:
-            selection["keypoints"] = da.keypoints.values
-        elif isinstance(keypoint, str):
-            selection["keypoints"] = [keypoint]
-        elif isinstance(keypoint, list):
-            selection["keypoints"] = keypoint
+    selection["keypoints"] = (
+        (
+            da.keypoints.values
+            if selection["keypoints"] is None
+            else [selection["keypoints"]]
+            if isinstance(selection["keypoints"], str)
+            else selection["keypoints"]
+        )
+        if "keypoints" in da.dims
+        else None
+    )
 
     # Select the data for the specified individual and keypoint(s)
     plot_point = da.sel(**selection)
 
     # If there are multiple selected keypoints, calculate the centroid
-    if "keypoints" in plot_point.dims and plot_point.sizes["keypoints"] > 1:
-        plot_point = plot_point.mean(dim="keypoints", skipna=True)
+    plot_point = (
+        plot_point.mean(dim="keypoints", skipna=True)
+        if "keypoints" in plot_point.dims and plot_point.sizes["keypoints"] > 1
+        else plot_point
+    )
 
     # Squeeze all dimensions with size 1 (only time and space should remain)
     plot_point = plot_point.squeeze()
 
     # Create a new Figure/Axes if none is passed
-    if ax is None:
-        fig, ax = plt.subplots(figsize=(6, 6))
-    else:
-        fig = ax.figure
+    fig, ax = plt.subplots(figsize=(6, 6)) if ax is None else (ax.figure, ax)
 
     # Merge default plotting args with user-provided kwargs
     kwargs = {
@@ -128,9 +126,7 @@ def trajectory(
     ax.invert_yaxis()
 
     # Generate default title if none provided
-    if title is None:
-        title = f"Trajectory{title_suffix}"
-    ax.set_title(title)
+    ax.set_title(f"Trajectory{title_suffix}")
 
     # Add colorbar for time dimension
     time_unit = da.attrs.get("time_unit")

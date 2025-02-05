@@ -73,7 +73,7 @@ def sample_data():
 def test_trajectory(sample_data, image, tmp_path):
     """Test midpoint between left and right keypoints."""
     plt.switch_backend("Agg")  # to avoid pop-up window
-
+    da = sample_data.position
     if image:
         image_path = tmp_path / "image.png"
         fig, ax = plt.subplots()
@@ -82,18 +82,27 @@ def test_trajectory(sample_data, image, tmp_path):
         kwargs = {"image_path": image_path}
     else:
         kwargs = {"image_path": None}
-    _, ax_centre = trajectory(
-        sample_data.position, keypoint="centre", **kwargs
-    )
+
+    _, ax_no_keypoints = trajectory(da, **kwargs)
+    _, ax_centre = trajectory(da, selection={"keypoints": "centre"}, **kwargs)
     _, ax_left_right = trajectory(
-        sample_data.position, keypoint=["left", "right"], **kwargs
+        da, selection={"keypoints": ["left", "right"]}, **kwargs
     )
+    _, ax_centre_right = trajectory(
+        da, selection={"keypoints": ["centre", "right"]}, **kwargs
+    )  # + 0.5 shift on x-axis in this case
 
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
 
     # Retrieve data points from figures
+    no_keypoints_data = ax_no_keypoints.collections[0].get_offsets().data
     centre_data = ax_centre.collections[0].get_offsets().data
     left_right_data = ax_left_right.collections[0].get_offsets().data
+    ax_centre_right_data = ax_centre_right.collections[0].get_offsets().data
 
+    np.testing.assert_array_almost_equal(no_keypoints_data, expected_data)
     np.testing.assert_array_almost_equal(centre_data, expected_data)
     np.testing.assert_array_almost_equal(left_right_data, expected_data)
+    np.testing.assert_array_almost_equal(
+        ax_centre_right_data, expected_data + [0.5, 0]
+    )  # + 0.5 shift on x-axis
