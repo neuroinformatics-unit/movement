@@ -160,7 +160,6 @@ def test_on_load_clicked_with_valid_file_path(
         "Converted poses dataset to a napari Tracks array.",
         "Tracks array shape: (2170, 4)",
         "Added poses dataset as a napari Points layer.",
-        "Set napari playback speed to 60 fps.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
@@ -168,6 +167,3 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that a Points layer was added to the viewer
     points_layer = poses_loader_widget.viewer.layers[0]
     assert points_layer.name == f"poses: {file_path.name}"
-
-    # Check that the playback fps was set correctly
-    assert get_settings().application.playback_fps == 60
