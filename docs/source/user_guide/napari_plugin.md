@@ -8,7 +8,7 @@ Currently, the plugin supports loading 2D
 as points overlaid on video frames.
 
 :::{warning}
-This plugin is still in the early stages of development and offers
+This plugin is still in early stages of development and offers
 limited functionality. We are working on ironing out the kinks and
 gradually adding more features. [Get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
@@ -42,7 +42,7 @@ Next, you need a background for you visualisation. You can either
 [load the video](target-load-video) corresponding to the poses dataset,
 or a [single image](target-load-frame), e.g., a still frame
 derived from that video. In the following sections, we will show you how to
-do both and discuss the advantages and limitations of each approach.
+do both and discuss some limitations.
 
 (target-load-video)=
 ### Load a whole video
@@ -56,8 +56,8 @@ plugin—and click `OK`.
 `napari-video` will load the video as a single `napari`
 [image layer](napari:howtos/layers/image.html), with a slider
 at the bottom that you can use to navigate through frames.
-You may also use the left and right arrow keys to navigate frame
-by frame.
+You may also use the left and right arrow keys to navigate
+frame-by-frame.
 
 Clicking on the play button will start the video playback at a default
 rate of 10 frames per second. You can adjust that by right-clicking on the
@@ -67,12 +67,12 @@ the `Playback frames per second` setting.
 :::{admonition} Video playback limitations
 :class: warning
 
-- You cannot jump at an arbitrary frame by clicking on the slider during
-  playback. Make sure to pause the video first.
+- During playback you cannot jump at an arbitrary frame by clicking on the
+  slider. Make sure to pause the video first.
 - `napari-video` may struggle to play videos at a high frame rate, depending
   on your hardware, the video resolution and codec. If you experience
   performance issues, such as the video freezing or skipping frames,
-  try reducing the playback frame seconds or fall back to
+  try reducing the playback frames per second or fall back to
   using a [single image](target-load-frame) as a background.
 :::
 
@@ -90,7 +90,7 @@ properly aligned with the tracking data.
 :color: info
 :icon: info
 
-You can extract a still frames using your video player/editor of
+You can extract a still frame using your video player/editor of
 choice. We find the command line tool [`ffmpeg`](https://www.ffmpeg.org/)
 very useful for this task.
 
@@ -121,7 +121,7 @@ The `movement` plugin on the right-hand side of the window should contain
 an expanded `Load poses` menu. This contains a `source software` dropdown,
 an `fps`  (frames per second) input field, and a `Browse` button to select
 a file containing predicted poses.
-You may also directly paste a file path into the homonymous field.
+You may also directly paste a `file path` into the homonymous field.
 
 ::: {note}
 See [supported formats](target-supported-formats) for more information on
