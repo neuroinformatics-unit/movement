@@ -124,9 +124,6 @@ class PosesLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
-        self._set_playback_fps(fps)
-        logger.debug(f"Set napari playback speed to {fps} fps.")
-
     def _add_points_layer(self):
         """Add the predicted poses to the viewer as a Points layer."""
         # Style properties for the napari Points layer
@@ -143,12 +140,6 @@ class PosesLoader(QWidget):
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
         logger.info("Added poses dataset as a napari Points layer.")
-
-    @staticmethod
-    def _set_playback_fps(fps: int):
-        """Set the playback speed for the napari viewer."""
-        settings = get_settings()
-        settings.application.playback_fps = fps
 
     @staticmethod
     def _enable_layer_tooltips():
