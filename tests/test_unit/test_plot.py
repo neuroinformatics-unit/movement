@@ -82,10 +82,11 @@ def test_trajectory(sample_data, image, tmp_path):
         kwargs = {"image_path": image_path}
     else:
         kwargs = {"image_path": None}
-    da_position = sample_data.position
-    _, ax_centre = trajectory(da_position, keypoint="centre", **kwargs)
+    _, ax_centre = trajectory(
+        sample_data.position, keypoint="centre", **kwargs
+    )
     _, ax_left_right = trajectory(
-        da_position, keypoint=["left", "right"], **kwargs
+        sample_data.position, keypoint=["left", "right"], **kwargs
     )
 
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
