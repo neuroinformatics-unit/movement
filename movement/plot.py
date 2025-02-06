@@ -105,11 +105,10 @@ def trajectory(
     for key, value in DEFAULT_PLOTTING_ARGS.items():
         kwargs.setdefault(key, value)
 
+    colorbar = False
     if "c" not in kwargs:
         kwargs["c"] = plot_point.time
         colorbar = True
-    else:
-        colorbar = False
 
     # Plot the scatter, coloring by time or user-provided color
     sc = ax.scatter(
