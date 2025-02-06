@@ -94,19 +94,24 @@ frame_path = sample_data.fetch_dataset_paths(
     "SLEAP_single-mouse_EPM.analysis.h5"
 )["frame"]
 
+# create figure and axis
+fig, ax = plt.subplots(1, 1)
+# plot the frame path using imshow
+ax.imshow(plt.imread(frame_path))
+ax.invert_yaxis()
+# plot trajectory on the same axis as the frame
 fig, ax = plot.trajectory(
     ds.position,
     selection={
         "individuals": "individual_0",
         "keypoints": ["left_ear", "right_ear"],
     },
-    image_path=frame_path,
+    ax=ax,
     s=10,
     cmap="viridis",
     marker="o",
     alpha=0.05,
 )
-
 # adjust title
 ax.set_title("Head trajectory (individual_0)")
 fig.show()

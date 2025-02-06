@@ -1,7 +1,5 @@
 """Wrappers to plot movement data."""
 
-from pathlib import Path
-
 import xarray as xr
 from matplotlib import pyplot as plt
 
@@ -15,9 +13,8 @@ DEFAULT_PLOTTING_ARGS = {
 
 def trajectory(
     da: xr.DataArray,
-    selection: dict[str, str | int | list[str | int] | None]
+    selection: dict[str, str | list[str] | None]
     | None = None,  # TODO: make less complex!
-    image_path: None | Path = None,
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
@@ -38,14 +35,11 @@ def trajectory(
     selection : dict, optional
         A dictionary specifying the selection criteria for the individual and
         point to plot. The dictionary keys should be the dimension names
-        (e.g., "individuals", "keypoints") and the values should be the index
-        or name of an individual and a keypoint, or a list of keypoints
+        (e.g., "individuals", "keypoints") and the values should be the
+        individual or keypoint names (as strings), or a list of keypoint names
         (their centroid will be plotted). By default, the first individual is
         chosen and the centroid of all keypoints is plotted. If there is no
         `individuals` or `keypoints` dimension, this argument is ignored.
-    image_path : None or Path, optional
-        Path to an image over which the trajectory data can be overlaid,
-        e.g., a reference video frame.
     ax : matplotlib.axes.Axes or None, optional
         Axes object on which to draw the trajectory. If None, a new
         figure and axes are created.
@@ -136,12 +130,5 @@ def trajectory(
     fig.colorbar(sc, ax=ax, label=time_label).solids.set(
         alpha=1.0
     ) if colorbar else None
-
-    if image_path is not None:
-        frame = plt.imread(image_path)
-        # Invert the y-axis back again since the the image is plotted
-        # using a coordinate system with origin on the top left of the image
-        ax.invert_yaxis()
-        ax.imshow(frame)
 
     return fig, ax
