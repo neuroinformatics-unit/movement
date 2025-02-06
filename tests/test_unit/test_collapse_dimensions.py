@@ -6,25 +6,25 @@ import pytest
 import xarray as xr
 
 from movement.utils.dimensions import (
+    _coord_of_dimension,
     collapse_extra_dimensions,
-    coord_of_dimension,
 )
 
 
 @pytest.fixture
 def shape() -> tuple[int, ...]:
-    return (7, 2, 3, 4)
+    return (7, 2, 4, 3)
 
 
 @pytest.fixture
 def da(shape: tuple[int, ...]) -> xr.DataArray:
     return xr.DataArray(
         data=np.arange(np.prod(shape)).reshape(shape),
-        dims=["time", "space", "individuals", "keypoints"],
+        dims=["time", "space", "keypoints", "individuals"],
         coords={
             "space": ["x", "y"],
-            "individuals": ["a", "b", "c"],
             "keypoints": ["head", "shoulders", "knees", "toes"],
+            "individuals": ["a", "b", "c"],
         },
     )
 
@@ -43,7 +43,7 @@ def da(shape: tuple[int, ...]) -> xr.DataArray:
             id="Keep space only",
         ),
         pytest.param(
-            {"individuals": 1},
+            {"individuals": "b"},
             {"individuals": "b", "keypoints": "head"},
             id="Request non-default slice",
         ),
@@ -54,7 +54,7 @@ def da(shape: tuple[int, ...]) -> xr.DataArray:
         ),
         pytest.param(
             {
-                "individuals": 1,
+                "individuals": "b",
                 "elephants": "this is a non-existent dimension",
                 "crabs": 42,
             },
@@ -70,7 +70,7 @@ def da(shape: tuple[int, ...]) -> xr.DataArray:
 )
 def test_collapse_dimensions(
     da: xr.DataArray,
-    pass_to_function: dict[str, Any],
+    pass_to_function: dict[str, str],
     equivalent_to_sel: dict[str, int | str],
 ) -> None:
     result_from_collapsing = collapse_extra_dimensions(da, **pass_to_function)
@@ -80,6 +80,27 @@ def test_collapse_dimensions(
 
     assert result_from_collapsing.shape == expected_result.values.shape
     xr.testing.assert_allclose(result_from_collapsing, expected_result)
+
+
+@pytest.mark.parametrize(
+    ["pass_to_function"],
+    [
+        pytest.param(
+            {"keypoints": ["head", "toes"]},
+            id="Multiple keypoints",
+        ),
+        pytest.param(
+            {"individuals": ["a", "b"]},
+            id="Multiple individuals",
+        ),
+    ],
+)
+def test_collapse_dimensions_value_error(
+    da: xr.DataArray,
+    pass_to_function: dict[str, Any],
+) -> None:
+    with pytest.raises(ValueError):
+        collapse_extra_dimensions(da, **pass_to_function)
 
 
 @pytest.mark.parametrize(
@@ -113,10 +134,10 @@ def test_collapse_dimensions(
     ],
 )
 def test_coord_of_dimension(
-    da: xr.DataArray, args_to_fn: dict[str, Any], expected: str | Exception
+    da: xr.DataArray, args_to_fn: dict[str, str], expected: str | Exception
 ) -> None:
     if isinstance(expected, Exception):
         with pytest.raises(type(expected), match=re.escape(str(expected))):
-            coord_of_dimension(da, **args_to_fn)
+            _coord_of_dimension(da, **args_to_fn)
     else:
-        assert expected == coord_of_dimension(da, **args_to_fn)
+        assert expected == _coord_of_dimension(da, **args_to_fn)

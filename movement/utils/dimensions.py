@@ -8,7 +8,7 @@ import xarray as xr
 def collapse_extra_dimensions(
     da: xr.DataArray,
     preserve_dims: Iterable[str] = ("time", "space"),
-    **selection: int | str,
+    **selection: str,
 ) -> xr.DataArray:
     """Collapse a ``DataArray``, preserving only the specified dimensions.
 
@@ -22,10 +22,9 @@ def collapse_extra_dimensions(
         DataArray of multiple dimensions, which is to be collapsed.
     preserve_dims : Iterable[str]
         The dimensions of ``da`` that should not be collapsed.
-    selection : int | str
-        Mapping from dimension names to a particular index in that dimension.
-        Dimensions that appear with an index in ``selection`` retain that index
-        slice when collapsed, rather than the default 0th index slice.
+    selection : str
+        Mapping from dimension names to a particular index name in that
+        dimension.
 
     Returns
     -------
@@ -40,19 +39,24 @@ def collapse_extra_dimensions(
 
     >>> import xarray as xr
     >>> import numpy as np
-    >>> shape = (7, 2, 3, 4)
+    >>> shape = (7, 2, 3, 2)
     >>> da = xr.DataArray(
     ...     data=np.arange(np.prod(shape)).reshape(shape),
-    ...     dims=["time", "space", "dim_to_collapse_0", "dim_to_collapse_1"],
+    ...     dims=["time", "space", "keypoints", "individuals"],
+    ...     coords={
+    ...         "time": np.arange(7),
+    ...         "space": np.arange(2),
+    ...         "keypoints": ["nose", "left_ear", "right_ear"],
+    ...         "individuals": ["Alice", "Bob"],
     ... )
     >>> space_time = collapse_extra_dimensions(da)
     >>> print(space_time.shape)
     (7, 2)
 
     The call to ``collapse_extra_dimensions`` above is equivalent to
-    ``da.sel(dim_to_collapse_0=0, dim_to_collapse_1=0)``. We can change which
-    slice we take from the collapsed dimensions by passing them as keyword
-    arguments.
+    ``da.sel(keypoints="head", individuals="Alice")`` (indexing by label).
+    We can change which slice we take from the collapsed dimensions by passing
+    them as keyword arguments.
 
     >>> # Equivalent to da.sel(dim_to_collapse_0=2, dim_to_collapse_1=1)
     >>> space_time_different_slice = collapse_extra_dimensions(
@@ -71,22 +75,19 @@ def collapse_extra_dimensions(
     data = da.copy(deep=True)
     dims_to_collapse = [d for d in data.dims if d not in preserve_dims]
     make_selection = {
-        d: coord_of_dimension(da, d, selection.pop(d, 0))
+        d: _coord_of_dimension(da, d, selection.pop(d, 0))
         for d in dims_to_collapse
     }
     return data.sel(make_selection)
 
 
-def coord_of_dimension(
+def _coord_of_dimension(
     da: xr.DataArray, dimension: str, coord_index: int | str
 ) -> Hashable:
     """Retrieve a coordinate of a given dimension.
 
-    This method handles the case where the coordinate is known either by name
-    or only known by its index within the coordinates of the ``dimension``. It
-    is predominantly useful when we want to give the user the flexibility to
-    refer to (part of) a ``DataArray`` by index (as in regular ``numpy``-style
-    array slicing) or by name (via ``xarray`` coordinates).
+    This method handles the case where the coordinate is known by name
+    within the coordinates of the ``dimension``.
 
     If ``coord_index`` is an element of ``da.dimension``, it can just be
     returned. Otherwise, we need to return ``da.dimension[coord_index]``.
