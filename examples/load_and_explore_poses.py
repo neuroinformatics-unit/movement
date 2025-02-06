@@ -69,8 +69,10 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # Trajectory plots
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
-# For example, we can use ``matplotlib`` to plot trajectories
-# (using scatter plots):
+# For example, we can use ``movement.plot.trajectory`` (which
+# uses ``matplotlib``) to plot trajectories:
+
 
 mouse_name = "AEON3B_TP1"
-fig, ax = plot.trajectory(da, selection={"individuals": mouse_name})
+fig, ax = plot.trajectory(position, selection={"individuals": mouse_name})
+fig.show()

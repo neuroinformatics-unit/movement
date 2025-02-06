@@ -48,27 +48,39 @@ position = ds.position
 # Visualise the data
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
-# colouring them by individual.
+# coloring them by individual. We use `movement.plot.trajectory`
+# which is a wrapper around `matplotlib.pyplot.scatter` that simplifies
+# plotting the trajectories of individuals in the dataset. The fig and ax
+# objects returned by `movement.plot.trajectory` can be used to further
+# customise the plot.
 
+# Create a single figure and axes
 fig, ax = plt.subplots(1, 1)
-for mouse_name, col in zip(
-    position.individuals.values, ["r", "g", "b"], strict=False
+
+# Plot trajectories for each mouse on the same axes
+for mouse_name, col, a in zip(
+    position.individuals.values,
+    ["r", "g", "b"],  # colours
+    [
+        0.7,
+        0.35,
+        0.15,
+    ],  # alpha values to help distinguish the mice
+    strict=False,
 ):
-    ax.plot(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        linestyle="-",
-        marker=".",
-        markersize=2,
-        linewidth=0.5,
+    plot.trajectory(
+        position,
+        selection={"individuals": mouse_name},
+        ax=ax,  # Use the same axes for all plots
         c=col,
+        marker="o",
+        s=10,
+        alpha=a,  # alpha values to help distinguish the mice
         label=mouse_name,
     )
-    ax.invert_yaxis()
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
     ax.legend()
+ax.title.set_text("Trajectories of three mice")
+fig.show()
 
 # %%
 # We can see that the trajectories of the three mice are close to a circular
@@ -77,17 +89,18 @@ for mouse_name, col in zip(
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# We can also color the data points based on their timestamps:
+# By default ``movement.plot.trajectory`` colors data points based on their
+# timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     fig, ax = plot.trajectory(
         position,
-        individual=mouse_name,
+        selection={"individuals": mouse_name},
         ax=ax,
-        title=mouse_name,
         s=2,
     )
 fig.tight_layout()
+fig.show()
 
 # %%
 # These plots show that for this snippet of the data,
