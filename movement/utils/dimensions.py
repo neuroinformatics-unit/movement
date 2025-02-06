@@ -54,15 +54,16 @@ def collapse_extra_dimensions(
     (7, 2)
 
     The call to ``collapse_extra_dimensions`` above is equivalent to
-    ``da.sel(keypoints="head", individuals="Alice")`` (indexing by label).
+    ``da.isel(keypoints=0, individuals=0)`` (indexing by integer) and to
+    ``da.sel(keypoints="nose", individuals="Alice")`` (indexing by label).
     We can change which slice we take from the collapsed dimensions by passing
     them as keyword arguments.
 
-    >>> # Equivalent to da.sel(dim_to_collapse_0=2, dim_to_collapse_1=1)
-    >>> space_time_different_slice = collapse_extra_dimensions(
-    ...     da, dim_to_collapse_0=2, dim_to_collapse_1=1
+    >>> # Equivalent to da.sel(keypoints="right_ear", individuals="Bob")
+    >>> space_time_bob_right_ear = collapse_extra_dimensions(
+    ...     da, keypoints="right_ear", individuals="Bob"
     ... )
-    >>> print(space_time_different_slice.shape)
+    >>> print(space_time_bob_right_ear.shape)
     (7, 2)
 
     We can also change which dimensions are to be preserved.
