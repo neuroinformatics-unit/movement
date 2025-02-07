@@ -67,7 +67,7 @@ for mouse_name, col in zip(
 ):
     plot.trajectory(
         position,
-        selection={"individuals": mouse_name},
+        individual=mouse_name,
         ax=ax,  # Use the same axes for all plots
         c=col,
         marker="o",
@@ -93,7 +93,7 @@ for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     ax.invert_yaxis()
     fig, ax = plot.trajectory(
         position,
-        selection={"individuals": mouse_name},
+        individual=mouse_name,
         ax=ax,
         s=2,
     )
