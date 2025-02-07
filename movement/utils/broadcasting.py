@@ -87,7 +87,7 @@ def apply_along_da_axis(
     new_dimension_name : str, optional
         If ``f`` returns non-scalar values, the dimension in the output that
         these values are returned along is given the name
-        ``new_dimension_name``.
+        ``new_dimension_name``. Defaults to ``"result"``.
 
     Returns
     -------
@@ -163,12 +163,12 @@ def make_broadcastable(  # noqa: C901
     -----
     The returned decorator (the "``r_decorator``") extends a function that
     acts on a 1D sequence of values, allowing it to be broadcast along the
-    axes of an input ``xarray.xr.DataArray``.
+    axes of an input ``xarray.DataArray``.
 
     The ``r_decorator`` takes a single parameter, ``f``. ``f`` should be a
     ``Callable`` that acts on 1D inputs, that is to be converted into a
     broadcast-able function ``fr``, applying the action of ``f`` along an axis
-    of an ``xarray.xr.DataArray``. ``f`` should return either scalar or 1D
+    of an ``xarray.DataArray``. ``f`` should return either scalar or 1D
     outputs.
 
     If ``f`` is a class method, it should be callable as
@@ -198,27 +198,29 @@ def make_broadcastable(  # noqa: C901
     Examples
     --------
     Make a standalone function broadcast along the ``"space"`` axis of an
-    ``xarray.xr.DataArray``.
+    ``xarray.DataArray``.
 
     >>> @make_broadcastable(is_classmethod=False, only_broadcast_along="space")
     ... def my_function(xyz_data, *args, **kwargs)
     ...
     ... # Call via the usual arguments, replacing the xyz_data argument with
-    ... # the xr.DataArray to broadcast over
+    ... # the xarray.DataArray to broadcast over
     ... my_function(data_array, *args, **kwargs)
     ```
 
-    Make a class method broadcast along any axis of an `xarray.xr.DataArray`.
+    Make a class method broadcast along any axis of an `xarray.DataArray`.
 
     >>> from dataclasses import dataclass
+    >>>
     >>> @dataclass
     ... class MyClass:
     ...     factor: float
     ...     offset: float
     ...
-    ... @make_broadcastable(is_classmethod=True)
-    ... def manipulate_values(self, xyz_values, *args, **kwargs):
-    ...     return self.factor * sum(xyz_values) + self.offset
+    ...     @make_broadcastable(is_classmethod=True)
+    ...     def manipulate_values(self, xyz_values, *args, **kwargs):
+    ...         return self.factor * sum(xyz_values) + self.offset
+    ...
     >>> m = MyClass(factor=5.9, offset=1.0)
     >>> m.manipulate_values(
     ...     data_array, *args, broadcast_dimension="time", **kwargs
@@ -232,7 +234,7 @@ def make_broadcastable(  # noqa: C901
     def make_broadcastable_inner(
         f: DecoratorInput,
     ) -> FunctionDaToDa:
-        r"""Broadcast a 1D function along a ``xr.DataArray`` dimension.
+        r"""Broadcast a 1D function along a ``xarray.DataArray`` dimension.
 
         Parameters
         ----------
@@ -349,13 +351,22 @@ def space_broadcastable(
     is_classmethod: bool = False,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    """Broadcast a 1D function along the 'space' dimension.
+    r"""Broadcast a 1D function along the 'space' dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(only_broadcastable_along='space')``,
     and is primarily useful when we want to write a function that acts on
     coordinates, that can only be cast across the 'space' dimension of an
-    ``xarray.xr.DataArray``.
+    ``xarray.DataArray``.
+
+    Returns
+    -------
+    Callable
+        Callable with signature
+        ``(self,) data, *args, broadcast_dimension = str, \*\*kwargs``,
+        that applies ``f`` along the ``broadcast_dimension`` of ``data``.
+        ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+        retain the same interpretations.
 
     See Also
     --------
@@ -373,12 +384,21 @@ def broadcastable_method(
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    """Broadcast a class method along a ``xr.DataArray`` dimension.
+    r"""Broadcast a class method along a ``xarray.DataArray`` dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(is_classmethod = True)``,
     for use when extending class methods that act on coordinates, that we wish
-    to cast across the axes of an ``xarray.xr.DataArray``.
+    to cast across the axes of an ``xarray.DataArray``.
+
+    Returns
+    -------
+    Callable
+        Callable with signature
+        ``(self,) data, *args, broadcast_dimension = str, \*\*kwargs``,
+        that applies ``f`` along the ``broadcast_dimension`` of ``data``.
+        ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+        retain the same interpretations.
 
     See Also
     --------
