@@ -111,6 +111,7 @@ def apply_along_da_axis(
           ``dimension`` dimension itself is replaced with a new dimension,
           ``new_dimension_name``, containing the output of the application of
           ``f``.
+
     """
     output: xr.DataArray = xr.apply_ufunc(
         lambda input_1D: np.atleast_1d(f(input_1D)),
