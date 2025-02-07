@@ -5,6 +5,8 @@ from matplotlib import pyplot as plt
 
 from movement.plot import trajectory
 
+plt.switch_backend("Agg")  # to avoid pop-up window
+
 
 @pytest.fixture
 def sample_data():
@@ -112,13 +114,25 @@ def sample_data():
                     [0.0, 3.16666667],
                 ]
             ),
-            id="no keypoints",
+            id="no specified keypoints or individuals",
+        ),
+        pytest.param(
+            False,
+            {"individuals": "individual_0"},
+            np.array(
+                [
+                    [0.0, 0.16666667],
+                    [0.0, 1.16666667],
+                    [0.0, 2.16666667],
+                    [0.0, 3.16666667],
+                ]
+            ),
+            id="only individual specified",
         ),
     ],
 )
 def test_trajectory(sample_data, image, selection, expected_data):
     """Test trajectory plot."""
-    plt.switch_backend("Agg")  # to avoid pop-up window
     da = sample_data.position
     _, ax = plt.subplots()
     if image:
@@ -126,4 +140,39 @@ def test_trajectory(sample_data, image, selection, expected_data):
 
     _, ax = trajectory(da, selection=selection, ax=ax)
     output_data = ax.collections[0].get_offsets().data
+    np.testing.assert_array_almost_equal(output_data, expected_data)
+
+
+@pytest.mark.parametrize(
+    ["selection", "dropped_dim"],
+    [
+        pytest.param(
+            {"keypoints": "centre0"},
+            "keypoints",
+            id="no_keypoints",
+        ),
+        pytest.param(
+            {"keypoints": ["left1", "right1"]},
+            "individuals",
+            id="no_individuals",
+        ),
+        pytest.param(
+            {"keypoints": "centre0"},
+            "individuals",
+            id="only_time_space",
+        ),
+    ],
+)
+def test_trajectory_dropped_dim(sample_data, selection, dropped_dim):
+    """Test trajectory plot without keypoints and/or individuals dimensions."""
+    position = sample_data.position.sel(**selection)
+    if dropped_dim == "keypoints":
+        position = position.drop("keypoints").squeeze()
+    if dropped_dim == "individuals":
+        position = position.drop("individuals").squeeze()
+
+    _, ax = trajectory(position)
+
+    output_data = ax.collections[0].get_offsets().data
+    expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
     np.testing.assert_array_almost_equal(output_data, expected_data)

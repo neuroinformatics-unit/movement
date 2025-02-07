@@ -57,27 +57,21 @@ def trajectory(
     selection = selection or {}
 
     # Set default values for individuals and keypoints if they are in da.dims
-    selection.setdefault(
-        "individuals",
-        str(da.individuals.values[0]) if "individuals" in da.dims else None,
-    )  # First individual by index
-    selection.setdefault("keypoints", None) if "keypoints" in da.dims else None
+    if "individuals" in da.dims:
+        selection.setdefault(
+            "individuals", str(da.individuals.values[0])
+        )  # First individual by index
 
-    chosen_ind = selection["individuals"] if "individuals" in da.dims else None
-    title_suffix = f" of {chosen_ind}" if chosen_ind is not None else ""
+    title_suffix = (
+        f" of {selection['individuals']}" if "individuals" in da.dims else ""
+    )
 
     # Determine which keypoint(s) to select (if any)
-    selection["keypoints"] = (
-        (
-            da.keypoints.values
-            if selection["keypoints"] is None
-            else [selection["keypoints"]]
-            if isinstance(selection["keypoints"], str)
-            else selection["keypoints"]
-        )
-        if "keypoints" in da.dims
-        else None
-    )
+    if "keypoints" in da.dims:
+        if "keypoints" not in selection or selection["keypoints"] is None:
+            selection["keypoints"] = da.keypoints.values
+        elif isinstance(selection["keypoints"], str):
+            selection["keypoints"] = [selection["keypoints"]]
 
     # Select the data for the specified individual and keypoint(s)
     plot_point = da.sel(**selection)
