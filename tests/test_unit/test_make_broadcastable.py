@@ -32,14 +32,14 @@ def data_in_shape(shape: tuple[int, ...]) -> np.ndarray:
 
 
 def mock_shape() -> tuple[int, ...]:
-    return (10, 2, 3, 4)
+    return (10, 2, 4, 3)
 
 
 @pytest.fixture
-def mock_dataset() -> xr.DataArray:
+def mock_data_array() -> xr.DataArray:
     return xr.DataArray(
         data=data_in_shape(mock_shape()),
-        dims=["time", "space", "individuals", "keypoints"],
+        dims=["time", "space", "keypoints", "individuals"],
         coords={"space": ["x", "y"]},
     )
 
@@ -106,7 +106,7 @@ def mock_dataset() -> xr.DataArray:
     ],
 )
 def test_make_broadcastable(
-    mock_dataset: xr.DataArray,
+    mock_data_array: xr.DataArray,
     along_dimension: str,
     expected_output: xr.DataArray,
     mimic_fn: Callable[Concatenate[Any, KeywordArgs], ScalarOr1D],
@@ -116,12 +116,12 @@ def test_make_broadcastable(
     """Test make_broadcastable decorator, when acting on functions."""
     if isinstance(expected_output, np.ndarray):
         expected_output = copy_with_collapsed_dimension(
-            mock_dataset, along_dimension, expected_output
+            mock_data_array, along_dimension, expected_output
         )
     decorated_fn = make_broadcastable()(mimic_fn)
 
     decorated_output = decorated_fn(
-        mock_dataset,
+        mock_data_array,
         *fn_args,
         broadcast_dimension=along_dimension,  # type: ignore
         **fn_kwargs,
@@ -130,11 +130,11 @@ def test_make_broadcastable(
     assert decorated_output.shape == expected_output.shape
     xr.testing.assert_allclose(decorated_output, expected_output)
 
-    # Also check the case where we only want to be able to cast over time.
+    # Also check the case where we only want to be able to cast over space.
     if along_dimension == "space":
         decorated_fn_space_only = space_broadcastable()(mimic_fn)
         decorated_output_space = decorated_fn_space_only(
-            mock_dataset, *fn_args, **fn_kwargs
+            mock_data_array, *fn_args, **fn_kwargs
         )
 
         assert decorated_output_space.shape == expected_output.shape
@@ -169,7 +169,7 @@ def test_make_broadcastable(
     ],
 )
 def test_make_broadcastable_classmethod(
-    mock_dataset: xr.DataArray,
+    mock_data_array: xr.DataArray,
     along_dimension: str,
     cls_attribute: float,
     fn_args: list[Any],
@@ -189,12 +189,12 @@ def test_make_broadcastable_classmethod(
             return self.mult * sum(values) + c
 
     expected_output = copy_with_collapsed_dimension(
-        mock_dataset, along_dimension, expected_output
+        mock_data_array, along_dimension, expected_output
     )
     d = DummyClass(cls_attribute)
 
     decorated_output = d.sum_and_mult_plus_c(
-        mock_dataset,
+        mock_data_array,
         *fn_args,
         broadcast_dimension=along_dimension,
         **fn_kwargs,
@@ -212,7 +212,7 @@ def test_make_broadcastable_classmethod(
     ],
 )
 def test_vector_outputs(
-    mock_dataset: xr.DataArray,
+    mock_data_array: xr.DataArray,
     broadcast_dim: str,
     new_dim_length: int,
     new_dim_name: str | None,
@@ -232,15 +232,15 @@ def test_vector_outputs(
             xy_pair[0], xy_pair[1], num=new_dim_length, endpoint=True
         )
 
-    output = two_to_some(mock_dataset)
+    output = two_to_some(mock_data_array)
 
     assert isinstance(output, xr.DataArray)
     for d in output.dims:
         if d == new_dim_name:
             assert len(output[d]) == new_dim_length
         else:
-            assert d in mock_dataset.dims
-            assert len(output[d]) == len(mock_dataset[d])
+            assert d in mock_data_array.dims
+            assert len(output[d]) == len(mock_data_array[d])
 
 
 def test_retain_underlying_function() -> None:
