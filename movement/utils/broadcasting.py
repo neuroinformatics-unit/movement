@@ -28,12 +28,15 @@ which previously only worked with 1D-slices can be decorated
 ...     # do something
 ...     return scalar_or_1d_output
 
-effectively changing it's call signature to
+effectively changing its call signature to
 
->>> def my_function(data_array, *args, dimension, **kwargs)
+>>> def my_function(data_array, *args, dimension, **kwargs):
+...     # do my_function, but do it to all the slices
+...     # along the dimension of data_array.
+...     return data_array_output
 
 which will perform the action of ``my_function`` along the ``dimension`` given.
-The ``\*args`` and ``\*\*kwargs`` retain their original interpretations from
+The ``*args`` and ``**kwargs`` retain their original interpretations from
 ``my_function`` too.
 """
 
@@ -103,6 +106,7 @@ def apply_along_da_axis(
         ``dimension`` dimension itself is replaced with a new dimension,
         ``new_dimension_name``, containing the output of the application of
         ``f``.
+
         - If ``f`` returns a scalar or ``(1,)``-shaped output, the output has
           one fewer dimension than ``data``, with ``dimension`` being dropped.
           All other dimensions retain their names and sizes.
@@ -136,7 +140,7 @@ def make_broadcastable(  # noqa: C901
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    r"""Create a decorator that allows a function to be broadcast.
+    """Create a decorator that allows a function to be broadcast.
 
     Parameters
     ----------
@@ -172,16 +176,16 @@ def make_broadcastable(  # noqa: C901
     outputs.
 
     If ``f`` is a class method, it should be callable as
-    ``f(self, [x, y, ...], \*args, \*\*kwargs)``.
+    ``f(self, [x, y, ...], *args, **kwargs)``.
     Otherwise, ``f`` should be callable as
-    ``f([x, y, ...], \*args, \*\*kwargs)``.
+    ``f([x, y, ...], *args, **kwargs)``.
 
     The function ``fr`` returned by the ``r_decorator`` is callable with the
     signature
-    ``fr([self,] data, \*args, broadcast_dimension = str, \*\*kwargs)``,
+    ``fr([self,] data, *args, broadcast_dimension = str, **kwargs)``,
     where the ``self`` argument is present only if ``f`` was a class method.
     ``fr`` applies ``f`` along the ``broadcast_dimension`` of ``data``.
-    The ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and retain
+    The ``*args`` and ``**kwargs`` match those passed to ``f``, and retain
     the same interpretations and effects on the result. If ``data`` provided to
     ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour
     of ``f`` (and ignore the ``broadcast_dimension`` argument).
@@ -234,7 +238,7 @@ def make_broadcastable(  # noqa: C901
     def make_broadcastable_inner(
         f: DecoratorInput,
     ) -> FunctionDaToDa:
-        r"""Broadcast a 1D function along a ``xarray.DataArray`` dimension.
+        """Broadcast a 1D function along a ``xarray.DataArray`` dimension.
 
         Parameters
         ----------
@@ -252,7 +256,7 @@ def make_broadcastable(  # noqa: C901
             Callable with signature
             ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
             that applies ``f`` along the ``broadcast_dimension`` of ``data``.
-            ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+            ``*args`` and ``**kwargs`` match those passed to ``f``, and
             retain the same interpretations.
 
         Notes
@@ -351,7 +355,7 @@ def space_broadcastable(
     is_classmethod: bool = False,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    r"""Broadcast a 1D function along the 'space' dimension.
+    """Broadcast a 1D function along the 'space' dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(only_broadcastable_along='space')``,
@@ -363,9 +367,9 @@ def space_broadcastable(
     -------
     Callable
         Callable with signature
-        ``(self,) data, *args, broadcast_dimension = str, \*\*kwargs``,
+        ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
-        ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+        ``*args`` and ``**kwargs`` match those passed to ``f``, and
         retain the same interpretations.
 
     See Also
@@ -384,7 +388,7 @@ def broadcastable_method(
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    r"""Broadcast a class method along a ``xarray.DataArray`` dimension.
+    """Broadcast a class method along a ``xarray.DataArray`` dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(is_classmethod = True)``,
@@ -395,9 +399,9 @@ def broadcastable_method(
     -------
     Callable
         Callable with signature
-        ``(self,) data, *args, broadcast_dimension = str, \*\*kwargs``,
+        ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
-        ``\*args`` and ``\*\*kwargs`` match those passed to ``f``, and
+        ``*args`` and ``**kwargs`` match those passed to ``f``, and
         retain the same interpretations.
 
     See Also
