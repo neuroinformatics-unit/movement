@@ -77,16 +77,12 @@ def test_trajectory(sample_data, image, selection, tmp_path):
     """Test trajectory plot."""
     plt.switch_backend("Agg")  # to avoid pop-up window
     da = sample_data.position
+    _, ax = plt.subplots()
     if image:
-        image_path = tmp_path / "image.png"
-        fig, ax = plt.subplots()
         ax.imshow(np.zeros((10, 10)))
-        fig.savefig(image_path)
-        kwargs = {"image_path": image_path}
-    else:
-        kwargs = {"image_path": None}
+        ax.invert_yaxis()
 
-    fig, ax = trajectory(da, selection=selection, **kwargs)
+    _, ax = trajectory(da, selection=selection, ax=ax)
 
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
     ax_data = ax.collections[0].get_offsets().data
