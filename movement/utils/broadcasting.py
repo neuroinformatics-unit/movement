@@ -103,7 +103,14 @@ def apply_along_da_axis(
         ``dimension`` dimension itself is replaced with a new dimension,
         ``new_dimension_name``, containing the output of the application of
         ``f``.
-
+        - If ``f`` returns a scalar or ``(1,)``-shaped output, the output has
+          one fewer dimension than ``data``, with ``dimension`` being dropped.
+          All other dimensions retain their names and sizes.
+        - If ``f`` returns a ``(n,)``-shaped output for ``n > 1``; all non-
+          ``dimension`` dimensions of ``data`` retain their shapes. The
+          ``dimension`` dimension itself is replaced with a new dimension,
+          ``new_dimension_name``, containing the output of the application of
+          ``f``.
     """
     output: xr.DataArray = xr.apply_ufunc(
         lambda input_1D: np.atleast_1d(f(input_1D)),
@@ -341,7 +348,7 @@ def space_broadcastable(
     is_classmethod: bool = False,
     new_dimension_name: str | None = None,
 ) -> Decorator:
-    """Broadcast a 1D function along a ``xr.DataArray`` dimension.
+    """Broadcast a 1D function along the 'space' dimension.
 
     This is a convenience wrapper for
     ``make_broadcastable(only_broadcastable_along='space')``,

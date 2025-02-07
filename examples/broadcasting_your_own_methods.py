@@ -1,8 +1,8 @@
 """Extend your analysis methods along data dimensions
 =====================================================
 
-Learn how to use the ``make_broadcastable`` decorator, to easily write
-functions that can then be cast across an entire ``xarray.DataArray``.
+Learn how to use the ``make_broadcastable`` decorator, to easily
+cast functions  across an entire ``xarray.DataArray``.
 """
 
 # %%
@@ -68,8 +68,10 @@ da = xr.DataArray(
     },
 )
 
+# %%
 # We can visualise the paths that our individuals are taking in the plot
 # below.
+
 fig, ax = plt.subplots()
 colours = ["red", "green", "blue"]
 markers = ["o", "x", "."]
@@ -264,7 +266,7 @@ for time_index in range(len(da_centroid["time"])):
 
 # %%
 # We could then build a new ``DataArray`` to store our results, so that we can
-# access the results in the same way that we did our original data
+# access the results in the same way that we did our original data.
 was_in_view_da = xr.DataArray(
     in_view,
     dims=["time", "individuals"],
@@ -280,7 +282,7 @@ print(was_in_view_da)
 # %%
 # Data Generalisation Issues
 # --------------------------
-# The shape our the resulting ``DataArray`` is the same as our original
+# The shape of the resulting ``DataArray`` is the same as our original
 # ``DataArray``, but without the space dimension. Indeed, we have essentially
 # collapsed the space dimension, since our ``in_camera_fov`` function takes in
 # a 1D data slice (the position) and returns a scalar value.
@@ -341,7 +343,7 @@ print(
 # %%
 # However, ``in_camera_fov_broadcastable`` also takes a ``DataArray`` as the
 # first (``xy_position``) argument, and an extra keyword argument
-# "``broadcast_dimension``"". These arguments let us broadcast across the given
+# "``broadcast_dimension``". These arguments let us broadcast across the given
 # dimension of the input ``DataArray``, treating each 1D-slice as a separate
 # input to ``in_camera_fov``.
 
