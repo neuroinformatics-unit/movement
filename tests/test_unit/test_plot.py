@@ -158,7 +158,7 @@ def test_trajectory(sample_data, image, selection, expected_data):
         ),
         pytest.param(
             {"keypoints": "centre0"},
-            "individuals",
+            ["individuals", "keypoints"],
             id="only_time_space",
         ),
     ],
@@ -166,9 +166,9 @@ def test_trajectory(sample_data, image, selection, expected_data):
 def test_trajectory_dropped_dim(sample_data, selection, dropped_dim):
     """Test trajectory plot without keypoints and/or individuals dimensions."""
     position = sample_data.position.sel(**selection)
-    if dropped_dim == "keypoints":
+    if "keypoints" in dropped_dim:
         position = position.drop("keypoints").squeeze()
-    if dropped_dim == "individuals":
+    if "individuals" in dropped_dim:
         position = position.drop("individuals").squeeze()
 
     _, ax = trajectory(position)
