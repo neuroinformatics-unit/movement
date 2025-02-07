@@ -13,18 +13,18 @@ DEFAULT_PLOTTING_ARGS = {
 
 def trajectory(
     da: xr.DataArray,
-    selection: dict[str, str | list[str] | None]
-    | None = None,  # TODO: make less complex!
+    keypoints: str | list[str] | None = None,
+    individual: str | None = None,
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
     """Plot trajectory.
 
     This function plots the trajectory of a specified keypoint or the centroid
-    between multiple keypoints for a given individual. The individual can be
-    specified by their index or name. By default, the first individual is
-    selected. The trajectory is colored by time (using the default colormap).
-    Pass a different colormap through ``cmap`` if desired.
+    between multiple keypoints for a given individual. By default, the first
+    individual, and the centroid of all keypoints is selected. The trajectory
+    is colored by time (using the default colormap).Pass a different colormap
+    through ``cmap`` if desired.
 
     Parameters
     ----------
@@ -32,14 +32,13 @@ def trajectory(
         A data array containing position information, with `time` and `space`
         as required dimensions. Optionally, it may have `individuals` and/or
         `keypoints` dimensions.
-    selection : dict, optional
-        A dictionary specifying the selection criteria for the individual and
-        point to plot. The dictionary keys should be the dimension names
-        (e.g., "individuals", "keypoints") and the values should be the
-        individual or keypoint names (as strings), or a list of keypoint names
-        (their centroid will be plotted). By default, the first individual is
-        chosen and the centroid of all keypoints is plotted. If there is no
-        `individuals` or `keypoints` dimension, this argument is ignored.
+    individual : str, optional
+        The name of the individual to be plotted. By default, the first
+        individual is plotted.
+    keypoints : str, list[str], optional
+        The name of the keypoint to be plotted, or a list of keypoint names
+        (their centroid will be plotted). By default, the centroid of all
+        keypoints is plotted.
     ax : matplotlib.axes.Axes or None, optional
         Axes object on which to draw the trajectory. If None, a new
         figure and axes are created.
@@ -53,27 +52,25 @@ def trajectory(
         The figure and axes containing the trajectory plot.
 
     """
-    # Construct selection dict for individuals and keypoints
-    selection = selection or {}
+    if isinstance(individual, list):
+        raise ValueError("Only one individual can be selected.")
 
-    # Set default values for individuals and keypoints if they are in da.dims
+    selection = {}
+
     if "individuals" in da.dims:
-        selection.setdefault(
-            "individuals", str(da.individuals.values[0])
-        )  # First individual by index
+        if individual is None:
+            selection["individuals"] = da.individuals.values[0]
+        else:
+            selection["individuals"] = individual
 
-    title_suffix = (
-        f" of {selection['individuals']}" if "individuals" in da.dims else ""
-    )
+    title_suffix = f" of {individual}" if "individuals" in da.dims else ""
 
-    # Determine which keypoint(s) to select (if any)
     if "keypoints" in da.dims:
-        if "keypoints" not in selection or selection["keypoints"] is None:
+        if keypoints is None:
             selection["keypoints"] = da.keypoints.values
-        elif isinstance(selection["keypoints"], str):
-            selection["keypoints"] = [selection["keypoints"]]
+        else:
+            selection["keypoints"] = keypoints
 
-    # Select the data for the specified individual and keypoint(s)
     plot_point = da.sel(**selection)
 
     # If there are multiple selected keypoints, calculate the centroid
@@ -83,10 +80,8 @@ def trajectory(
         else plot_point
     )
 
-    # Squeeze all dimensions with size 1 (only time and space should remain)
-    plot_point = plot_point.squeeze()
+    plot_point = plot_point.squeeze()  # Only space and time should remain
 
-    # Create a new Figure/Axes if none is passed
     fig, ax = plt.subplots(figsize=(6, 6)) if ax is None else (ax.figure, ax)
 
     # Merge default plotting args with user-provided kwargs
@@ -98,27 +93,20 @@ def trajectory(
         kwargs["c"] = plot_point.time
         colorbar = True
 
-    # Plot the scatter, coloring by time or user-provided color
+    # Plot the scatter, colouring by time or user-provided colour
     sc = ax.scatter(
         plot_point.sel(space="x"),
         plot_point.sel(space="y"),
         **kwargs,
     )
 
-    # Handle axis labeling
     space_unit = da.attrs.get("space_unit", "pixels")
     ax.set_xlabel(f"x ({space_unit})")
     ax.set_ylabel(f"y ({space_unit})")
     ax.axis("equal")
-
-    # By default, invert y-axis so (0,0) is in the top-left,
-    # matching typical image coordinate systems
-    ax.invert_yaxis()
-
-    # Generate default title if none provided
     ax.set_title(f"Trajectory{title_suffix}")
 
-    # Add colorbar for time dimension
+    # Add 'colorbar' for time dimension if no colour was provided by user
     time_unit = da.attrs.get("time_unit")
     time_label = f"time ({time_unit})" if time_unit else "time steps (frames)"
     fig.colorbar(sc, ax=ax, label=time_label).solids.set(

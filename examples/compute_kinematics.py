@@ -48,7 +48,7 @@ position = ds.position
 # Visualise the data
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
-# coloring them by individual. We use `movement.plot.trajectory`
+# colouring them by individual. We use `movement.plot.trajectory`
 # which is a wrapper around `matplotlib.pyplot.scatter` that simplifies
 # plotting the trajectories of individuals in the dataset. The fig and ax
 # objects returned by `movement.plot.trajectory` can be used to further
@@ -56,16 +56,13 @@ position = ds.position
 
 # Create a single figure and axes
 fig, ax = plt.subplots(1, 1)
-
+# By default, invert y-axis so (0,0) is in the top-left,
+# matching typical image coordinate systems
+ax.invert_yaxis()
 # Plot trajectories for each mouse on the same axes
-for mouse_name, col, a in zip(
+for mouse_name, col in zip(
     position.individuals.values,
     ["r", "g", "b"],  # colours
-    [
-        0.7,
-        0.35,
-        0.15,
-    ],  # alpha values to help distinguish the mice
     strict=False,
 ):
     plot.trajectory(
@@ -75,10 +72,10 @@ for mouse_name, col, a in zip(
         c=col,
         marker="o",
         s=10,
-        alpha=a,  # alpha values to help distinguish the mice
+        alpha=0.2,
         label=mouse_name,
     )
-    ax.legend()
+    ax.legend().set_alpha(1)
 ax.title.set_text("Trajectories of three mice")
 fig.show()
 
@@ -89,10 +86,11 @@ fig.show()
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# By default ``movement.plot.trajectory`` colors data points based on their
+# By default ``movement.plot.trajectory`` colours data points based on their
 # timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
+    ax.invert_yaxis()
     fig, ax = plot.trajectory(
         position,
         selection={"individuals": mouse_name},

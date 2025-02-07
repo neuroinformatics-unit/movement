@@ -76,7 +76,9 @@ head_vector = head_vector.drop_vars("keypoints")
 fig, ax = plot.trajectory(
     position, selection={"keypoints": ["left_ear", "right_ear"]}
 )
-
+# By default, invert y-axis so (0,0) is in the top-left,
+# matching typical image coordinate systems
+ax.invert_yaxis()
 fig.show()
 
 
@@ -97,9 +99,10 @@ frame_path = sample_data.fetch_dataset_paths(
 # create figure and axis
 fig, ax = plt.subplots(1, 1)
 # plot the frame path using imshow
+# because the image
 ax.imshow(plt.imread(frame_path))
-ax.invert_yaxis()
-# plot trajectory on the same axis as the frame
+# No need to invert the y-axis now, since the image is plotted
+# using a pixel coordinate system with origin on the top left of the image
 fig, ax = plot.trajectory(
     ds.position,
     selection={
