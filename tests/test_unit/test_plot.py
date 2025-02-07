@@ -10,19 +10,30 @@ from movement.plot import trajectory
 def sample_data():
     """Sample data for plot testing.
 
-    Data has three keypoints (left, centre, right) for one
-    individual that moves in a straight line along the y-axis with a
-    constant x-coordinate.
+    Data has six keypoints for one individual that moves in a straight line
+    along the y-axis. All keypoints have a constant x-coordinate and move in
+    steps of 1 along the y-axis.
+
+    Keypoint starting positions:
+    - left1: (-1, 0)
+    - right1: (1, 0)
+    - left2: (-2, 0)
+    - right2: (2, 0)
+    - centre0: (0, 0)
+    - centre1: (0, 1)
 
     """
     time_steps = 4
     individuals = ["individual_0"]
-    keypoints = ["left", "centre", "right"]
+    keypoints = ["left1", "centre0", "right1", "left2", "centre1", "right2"]
     space = ["x", "y"]
     positions = {
-        "left": {"x": -1, "y": np.arange(time_steps)},
-        "centre": {"x": 0, "y": np.arange(time_steps)},
-        "right": {"x": 1, "y": np.arange(time_steps)},
+        "left1": {"x": -1, "y": np.arange(time_steps)},
+        "centre0": {"x": 0, "y": np.arange(time_steps)},
+        "right1": {"x": 1, "y": np.arange(time_steps)},
+        "left2": {"x": -2, "y": np.arange(time_steps)},
+        "centre1": {"x": 0, "y": np.arange(time_steps) + 1},
+        "right2": {"x": 2, "y": np.arange(time_steps)},
     }
 
     time = np.arange(time_steps)
@@ -64,26 +75,55 @@ def sample_data():
 
 
 @pytest.mark.parametrize(
-    ["image", "selection"],
+    ["image", "selection", "expected_data"],
     [
         pytest.param(
-            True, {"keypoints": ["left", "right"]}, id="left-right + image"
+            True,
+            {"keypoints": ["left1", "right1"]},
+            np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
+            id="left1-right1 + image",
         ),
-        pytest.param(False, {"keypoints": "centre"}, id="centre"),
-        pytest.param(False, None, id="no keypoints"),
+        pytest.param(
+            True,
+            {"keypoints": ["left2", "right2"]},
+            np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
+            id="left2-right2",
+        ),
+        pytest.param(
+            False,
+            {"keypoints": "centre0"},
+            np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
+            id="centre0",
+        ),
+        pytest.param(
+            False,
+            {"keypoints": "centre1"},
+            np.array([[0, 1], [0, 2], [0, 3], [0, 4]], dtype=float),
+            id="centre1",
+        ),
+        pytest.param(
+            False,
+            None,
+            np.array(
+                [
+                    [0.0, 0.16666667],
+                    [0.0, 1.16666667],
+                    [0.0, 2.16666667],
+                    [0.0, 3.16666667],
+                ]
+            ),
+            id="no keypoints",
+        ),
     ],
 )
-def test_trajectory(sample_data, image, selection, tmp_path):
+def test_trajectory(sample_data, image, selection, expected_data):
     """Test trajectory plot."""
     plt.switch_backend("Agg")  # to avoid pop-up window
     da = sample_data.position
     _, ax = plt.subplots()
     if image:
         ax.imshow(np.zeros((10, 10)))
-        ax.invert_yaxis()
 
     _, ax = trajectory(da, selection=selection, ax=ax)
-
-    expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
-    ax_data = ax.collections[0].get_offsets().data
-    np.testing.assert_array_almost_equal(ax_data, expected_data)
+    output_data = ax.collections[0].get_offsets().data
+    np.testing.assert_array_almost_equal(output_data, expected_data)
