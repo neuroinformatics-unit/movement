@@ -74,5 +74,5 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 
 
 mouse_name = "AEON3B_TP1"
-fig, ax = plot.trajectory(position, selection={"individuals": mouse_name})
+fig, ax = plot.trajectory(position, individual=mouse_name)
 fig.show()
