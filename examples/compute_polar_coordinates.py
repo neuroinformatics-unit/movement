@@ -14,8 +14,9 @@ coordinates.
 import numpy as np
 from matplotlib import pyplot as plt
 
-from movement import plot, sample_data
+from movement import sample_data
 from movement.io import load_poses
+from movement.plots import plot_vector
 from movement.utils.vector import cart2pol, pol2cart
 
 # %%
@@ -144,40 +145,23 @@ fig.show()
 # "right_ear", and the vector_point is "snout". The head vector is represented
 # by an arrow that goes from the midpoint between the ears to the snout.
 #
-# By default, plot.vector will plot a vector for the first individual in the
-# dataset, during the first 15 timepoints with location coordinates
-# for the keypoints of interest.
-fig_head_vector = plot.vector(
-    ds, reference_points=["left_ear", "right_ear"], vector_point="snout"
-)
-fig_head_vector.show()
 
-# %%
-# To visually check our computation of the head vector, it is easier to select
-# a subset of the data. We can focus on the trajectory of the head when the
-# mouse is within a small rectangular area and time window.
-
-# area of interest
-xmin, ymin = 600.0, 665.0  # pixels
-x_delta, y_delta = 125.0, 100.0  # pixels
+# time window
 time_window = range(1650, 1671)  # frames
 
-fig_head_vector = plot.vector(
-    ds,
-    reference_points=["left_ear", "right_ear"],
-    vector_point="snout",
-    individual="individual_0",
-    x_lim=(xmin, xmin + x_delta),
-    y_lim=(ymin, ymin + y_delta),
-    time_points=tuple(time_window),
-    title="Zoomed in head vector (individual_0)",
+fig, ax = plot_vector(
+    position.sel(time=time_window),
+    reference_keypoints=["left_ear", "right_ear"],
+    vector_keypoints="snout",
 )
 
-fig_head_vector.show()
+# area of interest
+ax.set_xlim(600, 725)
+ax.set_ylim(665, 765)
 
-# %%
-# From the plot we can confirm the head vector goes from the midpoint between
-# the ears to the snout, as we defined it.
+# invert y-axis to match image coordinates
+ax.invert_yaxis()
+fig.show()
 
 
 # %%
