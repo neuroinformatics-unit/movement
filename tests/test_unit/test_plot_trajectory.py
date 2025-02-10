@@ -3,7 +3,7 @@ import pytest
 import xarray as xr
 from matplotlib import pyplot as plt
 
-from movement.plots.trajectory import plot
+from movement.plots.trajectory import plot_trajectory
 
 plt.switch_backend("Agg")  # to avoid pop-up window
 
@@ -130,7 +130,7 @@ def test_trajectory_plot(single_cross, image, selection, expected_data):
     _, ax = plt.subplots()
     if image:
         ax.imshow(np.zeros(10, 10))
-    _, ax = plot(da, ax=ax, **selection)
+    _, ax = plot_trajectory(da, ax=ax, **selection)
     output_data = ax.collections[0].get_offsets().data
     np.testing.assert_array_almost_equal(output_data, expected_data)
 
@@ -163,7 +163,7 @@ def test_trajectory_dropped_dim(single_cross, selection, dropped_dim):
     if "individuals" in dropped_dim:
         da = da.drop("individuals").squeeze()
 
-    _, ax = plot(da)
+    _, ax = plot_trajectory(da)
 
     output_data = ax.collections[0].get_offsets().data
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
@@ -202,7 +202,7 @@ def test_trajectory_dropped_dim(single_cross, selection, dropped_dim):
 )
 def test_trajectory_two_crosses(two_crosses, selection, expected_data):
     da = two_crosses
-    _, ax = plot(da, **selection)
+    _, ax = plot_trajectory(da, **selection)
     output_data = ax.collections[0].get_offsets().data
     np.testing.assert_array_almost_equal(output_data, expected_data)
 
@@ -212,4 +212,6 @@ def test_trajectory_multiple_individuals(two_crosses):
     with pytest.raises(
         ValueError, match="Only one individual can be selected."
     ):
-        plot(two_crosses, individual=["individual_0", "individual_1"])
+        plot_trajectory(
+            two_crosses, individual=["individual_0", "individual_1"]
+        )

@@ -11,7 +11,7 @@ DEFAULT_PLOTTING_ARGS = {
 }
 
 
-def plot(
+def plot_trajectory(
     da: xr.DataArray,
     keypoints: str | list[str] | None = None,
     individual: str | None = None,
