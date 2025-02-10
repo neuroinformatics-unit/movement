@@ -162,9 +162,9 @@ def test_trajectory_dropped_dim(single_cross, selection, dropped_dim):
     """Test trajectory plot without keypoints and/or individuals dimensions."""
     da = single_cross.sel(**selection)
     if "keypoints" in dropped_dim:
-        da = da.drop("keypoints").squeeze()
+        da = da.drop_vars("keypoints").squeeze()
     if "individuals" in dropped_dim:
-        da = da.drop("individuals").squeeze()
+        da = da.drop_vars("individuals").squeeze()
 
     _, ax = plot_trajectory(da)
 
