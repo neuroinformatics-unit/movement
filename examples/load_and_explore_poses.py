@@ -8,8 +8,9 @@ Load and explore an example dataset of pose tracks.
 # Imports
 # -------
 
-from movement import plot, sample_data
+from movement import sample_data
 from movement.io import load_poses
+from movement.plots import trajectory
 
 # %%
 # Define the file path
@@ -69,10 +70,11 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # Trajectory plots
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
-# For example, we can use ``movement.plot.trajectory`` (which
+# For example, we can use the ``plot`` function from
+# ``movement.plots.trajectory`` (which
 # uses ``matplotlib``) to plot trajectories:
 
 
 mouse_name = "AEON3B_TP1"
-fig, ax = plot.trajectory(position, individual=mouse_name)
+fig, ax = trajectory.plot(position, individual=mouse_name)
 fig.show()

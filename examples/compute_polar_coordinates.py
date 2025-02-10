@@ -14,8 +14,9 @@ coordinates.
 import numpy as np
 from matplotlib import pyplot as plt
 
-from movement import plot, sample_data
+from movement import sample_data
 from movement.io import load_poses
+from movement.plots import trajectory
 from movement.utils.vector import cart2pol, pol2cart
 
 # %%
@@ -69,12 +70,12 @@ head_vector = head_vector.drop_vars("keypoints")
 # We can plot the data to check that our computation of the head vector is
 # correct.
 #
-# We can start by plotting the head trajectory with `movement.plot.trajectory`
-# which creates a plot of the centroid of the selected keypoints, for the
-# head trajectory, we will use the midpoint between the ears. By default, the
-# trajectory of the first listed individual is shown.
+# We can start by plotting the head trajectory with the `plot` function in
+# `movement.plots.trajectory` which creates a plot of the centroid of the
+# selected keypoints, for the head trajectory, we will use the midpoint between
+# the ears. By default, the trajectory of the first listed individual is shown.
 
-fig, ax = plot.trajectory(position, keypoints=["left_ear", "right_ear"])
+fig, ax = trajectory.plot(position, keypoints=["left_ear", "right_ear"])
 # By default, invert y-axis so (0,0) is in the top-left,
 # matching typical image coordinate systems
 ax.invert_yaxis()
@@ -102,7 +103,7 @@ fig, ax = plt.subplots(1, 1)
 ax.imshow(plt.imread(frame_path))
 # No need to invert the y-axis now, since the image is plotted
 # using a pixel coordinate system with origin on the top left of the image
-fig, ax = plot.trajectory(
+fig, ax = trajectory.plot(
     ds.position,
     individual="individual_0",
     keypoints=["left_ear", "right_ear"],
