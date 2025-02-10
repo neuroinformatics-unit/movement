@@ -70,6 +70,9 @@ def two_crosses(single_cross):
     The 0-th mouse is moving forwards along the positive y axis, i.e. same as
     in sample_data_one_cross, the 1-st mouse is moving in the opposite
     direction, i.e. with it's snout towards the negative side of the y axis.
+
+    The left and right keypoints are not mirrored for individual_1, so this
+    mouse is moving flipped around on it's back.
     """
     da_id1 = single_cross.copy()
     da_id1.loc[dict(space="y")] = da_id1.sel(space="y") * -1
@@ -87,7 +90,7 @@ def two_crosses(single_cross):
             id="left-right + image",
         ),
         pytest.param(
-            True,
+            False,
             {"keypoints": ["snout", "tail"]},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="snout-tail",
@@ -129,7 +132,7 @@ def test_trajectory_plot(single_cross, image, selection, expected_data):
     da = single_cross
     _, ax = plt.subplots()
     if image:
-        ax.imshow(np.zeros(10, 10))
+        ax.imshow(np.zeros((10, 10)))
     _, ax = plot_trajectory(da, ax=ax, **selection)
     output_data = ax.collections[0].get_offsets().data
     np.testing.assert_array_almost_equal(output_data, expected_data)
