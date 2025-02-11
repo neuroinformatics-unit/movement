@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Literal, TypeAlias
 
+import numpy as np
 import shapely
 from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
@@ -200,3 +201,151 @@ class BaseRegionOfInterest:
                     point
                 )
         return point_is_inside
+
+    @broadcastable_method(only_broadcastable_along="space")
+    def distance_to(self, point: ArrayLike, boundary: bool = False) -> float:
+        """Compute the distance from the region to a point.
+
+        Parameters
+        ----------
+        point : ArrayLike
+            Coordinates of a point, from which to find the nearest point in the
+            region defined by ``self``.
+        boundary : bool, optional
+            If True, compute the distance from ``point`` to the boundary of
+            the region. Otherwise, the distance returned may be 0 for interior
+            points (see Notes).
+
+        Returns
+        -------
+        float
+            Euclidean distance from the ``point`` to the (closest point on the)
+            region.
+
+        Notes
+        -----
+        A point within the interior of a region is considered to be a distance
+        0 from the region. This is desirable for 1-dimensional regions, but may
+        not be desirable for 2D regions. As such, passing the ``boundary``
+        argument as ``True`` makes the method compute the distance from the
+        ``point`` to the boundary of the region, even if ``point`` is in the
+        interior of the region.
+
+        See Also
+        --------
+        shapely.distance : Underlying used to compute the nearest point.
+
+        """
+        from_where = self.region.boundary if boundary else self.region
+        return shapely.distance(from_where, shapely.Point(point))
+
+    @broadcastable_method(
+        only_broadcastable_along="space", new_dimension_name="nearest point"
+    )
+    def nearest_point_to(
+        self, /, position: ArrayLike, boundary: bool = False
+    ) -> np.ndarray:
+        """Compute the nearest point in the region to the ``position``.
+
+        position : ArrayLike
+            Coordinates of a point, from which to find the nearest point in the
+            region defined by ``self``.
+        boundary : bool, optional
+            If True, compute the nearest point to ``position`` that is on the
+            boundary of ``self``. Otherwise, the nearest point returned may be
+            inside ``self`` (see Notes).
+
+        Returns
+        -------
+        np.ndarray
+            Coordinates of the point on ``self`` that is closest to
+            ``position``.
+
+        Notes
+        -----
+        This function computes the nearest point to ``position`` in the region
+        defined by ``self``. This means that, given a ``position`` inside the
+        region, ``position`` itself will be returned. To find the nearest point
+        to ``position`` on the boundary of a region, pass the ``boundary`
+        argument as ``True`` to this method. Take care though - the boundary of
+        a line is considered to be just its endpoints.
+
+        See Also
+        --------
+        shapely.shortest_line : Underlying used to compute the nearest point.
+
+        """
+        from_where = self.region.boundary if boundary else self.region
+        # shortest_line returns a line from 1st arg to 2nd arg,
+        # therefore the point on self is the 0th coordinate
+        return np.array(
+            shapely.shortest_line(from_where, shapely.Point(position)).coords[
+                0
+            ]
+        )
+
+    @broadcastable_method(
+        only_broadcastable_along="space", new_dimension_name="vector to"
+    )
+    def vector_to(
+        self,
+        point: ArrayLike,
+        boundary: bool = False,
+        direction: Literal[
+            "point to region", "region to point"
+        ] = "point to region",
+        unit: bool = True,
+    ) -> np.ndarray:
+        """Compute the vector from a point to the region.
+
+        Specifically, the vector is directed from the given ``point`` to the
+        nearest point within the region. Points within the region return the
+        zero vector.
+
+        Parameters
+        ----------
+        point : ArrayLike
+            Coordinates of a point to compute the vector to (or from) the
+            region.
+        boundary : bool
+            If True, finds the vector to the nearest point on the boundary of
+            the region, instead of the nearest point within the region.
+            (See Notes). Default is False.
+        direction : Literal["point to region", "region to point"]
+            Which direction the returned vector should point in. Default is
+            "point to region".
+        unit : bool
+            If True, the unit vector in the appropriate direction is returned,
+            otherwise the displacement vector is returned. Default is False.
+
+        Returns
+        -------
+        np.ndarray
+            Vector directed between the point and the region.
+
+        Notes
+        -----
+        If given a ``point`` in the interior of the region, the vector from
+        this ``point`` to the region is treated as the zero vector. The
+        ``boundary`` argument can be used to force the method to find the
+        distance from the ``point`` to the nearest point on the boundary of the
+        region, if so desired. Note that a ``point`` on the boundary still
+        returns the zero vector.
+
+        """
+        from_where = self.region.boundary if boundary else self.region
+
+        # "point to region" by virtue of order of arguments to shapely call
+        directed_line = shapely.shortest_line(shapely.Point(point), from_where)
+
+        displacement_vector = np.array(directed_line.coords[1]) - np.array(
+            directed_line.coords[0]
+        )
+        if direction == "region to point":
+            displacement_vector *= -1.0
+        if unit:
+            norm = np.sqrt(np.sum(displacement_vector**2))
+            # Cannot normalise the 0 vector
+            if norm != 0.0:
+                displacement_vector /= norm
+        return displacement_vector
