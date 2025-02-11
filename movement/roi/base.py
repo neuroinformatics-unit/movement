@@ -14,7 +14,7 @@ from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
-PointLike: TypeAlias = tuple[float, float]
+PointLike: TypeAlias = list[float] | tuple[float, ...]
 PointLikeList: TypeAlias = Sequence[PointLike]
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
@@ -293,7 +293,7 @@ class BaseRegionOfInterest:
         boundary: bool = False,
         direction: Literal[
             "point to region", "region to point"
-        ] = "point to region",
+        ] = "region to point",
         unit: bool = True,
     ) -> np.ndarray:
         """Compute the vector from a point to the region.
@@ -313,7 +313,7 @@ class BaseRegionOfInterest:
             (See Notes). Default is False.
         direction : Literal["point to region", "region to point"]
             Which direction the returned vector should point in. Default is
-            "point to region".
+            "region to point".
         unit : bool
             If True, the unit vector in the appropriate direction is returned,
             otherwise the displacement vector is returned. Default is False.
