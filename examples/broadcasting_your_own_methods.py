@@ -140,14 +140,14 @@ for time_index, time in enumerate(positions["time"].values):
                 else "was not in slippery region"
             )
             print(
-                 "\t\tIndividual "
-                 f"{positions['individuals'].values[individual_index]} "
-                 f"{was_in_slippery_text}"
+                "\t\tIndividual "
+                f"{positions['individuals'].values[individual_index]} "
+                f"{was_in_slippery_text}"
             )
             # Save our result to our large array
-            in_slippery[
-                time_index, keypoint_index, individual_index
-            ] = was_in_slippery
+            in_slippery[time_index, keypoint_index, individual_index] = (
+                was_in_slippery
+            )
 
 # %%
 # We could then build a new ``DataArray`` to store our results, so that we can
