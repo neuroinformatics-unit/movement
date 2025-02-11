@@ -37,12 +37,15 @@ def test_log_error(caplog):
     assert caplog.records[0].levelname == "ERROR"
 
 
-def test_log_warning(caplog):
-    """Check if the log_warning function
-    logs the warning message.
-    """
-    log_warning("This is a test warning")
-    assert caplog.records[0].message == "This is a test warning"
+def test_log_warning(caplog, capsys):
+    """Check that log_warning both raises and logs a UserWarning."""
+    message = "This is a test warning"
+    # check that a UserWarning is raised
+    with pytest.warns(UserWarning):
+        log_warning(message)
+
+    # check that the warning message is logged
+    assert caplog.records[0].message == message
     assert caplog.records[0].levelname == "WARNING"
 
 
