@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 import numpy as np
@@ -30,6 +31,76 @@ def points_of_interest() -> dict[str, np.ndarray]:
 @pytest.fixture()
 def unit_line_in_x() -> LineOfInterest:
     return LineOfInterest([[0.0, 0.0], [1.0, 0.0]])
+
+
+@pytest.mark.parametrize(
+    ["region", "fn_kwargs", "expected_distances"],
+    [
+        pytest.param(
+            "unit_square_with_hole",
+            {"boundary": True},
+            np.array(
+                [
+                    0.5,
+                    0.0,
+                    0.15,
+                    1.0,
+                    0.0,
+                    0.05,
+                    np.sqrt((1.0 / 20.0) ** 2 + (1.0 / 100.0) ** 2),
+                ]
+            ),
+            id="Unit square w/ hole, boundary",
+        ),
+        pytest.param(
+            "unit_square_with_hole",
+            {},
+            np.array([0.5, 0.0, 0.15, 1.0, 0.0, 0.0, 0.0]),
+            id="Unit square w/ hole, whole region",
+        ),
+        pytest.param(
+            "unit_line_in_x",
+            {},
+            np.array(
+                [0.5 * np.sqrt(2.0), 0.5, 0.45, np.sqrt(2.0), 0.75, 0.9, 0.76]
+            ),
+            id="Unit line in x",
+        ),
+        pytest.param(
+            "unit_line_in_x",
+            {"boundary": True},
+            np.array(
+                [
+                    0.5 * np.sqrt(2.0),
+                    0.5,
+                    np.sqrt(0.4**2 + 0.45**2),
+                    np.sqrt(2.0),
+                    np.sqrt(0.4**2 + 0.75**2),
+                    np.sqrt(0.05**2 + 0.9**2),
+                    np.sqrt(0.2**2 + 0.76**2),
+                ]
+            ),
+            id="Unit line in x, endpoints only",
+        ),
+    ],
+)
+def test_distance_to(
+    region: BaseRegionOfInterest,
+    points_of_interest: xr.DataArray,
+    fn_kwargs: dict[str, Any],
+    expected_distances: xr.DataArray,
+    request,
+) -> None:
+    if isinstance(region, str):
+        region = request.getfixturevalue(region)
+    if isinstance(expected_distances, np.ndarray):
+        expected_distances = xr.DataArray(
+            data=expected_distances, dims=["time"]
+        )
+
+    computed_distances = region.distance_to(points_of_interest, **fn_kwargs)
+
+    xr.testing.assert_allclose(computed_distances, expected_distances)
 
 
 @pytest.mark.parametrize(
@@ -142,8 +213,6 @@ def test_nearest_point_to(
 ) -> None:
     if isinstance(region, str):
         region = request.getfixturevalue(region)
-    if isinstance(points_of_interest, str):
-        points_of_interest = request.getfixturevalue(points_of_interest)
     if isinstance(expected_output, str):
         expected_output = request.get(expected_output)
     elif isinstance(expected_output, np.ndarray):
@@ -152,7 +221,6 @@ def test_nearest_point_to(
             dims=["time", "nearest point"],
         )
 
-    points_of_interest = points_of_interest
     nearest_points = region.nearest_point_to(
         points_of_interest, **other_fn_args
     )
@@ -226,70 +294,75 @@ def test_nearest_point_to_tie_breaks(
 
 
 @pytest.mark.parametrize(
-    ["region", "fn_kwargs", "expected_distances"],
+    ["region", "point", "other_fn_args", "expected_output"],
     [
         pytest.param(
-            "unit_square_with_hole",
-            {"boundary": True},
-            np.array(
-                [
-                    0.5,
-                    0.0,
-                    0.15,
-                    1.0,
-                    0.0,
-                    0.05,
-                    np.sqrt((1.0 / 20.0) ** 2 + (1.0 / 100.0) ** 2),
-                ]
-            ),
-            id="Unit square w/ hole, boundary",
-        ),
-        pytest.param(
-            "unit_square_with_hole",
+            "unit_square",
+            (-0.5, 0.0),
             {},
-            np.array([0.5, 0.0, 0.15, 1.0, 0.0, 0.0, 0.0]),
-            id="Unit square w/ hole, whole region",
+            np.array([-1.0, 0.0]),
+            id="(-0.5, 0.0) -> unit square",
         ),
         pytest.param(
-            "unit_line_in_x",
+            LineOfInterest([(0.0, 0.0), (1.0, 0.0)]),
+            (0.1, 0.5),
             {},
-            np.array(
-                [0.5 * np.sqrt(2.0), 0.5, 0.45, np.sqrt(2.0), 0.75, 0.9, 0.76]
-            ),
-            id="Unit line in x",
+            np.array([0.0, 1.0]),
+            id="(0.1, 0.5) -> +ve x ray",
         ),
         pytest.param(
-            "unit_line_in_x",
+            "unit_square",
+            (-0.5, 0.0),
+            {"unit": False},
+            np.array([-0.5, 0.0]),
+            id="Don't normalise output",
+        ),
+        pytest.param(
+            "unit_square",
+            (0.5, 0.5),
+            {},
+            np.array([0.0, 0.0]),
+            id="Interior point returns 0 vector",
+        ),
+        pytest.param(
+            "unit_square",
+            (0.25, 0.35),
             {"boundary": True},
-            np.array(
-                [
-                    0.5 * np.sqrt(2.0),
-                    0.5,
-                    np.sqrt(0.4**2 + 0.45**2),
-                    np.sqrt(2.0),
-                    np.sqrt(0.4**2 + 0.75**2),
-                    np.sqrt(0.05**2 + 0.9**2),
-                    np.sqrt(0.2**2 + 0.76**2),
-                ]
-            ),
-            id="Unit line in x, endpoints only",
+            np.array([1.0, 0.0]),
+            id="Boundary, polygon",
+        ),
+        pytest.param(
+            LineOfInterest([(0.0, 0.0), (1.0, 0.0)]),
+            (0.1, 0.5),
+            {"boundary": True},
+            np.array([0.1, 0.5]) / np.sqrt(0.1**2 + 0.5**2),
+            id="Boundary, line",
         ),
     ],
 )
-def test_distance_to(
+def test_vector_to(
     region: BaseRegionOfInterest,
-    points_of_interest: xr.DataArray,
-    fn_kwargs: dict[str, Any],
-    expected_distances: xr.DataArray,
+    point: xr.DataArray,
+    other_fn_args: dict[str, Any],
+    expected_output: np.ndarray | Exception,
     request,
 ) -> None:
     if isinstance(region, str):
         region = request.getfixturevalue(region)
-    if isinstance(expected_distances, np.ndarray):
-        expected_distances = xr.DataArray(
-            data=expected_distances, dims=["time"]
-        )
 
-    computed_distances = region.distance_to(points_of_interest, **fn_kwargs)
+    if isinstance(expected_output, Exception):
+        with pytest.raises(
+            type(expected_output), match=re.escape(str(expected_output))
+        ):
+            vector_to = region.vector_to(point, **other_fn_args)
+    else:
+        vector_to = region.vector_to(point, **other_fn_args)
+        assert np.allclose(vector_to, expected_output)
 
-    xr.testing.assert_allclose(computed_distances, expected_distances)
+        # Check symmetry when reversing vector direction
+        if other_fn_args.get("direction", "region to point"):
+            other_fn_args["direction"] = "point to region"
+        else:
+            other_fn_args["direction"] = "region_to_point"
+        vector_to_reverse = region.vector_to(point, **other_fn_args)
+        assert np.allclose(-vector_to, vector_to_reverse)
