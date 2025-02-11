@@ -1,6 +1,7 @@
 """Logging utilities for the movement package."""
 
 import logging
+import warnings
 from datetime import datetime
 from functools import wraps
 from logging.handlers import RotatingFileHandler
@@ -95,7 +96,7 @@ def log_error(error, message: str, logger_name: str = "movement"):
 
 
 def log_warning(message: str, logger_name: str = "movement"):
-    """Log a warning message.
+    """Log a warning message and emit a UserWarning.
 
     Parameters
     ----------
@@ -107,6 +108,7 @@ def log_warning(message: str, logger_name: str = "movement"):
     """
     logger = logging.getLogger(logger_name)
     logger.warning(message)
+    warnings.warn(message, UserWarning, stacklevel=2)
 
 
 def log_to_attrs(func):
