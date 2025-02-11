@@ -25,7 +25,6 @@ import xarray as xr
 
 from movement import sample_data
 from movement.utils.broadcasting import (
-    broadcastable_method,
     make_broadcastable,
 )
 
@@ -122,9 +121,9 @@ in_slippery = np.zeros(
 # (line-by-line progress through the loop),
 # if you are running this code on your own machine.
 for time_index, time in enumerate(positions["time"].values):
-    print(f"At time {time}:")
+    # print(f"At time {time}:")
     for keypoint_index, keypoint in enumerate(positions["keypoints"].values):
-        print(f"\tAt keypoint {keypoint}")
+        # print(f"\tAt keypoint {keypoint}")
         for individual_index, individual in enumerate(
             positions["individuals"].values
         ):
@@ -139,11 +138,11 @@ for time_index, time in enumerate(positions["time"].values):
                 if was_in_slippery
                 else "was not in slippery region"
             )
-            print(
-                "\t\tIndividual "
-                f"{positions['individuals'].values[individual_index]} "
-                f"{was_in_slippery_text}"
-            )
+            # print(
+            #      "\t\tIndividual "
+            #      f"{positions['individuals'].values[individual_index]} "
+            #      f"{was_in_slippery_text}"
+            # )
             # Save our result to our large array
             in_slippery[time_index, keypoint_index, individual_index] = (
                 was_in_slippery
@@ -283,9 +282,9 @@ individual_0_in_slippery_region
 # the ``xy_position`` itself. However in follow-up experiments, we might move
 # the slippery region in the enclosure, and so adapt our existing function to
 # make it more general.
-# It will now allow someone to input the bottom-left ( ``bl`` ) and
-# top-right ( ``tr`` ) corners of the rectangle, rather than relying on fixed
-# values inside the function.
+# It will now allow someone to input a custom rectangular region, by specifying
+# the minimum and maximum ``(x, y)`` coordinates of the rectangle, rather than
+# relying on fixed values inside the function.
 # The default region will be the rectangle from our first experiment, and we
 # still want to be able to broadcast this function.
 # And so we write a more general function, as below.
@@ -293,15 +292,17 @@ individual_0_in_slippery_region
 
 @make_broadcastable()
 def in_slippery_region_general(
-    xy_position, bl=(400, 0), tr=(600, 2000)
+    xy_position, xy_min=(400.0, 0.0), xy_max=(600.0, 2000.0)
 ) -> bool:
     """Return True if xy_position is in the slippery region.
 
     Return False otherwise.
     xy_position has 2 elements, the (x, y) coordinates respectively.
     """
-    is_within_bounds_x = bl[0] <= xy_position[0] <= tr[0]
-    is_within_bounds_y = bl[1] < xy_position[1] <= tr[1]
+    x_min, y_min = xy_min
+    x_max, y_max = xy_max
+    is_within_bounds_x = x_min <= xy_position[0] <= x_max
+    is_within_bounds_y = y_min <= xy_position[1] <= y_max
     return is_within_bounds_x and is_within_bounds_y
 
 
@@ -321,7 +322,7 @@ xr.testing.assert_equal(
 )
 # But we can also provide the optional arguments in the same way as with the
 # un-decorated function.
-in_slippery_region_general(positions, bl=(100, 0), tr=(400, 1000))
+in_slippery_region_general(positions, xy_min=(100, 0), xy_max=(400, 1000))
 
 # %%
 # Only Broadcast Along Select Dimensions
@@ -399,25 +400,25 @@ xr.testing.assert_equal(
 class Rectangle:
     """Represents an observing camera in the experiment."""
 
-    bottom_left: tuple[float, float]
-    top_right: tuple[float, float]
+    xy_min: tuple[float, float]
+    xy_max: tuple[float, float]
 
-    def __init__(self, bl=(0, 0), tr=(1, 1)):
+    def __init__(self, xy_min=(0.0, 0.0), xy_max=(1.0, 1.0)):
         """Create a new instance."""
-        self.bottom_left = tuple(bl)
-        self.top_right = tuple(tr)
+        self.xy_min = tuple(xy_min)
+        self.xy_max = tuple(xy_max)
 
     @make_broadcastable(is_classmethod=True, only_broadcastable_along="space")
     def is_inside(self, /, xy_position) -> bool:
         """Whether the position is inside the rectangle."""
         # For the sake of brevity, we won't redefine the entire method here,
         # and will just call our existing function.
-        return in_slippery_region(
-            xy_position,
+        return in_slippery_region_general(
+            xy_position, self.xy_min, self.xy_max
         )
 
 
-slippery_region = Rectangle(bl=(400.0, 0.0), tr=(600.0, 2000.0))
+slippery_region = Rectangle(xy_min=(400.0, 0.0), xy_max=(600.0, 2000.0))
 was_in_region_clsmethod = slippery_region.is_inside(positions)
 
 xr.testing.assert_equal(
@@ -433,25 +434,27 @@ xr.testing.assert_equal(
 class RectangleAlternative:
     """Represents an observing camera in the experiment."""
 
-    bottom_left: tuple[float, float]
-    top_right: tuple[float, float]
+    xy_min: tuple[float, float]
+    xy_max: tuple[float, float]
 
-    def __init__(self, bl=(0, 0), tr=(1, 1)):
+    def __init__(self, xy_min=(0.0, 0.0), xy_max=(1.0, 1.0)):
         """Create a new instance."""
-        self.bottom_left = tuple(bl)
-        self.top_right = tuple(tr)
+        self.xy_min = tuple(xy_min)
+        self.xy_max = tuple(xy_max)
 
-    @broadcastable_method(only_broadcastable_along="space")
+    @make_broadcastable(is_classmethod=True, only_broadcastable_along="space")
     def is_inside(self, /, xy_position) -> bool:
         """Whether the position is inside the rectangle."""
         # For the sake of brevity, we won't redefine the entire method here,
         # and will just call our existing function.
-        return in_slippery_region(
-            xy_position,
+        return in_slippery_region_general(
+            xy_position, self.xy_min, self.xy_max
         )
 
 
-slippery_region_alt = RectangleAlternative(bl=(400.0, 0.0), tr=(600.0, 2000.0))
+slippery_region_alt = RectangleAlternative(
+    xy_min=(400.0, 0.0), xy_max=(600.0, 2000.0)
+)
 was_in_region_clsmethod_alt = slippery_region.is_inside(positions)
 
 xr.testing.assert_equal(
@@ -464,3 +467,5 @@ xr.testing.assert_equal(was_in_region_clsmethod_alt, was_in_region_clsmethod)
 # In fact, if you look at the Regions of Interest submodule, and in particular
 # the classes inside it, you'll notice that we use the ``broadcastable_method``
 # decorator ourselves in some of these methods!
+
+# %%
