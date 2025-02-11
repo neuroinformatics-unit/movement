@@ -154,7 +154,7 @@ def make_broadcastable(  # noqa: C901
         ``broadcast_dimension`` argument, and will use the dimension provided
         here as the value for this argument.
     new_dimension_name : str, optional
-        Passed to ``apply_along_da_axis``.
+        Passed to :func:`apply_along_da_axis`.
 
     Returns
     -------

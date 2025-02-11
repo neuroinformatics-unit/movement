@@ -10,7 +10,7 @@ cast functions  across an entire ``xarray.DataArray``.
 # -------
 # We will need ``numpy`` and ``xarray`` to make our custom data for this
 # example, and ``matplotlib`` to show what it contains.
-# We will be using the the ``movement.utils.broadcasting`` module to
+# We will be using the :mod:`movement.utils.broadcasting` module to
 # turn our one-dimensional functions into functions that work across
 # entire ``DataArray`` objects.
 
@@ -32,10 +32,9 @@ from movement.utils.broadcasting import (
 # %%
 # Load Sample Dataset
 # -------------------
-# First, we load an example dataset.
-# In this case, we select the ``SLEAP_three-mice_Aeon_proofread`` sample data.
-# For our example we will only need the ``position`` data, so we will read this
-# into a separate variable that we will work with for the rest of the example.
+# First, we load the ``SLEAP_three-mice_Aeon_proofread`` example dataset.
+# For the rest of this example we'll only need the ``position`` data array, so
+# we store it in a separate variable.
 
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
@@ -79,7 +78,7 @@ for mouse_name, col in zip(
 # We know that the "slippery region" of our enclosure is approximately
 # rectangular in shape, and has its opposite corners at (400, 0) and
 # (600, 2000), where the coordinates are given in pixels.
-# We could then write a function that determined if a given (x, y) position was
+# We could then write a function that determines if a given (x, y) position was
 # inside this "slippery region".
 
 
@@ -89,19 +88,12 @@ def in_slippery_region(xy_position) -> bool:
     Return False otherwise.
     xy_position has 2 elements, the (x, y) coordinates respectively.
     """
-    slippery_region_bl_corner = (400.0, 0.0)
-    slippery_region_tr_corner = (600.0, 2000.0)
+    # The slippery region is a rectangle with the following bounds
+    x_min, y_min = 400.0, 0.0
+    x_max, y_max = 600.0, 2000.0
 
-    is_within_bounds_x = (
-        slippery_region_bl_corner[0]
-        <= xy_position[0]
-        <= slippery_region_tr_corner[0]
-    )
-    is_within_bounds_y = (
-        slippery_region_bl_corner[1]
-        < xy_position[1]
-        <= slippery_region_tr_corner[1]
-    )
+    is_within_bounds_x = x_min <= xy_position[0] <= x_max
+    is_within_bounds_y = y_min < xy_position[1] <= y_max
     return is_within_bounds_x and is_within_bounds_y
 
 
@@ -110,29 +102,29 @@ for point in [(0, 100), (450, 700), (550, 1500), (601, 500)]:
     print(f"{point} is in slippery region: {in_slippery_region(point)}")
 
 # %%
-# Determine if each position can be seen
-# --------------------------------------
+# Determine if each position was slippery
+# ---------------------------------------
 # Given our data, we could extract whether each position (for each time-point,
 # and each individual) was inside the slippery region by looping over the
 # values.
 
 data_shape = positions.shape
-in_view = np.zeros(
+in_slippery = np.zeros(
     shape=(
         len(positions["time"]),
         len(positions["keypoints"]),
         len(positions["individuals"]),
     ),
     dtype=bool,
-)  # We would save one result per time-point, per key-point, per individual
+)  # We would save one result per time-point, per keypoint, per individual
 
-# We have turned off the printing for space purposes,
-# but if you re-include the print statements, you'll get a line-by-line
-# update of the progress through the loop.
+# Feel free to comment out the print statements
+# (line-by-line progress through the loop),
+# if you are running this code on your own machine.
 for time_index, time in enumerate(positions["time"].values):
-    # print(f"At time {time}:")
+    print(f"At time {time}:")
     for keypoint_index, keypoint in enumerate(positions["keypoints"].values):
-        # print(f"\tAt keypoint {keypoint}")
+        print(f"\tAt keypoint {keypoint}")
         for individual_index, individual in enumerate(
             positions["individuals"].values
         ):
@@ -141,25 +133,27 @@ for time_index, time in enumerate(positions["time"].values):
                 keypoints=keypoint,
                 individuals=individual,
             )
-            was_in_view = in_slippery_region(xy_point)
-            was_seen = (
+            was_in_slippery = in_slippery_region(xy_point)
+            was_in_slippery_text = (
                 "was in slippery region"
-                if was_in_view
+                if was_in_slippery
                 else "was not in slippery region"
             )
-            # print(
-            #     "\t\tIndividual "
-            #     f"{positions['individuals'].values[individual_index]} "
-            #     f"{was_seen}"
-            # )
+            print(
+                 "\t\tIndividual "
+                 f"{positions['individuals'].values[individual_index]} "
+                 f"{was_in_slippery_text}"
+            )
             # Save our result to our large array
-            in_view[time_index, keypoint_index, individual_index] = was_in_view
+            in_slippery[
+                time_index, keypoint_index, individual_index
+            ] = was_in_slippery
 
 # %%
 # We could then build a new ``DataArray`` to store our results, so that we can
 # access the results in the same way that we did our original data.
 was_in_slippery_region = xr.DataArray(
-    in_view,
+    in_slippery,
     dims=["time", "keypoints", "individuals"],
     coords={
         "time": positions["time"],
@@ -172,7 +166,7 @@ print(
     "Boolean DataArray indicating if at a given time, "
     "a given individual was inside the slippery region:"
 )
-print(was_in_slippery_region)
+was_in_slippery_region
 
 # %%
 # We could get the first and last time that an individual was inside the
@@ -240,7 +234,7 @@ for point in [(0, 100), (450, 700), (550, 1500), (601, 500)]:
 # %%
 # However, ``in_slippery_region_broadcastable`` also takes a ``DataArray`` as
 # the first (``xy_position``) argument, and an extra keyword argument
-# "``broadcast_dimension``". These arguments let us broadcast across the given
+# ``broadcast_dimension``. These arguments let us broadcast across the given
 # dimension of the input ``DataArray``, treating each 1D-slice as a separate
 # input to ``in_slippery_region``.
 
@@ -250,7 +244,7 @@ in_slippery_region_broadcasting = in_slippery_region_broadcastable(
 )
 
 print("DataArray output using broadcasting: ")
-print(in_slippery_region_broadcasting)
+in_slippery_region_broadcasting
 
 # %%
 # Calling ``in_slippery_region_broadcastable`` in this way gives us a
@@ -280,7 +274,7 @@ print(
     "We get a 3D DataArray output from our 4D input, "
     "again with the 'space' dimension that we broadcast along collapsed:"
 )
-print(individual_0_in_slippery_region)
+individual_0_in_slippery_region
 
 # %%
 # Additional Function Arguments
@@ -342,7 +336,7 @@ silly_broadcast = in_slippery_region_broadcastable(
 )
 
 print("The output has collapsed the time dimension:")
-print(silly_broadcast)
+silly_broadcast
 
 # %%
 # There is no error thrown because functionally, this is a valid operation.
