@@ -16,6 +16,7 @@ from matplotlib import pyplot as plt
 
 from movement import sample_data
 from movement.io import load_poses
+from movement.plots import plot_vector
 from movement.utils.vector import cart2pol, pol2cart
 
 # %%
@@ -137,91 +138,30 @@ fig.show()
 # %%
 # Visualise the head vector
 # ---------------------------
-# To visually check our computation of the head vector, it is easier to select
-# a subset of the data. We can focus on the trajectory of the head when the
-# mouse is within a small rectangular area and time window.
-
-# area of interest
-xmin, ymin = 600, 665  # pixels
-x_delta, y_delta = 125, 100  # pixels
+# The plot.vector function plots the vector from the midpoint between two
+# reference points to another keypoint (vector_point).
+#
+# In the case of the head vector, the reference points are "left_ear" and
+# "right_ear", and the vector_point is "snout". The head vector is represented
+# by an arrow that goes from the midpoint between the ears to the snout.
+#
 
 # time window
 time_window = range(1650, 1671)  # frames
 
-
-# %%
-# For that subset of the data, we now plot the head vector.
-
-fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
-
-# plot midpoint between the ears, and color based on time
-sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    s=50,
-    c=midpoint_ears.time[time_window],
-    cmap="viridis",
-    marker="*",
+fig, ax = plot_vector(
+    position.sel(time=time_window),
+    reference_keypoints=["left_ear", "right_ear"],
+    vector_keypoints="snout",
 )
 
-# plot snout, and color based on time
-sc = ax.scatter(
-    position.sel(
-        individuals=mouse_name, space="x", time=time_window, keypoints="snout"
-    ),
-    position.sel(
-        individuals=mouse_name, space="y", time=time_window, keypoints="snout"
-    ),
-    s=50,
-    c=position.time[time_window],
-    cmap="viridis",
-    marker="o",
-)
+# area of interest
+ax.set_xlim(600, 725)
+ax.set_ylim(665, 765)
 
-# plot the computed head vector
-ax.quiver(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="x", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="y", time=time_window),
-    angles="xy",
-    scale=1,
-    scale_units="xy",
-    headwidth=7,
-    headlength=9,
-    headaxislength=9,
-    color="gray",
-)
-
-ax.axis("equal")
-ax.set_xlim(xmin, xmin + x_delta)
-ax.set_ylim(ymin, ymin + y_delta)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in head vector ({mouse_name})")
+# invert y-axis to match image coordinates
 ax.invert_yaxis()
-fig.colorbar(
-    sc,
-    ax=ax,
-    label=f"time ({ds.attrs['time_unit']})",
-    ticks=list(time_window)[0::2],
-)
-
-ax.legend(
-    [
-        "midpoint_ears",
-        "snout",
-        "head_vector",
-    ],
-    loc="best",
-)
-
 fig.show()
-
-# %%
-# From the plot we can confirm the head vector goes from the midpoint between
-# the ears to the snout, as we defined it.
 
 
 # %%
