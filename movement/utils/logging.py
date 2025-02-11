@@ -25,7 +25,7 @@ def configure_logging(
     Parameters
     ----------
     log_level : int, optional
-        The logging level to use. Defaults to logging.INFO.
+        The logging level to use. Defaults to logging.DEBUG.
     logger_name : str, optional
         The name of the logger to configure.
         Defaults to "movement".
