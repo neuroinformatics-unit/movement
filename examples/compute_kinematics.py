@@ -51,13 +51,13 @@ position = ds.position
 # First, let's visualise the trajectories of the mice in the XY plane,
 # colouring them by individual. We use the ``plot_trajectory`` function from
 # ``movement.plots`` which is a wrapper around
-# `matplotlib.pyplot.scatter` that simplifies plotting the trajectories of
+# ``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
 # individuals in the dataset. The fig and ax objects returned can be used to
 # further customise the plot.
 
 # Create a single figure and axes
 fig, ax = plt.subplots(1, 1)
-# By default, invert y-axis so (0,0) is in the top-left,
+# Invert y-axis so (0,0) is in the top-left,
 # matching typical image coordinate systems
 ax.invert_yaxis()
 # Plot trajectories for each mouse on the same axes

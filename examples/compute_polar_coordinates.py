@@ -77,30 +77,29 @@ head_vector = head_vector.drop_vars("keypoints")
 # is shown.
 
 fig, ax = plot_trajectory(position, keypoints=["left_ear", "right_ear"])
-# By default, invert y-axis so (0,0) is in the top-left,
+# Invert y-axis so (0,0) is in the top-left,
 # matching typical image coordinate systems
 ax.invert_yaxis()
 fig.show()
 
 
 # %%
-# Overlay trajectory on Elevated Plus Maze and adjust plot title
-# ----------------------------------------------------------------
+# Overlay trajectory on Elevated Plus Maze
+# ----------------------------------------
 # We can see that the majority of the head trajectory data is within a
 # cruciform shape. This is because the dataset is of a mouse moving on an
 # `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
 # We can actually verify this is the case by overlaying the head
 # trajectory on the sample frame of the dataset.
 
-# read sample frame
+# Read sample frame
 frame_path = sample_data.fetch_dataset_paths(
     "SLEAP_single-mouse_EPM.analysis.h5"
 )["frame"]
 
-# create figure and axis
+# Create figure and axis
 fig, ax = plt.subplots(1, 1)
-# plot the frame path using imshow
-# because the image
+# Plot the frame using imshow
 ax.imshow(plt.imread(frame_path))
 # No need to invert the y-axis now, since the image is plotted
 # using a pixel coordinate system with origin on the top left of the image
@@ -114,7 +113,7 @@ fig, ax = plot_trajectory(
     marker="o",
     alpha=0.05,
 )
-# adjust title
+# Adjust title
 ax.set_title("Head trajectory (individual_0)")
 fig.show()
 

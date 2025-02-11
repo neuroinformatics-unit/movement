@@ -5,7 +5,6 @@ from matplotlib import pyplot as plt
 
 DEFAULT_PLOTTING_ARGS = {
     "s": 15,
-    "cmap": "viridis",
     "marker": "o",
     "alpha": 1.0,
 }
@@ -21,9 +20,8 @@ def plot_trajectory(
     """Plot trajectory.
 
     This function plots the trajectory of a specified keypoint or the centroid
-    between multiple keypoints for a given individual. By default, the first
-    individual, and the centroid of all keypoints is selected. The trajectory
-    is colored by time (using the default colormap).Pass a different colormap
+    of multiple keypoints for a given individual. By default, the first
+    is colored by time (using the default colormap). Pass a different colormap
     through ``cmap`` if desired.
 
     Parameters

@@ -139,35 +139,30 @@ def test_trajectory_plot(single_cross, image, selection, expected_data):
 
 
 @pytest.mark.parametrize(
-    ["selection", "dropped_dim"],
+    ["selection"],
     [
         pytest.param(
             {"keypoints": "centre"},
-            "keypoints",
             id="no_keypoints",
         ),
         pytest.param(
-            {"keypoints": ["left", "right"]},
-            "individuals",
+            {"individuals": "individual_0"},
             id="no_individuals",
         ),
         pytest.param(
-            {"keypoints": "centre"},
-            ["individuals", "keypoints"],
+            {"keypoints": "centre", "individuals": "individual_0"},
             id="only_time_space",
         ),
     ],
 )
-def test_trajectory_dropped_dim(single_cross, selection, dropped_dim):
-    """Test trajectory plot without keypoints and/or individuals dimensions."""
-    da = single_cross.sel(**selection)
-    if "keypoints" in dropped_dim:
-        da = da.drop_vars("keypoints").squeeze()
-    if "individuals" in dropped_dim:
-        da = da.drop_vars("individuals").squeeze()
+def test_trajectory_dropped_dim(two_crosses, selection):
+    """Test trajectory plot without keypoints and/or individuals dimensions.
 
+    When only one coordinate is selected per dimension, that dimension will
+    be squeezed out of the data array.
+    """
+    da = two_crosses.sel(**selection).squeeze()
     _, ax = plot_trajectory(da)
-
     output_data = ax.collections[0].get_offsets().data
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
     np.testing.assert_array_almost_equal(output_data, expected_data)
