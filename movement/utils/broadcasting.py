@@ -97,16 +97,6 @@ def apply_along_da_axis(
     xarray.DataArray
         Result of broadcasting ``f`` along the ``dimension`` of ``data``.
 
-        If ``f`` returns a scalar or ``(1,)``-shaped output, the output has one
-        fewer dimension than ``data``, with ``dimension`` being dropped. All
-        other dimensions retain their names and sizes.
-
-        If ``f`` returns a ``(n,)``-shaped output for ``n > 1``; all non-
-        ``dimension`` dimensions of ``data`` retain their shapes. The
-        ``dimension`` dimension itself is replaced with a new dimension,
-        ``new_dimension_name``, containing the output of the application of
-        ``f``.
-
         - If ``f`` returns a scalar or ``(1,)``-shaped output, the output has
           one fewer dimension than ``data``, with ``dimension`` being dropped.
           All other dimensions retain their names and sizes.
