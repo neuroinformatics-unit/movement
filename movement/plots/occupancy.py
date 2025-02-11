@@ -14,7 +14,7 @@ DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
 def plot_occupancy(
     da: xr.DataArray,
-    selection: dict[str, Hashable],
+    selection: dict[str, Hashable] | None = None,
     ax: plt.Axes | None = None,
     **kwargs: Any,
 ) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
@@ -33,9 +33,9 @@ def plot_occupancy(
     ----------
     da : xarray.DataArray
         Spatial data to create histogram for. NaN values are dropped.
-    selection : dict[str, Hashable]
-        Mapping of additional dimension identifiers to the coordinate along
-        that dimension to plot. For example,
+    selection : dict[str, Hashable], optional
+        Mapping of dimension identifiers to the coordinate along that dimension
+        to plot. "time" and "space" dimensions are ignored. For example,
         ``selection = {"individuals": "Bravo"}`` will create the occupancy
         histogram for the individual "Bravo", instead of the occupancy
         histogram for the 0-indexed entry on the ``"individuals"`` dimension.
@@ -84,6 +84,9 @@ def plot_occupancy(
     matplotlib.pyplot.Axes.hist2d : The underlying plotting function.
 
     """
+    if selection is None:
+        selection = dict()
+
     # Remove additional dimensions before dropping NaN values
     non_spacetime_dims = [
         dim for dim in da.dims if dim not in ("time", "space")
@@ -92,7 +95,7 @@ def plot_occupancy(
         dim: selection.get(dim, da[dim].values[0])
         for dim in non_spacetime_dims
     }
-    data = da.sel(**selection).squeeze()
+    data: xr.DataArray = da.sel(**selection).squeeze()
     # Selections must be scalar, resulting in 2D data.
     # Catch this now
     if data.ndim != 2:

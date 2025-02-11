@@ -1,3 +1,5 @@
+from collections.abc import Hashable
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -5,7 +7,7 @@ import xarray as xr
 from matplotlib.collections import QuadMesh
 from numpy.random import Generator, default_rng
 
-from movement.plot import occupancy_histogram
+from movement.plots import plot_occupancy
 
 
 @pytest.fixture
@@ -101,74 +103,72 @@ def entirely_nan_data(histogram_data: xr.DataArray) -> xr.DataArray:
     [
         "data",
         "remove_dims_from_data_before_starting",
-        "individual",
-        "keypoint",
+        "selection",
         "n_bins",
     ],
     [
         pytest.param(
             "histogram_data",
             [],
-            "i0",
-            "k0",
+            {"individuals": "i0", "keypoints": "k0"},
             30,
             id="30 bins each axis",
         ),
         pytest.param(
             "histogram_data",
             [],
-            "i1",
-            "k0",
+            None,
+            30,
+            id="Default 0-index",
+        ),
+        pytest.param(
+            "histogram_data",
+            [],
+            {"individuals": "i1", "keypoints": "k0"},
             (20, 30),
             id="(20, 30) bins",
         ),
         pytest.param(
             "histogram_data_with_nans",
             [],
-            "i0",
-            "k0",
+            {"individuals": "i0", "keypoints": "k0"},
             30,
             id="NaNs should be removed",
         ),
         pytest.param(
             "entirely_nan_data",
             [],
-            "i0",
-            "k0",
+            {"individuals": "i0", "keypoints": "k0"},
             10,
             id="All NaN-data",
         ),
         pytest.param(
             "histogram_data",
             ["individuals"],
-            "i0",
-            "k0",
+            {"individuals": "i0", "keypoints": "k0"},
             30,
             id="Ignores individual if not a dimension",
         ),
         pytest.param(
             "histogram_data",
             ["keypoints"],
-            "i0",
-            "k1",
+            {"individuals": "i0", "keypoints": "k1"},
             30,
             id="Ignores keypoint if not a dimension",
         ),
         pytest.param(
             "histogram_data",
             ["individuals", "keypoints"],
-            "i0",
-            "k0",
+            {"individuals": "i0", "keypoints": "k0"},
             30,
             id="Can handle raw xy data",
         ),
     ],
 )
-def test_occupancy_histogram(
+def test_plot_histogram(  # noqa: C901
     data: xr.DataArray,
     remove_dims_from_data_before_starting: list[str],
-    individual: int | str,
-    keypoint: int | str,
+    selection: dict[str, Hashable],
     n_bins: int | tuple[int, int],
     request,
 ) -> None:
@@ -185,10 +185,18 @@ def test_occupancy_histogram(
     # We will need to only select the xy data later in the test,
     # but if we are dropping dimensions we might need to call it
     # in different ways.
-    kwargs_to_select_xy_data = {
-        "individuals": individual,
-        "keypoints": keypoint,
-    }
+    kwargs_to_select_xy_data = dict()
+    # By default we should fetch 0-indexes
+    for d in [dim for dim in data.dims if dim not in ("time", "space")]:
+        kwargs_to_select_xy_data[d] = data[d].values[0]
+    # Custom selections should then take priority
+    if selection:
+        for d, d_name in selection.items():
+            if d in kwargs_to_select_xy_data:
+                kwargs_to_select_xy_data[d] = d_name
+
+    # Remove any dimensions that we are purposefully axing from the data,
+    # before attempting to create the histogram
     for d in remove_dims_from_data_before_starting:
         # Retain the 0th value in the corresponding dimension,
         # then drop that dimension.
@@ -199,8 +207,8 @@ def test_occupancy_histogram(
         # when examining the xy data later in the test.
         kwargs_to_select_xy_data.pop(d, None)
 
-    _, _, histogram_info = occupancy_histogram(
-        data, individual=individual, keypoint=keypoint, bins=n_bins
+    _, _, histogram_info = plot_occupancy(
+        data, selection=selection, bins=n_bins
     )
     plotted_values = histogram_info["counts"]
 
@@ -275,7 +283,7 @@ def test_respects_axes(histogram_data: xr.DataArray) -> None:
         np.linspace(0.0, 10.0, num=100), np.linspace(0.0, 10.0, num=100)
     )
 
-    _, _, hist_info_existing = occupancy_histogram(
+    _, _, hist_info_existing = plot_occupancy(
         histogram_data, ax=existing_ax[1]
     )
     hist_plots_added = [
@@ -284,7 +292,7 @@ def test_respects_axes(histogram_data: xr.DataArray) -> None:
     assert len(hist_plots_added) == 1
 
     # Plot on new axis and create a new figure
-    new_fig, new_ax, hist_info_new = occupancy_histogram(histogram_data)
+    new_fig, new_ax, hist_info_new = plot_occupancy(histogram_data)
     assert isinstance(new_fig, plt.Figure)
     assert isinstance(new_ax, plt.Axes)
     hist_plots_created = [
