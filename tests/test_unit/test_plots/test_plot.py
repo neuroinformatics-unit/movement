@@ -1,4 +1,6 @@
+import re
 from collections.abc import Hashable
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -120,6 +122,13 @@ def entirely_nan_data(histogram_data: xr.DataArray) -> xr.DataArray:
             None,
             30,
             id="Default 0-index",
+        ),
+        pytest.param(
+            "histogram_data",
+            [],
+            {"elephants": "Nellie"},
+            30,
+            id="Ignores nonsensical dimensions",
         ),
         pytest.param(
             "histogram_data",
@@ -272,6 +281,31 @@ def test_plot_histogram(  # noqa: C901
     else:
         # No non-nan values were given
         assert plotted_values.sum() == 0
+
+
+@pytest.mark.parametrize(
+    ["other_args_to_fn", "expected_error"],
+    [
+        pytest.param(
+            {"selection": {"keypoints": ["k0", "k1"]}},
+            IndexError(
+                "Histogram data was not time-space only. "
+                "Did you accidentally pass multiple coordinates for any of "
+                "the following dimensions: ['individuals', 'keypoints']"
+            ),
+            id="Multiple selection along non-spacetime dimension.",
+        )
+    ],
+)
+def test_plot_histogram_error_cases(
+    histogram_data: xr.DataArray,
+    other_args_to_fn: dict[str, Any],
+    expected_error: Exception,
+) -> None:
+    with pytest.raises(
+        type(expected_error), match=re.escape(str(expected_error))
+    ):
+        plot_occupancy(histogram_data, **other_args_to_fn)
 
 
 def test_respects_axes(histogram_data: xr.DataArray) -> None:

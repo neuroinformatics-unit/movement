@@ -99,7 +99,7 @@ def plot_occupancy(
     # Selections must be scalar, resulting in 2D data.
     # Catch this now
     if data.ndim != 2:
-        raise ValueError(
+        raise IndexError(
             "Histogram data was not time-space only. "
             "Did you accidentally pass multiple coordinates for any of "
             f"the following dimensions: {non_spacetime_dims}"
