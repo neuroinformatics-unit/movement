@@ -1,5 +1,6 @@
-"""Wrappers to plot movement data."""
+"""Wrappers for plotting occupancy data of select individuals."""
 
+from collections.abc import Hashable
 from typing import Any, Literal, TypeAlias
 
 import matplotlib.pyplot as plt
@@ -11,31 +12,33 @@ HistInfoKeys: TypeAlias = Literal["counts", "xedges", "yedges"]
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
 
-def occupancy_histogram(
+def plot_occupancy(
     da: xr.DataArray,
-    keypoint: int | str = 0,
-    individual: int | str = 0,
-    title: str | None = None,
+    selection: dict[str, Hashable],
     ax: plt.Axes | None = None,
     **kwargs: Any,
 ) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
     """Create a 2D histogram of the occupancy data given.
 
+    By default, the 0-indexed value along non-"time" and non-"space" dimensions
+    is plotted. The ``selection`` variable can be used to select different
+    coordinates along additional dimensions to plot instead.
+
     Time-points whose corresponding spatial coordinates have NaN values
-    are ignored. Histogram information is returned as the second output
-    value (see Notes).
+    are ignored.
+
+    Histogram information is returned as the third output value (see Notes).
 
     Parameters
     ----------
     da : xarray.DataArray
         Spatial data to create histogram for. NaN values are dropped.
-    keypoint : int | str
-        The keypoint to create a histogram for.
-    individual : int | str
-        The individual to create a histogram for.
-    title : str, optional
-        Title to give to the plot. Default will be generated from the
-        ``keypoint`` and ``individual``
+    selection : dict[str, Hashable]
+        Mapping of additional dimension identifiers to the coordinate along
+        that dimension to plot. For example,
+        ``selection = {"individuals": "Bravo"}`` will create the occupancy
+        histogram for the individual "Bravo", instead of the occupancy
+        histogram for the 0-indexed entry on the ``"individuals"`` dimension.
     ax : matplotlib.axes.Axes, optional
         Axes object on which to draw the histogram. If not provided, a new
         figure and axes are created and returned.
@@ -81,20 +84,24 @@ def occupancy_histogram(
     matplotlib.pyplot.Axes.hist2d : The underlying plotting function.
 
     """
-    data = da.position if isinstance(da, xr.Dataset) else da
-    title_components = []
-
     # Remove additional dimensions before dropping NaN values
-    if "individuals" in data.dims:
-        if individual not in data["individuals"]:
-            individual = data["individuals"].values[individual]
-        data = data.sel(individuals=individual).squeeze()
-        title_components.append(f"individual {individual}")
-    if "keypoints" in data.dims:
-        if keypoint not in data["keypoints"]:
-            keypoint = data["keypoints"].values[keypoint]
-        data = data.sel(keypoints=keypoint).squeeze()
-        title_components.append(f"keypoint {keypoint}")
+    non_spacetime_dims = [
+        dim for dim in da.dims if dim not in ("time", "space")
+    ]
+    selection = {
+        dim: selection.get(dim, da[dim].values[0])
+        for dim in non_spacetime_dims
+    }
+    data = da.sel(**selection).squeeze()
+    # Selections must be scalar, resulting in 2D data.
+    # Catch this now
+    if data.ndim != 2:
+        raise ValueError(
+            "Histogram data was not time-space only. "
+            "Did you accidentally pass multiple coordinates for any of "
+            f"the following dimensions: {non_spacetime_dims}"
+        )
+
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.
     data = data.dropna(dim="time", how="any")
@@ -117,11 +124,6 @@ def occupancy_histogram(
     colourbar = fig.colorbar(hist_image, ax=ax)
     colourbar.solids.set(alpha=1.0)
 
-    # Axis labels and title
-    if not title and title_components:
-        title = "Occupancy of " + ", ".join(title_components)
-    if title:
-        ax.set_title(title)
     space_unit = data.attrs.get("space_unit", "pixels")
     ax.set_xlabel(f"{x_coord} ({space_unit})")
     ax.set_ylabel(f"{y_coord} ({space_unit})")
