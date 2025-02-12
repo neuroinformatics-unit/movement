@@ -71,7 +71,7 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
 # The ``movement.plots`` module provides some additional
-# visualisations, like ``plot_tracjectory()``.
+# visualisations, like ``plot_trajectory()``.
 
 
 mouse_name = "AEON3B_TP1"
