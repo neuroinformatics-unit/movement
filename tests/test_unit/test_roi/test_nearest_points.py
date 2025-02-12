@@ -98,7 +98,9 @@ def test_distance_to(
             data=expected_distances, dims=["time"]
         )
 
-    computed_distances = region.distance_to(points_of_interest, **fn_kwargs)
+    computed_distances = region.compute_distance_to(
+        points_of_interest, **fn_kwargs
+    )
 
     xr.testing.assert_allclose(computed_distances, expected_distances)
 
@@ -221,7 +223,7 @@ def test_nearest_point_to(
             dims=["time", "nearest point"],
         )
 
-    nearest_points = region.nearest_point_to(
+    nearest_points = region.compute_nearest_point_to(
         points_of_interest, **other_fn_args
     )
 
@@ -275,7 +277,9 @@ def test_nearest_point_to_tie_breaks(
     if not isinstance(position, np.ndarray | xr.DataArray):
         position = np.array(position)
 
-    nearest_point_found = region.nearest_point_to(position, **fn_kwargs)
+    nearest_point_found = region.compute_nearest_point_to(
+        position, **fn_kwargs
+    )
 
     sq_dist_to_nearest_pt = np.sum((nearest_point_found - position) ** 2)
 
@@ -354,9 +358,9 @@ def test_vector_to(
         with pytest.raises(
             type(expected_output), match=re.escape(str(expected_output))
         ):
-            vector_to = region.vector_to(point, **other_fn_args)
+            vector_to = region.compute_approach_vector(point, **other_fn_args)
     else:
-        vector_to = region.vector_to(point, **other_fn_args)
+        vector_to = region.compute_approach_vector(point, **other_fn_args)
         assert np.allclose(vector_to, expected_output)
 
         # Check symmetry when reversing vector direction
@@ -364,5 +368,7 @@ def test_vector_to(
             other_fn_args["direction"] = "point to region"
         else:
             other_fn_args["direction"] = "region_to_point"
-        vector_to_reverse = region.vector_to(point, **other_fn_args)
+        vector_to_reverse = region.compute_approach_vector(
+            point, **other_fn_args
+        )
         assert np.allclose(-vector_to, vector_to_reverse)
