@@ -24,6 +24,7 @@ import numpy as np
 import xarray as xr
 
 from movement import sample_data
+from movement.plots import plot_trajectory
 from movement.utils.broadcasting import (
     make_broadcastable,
 )
@@ -61,11 +62,47 @@ for mouse_name, col in zip(
         c=col,
         label=mouse_name,
     )
-    ax.invert_yaxis()
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
-    ax.legend()
+ax.invert_yaxis()
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.axis("equal")
+ax.legend()
+
+# %%
+# The individuals in this dataset follow very similar, arc-like trajectories.
+# To help emphasise what we are doing in this example, we will offset the paths
+# of two of the individuals by a small amount so that the trajectories are more
+# distinct.
+
+positions.loc[:, "y", :, "AEON3B_TP1"] -= 100.0
+positions.loc[:, "y", :, "AEON3B_TP2"] += 100.0
+
+print(positions[0, 0, 0, 0])  # TSTK DATA SEEMS TO BE CHANGING!!!!
+positions_before = positions.copy(deep=True)
+
+fig, ax = plt.subplots(1, 1)
+for mouse_name, col in zip(
+    positions.individuals.values, ["r", "g", "b"], strict=False
+):
+    plot_trajectory(
+        positions,
+        individual=mouse_name,
+        keypoints="centroid",
+        ax=ax,
+        linestyle="-",
+        marker=".",
+        # markersize=2,
+        linewidth=0.5,
+        c=col,
+        label=mouse_name,
+    )
+ax.invert_yaxis()
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.axis("equal")
+ax.legend()
+
+xr.testing.assert_allclose(positions, positions_before)
 
 # %%
 # Motivation
