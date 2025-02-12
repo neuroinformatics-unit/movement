@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Literal, TypeAlias
+from collections.abc import Hashable, Sequence
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
 import numpy as np
 import shapely
 from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
+from movement.kinematics import compute_forward_vector_angle
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
+
+if TYPE_CHECKING:
+    import xarray as xr
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
@@ -349,3 +353,106 @@ class BaseRegionOfInterest:
             if norm != 0.0:
                 displacement_vector /= norm
         return displacement_vector
+
+    def angle_from_forward(
+        self,
+        data: xr.DataArray,
+        left_keypoint: Hashable,
+        right_keypoint: Hashable,
+        angle_rotates: Literal[
+            "approach to forward", "forward to approach"
+        ] = "approach to forward",
+        approach_direction: Literal[
+            "point to region", "region to point"
+        ] = "point to region",
+        boundary: bool = False,
+        camera_view: Literal["top_down", "bottom_up"] = "top_down",
+        in_radians: bool = False,
+        keypoints_dimension: Hashable = "keypoints",
+        position_keypoint: Hashable | Sequence[Hashable] | None = None,
+    ) -> xr.DataArray:
+        """Compute the angle from the forward- to closest-approach direction.
+
+        Specifically, compute the signed angle between the vector of closest
+        approach to the region, originating from the ``position_keypoint``, and
+        the forward vector (defined by the left and right keypoints provided).
+
+        Parameters
+        ----------
+        data : xarray.DataArray
+            `DataArray` of positions that has at least 3 dimensions; "time",
+            "space", and ``keypoints_dimension``.
+        left_keypoint : Hashable
+            The left keypoint defining the forward vector, as passed to
+            func:``compute_forward_vector_angle``.
+        right_keypoint : Hashable
+            The right keypoint defining the forward vector, as passed to
+            func:``compute_forward_vector_angle``.
+        position_keypoint : Hashable | Sequence[Hashable]
+            The keypoint defining the position of the individual. The vector of
+            closest approach is computed as the vector between these positions
+            and the corresponding closest point in the region. If provided as a
+            sequence, the average of all provided keypoints is used. By
+            default, the centroid of the left and right keypoints is used.
+        angle_rotates : Literal["approach to forward", "forward to approach"]
+            Direction of the signed angle returned. ``"approach to forward"``
+            returns the signed angle between the vector of closest approach and
+            the forward direction. ``"forward to approach"`` returns the
+            opposite. Default is ``"approach to forward"``.
+        approach_direction : Literal["point to region", "region to point"]
+            Direction to use for the vector of closest approach.
+            ``"point to region"`` will direct this vector from the
+            ``position_keypoint`` to the region. ``"region to point"`` will do
+            the opposite. Default ``"point to region"``.
+        boundary : bool
+            Passed to ``vector_to``. If ``True``, the direction of closest
+            approach to the boundary of the region will be used, rather than
+            the direction of closest approach to the region (see Notes).
+            Default False.
+        camera_view : Literal["top_down", "bottom_up"]
+            Passed to func:``compute_forward_vector_angle``. Default
+            ``"top_down"``.
+        in_radians : bool
+            Passed to func:``compute_forward_vector_angle``. Default False.
+        keypoints_dimension : Hashable
+            The dimension of ``data`` along which the (left, right, and
+            position) keypoints are located. Default ``"keypoints"``.
+        vector_direction :
+
+        See Also
+        --------
+        func:``compute_forward_vector_angle`` :
+
+        """
+        # Default to centre of left and right keypoints for position,
+        # if not provided.
+        if position_keypoint is None:
+            position_keypoint = (left_keypoint, right_keypoint)
+        rotation_angle: Literal["ref to forward", "forward to ref"] = (
+            angle_rotates.replace("approach", "ref")  # type: ignore
+        )
+
+        # If we are given multiple position keypoints, we take the average of
+        # them all.
+        position_data = data.sel(
+            {keypoints_dimension: position_keypoint}
+        ).mean(dim=keypoints_dimension)
+        # Determine the vector from the position keypoint to the region,
+        # again at all time-points.
+        vector_to_region = self.vector_to(
+            position_data,
+            boundary=boundary,
+            direction=approach_direction,
+            unit=True,
+        )
+
+        # Then, compute signed angles at all time-points
+        return compute_forward_vector_angle(
+            data,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=vector_to_region,
+            camera_view=camera_view,
+            in_radians=in_radians,
+            angle_rotates=rotation_angle,
+        )
