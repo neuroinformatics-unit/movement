@@ -300,10 +300,10 @@ class BaseRegionOfInterest:
         ] = "region to point",
         unit: bool = True,
     ) -> np.ndarray:
-        """Compute the vector from a point to the region.
+        """Compute the vector from the region to a point.
 
-        Specifically, the vector is directed from the given ``point`` to the
-        nearest point within the region. Points within the region return the
+        Specifically, the vector is directed from the the nearest point within
+        the region to the given ``point``. Points within the region return the
         zero vector.
 
         Parameters
@@ -354,7 +354,7 @@ class BaseRegionOfInterest:
                 displacement_vector /= norm
         return displacement_vector
 
-    def angle_from_forward(
+    def compute_angle_to_nearest_point(
         self,
         data: xr.DataArray,
         left_keypoint: Hashable,
@@ -371,11 +371,21 @@ class BaseRegionOfInterest:
         keypoints_dimension: Hashable = "keypoints",
         position_keypoint: Hashable | Sequence[Hashable] | None = None,
     ) -> xr.DataArray:
-        """Compute the angle from the forward- to closest-approach direction.
+        """Compute the angle from the forward- to the approach-vector.
 
         Specifically, compute the signed angle between the vector of closest
-        approach to the region, originating from the ``position_keypoint``, and
-        the forward vector (defined by the left and right keypoints provided).
+        approach to the region, and a forward direction. ``angle_rotates`` can
+        be used to control the sign convention of the angle.
+
+        The forward vector is determined by ``left_keypoint``,
+        ``right_keypoint``, and ``camera_view`` as per :func:`forward vector\
+        <movement.kinematics.compute_forward_vector>`.
+
+        The approach vector is the vector from ``position_keypoints`` to the
+        closest point within the region (or the closest point on the boundary
+        of the region if ``boundary`` is set to ``True``), as determined by
+        :func:`vector_to`. ``approach_direction`` can be used to reverse the
+        direction convention of the approach vector.
 
         Parameters
         ----------
@@ -388,12 +398,6 @@ class BaseRegionOfInterest:
         right_keypoint : Hashable
             The right keypoint defining the forward vector, as passed to
             func:``compute_forward_vector_angle``.
-        position_keypoint : Hashable | Sequence[Hashable]
-            The keypoint defining the position of the individual. The vector of
-            closest approach is computed as the vector between these positions
-            and the corresponding closest point in the region. If provided as a
-            sequence, the average of all provided keypoints is used. By
-            default, the centroid of the left and right keypoints is used.
         angle_rotates : Literal["approach to forward", "forward to approach"]
             Direction of the signed angle returned. ``"approach to forward"``
             returns the signed angle between the vector of closest approach and
@@ -405,9 +409,10 @@ class BaseRegionOfInterest:
             ``position_keypoint`` to the region. ``"region to point"`` will do
             the opposite. Default ``"point to region"``.
         boundary : bool
-            Passed to ``vector_to``. If ``True``, the direction of closest
-            approach to the boundary of the region will be used, rather than
-            the direction of closest approach to the region (see Notes).
+            Passed to ``vector_to``, which is used to compute the approach
+            vector. If ``True``, the approach vector to the closest point on
+            the boundary of the region will be used, rather than the direction
+            of closest approach to the region (see Notes).
             Default False.
         camera_view : Literal["top_down", "bottom_up"]
             Passed to func:``compute_forward_vector_angle``. Default
@@ -417,17 +422,38 @@ class BaseRegionOfInterest:
         keypoints_dimension : Hashable
             The dimension of ``data`` along which the (left, right, and
             position) keypoints are located. Default ``"keypoints"``.
-        vector_direction :
+        position_keypoint : Hashable | Sequence[Hashable], optional
+            The keypoint defining the position of the individual. The approach
+            vector is computed as the vector between these positions
+            and the corresponding closest point in the region. If provided as a
+            sequence, the average of all provided keypoints is used. By
+            default, the centroid of ``left_keypoint`` and ``right_keypoint``
+            is used.
+
+        Notes
+        -----
+        For a point ``p`` within (the interior of a) region of interest, the
+        approach vector to the region is the zero vector, since the closest
+        point to ``p`` inside the region is ``p`` itself. This behaviour may be
+        undesirable for 2D polygonal regions (though is usually desirable for
+        1D line-like regions). Passing the ``boundary`` argument causes this
+        method to calculate the approach vector to the closest point on the
+        boundary of this region, so ``p`` will not be considered the "closest
+        point" to itself (unless of course, it is a point on the boundary).
 
         See Also
         --------
-        func:``compute_forward_vector_angle`` :
+        ``compute_forward_vector_angle`` : The underlying function used
+            to compute the signed angle between the forward vector and the
+            approach vector.
 
         """
         # Default to centre of left and right keypoints for position,
         # if not provided.
         if position_keypoint is None:
             position_keypoint = (left_keypoint, right_keypoint)
+        # Translate the more explicit convention used here into the convention
+        # used by our backend functions.
         rotation_angle: Literal["ref to forward", "forward to ref"] = (
             angle_rotates.replace("approach", "ref")  # type: ignore
         )
@@ -437,8 +463,7 @@ class BaseRegionOfInterest:
         position_data = data.sel(
             {keypoints_dimension: position_keypoint}
         ).mean(dim=keypoints_dimension)
-        # Determine the vector from the position keypoint to the region,
-        # again at all time-points.
+        # Determine the approach vector, for all time-points.
         vector_to_region = self.vector_to(
             position_data,
             boundary=boundary,

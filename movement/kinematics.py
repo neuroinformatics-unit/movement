@@ -372,7 +372,7 @@ def compute_forward_vector_angle(
     Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
-    <movement.kinematics.compute_forward_vector>`).
+    <movement.kinematics.compute_forward_vector>`.
     The returned angles are in degrees, spanning the range :math:`(-180, 180]`,
     unless ``in_radians`` is set to ``True``.
 
