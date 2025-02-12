@@ -207,7 +207,9 @@ class BaseRegionOfInterest:
         return point_is_inside
 
     @broadcastable_method(only_broadcastable_along="space")
-    def distance_to(self, point: ArrayLike, boundary: bool = False) -> float:
+    def compute_distance_to(
+        self, point: ArrayLike, boundary: bool = False
+    ) -> float:
         """Compute the distance from the region to a point.
 
         Parameters
@@ -246,7 +248,7 @@ class BaseRegionOfInterest:
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="nearest point"
     )
-    def nearest_point_to(
+    def compute_nearest_point_to(
         self, /, position: ArrayLike, boundary: bool = False
     ) -> np.ndarray:
         """Compute the nearest point in the region to the ``position``.
@@ -291,7 +293,7 @@ class BaseRegionOfInterest:
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="vector to"
     )
-    def vector_to(
+    def compute_approach_vector(
         self,
         point: ArrayLike,
         boundary: bool = False,
@@ -464,7 +466,7 @@ class BaseRegionOfInterest:
             {keypoints_dimension: position_keypoint}
         ).mean(dim=keypoints_dimension)
         # Determine the approach vector, for all time-points.
-        vector_to_region = self.vector_to(
+        vector_to_region = self.compute_approach_vector(
             position_data,
             boundary=boundary,
             direction=approach_direction,
