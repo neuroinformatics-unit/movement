@@ -12,8 +12,8 @@ DEFAULT_PLOTTING_ARGS = {
 
 def plot_trajectory(
     da: xr.DataArray,
-    keypoints: str | list[str] | None = None,
     individual: str | None = None,
+    keypoints: str | list[str] | None = None,
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
