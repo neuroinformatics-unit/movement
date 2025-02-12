@@ -16,6 +16,7 @@ visualise the results.
 from matplotlib import pyplot as plt
 
 from movement import sample_data
+from movement.plots import plot_trajectory
 from movement.utils.vector import compute_norm
 
 # %%
@@ -48,27 +49,36 @@ position = ds.position
 # Visualise the data
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
-# colouring them by individual.
+# colouring them by individual. We use the ``plot_trajectory`` function from
+# ``movement.plots`` which is a wrapper around
+# ``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
+# individuals in the dataset. The fig and ax objects returned can be used to
+# further customise the plot.
 
+# Create a single figure and axes
 fig, ax = plt.subplots(1, 1)
+# Invert y-axis so (0,0) is in the top-left,
+# matching typical image coordinate systems
+ax.invert_yaxis()
+# Plot trajectories for each mouse on the same axes
 for mouse_name, col in zip(
-    position.individuals.values, ["r", "g", "b"], strict=False
+    position.individuals.values,
+    ["r", "g", "b"],  # colours
+    strict=False,
 ):
-    ax.plot(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        linestyle="-",
-        marker=".",
-        markersize=2,
-        linewidth=0.5,
+    plot_trajectory(
+        position,
+        individual=mouse_name,
+        ax=ax,  # Use the same axes for all plots
         c=col,
+        marker="o",
+        s=10,
+        alpha=0.2,
         label=mouse_name,
     )
-    ax.invert_yaxis()
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
-    ax.legend()
+    ax.legend().set_alpha(1)
+ax.title.set_text("Trajectories of three mice")
+fig.show()
 
 # %%
 # We can see that the trajectories of the three mice are close to a circular
@@ -77,23 +87,19 @@ for mouse_name, col in zip(
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# We can also color the data points based on their timestamps:
+# By default the ``plot_trajectory`` function in ``movement.plots`` colours
+# data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
-    sc = ax.scatter(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        s=2,
-        c=position.time,
-        cmap="viridis",
-    )
     ax.invert_yaxis()
-    ax.set_title(mouse_name)
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
-    fig.colorbar(sc, ax=ax, label="time (s)")
+    fig, ax = plot_trajectory(
+        position,
+        individual=mouse_name,
+        ax=ax,
+        s=2,
+    )
 fig.tight_layout()
+fig.show()
 
 # %%
 # These plots show that for this snippet of the data,
