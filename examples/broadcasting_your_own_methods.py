@@ -24,6 +24,7 @@ import numpy as np
 import xarray as xr
 
 from movement import sample_data
+from movement.plots import plot_trajectory
 from movement.utils.broadcasting import (
     make_broadcastable,
 )
@@ -37,7 +38,6 @@ from movement.utils.broadcasting import (
 
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
-
 # %%
 # The individuals in this dataset follow very similar, arc-like trajectories.
 # To help emphasise what we are doing in this example, we will offset the paths
@@ -47,25 +47,27 @@ positions: xr.DataArray = ds.position
 positions.loc[:, "y", :, "AEON3B_TP1"] -= 100.0
 positions.loc[:, "y", :, "AEON3B_TP2"] += 100.0
 
+# %%
+
 fig, ax = plt.subplots(1, 1)
 for mouse_name, col in zip(
     positions.individuals.values, ["r", "g", "b"], strict=False
 ):
-    ax.plot(
-        positions.sel(individuals=mouse_name, space="x"),
-        positions.sel(individuals=mouse_name, space="y"),
+    plot_trajectory(
+        positions,
+        individual=mouse_name,
+        keypoints="centroid",
+        ax=ax,
         linestyle="-",
         marker=".",
-        markersize=2,
+        s=2,
         linewidth=0.5,
         c=col,
         label=mouse_name,
     )
-    ax.invert_yaxis()
-    ax.set_xlabel("x (pixels)")
-    ax.set_ylabel("y (pixels)")
-    ax.axis("equal")
-    ax.legend()
+ax.invert_yaxis()
+ax.set_title("Trajectories")
+ax.legend()
 
 # %%
 # Motivation
