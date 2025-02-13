@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pytest
@@ -78,7 +78,7 @@ def points_in_the_plane() -> xr.DataArray:
 
 
 @pytest.mark.parametrize(
-    ["region", "data", "fn_args", "expected_output"],
+    ["region", "data", "fn_args", "expected_output", "which_method"],
     [
         pytest.param(
             "unit_square_with_hole",
@@ -89,7 +89,19 @@ def points_in_the_plane() -> xr.DataArray:
                 "angle_rotates": "elephant to region",
             },
             ValueError("Unknown angle convention: elephant to region"),
-            id="Unknown angle convention (checked before other failures)",
+            "compute_egocentric_angle",
+            id="[E] Unknown angle convention",
+        ),
+        pytest.param(
+            "unit_square_with_hole",
+            "points_in_the_plane",
+            {
+                "position_keypoint": "midpt",
+                "angle_rotates": "elephant to region",
+            },
+            ValueError("Unknown angle convention: elephant to region"),
+            "compute_allocentric_angle",
+            id="[A] Unknown angle convention",
         ),
         pytest.param(
             "unit_square_with_hole",
@@ -107,7 +119,8 @@ def points_in_the_plane() -> xr.DataArray:
                     np.rad2deg(np.arccos(2.0 / np.sqrt(5.0))),
                 ]
             ),
-            id="Default args",
+            "compute_egocentric_angle",
+            id="[E] Default args",
         ),
         pytest.param(
             "unit_square_with_hole",
@@ -126,7 +139,8 @@ def points_in_the_plane() -> xr.DataArray:
                     np.rad2deg(np.pi / 2.0 + np.arcsin(1.0 / np.sqrt(5.0))),
                 ]
             ),
-            id="Non-default position",
+            "compute_egocentric_angle",
+            id="[E] Non-default position",
         ),
         pytest.param(
             "unit_square",
@@ -144,7 +158,8 @@ def points_in_the_plane() -> xr.DataArray:
                     float("nan"),
                 ]
             ),
-            id="0-approach vectors (nan returns)",
+            "compute_egocentric_angle",
+            id="[E] 0-approach vectors (nan returns)",
         ),
         pytest.param(
             "unit_square",
@@ -163,16 +178,75 @@ def points_in_the_plane() -> xr.DataArray:
                     np.rad2deg(np.arccos(2.0 / np.sqrt(5.0))),
                 ]
             ),
-            id="Force boundary calculations",
+            "compute_egocentric_angle",
+            id="[E] Force boundary calculations",
+        ),
+        pytest.param(
+            "unit_square_with_hole",
+            "points_in_the_plane",
+            {
+                "position_keypoint": "midpt",
+            },
+            np.array(
+                [
+                    -135.0,
+                    0.0,
+                    90.0,
+                    -135.0,
+                    180.0,
+                ]
+            ),
+            "compute_allocentric_angle",
+            id="[A] Default args",
+        ),
+        pytest.param(
+            "unit_square",
+            "points_in_the_plane",
+            {
+                "position_keypoint": "midpt",
+            },
+            np.array(
+                [
+                    -135.0,
+                    0.0,
+                    float("nan"),
+                    -135.0,
+                    float("nan"),
+                ]
+            ),
+            "compute_allocentric_angle",
+            id="[A] 0-approach vectors",
+        ),
+        pytest.param(
+            "unit_square",
+            "points_in_the_plane",
+            {
+                "position_keypoint": "midpt",
+                "boundary": True,
+            },
+            np.array(
+                [
+                    -135.0,
+                    0.0,
+                    90.0,
+                    -135.0,
+                    180.0,
+                ]
+            ),
+            "compute_allocentric_angle",
+            id="[A] Force boundary calculation",
         ),
     ],
 )
-def test_egocentric_angle(
+def test_centric_angle(
     push_into_range,
     region: BaseRegionOfInterest,
     data: xr.DataArray,
     fn_args: dict[str, Any],
     expected_output: xr.DataArray | Exception,
+    which_method: Literal[
+        "compute_allocentric_angle", "compute_egocentric_angle"
+    ],
     request,
 ) -> None:
     """Test computation of the egocentric angle.
@@ -197,26 +271,29 @@ def test_egocentric_angle(
     if isinstance(expected_output, np.ndarray):
         expected_output = xr.DataArray(data=expected_output, dims=["time"])
 
+    method = getattr(region, which_method)
+    if which_method == "compute_egocentric_angle":
+        other_vector_name = "forward"
+    elif which_method == "compute_allocentric_angle":
+        other_vector_name = "ref"
+
     if isinstance(expected_output, Exception):
         with pytest.raises(
             type(expected_output), match=re.escape(str(expected_output))
         ):
-            region.compute_egocentric_angle(data, **fn_args)
+            method(data, **fn_args)
     else:
-        angles = region.compute_egocentric_angle(data, **fn_args)
-
+        angles = method(data, **fn_args)
         xr.testing.assert_allclose(angles, expected_output)
 
         # Check reversal of the angle convention
         if (
-            fn_args.get("angle_rotates", "approach to forward")
-            == "approach to forward"
+            fn_args.get("angle_rotates", f"approach to {other_vector_name}")
+            == f"approach to {other_vector_name}"
         ):
-            fn_args["angle_rotates"] = "forward to approach"
+            fn_args["angle_rotates"] = f"{other_vector_name} to approach"
         else:
-            fn_args["angle_rotates"] = "approach to forward"
-        reverse_angles = push_into_range(
-            region.compute_egocentric_angle(data, **fn_args)
-        )
+            fn_args["angle_rotates"] = f"approach to {other_vector_name}"
 
+        reverse_angles = push_into_range(method(data, **fn_args))
         xr.testing.assert_allclose(angles, push_into_range(-reverse_angles))
