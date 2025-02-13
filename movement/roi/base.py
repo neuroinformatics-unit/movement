@@ -371,7 +371,7 @@ class BaseRegionOfInterest:
         ] = "point to region",
         boundary: bool = False,
         in_radians: bool = False,
-        reference_vector: ArrayLike | xr.DataArray = (1.0, 0.0),
+        reference_vector: np.ndarray | xr.DataArray = None,
     ) -> float:
         """Compute the allocentric angle to the region.
 
@@ -433,6 +433,8 @@ class BaseRegionOfInterest:
         egocentric angle to the region.
 
         """
+        if reference_vector is None:
+            reference_vector = np.array([[1.0, 0.0]])
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.
         if angle_rotates == "ref to approach":
@@ -440,9 +442,7 @@ class BaseRegionOfInterest:
         elif angle_rotates == "approach to ref":
             ref_as_left_opperand = False
         else:
-            raise ValueError(
-                f"Cannot interpret angle convention: {angle_rotates}"
-            )
+            raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         # If we are given multiple position keypoints, we take the average of
         # them all.
@@ -451,16 +451,26 @@ class BaseRegionOfInterest:
             position_data = position_data.mean(dim="keypoints")
 
         # Determine the approach vector, for all time-points.
-        vector_to_region = self.compute_approach_vector(
-            position_data,
-            boundary=boundary,
-            direction=approach_direction,
-            unit=True,
+        approach_vector = (
+            self.compute_approach_vector(
+                position_data,
+                boundary=boundary,
+                direction=approach_direction,
+                unit=True,
+            )
+            .rename({"vector to": "space"})
+            .assign_coords(
+                {
+                    "space": ["x", "y"]
+                    if len(data["space"]) == 2
+                    else ["x", "y", "z"]
+                }
+            )
         )
 
         # Then, compute signed angles at all time-points
         angles = compute_signed_angle_2d(
-            vector_to_region,
+            approach_vector,
             reference_vector,
             v_as_left_operand=ref_as_left_opperand,
         )
@@ -571,7 +581,7 @@ class BaseRegionOfInterest:
             position_data = position_data.mean(dim="keypoints")
 
         # Determine the approach vector, for all time-points.
-        vector_to_region = (
+        approach_vector = (
             self.compute_approach_vector(
                 position_data,
                 boundary=boundary,
@@ -593,7 +603,7 @@ class BaseRegionOfInterest:
             data,
             left_keypoint=left_keypoint,
             right_keypoint=right_keypoint,
-            reference_vector=vector_to_region,
+            reference_vector=approach_vector,
             camera_view=camera_view,
             in_radians=in_radians,
             angle_rotates=rotation_angle,
