@@ -48,7 +48,7 @@ def test_point_within_line(
 
     The boundaries of a line are the end points.
     """
-    assert diagonal_line.point_is_inside(point, include_boundary) == inside
+    assert diagonal_line.contains_point(point, include_boundary) == inside
 
 
 @pytest.mark.parametrize(
@@ -71,7 +71,7 @@ def test_point_within_polygon(
     holey_polygon, point, include_boundary, inside
 ) -> None:
     """Test whether a point is within RoI."""
-    assert holey_polygon.point_is_inside(point, include_boundary) == inside
+    assert holey_polygon.contains_point(point, include_boundary) == inside
 
 
 @pytest.mark.parametrize(
@@ -114,7 +114,7 @@ def test_point_within_polygon(
 def test_points_within_polygon(holey_polygon, points, expected) -> None:
     """Test whether points (supplied as xr.DataArray) are within a polygon."""
     xr.testing.assert_equal(
-        holey_polygon.point_is_inside(points),
+        holey_polygon.contains_point(points),
         expected,
     )
 
@@ -154,6 +154,6 @@ def test_shape_dims(
 
     The space dimension should have collapsed.
     """
-    result = holey_polygon.point_is_inside(points)
+    result = holey_polygon.contains_point(points)
     assert result.shape == expected_shape
     assert result.dims == expected_dims

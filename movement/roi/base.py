@@ -162,7 +162,7 @@ class BaseRegionOfInterest:
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
     @broadcastable_method(only_broadcastable_along="space")
-    def point_is_inside(
+    def contains_point(
         self,
         /,
         position: ArrayLike,
