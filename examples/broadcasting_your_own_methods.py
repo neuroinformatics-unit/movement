@@ -66,9 +66,7 @@ for mouse_name, col in zip(
         label=mouse_name,
     )
 ax.invert_yaxis()
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.axis("equal")
+ax.set_title("Trajectories")
 ax.legend()
 
 # %%
