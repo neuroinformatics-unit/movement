@@ -10,7 +10,7 @@ from movement.roi.polygon import PolygonOfInterest
 def holey_polygon(request) -> PolygonOfInterest:
     """Fixture for a polygon with a hole.
 
-    RoI is a square with a 0.5 by 0.5 hole in the middle.
+    RoI is a unit square with a 0.5 by 0.5 hole in the middle.
     (0.0, 0.0) -> (1.0, 0.0) -> (1.0, 1.0) -> (0.0, 1.0) -> (0.0, 0.0)
     """
     exterior_boundary = request.getfixturevalue("unit_square_pts")
@@ -99,7 +99,7 @@ def test_point_within_polygon(
                 dims=["points", "space"],
             ),
             xr.DataArray([False, True, False, True], dims=["points"]),
-            id="2 points inside hole, 2 points inside RoI",
+            id="2 points inside hole, 1 point inside RoI, 1 on RoI boundary",
         ),
         pytest.param(
             xr.DataArray(
@@ -111,8 +111,8 @@ def test_point_within_polygon(
         ),
     ],
 )
-def test_points_within_roi(holey_polygon, points, expected) -> None:
-    """Test whether points are within RoI."""
+def test_points_within_polygon(holey_polygon, points, expected) -> None:
+    """Test whether points (supplied as xr.DataArray) are within a polygon."""
     xr.testing.assert_equal(
         holey_polygon.point_is_inside(points),
         expected,
