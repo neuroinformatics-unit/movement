@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
 
 
@@ -17,19 +18,60 @@ def holey_polygon(request) -> PolygonOfInterest:
     return PolygonOfInterest(exterior_boundary, holes=[interior_boundary])
 
 
+@pytest.fixture
+def diagonal_line() -> LineOfInterest:
+    """Fixture for a line.
+
+    RoI is a diagonal line from the origin to (1, 1).
+    """
+    return LineOfInterest([(0, 0), (1, 1)])
+
+
 @pytest.mark.parametrize(
-    ["point", "inside"],
+    ["point", "include_boundary", "inside"],
     [
-        pytest.param([0, 0], True, id="point on boundary"),
-        pytest.param([0.5, 0.5], False, id="point inside hole"),
-        pytest.param([0.1, 0.1], True, id="point inside roi"),
-        pytest.param([2.0, 2.0], False, id="point outside roi"),
-        pytest.param([0.5, 0.5, 0.5], False, id="3D point"),
+        pytest.param([0, 0], True, True, id="on starting point"),
+        pytest.param([0, 0], False, False, id="on excluded starting point"),
+        pytest.param([0.5, 0.5], True, True, id="inside LoI"),
+        pytest.param(
+            [0.5, 0.5], False, True, id="inside LoI (exclude boundary)"
+        ),
+        pytest.param([2.0, 2.0], True, False, id="outside LoI"),
+        pytest.param([0.5, 0.5, 0.5], True, True, id="3D point inside LoI"),
+        pytest.param([0.1, 0.2, 0.5], True, False, id="3D point outside LoI"),
     ],
 )
-def test_point_within_roi(holey_polygon, point, inside) -> None:
+def test_point_within_line(
+    diagonal_line, point, include_boundary, inside
+) -> None:
+    """Test whether a point is on a line.
+
+    The boundaries of a line are the end points.
+    """
+    assert diagonal_line.point_is_inside(point, include_boundary) == inside
+
+
+@pytest.mark.parametrize(
+    ["point", "include_boundary", "inside"],
+    [
+        pytest.param([0, 0], True, True, id="on exterior boundary"),
+        pytest.param([0, 0], False, False, id="on excluded exterior boundary"),
+        pytest.param([0.25, 0.25], True, True, id="on hole boundary"),
+        pytest.param(
+            [0.25, 0.25], False, False, id="on excluded hole boundary"
+        ),
+        pytest.param([0.5, 0.5], True, False, id="inside hole"),
+        pytest.param([0.1, 0.1], True, True, id="inside RoI"),
+        pytest.param([2.0, 2.0], True, False, id="outside RoI"),
+        pytest.param([0.5, 0.5, 0.5], True, False, id="3D point inside hole"),
+        pytest.param([0.1, 0.1, 0.5], True, True, id="3D point inside RoI"),
+    ],
+)
+def test_point_within_polygon(
+    holey_polygon, point, include_boundary, inside
+) -> None:
     """Test whether a point is within RoI."""
-    assert holey_polygon.point_is_inside(point) == inside
+    assert holey_polygon.point_is_inside(point, include_boundary) == inside
 
 
 @pytest.mark.parametrize(
@@ -41,7 +83,7 @@ def test_point_within_roi(holey_polygon, point, inside) -> None:
                 dims=["points", "space"],
             ),
             xr.DataArray([True, True, True], dims=["points"]),
-            id="3 points inside",
+            id="3 points inside RoI",
         ),
         pytest.param(
             xr.DataArray(
@@ -53,11 +95,19 @@ def test_point_within_roi(holey_polygon, point, inside) -> None:
         ),
         pytest.param(
             xr.DataArray(
+                np.array([[0.55, 0.55], [0.1, 0.1], [0.7, 0.7], [0, 0]]),
+                dims=["points", "space"],
+            ),
+            xr.DataArray([False, True, False, True], dims=["points"]),
+            id="2 points inside hole, 2 points inside RoI",
+        ),
+        pytest.param(
+            xr.DataArray(
                 np.array([[2, 2], [-2, -2]]),
                 dims=["points", "space"],
             ),
             xr.DataArray([False, False], dims=["points"]),
-            id="2 points outside hole",
+            id="2 points outside RoI",
         ),
     ],
 )
@@ -69,29 +119,27 @@ def test_points_within_roi(holey_polygon, points, expected) -> None:
     )
 
 
-def create_data_array(shape, dims):
-    """Create an xarray DataArray with zeros."""
-    return xr.DataArray(np.zeros(shape), dims=dims)
-
-
 @pytest.mark.parametrize(
     ["points", "expected_shape", "expected_dims"],
     [
         pytest.param(
-            create_data_array((4, 2), ["points", "space"]),
+            xr.DataArray(np.zeros((4, 2)), dims=["points", "space"]),
             (4,),
             ("points",),
             id="points (4)",
         ),
         pytest.param(
-            create_data_array((2, 2, 2), ["time", "points", "space"]),
+            xr.DataArray(
+                np.zeros((2, 2, 2)), dims=["time", "points", "space"]
+            ),
             (2, 2),
             ("time", "points"),
             id="time (2), points (2)",
         ),
         pytest.param(
-            create_data_array(
-                (2, 2, 2, 5), ["time", "points", "space", "individuals"]
+            xr.DataArray(
+                np.zeros((2, 2, 2, 5)),
+                dims=["time", "points", "space", "individuals"],
             ),
             (2, 2, 5),
             ("time", "points", "individuals"),
