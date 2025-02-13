@@ -60,7 +60,7 @@ for mouse_name, col in zip(
         ax=ax,
         linestyle="-",
         marker=".",
-        s=0.2,
+        s=2,
         linewidth=0.5,
         c=col,
         label=mouse_name,
