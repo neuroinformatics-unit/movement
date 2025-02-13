@@ -371,7 +371,6 @@ class BaseRegionOfInterest:
         ] = "point to region",
         boundary: bool = False,
         in_radians: bool = False,
-        keypoints_dimension: Hashable = "keypoints",
         reference_vector: ArrayLike | xr.DataArray = (1.0, 0.0),
     ) -> float:
         """Compute the allocentric angle to the region.
@@ -409,9 +408,6 @@ class BaseRegionOfInterest:
         in_radians : bool
             If ``True``, angles are returned in radians. Otherwise angles are
             returned in degrees. Default ``False``.
-        keypoints_dimension : Hashable
-            The dimension of ``data`` along which the ``position_keypoint`` is
-            located. Default ``"keypoints"``.
         reference_vector : ArrayLike | xr.DataArray
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
@@ -421,7 +417,8 @@ class BaseRegionOfInterest:
         -----
         For a point ``p`` within (the interior of a) region of interest, the
         approach vector to the region is the zero vector, since the closest
-        point to ``p`` inside the region is ``p`` itself. This behaviour may be
+        point to ``p`` inside the region is ``p`` itself. In this case, `nan`
+        is returned as the egocentric angle. This behaviour may be
         undesirable for 2D polygonal regions (though is usually desirable for
         1D line-like regions). Passing the ``boundary`` argument causes this
         method to calculate the approach vector to the closest point on the
@@ -449,9 +446,10 @@ class BaseRegionOfInterest:
 
         # If we are given multiple position keypoints, we take the average of
         # them all.
-        position_data = data.sel(
-            {keypoints_dimension: position_keypoint}
-        ).mean(dim=keypoints_dimension)
+        position_data = data.sel(keypoints=position_keypoint, drop=True)
+        if "keypoints" in position_data.dims:
+            position_data = position_data.mean(dim="keypoints")
+
         # Determine the approach vector, for all time-points.
         vector_to_region = self.compute_approach_vector(
             position_data,
@@ -484,7 +482,6 @@ class BaseRegionOfInterest:
         boundary: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,
-        keypoints_dimension: Hashable = "keypoints",
         position_keypoint: Hashable | Sequence[Hashable] | None = None,
     ) -> xr.DataArray:
         """Compute the egocentric angle to the region.
@@ -530,9 +527,6 @@ class BaseRegionOfInterest:
         in_radians : bool
             If ``True``, angles are returned in radians. Otherwise angles are
             returned in degrees. Default ``False``.
-        keypoints_dimension : Hashable
-            The dimension of ``data`` along which the (left, right, and
-            position) keypoints are located. Default ``"keypoints"``.
         position_keypoint : Hashable | Sequence[Hashable], optional
             The keypoint defining the origin of the approach vector. If
             provided as a sequence, the average of all provided keypoints is
@@ -543,7 +537,8 @@ class BaseRegionOfInterest:
         -----
         For a point ``p`` within (the interior of a) region of interest, the
         approach vector to the region is the zero vector, since the closest
-        point to ``p`` inside the region is ``p`` itself. This behaviour may be
+        point to ``p`` inside the region is ``p`` itself. In this case, `nan`
+        is returned as the egocentric angle. This behaviour may be
         undesirable for 2D polygonal regions (though is usually desirable for
         1D line-like regions). Passing the ``boundary`` argument causes this
         method to calculate the approach vector to the closest point on the
@@ -560,24 +555,37 @@ class BaseRegionOfInterest:
         # Default to centre of left and right keypoints for position,
         # if not provided.
         if position_keypoint is None:
-            position_keypoint = (left_keypoint, right_keypoint)
+            position_keypoint = [left_keypoint, right_keypoint]
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.
         rotation_angle: Literal["ref to forward", "forward to ref"] = (
             angle_rotates.replace("approach", "ref")  # type: ignore
         )
+        if rotation_angle not in ["ref to forward", "forward to ref"]:
+            raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         # If we are given multiple position keypoints, we take the average of
         # them all.
-        position_data = data.sel(
-            {keypoints_dimension: position_keypoint}
-        ).mean(dim=keypoints_dimension)
+        position_data = data.sel(keypoints=position_keypoint, drop=True)
+        if "keypoints" in position_data.dims:
+            position_data = position_data.mean(dim="keypoints")
+
         # Determine the approach vector, for all time-points.
-        vector_to_region = self.compute_approach_vector(
-            position_data,
-            boundary=boundary,
-            direction=approach_direction,
-            unit=True,
+        vector_to_region = (
+            self.compute_approach_vector(
+                position_data,
+                boundary=boundary,
+                direction=approach_direction,
+                unit=True,
+            )
+            .rename({"vector to": "space"})
+            .assign_coords(
+                {
+                    "space": ["x", "y"]
+                    if len(data["space"]) == 2
+                    else ["x", "y", "z"]
+                }
+            )
         )
 
         # Then, compute signed angles at all time-points
