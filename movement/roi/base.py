@@ -299,14 +299,15 @@ class BaseRegionOfInterest:
         boundary: bool = False,
         direction: Literal[
             "point to region", "region to point"
-        ] = "region to point",
+        ] = "point to region",
         unit: bool = True,
     ) -> np.ndarray:
-        """Compute the vector from the region to a point.
+        """Compute the approach vector a ``point`` to the region.
 
-        Specifically, the vector is directed from the the nearest point within
-        the region to the given ``point``. Points within the region return the
-        zero vector.
+        The approach vector is defined as the vector directed from the
+        ``point`` provided, to the closest point that belongs to the region.
+        If ``point`` is within the region, the zero vector is returned (see
+        Notes).
 
         Parameters
         ----------
@@ -319,10 +320,11 @@ class BaseRegionOfInterest:
             (See Notes). Default is False.
         direction : Literal["point to region", "region to point"]
             Which direction the returned vector should point in. Default is
-            "region to point".
+            "point to region".
         unit : bool
-            If True, the unit vector in the appropriate direction is returned,
-            otherwise the displacement vector is returned. Default is False.
+            If ``True``, the unit vector in the appropriate direction is
+            returned, otherwise the displacement vector is returned.
+            Default is ``True``.
 
         Returns
         -------

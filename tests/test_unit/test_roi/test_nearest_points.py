@@ -304,21 +304,21 @@ def test_nearest_point_to_tie_breaks(
             "unit_square",
             (-0.5, 0.0),
             {},
-            np.array([-1.0, 0.0]),
+            np.array([1.0, 0.0]),
             id="(-0.5, 0.0) -> unit square",
         ),
         pytest.param(
             LineOfInterest([(0.0, 0.0), (1.0, 0.0)]),
             (0.1, 0.5),
             {},
-            np.array([0.0, 1.0]),
+            np.array([0.0, -1.0]),
             id="(0.1, 0.5) -> +ve x ray",
         ),
         pytest.param(
             "unit_square",
             (-0.5, 0.0),
             {"unit": False},
-            np.array([-0.5, 0.0]),
+            np.array([0.5, 0.0]),
             id="Don't normalise output",
         ),
         pytest.param(
@@ -332,19 +332,19 @@ def test_nearest_point_to_tie_breaks(
             "unit_square",
             (0.25, 0.35),
             {"boundary": True},
-            np.array([1.0, 0.0]),
+            np.array([-1.0, 0.0]),
             id="Boundary, polygon",
         ),
         pytest.param(
             LineOfInterest([(0.0, 0.0), (1.0, 0.0)]),
             (0.1, 0.5),
             {"boundary": True},
-            np.array([0.1, 0.5]) / np.sqrt(0.1**2 + 0.5**2),
+            np.array([-0.1, -0.5]) / np.sqrt(0.1**2 + 0.5**2),
             id="Boundary, line",
         ),
     ],
 )
-def test_vector_to(
+def test_approach_vector(
     region: BaseRegionOfInterest,
     point: xr.DataArray,
     other_fn_args: dict[str, Any],
@@ -364,10 +364,13 @@ def test_vector_to(
         assert np.allclose(vector_to, expected_output)
 
         # Check symmetry when reversing vector direction
-        if other_fn_args.get("direction", "region to point"):
-            other_fn_args["direction"] = "point to region"
+        if (
+            other_fn_args.get("direction", "point to region")
+            == "point to region"
+        ):
+            other_fn_args["direction"] = "region to point"
         else:
-            other_fn_args["direction"] = "region_to_point"
+            other_fn_args["direction"] = "point to region"
         vector_to_reverse = region.compute_approach_vector(
             point, **other_fn_args
         )
