@@ -170,7 +170,7 @@ class BaseRegionOfInterest:
     ) -> bool:
         """Determine if a position is inside the region of interest.
 
-        Parameters.
+        Parameters
         ----------
         position : ArrayLike
             Spatial coordinates [x, y, [z]] to check as being inside the
