@@ -1,8 +1,7 @@
-"""Express 2D vectors in polar coordinates
-============================================
+"""Compute head direction
+=========================
 
-Compute a vector representing head direction and express it in polar
-coordinates.
+Various ways to compute the head direction vector and angle.
 """
 # %%
 # Imports
