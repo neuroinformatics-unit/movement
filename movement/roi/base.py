@@ -6,8 +6,10 @@ from collections.abc import Sequence
 from typing import Literal, TypeAlias
 
 import shapely
+from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
+from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
@@ -158,3 +160,43 @@ class BaseRegionOfInterest:
             f"{self.__class__.__name__} {self.name} "
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
+
+    @broadcastable_method(only_broadcastable_along="space")
+    def contains_point(
+        self,
+        /,
+        position: ArrayLike,
+        include_boundary: bool = True,
+    ) -> bool:
+        """Determine if a position is inside the region of interest.
+
+        Parameters
+        ----------
+        position : ArrayLike
+            Spatial coordinates [x, y, [z]] to check as being inside the
+            region.
+        include_boundary : bool
+            Whether to treat a position on the region's boundary as inside the
+            region (True) or outside the region (False). Default True.
+
+        Returns
+        -------
+        bool
+            True if the ``position`` provided is within the region of interest.
+            False otherwise.
+
+        """
+        point = shapely.Point(position)
+
+        current_region = self.region
+        point_is_inside = current_region.contains(point)
+
+        if include_boundary:
+            # 2D objects have 1D object boundaries,
+            # which in turn have point-boundaries.
+            while not current_region.boundary.is_empty:
+                current_region = current_region.boundary
+                point_is_inside = point_is_inside or current_region.contains(
+                    point
+                )
+        return point_is_inside
