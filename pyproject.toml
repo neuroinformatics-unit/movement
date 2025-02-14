@@ -140,6 +140,7 @@ per-file-ignores = { "tests/*" = [
   "D400", # first line should end with a period.
   "D415", # first line should end with a period, question mark...
   "D205", # missing blank line between summary and description
+  "E402", # module level import not at top of file
 ] }
 
 [tool.ruff.format]

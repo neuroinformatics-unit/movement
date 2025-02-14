@@ -3,9 +3,18 @@
 
 Various ways to compute the head direction vector and angle.
 """
+
+# %%
+# The head direction of an animal can be an important feature in behavioural
+# analyses, e.g., to deduce where the animal is looking or to infer its
+# focus of attention. In this example, we will demonstrate several ways
+# to compute the head direction based on the position of several keypoints.
+
 # %%
 # Imports
 # -------
+# We will import ``numpy`` and ``matplotlib`` here. Imports from ``movement``
+# will be done as needed throughout the example.
 
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
@@ -13,215 +22,174 @@ Various ways to compute the head direction vector and angle.
 import numpy as np
 from matplotlib import pyplot as plt
 
-from movement import sample_data
-from movement.io import load_poses
-from movement.plots import plot_trajectory
-from movement.utils.vector import cart2pol, pol2cart
-
 # %%
 # Load sample dataset
 # ------------------------
 # In this tutorial, we will use a sample dataset with a single individual
 # (a mouse) and six keypoints.
+from movement import sample_data
 
-ds_path = sample_data.fetch_dataset_paths(
-    "SLEAP_single-mouse_EPM.analysis.h5"
-)["poses"]
-ds = load_poses.from_sleap_file(ds_path, fps=None)  # force time_unit = frames
+ds = sample_data.fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
 
 print(ds)
 print("-----------------------------")
 print(f"Individuals: {ds.individuals.values}")
 print(f"Keypoints: {ds.keypoints.values}")
 
-
 # %%
 # The loaded dataset ``ds`` contains two data variables:``position`` and
 # ``confidence``. Both are stored as data arrays. In this tutorial, we will
-# use only ``position``:
-position = ds.position
+# use only ``position``. The ``squeeze()`` method is used to remove
+# the redundant ``individuals`` dimension, as there is only one individual
+# in this dataset.
 
-
-# %%
-# Compute head vector
-# ---------------------
-# To demonstrate how polar coordinates can be useful in behavioural analyses,
-# we will compute the head vector of the mouse.
-#
-# We define it as the vector from the midpoint between the ears to the snout.
-
-# compute the midpoint between the ears
-midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
-    dim="keypoints"
-)
-
-# compute the head vector
-head_vector = position.sel(keypoints="snout") - midpoint_ears
-
-# drop the keypoints dimension
-# (otherwise the `head_vector` data array retains a `snout` keypoint from the
-# operation above)
-head_vector = head_vector.drop_vars("keypoints")
+position = ds.position.squeeze()
 
 # %%
 # Visualise the head trajectory
-# --------------------------------------
-# We can plot the data to check that our computation of the head vector is
-# correct.
+# -----------------------------
+# We can start by visualising the head trajectory, taking the midpoint
+# between the two ears as a proxy for the head position.
+# We will overlay that on a single video frame that comes
+# as part of the sample dataset.
 #
-# We can start by plotting the head trajectory with the ``plot_trajectory``
-# from ``movement.plots`` which creates a plot of the centroid of
-# the selected keypoints, for the head trajectory, we will use the midpoint
-# between the ears. By default, the trajectory of the first listed individual
-# is shown.
+# The :func:`plot_trajectory()<movement.plots.trajectory.plot_trajectory>`
+# function can help you visualise the trajectory of any keypoint in the data.
+# Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
+# will plot the centroid (midpoint) of the selected keypoints.
+# By default, the first individual in the dataset is shown.
 
-fig, ax = plot_trajectory(position, keypoints=["left_ear", "right_ear"])
-# Invert y-axis so (0,0) is in the top-left,
-# matching typical image coordinate systems
-ax.invert_yaxis()
-fig.show()
-
-
-# %%
-# Overlay trajectory on Elevated Plus Maze
-# ----------------------------------------
-# We can see that the majority of the head trajectory data is within a
-# cruciform shape. This is because the dataset is of a mouse moving on an
-# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
-# We can actually verify this is the case by overlaying the head
-# trajectory on the sample frame of the dataset.
-
-# Read sample frame
-frame_path = sample_data.fetch_dataset_paths(
-    "SLEAP_single-mouse_EPM.analysis.h5"
-)["frame"]
+from movement.plots import plot_trajectory
 
 # Create figure and axis
 fig, ax = plt.subplots(1, 1)
-# Plot the frame using imshow
-ax.imshow(plt.imread(frame_path))
-# No need to invert the y-axis now, since the image is plotted
-# using a pixel coordinate system with origin on the top left of the image
-fig, ax = plot_trajectory(
+
+# Plot a single frame from the dataset (its path is stored as an attribute)
+frame = plt.imread(ds.frame_path)
+ax.imshow(frame)
+
+# Plot the trajectory of ears midpoint on the same axis
+plot_trajectory(
     ds.position,
-    individual="individual_0",
     keypoints=["left_ear", "right_ear"],
     ax=ax,
+    # arguments forwarded to plt.scatter
     s=10,
     cmap="viridis",
     marker="o",
     alpha=0.05,
 )
+
 # Adjust title
-ax.set_title("Head trajectory (individual_0)")
+ax.set_title("Head trajectory")
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
-ax.collections[0].colorbar.set_label("Time (frames)")
+ax.collections[0].colorbar.set_label("Time (seconds)")
 fig.show()
 
 # %%
-# The overlaid plot suggests the mouse spends most of its time in the
+# We can see that most of the head trajectory data is within a
+# cruciform shape, because the mouse is moving on an
+# `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
+# The plot suggests the mouse spends most of its time in the
 # covered arms of the maze.
 
 # %%
-# Visualise the head vector
-# ---------------------------
-# To visually check our computation of the head vector, it is easier to select
-# a subset of the data. We can focus on the trajectory of the head when the
-# mouse is within a small rectangular area and time window.
+# Compute the head-to-snout vector
+# --------------------------------
+# We can choose to define head direction as the vector from the middle
+# of the head (midpoint between ears) to the front of the head (the snout).
 
-# area of interest
-xmin, ymin = 600, 665  # pixels
-x_delta, y_delta = 125, 100  # pixels
+# Compute the midpoint between the ears
+midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
+    dim="keypoints"
+)
+# Snout position
+# (`drop=True` removes the keypoints dimension, which is now redundant)
+snout = position.sel(keypoints="snout", drop=True)
 
-# time window
-time_window = range(1650, 1671)  # frames
-
+# Compute the head vector as the difference between the snout and the
+# midpoint between the ears.
+head_to_snout = snout - midpoint_ears
 
 # %%
-# For that subset of the data, we now plot the head vector.
+# .. admonition:: Vector subtraction
+#   :class: note
+#
+#   You can think of each point's position as a 2D vector, with its base at the
+#   origin (for image coordinates, that's the center of the pixel at
+#   the top-left corner of the image) and its tip at the point's position.
+#
+#   The vector that goes form point :math:`U` to point :math:`V` can be
+#   computed as the difference :math:`\vec{v} - \vec{u}`, i.e.
+#   "tip - base" (see the image below).
+#
+#   .. image:: ../_static/Vector-Subtraction.png
+#     :width: 600
+#     :alt: Schematic showing vector subtraction
 
-fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
+# %%
+# Let's validate our computation by plotting the head-to-snout vector
+# alongside the midpoint between the ears and the snout position.
+# We will do this for a small time window to make the plot more readable.
 
-# plot midpoint between the ears, and color based on time
-sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    s=50,
-    c=midpoint_ears.time[time_window],
-    cmap="viridis",
-    marker="*",
-)
+# Time window to restrict the plot
+time_window = slice(54.9, 55.1)  # seconds
 
-# plot snout, and color based on time
-sc = ax.scatter(
-    position.sel(
-        individuals=mouse_name, space="x", time=time_window, keypoints="snout"
-    ),
-    position.sel(
-        individuals=mouse_name, space="y", time=time_window, keypoints="snout"
-    ),
-    s=50,
-    c=position.time[time_window],
-    cmap="viridis",
-    marker="o",
-)
+fig, ax = plt.subplots()
 
-# plot the computed head vector
+# Plot the computed head-to-snout vector originating from the ears midpoint
 ax.quiver(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="x", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="y", time=time_window),
+    midpoint_ears.sel(space="x", time=time_window),
+    midpoint_ears.sel(space="y", time=time_window),
+    head_to_snout.sel(space="x", time=time_window),
+    head_to_snout.sel(space="y", time=time_window),
+    midpoint_ears.sel(time=time_window).time.values,  # color by time
     angles="xy",
     scale=1,
     scale_units="xy",
-    headwidth=7,
-    headlength=9,
-    headaxislength=9,
-    color="gray",
+    headwidth=4,
+    headlength=5,
+    headaxislength=5,
+    label="Head-to-snout vector",
 )
 
-ax.axis("equal")
-ax.set_xlim(xmin, xmin + x_delta)
-ax.set_ylim(ymin, ymin + y_delta)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in head vector ({mouse_name})")
-ax.invert_yaxis()
-fig.colorbar(
-    sc,
+# Plot midpoint between the ears within the time window
+plot_trajectory(
+    midpoint_ears.sel(time=time_window),
     ax=ax,
-    label=f"time ({ds.attrs['time_unit']})",
-    ticks=list(time_window)[0::2],
+    s=60,
+    label="ears midpoint",
 )
 
-ax.legend(
-    [
-        "midpoint_ears",
-        "snout",
-        "head_vector",
-    ],
-    loc="best",
+# Plot the snout position within the time window
+plot_trajectory(
+    snout.sel(time=time_window),
+    ax=ax,
+    s=60,
+    label="snout",
+    marker="*",
+    c="r",
 )
 
-fig.show()
-
-# %%
-# From the plot we can confirm the head vector goes from the midpoint between
-# the ears to the snout, as we defined it.
+ax.set_title("Zoomed in head-to-snout vectors")
+ax.invert_yaxis()  # invert y-axis to match image coordinates
+ax.legend(loc="upper left")
 
 
 # %%
-# Express the head vector in polar coordinates
-# -------------------------------------------------------------
-# A convenient way to inspect the orientation of a vector in 2D is by
-# expressing it in polar coordinates. We can do this with the vector function
-# ``cart2pol``:
-head_vector_polar = cart2pol(head_vector)
+# 2D vectors in polar coordinates
+# -------------------------------
+# Now that we have the head-to-snout vector, we can compute its orientation
+# angle in 2D space. A convenient way to achieve that is to convert the
+# vector from cartesian to polar coordinates using the
+# :func:`cart2pol()<movement.utils.vector.cart2pol>` function.
 
-print(head_vector_polar)
+from movement.utils.vector import cart2pol, pol2cart
+
+head_to_snout_polar = cart2pol(head_to_snout)
+
+print(head_to_snout_polar)
 
 # %%
 # Notice how the resulting array has a ``space_pol`` dimension with two
@@ -231,165 +199,199 @@ print(head_vector_polar)
 # The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
 # In our case, the distance from the midpoint between the ears to the snout.
 # The coordinate ``phi`` is the orientation of the head vector relative to the
-# positive x-axis, and ranges from -``pi`` to ``pi``
+# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians.
 # (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
 # In our coordinate system, ``phi`` will be
 # positive if the shortest path from the positive x-axis to the vector is
 # clockwise. Conversely, ``phi`` will be negative if the shortest path from
 # the positive x-axis to the vector is anti-clockwise.
+#
+# .. image:: ../_static/Cartesian-vs-Polar.png
+#   :width: 600
+#   :alt: Schematic comparing cartesian and polar coordinates
 
 # %%
-# Histogram of ``rho`` values
+# ``movement`` also provides a ``pol2cart`` utility to transform
+# data in polar coordinates back to cartesian.
+# Note that the resulting ``head_to_snout_cart`` array has a ``space``
+# dimension with two coordinates: ``x`` and ``y``.
+
+head_to_snout_cart = pol2cart(head_to_snout_polar)
+print(head_to_snout_cart)
+
+# %%
+# Compute the "forward" vector
 # ----------------------------
-# Since ``rho`` is the distance between the ears' midpoint and the snout,
-# we would expect ``rho`` to be approximately constant in this data. We can
-# check this by plotting a histogram of its values across the whole clip.
+# We can also compute head direction using the
+# :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
+# function, which takes a different approach to the one we used above:
+# it accepts a pair of bilaterally symmetric keypoints and
+# computes the vector that's perpendicular to the line connecting them.
+#
+# Here we will use the two ears to find the head direction vector.
+# We may prefer this method if we expect the snout detection to be
+# unreliable (e.g., because it's often occluded in a top-down camera view).
 
-fig, ax = plt.subplots(1, 1)
-
-# plot histogram using xarray's built-in histogram function
-rho_data = head_vector_polar.sel(individuals=mouse_name, space_pol="rho")
-rho_data.plot.hist(bins=50, ax=ax, edgecolor="lightgray", linewidth=0.5)
-
-# add mean
-rho_mean = np.nanmean(rho_data)
-ax.axvline(
-    x=rho_mean,
-    c="b",
-    linestyle="--",
+from movement.kinematics import (
+    compute_forward_vector,
+    compute_forward_vector_angle,
 )
 
-
-# add median
-rho_median = np.nanmedian(rho_data)
-ax.axvline(
-    x=rho_median,
-    c="r",
-    linestyle="-",
+forward_vector = compute_forward_vector(
+    position,
+    left_keypoint="left_ear",
+    right_keypoint="right_ear",
+    camera_view="top_down",
 )
-
-# add legend
-ax.legend(
-    [
-        f"mean = {rho_mean:.2f} pixels",
-        f"median = {rho_median:.2f} pixels",
-    ],
-    loc="best",
-)
-ax.set_ylabel("count")
-ax.set_xlabel("rho (pixels)")
-fig.show()
+print(forward_vector)
 
 # %%
-# We can see that there is some spread in the value of ``rho`` in this
-# dataset. This may be due to noise in the detection of the head keypoints,
-# or due to the mouse tipping its snout upwards during the recording.
+# .. admonition:: Why do we need to specify the camera view?
+#   :class: note
+#
+#   You can think about it in this way: in order to uniquely determine which
+#   way is forward for an animal, we need to know the orientation of the other
+#   two body axes: left-right and up-down. The left-right axis is specified
+#   by the left and right keypoints passed to the function, while we use the
+#   ``camera_view`` parameter to determine the upward direction (see image).
+#   The default view is ``"top_down"``, but it can also be ``"bottom_up"``.
+#   Other camera views are not supported at the moment.
+#
+#   .. image:: ../_static/Forward-Vector.png
+#     :width: 600
+#     :alt: Schematic showing forward vector in top-down and bottom-up views
+
 
 # %%
-# Histogram of ``phi`` values
-# -------------------------------------
-# We can also explore which ``phi`` values are most common in the dataset with
-# a circular histogram.
+# You can use ``compute_forward_vector`` to compute the direction
+# of any body segment, as long as bilaterally symmetric keypoints are
+# available. For example, you could estimate body direction given the
+# the two hips or shoulders.
+#
+# Specifically for the head direction vector, you may also use the alias
+# :func:`compute_head_direction_vector()\
+# <movement.kinematics.compute_head_direction_vector>`,
+# which makes the intent of the function clearer.
 
-# sphinx_gallery_thumbnail_number = 5
+# %%
+# Compute head direction angle
+# ----------------------------
+# We could compute the head direction angle from the forward vector as
+# we did with the head-to-snout vector, i.e., by converting the vector to
+# polar coordinates and extracting the ``phi`` coordinate. However, it's
+# more convenient to use the :func:`compute_forward_vector_angle()\
+# <movement.kinematics.compute_forward_vector_angle>` function, which
+# directly returns the angle between the forward vector and the positive
+# x-axis.
 
-# compute number of bins
-bin_width_deg = 5  # width of the bins in degrees
-n_bins = int(360 / bin_width_deg)
-
-# initialise figure with polar projection
-fig = plt.figure()
-ax = fig.add_subplot(projection="polar")
-
-# plot histogram using xarray's built-in histogram function
-head_vector_polar.sel(individuals=mouse_name, space_pol="phi").plot.hist(
-    bins=np.linspace(-np.pi, np.pi, n_bins + 1), ax=ax
+forward_vector_angle = compute_forward_vector_angle(
+    position,
+    left_keypoint="left_ear",
+    right_keypoint="right_ear",
+    # Optional parameters:
+    reference_vector=(1, 0),  # positive x-axis
+    camera_view="top_down",
+    in_radians=True,  # set to False for degrees
 )
+print(forward_vector_angle)
 
-# axes settings
-ax.set_title("phi histogram")
-ax.set_theta_direction(-1)  # theta increases in clockwise direction
-ax.set_theta_offset(0)  # set zero at the right
-ax.set_xlabel("")  # remove default x-label from xarray's plot.hist()
+# %%
+# The resulting ``forward_vector_angle`` array contains the head direction
+# angle in radians, with respect to the positive x-axis, meaning that
+# the angle is zero when the head is pointing to the right.
+# We could have also used an alternative reference vector, such as the
+# negative y-axis (pointing up in image coordinates) by setting
+# ``reference_vector=(0, -1)``. You may control the sign of the angle
+# by altering the ``ref_to_forward`` parameter, see notes is
+# :func:`compute_forward_vector_angle()\
+# <movement.kinematics.compute_forward_vector_angle>`'s documentation.
 
-# set xticks to match the phi values in degrees
-n_xtick_edges = 9
-ax.set_xticks(np.linspace(0, 2 * np.pi, n_xtick_edges)[:-1])
-xticks_in_deg = (
-    list(range(0, 180 + 45, 45)) + list(range(0, -180, -45))[-1:0:-1]
+# %%
+# Visualise head direction angles
+# -------------------------------
+# We can compare the head direction angles computed from the two methods,
+# i.e. the polar angle ``phi`` of the head-to-snout vector and the angle
+# of the forward vector, by plotting their histograms in polar coordinates.
+# First, let's define a custom plotting function that will help us with this.
+
+
+def plot_polar_histogram(da, bin_width_deg=15, ax=None):
+    """Plot a polar histogram of the data in the given DataArray.
+
+    Parameters
+    ----------
+    da : xarray.DataArray
+        A DataArray containing angle data in radians.
+    bin_width_deg : int, optional
+        Width of the bins in degrees.
+    ax : matplotlib.axes.Axes, optional
+        The axes on which to plot the histogram.
+
+    """
+    n_bins = int(360 / bin_width_deg)
+
+    if ax is None:
+        fig, ax = plt.subplots(  # initialise figure with polar projection
+            1, 1, figsize=(5, 5), subplot_kw={"projection": "polar"}
+        )
+    else:
+        fig = ax.figure  # or use the provided axes
+
+    # plot histogram using xarray's built-in histogram function
+    da.plot.hist(
+        bins=np.linspace(-np.pi, np.pi, n_bins + 1), ax=ax, density=True
+    )
+
+    # axes settings
+    ax.set_theta_direction(-1)  # theta increases in clockwise direction
+    ax.set_theta_offset(0)  # set zero at the right
+    ax.set_xlabel("")  # remove default x-label from xarray's plot.hist()
+
+    # set xticks to match the phi values in degrees
+    n_xtick_edges = 9
+    ax.set_xticks(np.linspace(0, 2 * np.pi, n_xtick_edges)[:-1])
+    xticks_in_deg = (
+        list(range(0, 180 + 45, 45)) + list(range(0, -180, -45))[-1:0:-1]
+    )
+    ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
+
+    return fig, ax
+
+
+# %%
+# Now we can visualise the polar ``phi`` angles of the ``head_to_snout_polar``
+# array alongside the values of the ``forward_vector_angle`` array.
+
+# sphinx_gallery_thumbnail_number = 3
+
+head_to_snout_angles = head_to_snout_polar.sel(space_pol="phi")
+forward_vector_angles = forward_vector_angle
+
+angle_arrays = [head_to_snout_angles, forward_vector_angles]
+angle_titles = ["Head-to-snout", "Forward"]
+
+fig, axes = plt.subplots(
+    1, 2, figsize=(10, 5), subplot_kw={"projection": "polar"}
 )
-ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
-
-fig.show()
-
-# %%
-# The ``phi`` circular histogram shows that the head vector appears at a
-# variety of orientations in this dataset.
-
-# %%
-# Polar plot of the head vector within a time window
-# ---------------------------------------------------
-# We can also use a polar plot to represent the head vector in time. This way
-# we can visualise the head vector in a coordinate system that translates with
-# the mouse but is always  parallel to the pixel coordinate system.
-# Again, this will be easier to visualise if we focus on a
-# small time window.
-
-# select phi values within a time window
-phi = head_vector_polar.sel(
-    individuals=mouse_name,
-    space_pol="phi",
-    time=time_window,
-).values
-
-# plot tip of the head vector within that window, and color based on time
-fig = plt.figure()
-ax = fig.add_subplot(projection="polar")
-sc = ax.scatter(
-    phi,
-    np.ones_like(phi),  # assign a constant value rho=1 for visualization
-    c=time_window,
-    cmap="viridis",
-    s=50,
-)
-
-# axes settings
-ax.set_theta_direction(-1)  # theta increases in clockwise direction
-ax.set_theta_offset(0)  # set zero at the right
-cax = fig.colorbar(
-    sc,
-    ax=ax,
-    label=f"time ({ds.attrs['time_unit']})",
-    ticks=list(time_window)[0::2],
-)
-
-# set xticks to match the phi values in degrees
-n_xtick_edges = 9
-ax.set_xticks(np.linspace(0, 2 * np.pi, n_xtick_edges)[:-1])
-xticks_in_deg = (
-    list(range(0, 180 + 45, 45)) + list(range(0, -180, -45))[-1:0:-1]
-)
-ax.set_xticklabels([str(t) + "\N{DEGREE SIGN}" for t in xticks_in_deg])
-
-fig.show()
+for i, angles in enumerate(angle_arrays):
+    title = angle_titles[i]
+    ax = axes[i]
+    plot_polar_histogram(angles, bin_width_deg=10, ax=ax)
+    ax.set_ylim(0, 0.25)  # force same y-scale (density) for both plots
+    ax.set_title(title, pad=25)
 
 # %%
-# In the polar plot above, the midpoint between the ears is at the centre of
-# the plot. The tip of the head vector (the ``snout``) is represented with
-# color markers at a constant ``rho`` value of 1. Markers are colored by frame.
-# The polar plot shows how in this small time window of 20 frames,
-# the head of the mouse turned anti-clockwise.
+# We see that the angle histograms are not identical,
+# i.e. the two methods of computing head angle do not always yield
+# the same results.
+# How large are the differences between the two methods?
+# We could check that by plotting a histogram of the differences.
+
+angles_diff = forward_vector_angles - head_to_snout_angles
+fig, ax = plot_polar_histogram(angles_diff, bin_width_deg=10)
+ax.set_title("Forward vector angle - head-to-snout angle", pad=25)
 
 # %%
-# Convert polar coordinates to cartesian
-# ------------------------------------------
-# ``movement`` also provides a ``pol2cart`` convenience function to transform
-# a vector in polar coordinates back to cartesian.
-head_vector_cart = pol2cart(head_vector_polar)
-
-print(head_vector_cart)
-
-# %%
-# Note that the resulting `head_vector_cart` array has a ``space`` dimension
-# with two coordinates: ``x`` and ``y``.
+# For the vast majority of the time, the two methods
+# do not differ by more than 20 degrees (2 histogram bins).
