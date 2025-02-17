@@ -707,48 +707,6 @@ class TestForwardVectorAngle:
     y_axis = np.array([0.0, 1.0])
     sqrt_2 = np.sqrt(2.0)
 
-    @staticmethod
-    def push_into_range(
-        numeric_values: xr.DataArray | np.ndarray,
-        lower: float = -180.0,
-        upper: float = 180.0,
-    ) -> xr.DataArray | np.ndarray:
-        """Translate values into the range (lower, upper].
-
-        The interval width is the value ``upper - lower``.
-        Each ``v`` in ``values`` that starts less than or equal to the
-        ``lower`` bound has multiples of the interval width added to it,
-        until the result lies in the desirable interval.
-
-        Each ``v`` in ``values`` that starts greater than the ``upper``
-        bound has multiples of the interval width subtracted from it,
-        until the result lies in the desired interval.
-        """
-        translated_values = (
-            numeric_values.values.copy()
-            if isinstance(numeric_values, xr.DataArray)
-            else numeric_values.copy()
-        )
-
-        interval_width = upper - lower
-        if interval_width <= 0:
-            raise ValueError(
-                f"Upper bound ({upper}) must be strictly "
-                f"greater than lower bound ({lower})"
-            )
-
-        while np.any(
-            (translated_values <= lower) | (translated_values > upper)
-        ):
-            translated_values[translated_values <= lower] += interval_width
-            translated_values[translated_values > upper] -= interval_width
-
-        if isinstance(numeric_values, xr.DataArray):
-            translated_values = numeric_values.copy(
-                deep=True, data=translated_values
-            )
-        return translated_values
-
     @pytest.fixture
     def spinning_on_the_spot(self) -> xr.DataArray:
         """Simulate data for an individual's head spinning on the spot.
@@ -794,6 +752,7 @@ class TestForwardVectorAngle:
     )
     def test_antisymmetry_properties(
         self,
+        push_into_range,
         spinning_on_the_spot: xr.DataArray,
         swap_left_right: bool,
         swap_camera_view: bool,
@@ -843,16 +802,16 @@ class TestForwardVectorAngle:
 
         expected_orientations = without_orientations_swapped.copy(deep=True)
         if swap_left_right:
-            expected_orientations = self.push_into_range(
+            expected_orientations = push_into_range(
                 expected_orientations + 180.0
             )
         if swap_camera_view:
-            expected_orientations = self.push_into_range(
+            expected_orientations = push_into_range(
                 expected_orientations + 180.0
             )
         if swap_angle_rotation:
             expected_orientations *= -1.0
-        expected_orientations = self.push_into_range(expected_orientations)
+        expected_orientations = push_into_range(expected_orientations)
 
         xr.testing.assert_allclose(
             with_orientations_swapped, expected_orientations

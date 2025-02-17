@@ -1,6 +1,7 @@
 """Compute kinematic variables like velocity and acceleration."""
 
 import itertools
+from collections.abc import Hashable
 from typing import Literal
 
 import numpy as np
@@ -205,8 +206,8 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
 
 def compute_forward_vector(
     data: xr.DataArray,
-    left_keypoint: str,
-    right_keypoint: str,
+    left_keypoint: Hashable,
+    right_keypoint: Hashable,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
 ) -> xr.DataArray:
     """Compute a 2D forward vector given two left-right symmetric keypoints.
@@ -357,8 +358,8 @@ def compute_head_direction_vector(
 
 def compute_forward_vector_angle(
     data: xr.DataArray,
-    left_keypoint: str,
-    right_keypoint: str,
+    left_keypoint: Hashable,
+    right_keypoint: Hashable,
     reference_vector: xr.DataArray | ArrayLike = (1, 0),
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
     in_radians: bool = False,
@@ -371,7 +372,7 @@ def compute_forward_vector_angle(
     Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
-    <movement.kinematics.compute_forward_vector>`).
+    <movement.kinematics.compute_forward_vector>`.
     The returned angles are in degrees, spanning the range :math:`(-180, 180]`,
     unless ``in_radians`` is set to ``True``.
 
