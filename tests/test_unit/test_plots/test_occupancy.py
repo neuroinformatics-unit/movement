@@ -41,9 +41,9 @@ def occupancy_data() -> xr.DataArray:
     time_space_keypoints = np.repeat(
         time_space[:, :, np.newaxis], repeats=3, axis=2
     )
-    # right = left + (1., 1.)
+    # Set right = left + (1., 1.)
     time_space_keypoints[:, :, 1] += (1.0, 1.0)
-    # centre = mean(left, right)
+    # Set centre = mean(left, right)
     time_space_keypoints[:, :, 2] = np.mean(
         time_space_keypoints[:, :, :2], axis=2
     )
