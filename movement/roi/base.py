@@ -165,6 +165,39 @@ class BaseRegionOfInterest:
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
+    def _approach_from_keypoint_centroid(
+        self,
+        data: xr.DataArray,
+        position_keypoint: Hashable | Sequence[Hashable],
+        boundary: bool,
+        approach_direction: str,
+    ) -> xr.DataArray:
+        """Compute the approach vector from the centroid of some keypoints.
+
+        Intended for internal use when calculating ego- and allocentric
+        boundary angles. See the corresponding methods for parameter details.
+        """
+        position_data = data.sel(keypoints=position_keypoint, drop=True)
+        if "keypoints" in position_data.dims:
+            position_data = position_data.mean(dim="keypoints")
+
+        return (
+            self.compute_approach_vector(
+                position_data,
+                boundary=boundary,
+                direction=approach_direction,
+                unit=True,
+            )
+            .rename({"vector to": "space"})
+            .assign_coords(
+                {
+                    "space": ["x", "y"]
+                    if len(data["space"]) == 2
+                    else ["x", "y", "z"]
+                }
+            )
+        )
+
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
         self,
@@ -442,28 +475,12 @@ class BaseRegionOfInterest:
         else:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        # If we are given multiple position keypoints, we take the average of
-        # them all.
-        position_data = data.sel(keypoints=position_keypoint, drop=True)
-        if "keypoints" in position_data.dims:
-            position_data = position_data.mean(dim="keypoints")
-
         # Determine the approach vector, for all time-points.
-        approach_vector = (
-            self.compute_approach_vector(
-                position_data,
-                boundary=boundary,
-                direction=approach_direction,
-                unit=True,
-            )
-            .rename({"vector to": "space"})
-            .assign_coords(
-                {
-                    "space": ["x", "y"]
-                    if len(data["space"]) == 2
-                    else ["x", "y", "z"]
-                }
-            )
+        approach_vector = self._approach_from_keypoint_centroid(
+            data,
+            position_keypoint=position_keypoint,
+            boundary=boundary,
+            approach_direction=approach_direction,
         )
 
         # Then, compute signed angles at all time-points
@@ -572,28 +589,12 @@ class BaseRegionOfInterest:
         if rotation_angle not in ["ref to forward", "forward to ref"]:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        # If we are given multiple position keypoints, we take the average of
-        # them all.
-        position_data = data.sel(keypoints=position_keypoint, drop=True)
-        if "keypoints" in position_data.dims:
-            position_data = position_data.mean(dim="keypoints")
-
         # Determine the approach vector, for all time-points.
-        approach_vector = (
-            self.compute_approach_vector(
-                position_data,
-                boundary=boundary,
-                direction=approach_direction,
-                unit=True,
-            )
-            .rename({"vector to": "space"})
-            .assign_coords(
-                {
-                    "space": ["x", "y"]
-                    if len(data["space"]) == 2
-                    else ["x", "y", "z"]
-                }
-            )
+        approach_vector = self._approach_from_keypoint_centroid(
+            data,
+            position_keypoint=position_keypoint,
+            boundary=boundary,
+            approach_direction=approach_direction,
         )
 
         # Then, compute signed angles at all time-points
