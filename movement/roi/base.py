@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Hashable, Sequence
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import Literal, TypeAlias
 
 import numpy as np
 import shapely
+import xarray as xr
 from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
@@ -14,9 +15,6 @@ from movement.kinematics import compute_forward_vector_angle
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 from movement.utils.vector import compute_signed_angle_2d
-
-if TYPE_CHECKING:
-    import xarray as xr
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
