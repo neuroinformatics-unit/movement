@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from movement.roi import LineOfInterest
 from movement.roi.base import BaseRegionOfInterest
 
 
@@ -297,3 +298,69 @@ def test_centric_angle(
 
         reverse_angles = push_into_range(method(data, **fn_args))
         xr.testing.assert_allclose(angles, push_into_range(-reverse_angles))
+
+
+@pytest.fixture
+def points_around_segment() -> xr.DataArray:
+    """Points around the segment_of_y_equals_x.
+
+    Data has (time, space, keypoints) dimensions, shape (, 2, 2).
+
+    Keypoints are "left" and "right".
+
+    time 1:
+        left @ (0., 1.), right @ (0.05, 0.95).
+        Fwd vector is (-1, -1).
+    time 2:
+        left @ (1., 0.), right @ (0.95, 0.05).
+        Fwd vector is (-1, -1).
+    time 3:
+        left @ (1., 2.), right @ (1.05, 1.95).
+        Fwd vector is (-1, -1).
+        The egocentric angle will differ when using this point.
+    """
+    points = np.zeros(shape=(3, 2, 2))
+    points[:, :, 0] = [
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [1.0, 2.0],
+    ]
+    points[:, :, 1] = [
+        [0.05, 0.95],
+        [0.95, 0.05],
+        [1.05, 1.95],
+    ]
+    return xr.DataArray(
+        data=points,
+        dims=["time", "space", "keypoints"],
+        coords={
+            "space": ["x", "y"],
+            "keypoints": ["left", "right"],
+        },
+    )
+
+
+def test_angle_to_support_plane(
+    segment_of_y_equals_x: LineOfInterest,
+    points_around_segment: xr.DataArray,
+) -> None:
+    expected_output = xr.DataArray(
+        data=np.array([-90.0, -90.0, -90.0]), dims=["time"]
+    )
+    should_be_same_as_egocentric = expected_output.copy(
+        data=[True, True, False], deep=True
+    )
+
+    angles_to_support = (
+        segment_of_y_equals_x.compute_angle_to_support_plane_of_segment(
+            points_around_segment, left_keypoint="left", right_keypoint="right"
+        )
+    )
+    xr.testing.assert_allclose(expected_output, angles_to_support)
+
+    egocentric_angles = segment_of_y_equals_x.compute_egocentric_angle(
+        points_around_segment, left_keypoint="left", right_keypoint="right"
+    )
+    xr.testing.assert_equal(
+        should_be_same_as_egocentric, egocentric_angles == angles_to_support
+    )

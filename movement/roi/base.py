@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Hashable, Sequence
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 import numpy as np
 import shapely
@@ -171,30 +171,50 @@ class BaseRegionOfInterest:
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
-    def _approach_from_keypoint_centroid(
+    def _vector_from_keypoint_centroid(
         self,
         data: xr.DataArray,
         position_keypoint: Hashable | Sequence[Hashable],
-        boundary: bool,
-        approach_direction: str,
+        renamed_dimension: str = "vector to",
+        which_method: str = "compute_approach_vector",
+        **method_args: Any,
     ) -> xr.DataArray:
-        """Compute the approach vector from the centroid of some keypoints.
+        """Compute a vector from the centroid of some keypoints.
 
         Intended for internal use when calculating ego- and allocentric
-        boundary angles. See the corresponding methods for parameter details.
+        boundary angles. First, the position of the centroid of the given
+        keypoints is computed. Then, this value, along with the other keyword
+        arguments passed, is given to the method specified in ``which_method``
+        in order to compute the necessary vectors.
+
+        Parameters
+        ----------
+        data : xarray.DataArray
+            DataArray of position data.
+        position_keypoint : Hashable | Sequence[Hashable]
+            Keypoints to compute centroid of, then compute vectors to/from.
+        renamed_dimension : str
+            The name of the new dimension created by ``which_method`` that
+            contains the corresponding vectors. This dimension will be renamed
+            to 'space' and given coordinates x, y [, z].
+        which_method : str
+            Name of a class method, which will be used to compute the
+            appropriate vectors.
+        method_args : Any
+            Additional keyword arguments needed by the specified class method.
+
         """
         position_data = data.sel(keypoints=position_keypoint, drop=True)
         if "keypoints" in position_data.dims:
             position_data = position_data.mean(dim="keypoints")
 
+        method = getattr(self, which_method)
         return (
-            self.compute_approach_vector(
+            method(
                 position_data,
-                boundary=boundary,
-                direction=approach_direction,
-                unit=False,  # avoid /0 converting valid points to NaNs
+                **method_args,
             )
-            .rename({"vector to": "space"})
+            .rename({renamed_dimension: "space"})
             .assign_coords(
                 {
                     "space": ["x", "y"]
@@ -478,11 +498,12 @@ class BaseRegionOfInterest:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         # Determine the approach vector, for all time-points.
-        approach_vector = self._approach_from_keypoint_centroid(
+        approach_vector = self._vector_from_keypoint_centroid(
             data,
             position_keypoint=position_keypoint,
             boundary=boundary,
-            approach_direction=approach_direction,
+            direction=approach_direction,
+            unit=False,
         )
 
         # Then, compute signed angles at all time-points
@@ -590,11 +611,12 @@ class BaseRegionOfInterest:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         # Determine the approach vector, for all time-points.
-        approach_vector = self._approach_from_keypoint_centroid(
+        approach_vector = self._vector_from_keypoint_centroid(
             data,
             position_keypoint=position_keypoint,
             boundary=boundary,
-            approach_direction=approach_direction,
+            direction=approach_direction,
+            unit=False,
         )
 
         # Then, compute signed angles at all time-points

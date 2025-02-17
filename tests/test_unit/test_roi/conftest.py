@@ -2,7 +2,14 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from movement.roi import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
+
+
+@pytest.fixture
+def segment_of_y_equals_x() -> LineOfInterest:
+    """Line segment from (0,0) to (1,1)."""
+    return LineOfInterest([(0, 0), (1, 1)])
 
 
 @pytest.fixture()
