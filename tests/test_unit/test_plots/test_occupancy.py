@@ -1,6 +1,7 @@
 from collections.abc import Hashable, Sequence
 from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import xarray as xr
@@ -182,6 +183,8 @@ def occupancy_data_with_nans(occupancy_data: xr.DataArray) -> xr.DataArray:
             {
                 "keypoints": ["left", "right"],
                 "individuals": [0, 2],
+                # Also check that ax doesn't complain
+                "ax": plt.subplots()[1],
                 "bins": [list(range(6)), list(range(6))],
             },
             2 * antidiagonal_matrix([1] * 5),
