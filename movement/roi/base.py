@@ -16,6 +16,9 @@ from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 from movement.utils.vector import compute_signed_angle_2d
 
+ApproachVectorDirections: TypeAlias = Literal[
+    "region to point", "point to region"
+]
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
 PointLikeList: TypeAlias = Sequence[PointLike]
@@ -186,7 +189,7 @@ class BaseRegionOfInterest:
                 position_data,
                 boundary=boundary,
                 direction=approach_direction,
-                unit=True,
+                unit=False,  # avoid /0 converting valid points to NaNs
             )
             .rename({"vector to": "space"})
             .assign_coords(
@@ -329,12 +332,10 @@ class BaseRegionOfInterest:
         self,
         point: ArrayLike,
         boundary: bool = False,
-        direction: Literal[
-            "point to region", "region to point"
-        ] = "point to region",
+        direction: ApproachVectorDirections = "point to region",
         unit: bool = True,
     ) -> np.ndarray:
-        """Compute the approach vector a ``point`` to the region.
+        """Compute the approach vector from a ``point`` to the region.
 
         The approach vector is defined as the vector directed from the
         ``point`` provided, to the closest point that belongs to the region.
@@ -350,7 +351,7 @@ class BaseRegionOfInterest:
             If True, finds the vector to the nearest point on the boundary of
             the region, instead of the nearest point within the region.
             (See Notes). Default is False.
-        direction : Literal["point to region", "region to point"]
+        direction : ApproachVectorDirections
             Which direction the returned vector should point in. Default is
             "point to region".
         unit : bool
@@ -386,7 +387,7 @@ class BaseRegionOfInterest:
         if unit:
             norm = np.sqrt(np.sum(displacement_vector**2))
             # Cannot normalise the 0 vector
-            if norm != 0.0:
+            if not np.isclose(norm, 0.0):
                 displacement_vector /= norm
         return displacement_vector
 
@@ -397,9 +398,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to ref", "ref to approach"
         ] = "approach to ref",
-        approach_direction: Literal[
-            "point to region", "region to point"
-        ] = "point to region",
+        approach_direction: ApproachVectorDirections = "point to region",
         boundary: bool = False,
         in_radians: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
@@ -430,7 +429,7 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to ref", "ref to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to ref"``.
-        approach_direction : Literal["point to region", "region to point"]
+        approach_direction : ApproachVectorDirections
             Direction to use for the vector of closest approach. Default
             ``"point to region"``.
         boundary : bool
@@ -501,9 +500,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to forward", "forward to approach"
         ] = "approach to forward",
-        approach_direction: Literal[
-            "point to region", "region to point"
-        ] = "point to region",
+        approach_direction: ApproachVectorDirections = "point to region",
         boundary: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,
@@ -540,7 +537,7 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to forward", "forward to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to forward"``.
-        approach_direction : Literal["point to region", "region to point"]
+        approach_direction : ApproachVectorDirections
             Direction to use for the vector of closest approach. Default
             ``"point to region"``.
         boundary : bool
