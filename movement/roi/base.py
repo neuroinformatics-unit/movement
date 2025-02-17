@@ -16,14 +16,17 @@ from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 from movement.utils.vector import compute_signed_angle_2d
 
-ApproachVectorDirections: TypeAlias = Literal[
-    "region to point", "point to region"
-]
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
 PointLikeList: TypeAlias = Sequence[PointLike]
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
+
+TowardsRegion = "point to region"
+AwayFromRegion = "region to point"
+ApproachVectorDirections: TypeAlias = Literal[  # type: ignore[valid-type]
+    f"{TowardsRegion}", f"{AwayFromRegion}"
+]
 
 
 class BaseRegionOfInterest:
@@ -332,7 +335,7 @@ class BaseRegionOfInterest:
         self,
         point: ArrayLike,
         boundary: bool = False,
-        direction: ApproachVectorDirections = "point to region",
+        direction: ApproachVectorDirections = TowardsRegion,
         unit: bool = True,
     ) -> np.ndarray:
         """Compute the approach vector from a ``point`` to the region.
@@ -398,7 +401,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to ref", "ref to approach"
         ] = "approach to ref",
-        approach_direction: ApproachVectorDirections = "point to region",
+        approach_direction: ApproachVectorDirections = TowardsRegion,
         boundary: bool = False,
         in_radians: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
@@ -500,7 +503,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to forward", "forward to approach"
         ] = "approach to forward",
-        approach_direction: ApproachVectorDirections = "point to region",
+        approach_direction: ApproachVectorDirections = TowardsRegion,
         boundary: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,

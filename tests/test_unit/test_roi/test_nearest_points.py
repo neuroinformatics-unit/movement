@@ -358,7 +358,7 @@ def test_approach_vector(
         with pytest.raises(
             type(expected_output), match=re.escape(str(expected_output))
         ):
-            vector_to = region.compute_approach_vector(point, **other_fn_args)
+            region.compute_approach_vector(point, **other_fn_args)
     else:
         vector_to = region.compute_approach_vector(point, **other_fn_args)
         assert np.allclose(vector_to, expected_output)
