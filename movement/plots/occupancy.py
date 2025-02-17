@@ -1,6 +1,6 @@
 """Wrappers for plotting occupancy data of select individuals."""
 
-from collections.abc import Hashable
+from collections.abc import Hashable, Sequence
 from typing import Any, Literal, TypeAlias
 
 import matplotlib.pyplot as plt
@@ -14,8 +14,8 @@ DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
 def plot_occupancy(
     da: xr.DataArray,
-    individuals: Hashable | None = None,
-    keypoints: Hashable | list[Hashable] | None = None,
+    individuals: Hashable | Sequence[Hashable] | None = None,
+    keypoints: Hashable | Sequence[Hashable] | None = None,
     ax: plt.Axes | None = None,
     **kwargs: Any,
 ) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
@@ -90,7 +90,10 @@ def plot_occupancy(
     if "keypoints" in da.dims:
         if keypoints is not None:
             data = data.sel(keypoints=keypoints)
-        data = data.mean(dim="keypoints")
+        # A selection of just one keypoint automatically drops the keypoints
+        # dimension, hence the need to re-check this here
+        if "keypoints" in data.dims:
+            data = data.mean(dim="keypoints", skipna=True)
     if "individuals" in da.dims and individuals is not None:
         data = data.sel(individuals=individuals)
 
@@ -102,7 +105,9 @@ def plot_occupancy(
     # dimension and create a "long" array of points. For example, a (10, 2, 5)
     # time-space-individuals DataArray becomes (50, 2).
     if "individuals" in data.dims:
-        data.stack({"space": ("space", "individuals")}, create_index=False)
+        data = data.stack(
+            {"new": ("time", "individuals")}, create_index=False
+        ).rename({"new": "time"})
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.
     data = data.dropna(dim="time", how="any")
@@ -121,7 +126,7 @@ def plot_occupancy(
     else:
         fig, ax = plt.subplots()
     counts, xedges, yedges, hist_image = ax.hist2d(
-        data.sel(space=x_coord).stack, data.sel(space=y_coord), **kwargs
+        data.sel(space=x_coord), data.sel(space=y_coord), **kwargs
     )
     colourbar = fig.colorbar(hist_image, ax=ax)
     colourbar.solids.set(alpha=1.0)
