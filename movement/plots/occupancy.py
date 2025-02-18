@@ -23,8 +23,8 @@ def plot_occupancy(
 
     - If there are multiple keypoints selected, the occupancy of the centroid
         of these keypoints is computed.
-    - If there are multiple individuals selected, the occupancies of their
-        centroids are aggregated.
+    - If there are multiple individuals selected, the their occupancies are
+        aggregated.
 
     Points whose corresponding spatial coordinates have NaN values
     are ignored.
@@ -60,11 +60,10 @@ def plot_occupancy(
 
     Notes
     -----
-    In instances where the counts or information about the histogram bins is
-    desired, the ``return_hist_info`` argument should be provided as ``True``.
-    This will force the function to return a second output value, which is a
-    dictionary containing the bin edges and bin counts that were used to create
-    the histogram.
+    The third return value of this method exposes the outputs from
+    ``matplotlib.pyplot.hist2d`` that would otherwise be lost if only the
+    figure and axes handles were returned. This information is returned as a
+    dictionary.
 
     For data with ``Nx`` bins in the 1st spatial dimension, and ``Ny`` bins in
     the 2nd spatial dimension, the dictionary output has key-value pairs;
@@ -118,7 +117,7 @@ def plot_occupancy(
     ...     # twice.
     ...     cmin=1,
     ...     # Normalise the plot, scaling the counts to [0, 1]
-    ...     norm=True,
+    ...     norm="log",
     ... )
 
     See Also
@@ -148,7 +147,7 @@ def plot_occupancy(
     if "individuals" in data.dims:
         data = data.stack(
             {"new": ("time", "individuals")}, create_index=False
-        ).rename({"new": "time"})
+        ).swap_dims({"new": "time"})
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.
     data = data.dropna(dim="time", how="any")
@@ -172,8 +171,7 @@ def plot_occupancy(
     colourbar = fig.colorbar(hist_image, ax=ax)
     colourbar.solids.set(alpha=1.0)
 
-    space_unit = data.attrs.get("space_unit", "pixels")
-    ax.set_xlabel(f"{x_coord} ({space_unit})")
-    ax.set_ylabel(f"{y_coord} ({space_unit})")
+    ax.set_xlabel(str(x_coord))
+    ax.set_ylabel(str(y_coord))
 
     return fig, ax, {"counts": counts, "xedges": xedges, "yedges": yedges}
