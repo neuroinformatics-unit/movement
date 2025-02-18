@@ -25,7 +25,9 @@ def compute_region_occupancy(
     Parameters
     ----------
     data : xarray.DataArray
-        Spatial data to check for inclusion within the ``regions``.
+        Spatial data to check for inclusion within the ``regions``. Must be
+        compatible with the ``data`` argument to :func:`contains_point\
+        <movement.roi.base.BaseRegionOfInterest.contains_point`.
     regions : Sequence[BaseRegionOfInterest]
         Regions of Interest that the points in ``data`` will be checked
         against, to see if they lie inside.
@@ -63,13 +65,19 @@ def compute_region_occupancy(
     >>> occupancies.sel(occupancy="triangle").values
     np.array([True, False])
 
+    Notes
+    -----
+    Regions that have the same name will have a suffix of the form "_XX"
+    appended to their names when generating the coordinates. Regions with
+    unique names will retain the same name as their corresponding coordinate.
+
     """
     # Filter out duplicate names if they are provided
     duplicate_names_count: defaultdict[str, int] = defaultdict(int)
     for r in regions:
         duplicate_names_count[r.name] += 1
     duplicate_names_max_chars = {
-        key: np.ceil(np.log10(value)) + 1
+        key: int(np.ceil(np.log10(value)).item()) + 1
         for key, value in duplicate_names_count.items()
     }
     duplicate_names_used: defaultdict[str, int] = defaultdict(int)
@@ -77,7 +85,7 @@ def compute_region_occupancy(
     occupancies = {}
     for r in regions:
         name = r.name
-        if name in duplicate_names_max_chars:
+        if duplicate_names_count[name] > 1:
             name_suffix = str(duplicate_names_used[name]).zfill(
                 duplicate_names_max_chars[name]
             )
@@ -85,6 +93,6 @@ def compute_region_occupancy(
             duplicate_names_used[name] += 1
         occupancies[name] = r.contains_point(data)
 
-    return xr.concat(
-        occupancies.values(), dim="region occupancy", coords=occupancies.keys()
+    return xr.concat(occupancies.values(), dim="occupancy").assign_coords(
+        occupancy=list(occupancies.keys())
     )
