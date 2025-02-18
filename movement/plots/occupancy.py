@@ -19,7 +19,7 @@ def plot_occupancy(
     ax: plt.Axes | None = None,
     **kwargs: Any,
 ) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
-    """Create a 2D histogram of the occupancy data given.
+    """Create a 2D occupancy histogram.
 
     - If there are multiple keypoints selected, the occupancy of the centroid
         of these keypoints is computed.
@@ -86,7 +86,7 @@ def plot_occupancy(
     >>> from movement import sample_data
     >>> from movement.plots import plot_occupancy
     >>> positions = sample_data.fetch_dataset(
-    ...     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+    ...     "DLC_two-mice.predictions.csv"
     ... ).position
     >>> plot_occupancy(positions)
 
@@ -96,31 +96,25 @@ def plot_occupancy(
     >>> print("Available individuals:", positions["individuals"])
     >>> plot_occupancy(
     ...     positions,
-    ...     # use only one keypoint in computation of centroid
-    ...     keypoints="centroid",
-    ...     # only aggregate for two individuals
-    ...     individuals=[
-    ...         "AEON3B_TP1",
-    ...         "AEON3B_TP2",
-    ...     ],
+    ...     # plot the centroid of keypoints located on the head
+    ...     keypoints=["snout", "leftear", "rightear"],
+    ...     # only plot data for 1 individual
+    ...     individuals="individual1"
     ... )
 
     ``kwargs`` are passed to the ``matplotlib`` backend as keyword-arguments to
     this function.
 
-    >>> plot_occupancy(
-    ...     positions,
-    ...     # use only one keypoint in computation of centroid
-    ...     keypoints="centroid",
-    ...     # only aggregate for two individuals
-    ...     individuals=[
-    ...         "AEON3B_TP1",
-    ...         "AEON3B_TP2",
-    ...     ],
+    >>> plot_occupancy(  
+    ...     positions,  
+    ...     # plot the centroid of keypoints located on the head  
+    ...     keypoints=["snout", "leftear", "rightear"],  
+    ...     # only plot data for 1 individual  
+    ...     individuals="individual1",  
     ...     # fix the number of bins to use
     ...     bins=[30, 20],
     ...     # set the minimum count (bins with a lower count show as 0 count).
-    ...     # This effectively only displayed bins that were visited at least
+    ...     # This effectively only displays bins that were visited at least
     ...     # twice.
     ...     cmin=1,
     ...     # Normalise the plot, scaling the counts to [0, 1]
