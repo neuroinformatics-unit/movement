@@ -99,18 +99,18 @@ def plot_occupancy(
     ...     # plot the centroid of keypoints located on the head
     ...     keypoints=["snout", "leftear", "rightear"],
     ...     # only plot data for 1 individual
-    ...     individuals="individual1"
+    ...     individuals="individual1",
     ... )
 
     ``kwargs`` are passed to the ``matplotlib`` backend as keyword-arguments to
     this function.
 
-    >>> plot_occupancy(  
-    ...     positions,  
-    ...     # plot the centroid of keypoints located on the head  
-    ...     keypoints=["snout", "leftear", "rightear"],  
-    ...     # only plot data for 1 individual  
-    ...     individuals="individual1",  
+    >>> plot_occupancy(
+    ...     positions,
+    ...     # plot the centroid of keypoints located on the head
+    ...     keypoints=["snout", "leftear", "rightear"],
+    ...     # only plot data for 1 individual
+    ...     individuals="individual1",
     ...     # fix the number of bins to use
     ...     bins=[30, 20],
     ...     # set the minimum count (bins with a lower count show as 0 count).
