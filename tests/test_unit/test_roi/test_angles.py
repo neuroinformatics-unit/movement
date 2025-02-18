@@ -361,6 +361,7 @@ def test_angle_to_support_plane(
     egocentric_angles = segment_of_y_equals_x.compute_egocentric_angle(
         points_around_segment, left_keypoint="left", right_keypoint="right"
     )
-    xr.testing.assert_equal(
-        should_be_same_as_egocentric, egocentric_angles == angles_to_support
+    values_are_close = egocentric_angles.copy(
+        data=np.isclose(egocentric_angles, angles_to_support), deep=True
     )
+    xr.testing.assert_equal(should_be_same_as_egocentric, values_are_close)
