@@ -159,7 +159,7 @@ class LineOfInterest(BaseRegionOfInterest):
         if position_keypoint is None:
             position_keypoint = [left_keypoint, right_keypoint]
 
-        normal = self._vector_from_keypoint_centroid(
+        normal = self._vector_from_centroid_of_keypoints(
             data,
             position_keypoint=position_keypoint,
             renamed_dimension="normal",
