@@ -10,7 +10,6 @@ from numpy.typing import ArrayLike
 from movement.kinematics import compute_forward_vector_angle
 from movement.roi.base import (
     ApproachVectorDirections,
-    AwayFromRegion,
     BaseRegionOfInterest,
     PointLikeList,
     TowardsRegion,
@@ -169,18 +168,12 @@ class LineOfInterest(BaseRegionOfInterest):
         # that points into the opposite side of the segment.
         if normal_direction == TowardsRegion:
             normal *= -1.0
-        elif normal_direction != AwayFromRegion:
-            raise ValueError(
-                f"Unknown convention for normal vector: {normal_direction}"
-            )
 
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.
         rotation_angle: Literal["ref to forward", "forward to ref"] = (
             angle_rotates.replace("normal", "ref")  # type: ignore
         )
-        if rotation_angle not in ["ref to forward", "forward to ref"]:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         return compute_forward_vector_angle(
             data,
