@@ -251,6 +251,8 @@ def test_keypoints_and_individuals_behaviour(
     if select_before_passing_to_plot:
         data = data.sel(select_before_passing_to_plot)
 
-    _, _, hist_info = plot_occupancy(data, **kwargs_to_pass)
+    fig, _, hist_info = plot_occupancy(data, **kwargs_to_pass)
+    # This just helps suppress a warning about open plots
+    plt.close(fig)
 
     assert np.allclose(expected_output, hist_info["counts"])
