@@ -1,24 +1,20 @@
 (target-napari-plugin)=
-# The napari plugin
+# Data visualisation in napari
 
-To enable the interactive visualisation of motion tracks in
-`movement`, we have created an experimental plugin for [napari](napari:).
-Currently, the plugin supports loading 2D
-[poses datasets](target-poses-and-bboxes-dataset), and visualising them
-as points overlaid on video frames.
+You can visualise `movement` motion tracks in  [napari](napari:) using our plugin. A plugin is basically a custom panel that you can add to the standard napari window.
+Currently, you can visualise 2D
+[poses datasets](target-poses-and-bboxes-dataset) as points overlaid on video frames.
 
 :::{warning}
-This plugin is still in early stages of development and offers
-limited functionality. We are working on ironing out the kinks and
-gradually adding more features. [Get in touch](target-get-in-touch)
+This plugin is still in early stages of development but we are working on ironing out the kinks. [Get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
 :::
 
 ## Installation
 
 The `napari` plugin is shipped with the `movement` package starting from
-version `0.1.0`. If you install `movement` via `conda`, `napari` is already
-included as a dependency. If you use the `pip` installer, make sure to
+version `0.1.0`. If you install `movement` via `conda`, `napari` will already
+be available. If you use the `pip` installer, make sure to
 install `movement` with the `[napari]` extra:
 
 ```sh
@@ -35,7 +31,7 @@ napari -w movement
 
 This will open the `napari` window with the `movement` plugin docked on the
 right-hand side.
-
+In napari, data is typically loaded into layers, which can be reordered and toggled for visibility in the layers list panel. For example, keypoint data can be added as a 'points' layer, while images or videos can be loaded as 'image' layers. Below, we’ll explain how to do this.
 ## Load a background layer
 
 Next, you need a background for you visualisation. You can either
@@ -45,16 +41,15 @@ derived from that video. In the following sections, we will show you how to
 do both and discuss some limitations.
 
 (target-load-video)=
-### Load a whole video
+### Load a video
 
 To load a video, drag and drop the video file onto the `napari` window.
 You will see a pop-up dialog asking you to select the reader.
 Choose the `video` reader—corresponding to the
 [`napari-video`](https://github.com/janclemenslab/napari-video)
-plugin—and click `OK`.
+plugin—and click `OK`. You can optionally select to remember this reader for all files with the same extension.
 
-`napari-video` will load the video as a single `napari`
-[image layer](napari:howtos/layers/image.html), with a slider
+`napari-video` will load the video with a slider
 at the bottom that you can use to navigate through frames.
 You may also use the left and right arrow keys to navigate
 frame-by-frame.
@@ -90,9 +85,7 @@ properly aligned with the tracking data.
 :color: info
 :icon: info
 
-You can extract a still frame using your video player/editor of
-choice. We find the command line tool [`ffmpeg`](https://www.ffmpeg.org/)
-very useful for this task.
+You can use the command line tool [`ffmpeg`](https://www.ffmpeg.org/) to extract a still frame from a video.
 
 To extract the first frame of a video:
 
@@ -117,21 +110,20 @@ In any case, the image will be loaded as a static
 
 Now you are ready to load some pose tracks over your chosen background layer.
 
-The `movement` plugin on the right-hand side of the window should contain
-an expanded `Load poses` menu. This contains a `source software` dropdown,
-an `fps`  (frames per second) input field, and a `Browse` button to select
-a file containing predicted poses.
-You may also directly paste a `file path` into the homonymous field.
+On the right-hand side of the you should see
+an expanded `Load poses` menu. To load some pose data in napari:
+1- Select the `source software` from the dropdown menu
+2- Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. To show the units in frames, or if the fps is not known, it can be set to 1.
+3 - Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
+4 - Click Load
+
+The data should be loaded into the viewer as a [points layer](napari:howtos/layers/points.html). By default, it is added at the top of the layer list.
 
 ::: {note}
 See [supported formats](target-supported-formats) for more information on
 the expected software and file formats.
 :::
 
-Once the file path is set, click the `Load` button to load the poses dataset
-into `napari`. The plugin will create a new
-[points layer](napari:howtos/layers/points.html) on top of the existing
-image layer.
 
 You will see a view similar to the one below:
 
@@ -139,17 +131,15 @@ You will see a view similar to the one below:
 
 The predicted keypoints are represented as points, colour-coded by
 keypoint ID for single-individual datasets, or by individual ID for
-multi-individual datasets. Hovering with your mouse over a point will
+multi-individual datasets. Hovering with your mouse over a point with the points layer selected will
 bring up a tooltip containing the names of the individual and keypoint,
 the point-wise confidence score (as predicted by the source software),
 and the time in seconds (this is calculated from the frame number and
 the `fps` value you provided).
 
-Using the slider at the bottom of the window, you can navigate through
-the frames of the poses dataset. The points will update accordingly, allowing
-you to inspect the predicted keypoints at different time points.
-If you loaded a video as a background layer, the video will also update
-in sync with the poses dataset.
+Using the slider at the bottom of the window, you can move through
+the frames of the dataset, and the points and video will update
+in sync.
 
 ::: {admonition} Stay tuned
 Though the display style of the points layer is currently fixed, we are
