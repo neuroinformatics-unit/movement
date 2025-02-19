@@ -1,12 +1,15 @@
 (target-napari-plugin)=
-# Data visualisation in napari
+# Viewing data in napari
 
-You can visualise `movement` motion tracks in  [napari](napari:) using our plugin. A plugin is basically a custom panel that you can add to the standard napari window.
-Currently, you can visualise 2D
-[poses datasets](target-poses-and-bboxes-dataset) as points overlaid on video frames.
+You can visualise `movement` motion tracks in [napari](napari:) using our
+plugin, which extends `napari`'s core functionality and provides a widget
+that can be docked in the `napari` window. Currently, you can use it to
+visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
+as points overlaid on video frames.
 
 :::{warning}
-This plugin is still in early stages of development but we are working on ironing out the kinks. [Get in touch](target-get-in-touch)
+This plugin is still in early stages of development but we are working on
+ironing out the kinks. [Get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
 :::
 
@@ -21,7 +24,7 @@ install `movement` with the `[napari]` extra:
 pip install movement[napari]
 ```
 
-## Launch the plugin
+## Launch napari
 
 Type the following command in your terminal:
 
@@ -29,16 +32,25 @@ Type the following command in your terminal:
 napari -w movement
 ```
 
-This will open the `napari` window with the `movement` plugin docked on the
-right-hand side.
-In napari, data is typically loaded into layers, which can be reordered and toggled for visibility in the layers list panel. For example, keypoint data can be added as a 'points' layer, while images or videos can be loaded as 'image' layers. Below, we’ll explain how to do this.
+This will open the `napari` window with the `movement` widget docked on the
+right-hand side, as in the the [screenshot](target-widget-screenshot) below.
+
+In `napari`, data is typically loaded into [layers](napari:guides/layers.html),
+which can be reordered and toggled for visibility in the layers list panel.
+For example, keypoint data can be added as a
+[points layer](napari:howtos/layers/points.html),
+while image stacks (including videos) can be added as
+[image layers](napari:howtos/layers/image.html).
+Below, we'll explain how to do this.
+
 ## Load a background layer
 
-Next, you need a background for you visualisation. You can either
-[load the video](target-load-video) corresponding to the poses dataset,
-or a [single image](target-load-frame), e.g., a still frame
-derived from that video. In the following sections, we will show you how to
-do both and discuss some limitations.
+Though this is not strictly necessary, it is usually informative to
+view the keypoints overlaid on a background that provides
+some spatial context. You can either [load the video](target-load-video)
+corresponding to the poses dataset, or a [single image](target-load-frame),
+e.g., a still frame derived from that video. In the following sections,
+we will show you how to do both and discuss some limitations.
 
 (target-load-video)=
 ### Load a video
@@ -47,9 +59,10 @@ To load a video, drag and drop the video file onto the `napari` window.
 You will see a pop-up dialog asking you to select the reader.
 Choose the `video` reader—corresponding to the
 [`napari-video`](https://github.com/janclemenslab/napari-video)
-plugin—and click `OK`. You can optionally select to remember this reader for all files with the same extension.
+plugin—and click `OK`. You can optionally select to remember this reader
+for all files with the same extension.
 
-`napari-video` will load the video with a slider
+`napari-video` will load the video as an image stack with a slider
 at the bottom that you can use to navigate through frames.
 You may also use the left and right arrow keys to navigate
 frame-by-frame.
@@ -62,8 +75,8 @@ the `Playback frames per second` setting.
 :::{admonition} Video playback limitations
 :class: warning
 
-- During playback you cannot jump at an arbitrary frame by clicking on the
-  slider. Make sure to pause the video first.
+- The video playback may freeze or stutter if you click on the slider to jump
+  to a specific frame. We recommended pausing the playback before such jumps.
 - `napari-video` may struggle to play videos at a high frame rate, depending
   on your hardware, the video resolution and codec. If you experience
   performance issues, such as the video freezing or skipping frames,
@@ -85,7 +98,8 @@ properly aligned with the tracking data.
 :color: info
 :icon: info
 
-You can use the command line tool [`ffmpeg`](https://www.ffmpeg.org/) to extract a still frame from a video.
+You can use the command line tool [`ffmpeg`](https://www.ffmpeg.org/)
+to extract a still frame from a video.
 
 To extract the first frame of a video:
 
@@ -103,21 +117,22 @@ ffmpeg -i video.mp4 -ss 00:00:02 -frames:v 1 frame-2sec.png
 To load any image into `napari`, simply drag and drop the image file into
 the napari window. Alternatively, you can use the `File > Open File(s)` menu
 option and select the file from the file dialog.
-In any case, the image will be loaded as a static
-[image layer](napari:howtos/layers/image.html).
+In any case, the image will be loaded as a single 2D frame without a slider.
 
 ## Load the poses dataset
 
 Now you are ready to load some pose tracks over your chosen background layer.
 
-On the right-hand side of the you should see
+On the right-hand side of the window you should see
 an expanded `Load poses` menu. To load some pose data in napari:
-1- Select the `source software` from the dropdown menu
-2- Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. To show the units in frames, or if the fps is not known, it can be set to 1.
-3 - Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
-4 - Click Load
+1. Select the `source software` from the dropdown menu.
+2. Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the fps is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
+3. Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
+4. Click `Load`.
 
-The data should be loaded into the viewer as a [points layer](napari:howtos/layers/points.html). By default, it is added at the top of the layer list.
+The data should be loaded into the viewer as a
+[points layer](napari:howtos/layers/points.html).
+By default, it is added at the top of the layer list.
 
 ::: {note}
 See [supported formats](target-supported-formats) for more information on
@@ -127,11 +142,18 @@ the expected software and file formats.
 
 You will see a view similar to the one below:
 
-![napari plugin with poses dataset loaded](../_static/napari_plugin_with_poses_as_points.png)
+(target-widget-screenshot)=
+
+![napari widget with poses dataset loaded](../_static/napari_plugin_with_poses_as_points.png)
 
 The predicted keypoints are represented as points, colour-coded by
 keypoint ID for single-individual datasets, or by individual ID for
-multi-individual datasets. Hovering with your mouse over a point with the points layer selected will
+multi-individual datasets. These IDs can be also displayed as text
+next to the points by enabling the `display text` option from the
+layer controls panel.
+
+Hovering with your mouse over a point
+(with the points layer selected) will
 bring up a tooltip containing the names of the individual and keypoint,
 the point-wise confidence score (as predicted by the source software),
 and the time in seconds (this is calculated from the frame number and
