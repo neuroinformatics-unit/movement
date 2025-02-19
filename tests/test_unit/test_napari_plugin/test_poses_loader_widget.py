@@ -8,7 +8,7 @@ instantiated (the methods would have already been connected to signals).
 import pytest
 from napari.settings import get_settings
 from pytest import DATA_PATHS
-from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox
+from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
 from movement.napari._loader_widgets import PosesLoader
 
@@ -25,7 +25,7 @@ def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
     # Check that the expected widgets are present in the layout
     expected_widgets = [
         (QComboBox, "source_software_combo"),
-        (QSpinBox, "fps_spinbox"),
+        (QDoubleSpinBox, "fps_spinbox"),
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
         (QPushButton, "browse_button"),
