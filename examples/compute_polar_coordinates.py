@@ -115,6 +115,9 @@ fig, ax = plot_trajectory(
 )
 # Adjust title
 ax.set_title("Head trajectory (individual_0)")
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.collections[0].colorbar.set_label("Time (frames)")
 fig.show()
 
 # %%
