@@ -169,7 +169,8 @@ class ValidHDF5:
                     raise log_error(
                         ValueError,
                         f"Could not find the expected dataset(s) {diff} "
-                        f"in file: {value}. ",
+                        f"in file: {value}. Make sure that the file "
+                        "matches the expected source software format.",
                     )
 
 
