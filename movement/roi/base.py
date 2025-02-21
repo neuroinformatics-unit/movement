@@ -298,8 +298,10 @@ class BaseRegionOfInterest:
         shapely.distance : Underlying used to compute the nearest point.
 
         """
-        from_where = self.region.boundary if boundary_only else self.region
-        return shapely.distance(from_where, shapely.Point(point))
+        region_to_consider = (
+            self.region.boundary if boundary_only else self.region
+        )
+        return shapely.distance(region_to_consider, shapely.Point(point))
 
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="nearest point"
@@ -307,11 +309,11 @@ class BaseRegionOfInterest:
     def compute_nearest_point_to(
         self, /, position: ArrayLike, boundary_only: bool = False
     ) -> np.ndarray:
-        """Compute a nearest point in the region to the ``position``.
+        """Compute (one of) the nearest point(s) in the region to ``position``.
 
         position : ArrayLike
             Coordinates of a point, from which to find the nearest point in the
-            region defined by ``self``.
+            region.
         boundary_only : bool, optional
             If ``True``, compute the nearest point to ``position`` that is on
             the  boundary of ``self``. Default ``False``.
@@ -327,13 +329,15 @@ class BaseRegionOfInterest:
         shapely.shortest_line : Underlying used to compute the nearest point.
 
         """
-        from_where = self.region.boundary if boundary_only else self.region
+        region_to_consider = (
+            self.region.boundary if boundary_only else self.region
+        )
         # shortest_line returns a line from 1st arg to 2nd arg,
         # therefore the point on self is the 0th coordinate
         return np.array(
-            shapely.shortest_line(from_where, shapely.Point(position)).coords[
-                0
-            ]
+            shapely.shortest_line(
+                region_to_consider, shapely.Point(position)
+            ).coords[0]
         )
 
     @broadcastable_method(
@@ -360,28 +364,32 @@ class BaseRegionOfInterest:
             computed. Default ``False``.
         unit : bool
             If ``True``, the approach vector is returned normalised, otherwise
-            it is not normalised. Default is ``True``.
+            it is not normalised. Default is ``False``.
 
         Returns
         -------
         np.ndarray
-            Vector directed between the point and the region.
+            Approach vector from the point to the region.
 
         """
-        from_where = self.region.boundary if boundary_only else self.region
+        region_to_consider = (
+            self.region.boundary if boundary_only else self.region
+        )
 
         # "point to region" by virtue of order of arguments to shapely call
-        directed_line = shapely.shortest_line(shapely.Point(point), from_where)
+        directed_line = shapely.shortest_line(
+            shapely.Point(point), region_to_consider
+        )
 
-        displacement_vector = np.array(directed_line.coords[1]) - np.array(
+        approach_vector = np.array(directed_line.coords[1]) - np.array(
             directed_line.coords[0]
         )
         if unit:
-            norm = np.sqrt(np.sum(displacement_vector**2))
+            norm = np.sqrt(np.sum(approach_vector**2))
             # Cannot normalise the 0 vector
             if not np.isclose(norm, 0.0):
-                displacement_vector /= norm
-        return displacement_vector
+                approach_vector /= norm
+        return approach_vector
 
     def compute_allocentric_angle(
         self,
