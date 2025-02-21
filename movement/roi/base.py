@@ -30,25 +30,21 @@ ApproachVectorDirections: TypeAlias = Literal[  # type: ignore[valid-type]
 
 
 class BaseRegionOfInterest:
-    """Base class for representing regions of interest (RoIs).
+    """Base class for regions of interest (RoIs).
 
     Regions of interest can be either 1 or 2 dimensional, and are represented
-    by appropriate ``shapely.Geometry`` objects depending on which. Note that
-    there are a number of discussions concerning subclassing ``shapely``
-    objects;
+    by corresponding ``shapely.Geometry`` objects.
 
-    - https://github.com/shapely/shapely/issues/1233.
-    - https://stackoverflow.com/questions/10788976/how-do-i-properly-inherit-from-a-superclass-that-has-a-new-method
+    To avoid the complexities of subclassing ``shapely`` objects (due to them
+    relying on ``__new__()`` methods, see
+    https://github.com/shapely/shapely/issues/1233), we simply wrap the
+    relevant ``shapely`` object in the ``_shapely_geometry`` attribute of the
+    class. This is accessible via the property ``region``. This also allows us
+    to forbid certain operations and make the manipulation of ``shapely``
+    objects more user friendly.
 
-    To avoid the complexities of subclassing ourselves, we simply elect to wrap
-    the appropriate ``shapely`` object in the ``_shapely_geometry`` attribute,
-    accessible via the property ``region``. This also has the benefit of
-    allowing us to 'forbid' certain operations (that ``shapely`` would
-    otherwise interpret in a set-theoretic sense, giving confusing answers to
-    users).
-
-    This class is not designed to be instantiated directly. It can be
-    instantiated, however its primary purpose is to reduce code duplication.
+    Although this class can be instantiated directly, it is not designed for
+    this. Its primary purpose is to reduce code duplication.
     """
 
     __default_name: str = "Un-named region"
@@ -179,7 +175,7 @@ class BaseRegionOfInterest:
         which_method: str = "compute_approach_vector",
         **method_args: Any,
     ) -> xr.DataArray:
-        """Compute a vector from the centroid of some keypoints.
+        """Compute a vector from the centroid of some keypoints to a target.
 
         Intended for internal use when calculating ego- and allocentric
         boundary angles. First, the position of the centroid of the given
@@ -379,7 +375,7 @@ class BaseRegionOfInterest:
             "point to region".
         unit : bool
             If ``True``, the unit vector in the appropriate direction is
-            returned, otherwise the displacement vector is returned.
+            returned, otherwise the approach vector is returned un-normalised.
             Default is ``True``.
 
         Returns
@@ -491,9 +487,9 @@ class BaseRegionOfInterest:
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.
         if angle_rotates == "ref to approach":
-            ref_as_left_opperand = True
+            ref_as_left_operand = True
         elif angle_rotates == "approach to ref":
-            ref_as_left_opperand = False
+            ref_as_left_operand = False
         else:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
@@ -510,7 +506,7 @@ class BaseRegionOfInterest:
         angles = compute_signed_angle_2d(
             approach_vector,
             reference_vector,
-            v_as_left_operand=ref_as_left_opperand,
+            v_as_left_operand=ref_as_left_operand,
         )
         if not in_radians:
             angles *= 180.0 / np.pi

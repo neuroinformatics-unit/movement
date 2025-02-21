@@ -77,26 +77,31 @@ class LineOfInterest(BaseRegionOfInterest):
     def normal(self, on_same_side_as: ArrayLike = (0.0, 0.0)) -> np.ndarray:
         """Compute the unit normal to this line.
 
-        There are always two normal vectors to chose from. The normal vector
-        that points to the same side of the segment as that which the point
-        ``on_same_side_as`` lies on, is the returned normal vector.
+        The unit normal is a vector perpendicular to the input line
+        whose norm is equal to 1. The direction of the normal vector
+        is not fully defined: the line divides the 2D plane in two
+        halves, and the normal could be pointing to either of the half-planes.
+        For example, an horizontal line divides the 2D plane in a
+        bottom and a top half-plane, and we can choose whether
+        the normal points "upwards" or "downwards". We use a sample
+        point to define the half-plane the normal vector points to.
 
         Parameters
         ----------
         on_same_side_as : ArrayLike
-            Point in the (x,y) plane to orientate the returned normal vector
-            towards.
+            A sample point in the (x,y) plane the normal is in. By default, the
+            origin is used.
 
         """
         on_same_side_as = np.array(on_same_side_as)
 
-        parallel = np.array(self.region.coords[1]) - np.array(
+        parallel_to_line = np.array(self.region.coords[1]) - np.array(
             self.region.coords[0]
         )
-        normal = np.array([parallel[1], -parallel[0]])
+        normal = np.array([parallel_to_line[1], -parallel_to_line[0]])
         normal /= np.sqrt(np.sum(normal**2))
 
-        if np.sum(on_same_side_as * (normal - self.region.coords[0])) < 0:
+        if np.dot((on_same_side_as - self.region.coords[0]), normal) < 0:
             normal *= -1.0
         return normal
 
