@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from movement.kinematics import compute_forward_vector
 from movement.roi import LineOfInterest
 from movement.roi.base import BaseRegionOfInterest
 
@@ -83,12 +84,15 @@ def sample_position_array() -> xr.DataArray:
     [
         pytest.param(
             "unit_square_with_hole",
-            [sample_position_array()],
-            {
-                "left_keypoint": "left",
-                "right_keypoint": "right",
-                "angle_rotates": "elephant to region",
-            },
+            [
+                compute_forward_vector(
+                    sample_position_array(), "left", "right"
+                ),
+                sample_position_array()
+                .sel(keypoints="midpt")
+                .drop_vars("keypoints"),
+            ],
+            {"angle_rotates": "elephant to region"},
             ValueError("Unknown angle convention: elephant to region"),
             True,
             id="[E] Unknown angle convention",
@@ -96,21 +100,22 @@ def sample_position_array() -> xr.DataArray:
         pytest.param(
             "unit_square_with_hole",
             [sample_position_array()],
-            {
-                "angle_rotates": "elephant to region",
-            },
+            {"angle_rotates": "elephant to region"},
             ValueError("Unknown angle convention: elephant to region"),
             False,
             id="[A] Unknown angle convention",
         ),
         pytest.param(
             "unit_square_with_hole",
-            [sample_position_array()],
-            {
-                "left_keypoint": "left",
-                "right_keypoint": "right",
-                "in_degrees": True,
-            },
+            [
+                compute_forward_vector(
+                    sample_position_array(), "left", "right"
+                ),
+                sample_position_array()
+                .sel(keypoints="midpt")
+                .drop_vars("keypoints"),
+            ],
+            {"in_degrees": True},
             np.array(
                 [
                     0.0,
@@ -125,13 +130,15 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            [sample_position_array()],
-            {
-                "left_keypoint": "left",
-                "right_keypoint": "right",
-                "position_keypoint": "wild",
-                "in_degrees": True,
-            },
+            [
+                compute_forward_vector(
+                    sample_position_array(), "left", "right"
+                ),
+                sample_position_array()
+                .sel(keypoints="wild")
+                .drop_vars("keypoints"),
+            ],
+            {"in_degrees": True},
             np.array(
                 [
                     180.0,
@@ -146,12 +153,15 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array()],
-            {
-                "left_keypoint": "left",
-                "right_keypoint": "right",
-                "in_degrees": True,
-            },
+            [
+                compute_forward_vector(
+                    sample_position_array(), "left", "right"
+                ),
+                sample_position_array()
+                .sel(keypoints="midpt")
+                .drop_vars("keypoints"),
+            ],
+            {"in_degrees": True},
             np.array(
                 [
                     0.0,
@@ -166,10 +176,15 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array()],
+            [
+                compute_forward_vector(
+                    sample_position_array(), "left", "right"
+                ),
+                sample_position_array()
+                .sel(keypoints="midpt")
+                .drop_vars("keypoints"),
+            ],
             {
-                "left_keypoint": "left",
-                "right_keypoint": "right",
                 "boundary_only": True,
                 "in_degrees": True,
             },
@@ -282,7 +297,7 @@ def test_ego_and_allocentric_angle_to_region(
         expected_output = xr.DataArray(data=expected_output, dims=["time"])
 
     if egocentric:
-        which_method = "compute_egocentric_angle"
+        which_method = "compute_egocentric_angle_to_nearest_point"
         other_vector_name = "forward"
     else:
         which_method = "compute_allocentric_angle_to_nearest_point"
@@ -379,8 +394,10 @@ def test_angle_to_support_plane(
     )
     xr.testing.assert_allclose(expected_output, angles_to_support)
 
-    egocentric_angles = segment_of_y_equals_x.compute_egocentric_angle(
-        points_around_segment, left_keypoint="left", right_keypoint="right"
+    egocentric_angles = (
+        segment_of_y_equals_x.compute_egocentric_angle_to_nearest_point(
+            points_around_segment, left_keypoint="left", right_keypoint="right"
+        )
     )
     values_are_close = egocentric_angles.copy(
         data=np.isclose(egocentric_angles, angles_to_support), deep=True

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Hashable, Sequence
-from typing import Any, Literal, TypeAlias
+from typing import Literal, TypeAlias
 
 import numpy as np
 import shapely
@@ -11,7 +11,6 @@ import xarray as xr
 from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
-from movement.kinematics import compute_forward_vector_angle
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import log_error
 from movement.utils.vector import compute_signed_angle_2d
@@ -193,59 +192,6 @@ class BaseRegionOfInterest:
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
-    def _vector_from_centroid_of_keypoints(
-        self,
-        data: xr.DataArray,
-        position_keypoint: Hashable | Sequence[Hashable],
-        renamed_dimension: str = "vector to",
-        which_method: str = "compute_approach_vector",
-        **method_args: Any,
-    ) -> xr.DataArray:
-        """Compute a vector from the centroid of some keypoints to a target.
-
-        Intended for internal use when calculating ego- and allocentric
-        boundary angles. First, the position of the centroid of the given
-        keypoints is computed. Then, this value, along with the other keyword
-        arguments passed, is given to the method specified in ``which_method``
-        in order to compute the necessary vectors.
-
-        Parameters
-        ----------
-        data : xarray.DataArray
-            DataArray of position data.
-        position_keypoint : Hashable | Sequence[Hashable]
-            Keypoints to compute centroid of, then compute vectors to/from.
-        renamed_dimension : str
-            The name of the new dimension created by ``which_method`` that
-            contains the corresponding vectors. This dimension will be renamed
-            to 'space' and given coordinates x, y [, z].
-        which_method : str
-            Name of a class method, which will be used to compute the
-            appropriate vectors.
-        method_args : Any
-            Additional keyword arguments needed by the specified class method.
-
-        """
-        position_data = data.sel(keypoints=position_keypoint, drop=True)
-        if "keypoints" in position_data.dims:
-            position_data = position_data.mean(dim="keypoints")
-
-        method = getattr(self, which_method)
-        return (
-            method(
-                position_data,
-                **method_args,
-            )
-            .rename({renamed_dimension: "space"})
-            .assign_coords(
-                {
-                    "space": ["x", "y"]
-                    if len(data["space"]) == 2
-                    else ["x", "y", "z"]
-                }
-            )
-        )
-
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
         self,
@@ -386,6 +332,13 @@ class BaseRegionOfInterest:
         np.ndarray
             Approach vector from the point to the region.
 
+        See Also
+        --------
+        ``compute_allocentric_angle_to_nearest_point`` : Relies on this method
+            to compute the approach vector.
+        ``compute_egocentric_angle_to_nearest_point`` : Relies on this method
+            to compute the approach vector.
+
         """
         region_to_consider = (
             self.region.boundary if boundary_only else self.region
@@ -416,18 +369,17 @@ class BaseRegionOfInterest:
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
     ) -> float:
-        """Compute the allocentric angle to the region.
+        """Compute the allocentric angle to the nearest point in the region.
 
+        With the term "allocentric" , we indicate that we are measuring angles
+        with respect to a reference frame that is fixed relative to the
+        experimental/camera setup. By default, we assume this is the positive
+        x-axis of the coordinate system in which position is.
+    
         The allocentric angle is the :func:`signed angle\
         <movement.utils.vector.compute_signed_angle_2d>` between the approach
-        vector (directed from a point to the region) and a given reference
-        vector. `angle_rotates`` can be used to reverse the sign convention of
-        the returned angle.
-
-        The approach vector is the vector from ``position_keypoints`` to the
-        closest point within the region (or the closest point on the boundary
-        of the region if ``boundary`` is set to ``True``), as determined by
-        :func:`compute_approach_vector`.
+        vector and a given reference  vector. ``angle_rotates`` can be used to
+        select the sign convention of the returned angle.
 
         Parameters
         ----------
@@ -449,17 +401,17 @@ class BaseRegionOfInterest:
 
         See Also
         --------
-        ``compute_signed_angle_2d`` : The underlying function used to compute
-            the signed angle between the approach vector and the reference
+        ``compute_approach_vector`` : The method used to compute the approach
             vector.
         ``compute_egocentric_angle_to_nearest_point`` : Related class method
             for computing the egocentric angle to the region.
+        ``compute_signed_angle_2d`` : The underlying function used to compute
+            the signed angle between the approach vector and the reference
+            vector.
 
         """
         if reference_vector is None:
             reference_vector = np.array([[1.0, 0.0]])
-        # Translate the more explicit convention used here into the convention
-        # used by our backend functions.
         if angle_rotates == "ref to approach":
             ref_as_left_operand = True
         elif angle_rotates == "approach to ref":
@@ -467,15 +419,13 @@ class BaseRegionOfInterest:
         else:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        # Determine the approach vector, for all time-points.
-        approach_vector = self.compute_approach_vector(
-            position, boundary_only=boundary_only
-        )
         approach_vector = self._reassign_space_dim(
-            approach_vector, "vector to"
+            self.compute_approach_vector(
+                position, boundary_only=boundary_only, unit=False
+            ),
+            "vector to",
         )
 
-        # Then, compute signed angles at all time-points
         angles = compute_signed_angle_2d(
             approach_vector,
             reference_vector,
@@ -485,18 +435,15 @@ class BaseRegionOfInterest:
             angles = np.rad2deg(angles)
         return angles
 
-    def compute_egocentric_angle(
+    def compute_egocentric_angle_to_nearest_point(
         self,
-        data: xr.DataArray,
-        left_keypoint: Hashable,
-        right_keypoint: Hashable,
+        forward_vector: xr.DataArray,
+        position: xr.DataArray,
         angle_rotates: Literal[
             "approach to forward", "forward to approach"
         ] = "approach to forward",
         boundary_only: bool = False,
-        camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_degrees: bool = False,
-        position_keypoint: Hashable | Sequence[Hashable] | None = None,
     ) -> xr.DataArray:
         """Compute the egocentric angle to the region.
 
@@ -516,67 +463,51 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        data : xarray.DataArray
-            `DataArray` of positions that has at least 3 dimensions; "time",
-            "space", and ``keypoints_dimension``.
-        left_keypoint : Hashable
-            The left keypoint defining the forward vector, as passed to
-            func:``compute_forward_vector_angle``.
-        right_keypoint : Hashable
-            The right keypoint defining the forward vector, as passed to
-            func:``compute_forward_vector_angle``.
+        forward_vector : xarray.DataArray
+            Forward vector(s) to use in calculation.
+        position : xarray.DataArray
+            `DataArray` of spatial positions, considered the origin of the
+            ``forward_vector``.
         angle_rotates : Literal["approach to forward", "forward to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to forward"``.
         boundary_only : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
-        camera_view : Literal["top_down", "bottom_up"]
-            Passed to func:`compute_forward_vector_angle`. Default
-            ``"top_down"``.
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
-        position_keypoint : Hashable | Sequence[Hashable], optional
-            The keypoint defining the origin of the approach vector. If
-            provided as a sequence, the average of all provided keypoints is
-            used. By default, the centroid of ``left_keypoint`` and
-            ``right_keypoint`` is used.
 
         See Also
         --------
-        ``compute_forward_vector_angle`` : The underlying function used
-            to compute the signed angle between the forward vector and the
-            approach vector.
+        ``compute_allocentric_angle_to_nearest_point`` : Related class method
+            for computing the egocentric angle to the region.
+        ``compute_approach_vector`` : The method used to compute the approach
+            vector.
+        ``compute_signed_angle_2d`` : The underlying function used to compute
+            the signed angle between the approach vector and the reference
+            vector.
 
         """
-        # Default to centre of left and right keypoints for position,
-        # if not provided.
-        if position_keypoint is None:
-            position_keypoint = [left_keypoint, right_keypoint]
-        # Translate the more explicit convention used here into the convention
-        # used by our backend functions.
-        rotation_angle: Literal["ref to forward", "forward to ref"] = (
-            angle_rotates.replace("approach", "ref")  # type: ignore
-        )
-        if rotation_angle not in ["ref to forward", "forward to ref"]:
+        if angle_rotates == "approach to forward":
+            forward_as_left_operand = False
+        elif angle_rotates == "forward to approach":
+            forward_as_left_operand = True
+        else:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        # Determine the approach vector, for all time-points.
-        approach_vector = self._vector_from_centroid_of_keypoints(
-            data,
-            position_keypoint=position_keypoint,
-            boundary_only=boundary_only,
-            unit=False,
+        approach_vector = self._reassign_space_dim(
+            self.compute_approach_vector(
+                position, boundary_only=boundary_only, unit=False
+            ),
+            "vector to",
         )
 
-        # Then, compute signed angles at all time-points
-        return compute_forward_vector_angle(
-            data,
-            left_keypoint=left_keypoint,
-            right_keypoint=right_keypoint,
-            reference_vector=approach_vector,
-            camera_view=camera_view,
-            in_radians=not in_degrees,
-            angle_rotates=rotation_angle,
+        angles = compute_signed_angle_2d(
+            approach_vector,
+            forward_vector,
+            v_as_left_operand=forward_as_left_operand,
         )
+        if in_degrees:
+            angles = np.rad2deg(angles)
+        return angles
