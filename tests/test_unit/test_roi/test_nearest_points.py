@@ -38,7 +38,7 @@ def unit_line_in_x() -> LineOfInterest:
     [
         pytest.param(
             "unit_square_with_hole",
-            {"boundary": True},
+            {"boundary_only": True},
             np.array(
                 [
                     0.5,
@@ -68,7 +68,7 @@ def unit_line_in_x() -> LineOfInterest:
         ),
         pytest.param(
             "unit_line_in_x",
-            {"boundary": True},
+            {"boundary_only": True},
             np.array(
                 [
                     0.5 * np.sqrt(2.0),
@@ -110,7 +110,7 @@ def test_distance_point_to_region(
     [
         pytest.param(
             "unit_square",
-            {"boundary": True},
+            {"boundary_only": True},
             np.array(
                 [
                     [0.00, 0.50],
@@ -142,7 +142,7 @@ def test_distance_point_to_region(
         ),
         pytest.param(
             "unit_square_with_hole",
-            {"boundary": True},
+            {"boundary_only": True},
             np.array(
                 [
                     [0.00, 0.50],
@@ -190,7 +190,7 @@ def test_distance_point_to_region(
         ),
         pytest.param(
             "unit_line_in_x",
-            {"boundary": True},
+            {"boundary_only": True},
             np.array(
                 [
                     [0.00, 0.00],
@@ -236,7 +236,7 @@ def test_nearest_point_to(
         pytest.param(
             "unit_square",
             [0.5, 0.5],
-            {"boundary": True},
+            {"boundary_only": True},
             [
                 np.array([0.0, 0.5]),
                 np.array([0.5, 0.0]),
@@ -248,7 +248,7 @@ def test_nearest_point_to(
         pytest.param(
             "unit_line_in_x",
             [0.5, 0.0],
-            {"boundary": True},
+            {"boundary_only": True},
             [
                 np.array([0.0, 0.0]),
                 np.array([1.0, 0.0]),
@@ -331,14 +331,14 @@ def test_nearest_point_to_tie_breaks(
         pytest.param(
             "unit_square",
             (0.25, 0.35),
-            {"boundary": True, "unit": True},
+            {"boundary_only": True, "unit": True},
             np.array([-1.0, 0.0]),
             id="Boundary, polygon",
         ),
         pytest.param(
             LineOfInterest([(0.0, 0.0), (1.0, 0.0)]),
             (0.1, 0.5),
-            {"boundary": True, "unit": True},
+            {"boundary_only": True, "unit": True},
             np.array([-0.1, -0.5]) / np.sqrt(0.1**2 + 0.5**2),
             id="Boundary, line",
         ),

@@ -39,6 +39,23 @@ class BaseRegionOfInterest:
 
     Although this class can be instantiated directly, it is not designed for
     this. Its primary purpose is to reduce code duplication.
+
+    Notes
+    -----
+    A region of interest includes the points that make up its boundary and the
+    points contained in its interior. This convention means that points inside
+    the region will be treated as having zero distance to the region, and the
+    approach vector from these points to the region will be the null vector.
+
+    This may be undesirable in certain situations, when we explicitly want to
+    find the distance of a point to the boundary of a region, for example. To
+    accommodate this, most methods of this class accept a keyword argument that
+    forces the method to perform all computations using only the boundary of
+    the region, rather than the region itself. For polygons, this will force
+    the method in question to only consider distances or closest points on the
+    segments that form the (interior and exterior) boundaries. For segments,
+    the boundary is considered to be just the two endpoints of the segment.
+
     """
 
     __default_name: str = "Un-named region"
@@ -256,7 +273,7 @@ class BaseRegionOfInterest:
 
     @broadcastable_method(only_broadcastable_along="space")
     def compute_distance_to(
-        self, point: ArrayLike, boundary: bool = False
+        self, point: ArrayLike, boundary_only: bool = False
     ) -> float:
         """Compute the distance from the region to a point.
 
@@ -265,10 +282,10 @@ class BaseRegionOfInterest:
         point : ArrayLike
             Coordinates of a point, from which to find the nearest point in the
             region defined by ``self``.
-        boundary : bool, optional
-            If True, compute the distance from ``point`` to the boundary of
-            the region. Otherwise, the distance returned may be 0 for interior
-            points (see Notes).
+        boundary_only : bool, optional
+            If ``True``, compute the distance from ``point`` to the boundary of
+            the region, rather than the closest point belonging to the region.
+            Default ``False``.
 
         Returns
         -------
@@ -276,38 +293,28 @@ class BaseRegionOfInterest:
             Euclidean distance from the ``point`` to the (closest point on the)
             region.
 
-        Notes
-        -----
-        A point within the interior of a region is considered to be a distance
-        0 from the region. This is desirable for 1-dimensional regions, but may
-        not be desirable for 2D regions. As such, passing the ``boundary``
-        argument as ``True`` makes the method compute the distance from the
-        ``point`` to the boundary of the region, even if ``point`` is in the
-        interior of the region.
-
         See Also
         --------
         shapely.distance : Underlying used to compute the nearest point.
 
         """
-        from_where = self.region.boundary if boundary else self.region
+        from_where = self.region.boundary if boundary_only else self.region
         return shapely.distance(from_where, shapely.Point(point))
 
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="nearest point"
     )
     def compute_nearest_point_to(
-        self, /, position: ArrayLike, boundary: bool = False
+        self, /, position: ArrayLike, boundary_only: bool = False
     ) -> np.ndarray:
-        """Compute the nearest point in the region to the ``position``.
+        """Compute a nearest point in the region to the ``position``.
 
         position : ArrayLike
             Coordinates of a point, from which to find the nearest point in the
             region defined by ``self``.
-        boundary : bool, optional
-            If True, compute the nearest point to ``position`` that is on the
-            boundary of ``self``. Otherwise, the nearest point returned may be
-            inside ``self`` (see Notes).
+        boundary_only : bool, optional
+            If ``True``, compute the nearest point to ``position`` that is on
+            the  boundary of ``self``. Default ``False``.
 
         Returns
         -------
@@ -315,21 +322,12 @@ class BaseRegionOfInterest:
             Coordinates of the point on ``self`` that is closest to
             ``position``.
 
-        Notes
-        -----
-        This function computes the nearest point to ``position`` in the region
-        defined by ``self``. This means that, given a ``position`` inside the
-        region, ``position`` itself will be returned. To find the nearest point
-        to ``position`` on the boundary of a region, pass the ``boundary`
-        argument as ``True`` to this method. Take care though - the boundary of
-        a line is considered to be just its endpoints.
-
         See Also
         --------
         shapely.shortest_line : Underlying used to compute the nearest point.
 
         """
-        from_where = self.region.boundary if boundary else self.region
+        from_where = self.region.boundary if boundary_only else self.region
         # shortest_line returns a line from 1st arg to 2nd arg,
         # therefore the point on self is the 0th coordinate
         return np.array(
@@ -344,7 +342,7 @@ class BaseRegionOfInterest:
     def compute_approach_vector(
         self,
         point: ArrayLike,
-        boundary: bool = False,
+        boundary_only: bool = False,
         unit: bool = False,
     ) -> np.ndarray:
         """Compute the approach vector from a ``point`` to the region.
@@ -357,10 +355,9 @@ class BaseRegionOfInterest:
         point : ArrayLike
             Coordinates of a point to compute the vector to (or from) the
             region.
-        boundary : bool
-            If True, finds the vector to the nearest point on the boundary of
-            the region, instead of the nearest point within the region.
-            (See Notes). Default is False.
+        boundary_only : bool
+            If ``True``, the approach vector to the boundary of the region is
+            computed. Default ``False``.
         unit : bool
             If ``True``, the approach vector is returned normalised, otherwise
             it is not normalised. Default is ``True``.
@@ -370,17 +367,8 @@ class BaseRegionOfInterest:
         np.ndarray
             Vector directed between the point and the region.
 
-        Notes
-        -----
-        If given a ``point`` in the interior of the region, the vector from
-        this ``point`` to the region is treated as the zero vector. The
-        ``boundary`` argument can be used to force the method to find the
-        distance from the ``point`` to the nearest point on the boundary of the
-        region, if so desired. Note that a ``point`` on the boundary still
-        returns the zero vector.
-
         """
-        from_where = self.region.boundary if boundary else self.region
+        from_where = self.region.boundary if boundary_only else self.region
 
         # "point to region" by virtue of order of arguments to shapely call
         directed_line = shapely.shortest_line(shapely.Point(point), from_where)
@@ -402,7 +390,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to ref", "ref to approach"
         ] = "approach to ref",
-        boundary: bool = False,
+        boundary_only: bool = False,
         in_radians: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
     ) -> float:
@@ -431,9 +419,8 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to ref", "ref to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to ref"``.
-        boundary : bool
-            Passed to ``compute_approach_vector`` (see Notes). Default
-            ``False``.
+        boundary_only : bool
+            Passed to ``compute_approach_vector``. Default ``False``.
         in_radians : bool
             If ``True``, angles are returned in radians. Otherwise angles are
             returned in degrees. Default ``False``.
@@ -441,18 +428,6 @@ class BaseRegionOfInterest:
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
-
-        Notes
-        -----
-        For a point ``p`` within (the interior of a) region of interest, the
-        approach vector to the region is the zero vector, since the closest
-        point to ``p`` inside the region is ``p`` itself. In this case, `nan`
-        is returned as the egocentric angle. This behaviour may be
-        undesirable for 2D polygonal regions (though is usually desirable for
-        1D line-like regions). Passing the ``boundary`` argument causes this
-        method to calculate the approach vector to the closest point on the
-        boundary of this region, so ``p`` will not be considered the "closest
-        point" to itself (unless of course, it is a point on the boundary).
 
         See Also
         --------
@@ -477,7 +452,7 @@ class BaseRegionOfInterest:
         approach_vector = self._vector_from_centroid_of_keypoints(
             data,
             position_keypoint=position_keypoint,
-            boundary=boundary,
+            boundary_only=boundary_only,
             unit=False,
         )
 
@@ -499,7 +474,7 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to forward", "forward to approach"
         ] = "approach to forward",
-        boundary: bool = False,
+        boundary_only: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,
         position_keypoint: Hashable | Sequence[Hashable] | None = None,
@@ -534,7 +509,7 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to forward", "forward to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to forward"``.
-        boundary : bool
+        boundary_only : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
         camera_view : Literal["top_down", "bottom_up"]
@@ -548,18 +523,6 @@ class BaseRegionOfInterest:
             provided as a sequence, the average of all provided keypoints is
             used. By default, the centroid of ``left_keypoint`` and
             ``right_keypoint`` is used.
-
-        Notes
-        -----
-        For a point ``p`` within (the interior of a) region of interest, the
-        approach vector to the region is the zero vector, since the closest
-        point to ``p`` inside the region is ``p`` itself. In this case, `nan`
-        is returned as the egocentric angle. This behaviour may be
-        undesirable for 2D polygonal regions (though is usually desirable for
-        1D line-like regions). Passing the ``boundary`` argument causes this
-        method to calculate the approach vector to the closest point on the
-        boundary of this region, so ``p`` will not be considered the "closest
-        point" to itself (unless of course, it is a point on the boundary).
 
         See Also
         --------
@@ -584,7 +547,7 @@ class BaseRegionOfInterest:
         approach_vector = self._vector_from_centroid_of_keypoints(
             data,
             position_keypoint=position_keypoint,
-            boundary=boundary,
+            boundary_only=boundary_only,
             unit=False,
         )
 

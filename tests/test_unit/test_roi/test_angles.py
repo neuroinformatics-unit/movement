@@ -168,7 +168,7 @@ def sample_position_array() -> xr.DataArray:
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
-                "boundary": True,
+                "boundary_only": True,
             },
             np.array(
                 [
@@ -223,7 +223,7 @@ def sample_position_array() -> xr.DataArray:
             "sample_position_array",
             {
                 "position_keypoint": "midpt",
-                "boundary": True,
+                "boundary_only": True,
             },
             np.array(
                 [
