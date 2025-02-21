@@ -107,6 +107,21 @@ class BaseRegionOfInterest:
         """``shapely.Geometry`` representation of the region."""
         return self._shapely_geometry
 
+    @staticmethod
+    def _reassign_space_dim(
+        da: xr.DataArray,
+        old_dimension: Hashable,
+        new_dimension: Hashable = "space",
+    ) -> xr.DataArray:
+        """"""
+        return da.rename({old_dimension: new_dimension}).assign_coords(
+            {
+                "space": ["x", "y"]
+                if len(da[old_dimension]) == 2
+                else ["x", "y", "z"]
+            }
+        )
+
     def __init__(
         self,
         points: PointLikeList,
@@ -391,15 +406,14 @@ class BaseRegionOfInterest:
                 approach_vector /= norm
         return approach_vector
 
-    def compute_allocentric_angle(
+    def compute_allocentric_angle_to_nearest_point(
         self,
-        data: xr.DataArray,
-        position_keypoint: Hashable | Sequence[Hashable],
+        position: xr.DataArray,
         angle_rotates: Literal[
             "approach to ref", "ref to approach"
         ] = "approach to ref",
         boundary_only: bool = False,
-        in_radians: bool = False,
+        in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
     ) -> float:
         """Compute the allocentric angle to the region.
@@ -417,20 +431,16 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        data : xarray.DataArray
-            `DataArray` of positions that has at least 3 dimensions; "time",
-            "space", and ``keypoints_dimension``.
-        position_keypoint : Hashable | Sequence[Hashable]
-            The keypoint defining the origin of the approach vector. If
-            provided as a sequence, the average of all provided keypoints is
-            used.
+        position : xarray.DataArray
+            ``DataArray`` of spatial positions.
         angle_rotates : Literal["approach to ref", "ref to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to ref"``.
         boundary_only : bool
-            Passed to ``compute_approach_vector``. Default ``False``.
-        in_radians : bool
-            If ``True``, angles are returned in radians. Otherwise angles are
+            If ``True``, the allocentric angle to the closest boundary point of
+            the region is computed. Default ``False``.
+        in_degrees : bool
+            If ``True``, angles are returned in degrees. Otherwise angles are
             returned in degrees. Default ``False``.
         reference_vector : ArrayLike | xr.DataArray
             The reference vector to be used. Dimensions must be compatible with
@@ -440,9 +450,10 @@ class BaseRegionOfInterest:
         See Also
         --------
         ``compute_signed_angle_2d`` : The underlying function used to compute
-        the signed angle between the approach vector and the reference vector.
-        ``compute_egocentric_angle`` : Related class method for computing the
-        egocentric angle to the region.
+            the signed angle between the approach vector and the reference
+            vector.
+        ``compute_egocentric_angle_to_nearest_point`` : Related class method
+            for computing the egocentric angle to the region.
 
         """
         if reference_vector is None:
@@ -457,11 +468,11 @@ class BaseRegionOfInterest:
             raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
         # Determine the approach vector, for all time-points.
-        approach_vector = self._vector_from_centroid_of_keypoints(
-            data,
-            position_keypoint=position_keypoint,
-            boundary_only=boundary_only,
-            unit=False,
+        approach_vector = self.compute_approach_vector(
+            position, boundary_only=boundary_only
+        )
+        approach_vector = self._reassign_space_dim(
+            approach_vector, "vector to"
         )
 
         # Then, compute signed angles at all time-points
@@ -470,8 +481,8 @@ class BaseRegionOfInterest:
             reference_vector,
             v_as_left_operand=ref_as_left_operand,
         )
-        if not in_radians:
-            angles *= 180.0 / np.pi
+        if in_degrees:
+            angles = np.rad2deg(angles)
         return angles
 
     def compute_egocentric_angle(
@@ -484,7 +495,7 @@ class BaseRegionOfInterest:
         ] = "approach to forward",
         boundary_only: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
-        in_radians: bool = False,
+        in_degrees: bool = False,
         position_keypoint: Hashable | Sequence[Hashable] | None = None,
     ) -> xr.DataArray:
         """Compute the egocentric angle to the region.
@@ -523,9 +534,9 @@ class BaseRegionOfInterest:
         camera_view : Literal["top_down", "bottom_up"]
             Passed to func:`compute_forward_vector_angle`. Default
             ``"top_down"``.
-        in_radians : bool
-            If ``True``, angles are returned in radians. Otherwise angles are
-            returned in degrees. Default ``False``.
+        in_degrees : bool
+            If ``True``, angles are returned in degrees. Otherwise angles are
+            returned in radians. Default ``False``.
         position_keypoint : Hashable | Sequence[Hashable], optional
             The keypoint defining the origin of the approach vector. If
             provided as a sequence, the average of all provided keypoints is
@@ -566,6 +577,6 @@ class BaseRegionOfInterest:
             right_keypoint=right_keypoint,
             reference_vector=approach_vector,
             camera_view=camera_view,
-            in_radians=in_radians,
+            in_radians=not in_degrees,
             angle_rotates=rotation_angle,
         )
