@@ -1,6 +1,16 @@
 """1-dimensional lines of interest."""
 
-from movement.roi.base import BaseRegionOfInterest, PointLikeList
+from typing import Literal
+
+import numpy as np
+import xarray as xr
+from numpy.typing import ArrayLike
+
+from movement.roi.base import (
+    BaseRegionOfInterest,
+    PointLikeList,
+)
+from movement.utils.broadcasting import broadcastable_method
 
 
 class LineOfInterest(BaseRegionOfInterest):
@@ -56,3 +66,79 @@ class LineOfInterest(BaseRegionOfInterest):
 
         """
         super().__init__(points, dimensions=1, closed=loop, name=name)
+
+    @broadcastable_method(
+        only_broadcastable_along="space", new_dimension_name="normal"
+    )
+    def normal(self, on_same_side_as: ArrayLike = (0.0, 0.0)) -> np.ndarray:
+        """Compute the unit normal to this line.
+
+        The unit normal is a vector perpendicular to the input line
+        whose norm is equal to 1. The direction of the normal vector
+        is not fully defined: the line divides the 2D plane in two
+        halves, and the normal could be pointing to either of the half-planes.
+        For example, an horizontal line divides the 2D plane in a
+        bottom and a top half-plane, and we can choose whether
+        the normal points "upwards" or "downwards". We use a sample
+        point to define the half-plane the normal vector points to.
+
+        Parameters
+        ----------
+        on_same_side_as : ArrayLike
+            A sample point in the (x,y) plane the normal is in. By default, the
+            origin is used.
+
+        """
+        on_same_side_as = np.array(on_same_side_as)
+
+        parallel_to_line = np.array(self.region.coords[1]) - np.array(
+            self.region.coords[0]
+        )
+        normal = np.array([parallel_to_line[1], -parallel_to_line[0]])
+        normal /= np.sqrt(np.sum(normal**2))
+
+        if np.dot((on_same_side_as - self.region.coords[0]), normal) < 0:
+            normal *= -1.0
+        return normal
+
+    def compute_angle_to_support_plane(
+        self,
+        forward_vector: xr.DataArray,
+        position: xr.DataArray,
+        angle_rotates: Literal[
+            "forward to normal", "normal to forward"
+        ] = "normal to forward",
+        in_degrees: bool = False,
+    ) -> xr.DataArray:
+        """Compute the signed angle between the normal and the forward vector.
+
+        This method is identical to ``compute_egocentric_angle``, except that
+        rather than the angle between the approach vector and the forward
+        vector, the angle between the normal directed toward the segment and
+        the forward vector is returned.
+
+        Parameters
+        ----------
+        forward_vector : xarray.DataArray
+            Forward vectors to take angle with.
+        position : xr.DataArray
+            Spatial positions, considered the origin of the ``forward_vector``.
+        angle_rotates : Literal["forward to normal", "normal to forward"]
+            Sign convention of the angle returned. Default is
+            ``"normal to forward"``.
+        in_degrees : bool
+            If ``True``, angles are returned in degrees. Otherwise angles are
+            returned in radians. Default ``False``.
+
+        """
+        return self._boundary_angle_computation(
+            position=position,
+            reference_vector=forward_vector,
+            how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
+                -1.0 * self.normal(p), "normal"
+            ),
+            angle_rotates=angle_rotates.replace("forward", "ref").replace(  # type: ignore
+                "normal", "vec"
+            ),
+            in_degrees=in_degrees,
+        )
