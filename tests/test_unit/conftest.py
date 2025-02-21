@@ -9,31 +9,28 @@ import xarray as xr
 def push_into_range() -> Callable[
     [xr.DataArray | np.ndarray, float, float], xr.DataArray | np.ndarray
 ]:
-    """Translate values into the range (lower, upper].
+    """Return a function for wrapping angles.
 
-    The interval width is the value ``upper - lower``.
-    Each ``v`` in ``values`` that starts less than or equal to the
-    ``lower`` bound has multiples of the interval width added to it,
-    until the result lies in the desirable interval.
-
-    Each ``v`` in ``values`` that starts greater than the ``upper``
-    bound has multiples of the interval width subtracted from it,
-    until the result lies in the desired interval.
+    This is a factory fixture that returns a method for wrapping angles
+    into a user-specified range.
     """
 
-    def push_into_range_inner(
+    def _push_into_range(
         numeric_values: xr.DataArray | np.ndarray,
         lower: float = -180.0,
         upper: float = 180.0,
     ) -> xr.DataArray | np.ndarray:
-        """Translate values into the range (lower, upper].
+        """Coerce values into the range (lower, upper].
+
+        Primarily used to wrap returned angles into a particular range,
+        such as (-pi, pi].
 
         The interval width is the value ``upper - lower``.
-        Each ``v`` in ``values`` that starts less than or equal to the
+        Each element in ``values`` that starts less than or equal to the
         ``lower`` bound has multiples of the interval width added to it,
         until the result lies in the desirable interval.
 
-        Each ``v`` in ``values`` that starts greater than the ``upper``
+        Each element in ``values`` that starts greater than the ``upper``
         bound has multiples of the interval width subtracted from it,
         until the result lies in the desired interval.
         """
@@ -62,4 +59,4 @@ def push_into_range() -> Callable[
             )
         return translated_values
 
-    return push_into_range_inner
+    return _push_into_range
