@@ -1,18 +1,17 @@
 """1-dimensional lines of interest."""
 
-from collections.abc import Hashable, Sequence
 from typing import Literal
 
 import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
-from movement.kinematics import compute_forward_vector_angle
 from movement.roi.base import (
     BaseRegionOfInterest,
     PointLikeList,
 )
 from movement.utils.broadcasting import broadcastable_method
+from movement.utils.vector import compute_signed_angle_2d
 
 
 class LineOfInterest(BaseRegionOfInterest):
@@ -103,80 +102,53 @@ class LineOfInterest(BaseRegionOfInterest):
             normal *= -1.0
         return normal
 
-    def compute_angle_to_support_plane_of_segment(
+    def compute_angle_to_support_plane(
         self,
-        data: xr.DataArray,
-        left_keypoint: Hashable,
-        right_keypoint: Hashable,
+        forward_vector: xr.DataArray,
+        position: xr.DataArray,
         angle_rotates: Literal[
             "forward to normal", "normal to forward"
         ] = "normal to forward",
-        camera_view: Literal["top_down", "bottom_up"] = "top_down",
-        in_radians: bool = False,
-        position_keypoint: Hashable | Sequence[Hashable] | None = None,
+        in_degrees: bool = False,
     ) -> xr.DataArray:
-        """Compute the signed angle between the normal and a forward vector.
+        """Compute the signed angle between the normal and the forward vector.
 
         This method is identical to ``compute_egocentric_angle``, except that
-        rather than the angle between the approach vector and a forward vector,
-        the angle between the normal directed toward the segment and the
-        forward vector is returned.
-
-        For finite segments, the normal to the infinite extension of the
-        segment is used in the calculation.
+        rather than the angle between the approach vector and the forward
+        vector, the angle between the normal directed toward the segment and
+        the forward vector is returned.
 
         Parameters
         ----------
-        data : xarray.DataArray
-            `DataArray` of positions that has at least 3 dimensions; "time",
-            "space", and ``keypoints_dimension``.
-        left_keypoint : Hashable
-            The left keypoint defining the forward vector, as passed to
-            func:``compute_forward_vector_angle``.
-        right_keypoint : Hashable
-            The right keypoint defining the forward vector, as passed to
-            func:``compute_forward_vector_angle``.
-        angle_rotates : Literal["approach to forward", "forward to approach"]
-            Direction of the signed angle returned. Default is
-            ``"approach to forward"``.
-        camera_view : Literal["top_down", "bottom_up"]
-            Passed to func:`compute_forward_vector_angle`. Default
-            ``"top_down"``.
-        in_radians : bool
-            If ``True``, angles are returned in radians. Otherwise angles are
-            returned in degrees. Default ``False``.
-        position_keypoint : Hashable | Sequence[Hashable], optional
-            The keypoint defining the origin of the approach vector. If
-            provided as a sequence, the average of all provided keypoints is
-            used. By default, the centroid of ``left_keypoint`` and
-            ``right_keypoint`` is used.
+        forward_vector : xarray.DataArray
+            Forward vectors to take angle with.
+        position : xr.DataArray
+            Spatial positions, considered the origin of the ``forward_vector``.
+        angle_rotates : Literal["forward to normal", "normal to forward"]
+            Sign convention of the angle returned. Default is
+            ``"normal to forward"``.
+        in_degrees : bool
+            If ``True``, angles are returned in degrees. Otherwise angles are
+            returned in radians. Default ``False``.
 
         """
-        # Default to centre of left and right keypoints for position,
-        # if not provided.
-        if position_keypoint is None:
-            position_keypoint = [left_keypoint, right_keypoint]
-
         # Normal from position to segment is the reverse of what normal returns
-        normal = -1.0 * self._vector_from_centroid_of_keypoints(
-            data,
-            position_keypoint=position_keypoint,
-            renamed_dimension="normal",
-            which_method="normal",
+        normal = self._reassign_space_dim(
+            -1.0 * self.normal(position), "normal"
         )
 
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.
-        rotation_angle: Literal["ref to forward", "forward to ref"] = (
-            angle_rotates.replace("normal", "ref")  # type: ignore
-        )
+        if angle_rotates == "normal to forward":
+            forward_as_left_operand = False
+        elif angle_rotates == "forward to normal":
+            forward_as_left_operand = True
+        else:
+            raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        return compute_forward_vector_angle(
-            data,
-            left_keypoint=left_keypoint,
-            right_keypoint=right_keypoint,
-            reference_vector=normal,
-            camera_view=camera_view,
-            in_radians=in_radians,
-            angle_rotates=rotation_angle,
+        angles = compute_signed_angle_2d(
+            normal, forward_vector, v_as_left_operand=forward_as_left_operand
         )
+        if in_degrees:
+            angles = np.rad2deg(angles)
+        return angles

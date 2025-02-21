@@ -375,7 +375,7 @@ class BaseRegionOfInterest:
         with respect to a reference frame that is fixed relative to the
         experimental/camera setup. By default, we assume this is the positive
         x-axis of the coordinate system in which position is.
-    
+
         The allocentric angle is the :func:`signed angle\
         <movement.utils.vector.compute_signed_angle_2d>` between the approach
         vector and a given reference  vector. ``angle_rotates`` can be used to

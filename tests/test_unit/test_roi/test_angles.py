@@ -381,22 +381,22 @@ def test_angle_to_support_plane(
     points_around_segment: xr.DataArray,
 ) -> None:
     expected_output = xr.DataArray(
-        data=np.array([-90.0, -90.0, -90.0]), dims=["time"]
+        data=np.deg2rad([-90.0, -90.0, -90.0]), dims=["time"]
     )
     should_be_same_as_egocentric = expected_output.copy(
         data=[True, True, False], deep=True
     )
 
-    angles_to_support = (
-        segment_of_y_equals_x.compute_angle_to_support_plane_of_segment(
-            points_around_segment, left_keypoint="left", right_keypoint="right"
-        )
+    fwd_vector = compute_forward_vector(points_around_segment, "left", "right")
+    positions = points_around_segment.mean(dim="keypoints")
+    angles_to_support = segment_of_y_equals_x.compute_angle_to_support_plane(
+        fwd_vector, positions
     )
     xr.testing.assert_allclose(expected_output, angles_to_support)
 
     egocentric_angles = (
         segment_of_y_equals_x.compute_egocentric_angle_to_nearest_point(
-            points_around_segment, left_keypoint="left", right_keypoint="right"
+            fwd_vector, positions
         )
     )
     values_are_close = egocentric_angles.copy(
