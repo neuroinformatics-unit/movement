@@ -289,6 +289,10 @@ cd docs
 ```
 All subsequent commands should be run from this directory.
 
+:::{note}
+Windows PowerShell users should prepend `make` commands with `.\` (e.g. `.\make html`).
+:::
+
 To build the documentation, run:
 
 ```sh
