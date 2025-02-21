@@ -345,14 +345,12 @@ class BaseRegionOfInterest:
         self,
         point: ArrayLike,
         boundary: bool = False,
-        unit: bool = True,
+        unit: bool = False,
     ) -> np.ndarray:
         """Compute the approach vector from a ``point`` to the region.
 
         The approach vector is defined as the vector directed from the
         ``point`` provided, to the closest point that belongs to the region.
-        If ``point`` is within the region, the zero vector is returned (see
-        Notes).
 
         Parameters
         ----------
@@ -364,9 +362,8 @@ class BaseRegionOfInterest:
             the region, instead of the nearest point within the region.
             (See Notes). Default is False.
         unit : bool
-            If ``True``, the unit vector in the appropriate direction is
-            returned, otherwise the approach vector is returned un-normalised.
-            Default is ``True``.
+            If ``True``, the approach vector is returned normalised, otherwise
+            it is not normalised. Default is ``True``.
 
         Returns
         -------
