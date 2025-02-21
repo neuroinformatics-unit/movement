@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Hashable, Sequence
+from collections.abc import Callable, Hashable, Sequence
 from typing import Literal, TypeAlias
 
 import numpy as np
@@ -107,13 +107,95 @@ class BaseRegionOfInterest:
         return self._shapely_geometry
 
     @staticmethod
+    def _boundary_angle_computation(
+        position: xr.DataArray,
+        reference_vector: xr.DataArray | np.ndarray,
+        how_to_compute_vector_to_region: Callable[
+            [xr.DataArray], xr.DataArray
+        ],
+        angle_rotates: Literal["vec to ref", "ref to vec"] = "vec to ref",
+        in_degrees: bool = False,
+    ) -> xr.DataArray:
+        """Perform a boundary angle computation.
+
+        Intended for internal use when conducting boundary angle computations,
+        to reduce code duplication. All boundary angle computations involve two
+        parts:
+
+        - From some given spatial position data, compute the "vector towards
+        the region". This is typically the approach vector, but might also be
+        the normal vector if we are dealing with a segment or the plane
+        supported by a segment.
+        - Compute the signed angle between the "vector towards the region" and
+        some given reference vector, which may be constant or varying in time
+        (such as an animal's heading or forward vector).
+
+        As such, we generalise the process into this internal method, and
+        provide more explicit wrappers to the user to make working with the
+        methods easier.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Spatial position data, that is passed to
+            ``how_to_compute_approach`` and used to compute the "vector to the
+            region".
+        reference_vector : xarray.DataArray | np.ndarray
+            Constant or time-varying vector to take signed angle with the
+            "vector to the region".
+        how_to_compute_vector_to_region : Callable
+            How to compute the "vector to the region" from ``position``.
+        angle_rotates : Literal["vec to ref", "ref to vec"]
+            Convention for the returned signed angle. ``"vec to ref"`` returns
+            the signed angle between the "vector to the region" and the
+            ``reference_vector``. ``"ref to vec"`` returns the opposite.
+            Default is ``"vec to ref"``
+        in_degrees : bool
+            If ``True``, angles are returned in degrees. Otherwise angles are
+            returned in radians. Default ``False``.
+
+        """
+        if angle_rotates == "vec to ref":
+            ref_is_left_operand = False
+        elif angle_rotates == "ref to vec":
+            ref_is_left_operand = True
+        else:
+            raise ValueError(f"Unknown angle convention: {angle_rotates}")
+
+        vec_to_segment = how_to_compute_vector_to_region(position)
+
+        angles = compute_signed_angle_2d(
+            vec_to_segment,
+            reference_vector,
+            v_as_left_operand=ref_is_left_operand,
+        )
+        if in_degrees:
+            angles = np.rad2deg(angles)
+        return angles
+
+    @staticmethod
     def _reassign_space_dim(
         da: xr.DataArray,
         old_dimension: Hashable,
-        new_dimension: Hashable = "space",
     ) -> xr.DataArray:
-        """"""
-        return da.rename({old_dimension: new_dimension}).assign_coords(
+        """Rename a computed dimension 'space' and assign coordinates.
+
+        Intended for internal use when chaining ``DataArray``-broadcastable
+        operations together. In some instances, the outputs drop the spatial
+        coordinates, or the "space" axis is returned under a different name.
+        This needs to be corrected before further computations can be
+        performed.
+
+        Parameters
+        ----------
+        da : xarray.DataArray
+            ``DataArray`` lacking a "space" dimension, that is to be assigned.
+        old_dimension : Hashable
+            The dimension that should be renamed to "space", and reassigned
+            coordinates.
+
+        """
+        return da.rename({old_dimension: "space"}).assign_coords(
             {
                 "space": ["x", "y"]
                 if len(da[old_dimension]) == 2
@@ -412,28 +494,19 @@ class BaseRegionOfInterest:
         """
         if reference_vector is None:
             reference_vector = np.array([[1.0, 0.0]])
-        if angle_rotates == "ref to approach":
-            ref_as_left_operand = True
-        elif angle_rotates == "approach to ref":
-            ref_as_left_operand = False
-        else:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
 
-        approach_vector = self._reassign_space_dim(
-            self.compute_approach_vector(
-                position, boundary_only=boundary_only, unit=False
+        return self._boundary_angle_computation(
+            position=position,
+            reference_vector=reference_vector,
+            how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
+                self.compute_approach_vector(
+                    p, boundary_only=boundary_only, unit=False
+                ),
+                "vector to",
             ),
-            "vector to",
+            angle_rotates=angle_rotates.replace("approach", "vec"),  # type: ignore
+            in_degrees=in_degrees,
         )
-
-        angles = compute_signed_angle_2d(
-            approach_vector,
-            reference_vector,
-            v_as_left_operand=ref_as_left_operand,
-        )
-        if in_degrees:
-            angles = np.rad2deg(angles)
-        return angles
 
     def compute_egocentric_angle_to_nearest_point(
         self,
@@ -489,25 +562,17 @@ class BaseRegionOfInterest:
             vector.
 
         """
-        if angle_rotates == "approach to forward":
-            forward_as_left_operand = False
-        elif angle_rotates == "forward to approach":
-            forward_as_left_operand = True
-        else:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
-
-        approach_vector = self._reassign_space_dim(
-            self.compute_approach_vector(
-                position, boundary_only=boundary_only, unit=False
+        return self._boundary_angle_computation(
+            position=position,
+            reference_vector=forward_vector,
+            how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
+                self.compute_approach_vector(
+                    p, boundary_only=boundary_only, unit=False
+                ),
+                "vector to",
             ),
-            "vector to",
+            angle_rotates=angle_rotates.replace("approach", "vec").replace(  # type: ignore
+                "forward", "ref"
+            ),
+            in_degrees=in_degrees,
         )
-
-        angles = compute_signed_angle_2d(
-            approach_vector,
-            forward_vector,
-            v_as_left_operand=forward_as_left_operand,
-        )
-        if in_degrees:
-            angles = np.rad2deg(angles)
-        return angles

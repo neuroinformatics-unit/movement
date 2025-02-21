@@ -11,7 +11,6 @@ from movement.roi.base import (
     PointLikeList,
 )
 from movement.utils.broadcasting import broadcastable_method
-from movement.utils.vector import compute_signed_angle_2d
 
 
 class LineOfInterest(BaseRegionOfInterest):
@@ -132,23 +131,14 @@ class LineOfInterest(BaseRegionOfInterest):
             returned in radians. Default ``False``.
 
         """
-        # Normal from position to segment is the reverse of what normal returns
-        normal = self._reassign_space_dim(
-            -1.0 * self.normal(position), "normal"
+        return self._boundary_angle_computation(
+            position=position,
+            reference_vector=forward_vector,
+            how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
+                -1.0 * self.normal(p), "normal"
+            ),
+            angle_rotates=angle_rotates.replace("forward", "ref").replace(  # type: ignore
+                "normal", "vec"
+            ),
+            in_degrees=in_degrees,
         )
-
-        # Translate the more explicit convention used here into the convention
-        # used by our backend functions.
-        if angle_rotates == "normal to forward":
-            forward_as_left_operand = False
-        elif angle_rotates == "forward to normal":
-            forward_as_left_operand = True
-        else:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
-
-        angles = compute_signed_angle_2d(
-            normal, forward_vector, v_as_left_operand=forward_as_left_operand
-        )
-        if in_degrees:
-            angles = np.rad2deg(angles)
-        return angles
