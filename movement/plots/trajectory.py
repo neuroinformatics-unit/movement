@@ -61,8 +61,6 @@ def plot_trajectory(
         else:
             selection["individuals"] = individual
 
-    title_suffix = f" of {individual}" if "individuals" in da.dims else ""
-
     if "keypoints" in da.dims:
         if keypoints is None:
             selection["keypoints"] = da.keypoints.values
@@ -98,15 +96,13 @@ def plot_trajectory(
         **kwargs,
     )
 
-    space_unit = da.attrs.get("space_unit", "pixels")
-    ax.set_xlabel(f"x ({space_unit})")
-    ax.set_ylabel(f"y ({space_unit})")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
     ax.axis("equal")
-    ax.set_title(f"Trajectory{title_suffix}")
+    ax.set_title("Trajectory")
 
     # Add 'colorbar' for time dimension if no colour was provided by user
-    time_unit = da.attrs.get("time_unit")
-    time_label = f"time ({time_unit})" if time_unit else "time steps (frames)"
+    time_label = "Time"
     fig.colorbar(sc, ax=ax, label=time_label).solids.set(
         alpha=1.0
     ) if colorbar else None
