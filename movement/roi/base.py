@@ -22,12 +22,6 @@ PointLikeList: TypeAlias = Sequence[PointLike]
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 
-TowardsRegion = "point to region"
-AwayFromRegion = "region to point"
-ApproachVectorDirections: TypeAlias = Literal[  # type: ignore[valid-type]
-    f"{TowardsRegion}", f"{AwayFromRegion}"
-]
-
 
 class BaseRegionOfInterest:
     """Base class for regions of interest (RoIs).
@@ -351,7 +345,6 @@ class BaseRegionOfInterest:
         self,
         point: ArrayLike,
         boundary: bool = False,
-        direction: ApproachVectorDirections = TowardsRegion,
         unit: bool = True,
     ) -> np.ndarray:
         """Compute the approach vector from a ``point`` to the region.
@@ -370,9 +363,6 @@ class BaseRegionOfInterest:
             If True, finds the vector to the nearest point on the boundary of
             the region, instead of the nearest point within the region.
             (See Notes). Default is False.
-        direction : ApproachVectorDirections
-            Which direction the returned vector should point in. Default is
-            "point to region".
         unit : bool
             If ``True``, the unit vector in the appropriate direction is
             returned, otherwise the approach vector is returned un-normalised.
@@ -401,8 +391,6 @@ class BaseRegionOfInterest:
         displacement_vector = np.array(directed_line.coords[1]) - np.array(
             directed_line.coords[0]
         )
-        if direction == "region to point":
-            displacement_vector *= -1.0
         if unit:
             norm = np.sqrt(np.sum(displacement_vector**2))
             # Cannot normalise the 0 vector
@@ -417,7 +405,6 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to ref", "ref to approach"
         ] = "approach to ref",
-        approach_direction: ApproachVectorDirections = TowardsRegion,
         boundary: bool = False,
         in_radians: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
@@ -433,8 +420,7 @@ class BaseRegionOfInterest:
         The approach vector is the vector from ``position_keypoints`` to the
         closest point within the region (or the closest point on the boundary
         of the region if ``boundary`` is set to ``True``), as determined by
-        :func:`compute_approach_vector`. ``approach_direction`` can be used to
-        reverse the direction convention of the approach vector, if desired.
+        :func:`compute_approach_vector`.
 
         Parameters
         ----------
@@ -448,9 +434,6 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to ref", "ref to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to ref"``.
-        approach_direction : ApproachVectorDirections
-            Direction to use for the vector of closest approach. Default
-            ``"point to region"``.
         boundary : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
@@ -498,7 +481,6 @@ class BaseRegionOfInterest:
             data,
             position_keypoint=position_keypoint,
             boundary=boundary,
-            direction=approach_direction,
             unit=False,
         )
 
@@ -520,7 +502,6 @@ class BaseRegionOfInterest:
         angle_rotates: Literal[
             "approach to forward", "forward to approach"
         ] = "approach to forward",
-        approach_direction: ApproachVectorDirections = TowardsRegion,
         boundary: bool = False,
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,
@@ -540,8 +521,7 @@ class BaseRegionOfInterest:
         The approach vector is the vector from ``position_keypoints`` to the
         closest point within the region (or the closest point on the boundary
         of the region if ``boundary`` is set to ``True``), as determined by
-        :func:`compute_approach_vector`. ``approach_direction`` can be used to
-        reverse the direction convention of the approach vector, if desired.
+        :func:`compute_approach_vector`.
 
         Parameters
         ----------
@@ -557,9 +537,6 @@ class BaseRegionOfInterest:
         angle_rotates : Literal["approach to forward", "forward to approach"]
             Direction of the signed angle returned. Default is
             ``"approach to forward"``.
-        approach_direction : ApproachVectorDirections
-            Direction to use for the vector of closest approach. Default
-            ``"point to region"``.
         boundary : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
@@ -611,7 +588,6 @@ class BaseRegionOfInterest:
             data,
             position_keypoint=position_keypoint,
             boundary=boundary,
-            direction=approach_direction,
             unit=False,
         )
 

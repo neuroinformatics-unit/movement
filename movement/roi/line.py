@@ -9,10 +9,8 @@ from numpy.typing import ArrayLike
 
 from movement.kinematics import compute_forward_vector_angle
 from movement.roi.base import (
-    ApproachVectorDirections,
     BaseRegionOfInterest,
     PointLikeList,
-    TowardsRegion,
 )
 from movement.utils.broadcasting import broadcastable_method
 
@@ -115,15 +113,14 @@ class LineOfInterest(BaseRegionOfInterest):
         ] = "normal to forward",
         camera_view: Literal["top_down", "bottom_up"] = "top_down",
         in_radians: bool = False,
-        normal_direction: ApproachVectorDirections = TowardsRegion,
         position_keypoint: Hashable | Sequence[Hashable] | None = None,
     ) -> xr.DataArray:
         """Compute the signed angle between the normal and a forward vector.
 
         This method is identical to ``compute_egocentric_angle``, except that
         rather than the angle between the approach vector and a forward vector,
-        the angle between the normal to the segment and the approach vector is
-        returned.
+        the angle between the normal directed toward the segment and the
+        forward vector is returned.
 
         For finite segments, the normal to the infinite extension of the
         segment is used in the calculation.
@@ -148,9 +145,6 @@ class LineOfInterest(BaseRegionOfInterest):
         in_radians : bool
             If ``True``, angles are returned in radians. Otherwise angles are
             returned in degrees. Default ``False``.
-        normal_direction : ApproachVectorDirections
-            Direction to use for the normal vector. Default is
-            ``"point to region"``.
         position_keypoint : Hashable | Sequence[Hashable], optional
             The keypoint defining the origin of the approach vector. If
             provided as a sequence, the average of all provided keypoints is
@@ -163,16 +157,13 @@ class LineOfInterest(BaseRegionOfInterest):
         if position_keypoint is None:
             position_keypoint = [left_keypoint, right_keypoint]
 
-        normal = self._vector_from_centroid_of_keypoints(
+        # Normal from position to segment is the reverse of what normal returns
+        normal = -1.0 * self._vector_from_centroid_of_keypoints(
             data,
             position_keypoint=position_keypoint,
             renamed_dimension="normal",
             which_method="normal",
         )
-        # The normal from the point to the region is the same as the normal
-        # that points into the opposite side of the segment.
-        if normal_direction == TowardsRegion:
-            normal *= -1.0
 
         # Translate the more explicit convention used here into the convention
         # used by our backend functions.

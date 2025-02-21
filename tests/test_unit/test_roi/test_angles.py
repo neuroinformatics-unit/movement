@@ -258,7 +258,6 @@ def test_ego_and_allocentric_angle_to_region(
 
     Specifically;
 
-    - ``approach_direction``,
     - ``camera_view``,
     - ``in_radians``,
 

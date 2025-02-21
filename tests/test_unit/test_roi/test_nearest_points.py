@@ -362,16 +362,3 @@ def test_approach_vector(
     else:
         vector_to = region.compute_approach_vector(point, **other_fn_args)
         assert np.allclose(vector_to, expected_output)
-
-        # Check symmetry when reversing vector direction
-        if (
-            other_fn_args.get("direction", "point to region")
-            == "point to region"
-        ):
-            other_fn_args["direction"] = "region to point"
-        else:
-            other_fn_args["direction"] = "point to region"
-        vector_to_reverse = region.compute_approach_vector(
-            point, **other_fn_args
-        )
-        assert np.allclose(-vector_to, vector_to_reverse)
