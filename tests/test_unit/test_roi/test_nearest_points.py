@@ -10,7 +10,7 @@ from movement.roi.line import LineOfInterest
 
 
 @pytest.fixture
-def points_of_interest() -> dict[str, np.ndarray]:
+def sample_target_points() -> dict[str, np.ndarray]:
     return xr.DataArray(
         np.array(
             [
@@ -84,9 +84,9 @@ def unit_line_in_x() -> LineOfInterest:
         ),
     ],
 )
-def test_distance_to(
+def test_distance_point_to_region(
     region: BaseRegionOfInterest,
-    points_of_interest: xr.DataArray,
+    sample_target_points: xr.DataArray,
     fn_kwargs: dict[str, Any],
     expected_distances: xr.DataArray,
     request,
@@ -99,7 +99,7 @@ def test_distance_to(
         )
 
     computed_distances = region.compute_distance_to(
-        points_of_interest, **fn_kwargs
+        sample_target_points, **fn_kwargs
     )
 
     xr.testing.assert_allclose(computed_distances, expected_distances)
@@ -208,7 +208,7 @@ def test_distance_to(
 )
 def test_nearest_point_to(
     region: BaseRegionOfInterest,
-    points_of_interest: xr.DataArray,
+    sample_target_points: xr.DataArray,
     other_fn_args: dict[str, Any],
     expected_output: xr.DataArray,
     request,
@@ -224,7 +224,7 @@ def test_nearest_point_to(
         )
 
     nearest_points = region.compute_nearest_point_to(
-        points_of_interest, **other_fn_args
+        sample_target_points, **other_fn_args
     )
 
     xr.testing.assert_allclose(nearest_points, expected_output)

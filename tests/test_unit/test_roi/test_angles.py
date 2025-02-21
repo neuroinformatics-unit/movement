@@ -10,8 +10,8 @@ from movement.roi.base import BaseRegionOfInterest
 
 
 @pytest.fixture()
-def points_in_the_plane() -> xr.DataArray:
-    """Define a collection of points, used to test the egocentric angle.
+def sample_position_array() -> xr.DataArray:
+    """Return a simulated position array to test the egocentric angle.
 
     The data has time, space, and keypoints dimensions.
 
@@ -83,7 +83,7 @@ def points_in_the_plane() -> xr.DataArray:
     [
         pytest.param(
             "unit_square_with_hole",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
@@ -95,7 +95,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "position_keypoint": "midpt",
                 "angle_rotates": "elephant to region",
@@ -106,7 +106,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
@@ -125,7 +125,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
@@ -145,7 +145,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
@@ -164,7 +164,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "left_keypoint": "left",
                 "right_keypoint": "right",
@@ -184,7 +184,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "position_keypoint": "midpt",
             },
@@ -202,7 +202,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "position_keypoint": "midpt",
             },
@@ -220,7 +220,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            "points_in_the_plane",
+            "sample_position_array",
             {
                 "position_keypoint": "midpt",
                 "boundary": True,
@@ -239,7 +239,7 @@ def points_in_the_plane() -> xr.DataArray:
         ),
     ],
 )
-def test_centric_angle(
+def test_ego_and_allocentric_angle_to_region(
     push_into_range,
     region: BaseRegionOfInterest,
     data: xr.DataArray,
@@ -250,7 +250,7 @@ def test_centric_angle(
     ],
     request,
 ) -> None:
-    """Test computation of the egocentric angle.
+    """Test computation of the egocentric and allocentric angle.
 
     Note, we only test functionality explicitly introduced in this method.
     Input arguments that are just handed to other functions are not explicitly
