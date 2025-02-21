@@ -453,15 +453,14 @@ class BaseRegionOfInterest:
     ) -> float:
         """Compute the allocentric angle to the nearest point in the region.
 
-        With the term "allocentric" , we indicate that we are measuring angles
+        With the term "allocentric", we indicate that we are measuring angles
         with respect to a reference frame that is fixed relative to the
         experimental/camera setup. By default, we assume this is the positive
         x-axis of the coordinate system in which position is.
 
         The allocentric angle is the :func:`signed angle\
         <movement.utils.vector.compute_signed_angle_2d>` between the approach
-        vector and a given reference  vector. ``angle_rotates`` can be used to
-        select the sign convention of the returned angle.
+        vector and a given reference vector.
 
         Parameters
         ----------
@@ -520,19 +519,14 @@ class BaseRegionOfInterest:
     ) -> xr.DataArray:
         """Compute the egocentric angle to the region.
 
+        With the term "egocentric", we indicate that we are measuring angles
+        with respect to a reference frame that is varying in time relative to
+        the experimental/camera setup. An example may be the forward direction
+        of an individual.
+
         The egocentric angle is the signed angle between the approach vector
-        (directed from a point towards the region) a forward direction
-        (typically of a given individual or keypoint). ``angle_rotates`` can
-        be used to reverse the sign convention of the returned angle.
-
-        The forward vector is determined by ``left_keypoint``,
-        ``right_keypoint``, and ``camera_view`` as per :func:`forward vector\
-        <movement.kinematics.compute_forward_vector>`.
-
-        The approach vector is the vector from ``position_keypoints`` to the
-        closest point within the region (or the closest point on the boundary
-        of the region if ``boundary`` is set to ``True``), as determined by
-        :func:`compute_approach_vector`.
+        and a forward direction (typically the forward vector of a given
+        individual or keypoint).
 
         Parameters
         ----------
