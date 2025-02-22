@@ -9,6 +9,7 @@ Look at eye movements caused by the oculo-motor reflex.
 # -------
 import numpy as np
 import sleap_io as sio
+import xarray as xr
 from matplotlib import pyplot as plt
 
 import movement.kinematics as kin
@@ -63,20 +64,23 @@ plt.show()
 # -------------
 # A quick trajectory plot of the trajectory of the centre of the pupil.
 time_points = ds_black.time[slice(50, 1000)]
-da = ds_black.position.sel(time=time_points)  # data array to plot
-fig, ax = plot_trajectory(da, keypoints=["pupil-L", "pupil-R"])
+position_black = ds_black.position.sel(time=time_points)  # data array to plot
+fig, ax = plot_trajectory(position_black, keypoints=["pupil-L", "pupil-R"])
 fig.show()
 
 # %%
 # Pupil trajectories on top of video frame
 # -------------
 # Plot pupil trajectories for both 'black' and 'uniform' datasets
+
 fig, ax = plt.subplots(1, 2, figsize=(11, 3))
 for i, (ds_name, ds_i) in enumerate(ds.items()):
-    ax[i].imshow(
-        video[ds_name][100], cmap="Greys_r"
-    )  # Frame 100 as background
+    # vido frame 100 as background
+    ax[i].imshow(video[ds_name][100], cmap="Greys_r")
+
+    # select time_points to plot
     time_points = ds_i.time[slice(50, 1000)]
+
     plot_trajectory(
         ds_i.position.sel(time=time_points),
         ax=ax[i],
@@ -84,6 +88,7 @@ for i, (ds_name, ds_i) in enumerate(ds.items()):
         alpha=0.5,
         s=3,
     )
+
     ax[i].invert_yaxis()
     ax[i].set_title(f"Pupil Trajectory ({ds_name})")
 plt.show()
@@ -100,11 +105,11 @@ def quick_plot(da, time=None, ax=None, **selection):
     da.sel(**selection, drop=True).plot.line(x="time", ax=ax)
 
 
-frame_slice = slice(350, 1000)  # frame slice to plot
+# get time_points to plot (the same for both datasets here)
+time_points = ds["black"].time[slice(350, 1000)]
 fig, axes = plt.subplots(2, 2, figsize=(12, 6))
 for i, ds_name in enumerate(["uniform", "black"]):
     for j, space in enumerate(["y", "x"]):
-        time_points = ds[ds_name].time[frame_slice]
         da = ds[ds_name].position.sel(time=time_points)
         quick_plot(
             da,
@@ -125,16 +130,17 @@ plt.show()
 
 position_norm = {}  # to save the normalised data
 for ds_name, ds_i in ds.items():
+    # Calculate eye midpoint to use for normalisation
     eye_midpoint = ds_i.position.sel(keypoints=["eye-L", "eye-R"]).mean(
         "keypoints"
     )
+    # Normalise the position data and save in the position_norm dict
     position_norm[ds_name] = ds_i.position - eye_midpoint
 
-# Plot normalized keypoint x and y coordinates over time
+# %% Plot normalized keypoint x and y coordinates over time
 fig, axes = plt.subplots(2, 2, figsize=(12, 6))
 for i, ds_name in enumerate(["uniform", "black"]):
     for j, space in enumerate(["y", "x"]):
-        time_points = position_norm[ds_name].time[frame_slice]
         quick_plot(
             position_norm[ds_name].sel(time=time_points),
             space=space,
@@ -152,35 +158,30 @@ plt.show()
 # %%
 # Pupil Centroid
 # -------------
-# Add a pupil centroid keypoint to position norm
-
-pupil_centroid = {}
-for key in ["uniform", "black"]:
-    pupil_centroid[key] = (
-        position_norm[key]
-        .sel(keypoints=["pupil-L", "pupil-R"])
-        .mean("keypoints")
-    )
+# Add a pupil centroid keypoint to the normalised position data
+for da_name, da in position_norm.items():
+    pupil_centroid = da.sel(keypoints=["pupil-L", "pupil-R"]).mean("keypoints")
+    pupil_centroid = pupil_centroid.assign_coords({"keypoints": "pupil-C"})
+    position_norm[da_name] = xr.concat([da, pupil_centroid], "keypoints")
 
 # %%
 # Pupil position over time
 # -------------
-# position_norm from the previous example will be used to look at the centroid
-# of the pupil and the velocity over time.
+# From the normalised position data, select the pupil-C keypoint we've
+# created and the timepoints to plot.
+da = position_norm[ds_name].sel(keypoints="pupil-C", time=time_points)
 
 fig, axes = plt.subplots(2, 1, figsize=(6, 4))
 for i, ds_name in enumerate(["uniform", "black"]):
-    time_points = pupil_centroid[ds_name].time[frame_slice].values
-    pupil_centroid_window = pupil_centroid[ds_name].sel(time=time_points)
     axes[i].plot(
         time_points,
-        pupil_centroid_window.sel(space="x"),
+        da.sel(space="x"),
         label="x",
         color="C0",
     )
     axes[i].plot(
         time_points,
-        pupil_centroid_window.sel(space="y"),
+        da.sel(space="y"),
         label="y",
         color="C1",
     )
@@ -199,13 +200,14 @@ plt.show()
 # -------------
 
 velocity = {
-    ds_name: kin.compute_velocity(pupil_centroid[ds_name])
-    for ds_name in pupil_centroid
+    ds_name: kin.compute_velocity(
+        position_norm[ds_name].sel(keypoints="pupil-C")
+    )
+    for ds_name in position_norm
 }
 
 fig, axes = plt.subplots(2, 1, figsize=(6, 4))
 for i, ds_name in enumerate(["uniform", "black"]):
-    time_points = velocity[ds_name].time[frame_slice].values
     axes[i].plot(
         time_points,
         velocity[ds_name].sel(space="x", time=time_points),
@@ -240,7 +242,7 @@ for ds_name, ds_i in ds.items():
     dy = right_pupil.sel(space="y") - left_pupil.sel(space="y")  # y difference
     pupil_diameter[ds_name] = (dx**2 + dy**2) ** 0.5  # euclidean distance
 
-fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(5, 3))
 for name, da_pupil_diameter in pupil_diameter.items():
     ax.plot(da_pupil_diameter.time, da_pupil_diameter, label=name)
     ax.set_xlabel("Time (frames)")
@@ -250,7 +252,7 @@ ax.set_title("Pupil Diameter")
 plt.tight_layout()
 plt.show()
 # %%
-# Moving Average Filter
+# Pupil Diameter after filter
 # -------------
 # A filter can be used to smooth out pupil size data. Unlike eye movements,
 # which can be extremely fast, pupil size is unlikely to change rapidly. A
@@ -266,7 +268,8 @@ for name, da in pupil_diameter.items():
     )
 
     # remove the first and last timepoints that are distorted by the filter
-    plot_slice = slice(window_size // 2, -window_size // 2)
+    half_window = window_size // 2
+    plot_slice = slice(half_window, -half_window)
     ax.plot(
         da.coords["time"][plot_slice],
         filtered_data[plot_slice],
