@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from movement.napari.convert import poses_to_napari_tracks
+from movement.napari.convert import movement_ds_to_napari_tracks
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_valid_poses_to_napari_tracks(ds_name, request):
     n_keypoints = ds.sizes["keypoints"]
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
-    data, props = poses_to_napari_tracks(ds)
+    data, props = movement_ds_to_napari_tracks(ds)
 
     # Prepare expected y, x positions and corresponding confidence values.
     # Assume values are extracted from the dataset in a specific way,
@@ -101,4 +101,4 @@ def test_invalid_poses_to_napari_tracks(ds_name, expected_exception, request):
     """
     ds = request.getfixturevalue(ds_name)
     with pytest.raises(expected_exception):
-        poses_to_napari_tracks(ds)
+        movement_ds_to_napari_tracks(ds)
