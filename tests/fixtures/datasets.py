@@ -91,18 +91,27 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
 
     n_frames, n_individuals, _ = position_array.shape
 
+    def add_keypoints_dim(arr):
+        return np.expand_dims(arr, axis=-2)
+
     return xr.Dataset(
         data_vars={
-            "position": xr.DataArray(position_array, dims=dim_names),
-            "shape": xr.DataArray(shape_array, dims=dim_names),
+            "position": xr.DataArray(
+                add_keypoints_dim(position_array), dims=dim_names
+            ),
+            "shape": xr.DataArray(
+                add_keypoints_dim(shape_array), dims=dim_names
+            ),
             "confidence": xr.DataArray(
-                confidence_array, dims=dim_names[:1] + dim_names[2:]
+                add_keypoints_dim(confidence_array),
+                dims=dim_names[:1] + dim_names[2:],
             ),
         },
         coords={
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: ["x", "y"],
-            dim_names[2]: [f"id_{id}" for id in range(n_individuals)],
+            dim_names[2]: ["centroid"],
+            dim_names[3]: [f"id_{id}" for id in range(n_individuals)],
         },
         attrs={
             "fps": None,
