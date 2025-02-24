@@ -1,4 +1,4 @@
-"""Analyse eye movements of a mouse
+"""Pupillometry
 ===================================
 
 Look at eye movements caused by the oculo-motor reflex.
@@ -28,16 +28,17 @@ ds_uniform = sample_data.fetch_dataset(
     with_video=True,
 )
 # Save data in a dictionary
-ds = {"black": ds_black, "uniform": ds_uniform}
+ds_dict = {"black": ds_black, "uniform": ds_uniform}
 
 # %%
 # Explore the data
 # ----------------
-video = {}  # To save videos in
-for name, ds_i in ds.items():
-    video[name] = sio.load_video(ds_i.video_path)
-    n_frames, height, width, channels = video[name].shape
-    print(f"Dataset: {name}")
+for ds_name, ds in ds_dict.items():
+    video = sio.load_video(ds.video_path)
+    # to avoid having to reload the video again we add it to ds as attribute
+    ds_dict[ds_name] = ds.assign_attrs({"video": video})
+    n_frames, height, width, channels = video.shape
+    print(f"Dataset: {ds_name}")
     print(f"Number of frames: {n_frames}")
     print(f"Frame size: {width}x{height}")
     print(f"Number of channels: {channels}\n")
@@ -46,15 +47,15 @@ for name, ds_i in ds.items():
 # %%
 # Plot first frame with keypoints
 # -------------------------------
-fig, ax = plt.subplots(1, 2, figsize=(10, 4))
-for i, (name, ds_i) in enumerate(ds.items()):
-    ax[i].imshow(video[name][0], cmap="gray")  # plot first video frame
-    for keypoint in ds_i.position.keypoints.values:
-        x = ds_i.position.sel(time=0, space="x", keypoints=keypoint)
-        y = ds_i.position.sel(time=0, space="y", keypoints=keypoint)
+fig, ax = plt.subplots(1, 2, figsize=(7.5, 4))
+for i, (da_name, ds) in enumerate(ds_dict.items()):
+    ax[i].imshow(ds.video[0], cmap="gray")  # plot first video frame
+    for keypoint in ds.position.keypoints.values:
+        x = ds.position.sel(time=0, space="x", keypoints=keypoint)
+        y = ds.position.sel(time=0, space="y", keypoints=keypoint)
         ax[i].scatter(x, y, label=keypoint)  # plot keypoints
     ax[i].legend()
-    ax[i].set_title(f"{name} (First Frame)")
+    ax[i].set_title(f"{da_name} (First Frame)")
     ax[i].invert_yaxis()  # because the dataset was collected flipped
 plt.tight_layout()
 plt.show()
@@ -62,7 +63,8 @@ plt.show()
 # %%
 # Pupil trajectory
 # ----------------
-# A quick trajectory plot of the trajectory of the centre of the pupil.
+# A quick plot of the trajectory of the centre of the pupil
+# using ``plot_trajectory`` function in ``movement.plots``.
 time_points = ds_black.time[slice(50, 1000)]
 position_black = ds_black.position.sel(time=time_points)  # data array to plot
 fig, ax = plot_trajectory(position_black, keypoints=["pupil-L", "pupil-R"])
@@ -71,18 +73,13 @@ fig.show()
 # %%
 # Pupil trajectories on top of video frame
 # ----------------------------------------
-# Plot pupil trajectories for both 'black' and 'uniform' datasets
-
+# We can look at pupil trajectories plotted on top of a video frame.
 fig, ax = plt.subplots(1, 2, figsize=(11, 3))
-for i, (ds_name, ds_i) in enumerate(ds.items()):
-    # vido frame 100 as background
-    ax[i].imshow(video[ds_name][100], cmap="Greys_r")
-
-    # select time_points to plot
-    time_points = ds_i.time[slice(50, 1000)]
+for i, (ds_name, ds) in enumerate(ds_dict.items()):
+    ax[i].imshow(ds.video[100], cmap="gray")  # Plot frame 100 as background
 
     plot_trajectory(
-        ds_i.position.sel(time=time_points),
+        ds.position.sel(time=ds.time[slice(50, 1000)]),  # Select time window
         ax=ax[i],
         keypoints=["pupil-L", "pupil-R"],
         alpha=0.5,
@@ -95,99 +92,81 @@ plt.show()
 
 
 # %%
-# Keypoint positions in x and y over time
+# Keypoint positions over time
+# ----------------------------
+# For the rest of this example we are interested in the position data only, to
+# make the data easy to access we save it in a ``dict`` with the dataset names
+# as keys.
+position_dict = {"black": ds_black.position, "uniform": ds_uniform.position}
+
+
+# %%
+# We create a function to plot the x and y positions of the keypoints over
+# time, so that we can compare the data before and after normalisation.
+def plot_x_y_keypoints(da_dict, ylim=None, **kwargs):
+    fig, axes = plt.subplots(2, 2, figsize=(12, 6))
+    for i, ds_name in enumerate(list(da_dict.keys())):
+        for j, coord in enumerate(["x", "y"]):
+            # Prepare a data array for plotting (squeeze removes redundant
+            # dimensions and is needed in order to plot the data correctly)
+            da = da_dict[ds_name].sel(space=coord, **kwargs).squeeze()
+            da.plot.line(ax=axes[i, j], x="time")  # Plot data
+            axes[i, j].set_title(f"{ds_name} - {coord} position")
+    if ylim is not None:
+        for ax in axes.flat:
+            ax.set_ylim(ylim)
+    plt.tight_layout()
+    return fig
+
+
+# %%
+# Using the function created above, we plot the x and y positions in a
+# specified time window (frames 350 to 1000) of the unprocessed data.
+time_points = position_dict["black"].time[slice(350, 1001)]
+fig = plot_x_y_keypoints(position_dict, ylim=(100, 500), time=time_points)
+fig.show()
+
+# %%
+# Normalised keypoint positions over time
 # ---------------------------------------
-# Helper function to plot the data
-def quick_plot(da, time=None, ax=None, **selection):
-    if time:
-        selection["time"] = slice(*time)
-    da = da.squeeze()
-    da.sel(**selection, drop=True).plot.line(x="time", ax=ax)
-
-
-# get time_points to plot (the same for both datasets here)
-time_points = ds["black"].time[slice(350, 1000)]
-fig, axes = plt.subplots(2, 2, figsize=(12, 6))
-for i, ds_name in enumerate(["uniform", "black"]):
-    for j, space in enumerate(["y", "x"]):
-        da = ds[ds_name].position.sel(time=time_points)
-        quick_plot(
-            da,
-            space=space,
-            ax=axes[i, j],
-        )
-        axes[i, j].set_title(f"{ds_name} - {space} position")
-for ax in axes.flat:
-    ax.set_ylim(100, 500)
-plt.tight_layout()
-plt.show()
-
+# Normalizing the pupil's position relative to the midpoint of the eye reduces
+# the impact of head movements or artefacts caused by movement of the camera.
+# In the rest of the example, the normalised data will be used.
+position_norm_dict = {}
+for da_name, da in position_dict.items():
+    eye_midpoint = da.sel(keypoints=["eye-L", "eye-R"]).mean("keypoints")
+    position_norm_dict[da_name] = da - eye_midpoint
 # %%
-# Normalise movement to the eye midpoint
-# --------------------------------------
-# Normalizing the pupil's position relative to the eye keypoints reduces the
-# impact of head movements or artefacts caused by movement of the camera.
-
-position_norm = {}  # to save the normalised data
-for ds_name, ds_i in ds.items():
-    # Calculate eye midpoint to use for normalisation
-    eye_midpoint = ds_i.position.sel(keypoints=["eye-L", "eye-R"]).mean(
-        "keypoints"
-    )
-    # Normalise the position data and save in the position_norm dict
-    position_norm[ds_name] = ds_i.position - eye_midpoint
-
-# %% Plot normalized keypoint x and y coordinates over time
-fig, axes = plt.subplots(2, 2, figsize=(12, 6))
-for i, ds_name in enumerate(["uniform", "black"]):
-    for j, space in enumerate(["y", "x"]):
-        quick_plot(
-            position_norm[ds_name].sel(time=time_points),
-            space=space,
-            ax=axes[i, j],
-        )
-        axes[i, j].set_title(f"{ds_name} (normalized) - {space} position")
-
-# Set the same limits for y-axes
-for ax in axes.flat:
-    ax.set_ylim(-200, 200)
-plt.tight_layout()
-plt.show()
-
-# There is less high frequency noise in the signal now.
-# %%
-# Pupil Centroid
-# --------------
-# Add a pupil centroid keypoint to the normalised position data
-for da_name, da in position_norm.items():
-    pupil_centroid = da.sel(keypoints=["pupil-L", "pupil-R"]).mean("keypoints")
-    pupil_centroid = pupil_centroid.assign_coords({"keypoints": "pupil-C"})
-    position_norm[da_name] = xr.concat([da, pupil_centroid], "keypoints")
-
+# We plot the x and y positions again, but now using the processed data.
+fig = plot_x_y_keypoints(
+    position_norm_dict, ylim=(-200, 200), time=time_points
+)
+fig.show()
 # %%
 # Pupil position over time
-# ------------------------
-# From the normalised position data, select the pupil-C keypoint we've
-# created and the timepoints to plot.
-da = position_norm[ds_name].sel(keypoints="pupil-C", time=time_points)
+# ---------------------------------
+# A pupil centroid keypoint can be added to the data array using
+# ``xarray.DataArray.assign_coords`` and ``xarray.concat``.
+for da_name, da in position_norm_dict.items():
+    pupil_centroid = da.sel(keypoints=["pupil-L", "pupil-R"]).mean("keypoints")
+    pupil_centroid = pupil_centroid.assign_coords({"keypoints": "pupil-C"})
+    position_norm_dict[da_name] = xr.concat([da, pupil_centroid], "keypoints")
 
+# %%
+# Now the position of the pupil centroid ("pupil-C") can be plotted.
 fig, axes = plt.subplots(2, 1, figsize=(6, 4))
-for i, ds_name in enumerate(["uniform", "black"]):
-    axes[i].plot(
-        time_points,
-        da.sel(space="x"),
-        label="x",
-        color="C0",
-    )
-    axes[i].plot(
-        time_points,
-        da.sel(space="y"),
-        label="y",
-        color="C1",
-    )
+for i, (da_name, da) in enumerate(position_norm_dict.items()):
+    da = da.sel(keypoints="pupil-C", time=time_points)  # select data to plot
+    for coord, color in ["x", "C0"], ["y", "C1"]:
+        axes[i].plot(
+            time_points,
+            da.sel(space=coord),
+            label=coord,
+            color=color,
+        )
     axes[i].set_xlabel("Time (s)")
     axes[i].set_ylabel("Position")
-    axes[i].set_title(f"Pupil centroid position ({ds_name})")
+    axes[i].set_title(f"Pupil centroid position ({da_name})")
     axes[i].legend()
 
 for ax in axes.flat:
@@ -198,59 +177,57 @@ plt.show()
 # %%
 # Pupil velocity over time
 # ------------------------
+# We use ``compute_velocity`` from ``movement``'s ``kinematics`` module to
+# calculate the velocity with which the centre of the pupil ("pupil-C") moves.
+velocity_dict = {}
+for da_name, da in position_norm_dict.items():
+    velocity_dict[da_name] = kin.compute_velocity(da.sel(keypoints="pupil-C"))
 
-velocity = {
-    ds_name: kin.compute_velocity(
-        position_norm[ds_name].sel(keypoints="pupil-C")
-    )
-    for ds_name in position_norm
-}
-
+# %%
+# Now we can plot pupil velocity over time.
 fig, axes = plt.subplots(2, 1, figsize=(6, 4))
-for i, ds_name in enumerate(["uniform", "black"]):
-    axes[i].plot(
-        time_points,
-        velocity[ds_name].sel(space="x", time=time_points),
-        label="x",
-        color="C0",
-    )
-    axes[i].plot(
-        time_points,
-        velocity[ds_name].sel(space="y", time=time_points),
-        label="y",
-        color="C1",
-    )
+for i, (da_name, da) in enumerate(velocity_dict.items()):
+    for coord, color in ["x", "C0"], ["y", "C1"]:
+        axes[i].plot(
+            time_points,
+            da.sel(space=coord, time=time_points),
+            label=coord,
+            color=color,
+        )
     axes[i].set_xlabel("Time (s)")
     axes[i].set_ylabel("Velocity")
-    axes[i].set_title(f"Pupil velocity ({ds_name})")
+    axes[i].set_title(f"Pupil velocity ({da_name})")
     axes[i].legend()
 
 plt.tight_layout()
 plt.show()
-
+# %%
+# The positive peaks correspond to rapid eye movements to the right, the
+# negative peaks correspond to rapid eye movements to the left.
 # %%
 # Pupil diameter
 # --------------
 # In these datasets, the distance between the two pupil keypoints
 # is used to quantify the pupil diameter.
-
-pupil_diameter = {}
-for ds_name, ds_i in ds.items():
-    left_pupil = ds_i.position.sel(keypoints="pupil-L").squeeze()
-    right_pupil = ds_i.position.sel(keypoints="pupil-R").squeeze()
-    dx = right_pupil.sel(space="x") - left_pupil.sel(space="x")  # x difference
-    dy = right_pupil.sel(space="y") - left_pupil.sel(space="y")  # y difference
-    pupil_diameter[ds_name] = (dx**2 + dy**2) ** 0.5  # euclidean distance
+pupil_diameter_dict = {}
+for da_name, da in position_norm_dict.items():
+    left = da.sel(keypoints="pupil-L").squeeze()
+    right = da.sel(keypoints="pupil-R").squeeze()
+    dx = right.sel(space="x") - left.sel(space="x")
+    dy = right.sel(space="y") - left.sel(space="y")
+    # TODO: can this be done with compute_pairwise_distances from kinematics?
+    pupil_diameter_dict[da_name] = (dx**2 + dy**2) ** 0.5  # euclidean distance
 
 fig, ax = plt.subplots(figsize=(5, 3))
-for name, da_pupil_diameter in pupil_diameter.items():
-    ax.plot(da_pupil_diameter.time, da_pupil_diameter, label=name)
-    ax.set_xlabel("Time (frames)")
+for da_name, da in pupil_diameter_dict.items():
+    ax.plot(da.time, da, label=da_name)
+    ax.set_xlabel("Time (s)")
     ax.set_ylabel("Pupil Diameter (pixels)")
 ax.legend()
 ax.set_title("Pupil Diameter")
 plt.tight_layout()
 plt.show()
+
 # %%
 # Pupil Diameter after filter
 # ---------------------------
@@ -260,20 +237,16 @@ plt.show()
 # specified number of data points (defined by the window size) to reduce noise.
 
 # TODO: Use movement filter!
-window_size = 150  # number of frames over which the filter is used
+filter = 150  # number of frames over which the filter is used
 fig, ax = plt.subplots(figsize=(5, 3))
-for name, da in pupil_diameter.items():
-    filtered_data = np.convolve(
-        da, np.ones(window_size) / window_size, mode="same"
-    )
-
+for da_name, da in pupil_diameter_dict.items():
+    filtered_data = np.convolve(da, np.ones(filter) / filter, mode="same")
     # remove the first and last timepoints that are distorted by the filter
-    half_window = window_size // 2
-    plot_slice = slice(half_window, -half_window)
+    plot_slice = slice(filter // 2, -filter // 2)
     ax.plot(
         da.coords["time"][plot_slice],
         filtered_data[plot_slice],
-        label=name + " (filter)",
+        label=da_name + " (filter)",
     )
 ax.set(
     xlabel="Time (frames)",
