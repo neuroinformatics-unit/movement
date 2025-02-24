@@ -32,7 +32,7 @@ ds = {"black": ds_black, "uniform": ds_uniform}
 
 # %%
 # Explore the data
-# -------------
+# ----------------
 video = {}  # To save videos in
 for name, ds_i in ds.items():
     video[name] = sio.load_video(ds_i.video_path)
@@ -45,7 +45,7 @@ for name, ds_i in ds.items():
 # Both datasets contain videos of a mouse eye under two different conditions.
 # %%
 # Plot first frame with keypoints
-# -------------
+# -------------------------------
 fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 for i, (name, ds_i) in enumerate(ds.items()):
     ax[i].imshow(video[name][0], cmap="gray")  # plot first video frame
@@ -61,7 +61,7 @@ plt.show()
 
 # %%
 # Pupil trajectory
-# -------------
+# ----------------
 # A quick trajectory plot of the trajectory of the centre of the pupil.
 time_points = ds_black.time[slice(50, 1000)]
 position_black = ds_black.position.sel(time=time_points)  # data array to plot
@@ -70,7 +70,7 @@ fig.show()
 
 # %%
 # Pupil trajectories on top of video frame
-# -------------
+# ----------------------------------------
 # Plot pupil trajectories for both 'black' and 'uniform' datasets
 
 fig, ax = plt.subplots(1, 2, figsize=(11, 3))
@@ -96,7 +96,7 @@ plt.show()
 
 # %%
 # Keypoint positions in x and y over time
-# -------------
+# ---------------------------------------
 # Helper function to plot the data
 def quick_plot(da, time=None, ax=None, **selection):
     if time:
@@ -124,7 +124,7 @@ plt.show()
 
 # %%
 # Normalise movement to the eye midpoint
-# -------------
+# --------------------------------------
 # Normalizing the pupil's position relative to the eye keypoints reduces the
 # impact of head movements or artefacts caused by movement of the camera.
 
@@ -157,7 +157,7 @@ plt.show()
 # There is less high frequency noise in the signal now.
 # %%
 # Pupil Centroid
-# -------------
+# --------------
 # Add a pupil centroid keypoint to the normalised position data
 for da_name, da in position_norm.items():
     pupil_centroid = da.sel(keypoints=["pupil-L", "pupil-R"]).mean("keypoints")
@@ -166,7 +166,7 @@ for da_name, da in position_norm.items():
 
 # %%
 # Pupil position over time
-# -------------
+# ------------------------
 # From the normalised position data, select the pupil-C keypoint we've
 # created and the timepoints to plot.
 da = position_norm[ds_name].sel(keypoints="pupil-C", time=time_points)
@@ -197,7 +197,7 @@ plt.tight_layout()
 plt.show()
 # %%
 # Pupil velocity over time
-# -------------
+# ------------------------
 
 velocity = {
     ds_name: kin.compute_velocity(
@@ -230,7 +230,7 @@ plt.show()
 
 # %%
 # Pupil diameter
-# -------------
+# --------------
 # In these datasets, the distance between the two pupil keypoints
 # is used to quantify the pupil diameter.
 
@@ -253,7 +253,7 @@ plt.tight_layout()
 plt.show()
 # %%
 # Pupil Diameter after filter
-# -------------
+# ---------------------------
 # A filter can be used to smooth out pupil size data. Unlike eye movements,
 # which can be extremely fast, pupil size is unlikely to change rapidly. A
 # Moving Average Filter is used here to smooth the data by averaging a
