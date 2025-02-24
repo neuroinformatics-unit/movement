@@ -7,8 +7,13 @@ from typing import Literal
 import h5py
 import numpy as np
 import pandas as pd
+import pynwb
 import xarray as xr
 
+from movement.io._nwb import (
+    _ds_to_pose_and_skeleton_objects,
+    _write_behavior_processing_module,
+)
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile
@@ -356,6 +361,103 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
             else:
                 f.create_dataset(key, data=val)
     logger.info(f"Saved poses dataset to {file.path}.")
+
+
+def to_nwb_file(
+    ds: xr.Dataset,
+    nwb_files: pynwb.NWBFile | list[pynwb.NWBFile],
+    *,
+    pose_estimation_series_kwargs: dict | None = None,
+    pose_estimation_kwargs: dict | None = None,
+    skeletons_kwargs: dict | None = None,
+) -> None:
+    """Save a ``movement`` dataset to one or more open NWB file objects.
+
+    The data will be written to the NWB file(s) in the "behavior" processing
+    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
+    Each individual in the dataset will be written to a separate file object,
+    as required by the NWB format. Note that the NWBFile object(s) are not
+    automatically saved to disk.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        ``movement`` poses dataset containing the data to be converted to NWB
+    nwb_files : list[pynwb.NWBFile] | pynwb.NWBFile
+        An NWBFile object or a list of such objects to which the data
+        will be added.
+    pose_estimation_series_kwargs : dict, optional
+        PoseEstimationSeries keyword arguments.
+        See ``ndx-pose``, by default None
+    pose_estimation_kwargs : dict, optional
+        PoseEstimation keyword arguments. See ``ndx-pose``, by default None
+    skeletons_kwargs : dict, optional
+        Skeleton keyword arguments. See ``ndx-pose``, by default None
+
+    Raises
+    ------
+    ValueError
+        If the number of NWBFiles is not equal to the number of individuals.
+
+    Notes
+    -----
+    The data will not overwrite any existing PoseEstimation or Skeletons
+    objects in the NWB file(s). If the objects already exist, the function
+    will skip adding them.
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
+
+    Examples
+    --------
+    Let's load a sample dataset containing pose tracks from two mice:
+
+    >>> from movement import sample_data
+    >>> ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
+
+    We will create two NWBFiles, one for each individual, save the pose
+    data to them, and then write the files to disk:
+
+    >>> import datetime as dt
+    >>> from pynwb import NWBFile, NWBHDF5IO
+    >>> from movement.io import save_poses
+    >>> nwb_files = [
+    ...     NWBFile(
+    ...         session_description="session_description",
+    ...         identifier=id,
+    ...         session_start_time=dt.datetime.now(dt.timezone.utc),
+    ...     )
+    ...     for id in ds.individuals.values
+    ... ]
+    >>> save_poses.to_nwb_file(ds, nwb_files)
+    >>> for file in nwb_files:
+    ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
+    ...         io.write(file)
+
+    """
+    if isinstance(nwb_files, pynwb.NWBFile):
+        nwb_files = [nwb_files]
+
+    if len(nwb_files) != len(ds.individuals):
+        raise log_error(
+            ValueError,
+            "Number of NWBFile objects must be equal to the number of "
+            "individuals, as NWB requires one file per individual (subject).",
+        )
+
+    for nwb_file, individual in zip(
+        nwb_files, ds.individuals.values, strict=False
+    ):
+        pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
+            ds.sel(individuals=individual),
+            pose_estimation_series_kwargs,
+            pose_estimation_kwargs,
+            skeletons_kwargs,
+        )
+        _write_behavior_processing_module(
+            nwb_file, pose_estimation[0], skeletons
+        )
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
