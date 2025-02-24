@@ -182,7 +182,7 @@ class TestSavePoses:
         """
         df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
         # Get the names of the individuals in the dataset
-        ind_names = valid_poses_dataset.individuals.values
+        ind_names = valid_poses_dataset.individual.values
         if split_individuals is False:
             # this should produce a single df in multi-animal DLC format
             assert isinstance(df, pd.DataFrame)
@@ -232,7 +232,7 @@ class TestSavePoses:
                 valid_poses_dataset, new_h5_file, split_individuals
             )
             # Get the names of the individuals in the dataset
-            ind_names = valid_poses_dataset.individuals.values
+            ind_names = valid_poses_dataset.individual.values
             # "auto" becomes False, default valid dataset is multi-individual
             if split_individuals in [False, "auto"]:
                 # this should save only one file
@@ -309,6 +309,6 @@ class TestSavePoses:
         """
         new_individuals = [f"id_{i}" for i in range(3)]
         # Add new individual with NaN data
-        ds = valid_poses_dataset.reindex(individuals=new_individuals)
+        ds = valid_poses_dataset.reindex(individual=new_individuals)
         ds = save_poses._remove_unoccupied_tracks(ds)
         xr.testing.assert_equal(ds, valid_poses_dataset)

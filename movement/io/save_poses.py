@@ -57,7 +57,7 @@ def _ds_to_dlc_style_df(
 
 def _auto_split_individuals(ds: xr.Dataset) -> bool:
     """Return True if there is only one individual in the dataset."""
-    n_individuals = ds.sizes["individuals"]
+    n_individuals = ds.sizes["individual"]
     return n_individuals == 1
 
 
@@ -103,7 +103,7 @@ def to_dlc_style_df(
     -----
     The DataFrame(s) will have a multi-index column with the following levels:
     "scorer", "bodyparts", "coords" (if split_individuals is True),
-    or "scorer", "individuals", "bodyparts", "coords"
+    or "scorer", "individual", "bodyparts", "coords"
     (if split_individuals is False).
 
     Regardless of the provenance of the points-wise confidence scores,
@@ -117,15 +117,15 @@ def to_dlc_style_df(
     """
     _validate_dataset(ds)
     scorer = ["movement"]
-    bodyparts = ds.coords["keypoints"].data.tolist()
+    bodyparts = ds.coords["keypoint"].data.tolist()
     coords = ds.coords["space"].data.tolist() + ["likelihood"]
-    individuals = ds.coords["individuals"].data.tolist()
+    individuals = ds.coords["individual"].data.tolist()
 
     if split_individuals:
         df_dict = {}
 
         for individual in individuals:
-            individual_data = ds.sel(individuals=individual)
+            individual_data = ds.sel(individual=individual)
 
             index_levels = ["scorer", "bodyparts", "coords"]
             columns = pd.MultiIndex.from_product(
@@ -175,11 +175,11 @@ def to_dlc_file(
     -----
     If ``split_individuals`` is True, each individual will be saved to a
     separate file, formatted as in a single-animal DeepLabCut project
-    (without the "individuals" column level). The individual's name will be
+    (without the "individual" column level). The individual's name will be
     appended to the file path, just before the file extension, e.g.
     "/path/to/filename_individual1.h5". If False, all individuals will be
     saved to the same file, formatted as in a multi-animal DeepLabCut project
-    (with the "individuals" column level). The file path will not be modified.
+    (with the "individual" column level). The file path will not be modified.
     If "auto", the argument's value is determined based on the number of
     individuals in the dataset: True if there is only one, False otherwise.
 
@@ -310,9 +310,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     # "point_scores"        n_individuals * n_keypoints * n_frames
     # "instance_scores"     n_individuals * n_frames
     # "tracking_scores"     n_individuals * n_frames
-    individual_names = ds.individuals.values.tolist()
+    individual_names = ds.individual.values.tolist()
     n_individuals = len(individual_names)
-    keypoint_names = ds.keypoints.values.tolist()
+    keypoint_names = ds.keypoint.values.tolist()
     # Compute frame indices from fps, if set
     if ds.fps is not None:
         frame_idxs = np.rint(ds.time.values * ds.fps).astype(int).tolist()
@@ -373,7 +373,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
         The input dataset without the unoccupied tracks.
 
     """
-    all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
+    all_nan = ds.position.isnull().all(dim=["keypoint", "space", "time"])
     return ds.where(~all_nan, drop=True)
 
 

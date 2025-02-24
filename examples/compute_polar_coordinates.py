@@ -32,8 +32,8 @@ ds = load_poses.from_sleap_file(ds_path, fps=None)  # force time_unit = frames
 
 print(ds)
 print("-----------------------------")
-print(f"Individuals: {ds.individuals.values}")
-print(f"Keypoints: {ds.keypoints.values}")
+print(f"Individuals: {ds.individual.values}")
+print(f"Keypoints: {ds.keypoint.values}")
 
 
 # %%
@@ -52,17 +52,17 @@ position = ds.position
 # We define it as the vector from the midpoint between the ears to the snout.
 
 # compute the midpoint between the ears
-midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
-    dim="keypoints"
+midpoint_ears = position.sel(keypoint=["left_ear", "right_ear"]).mean(
+    dim="keypoint"
 )
 
 # compute the head vector
-head_vector = position.sel(keypoints="snout") - midpoint_ears
+head_vector = position.sel(keypoint="snout") - midpoint_ears
 
 # drop the keypoints dimension
 # (otherwise the `head_vector` data array retains a `snout` keypoint from the
 # operation above)
-head_vector = head_vector.drop_vars("keypoints")
+head_vector = head_vector.drop_vars("keypoint")
 
 # %%
 # Visualise the head trajectory
@@ -143,12 +143,12 @@ time_window = range(1650, 1671)  # frames
 # For that subset of the data, we now plot the head vector.
 
 fig, ax = plt.subplots(1, 1)
-mouse_name = ds.individuals.values[0]
+mouse_name = ds.individual.values[0]
 
 # plot midpoint between the ears, and color based on time
 sc = ax.scatter(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
+    midpoint_ears.sel(individual=mouse_name, space="x", time=time_window),
+    midpoint_ears.sel(individual=mouse_name, space="y", time=time_window),
     s=50,
     c=midpoint_ears.time[time_window],
     cmap="viridis",
@@ -158,10 +158,10 @@ sc = ax.scatter(
 # plot snout, and color based on time
 sc = ax.scatter(
     position.sel(
-        individuals=mouse_name, space="x", time=time_window, keypoints="snout"
+        individual=mouse_name, space="x", time=time_window, keypoint="snout"
     ),
     position.sel(
-        individuals=mouse_name, space="y", time=time_window, keypoints="snout"
+        individual=mouse_name, space="y", time=time_window, keypoint="snout"
     ),
     s=50,
     c=position.time[time_window],
@@ -171,10 +171,10 @@ sc = ax.scatter(
 
 # plot the computed head vector
 ax.quiver(
-    midpoint_ears.sel(individuals=mouse_name, space="x", time=time_window),
-    midpoint_ears.sel(individuals=mouse_name, space="y", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="x", time=time_window),
-    head_vector.sel(individuals=mouse_name, space="y", time=time_window),
+    midpoint_ears.sel(individual=mouse_name, space="x", time=time_window),
+    midpoint_ears.sel(individual=mouse_name, space="y", time=time_window),
+    head_vector.sel(individual=mouse_name, space="x", time=time_window),
+    head_vector.sel(individual=mouse_name, space="y", time=time_window),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -250,7 +250,7 @@ print(head_vector_polar)
 fig, ax = plt.subplots(1, 1)
 
 # plot histogram using xarray's built-in histogram function
-rho_data = head_vector_polar.sel(individuals=mouse_name, space_pol="rho")
+rho_data = head_vector_polar.sel(individual=mouse_name, space_pol="rho")
 rho_data.plot.hist(bins=50, ax=ax, edgecolor="lightgray", linewidth=0.5)
 
 # add mean
@@ -304,7 +304,7 @@ fig = plt.figure()
 ax = fig.add_subplot(projection="polar")
 
 # plot histogram using xarray's built-in histogram function
-head_vector_polar.sel(individuals=mouse_name, space_pol="phi").plot.hist(
+head_vector_polar.sel(individual=mouse_name, space_pol="phi").plot.hist(
     bins=np.linspace(-np.pi, np.pi, n_bins + 1), ax=ax
 )
 
@@ -339,7 +339,7 @@ fig.show()
 
 # select phi values within a time window
 phi = head_vector_polar.sel(
-    individuals=mouse_name,
+    individual=mouse_name,
     space_pol="phi",
     time=time_window,
 ).values

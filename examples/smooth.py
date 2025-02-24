@@ -60,8 +60,8 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
     selection = {
         "time": time_range,
-        "individuals": individual,
-        "keypoints": keypoint,
+        "individual": individual,
+        "keypoint": keypoint,
         "space": space,
     }
 

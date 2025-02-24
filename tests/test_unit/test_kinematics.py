@@ -46,22 +46,22 @@ class TestComputeKinematics:
         )
         # Figure out which dimensions to expect in kinematic_array
         # and in the final xarray.DataArray
-        expected_dims = ["time", "individuals"]
+        expected_dims = ["time", "individual"]
         if kinematic_variable in ["displacement", "velocity", "acceleration"]:
             expected_dims.insert(1, "space")
         # Build expected data array from the expected numpy array
         expected_array = xr.DataArray(
-            # Stack along the "individuals" axis
+            # Stack along the "individual" axis
             np.stack(
                 self.expected_kinematics.get(kinematic_variable), axis=-1
             ),
             dims=expected_dims,
         )
-        if "keypoints" in position.coords:
+        if "keypoint" in position.coords:
             expected_array = expected_array.expand_dims(
-                {"keypoints": position.coords["keypoints"].size}
+                {"keypoint": position.coords["keypoint"].size}
             )
-            expected_dims.insert(-1, "keypoints")
+            expected_dims.insert(-1, "keypoint")
             expected_array = expected_array.transpose(*expected_dims)
         # Compare the values of the kinematic_array against the expected_array
         np.testing.assert_allclose(
@@ -111,8 +111,8 @@ class TestComputeKinematics:
         )
         # compute n nans in kinematic array per individual
         n_nans_kinematics_per_indiv = [
-            helpers.count_nans(kinematic_array.isel(individuals=i))
-            for i in range(valid_dataset.sizes["individuals"])
+            helpers.count_nans(kinematic_array.isel(individual=i))
+            for i in range(valid_dataset.sizes["individual"])
         ]
         # assert n nans in kinematic array per individual matches expected
         assert (
@@ -213,10 +213,10 @@ def test_path_length_across_time_ranges(
 
         expected_path_length = xr.DataArray(
             np.ones((3, 2)) * np.sqrt(2) * num_segments,
-            dims=["keypoints", "individuals"],
+            dims=["keypoint", "individual"],
             coords={
-                "keypoints": position.coords["keypoints"],
-                "individuals": position.coords["individuals"],
+                "keypoint": position.coords["keypoint"],
+                "individual": position.coords["individual"],
             },
         )
         xr.testing.assert_allclose(path_length, expected_path_length)
@@ -262,7 +262,7 @@ def test_path_length_with_nan(
             nan_policy=nan_policy,
         )
         # Get path_length for individual "id_0" as a numpy array
-        path_length_id_0 = path_length.sel(individuals="id_0").values
+        path_length_id_0 = path_length.sel(individual="id_0").values
         # Check them against the expected values
         np.testing.assert_allclose(
             path_length_id_0, expected_path_lengths_id_0
@@ -323,11 +323,11 @@ def valid_data_array_for_forward_vector():
             [[[-1, 0], [1, 0], [0, 1]]],  # time 2
             [[[0, -1], [0, 1], [-1, 0]]],  # time 3
         ],
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": time,
-            "individuals": individuals,
-            "keypoints": keypoints,
+            "individual": individuals,
+            "keypoint": keypoints,
             "space": space,
         },
     )
@@ -347,7 +347,7 @@ def invalid_dimensions_for_forward_vector(valid_data_array_for_forward_vector):
     """Return a position DataArray in which the ``keypoints`` dimension has
     been dropped.
     """
-    return valid_data_array_for_forward_vector.sel(keypoints="nose", drop=True)
+    return valid_data_array_for_forward_vector.sel(keypoint="nose", drop=True)
 
 
 @pytest.fixture
@@ -370,7 +370,7 @@ def valid_data_array_for_forward_vector_with_nan(
     """
     nan_dataarray = valid_data_array_for_forward_vector.where(
         (valid_data_array_for_forward_vector.time != 1)
-        | (valid_data_array_for_forward_vector.keypoints != "left_ear")
+        | (valid_data_array_for_forward_vector.keypoint != "left_ear")
     )
     return nan_dataarray
 
@@ -401,7 +401,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
 
     for output_array in [forward_vector, forward_vector_flipped, head_vector]:
         assert isinstance(output_array, xr.DataArray)
-        for preserved_coord in ["time", "space", "individuals"]:
+        for preserved_coord in ["time", "space", "individual"]:
             assert np.all(
                 output_array[preserved_coord]
                 == valid_data_array_for_forward_vector[preserved_coord]
@@ -424,7 +424,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "invalid_dimensions_for_forward_vector",
             ValueError,
-            "Input data must contain ['keypoints']",
+            "Input data must contain ['keypoint']",
             ["left_ear", "right_ear"],
         ),
         (
@@ -470,7 +470,7 @@ def test_nan_behavior_forward_vector(
         valid_data_array_for_forward_vector_with_nan, "left_ear", "right_ear"
     )
     # Check coord preservation
-    for preserved_coord in ["time", "space", "individuals"]:
+    for preserved_coord in ["time", "space", "individual"]:
         assert np.all(
             forward_vector[preserved_coord]
             == valid_data_array_for_forward_vector_with_nan[preserved_coord]
@@ -498,7 +498,7 @@ def test_nan_behavior_forward_vector(
     "dim, expected_data",
     [
         (
-            "individuals",
+            "individual",
             np.array(
                 [
                     [
@@ -515,7 +515,7 @@ def test_nan_behavior_forward_vector(
             ),
         ),
         (
-            "keypoints",
+            "keypoint",
             np.array(
                 [[[1.0, 1.0], [1.0, 1.0]], [[1.0, np.sqrt(5)], [3.0, 1.0]]]
             ),
@@ -524,7 +524,7 @@ def test_nan_behavior_forward_vector(
 )
 def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
     """Test the computation of pairwise distances with known values."""
-    labels_dim = "keypoints" if dim == "individuals" else "individuals"
+    labels_dim = "keypoint" if dim == "individual" else "individual"
     input_dataarray = valid_poses_dataset.position.sel(
         time=slice(0, 1)
     )  # Use only the first two frames for simplicity
@@ -559,8 +559,8 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
         # bboxes: missing keypoints dim
         # e.g. comparing 2 individuals from the same data array
         lambda position: (
-            position.isel(individuals=0),
-            position.isel(individuals=1),
+            position.isel(individual=0),
+            position.isel(individual=1),
         ),
         # individuals dim is 1D
         # poses: multiple keypoints
@@ -568,28 +568,28 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
         # e.g. comparing 2 single-individual data arrays
         lambda position: (
             position.where(
-                position.individuals == position.individuals[0], drop=True
+                position.individual == position.individual[0], drop=True
             ).squeeze(),
             position.where(
-                position.individuals == position.individuals[1], drop=True
+                position.individual == position.individual[1], drop=True
             ).squeeze(),
         ),
         # both individuals and keypoints dims are scalar (poses only)
         # e.g. comparing 2 individuals from the same data array,
         # at the same keypoint
         lambda position: (
-            position.isel(individuals=0, keypoints=0),
-            position.isel(individuals=1, keypoints=0),
+            position.isel(individual=0, keypoint=0),
+            position.isel(individual=1, keypoint=0),
         ),
         # individuals dim is scalar, keypoints dim is 1D (poses only)
         # e.g. comparing 2 single-individual, single-keypoint data arrays
         lambda position: (
             position.where(
-                position.keypoints == position.keypoints[0], drop=True
-            ).isel(individuals=0),
+                position.keypoint == position.keypoint[0], drop=True
+            ).isel(individual=0),
             position.where(
-                position.keypoints == position.keypoints[0], drop=True
-            ).isel(individuals=1),
+                position.keypoint == position.keypoint[0], drop=True
+            ).isel(individual=1),
         ),
     ],
     ids=[
@@ -602,7 +602,7 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
 def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
     """Test that the pairwise distances data array is successfully
      returned regardless of whether the input DataArrays have
-    ``dim`` ("individuals") and ``labels_dim`` ("keypoints")
+    ``dim`` ("individual") and ``labels_dim`` ("keypoint")
     being either scalar (ndim=0) or 1D (ndim=1),
     or if ``labels_dim`` is missing.
     """
@@ -613,29 +613,29 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
         valid_dataset = request.getfixturevalue(valid_dataset)
         position = valid_dataset.position
         a, b = selection_fn(position)
-        assert isinstance(kinematics._cdist(a, b, "individuals"), xr.DataArray)
+        assert isinstance(kinematics._cdist(a, b, "individual"), xr.DataArray)
 
 
 @pytest.mark.parametrize(
     "dim, pairs, expected_data_vars",
     [
-        ("individuals", {"id_0": ["id_1"]}, None),  # list input
-        ("individuals", {"id_0": "id_1"}, None),  # string input
+        ("individual", {"id_0": ["id_1"]}, None),  # list input
+        ("individual", {"id_0": "id_1"}, None),  # string input
         (
-            "individuals",
+            "individual",
             {"id_0": ["id_1"], "id_1": "id_0"},
             [("id_0", "id_1"), ("id_1", "id_0")],
         ),
-        ("individuals", "all", None),  # all pairs
-        ("keypoints", {"centroid": ["left"]}, None),  # list input
-        ("keypoints", {"centroid": "left"}, None),  # string input
+        ("individual", "all", None),  # all pairs
+        ("keypoint", {"centroid": ["left"]}, None),  # list input
+        ("keypoint", {"centroid": "left"}, None),  # string input
         (
-            "keypoints",
+            "keypoint",
             {"centroid": ["left"], "left": "right"},
             [("centroid", "left"), ("left", "right")],
         ),
         (
-            "keypoints",
+            "keypoint",
             "all",
             [("centroid", "left"), ("centroid", "right"), ("left", "right")],
         ),  # all pairs
@@ -669,14 +669,14 @@ def test_compute_pairwise_distances_with_valid_pairs(
         ),  # invalid dim
         (
             "valid_poses_dataset",
-            "keypoints",
+            "keypoint",
             "invalid_string",
         ),  # invalid pairs
-        ("valid_poses_dataset", "individuals", {}),  # empty pairs
-        ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
+        ("valid_poses_dataset", "individual", {}),  # empty pairs
+        ("missing_dim_poses_dataset", "keypoint", "all"),  # invalid dataset
         (
             "missing_dim_bboxes_dataset",
-            "individuals",
+            "individual",
             "all",
         ),  # invalid dataset
     ],
@@ -775,8 +775,8 @@ class TestForwardVectorAngle:
         data[:, :, 1] = -data[:, :, 0]
         return xr.DataArray(
             data=data,
-            dims=["time", "space", "keypoints"],
-            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+            dims=["time", "space", "keypoint"],
+            coords={"space": ["x", "y"], "keypoint": ["left", "right"]},
         )
 
     @pytest.mark.parametrize(

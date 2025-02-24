@@ -42,9 +42,9 @@ def calculate_nan_stats(
     """
     selection_criteria = {}
     if individual is not None:
-        selection_criteria["individuals"] = individual
+        selection_criteria["individual"] = individual
     if keypoint is not None:
-        selection_criteria["keypoints"] = keypoint
+        selection_criteria["keypoint"] = keypoint
     selected_data = (
         data.sel(**selection_criteria) if selection_criteria else data
     )
@@ -79,14 +79,14 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     label = label or da.name
     nan_report = f"\nMissing points (marked as NaN) in {label}"
     # Check if the data has individuals and keypoints dimensions
-    has_individuals_dim = "individuals" in da.dims
-    has_keypoints_dim = "keypoints" in da.dims
+    has_individuals_dim = "individual" in da.dims
+    has_keypoints_dim = "keypoint" in da.dims
     # Default values for individuals and keypoints
-    individuals = da.individuals.values if has_individuals_dim else [None]
-    keypoints = da.keypoints.values if has_keypoints_dim else [None]
+    individuals = da.individual.values if has_individuals_dim else [None]
+    keypoints = da.keypoint.values if has_keypoints_dim else [None]
 
     for ind in individuals:
-        ind_name = ind if ind is not None else da.individuals.item()
+        ind_name = ind if ind is not None else da.individual.item()
         nan_report += f"\n\tIndividual: {ind_name}"
         for kp in keypoints:
             nan_report += calculate_nan_stats(da, keypoint=kp, individual=ind)

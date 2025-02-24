@@ -196,7 +196,7 @@ def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
             ax.scatter(
                 x=ds_input_data.time,
                 y=ds_input_data[data_array_str].sel(
-                    individuals="id_1", space=space_coord
+                    individual="id_1", space=space_coord
                 ),
                 marker="o",
                 color="black",
@@ -207,7 +207,7 @@ def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
             ax.plot(
                 ds_filled.time,
                 ds_filled[data_array_str].sel(
-                    individuals="id_1", space=space_coord
+                    individual="id_1", space=space_coord
                 ),
                 marker=".",
                 linewidth=1,
@@ -257,10 +257,10 @@ plot_position_and_shape_xy_coords(
 # We can further confirm we have NaNs where expected by printing the first few
 # frames of the data.
 print("Position data array (first 10 frames):")
-print(ds_nan.position.isel(time=slice(0, 10), individuals=0).data)
+print(ds_nan.position.isel(time=slice(0, 10), individual=0).data)
 print("----")
 print("Shape data array (first 10 frames):")
-print(ds_nan.shape.isel(time=slice(0, 10), individuals=0).data)
+print(ds_nan.shape.isel(time=slice(0, 10), individual=0).data)
 
 # %%
 # Linearly interpolate NaN values
@@ -381,11 +381,11 @@ with open(filepath, mode="w", newline="") as file:
     writer.writerow(["frame", "ID", "x", "y", "width", "height"])
 
     # write the data
-    for individual in ds_ff.individuals.data:
+    for individual in ds_ff.individual.data:
         for frame in ds_ff.time.data:
-            x, y = ds_ff.position.sel(time=frame, individuals=individual).data
+            x, y = ds_ff.position.sel(time=frame, individual=individual).data
             width, height = ds_ff.shape.sel(
-                time=frame, individuals=individual
+                time=frame, individual=individual
             ).data
             writer.writerow([frame, individual, x, y, width, height])
 

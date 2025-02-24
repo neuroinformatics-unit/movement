@@ -265,11 +265,11 @@ with open(filepath, mode="w", newline="") as file:
     writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
 
     # write the data
-    for individual in ds.individuals.data:
+    for individual in ds.individual.data:
         for frame in ds.time.data:
-            x, y = ds.position.sel(time=frame, individuals=individual).data
-            width, height = ds.shape.sel(time=frame, individuals=individual).data
-            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            x, y = ds.position.sel(time=frame, individual=individual).data
+            width, height = ds.shape.sel(time=frame, individual=individual).data
+            confidence = ds.confidence.sel(time=frame, individual=individual).data
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```

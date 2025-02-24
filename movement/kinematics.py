@@ -268,7 +268,7 @@ def compute_forward_vector(
         data,
         {
             "time": [],
-            "keypoints": [left_keypoint, right_keypoint],
+            "keypoint": [left_keypoint, right_keypoint],
             "space": [],
         },
     )
@@ -285,8 +285,8 @@ def compute_forward_vector(
         )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
-        keypoints=left_keypoint, drop=True
-    ) - data.sel(keypoints=right_keypoint, drop=True)
+        keypoint=left_keypoint, drop=True
+    ) - data.sel(keypoint=right_keypoint, drop=True)
     # Define upward vector
     # default: negative z direction in the image coordinate system
     upward_vector = (
@@ -468,7 +468,7 @@ def compute_forward_vector_angle(
 def _cdist(
     a: xr.DataArray,
     b: xr.DataArray,
-    dim: Literal["individuals", "keypoints"],
+    dim: Literal["individual", "keypoint"],
     metric: str | None = "euclidean",
     **kwargs,
 ) -> xr.DataArray:
@@ -517,17 +517,17 @@ def _cdist(
     ``ind2`` (i.e. interindividual distance for all keypoints)
     using the ``position`` data variable in the Dataset ``ds``:
 
-    >>> pos1 = ds.position.sel(individuals="ind1")
-    >>> pos2 = ds.position.sel(individuals="ind2")
-    >>> ind_dists = _cdist(pos1, pos2, dim="individuals")
+    >>> pos1 = ds.position.sel(individual="ind1")
+    >>> pos2 = ds.position.sel(individual="ind2")
+    >>> ind_dists = _cdist(pos1, pos2, dim="individual")
 
     Compute the Euclidean distance (default) between ``key1`` and
     ``key2`` (i.e. interkeypoint distance for all individuals)
     using the ``position`` data variable in the Dataset ``ds``:
 
-    >>> pos1 = ds.position.sel(keypoints="key1")
-    >>> pos2 = ds.position.sel(keypoints="key2")
-    >>> key_dists = _cdist(pos1, pos2, dim="keypoints")
+    >>> pos1 = ds.position.sel(keypoint="key1")
+    >>> pos2 = ds.position.sel(keypoint="key2")
+    >>> key_dists = _cdist(pos1, pos2, dim="keypoint")
 
     See Also
     --------
@@ -537,7 +537,7 @@ def _cdist(
 
     """
     # The dimension from which ``dim`` labels are obtained
-    labels_dim = "individuals" if dim == "keypoints" else "keypoints"
+    labels_dim = "individual" if dim == "keypoint" else "keypoint"
     elem1 = getattr(a, dim).item()
     elem2 = getattr(b, dim).item()
     a = _validate_labels_dimension(a, labels_dim)
@@ -563,7 +563,7 @@ def _cdist(
 
 def compute_pairwise_distances(
     data: xr.DataArray,
-    dim: Literal["individuals", "keypoints"],
+    dim: Literal["individual", "keypoint"],
     pairs: dict[str, str | list[str]] | Literal["all"],
     metric: str | None = "euclidean",
     **kwargs,
@@ -584,7 +584,7 @@ def compute_pairwise_distances(
         ``space`` (in Cartesian coordinates), and
         ``individuals`` or ``keypoints`` (as specified by ``dim``)
         as required dimensions.
-    dim : Literal["individuals", "keypoints"]
+    dim : Literal["individual", "keypoint"]
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
     pairs : dict[str, str | list[str]] or 'all'
@@ -635,14 +635,14 @@ def compute_pairwise_distances(
     ...     np.arange(36).reshape(2, 3, 3, 2),
     ...     coords={
     ...         "time": np.arange(2),
-    ...         "individuals": ["ind1", "ind2", "ind3"],
-    ...         "keypoints": ["key1", "key2", "key3"],
+    ...         "individual": ["ind1", "ind2", "ind3"],
+    ...         "keypoint": ["key1", "key2", "key3"],
     ...         "space": ["x", "y"],
     ...     },
-    ...     dims=["time", "individuals", "keypoints", "space"],
+    ...     dims=["time", "individual", "keypoint", "space"],
     ... )
     >>> dist_ind1_ind2 = compute_pairwise_distances(
-    ...     position, "individuals", {"ind1": "ind2"}
+    ...     position, "individual", {"ind1": "ind2"}
     ... )
     >>> dist_ind1_ind2
     <xarray.DataArray (time: 2, ind1: 3, ind2: 3)> Size: 144B
@@ -665,7 +665,7 @@ def compute_pairwise_distances(
     (i.e. interkeypoint distance), for all possible pairs of individuals.
 
     >>> dist_key1_key2 = compute_pairwise_distances(
-    ...     position, "keypoints", {"key1": "key2"}
+    ...     position, "keypoint", {"key1": "key2"}
     ... )
     >>> dist_key1_key2
     <xarray.DataArray (time: 2, key1: 3, key2: 3)> Size: 144B
@@ -693,7 +693,7 @@ def compute_pairwise_distances(
 
     >>> key_dists = compute_pairwise_distances(
     ...     position,
-    ...     "keypoints",
+    ...     "keypoint",
     ...     {"key1": "key2", "key3": ["key1", "key2"]},
     ...     metric="cityblock",
     ... )
@@ -709,7 +709,7 @@ def compute_pairwise_distances(
 
     >>> ind_dists = compute_pairwise_distances(
     ...     position,
-    ...     "individuals",
+    ...     "individual",
     ...     "all",
     ...     metric="cityblock",
     ... )
@@ -721,7 +721,7 @@ def compute_pairwise_distances(
     scipy.spatial.distance.cdist : The underlying function used.
 
     """
-    if dim not in ["individuals", "keypoints"]:
+    if dim not in ["individual", "keypoint"]:
         raise log_error(
             ValueError,
             "'dim' must be either 'individuals' or 'keypoints', "

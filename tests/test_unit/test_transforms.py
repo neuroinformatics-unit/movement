@@ -111,8 +111,8 @@ def test_scale(
     [
         (["time", "space"], (3, 2)),
         (["space", "time"], (2, 3)),
-        (["time", "individuals", "keypoints", "space"], (3, 6, 4, 2)),
-        (["time", "individuals", "keypoints", "space"], (2, 2, 2, 2)),
+        (["time", "individual", "keypoint", "space"], (3, 6, 4, 2)),
+        (["time", "individual", "keypoint", "space"], (2, 2, 2, 2)),
     ],
     ids=[
         "time-space",

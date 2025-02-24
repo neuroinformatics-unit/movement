@@ -56,8 +56,8 @@ print(file_path)
 
 ds = load_poses.from_sleap_file(file_path, fps=30)
 print(ds, "\n")
-print("Individuals:", ds.coords["individuals"].values)
-print("Keypoints:", ds.coords["keypoints"].values)
+print("Individuals:", ds.coords["individual"].values)
+print("Keypoints:", ds.coords["keypoint"].values)
 
 
 # %%
@@ -86,7 +86,7 @@ rename_dict = {
 
 def rename_keypoints(ds, rename_dict):
     # get the current names of the keypoints
-    keypoint_names = ds.coords["keypoints"].values
+    keypoint_names = ds.coords["keypoint"].values
 
     # rename the keypoints
     if not rename_dict:
@@ -94,14 +94,14 @@ def rename_keypoints(ds, rename_dict):
     else:
         new_keypoints = [rename_dict.get(kp, str(kp)) for kp in keypoint_names]
         # Assign the modified values back to the Dataset
-        ds = ds.assign_coords(keypoints=new_keypoints)
+        ds = ds.assign_coords(keypoint=new_keypoints)
     return ds
 
 
 # %%
 # Let's apply the function to our dataset and see the results.
 ds_renamed = rename_keypoints(ds, rename_dict)
-print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
+print("Keypoints in modified dataset:", ds_renamed.coords["keypoint"].values)
 
 
 # %%
@@ -121,12 +121,12 @@ def delete_keypoints(ds, delete_keypoints):
         print("No keypoints to delete. Skipping deleting step.")
     else:
         # Delete the specified keypoints and their corresponding data
-        ds = ds.drop_sel(keypoints=delete_keypoints)
+        ds = ds.drop_sel(keypoint=delete_keypoints)
     return ds
 
 
 ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
-print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
+print("Keypoints in modified dataset:", ds_deleted.coords["keypoint"].values)
 
 
 # %%
@@ -143,14 +143,12 @@ def reorder_keypoints(ds, ordered_keypoints):
     if not ordered_keypoints:
         print("No keypoints to reorder. Skipping reordering step.")
     else:
-        ds = ds.reindex(keypoints=ordered_keypoints)
+        ds = ds.reindex(keypoint=ordered_keypoints)
     return ds
 
 
 ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
-print(
-    "Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values
-)
+print("Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values)
 
 # %%
 # Save the modified dataset
