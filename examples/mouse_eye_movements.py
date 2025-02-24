@@ -208,7 +208,7 @@ plt.show()
 # negative peaks correspond to rapid eye movements to the left.
 
 # %%
-#  Pupil diameter
+# Pupil diameter
 # --------------
 # Here we define the pupil diameter as the distance between the two pupil
 # keypoints. We use ``compute_pairwise_distances`` from ``movement.kinematics``
