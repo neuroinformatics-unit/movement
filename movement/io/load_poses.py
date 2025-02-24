@@ -695,7 +695,8 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         data_vars={
             "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                data.confidence_array,
+                dims=tuple(dim for dim in DIM_NAMES if dim != "space"),
             ),
         },
         coords={
