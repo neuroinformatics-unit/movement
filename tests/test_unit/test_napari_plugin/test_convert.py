@@ -77,13 +77,18 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
         "individual": np.repeat(
             ds.individuals.values.repeat(n_keypoints), n_frames
         ),
+        **(
+            {
+                "keypoint": np.repeat(
+                    np.tile(ds.keypoints.values, n_individuals), n_frames
+                )
+            }
+            if "keypoints" in ds
+            else {}
+        ),
         "time": expected_frame_ids,
         "confidence": confidence,
     }
-    if "keypoints" in ds:
-        expected_props_dict["keypoint"] = np.repeat(
-            np.tile(ds.keypoints.values, n_individuals), n_frames
-        )
     expected_props = pd.DataFrame(expected_props_dict)
 
     # Assert that the data array matches the expected data
