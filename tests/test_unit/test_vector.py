@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from contextlib import nullcontext as does_not_raise
 
 import numpy as np
@@ -297,3 +298,68 @@ class TestComputeSignedAngle:
         xr.testing.assert_allclose(
             computed_angles_reversed, expected_angles_reversed
         )
+
+    @pytest.mark.parametrize(
+        ["extra_dim_sizes"],
+        [
+            pytest.param((1,), id="[1D] Trailing singleton dimension"),
+            pytest.param((2, 3), id="[2D] Individuals-keypoints esque"),
+            pytest.param(
+                (1, 2),
+                id="[2D] As if .sel had been used on an additional axis",
+            ),
+        ],
+    )
+    def test_multidimensional_input(
+        self, extra_dim_sizes: tuple[int, ...]
+    ) -> None:
+        """Test that non-spacetime dimensions are respected.
+
+        The user may pass in data that has more than just the time and space
+        dimensions, in which case the method should be able to cope with
+        such an input, and preserve the additional dimensions.
+
+        We simulate this case in this test by adding "junk" dimensions onto
+        an existing input. We should see the result also spit out these "junk"
+        dimensions, preserving the dimension names and coordinates too.
+        """
+        v_left = self.coord_axes_array.copy()
+        v_left_original_ndim = v_left.ndim
+        v_right = self.x_axis
+        expected_angles = np.array([0.0, -np.pi / 2.0, np.pi, np.pi / 2.0])
+        expected_angles_original_ndim = expected_angles.ndim
+
+        # Append additional "junk" dimensions
+        left_vector_coords: dict[str, Iterable[str] | Iterable[int]] = {
+            "time": [f"t{i}" for i in range(v_left.shape[0])],
+            "space": ["x", "y"],
+        }
+        for extra_dim_index, extra_dim_size in enumerate(extra_dim_sizes):
+            v_left = np.repeat(
+                v_left[..., np.newaxis],
+                extra_dim_size,
+                axis=extra_dim_index + v_left_original_ndim,
+            )
+            left_vector_coords[f"edim{extra_dim_index}"] = range(
+                extra_dim_size
+            )
+            expected_angles = np.repeat(
+                expected_angles[..., np.newaxis],
+                extra_dim_size,
+                axis=extra_dim_index + expected_angles_original_ndim,
+            )
+        v_left = xr.DataArray(
+            data=v_left,
+            dims=left_vector_coords.keys(),
+            coords=left_vector_coords,
+        )
+        expected_angles_coords = dict(left_vector_coords)
+        expected_angles_coords.pop("space")
+        expected_angles = xr.DataArray(
+            data=expected_angles,
+            dims=expected_angles_coords.keys(),
+            coords=expected_angles_coords,
+        )
+
+        computed_angles = vector.compute_signed_angle_2d(v_left, v_right)
+        xr.testing.assert_allclose(computed_angles, expected_angles)
