@@ -17,33 +17,44 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_poses
-from movement.napari.convert import poses_to_napari_tracks
+from movement.io import load_bboxes, load_poses
+from movement.napari.convert import movement_ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
 
 logger = logging.getLogger(__name__)
 
-# Allowed poses file suffixes for each supported source software
+# Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
     "DeepLabCut": ["*.h5", "*.csv"],
     "LightningPose": ["*.csv"],
     "SLEAP": ["*.h5", "*.slp"],
 }
 
+SUPPORTED_BBOXES_FILES = {
+    "VIA-tracks": ["*.csv"],
+}
 
-class PosesLoader(QWidget):
-    """Widget for loading movement poses datasets from file."""
+SUPPORTED_DATA_FILES = {
+    **SUPPORTED_POSES_FILES,
+    **SUPPORTED_BBOXES_FILES,
+}
+
+
+class DataLoader(QWidget):
+    """Widget for loading movement datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
         """Initialize the loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
+
         # Create widgets
         self._create_source_software_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
@@ -51,7 +62,7 @@ class PosesLoader(QWidget):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
         self.source_software_combo.setObjectName("source_software_combo")
-        self.source_software_combo.addItems(SUPPORTED_POSES_FILES.keys())
+        self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
         self.layout().addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
@@ -84,6 +95,7 @@ class PosesLoader(QWidget):
         self.browse_button = QPushButton("Browse")
         self.browse_button.setObjectName("browse_button")
         self.browse_button.clicked.connect(self._on_browse_clicked)
+
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
@@ -99,14 +111,14 @@ class PosesLoader(QWidget):
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
-        file_suffixes = SUPPORTED_POSES_FILES[
+        file_suffixes = SUPPORTED_DATA_FILES[
             self.source_software_combo.currentText()
         ]
 
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            caption="Open file containing predicted poses",
-            filter=f"Poses files ({' '.join(file_suffixes)})",
+            caption="Open file containing tracked data",
+            filter=f"Valid data files ({' '.join(file_suffixes)})",
         )
 
         # A blank string is returned if the user cancels the dialog
@@ -121,34 +133,45 @@ class PosesLoader(QWidget):
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
+
+        # Load data
         if file_path == "":
             show_warning("No file path specified.")
             return
-        ds = load_poses.from_file(file_path, source_software, fps)
+        elif source_software in SUPPORTED_POSES_FILES:
+            ds = load_poses.from_file(file_path, source_software, fps)
+        elif source_software in SUPPORTED_BBOXES_FILES:
+            ds = load_bboxes.from_file(file_path, source_software, fps)
 
-        self.data, self.props = poses_to_napari_tracks(ds)
-        logger.info("Converted poses dataset to a napari Tracks array.")
+        # Convert to napari Tracks array
+        # self.data, self.props = poses_to_napari_tracks(ds)
+        self.data, self.props = movement_ds_to_napari_tracks(ds)
+
+        logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
     def _add_points_layer(self):
-        """Add the predicted poses to the viewer as a Points layer."""
+        """Add the tracked data to the viewer as a Points layer."""
         # Style properties for the napari Points layer
         points_style = PointsStyle(
-            name=f"poses: {self.file_name}",
+            name=f"data: {self.file_name}",
             properties=self.props,
         )
         # Color the points by individual if there are multiple individuals
         # Otherwise, color by keypoint
-        n_individuals = len(self.props["individual"].unique())
-        points_style.set_color_by(
-            prop="individual" if n_individuals > 1 else "keypoint"
-        )
+        color_prop = "individual"
+        if (
+            len(self.props["individual"].unique()) == 1
+            and "keypoint" in self.props
+        ):
+            color_prop = "keypoint"
+        points_style.set_color_by(prop=color_prop)
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
-        logger.info("Added poses dataset as a napari Points layer.")
+        logger.info("Added tracked dataset as a napari Points layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
