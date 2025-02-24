@@ -684,7 +684,6 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     def add_keypoints_dim(arr):
         return np.expand_dims(arr, axis=-2)
 
-    # breakpoint()
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(
