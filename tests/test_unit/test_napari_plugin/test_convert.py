@@ -33,14 +33,14 @@ def confidence_with_all_nan(valid_poses_dataset):
         "confidence_with_all_nan",
     ],
 )
-def test_valid_poses_to_napari_tracks(ds_name, request):
-    """Test that the conversion from movement poses dataset to napari
+def test_valid_dataset_to_napari_tracks(ds_name, request):
+    """Test that the conversion from movement dataset to napari
     tracks returns the expected data and properties.
     """
     ds = request.getfixturevalue(ds_name)
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
-    n_keypoints = ds.sizes["keypoints"]
+    n_keypoints = ds.sizes.get("keypoints", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
     data, props = movement_ds_to_napari_tracks(ds)
