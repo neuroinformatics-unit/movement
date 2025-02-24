@@ -68,6 +68,7 @@ myst_enable_extensions = [
     "strikethrough",
     "substitution",
     "tasklist",
+    "attrs_block",
 ]
 # Automatically add anchors to markdown headings
 myst_heading_anchors = 4
