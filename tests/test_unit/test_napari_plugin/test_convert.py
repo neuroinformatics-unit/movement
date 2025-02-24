@@ -49,13 +49,20 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
     # Assume values are extracted from the dataset in a specific way,
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence = [], [], []
+
     for id in ds.individuals.values:
-        for kpt in ds.keypoints.values:
-            position = ds.position.sel(individuals=id, keypoints=kpt)
-            y_coords.extend(position.sel(space="y").values)
-            x_coords.extend(position.sel(space="x").values)
-            conf = ds.confidence.sel(individuals=id, keypoints=kpt)
-            confidence.extend(conf.values)
+        positions = ds.position.sel(individuals=id)
+        confidences = ds.confidence.sel(individuals=id)
+
+        if "keypoints" in ds:
+            for kpt in ds.keypoints.values:
+                y_coords.extend(positions.sel(keypoints=kpt, space="y").values)
+                x_coords.extend(positions.sel(keypoints=kpt, space="x").values)
+                confidence.extend(confidences.sel(keypoints=kpt).values)
+        else:
+            y_coords.extend(positions.sel(space="y").values)
+            x_coords.extend(positions.sel(space="x").values)
+            confidence.extend(confidences.values)
 
     # Generate expected data array
     expected_track_ids = np.repeat(np.arange(n_tracks), n_frames)
@@ -66,18 +73,18 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
     )
 
     # Generate expected properties DataFrame
-    expected_props = pd.DataFrame(
-        {
-            "individual": np.repeat(
-                ds.individuals.values.repeat(n_keypoints), n_frames
-            ),
-            "keypoint": np.repeat(
-                np.tile(ds.keypoints.values, n_individuals), n_frames
-            ),
-            "time": expected_frame_ids,
-            "confidence": confidence,
-        }
-    )
+    expected_props_dict = {
+        "individual": np.repeat(
+            ds.individuals.values.repeat(n_keypoints), n_frames
+        ),
+        "time": expected_frame_ids,
+        "confidence": confidence,
+    }
+    if "keypoints" in ds:
+        expected_props_dict["keypoint"] = np.repeat(
+            np.tile(ds.keypoints.values, n_individuals), n_frames
+        )
+    expected_props = pd.DataFrame(expected_props_dict)
 
     # Assert that the data array matches the expected data
     np.testing.assert_allclose(data, expected_data, equal_nan=True)
