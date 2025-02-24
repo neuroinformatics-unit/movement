@@ -680,18 +680,29 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # with dimensions ('time', 'space', 'individuals')
     DIM_NAMES = ValidBboxesDataset.DIM_NAMES
     n_space = data.position_array.shape[1]
+
+    def add_keypoints_dim(arr):
+        return np.expand_dims(arr, axis=-2)
+
+    # breakpoint()
     return xr.Dataset(
         data_vars={
-            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
+            "position": xr.DataArray(
+                add_keypoints_dim(data.position_array), dims=DIM_NAMES
+            ),
+            "shape": xr.DataArray(
+                add_keypoints_dim(data.shape_array), dims=DIM_NAMES
+            ),
             "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                add_keypoints_dim(data.confidence_array),
+                dims=tuple(dim for dim in DIM_NAMES if dim != "space"),
             ),
         },
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: ["x", "y", "z"][:n_space],
-            DIM_NAMES[2]: data.individual_names,
+            DIM_NAMES[2]: ["centroid"],
+            DIM_NAMES[3]: data.individual_names,
         },
         attrs={
             "fps": data.fps,
