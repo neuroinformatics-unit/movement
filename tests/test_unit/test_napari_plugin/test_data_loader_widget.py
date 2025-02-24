@@ -62,10 +62,13 @@ def test_button_connected_to_on_clicked(
 @pytest.mark.parametrize(
     "file_path",
     [
-        # valid file path
-        str(DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent),
-        # empty string, simulate user canceling the dialog
-        "",
+        str(
+            DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent
+        ),  # valid file path poses
+        str(
+            DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv").parent
+        ),  # valid file path bboxes
+        "",  # empty string, simulate user canceling the dialog
     ],
 )
 def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
@@ -95,6 +98,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("DeepLabCut", "*.h5 *.csv"),
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
+        ("VIA-tracks", "*.csv"),
     ],
 )
 def test_file_filters_per_source_software(
@@ -126,8 +130,19 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     assert "No file path specified." in captured.out
 
 
+@pytest.mark.parametrize(
+    "filename, source_software, tracks_array_shape",
+    [
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut", (2170, 4)),
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks", (35, 4)),
+    ],
+)
 def test_on_load_clicked_with_valid_file_path(
-    make_napari_viewer_proxy, caplog
+    filename,
+    source_software,
+    tracks_array_shape,
+    make_napari_viewer_proxy,
+    caplog,
 ):
     """Test clicking 'Load' with a valid file path.
 
@@ -142,8 +157,11 @@ def test_on_load_clicked_with_valid_file_path(
     data_loader_widget = DataLoader(viewer)
 
     # Set the file path to a valid file
-    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
+
+    # Set the source software
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
 
     # Set the fps to 60
     data_loader_widget.fps_spinbox.setValue(60)
@@ -159,7 +177,7 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted dataset to a napari Tracks array.",
-        "Tracks array shape: (2170, 4)",
+        f"Tracks array shape: {tracks_array_shape}",
         "Added tracked dataset as a napari Points layer.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
