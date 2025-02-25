@@ -1,6 +1,7 @@
+from collections.abc import Hashable
+
 import numpy as np
 import xarray as xr
-from collections.abc import Hashable
 
 
 def np_array_to_compatible_dataarray(
