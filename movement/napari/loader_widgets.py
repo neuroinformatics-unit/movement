@@ -146,7 +146,6 @@ class DataLoader(QWidget):
             ds = load_bboxes.from_file(file_path, source_software, fps)
 
         # Convert to napari Tracks array
-        # self.data, self.props = poses_to_napari_tracks(ds)
         self.data, self.props = movement_ds_to_napari_tracks(ds)
 
         logger.info("Converted dataset to a napari Tracks array.")
