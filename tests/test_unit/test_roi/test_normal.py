@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import pytest
 from numpy.typing import ArrayLike
@@ -34,16 +36,28 @@ SQRT_2 = np.sqrt(2.0)
             (-1.0 / SQRT_2, 1.0 / SQRT_2),
             id="Necessary to extend segment to compute normal.",
         ),
+        pytest.param(
+            LineOfInterest([(0.0, 0.0), (1.0, 0.0), (2.0, 0.0)]),
+            (0.5, 0.5),
+            ValueError("Normal is not defined for multi-segment geometries."),
+            id="Multi-segment lines do not have normals.",
+        ),
     ],
 )
 def test_normal(
     segment: LineOfInterest,
     point: ArrayLike,
-    expected_normal: np.ndarray,
+    expected_normal: np.ndarray | Exception,
     request,
 ) -> None:
     if isinstance(segment, str):
         segment = request.getfixturevalue(segment)
 
-    computed_normal = segment.normal(point)
-    assert np.allclose(computed_normal, expected_normal)
+    if isinstance(expected_normal, Exception):
+        with pytest.raises(
+            type(expected_normal), match=re.escape(str(expected_normal))
+        ):
+            segment.normal(point)
+    else:
+        computed_normal = segment.normal(point)
+        assert np.allclose(computed_normal, expected_normal)

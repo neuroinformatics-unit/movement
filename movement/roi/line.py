@@ -96,6 +96,7 @@ class LineOfInterest(BaseRegionOfInterest):
         ValueError : When the normal is requested for a multi-segment geometry.
 
         """
+        # A multi-segment geometry always has at least 3 coordinates.
         if len(self.coords) > 2:
             raise ValueError(
                 "Normal is not defined for multi-segment geometries."
