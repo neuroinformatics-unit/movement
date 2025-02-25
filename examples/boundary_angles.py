@@ -35,7 +35,6 @@ from movement.roi import PolygonOfInterest
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
 
-
 # %%
 # Define Regions of Interest
 # --------------------------
@@ -228,18 +227,73 @@ approach_vectors
 #
 # For the purposes of our example, we will define our "forward vector" as the
 # displacement vector between successive time-points, for each individual.
+# Furthermore, recall that as the individual moves through the arena, the
+# "nearest wall" may switch from the inside wall to the outside wall. This
+# causes abrupt changes in the approach vector (and hence, computed angle).
+# With this in mind, we will only consider the inner wall in the following
+# calculations.
 
-forward_vector = positions.diff(dim="time")
+forward_vector = positions.diff(dim="time", label="lower")
 global_north = np.array([1.0, 0.0])
 
-allocentric_angles = arena.compute_allocentric_angle_to_nearest_point(
+inner_wall = arena.interior_boundaries[0]
+allocentric_angles = inner_wall.compute_allocentric_angle_to_nearest_point(
     positions,
     reference_vector=global_north,
-    boundary_only=True,
+    boundary_only=False,
     in_degrees=True,
 )
-egocentric_angles = arena.compute_egocentric_angle_to_nearest_point(
-    forward_vector, positions[:-1], boundary_only=True, in_degrees=True
+egocentric_angles = inner_wall.compute_egocentric_angle_to_nearest_point(
+    forward_vector,
+    positions[:-1],
+    boundary_only=False,
+    in_degrees=True,
 )
+# %%
+# Can can plot the evolution of these two angular quantities on the same axis.
+
+angle_plot, angle_ax = plt.subplots(2, 1, sharex=True)
+allo_ax, ego_ax = angle_ax
+
+for mouse_name, col in zip(
+    positions.individuals.values, ["r", "g", "b"], strict=False
+):
+    allo_ax.plot(
+        allocentric_angles.sel(individuals=mouse_name),
+        c=col,
+        label=mouse_name,
+    )
+    ego_ax.plot(
+        egocentric_angles.sel(individuals=mouse_name),
+        c=col,
+        label=mouse_name,
+    )
+
+ego_ax.set_xlabel("Time (frames)")
+
+ego_ax.set_ylabel("Egocentric angle (degrees)")
+ego_ax.set_ylim(-180, 180)
+allo_ax.set_ylabel("Allocentric angle (degrees)")
+allo_ax.set_ylim(-180, 180)
+allo_ax.legend()
+
+angle_plot.tight_layout()
+plt.show(angle_plot)
 
 # %%
+# We observe that the allocentric angles display a step-like behaviour. This
+# is because the interior wall is a series of straight line segments, so the
+# approach vector to the wall is constant as the individual travels parallel
+# to that segment of wall. As the individual passes a corner in the wall, the
+# angle varies rapidly as the approach vector rotates with the individual's
+# position, before becoming constant again as the individual resumes motion
+# parallel to the next segment of the enclosure wall.
+#
+# By contrast, the egocentric angles spend long periods of time fluctuating
+# near a particular angle, occasionally rapidly changing angle sign. This
+# indicates that, by-and-large, the "forward" direction of the individuals is
+# remaining constant relative to the interior wall, with the fluctuations
+# attributable to small deviations in the direction of travel. The "flipping"
+# of the angle sign indicates that the individual undertook a U-turn. That is,
+# switched from travelling clockwise around the enclosure to anticlockwise
+# (or vice-versa).
