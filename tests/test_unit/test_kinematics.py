@@ -683,6 +683,11 @@ def test_compute_pairwise_distances_with_valid_pairs(
             "keypoints",
             {"id_0": "id_1"},
         ),  # the specified keypoints coordinates do not exist
+        (
+            "valid_bboxes_dataset",
+            "foo",
+            "all",
+        ),  # the dim does not exist
         ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
         (
             "missing_dim_bboxes_dataset",
