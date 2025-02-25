@@ -90,6 +90,17 @@ def validate_dims_coords(
         raise log_error(ValueError, error_message)
 
 
+# Need to rework. This needs to just be "check if can be used in a computation with".
+# - required dims/coords in all cases (this is space for us)
+# - if numpy array:
+#   - one dimension must match the len(test_vector["space"])
+#   - all other dimensions must be 1, non-existant, or match the length of one remaining dimension of test_vector. Could maybe be more restrictive here.
+# - if a DataArray (things are easier):
+#   - check for space dim and its coords, though exact match not necessary?
+#   - for all other dimensions in test_vector, reference_vector must either;
+#       - have that dimension present and the sizes (and coords?) match
+#       - not have that dimension present (in which case, it can be broadcast and will need to be added)
+#       - then the converse also applies? Maybe not, as we can then broadcast still.
 def validate_reference_vector(
     reference_vector: xr.DataArray | np.ndarray,
     test_vector: xr.DataArray,
