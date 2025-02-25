@@ -275,7 +275,7 @@ def test_ego_and_allocentric_angle_to_region(
 
     if egocentric:
         which_method = "compute_egocentric_angle_to_nearest_point"
-        other_vector_name = "forward"
+        other_vector_name = "direction"
     else:
         which_method = "compute_allocentric_angle_to_nearest_point"
         other_vector_name = "ref"

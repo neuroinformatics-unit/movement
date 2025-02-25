@@ -506,35 +506,34 @@ class BaseRegionOfInterest:
 
     def compute_egocentric_angle_to_nearest_point(
         self,
-        forward_vector: xr.DataArray,
+        direction: xr.DataArray,
         position: xr.DataArray,
         angle_rotates: Literal[
-            "approach to forward", "forward to approach"
-        ] = "approach to forward",
+            "approach to direction", "direction to approach"
+        ] = "approach to direction",
         boundary_only: bool = False,
         in_degrees: bool = False,
     ) -> xr.DataArray:
-        """Compute the egocentric angle to the region.
+        """Compute the egocentric angle to the nearest point in the region.
 
         With the term "egocentric", we indicate that we are measuring angles
         with respect to a reference frame that is varying in time relative to
-        the experimental/camera setup. An example may be the forward direction
-        of an individual.
+        the experimental/camera setup.
 
         The egocentric angle is the signed angle between the approach vector
-        and a forward direction (typically the forward vector of a given
-        individual or keypoint).
+        and a ``direction`` vector (examples include the forward vector of a
+        given individual or keypoint).
 
         Parameters
         ----------
-        forward_vector : xarray.DataArray
+        direction : xarray.DataArray
             Forward vector(s) to use in calculation.
         position : xarray.DataArray
             `DataArray` of spatial positions, considered the origin of the
-            ``forward_vector``.
-        angle_rotates : Literal["approach to forward", "forward to approach"]
+            ``direction`` vector.
+        angle_rotates : {"approach to direction", "direction to approach"}
             Direction of the signed angle returned. Default is
-            ``"approach to forward"``.
+            ``"approach to direction"``.
         boundary_only : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
@@ -556,7 +555,7 @@ class BaseRegionOfInterest:
         """
         return self._boundary_angle_computation(
             position=position,
-            reference_vector=forward_vector,
+            reference_vector=direction,
             how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
                 self.compute_approach_vector(
                     p, boundary_only=boundary_only, unit=False
@@ -564,7 +563,7 @@ class BaseRegionOfInterest:
                 "vector to",
             ),
             angle_rotates=angle_rotates.replace("approach", "vec").replace(  # type: ignore
-                "forward", "ref"
+                "direction", "ref"
             ),
             in_degrees=in_degrees,
         )
