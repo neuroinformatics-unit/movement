@@ -33,7 +33,7 @@ Learn about our data structures.
 :::
 
 :::{grid-item-card} {fas}`line-chart;sd-text-primary` Graphical User Interface
-:link: napari_plugin
+:link: gui
 :link-type: doc
 
 Use our `napari` plugin to view and explore your data interactively.
@@ -49,5 +49,5 @@ Use our `napari` plugin to view and explore your data interactively.
 installation
 input_output
 movement_dataset
-napari_plugin
+gui
 ```

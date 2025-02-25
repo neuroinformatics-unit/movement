@@ -1,4 +1,4 @@
-(target-napari-plugin)=
+(target-gui)=
 # Graphical User Interface
 
 The `movement` graphical user interface (GUI), powered by our custom plugin for
