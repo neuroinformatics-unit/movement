@@ -1,9 +1,9 @@
 (target-napari-plugin)=
-# Viewing data in napari
+# The movement GUI
 
-You can visualise `movement` motion tracks in [napari](napari:) using our
-plugin, which extends `napari`'s core functionality and provides a widget
-that can be docked in the `napari` window. Currently, you can use it to
+The movement graphical user interface (GUI), powered by [napari](napari:) 
+and our custom plugin, makes it easy to visualise and explore `movement` 
+motion tracks. Currently, you can use it to
 visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
 as points overlaid on video frames.
 
@@ -33,7 +33,7 @@ napari -w movement
 ```
 
 This will open the `napari` window with the `movement` widget docked on the
-right-hand side, as in the the [screenshot](target-widget-screenshot) below.
+right-hand side, as in the [screenshot](target-widget-screenshot) below.
 
 In `napari`, data is typically loaded into [layers](napari:guides/layers.html),
 which can be reordered and toggled for visibility in the layers list panel.
@@ -124,9 +124,9 @@ In any case, the image will be loaded as a single 2D frame without a slider.
 Now you are ready to load some pose tracks over your chosen background layer.
 
 On the right-hand side of the window you should see
-an expanded `Load poses` menu. To load some pose data in napari:
+an expanded `Load poses` menu. To load pose data in napari:
 1. Select the `source software` from the dropdown menu.
-2. Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the fps is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
+2. Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
 3. Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
 4. Click `Load`.
 
@@ -146,7 +146,7 @@ You will see a view similar to the one below:
 
 ![napari widget with poses dataset loaded](../_static/napari_plugin_with_poses_as_points.png)
 
-The predicted keypoints are represented as points, colour-coded by
+The keypoints are represented as points, colour-coded by
 keypoint ID for single-individual datasets, or by individual ID for
 multi-individual datasets. These IDs can be also displayed as text
 next to the points by enabling the `display text` option from the
@@ -155,8 +155,8 @@ layer controls panel.
 Hovering with your mouse over a point
 (with the points layer selected) will
 bring up a tooltip containing the names of the individual and keypoint,
-the point-wise confidence score (as predicted by the source software),
-and the time in seconds (this is calculated from the frame number and
+the point-wise confidence score (provided by the source software),
+and the time in seconds (calculated based on the frame number and
 the `fps` value you provided).
 
 Using the slider at the bottom of the window, you can move through

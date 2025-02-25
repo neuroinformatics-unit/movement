@@ -32,11 +32,11 @@ Load and save tracking data.
 Learn about our data structures.
 :::
 
-:::{grid-item-card} {fas}`line-chart;sd-text-primary` Viewing data in napari
+:::{grid-item-card} {fas}`line-chart;sd-text-primary` The movement GUI
 :link: napari_plugin
 :link-type: doc
 
-Use our `napari` plugin to interactively explore your data.
+Use our `napari` plugin to visualise and explore your data interactively.
 :::
 
 ::::
