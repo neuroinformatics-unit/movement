@@ -183,7 +183,6 @@ plt.show(distances_exterior_fig)
 # time-point as well, using the ``compute_approach_vector`` method.
 
 approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
-approach_vectors
 
 # %%
 # The ``boundary_only`` Keyword
