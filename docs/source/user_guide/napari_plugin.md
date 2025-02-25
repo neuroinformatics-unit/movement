@@ -1,38 +1,34 @@
 (target-napari-plugin)=
-# The movement GUI
+# Graphical User Interface
 
-The movement graphical user interface (GUI), powered by [napari](napari:)
-and our custom plugin, makes it easy to visualise and explore `movement`
+The `movement` graphical user interface (GUI), powered by our custom plugin for
+[napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
 as points overlaid on video frames.
 
 :::{warning}
-This plugin is still in early stages of development but we are working on
+The GUI is still in early stages of development but we are working on
 ironing out the kinks. [Get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
 :::
 
-## Installation
-
 The `napari` plugin is shipped with the `movement` package starting from
-version `0.1.0`. If you install `movement` via `conda`, `napari` will already
-be available. If you use the `pip` installer, make sure to
-install `movement` with the `[napari]` extra:
+version `0.1.0`.  To use it, you need to
+[install the package](target-installation) via a method that
+includes the `napari` dependency.
+
+
+## Launch the GUI
+
+To launch the `movement` GUI, type the following command in your terminal:
 
 ```sh
-pip install movement[napari]
+movement launch
 ```
 
-## Launch napari
-
-Type the following command in your terminal:
-
-```sh
-napari -w movement
-```
-
-This will open the `napari` window with the `movement` widget docked on the
+This is equivalent to running `napari -w movement` and will open the `napari`
+window with the `movement` widget docked on the
 right-hand side, as in the [screenshot](target-widget-screenshot) below.
 
 In `napari`, data is typically loaded into [layers](napari:guides/layers.html),
@@ -49,14 +45,17 @@ Though this is not strictly necessary, it is usually informative to
 view the keypoints overlaid on a background that provides
 some spatial context. You can either [load the video](target-load-video)
 corresponding to the poses dataset, or a [single image](target-load-frame),
-e.g., a still frame derived from that video. In the following sections,
-we will show you how to do both and discuss some limitations.
+e.g., a still frame derived from that video.
+You can do this by dragging and dropping the corresponding file onto the
+`napari` window or by using the `File > Open File(s)` menu option.
+Please read the following sections for detailed information
+and some important considerations.
 
 (target-load-video)=
 ### Load a video
 
-To load a video, drag and drop the video file onto the `napari` window.
-You will see a pop-up dialog asking you to select the reader.
+When trying to load a video file into `napari`, you will be prompted
+via a pop-up dialog to select the reader.
 Choose the `video` reader—corresponding to the
 [`napari-video`](https://github.com/janclemenslab/napari-video)
 plugin—and click `OK`. You can optionally select to remember this reader
@@ -69,7 +68,8 @@ frame-by-frame.
 
 Clicking on the play button will start the video playback at a default
 rate of 10 frames per second. You can adjust that by right-clicking on the
-play button or by opening the `napari > Preferences` menu and changing
+play button or by opening the `napari > Preferences` menu
+(`File > Preferences` on Windows) and changing
 the `Playback frames per second` setting.
 
 :::{admonition} Video playback limitations
@@ -114,10 +114,9 @@ ffmpeg -i video.mp4 -ss 00:00:02 -frames:v 1 frame-2sec.png
 ```
 :::
 
-To load any image into `napari`, simply drag and drop the image file into
-the napari window. Alternatively, you can use the `File > Open File(s)` menu
-option and select the file from the file dialog.
-In any case, the image will be loaded as a single 2D frame without a slider.
+Dragging and dropping the image file onto the `napari` window
+(or opening it via the `File` menu) will load the image
+as a single 2D frame without a slider.
 
 ## Load the poses dataset
 
