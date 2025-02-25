@@ -122,7 +122,7 @@ as a single 2D frame without a slider.
 
 ## Load the poses dataset
 
-Now you are ready to load some pose tracks over your chosen background layer.
+Now you are ready to load some motion tracks over your chosen background layer.
 
 On the right-hand side of the window you should see
 an expanded `Load poses` menu. To load pose data in napari:
@@ -149,7 +149,8 @@ You will see a view similar to the one below:
 
 The keypoints are represented as points, colour-coded by
 keypoint ID for single-individual datasets, or by individual ID for
-multi-individual datasets. These IDs can be also displayed as text
+multi-individual datasets. In bounding boxes datasets, since there are no keypoints,
+the points are colour-coded by individual ID. The value for each point's colour can be displayed as text
 next to the points by enabling the `display text` option from the
 layer controls panel.
 
@@ -168,7 +169,4 @@ in sync.
 Though the display style of the points layer is currently fixed, we are
 working on adding more customisation options in future releases, such as
 enabling you to change the point size, colour, or shape.
-
-We are also working on enabling the visualisation of
-[bounding boxes datasets](target-poses-and-bboxes-dataset) in the plugin.
 :::
