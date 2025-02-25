@@ -65,10 +65,13 @@ def movement_ds_to_napari_tracks(
 
     # Construct the napari Tracks array
     # Reorder axes to (individuals, keypoints, frames, xy)
-    axes_reordering = (3, 2, 0, 1) if "keypoints" in ds.coords else (2, 0, 1)
-    yx_cols = np.transpose(ds.position.values, axes_reordering).reshape(-1, 2)[
-        :, [1, 0]  # swap x and y columns
-    ]
+    axes_reordering: tuple[int, ...] = (2, 0, 1)
+    if "keypoints" in ds.coords:
+        axes_reordering = (3,) + axes_reordering
+    yx_cols = np.transpose(
+        ds.position.values,
+        axes_reordering,
+    ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
 
     # Each keypoint of each individual is a separate track
     track_id_col = np.repeat(np.arange(n_tracks), n_frames).reshape(-1, 1)
@@ -79,7 +82,7 @@ def movement_ds_to_napari_tracks(
     # Stack 3 dimensions into a new single dimension named "tracks"
     dimensions_to_stack: tuple[str, ...] = ("individuals", "time")
     if "keypoints" in ds.coords:
-        dimensions_to_stack = dimensions_to_stack + ("keypoints",)
+        dimensions_to_stack += ("keypoints",)  # add last
     ds_ = ds.stack(tracks=sorted(dimensions_to_stack))
     properties = _construct_properties_dataframe(ds_)
 
