@@ -727,12 +727,18 @@ def compute_pairwise_distances(
             "'dim' must be either 'individuals' or 'keypoints', "
             f"but got {dim}.",
         )
+    if dim not in data.dims:
+        raise log_error(
+            ValueError,
+            f"Input data does not contain the dimension '{dim}'.",
+        )
     if isinstance(pairs, str) and pairs != "all":
         raise log_error(
             ValueError,
             f"'pairs' must be a dictionary or 'all', but got {pairs}.",
         )
     validate_dims_coords(data, {"time": [], "space": ["x", "y"], dim: []})
+
     # Find all possible pair combinations if 'all' is specified
     if pairs == "all":
         paired_elements = list(
@@ -750,6 +756,15 @@ def compute_pairwise_distances(
     if not paired_elements:
         raise log_error(
             ValueError, "Could not find any pairs to compute distances for."
+        )
+    if any(
+        elem not in data.coords[dim]
+        for pair in paired_elements
+        for elem in pair
+    ):
+        raise log_error(
+            ValueError,
+            "The specified coordinates could not be found in the data.",
         )
     pairwise_distances = {
         f"dist_{elem1}_{elem2}": _cdist(
@@ -788,8 +803,6 @@ def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
         The input data with the labels dimension validated.
 
     """
-    if data.coords.get(dim) is None:
-        data = data.assign_coords({dim: "temp_dim"})
     if data.coords[dim].ndim == 0:
         data = data.expand_dims(dim).transpose("time", "space", dim)
     return data

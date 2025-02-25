@@ -673,6 +673,16 @@ def test_compute_pairwise_distances_with_valid_pairs(
             "invalid_string",
         ),  # invalid pairs
         ("valid_poses_dataset", "individuals", {}),  # empty pairs
+        (
+            "valid_bboxes_dataset",
+            "keypoints",
+            "all",
+        ),  # cannot compute distance with one keypoint coordinate
+        (
+            "valid_bboxes_dataset",
+            "keypoints",
+            {"id_0": "id_1"},
+        ),  # the specified keypoints coordinates do not exist
         ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
         (
             "missing_dim_bboxes_dataset",
