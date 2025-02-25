@@ -77,7 +77,7 @@ class LineOfInterest(BaseRegionOfInterest):
         whose norm is equal to 1. The direction of the normal vector
         is not fully defined: the line divides the 2D plane in two
         halves, and the normal could be pointing to either of the half-planes.
-        For example, an horizontal line divides the 2D plane in a
+        For example, a horizontal line divides the 2D plane in a
         bottom and a top half-plane, and we can choose whether
         the normal points "upwards" or "downwards". We use a sample
         point to define the half-plane the normal vector points to.
@@ -110,9 +110,10 @@ class LineOfInterest(BaseRegionOfInterest):
         ] = "normal to forward",
         in_degrees: bool = False,
     ) -> xr.DataArray:
-        """Compute the signed angle between the normal and the forward vector.
+        """Compute the angle between the support plane and the forward vector.
 
-        This method is identical to ``compute_egocentric_angle``, except that
+        This method is identical to
+        ``compute_egocentric_angle_to_nearest_point``, except that
         rather than the angle between the approach vector and the forward
         vector, the angle between the normal directed toward the segment and
         the forward vector is returned.

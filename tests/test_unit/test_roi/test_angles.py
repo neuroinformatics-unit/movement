@@ -18,8 +18,8 @@ def sample_position_array() -> xr.DataArray:
 
     The keypoints are left, right, midpt (midpoint), and wild.
     The midpt is the mean of the left and right keypoints; the wild keypoint
-    may be anywhere in the plane (it is used to test the ``position_keypoint``
-    argument).
+    may be anywhere in the plane (it is used to test that the function respects
+    the origin of the forward vector that the user provides).
 
     time 1:
         left @ (1.25, 0.), right @ (1., -0.25), wild @ (-0.25, -0.25)
@@ -88,14 +88,12 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints"),
+                sample_position_array().sel(keypoints="midpt", drop=True),
             ],
             {"angle_rotates": "elephant to region"},
             ValueError("Unknown angle convention: elephant to region"),
             True,
-            id="[E] Unknown angle convention",
+            id="[Egocentric] Unknown angle convention",
         ),
         pytest.param(
             "unit_square_with_hole",
@@ -103,7 +101,7 @@ def sample_position_array() -> xr.DataArray:
             {"angle_rotates": "elephant to region"},
             ValueError("Unknown angle convention: elephant to region"),
             False,
-            id="[A] Unknown angle convention",
+            id="[Allocentric] Unknown angle convention",
         ),
         pytest.param(
             "unit_square_with_hole",
@@ -111,9 +109,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints"),
+                sample_position_array().sel(keypoints="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -126,7 +122,7 @@ def sample_position_array() -> xr.DataArray:
                 ]
             ),
             True,
-            id="[E] Default args",
+            id="[Egocentric] Default args",
         ),
         pytest.param(
             "unit_square_with_hole",
@@ -134,9 +130,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array()
-                .sel(keypoints="wild")
-                .drop_vars("keypoints"),
+                sample_position_array().sel(keypoints="wild", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -149,7 +143,7 @@ def sample_position_array() -> xr.DataArray:
                 ]
             ),
             True,
-            id="[E] Non-default position",
+            id="[Egocentric] Non-default position",
         ),
         pytest.param(
             "unit_square",
@@ -157,9 +151,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints"),
+                sample_position_array().sel(keypoints="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -172,7 +164,7 @@ def sample_position_array() -> xr.DataArray:
                 ]
             ),
             True,
-            id="[E] 0-approach vectors (nan returns)",
+            id="[Egocentric] 0-approach vectors (nan returns)",
         ),
         pytest.param(
             "unit_square",
@@ -180,9 +172,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints"),
+                sample_position_array().sel(keypoints="midpt", drop=True),
             ],
             {
                 "boundary_only": True,
@@ -198,15 +188,11 @@ def sample_position_array() -> xr.DataArray:
                 ]
             ),
             True,
-            id="[E] Force boundary calculations",
+            id="[Egocentric] Force boundary calculations",
         ),
         pytest.param(
             "unit_square_with_hole",
-            [
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints")
-            ],
+            [sample_position_array().sel(keypoints="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -220,15 +206,11 @@ def sample_position_array() -> xr.DataArray:
                 )
             ),
             False,
-            id="[A] Default args",
+            id="[Allocentric] Default args",
         ),
         pytest.param(
             "unit_square",
-            [
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints")
-            ],
+            [sample_position_array().sel(keypoints="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -242,15 +224,11 @@ def sample_position_array() -> xr.DataArray:
                 )
             ),
             False,
-            id="[A] 0-approach vectors",
+            id="[Allocentric] 0-approach vectors",
         ),
         pytest.param(
             "unit_square",
-            [
-                sample_position_array()
-                .sel(keypoints="midpt")
-                .drop_vars("keypoints")
-            ],
+            [sample_position_array().sel(keypoints="midpt", drop=True)],
             {"boundary_only": True},
             np.deg2rad(
                 np.array(
@@ -264,7 +242,7 @@ def sample_position_array() -> xr.DataArray:
                 )
             ),
             False,
-            id="[A] Force boundary calculation",
+            id="[Allocentric] Force boundary calculation",
         ),
     ],
 )
@@ -285,8 +263,7 @@ def test_ego_and_allocentric_angle_to_region(
 
     Specifically;
 
-    - ``camera_view``,
-    - ``in_radians``,
+    - ``in_degrees``,
 
     The ``angle_rotates`` argument is tested in all cases (signs should be
     reversed when toggling the argument).

@@ -138,8 +138,8 @@ class BaseRegionOfInterest:
         ----------
         position : xarray.DataArray
             Spatial position data, that is passed to
-            ``how_to_compute_approach`` and used to compute the "vector to the
-            region".
+            ``how_to_compute_vector_to_region`` and used to compute the
+            "vector to the region".
         reference_vector : xarray.DataArray | np.ndarray
             Constant or time-varying vector to take signed angle with the
             "vector to the region".
@@ -336,10 +336,6 @@ class BaseRegionOfInterest:
             Euclidean distance from the ``point`` to the (closest point on the)
             region.
 
-        See Also
-        --------
-        shapely.distance : Underlying used to compute the nearest point.
-
         """
         region_to_consider = (
             self.region.boundary if boundary_only else self.region
@@ -354,6 +350,10 @@ class BaseRegionOfInterest:
     ) -> np.ndarray:
         """Compute (one of) the nearest point(s) in the region to ``position``.
 
+        If there are multiple equidistant points, one of them is returned.
+
+        Parameters
+        ----------
         position : ArrayLike
             Coordinates of a point, from which to find the nearest point in the
             region.
@@ -366,10 +366,6 @@ class BaseRegionOfInterest:
         np.ndarray
             Coordinates of the point on ``self`` that is closest to
             ``position``.
-
-        See Also
-        --------
-        shapely.shortest_line : Underlying used to compute the nearest point.
 
         """
         region_to_consider = (
@@ -416,10 +412,10 @@ class BaseRegionOfInterest:
 
         See Also
         --------
-        ``compute_allocentric_angle_to_nearest_point`` : Relies on this method
-            to compute the approach vector.
-        ``compute_egocentric_angle_to_nearest_point`` : Relies on this method
-            to compute the approach vector.
+        compute_allocentric_angle_to_nearest_point :
+            Relies on this method to compute the approach vector.
+        compute_egocentric_angle_to_nearest_point :
+            Relies on this method to compute the approach vector.
 
         """
         region_to_consider = (
@@ -456,7 +452,7 @@ class BaseRegionOfInterest:
         With the term "allocentric", we indicate that we are measuring angles
         with respect to a reference frame that is fixed relative to the
         experimental/camera setup. By default, we assume this is the positive
-        x-axis of the coordinate system in which position is.
+        x-axis of the coordinate system in which ``position`` is.
 
         The allocentric angle is the :func:`signed angle\
         <movement.utils.vector.compute_signed_angle_2d>` between the approach
@@ -474,7 +470,7 @@ class BaseRegionOfInterest:
             the region is computed. Default ``False``.
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
-            returned in degrees. Default ``False``.
+            returned in radians. Default ``False``.
         reference_vector : ArrayLike | xr.DataArray
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
@@ -482,13 +478,14 @@ class BaseRegionOfInterest:
 
         See Also
         --------
-        ``compute_approach_vector`` : The method used to compute the approach
-            vector.
-        ``compute_egocentric_angle_to_nearest_point`` : Related class method
-            for computing the egocentric angle to the region.
-        ``compute_signed_angle_2d`` : The underlying function used to compute
-            the signed angle between the approach vector and the reference
-            vector.
+        compute_approach_vector :
+            The method used to compute the approach vector.
+        compute_egocentric_angle_to_nearest_point :
+            Related class method for computing the egocentric angle to the
+            region.
+        movement.utils.vector.compute_signed_angle_2d :
+            The underlying function used to compute the signed angle between
+            the approach vector and the reference vector.
 
         """
         if reference_vector is None:
@@ -547,13 +544,14 @@ class BaseRegionOfInterest:
 
         See Also
         --------
-        ``compute_allocentric_angle_to_nearest_point`` : Related class method
-            for computing the egocentric angle to the region.
-        ``compute_approach_vector`` : The method used to compute the approach
-            vector.
-        ``compute_signed_angle_2d`` : The underlying function used to compute
-            the signed angle between the approach vector and the reference
-            vector.
+        compute_allocentric_angle_to_nearest_point :
+            Related class method for computing the egocentric angle to the
+            region.
+        compute_approach_vector :
+            The method used to compute the approach vector.
+        movement.utils.vector.compute_signed_angle_2d :
+            The underlying function used to compute the signed angle between
+            the approach vector and the reference vector.
 
         """
         return self._boundary_angle_computation(
