@@ -727,11 +727,6 @@ def compute_pairwise_distances(
             "'dim' must be either 'individuals' or 'keypoints', "
             f"but got {dim}.",
         )
-    if dim not in data.dims:
-        raise log_error(
-            ValueError,
-            f"Input data does not contain the dimension '{dim}'.",
-        )
     if isinstance(pairs, str) and pairs != "all":
         raise log_error(
             ValueError,
