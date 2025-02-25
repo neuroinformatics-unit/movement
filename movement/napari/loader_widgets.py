@@ -27,13 +27,13 @@ logger = logging.getLogger(__name__)
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
-    "DeepLabCut": ["*.h5", "*.csv"],
-    "LightningPose": ["*.csv"],
-    "SLEAP": ["*.h5", "*.slp"],
+    "DeepLabCut": ["h5", "csv"],
+    "LightningPose": ["csv"],
+    "SLEAP": ["h5", "slp"],
 }
 
 SUPPORTED_BBOXES_FILES = {
-    "VIA-tracks": ["*.csv"],
+    "VIA-tracks": ["csv"],
 }
 
 SUPPORTED_DATA_FILES = {
@@ -113,9 +113,12 @@ class DataLoader(QWidget):
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
-        file_suffixes = SUPPORTED_DATA_FILES[
-            self.source_software_combo.currentText()
-        ]
+        file_suffixes = (
+            "*." + suffix
+            for suffix in SUPPORTED_DATA_FILES[
+                self.source_software_combo.currentText()
+            ]
+        )
 
         file_path, _ = QFileDialog.getOpenFileName(
             self,
