@@ -521,13 +521,14 @@ class BaseRegionOfInterest:
         the experimental/camera setup.
 
         The egocentric angle is the signed angle between the approach vector
-        and a ``direction`` vector (examples include the forward vector of a
-        given individual or keypoint).
+        and a ``direction`` vector (examples include the forward vector of
+        a given individual, or the velocity vector of a given point).
 
         Parameters
         ----------
         direction : xarray.DataArray
-            Forward vector(s) to use in calculation.
+            An array of vectors representing a given direction,
+            e.g., the forward vector(s).
         position : xarray.DataArray
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.

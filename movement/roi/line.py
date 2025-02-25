@@ -134,7 +134,8 @@ class LineOfInterest(BaseRegionOfInterest):
         Parameters
         ----------
         direction : xarray.DataArray
-            Forward vectors to take angle with.
+            An array of vectors representing a given direction,
+            e.g., the forward vector(s).
         position : xr.DataArray
             Spatial positions, considered the origin of the ``direction``.
         angle_rotates : Literal["direction to normal", "normal to direction"]
