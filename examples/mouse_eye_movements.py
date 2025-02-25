@@ -1,5 +1,5 @@
-"""Pupillometry
-===================================
+"""Pupil tracking
+=================
 
 Look at eye movements caused by the oculo-motor reflex.
 """
@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 
 import movement.kinematics as kin
 from movement import sample_data
+from movement.filtering import median_filter
 from movement.plots import plot_trajectory
 
 # %%
@@ -116,14 +117,14 @@ def plot_x_y_keypoints(da_dict, ylim=None, **kwargs):
         for ax in axes.flat:
             ax.set_ylim(ylim)
     plt.tight_layout()
-    return fig
+    return fig, ax
 
 
 # %%
 # Using the function created above, we plot the x and y positions in a
 # specified time window (frames 350 to 1000) of the unprocessed data.
 time_points = position_dict["black"].time[slice(350, 1001)]
-fig = plot_x_y_keypoints(position_dict, ylim=(100, 500), time=time_points)
+fig, ax = plot_x_y_keypoints(position_dict, ylim=(100, 500), time=time_points)
 fig.show()
 
 # %%
@@ -138,7 +139,7 @@ for da_name, da in position_dict.items():
     position_norm_dict[da_name] = da - eye_midpoint
 # %%
 # We plot the x and y positions again, but now using the normalised data.
-fig = plot_x_y_keypoints(
+fig, ax = plot_x_y_keypoints(
     position_norm_dict, ylim=(-200, 200), time=time_points
 )
 fig.show()
@@ -146,16 +147,16 @@ fig.show()
 # Pupil position over time
 # ------------------------
 # To look at pupil position, and later also velocity, over time we use the
-# pupil centroid (in this case the midpoint between "pupil-L" and "pupil-R").
-# The pupil centroid keypoint ("pupil-C") is be added to the data array using
-# ``xarray.DataArray.assign_coords`` and ``xarray.concat``.
+# pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
+# ``pupil-R``). The pupil centroid keypoint ``pupil-C`` is be added to the
+# data array using ``xarray.DataArray.assign_coords`` and ``xarray.concat``.
 for da_name, da in position_norm_dict.items():
     pupil_centroid = da.sel(keypoints=["pupil-L", "pupil-R"]).mean("keypoints")
     pupil_centroid = pupil_centroid.assign_coords({"keypoints": "pupil-C"})
     position_norm_dict[da_name] = xr.concat([da, pupil_centroid], "keypoints")
 
 # %%
-# Now the position of the pupil centroid can be plotted.
+# Now the position of the pupil centroid ``pupil-C`` can be plotted.
 fig, axes = plt.subplots(2, 1, figsize=(6, 4))
 for i, (da_name, da) in enumerate(position_norm_dict.items()):
     da = da.sel(keypoints="pupil-C", time=time_points)  # select data to plot
@@ -179,7 +180,7 @@ plt.show()
 # %%
 # Pupil velocity over time
 # ------------------------
-# We use ``compute_velocity`` from ``movement``'s ``kinematics`` module to
+# We use ``compute_velocity`` from the ``movement.kinematics`` module to
 # calculate the velocity with which the pupil centroid moves.
 velocity_dict = {}
 for da_name, da in position_norm_dict.items():
@@ -221,46 +222,79 @@ for da_name, da in position_norm_dict.items():
 
 
 # %%
-# The pupil diameter is plotted using a function so that we can easily compare
-# the effect of filtering.
+# A function to plot the pupil diameter is created so that we can easily
+# compare the effect of different filters.
 def plot_pupil_diameter(da_dict, **kwargs):
     fig, ax = plt.subplots(figsize=(5, 3))
     for da_name, da in da_dict.items():
-        ax.plot(da.sel(**kwargs), label=da_name)
+        x = da.sel(**kwargs).time  # time points
+        y = da.sel(**kwargs)  # pupil diameter
+        ax.plot(x, y, label=da_name)
         ax.set_xlabel("Time (s)")
-        ax.set_ylabel("Pupil Diameter (pixels)")
+        ax.set_ylabel("Pupil diameter (pixels)")
     ax.legend()
-    ax.set_title("Pupil Diameter")
+    ax.set_title("Pupil diameter")
     plt.tight_layout()
     return fig, ax
 
 
+# %%
+# Now the pupil diameter before filtering can be plotted.
+
 fig, ax = plot_pupil_diameter(pupil_diameter_dict)
 fig.show()
 # %%
-# Filtered Pupil Diameter
-# -----------------------
-# A filter can be used to smooth out pupil size data. Unlike eye movements,
-# which can be extremely fast, pupil size is unlikely to change rapidly. A
-# Moving Average Filter is used here to smooth the data by averaging a
-# specified number of data points (defined by the window size) to reduce noise.
+# The plot of the pupil diameter looks noisy. The very steep peaks are
+# unlikely to represent real changes in the pupil size. Unlike eye movements,
+# which can be extremely fast, changes in pupil size do not occur this fast.
+# Filters can be applied to reduce noise and make underlying trends clearer.
 
-filter = np.ones(150)
-filter_dict = {}
+# %%
+# Average filtered pupil diameter
+# -------------------------------
+# A moving average filter is used here to smooth the data by averaging a
+# specified number of data points (``filter_len``)  to reduce noise.
+filter_len = 150
+filter = np.ones(filter_len)
+avg_filter_dict = {}
 for da_name, da in pupil_diameter_dict.items():
     da_filter = da.copy(deep=True)
     # Calculate smooth average using numpy.convolve
-    da_filter.data = np.convolve(da_filter, filter / len(filter), mode="same")
-    filter_dict[da_name] = da_filter
+    da_filter.data = np.convolve(da_filter, filter / filter_len, mode="same")
+    avg_filter_dict[da_name] = da_filter
 
 # %%
-# The moving average filter distorts the first few and last frames of the pupil
+# The filter distorts the first few and last frames of the pupil
 # diameter data which is why we exclude the first and last number of frames
 # corresponding to half the filter length.
 
-plot_slice = slice(len(filter) // 2, -len(filter) // 2)
-time_points = filter_dict["black"].time[plot_slice]  # same for both datasets
-fig, ax = plot_pupil_diameter(filter_dict, time=time_points)
-ax.set_title("Filtered Pupil Diameter")
+plot_slice = slice(filter_len // 2, -filter_len // 2)
+# Time points from the black dataset are used for both datasets
+time_points = avg_filter_dict["black"].time[plot_slice]
+
+# %%
+# Now the average filtered pupil diameter can be plotted.
+fig, ax = plot_pupil_diameter(avg_filter_dict, time=time_points)
+ax.set_title("Pupil diameter (moving average filter)")
 fig.show()
+# %%
+# Median filtered pupil diameter
+# ------------------------------
+# Another way to filter the data is by using ``median_filter``
+# from the ``movement.filtering`` module. The ``median_filter`` function
+# conveniently takes care of creating the filter and excluding the first
+# and last number of frames corresponding to half the filter length.
+
+median_filter_dict = {}
+for da_name, da in pupil_diameter_dict.items():
+    da_filter = da.copy(deep=True)
+    da_filter.data = median_filter(da, filter_len, print_report=False)
+    median_filter_dict[da_name] = da_filter
+
+# %%
+# Now the median filtered pupil diameter can be plotted.
+fig, ax = plot_pupil_diameter(median_filter_dict)
+ax.set_title("Pupil diameter (moving median filter)")
+fig.show()
+
 # %%
