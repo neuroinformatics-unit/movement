@@ -224,9 +224,9 @@ def compute_forward_vector(
         The input data representing position. This must contain
         the two symmetrical keypoints located on the left and
         right sides of the body, respectively.
-    left_keypoint : str
+    left_keypoint : Hashable
         Name of the left keypoint, e.g., "left_ear"
-    right_keypoint : str
+    right_keypoint : Hashable
         Name of the right keypoint, e.g., "right_ear"
     camera_view : Literal["top_down", "bottom_up"], optional
         The camera viewing angle, used to determine the upwards
@@ -382,10 +382,10 @@ def compute_forward_vector_angle(
         The input data representing position. This must contain
         the two symmetrical keypoints located on the left and
         right sides of the body, respectively.
-    left_keypoint : str
+    left_keypoint : Hashable
         Name of the left keypoint, e.g., "left_ear", used to compute the
         forward vector.
-    right_keypoint : str
+    right_keypoint : Hashable
         Name of the right keypoint, e.g., "right_ear", used to compute the
         forward vector.
     reference_vector : xr.DataArray | ArrayLike, optional

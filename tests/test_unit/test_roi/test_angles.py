@@ -290,7 +290,9 @@ def test_ego_and_allocentric_angle_to_region(
         angles = method(*fn_args, **fn_kwargs)
         xr.testing.assert_allclose(angles, expected_output)
 
-        # Check reversal of the angle convention
+        # Check reversal of the angle convention,
+        # which should just reverse the sign of the angles,
+        # except for 180-degrees -> 180-degrees.
         if fn_kwargs.get("in_degrees", False):
             lower = -180.0
             upper = 180.0
