@@ -359,6 +359,16 @@ def test_angle_to_support_plane(
     segment_of_y_equals_x: LineOfInterest,
     points_around_segment: xr.DataArray,
 ) -> None:
+    """Test the angle_to_support_plane method.
+
+    This method checks two things:
+
+    - The angle_to_support_plane returns the correct angle, and
+    - The method agrees with the egocentric angle computation, in the cases
+    that the two calculations should return the same value (IE when the
+    approach vector is the normal to the segment). And that the
+    returned angles are different otherwise.
+    """
     expected_output = xr.DataArray(
         data=np.deg2rad([-90.0, -90.0, -90.0]), dims=["time"]
     )
@@ -368,7 +378,7 @@ def test_angle_to_support_plane(
 
     fwd_vector = compute_forward_vector(points_around_segment, "left", "right")
     positions = points_around_segment.mean(dim="keypoints")
-    angles_to_support = segment_of_y_equals_x.compute_angle_to_support_plane(
+    angles_to_support = segment_of_y_equals_x.compute_angle_to_plane_normal(
         fwd_vector, positions
     )
     xr.testing.assert_allclose(expected_output, angles_to_support)

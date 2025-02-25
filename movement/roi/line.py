@@ -82,13 +82,25 @@ class LineOfInterest(BaseRegionOfInterest):
         the normal points "upwards" or "downwards". We use a sample
         point to define the half-plane the normal vector points to.
 
+        If this is a multi-segment line, the method raises an error.
+
         Parameters
         ----------
         on_same_side_as : ArrayLike
-            A sample point in the (x,y) plane the normal is in. By default, the
-            origin is used.
+            A sample point in the (x,y) plane the normal is in. If multiple
+            points are given, one normal vector is returned for each point
+            given. By default, the origin is used.
+
+        Raises
+        ------
+        ValueError : When the normal is requested for a multi-segment geometry.
 
         """
+        if len(self.coords) > 2:
+            raise ValueError(
+                "Normal is not defined for multi-segment geometries."
+            )
+
         on_same_side_as = np.array(on_same_side_as)
 
         parallel_to_line = np.array(self.region.coords[1]) - np.array(
@@ -101,32 +113,32 @@ class LineOfInterest(BaseRegionOfInterest):
             normal *= -1.0
         return normal
 
-    def compute_angle_to_support_plane(
+    def compute_angle_to_plane_normal(
         self,
-        forward_vector: xr.DataArray,
+        direction: xr.DataArray,
         position: xr.DataArray,
         angle_rotates: Literal[
-            "forward to normal", "normal to forward"
-        ] = "normal to forward",
+            "direction to normal", "normal to direction"
+        ] = "normal to direction",
         in_degrees: bool = False,
     ) -> xr.DataArray:
-        """Compute the angle between the support plane and the forward vector.
+        """Compute the angle between the normal to the segment and a direction.
 
         This method is identical to
         ``compute_egocentric_angle_to_nearest_point``, except that
-        rather than the angle between the approach vector and the forward
-        vector, the angle between the normal directed toward the segment and
-        the forward vector is returned.
+        rather than the angle between the approach vector and ``direction``,
+        the angle between the normal directed toward the segment and
+        ``direction`` is returned.
 
         Parameters
         ----------
-        forward_vector : xarray.DataArray
+        direction : xarray.DataArray
             Forward vectors to take angle with.
         position : xr.DataArray
-            Spatial positions, considered the origin of the ``forward_vector``.
-        angle_rotates : Literal["forward to normal", "normal to forward"]
+            Spatial positions, considered the origin of the ``direction``.
+        angle_rotates : Literal["direction to normal", "normal to direction"]
             Sign convention of the angle returned. Default is
-            ``"normal to forward"``.
+            ``"normal to direction"``.
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
@@ -134,11 +146,11 @@ class LineOfInterest(BaseRegionOfInterest):
         """
         return self._boundary_angle_computation(
             position=position,
-            reference_vector=forward_vector,
+            reference_vector=direction,
             how_to_compute_vector_to_region=lambda p: self._reassign_space_dim(
                 -1.0 * self.normal(p), "normal"
             ),
-            angle_rotates=angle_rotates.replace("forward", "ref").replace(  # type: ignore
+            angle_rotates=angle_rotates.replace("direction", "ref").replace(  # type: ignore
                 "normal", "vec"
             ),
             in_degrees=in_degrees,
