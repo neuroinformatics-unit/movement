@@ -1,8 +1,8 @@
 (target-napari-plugin)=
 # The movement GUI
 
-The movement graphical user interface (GUI), powered by [napari](napari:) 
-and our custom plugin, makes it easy to visualise and explore `movement` 
+The movement graphical user interface (GUI), powered by [napari](napari:)
+and our custom plugin, makes it easy to visualise and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
 as points overlaid on video frames.
