@@ -22,26 +22,42 @@ def triangle() -> PolygonOfInterest:
 # expected_output_array (np.array of bools, like ``results`` below)
 # expected_output_coordinates (list of strings, the coordinates along the
 #   output occupancy dimension)
+
+
+@pytest.mark.parametrize(
+    ["data", "results"],
+    [
+        pytest.param(
+            np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
+            np.array(
+                [
+                    [True, False, True, False],
+                    [True, True, True, False],
+                    [True, True, False, False],
+                ]
+            ),
+            id="triangle",
+        ),
+    ],
+)
 def test_region_occupancy(
     triangle: PolygonOfInterest,
     unit_square: PolygonOfInterest,
     unit_square_with_hole: PolygonOfInterest,
+    data,
+    results,
 ) -> None:
+    """Tests region_occupancy several RoIs.
+
+    Polygons are triangle, square, and square with hole.
+    """
     data = xr.DataArray(
-        data=np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
+        data=data,
         dims=["time", "space"],
         coords={"space": ["x", "y"]},
     )
     # NB results needs to be (occupancy, time)!
-    results = np.array(
-        [
-            [True, True, True, False],
-            [True, False, True, False],
-            [True, True, False, False],
-        ]
-    )
-    occupancies = compute_region_occupancy(
-        data, [unit_square, triangle, unit_square_with_hole]
-    )
-
+    regions = [triangle, unit_square, unit_square_with_hole]
+    occupancies = compute_region_occupancy(data, regions)
+    assert occupancies.dims == ("occupancy", "time")
     assert (results == occupancies.values).all()
