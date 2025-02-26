@@ -267,6 +267,12 @@ class TestComputeSignedAngle:
                 ),
                 id="Error: v is not an array or DataArray",
             ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                np.zeros((3, 2)),
+                ValueError("conflicting sizes for dimension 'time'"),
+                id="Error: v has incompatible shape",
+            ),
         ],
     )
     def test_compute_signed_angle_2d(
