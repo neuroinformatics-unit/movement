@@ -23,7 +23,7 @@ There were also a few independent bursts of development in other areas; includin
 
 A copy of the original roadmap that was [shared on Zulip](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Roadmap.3A.20Spatial.20Navigation/near/495022291) is provided below.
 
-![Original feature roadmap for Jan-Feb.](../_static/blog_posts/arc-roadmap.png)
+![Original feature roadmap for Jan-Feb.](../_static/blog_posts/roadmap-jan-feb-2025.svg)
 
 ## What's Been Introduced?
 
