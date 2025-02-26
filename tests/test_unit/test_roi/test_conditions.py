@@ -20,12 +20,10 @@ def triangle() -> PolygonOfInterest:
 # Need to reorganise the inputs; should probably be
 # list_of_regions (or list_of_strs_of_region_fixture_names)
 # expected_output_array (np.array of bools, like ``results`` below)
-# expected_output_coordinates (list of strings, the coordinates along the
-#   output occupancy dimension)
 
 
 @pytest.mark.parametrize(
-    "region_fixtures, data, results",
+    "region_fixtures, data, expected_output_array,expected_output_coords",
     [
         pytest.param(
             ["triangle", "unit_square", "unit_square_with_hole"],
@@ -37,6 +35,7 @@ def triangle() -> PolygonOfInterest:
                     [True, True, False, False],
                 ]
             ),
+            ["triangle", "Unit square", "Unit square with hole"],
             id="triangle, unit_square, unit_square_with_hole",
         )
     ],
@@ -45,7 +44,8 @@ def test_region_occupancy(
     request,
     region_fixtures,
     data,
-    results,
+    expected_output_array,
+    expected_output_coords,
 ) -> None:
     """Tests region_occupancy for several RoIs."""
     regions = [request.getfixturevalue(r) for r in region_fixtures]
@@ -56,4 +56,8 @@ def test_region_occupancy(
     )
     occupancies = compute_region_occupancy(data, regions)
     assert occupancies.dims == ("occupancy", "time")
-    assert (results == occupancies.values).all()
+    assert (expected_output_array == occupancies.values).all()
+
+    # expected_output_coordinates (list of strings, the coordinates along the
+    #   output occupancy dimension)
+    assert occupancies.occupancy.values.tolist() == expected_output_coords
