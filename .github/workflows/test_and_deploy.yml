@@ -28,16 +28,16 @@ jobs:
     strategy:
       matrix:
         # Run all supported Python versions on linux
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
         # Include 1 Intel macos (13) and 1 M1 macos (latest) and 1 Windows run
         include:
         - os: macos-13
-          python-version: "3.11"
+          python-version: "3.13"
         - os: macos-latest
-          python-version: "3.11"
+          python-version: "3.13"
         - os: windows-latest
-          python-version: "3.11"
+          python-version: "3.13"
 
     steps:
       - name: Cache Test Data

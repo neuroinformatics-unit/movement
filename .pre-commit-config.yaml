@@ -56,6 +56,3 @@ repos:
       rev: v2.4.1
       hooks:
       - id: codespell
-        additional_dependencies:
-        # tomli dependency can be removed when we drop support for Python 3.10
-        - tomli

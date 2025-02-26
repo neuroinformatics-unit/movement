@@ -24,7 +24,7 @@ conda activate movement-env
 :::{tab-item} Pip
 Create and activate an environment with some prerequisites:
 ```sh
-conda create -n movement-env -c conda-forge python=3.11 pytables
+conda create -n movement-env -c conda-forge python=3.12 pytables
 conda activate movement-env
 ```
 Install the latest movement release from PyPI:
