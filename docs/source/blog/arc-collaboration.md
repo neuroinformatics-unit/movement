@@ -31,7 +31,7 @@ Pupilometry and scaling... either here or maybe as one section?
 
 ### Plotting Made Easier
 
-The `movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
+The {module}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
 These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate `matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use;
 
@@ -41,9 +41,28 @@ Currently, the submodule has two wrappers to use;
 Examples to showcase the use of these plotting functions are currently [being produced](https://github.com/neuroinformatics-unit/movement/issues/415).
 [Our other examples](https://movement.neuroinformatics.dev/examples/index.html) have also been updated to use these functions where possible.
 
-### make broadcastable
+### Broadcasting Methods
 
-### regions of interest
+Most of the time during analysis of experimental data, we want to repeat the same action multiple times across different coordinates, or individuals, or time-points.
+The data-structures that `movement` relies on - and the analysis methods it provides - go a long way to making this kind of analysis easy, thanks to array broadcasting.
+However when it comes to writing your own, custom analysis functions, most of the time it is much easier to write a function that takes in a single input, rather than writing an appropriate function that acts on an entire `DataArray`.
+But this approach typically means that you're then stuck writing a `for` loop over the values in your `DataArray`, and on top of that having to copy across the dimension labels or coordinates into the new array you're making as the `for` loop runs.
+
+With this in mind, we have decided to expose the {func}`movement.utils.broadcasting.make_broadcastable` decorator, which can turn functions that take in one-dimensional data (e.g., a single spatial coordinate, or a single time-point) into functions that act across `DataArray`s with appropriate dimensions.
+You can find a new {ref}`example <sphx_glr_examples_broadcasting_your_own_methods.py>` on how to use this decorator on your own functions.
+
+### Regions of Interest (RoIs)
+
+One of the biggest feature introductions to `movement` during this period is {module}`support for RoIs <movement.roi>`.
+We now support one-dimensional regions of interest (segments, or piecewise-linear structures formed of multiple segments) as well as two-dimensional polygonal regions.
+You can create RoIs using the {class}`movement.roi.LineOfInterest` and {class}`movement.roi.PolygonOfInterest` classes respectively.
+
+RoIs support the calculation of certain quantities from experimental data.
+Highlights include;
+
+- Determining if a given point(s) is inside the RoI, {func}`movement.roi.BaseRegionOfInterest.contains_point`.
+- Determining the distance from a given point(s) to the closest point on the RoI, {func}`movement.roi.BaseRegionOfInterest.distance_to`.
+We have [an example underway](https://github.com/neuroinformatics-unit/movement/issues/415) that will demonstrate how to load in a dataset, define a region of interest, and query the loaded trajectories for the time periods when they were inside or outside the defined region.
 
 <!-- :::{tip}
 See our [installation guide](target-installation) for instructions on how to
