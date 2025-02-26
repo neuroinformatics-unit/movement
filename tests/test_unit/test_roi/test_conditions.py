@@ -25,9 +25,10 @@ def triangle() -> PolygonOfInterest:
 
 
 @pytest.mark.parametrize(
-    ["data", "results"],
+    "region_fixtures, data, results",
     [
         pytest.param(
+            ["triangle", "unit_square", "unit_square_with_hole"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
             np.array(
                 [
@@ -36,28 +37,23 @@ def triangle() -> PolygonOfInterest:
                     [True, True, False, False],
                 ]
             ),
-            id="triangle",
-        ),
+            id="triangle, unit_square, unit_square_with_hole",
+        )
     ],
 )
 def test_region_occupancy(
-    triangle: PolygonOfInterest,
-    unit_square: PolygonOfInterest,
-    unit_square_with_hole: PolygonOfInterest,
+    request,
+    region_fixtures,
     data,
     results,
 ) -> None:
-    """Tests region_occupancy several RoIs.
-
-    Polygons are triangle, square, and square with hole.
-    """
+    """Tests region_occupancy for several RoIs."""
+    regions = [request.getfixturevalue(r) for r in region_fixtures]
     data = xr.DataArray(
         data=data,
         dims=["time", "space"],
         coords={"space": ["x", "y"]},
     )
-    # NB results needs to be (occupancy, time)!
-    regions = [triangle, unit_square, unit_square_with_hole]
     occupancies = compute_region_occupancy(data, regions)
     assert occupancies.dims == ("occupancy", "time")
     assert (results == occupancies.values).all()
