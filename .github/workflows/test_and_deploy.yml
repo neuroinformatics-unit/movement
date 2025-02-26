@@ -33,9 +33,9 @@ jobs:
         # Include 1 Intel macos (13) and 1 M1 macos (latest) and 1 Windows run
         include:
         - os: macos-13
-          python-version: "3.12"
+          python-version: "3.13"
         - os: macos-latest
-          python-version: "3.12"
+          python-version: "3.13"
         - os: windows-latest
           python-version: "3.13"
 
