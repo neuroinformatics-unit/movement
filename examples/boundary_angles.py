@@ -154,7 +154,7 @@ for mouse_name, col in zip(
 distances_ax.legend()
 distances_ax.set_xlabel("Time (frames)")
 distances_ax.set_ylabel("Distance to closest arena wall (pixels)")
-plt.show(distances_fig)
+distances_fig.show()
 
 # %%
 # ``compute_distance_to`` is returning the distance to the closest
@@ -176,7 +176,7 @@ for mouse_name, col in zip(
 distances_exterior_ax.legend()
 distances_exterior_ax.set_xlabel("Time (frames)")
 distances_exterior_ax.set_ylabel("Distance to exterior wall (pixels)")
-plt.show(distances_exterior_fig)
+distances_exterior_fig.show()
 
 # %%
 # Note that we can also obtain the approach vector for each individual, at each
@@ -210,14 +210,15 @@ approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 # supports the computation of two such "boundary angle"s;
 #
 # - The allocentric boundary angle. Given a region of interest $R$, reference
-# vector $\vec{r}$ (such as global north), and a position $p$ in space (EG the
-# position of an individual), the allocentric boundary angle is the signed
-# angle between the approach vector from $p$ to $R$, and $\vec{r}$.
+#   vector $\vec{r}$ (such as global north), and a position $p$ in space (EG
+#   the position of an individual), the allocentric boundary angle is the
+#   signed angle between the approach vector from $p$ to $R$, and $\vec{r}$.
 # - The egocentric boundary angle. Given a region of interest $R$, a forward
-# vector $\vec{f}$ (EG the direction of travel of an individual), and the point
-# of origin of $\vec{f}$ denoted $p$ (EG the individual's current position),
-# the egocentric boundary angle is the signed angle between the approach vector
-# from $p$ to $R$ and $\vec{f}$.
+#   vector $\vec{f}$ (EG the direction of travel of an individual), and the
+#   point of origin of $\vec{f}$ denoted $p$ (EG the individual's current
+#   position), the egocentric boundary angle is the signed angle between the
+#   approach vector from $p$ to $R$ and $\vec{f}$.
+#
 #
 # Note that egocentric angles are generally computed with changing frames of
 # reference in mind - the forward vector may be varying in time as the
@@ -277,7 +278,7 @@ allo_ax.set_ylim(-180, 180)
 allo_ax.legend()
 
 angle_plot.tight_layout()
-plt.show(angle_plot)
+angle_plot.show()
 
 # %%
 # We observe that the allocentric angles display a step-like behaviour. This
