@@ -1,5 +1,7 @@
 """Validators for data arrays."""
 
+from collections.abc import Hashable
+
 import numpy as np
 import xarray as xr
 
@@ -8,7 +10,7 @@ from movement.utils.logging import log_error
 
 def validate_dims_coords(
     data: xr.DataArray,
-    required_dim_coords: dict[str, list[str]],
+    required_dim_coords: dict[str, list[str] | list[Hashable]],
     exact_coords: bool = False,
 ) -> None:
     """Validate dimensions and coordinates in a data array.
@@ -23,7 +25,7 @@ def validate_dims_coords(
     ----------
     data : xarray.DataArray
         The input data array to validate.
-    required_dim_coords : dict of {str: list of str}
+    required_dim_coords : dict of {str: list of str | list of Hashable}
         A dictionary mapping required dimensions to a list of required
         coordinate values along each dimension.
     exact_coords : bool, optional
