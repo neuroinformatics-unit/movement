@@ -17,7 +17,7 @@ from movement.utils.vector import compute_signed_angle_2d
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
-PointLikeList: TypeAlias = Sequence[PointLike] | np.ndarray
+PointLikeList: TypeAlias = Sequence[PointLike]
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 
