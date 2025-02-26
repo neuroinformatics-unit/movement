@@ -41,7 +41,7 @@ It is early days currently, but you can join in the conversation for what's plan
 
 ### Plotting Made Easier
 
-The {module}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
+The {mod}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
 These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate `matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use;
 
@@ -63,7 +63,7 @@ You can find a new {ref}`example <sphx_glr_examples_broadcasting_your_own_method
 
 ### Regions of Interest (RoIs)
 
-One of the biggest feature introductions to `movement` during this period is {module}`support for RoIs <movement.roi>`.
+One of the biggest feature introductions to `movement` during this period is {mod}`support for RoIs <movement.roi>`.
 We now support one-dimensional regions of interest (segments, or piecewise-linear structures formed of multiple segments) as well as two-dimensional polygonal regions.
 You can create RoIs using the {class}`movement.roi.LineOfInterest` and {class}`movement.roi.PolygonOfInterest` classes respectively.
 There are more details about how the class is implemented on top of [`shapely`](https://shapely.readthedocs.io/en/stable/) in the {class}`docstring <movement.roi.base.BaseRegionOfInterest>`, and a note about how the interior of 2D shapes is handled.
