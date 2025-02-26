@@ -11,6 +11,7 @@ from movement.roi.line import LineOfInterest
 
 @pytest.fixture
 def sample_target_points() -> dict[str, np.ndarray]:
+    """Sample 2D trajectory data."""
     return xr.DataArray(
         np.array(
             [

@@ -17,9 +17,10 @@ def sample_position_array() -> xr.DataArray:
     The data has time, space, and keypoints dimensions.
 
     The keypoints are left, right, midpt (midpoint), and wild.
-    The midpt is the mean of the left and right keypoints; the wild keypoint
-    may be anywhere in the plane (it is used to test that the function respects
-    the origin of the forward vector that the user provides).
+    The midpt is the mean of the left and right keypoints.
+    The wild keypoint is a point in the plane distinct from the midpt, and is
+    used to test that the function respects the origin of the forward vector
+    that the user provides (even if it is physically non-nonsensical).
 
     time 1:
         left @ (1.25, 0.), right @ (1., -0.25), wild @ (-0.25, -0.25)
@@ -258,12 +259,8 @@ def test_ego_and_allocentric_angle_to_region(
     """Test computation of the egocentric and allocentric angle.
 
     Note, we only test functionality explicitly introduced in this method.
-    Input arguments that are just handed to other functions are not explicitly
-    tested here.
-
-    Specifically;
-
-    - ``in_degrees``,
+    Input arguments that are just handed to other functions (i.e.,
+    ``in_degrees``), are not explicitly tested here.
 
     The ``angle_rotates`` argument is tested in all cases (signs should be
     reversed when toggling the argument).
@@ -317,7 +314,7 @@ def test_ego_and_allocentric_angle_to_region(
 
 @pytest.fixture
 def points_around_segment() -> xr.DataArray:
-    """Points around the segment_of_y_equals_x.
+    """Sample points on either side of the segment y=x.
 
     Data has (time, space, keypoints) dimensions, shape (, 2, 2).
 
@@ -355,7 +352,7 @@ def points_around_segment() -> xr.DataArray:
     )
 
 
-def test_angle_to_support_plane(
+def test_angle_to_normal(
     segment_of_y_equals_x: LineOfInterest,
     points_around_segment: xr.DataArray,
 ) -> None:
@@ -363,7 +360,7 @@ def test_angle_to_support_plane(
 
     This method checks two things:
 
-    - The angle_to_support_plane returns the correct angle, and
+    - The compute_angle_to_normal method returns the correct angle, and
     - The method agrees with the egocentric angle computation, in the cases
     that the two calculations should return the same value (IE when the
     approach vector is the normal to the segment). And that the
@@ -378,7 +375,7 @@ def test_angle_to_support_plane(
 
     fwd_vector = compute_forward_vector(points_around_segment, "left", "right")
     positions = points_around_segment.mean(dim="keypoints")
-    angles_to_support = segment_of_y_equals_x.compute_angle_to_plane_normal(
+    angles_to_support = segment_of_y_equals_x.compute_angle_to_normal(
         fwd_vector, positions
     )
     xr.testing.assert_allclose(expected_output, angles_to_support)

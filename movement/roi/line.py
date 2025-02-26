@@ -114,7 +114,7 @@ class LineOfInterest(BaseRegionOfInterest):
             normal *= -1.0
         return normal
 
-    def compute_angle_to_plane_normal(
+    def compute_angle_to_normal(
         self,
         direction: xr.DataArray,
         position: xr.DataArray,
@@ -124,12 +124,6 @@ class LineOfInterest(BaseRegionOfInterest):
         in_degrees: bool = False,
     ) -> xr.DataArray:
         """Compute the angle between the normal to the segment and a direction.
-
-        This method is identical to
-        ``compute_egocentric_angle_to_nearest_point``, except that
-        rather than the angle between the approach vector and ``direction``,
-        the angle between the normal directed toward the segment and
-        ``direction`` is returned.
 
         Parameters
         ----------
