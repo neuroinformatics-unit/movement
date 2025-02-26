@@ -1,8 +1,9 @@
-"""Compute Angles Relative to Regions of Interest
+"""Compute angles relative to regions of interest
 =================================================
 
-Compute egocentric and allocentric boundary angles,
-using ``movement``'s Regions of Interest.
+Use ``movement``'s Regions of Interest to compute distances from individuals
+to points of interest, approach vectors, and both egocentric and allocentric
+boundary angles.
 """
 
 # %%
@@ -23,31 +24,52 @@ from movement.roi import PolygonOfInterest
 # %%
 # Load Sample Dataset
 # -------------------
-# First, we load the ``SLEAP_three-mice_Aeon_proofread`` example dataset.
-# For the rest of this example we'll only need the ``position`` data array, so
-# we store it in a separate variable.
-#
-# The individuals in this dataset follow very similar, arc-like trajectories.
-# This is because they are actually confined to an arena in the shape of an
-# "octadecagonal doughnut"; an 18-sided regular polygon, with a smaller
-# 18-sided regular polygon "cut out" of it.
+# In this example, we will use the ``SLEAP_three-mice_Aeon_proofread`` example
+# dataset. We only need the ``position`` data array, so we store it in a
+# separate variable.
 
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
 
 # %%
+# The individuals in this dataset follow very similar, arc-like trajectories.
+# This is because they are actually confined to an arena in the shape of an
+# "octadecagonal doughnut"; an 18-sided regular polygon, with a smaller
+# 18-sided regular polygon "cut out" of it.
+# We can visualise the arena by loading and plotting its sample frame.
+
+arena_fig, arena_ax = plt.subplots(1, 1)
+# Overlay an image of the experimental arena
+arena_image = sample_data.fetch_dataset_paths(
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+)["frame"]
+arena_ax.imshow(plt.imread(arena_image))
+
+arena_ax.set_xlabel("x (pixels)")
+arena_ax.set_ylabel("y (pixels)")
+
+arena_fig.show()
+
+# %%
 # Define Regions of Interest
 # --------------------------
-# First, we should define our arena as a region of interest. Since our arena is
-# two-dimensional, we use a ``PolygonOfInterest`` to describe it
-# programmatically.
-# The future napari plugin will support creating regions of interest by
-# clicking points and drawing shapes in the napari GUI. For the time being, we
-# can still define our arena by specifying the points that make up the interior
-# and exterior boundaries.
+# In order to ask questions about the behaviour of our individuals with respect
+# to the arena, we first need to define a region of interest to represent our
+# arena programmatically. Since our arena is two-dimensional, we use a
+# ``PolygonOfInterest`` to describe it..
+#
+# The future `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
+# will support creating regions of interest by clicking points and drawing
+# shapes in the napari GUI. For the time being, we can still define our arena
+# by specifying the points that make up the interior and exterior boundaries.
+
+# The centre of the arena is located roughly here
 centre = np.array([712.5, 541])
-width = 40.0  # The "ring" is 40 pixels wide
-extent = 1090.0  # Distance between opposite vertices
+# The "width" (distance between the inner and outer octadecagonal rings) is 40
+# pixels wide
+width = 40.0
+# The distance between opposite vertices of the outer ring is 1090 pixels
+extent = 1090.0
 
 # Create the vertices of a "unit" octadecagon, centred on (0,0)
 n_pts = 18
@@ -75,56 +97,56 @@ arena = PolygonOfInterest(outer_boundary, holes=[inner_boundary], name="Arena")
 # %%
 # View Individual Paths inside the Arena
 # --------------------------------------
-# We can plot what we have created to provide a visual aid.
-fig, ax = plt.subplots(1, 1)
+# We can now overlay both our region of interest and the paths that the
+# individuals followed on top of our image of the arena.
+arena_fig, arena_ax = plt.subplots(1, 1)
+arena_ax.imshow(plt.imread(arena_image))
+arena_ax.set_xlabel("x (pixels)")
+arena_ax.set_ylabel("y (pixels)")
 
 # Plot the arena
-ax.plot(
+arena_ax.plot(
     [c[0] for c in arena.exterior_boundary.coords],
     [c[1] for c in arena.exterior_boundary.coords],
     "black",
     lw=0.5,
 )
-ax.plot(
+arena_ax.plot(
     [c[0] for c in arena.interior_boundaries[0].coords],
     [c[1] for c in arena.interior_boundaries[0].coords],
     "black",
     lw=0.5,
 )
-# Overlay an image of the experimental arena
-frame_path = sample_data.fetch_dataset_paths(
-    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
-)["frame"]
-ax.imshow(plt.imread(frame_path))
 
-for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
-):
+# Plot trajectories of the individuals
+mouse_names_and_colours = list(
+    zip(positions.individuals.values, ["r", "g", "b"], strict=False)
+)
+for mouse_name, col in mouse_names_and_colours:
     plot_trajectory(
         positions,
         individual=mouse_name,
         keypoints="centroid",
-        ax=ax,
+        ax=arena_ax,
         linestyle="-",
         marker=".",
         s=1,
         c=col,
         label=mouse_name,
     )
-ax.invert_yaxis()
-ax.set_title("Trajectories")
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.legend()
+arena_ax.set_title("Individual trajectories within the arena")
+arena_ax.legend()
+
+arena_fig.show()
 
 # %%
-# And we can confirm that all individuals, at all timepoints, are indeed
+# And we can confirm that all individuals, at all time-points, are indeed
 # contained within our arena.
 were_inside = arena.contains_point(positions).all()
 
 if were_inside:
     print(
-        "All recorded positions, at all times, "
+        "All recorded positions, at all times,\n"
         "and for all individuals, were inside the arena."
     )
 else:
@@ -136,16 +158,14 @@ else:
 # Having defined our region of interest, we can begin to ask questions about
 # the individual's behaviour during the experiment.
 # One thing of particular interest to us might be the distance between an
-# individual and the arena boundary. We can query the ``PolygonOfInterest``
-# that we created for this information.
+# individual and the arena walls (boundary). We can query the
+# ``PolygonOfInterest`` that we created for this information.
 
 distances_to_boundary = arena.compute_distance_to(
     positions, boundary_only=True
 )
 distances_fig, distances_ax = plt.subplots(1, 1)
-for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
-):
+for mouse_name, col in mouse_names_and_colours:
     distances_ax.plot(
         distances_to_boundary.sel(individuals=mouse_name),
         c=col,
@@ -155,19 +175,24 @@ distances_ax.legend()
 distances_ax.set_xlabel("Time (frames)")
 distances_ax.set_ylabel("Distance to closest arena wall (pixels)")
 distances_fig.show()
+# %%
+# Note that we can also obtain the approach vector for each individual, at each
+# time-point as well, using the ``compute_approach_vector`` method.
+# The distances that we computed above are just the magnitudes of the approach
+# vectors that are computed by the following command.
+
+approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 
 # %%
-# ``compute_distance_to`` is returning the distance to the closest
+# That ``compute_distance_to`` is returning the distance to the closest
 # point on the arena's boundary, which could be either the interior or exterior
-# boundary. If we wanted to explicitly know the distance to the exterior
-# boundary, for example, we can call this on the corresponding attribute of our
-# Polygon.
+# wall. If we wanted to explicitly know the distance to the exterior wall, for
+# example, we can call this on the corresponding attribute of our
+# ``PolygonOfInterest``.
 
 distances_to_exterior = arena.exterior_boundary.compute_distance_to(positions)
 distances_exterior_fig, distances_exterior_ax = plt.subplots(1, 1)
-for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
-):
+for mouse_name, col in mouse_names_and_colours:
     distances_exterior_ax.plot(
         distances_to_exterior.sel(individuals=mouse_name),
         c=col,
@@ -178,11 +203,6 @@ distances_exterior_ax.set_xlabel("Time (frames)")
 distances_exterior_ax.set_ylabel("Distance to exterior wall (pixels)")
 distances_exterior_fig.show()
 
-# %%
-# Note that we can also obtain the approach vector for each individual, at each
-# time-point as well, using the ``compute_approach_vector`` method.
-
-approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 
 # %%
 # The ``boundary_only`` Keyword
@@ -194,13 +214,20 @@ approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 # the region as being a distance 0 from the region - and so the resulting
 # distances would all be 0!
 
+distances_to_region = arena.compute_distance_to(positions, boundary_only=False)
+
+print(
+    "distances_to_region are all zero:", np.allclose(distances_to_region, 0.0)
+)
+
+# %%
 # The ``boundary_only`` keyword argument can be provided to a number of methods
 # of the ``PolygonOfInterest`` and ``LineOfInterest`` classes. In each case,
 # the effect is the same; to toggle whether interior points of the region are
 # considered part of the region (``boundary_only = False``) or not
 # (``boundary_only = True``). Care should be taken when dealing with 1D regions
-# of interest (EG segments, walls), since the "boundary" of a 1D object is
-# considered to be just the endpoints.
+# of interest like segments or dividing walls, since the "boundary" of a 1D
+# object is considered to be just the endpoints!
 
 # %%
 # Boundary Angles
@@ -209,15 +236,17 @@ approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 # about their orientation with respect to the boundary. ``movement`` currently
 # supports the computation of two such "boundary angle"s;
 #
-# - The allocentric boundary angle. Given a region of interest $R$, reference
-#   vector $\vec{r}$ (such as global north), and a position $p$ in space (EG
-#   the position of an individual), the allocentric boundary angle is the
-#   signed angle between the approach vector from $p$ to $R$, and $\vec{r}$.
-# - The egocentric boundary angle. Given a region of interest $R$, a forward
-#   vector $\vec{f}$ (EG the direction of travel of an individual), and the
-#   point of origin of $\vec{f}$ denoted $p$ (EG the individual's current
-#   position), the egocentric boundary angle is the signed angle between the
-#   approach vector from $p$ to $R$ and $\vec{f}$.
+# - The allocentric boundary angle. Given a region of interest :math:`R`,
+#   reference vector :math:`\vec{r}` (such as global north), and a position
+#   :math:`p` in space (e.g. the position of an individual), the allocentric
+#   boundary angle is the signed angle between the approach vector from
+#   :math:`p` to :math:`R`, and :math:`\vec{r}`.
+# - The egocentric boundary angle. Given a region of interest :math:`R`, a
+#   forward vector :math:`\vec{f}` (e.g. the direction of travel of an
+#   individual), and the point of origin of :math:`\vec{f}` denoted :math:`p`
+#   (e.g. the individual's current position), the egocentric boundary angle is
+#   the signed angle between the approach vector from :math:`p` to :math:`R`,
+#   and :math:`\vec{f}`.
 #
 #
 # Note that egocentric angles are generally computed with changing frames of
@@ -255,9 +284,7 @@ egocentric_angles = inner_wall.compute_egocentric_angle_to_nearest_point(
 angle_plot, angle_ax = plt.subplots(2, 1, sharex=True)
 allo_ax, ego_ax = angle_ax
 
-for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
-):
+for mouse_name, col in mouse_names_and_colours:
     allo_ax.plot(
         allocentric_angles.sel(individuals=mouse_name),
         c=col,
@@ -294,6 +321,6 @@ angle_plot.show()
 # indicates that, by-and-large, the "forward" direction of the individuals is
 # remaining constant relative to the interior wall, with the fluctuations
 # attributable to small deviations in the direction of travel. The "flipping"
-# of the angle sign indicates that the individual undertook a U-turn. That is,
-# switched from travelling clockwise around the enclosure to anticlockwise
-# (or vice-versa).
+# of the angle sign indicates that the individual undertook a sudden U-turn.
+# That is, switched from travelling clockwise around the enclosure to
+# anticlockwise (or vice-versa).
