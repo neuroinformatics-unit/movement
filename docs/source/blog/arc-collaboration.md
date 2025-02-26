@@ -7,19 +7,43 @@ category: release
 language: English
 ---
 
-# UCL-ARC Collaboration Report
+# Spatial Navigation Feature Update
 
-_This is a short summary of the features introduced during the collaboration with UCL-ARC, Jan-Feb 2025._
+_This is a short summary of the spatial navigation features introduced during Jan-Feb 2025._
 
 ## Original Roadmap
 
+Between January and February 2025, the `movement` developer team decided to focus on expanding the suite of tools useful for the analysis of spatial navigation.
+This work started with the creation of so-called "backend" functions that can perform general operations on vectors in an efficient manner, from which friendlier functions could be provided.
+Once these features were in place, development would start on supporting "Regions of Interest" (RoIs) within `movement`.
+RoIs are essentially labelled regions in space that have some significance in the experimental setup - the location of a nest, or the extent of the enclosure, for example.
+By providing a way to store and describe these objects within `movement`, analysis workflows can be simplified and can make use of the existing "backend" functions to provide convenient access to interesting quantities; such as the distance of each individual from a RoI, or the relative orientation of an individual from the nearest wall of the enclosure.
+
+There were also a few independent bursts of development in other areas; including providing sample pupilometry data and an example workflow showing how `movement` can be used to analyse it, making it easier to produce common plots that appear in analysis, and the ability to scale data.
+
+A copy of the original roadmap that was [shared on Zulip](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Roadmap.3A.20Spatial.20Navigation/near/495022291) is provided below.
+
+![Original feature roadmap for Jan-Feb.](../_static/blog_posts/arc-roadmap.png)
+
 ## What's Been Introduced?
+
+Pupilometry and scaling... either here or maybe as one section?
+
+### Plotting Made Easier
+
+The `movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
+These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate `matplotlib.pyplot`.
+Currently, the submodule has two wrappers to use;
+
+- `plot_trajectory`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](https://github.com/neuroinformatics-unit/movement/pull/394).
+- `plot_occupancy`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](https://github.com/neuroinformatics-unit/movement/pull/403).
+
+Examples to showcase the use of these plotting functions are currently [being produced](https://github.com/neuroinformatics-unit/movement/issues/415).
+[Our other examples](https://movement.neuroinformatics.dev/examples/index.html) have also been updated to use these functions where possible.
 
 ### make broadcastable
 
 ### regions of interest
-
-### convenience plotting
 
 <!-- :::{tip}
 See our [installation guide](target-installation) for instructions on how to
