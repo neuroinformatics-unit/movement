@@ -77,7 +77,6 @@ for mouse_name, col in zip(
         label=mouse_name,
     )
     ax.legend().set_alpha(1)
-ax.title.set_text("Trajectories of three mice")
 fig.show()
 
 # %%
@@ -98,6 +97,10 @@ for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
         ax=ax,
         s=2,
     )
+    ax.set_title(f"Trajectory {mouse_name}")
+    ax.set_xlabel("x (pixels)")
+    ax.set_ylabel("y (pixels)")
+    ax.collections[0].colorbar.set_label("Time (frames)")
 fig.tight_layout()
 fig.show()
 
