@@ -262,6 +262,7 @@ class BaseRegionOfInterest:
                 if closed
                 else shapely.LineString(coordinates=points)
             )
+            self._shapely_geometry = shapely.normalize(self._shapely_geometry)
 
     def __repr__(self) -> str:  # noqa: D105
         return str(self)
