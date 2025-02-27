@@ -16,14 +16,15 @@ def segment_of_y_equals_x() -> LineOfInterest:
 def unit_square_pts() -> np.ndarray:
     """Points that define the 4 corners of a unit-length square.
 
-    The points have the lower-left corner positioned at (0,0).
+    The points have the lower-left corner positioned at (0,0),
+    and run clockwise around the centre of the would-be square.
     """
     return np.array(
         [
             [0.0, 0.0],
-            [1.0, 0.0],
-            [1.0, 1.0],
             [0.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 0.0],
         ],
         dtype=float,
     )
