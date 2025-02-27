@@ -808,6 +808,31 @@ class TestForwardVectorAngle:
             with_orientations_swapped, expected_orientations
         )
 
+    def test_in_degrees_toggle(
+        self, spinning_on_the_spot: xr.DataArray
+    ) -> None:
+        """Test that angles can be returned in degrees or radians."""
+        reference_vector = self.x_axis
+        left_keypoint = "left"
+        right_keypoint = "right"
+
+        in_radians = kinematics.compute_forward_vector_angle(
+            data=spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+            in_degrees=False,
+        )
+        in_degrees = kinematics.compute_forward_vector_angle(
+            data=spinning_on_the_spot,
+            left_keypoint=left_keypoint,
+            right_keypoint=right_keypoint,
+            reference_vector=reference_vector,
+            in_degrees=True,
+        )
+
+        xr.testing.assert_allclose(in_degrees, np.rad2deg(in_radians))
+
     @pytest.mark.parametrize(
         ["transformation"],
         [pytest.param("scale"), pytest.param("translation")],
