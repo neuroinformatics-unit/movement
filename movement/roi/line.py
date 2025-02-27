@@ -1,6 +1,6 @@
 """1-dimensional lines of interest."""
 
-from typing import Any, Literal
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -30,8 +30,6 @@ class LineOfInterest(BaseRegionOfInterest):
     will then be joined (in sequence) by straight lines between consecutive
     pairs of points, to form the LoI that is to be studied.
     """
-
-    __default_plot_args: dict[str, Any] = {}
 
     def __init__(
         self,
@@ -69,6 +67,13 @@ class LineOfInterest(BaseRegionOfInterest):
 
         """
         super().__init__(points, dimensions=1, closed=loop, name=name)
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """LinesOfInterest can simply be plotted as lines."""
+        ax.plot(np.asarray(self.coords), **matplotlib_kwargs)
+        return fig, ax
 
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="normal"
@@ -154,18 +159,3 @@ class LineOfInterest(BaseRegionOfInterest):
             ),
             in_degrees=in_degrees,
         )
-
-    def plot(
-        self, ax: plt.Axes | None = None, **matplotlib_kwargs
-    ) -> tuple[plt.Figure, plt.Axes]:
-        for arg, default in self.__default_plot_args.items():
-            if arg not in matplotlib_kwargs:
-                matplotlib_kwargs[arg] = default
-
-        if ax is None:
-            fig, ax = plt.subplots(1, 1)
-        else:
-            fig = ax.get_figure()
-
-        ax.plot(np.asarray(self.coords), **matplotlib_kwargs)
-        return fig, ax

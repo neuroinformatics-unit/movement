@@ -115,23 +115,18 @@ class PolygonOfInterest(BaseRegionOfInterest):
             for i, int_boundary in enumerate(self.region.interiors)
         )
 
-    def plot(
-        self, ax: plt.Axes | None = None, **matplotlib_kwargs
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
     ) -> tuple[plt.Figure, plt.Axes]:
-        for arg, default in self.__default_plot_args.items():
-            if arg not in matplotlib_kwargs:
-                matplotlib_kwargs[arg] = default
+        """Polygonal regions need to use patch to be plotted.
 
-        if ax is None:
-            fig, ax = plt.subplots(1, 1)
-        else:
-            fig = ax.get_figure()
-
-        # matplotlib requires hole coordinates to be listed in the reverse
-        # orientation to the exterior boundary.
-        # np.flip on the exterior coordinates is a cheap way to ensure that
-        # we adhere to this convention, since our geometry is normalised upon
-        # creation.
+        In addition, ``matplotlib`` requires hole coordinates to be listed in
+        the reverse orientation to the exterior boundary. Running
+        ``numpy.flip`` on the exterior coordinates is a cheap way to ensure
+        that we adhere to this convention, since our geometry is normalised
+        upon creation, so this amounts to reversing the order of the
+        coordinates.
+        """
         exterior_boundary_as_path = PltPath(
             np.flip(np.asarray(self.exterior_boundary.coords), axis=0)
         )
@@ -145,5 +140,4 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         polygon_shape = PltPatch(path, **matplotlib_kwargs)
         ax.add_patch(polygon_shape)
-
         return fig, ax

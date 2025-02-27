@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Sequence
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
+import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 import xarray as xr
@@ -58,6 +59,7 @@ class BaseRegionOfInterest:
     """
 
     __default_name: str = "Un-named region"
+    __default_plot_args: dict[str, Any] = {}
 
     _name: str | None
     _shapely_geometry: SupportedGeometry
@@ -274,6 +276,11 @@ class BaseRegionOfInterest:
             f"{self.__class__.__name__} {self.name} "
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        raise NotImplementedError("_plot must be implemented by subclass.")
 
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
@@ -569,3 +576,29 @@ class BaseRegionOfInterest:
             ),
             in_degrees=in_degrees,
         )
+
+    def plot(
+        self, ax: plt.Axes | None = None, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """Plot the region of interest on a new or existing axis.
+
+        Parameters
+        ----------
+        ax : plt.Axes, optional
+            ``matplotlib.pyplot.Axes`` object to draw the region on. A new
+            ``Figure`` and ``Axes`` will be created if not provided.
+        matplotlib_kwargs : Any
+            Keyword arguments passed to the ``matplotlib.pyplot`` plotting
+            function.
+
+        """
+        for arg, default in self.__default_plot_args.items():
+            if arg not in matplotlib_kwargs:
+                matplotlib_kwargs[arg] = default
+
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        else:
+            fig = ax.get_figure()
+
+        return self._plot(fig, ax, **matplotlib_kwargs)
