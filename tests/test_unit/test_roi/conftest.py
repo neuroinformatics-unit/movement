@@ -7,6 +7,7 @@ from movement.roi import PolygonOfInterest
 
 @pytest.fixture()
 def unit_square_pts() -> np.ndarray:
+    """Vertices of a unit square."""
     return np.array(
         [
             [0.0, 0.0],
@@ -16,6 +17,12 @@ def unit_square_pts() -> np.ndarray:
         ],
         dtype=float,
     )
+
+
+@pytest.fixture()
+def triangle_pts():
+    """Vertices of a right-angled triangle."""
+    return [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)]
 
 
 @pytest.fixture()
@@ -35,4 +42,32 @@ def unit_square_with_hole(
 ) -> PolygonOfInterest:
     return PolygonOfInterest(
         unit_square_pts, holes=[unit_square_hole], name="Unit square with hole"
+    )
+
+
+@pytest.fixture()
+def triangle(triangle_pts) -> PolygonOfInterest:
+    """Triangle."""
+    return PolygonOfInterest(triangle_pts, name="triangle")
+
+
+@pytest.fixture()
+def triangle_different_name(triangle_pts) -> PolygonOfInterest:
+    """Triangle with a different name."""
+    return PolygonOfInterest(triangle_pts, name="pizza_slice")
+
+
+@pytest.fixture()
+def triangle_moved_01(triangle_pts) -> PolygonOfInterest:
+    """Triangle moved by 0.01 on the x and y axis."""
+    return PolygonOfInterest(
+        [(x + 0.01, y + 0.01) for x, y in triangle_pts], name="triangle"
+    )
+
+
+@pytest.fixture()
+def triangle_moved_100(triangle_pts) -> PolygonOfInterest:
+    """Triangle moved by 1.00 on the x and y axis."""
+    return PolygonOfInterest(
+        [(x + 1.0, y + 1.0) for x, y in triangle_pts], name="triangle"
     )

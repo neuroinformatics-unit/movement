@@ -2,41 +2,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.roi import PolygonOfInterest, compute_region_occupancy
-
-
-@pytest.fixture()
-def triangle_coords():
-    """Coordinates for the right-angled triangle."""
-    return [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)]
-
-
-@pytest.fixture()
-def triangle(triangle_coords) -> PolygonOfInterest:
-    """Triangle."""
-    return PolygonOfInterest(triangle_coords, name="triangle")
-
-
-@pytest.fixture()
-def triangle_different_name(triangle_coords) -> PolygonOfInterest:
-    """Triangle with a different name."""
-    return PolygonOfInterest(triangle_coords, name="pizza_slice")
-
-
-@pytest.fixture()
-def triangle_moved_01(triangle_coords) -> PolygonOfInterest:
-    """Triangle moved by 0.01 on the x and y axis."""
-    return PolygonOfInterest(
-        [(x + 0.01, y + 0.01) for x, y in triangle_coords], name="triangle"
-    )
-
-
-@pytest.fixture()
-def triangle_moved_100(triangle_coords) -> PolygonOfInterest:
-    """Triangle moved by 1.00 on the x and y axis."""
-    return PolygonOfInterest(
-        [(x + 1.0, y + 1.0) for x, y in triangle_coords], name="triangle"
-    )
+from movement.roi import compute_region_occupancy
 
 
 @pytest.mark.parametrize(
@@ -122,13 +88,17 @@ def test_region_occupancy(
 def test_region_occupancy_many_regions(
     triangle, unit_square, unit_square_with_hole, triangle_different_name
 ):
-    """Tests occupancy for many RoIs with similar names.
+    """Tests occupancy for many RoIs with identical names.
 
     Ensures correct data and coordinate names for:
         - 1000 triangles suffixed _000 to _999
         - 100 unit squares suffixed _00 to _99
         - 10 unit squares with holes suffixed _0 to _9
         - 1 triangle named "pizza_slice" without suffix
+
+    This test checks unique naming of coordinates in the computed
+    occupancies when up to 1000 regions with identical names are passed,
+    which is not covered in the other tests.
     """
     regions = (
         [triangle] * 1000
