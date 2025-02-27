@@ -7,7 +7,7 @@ authors = [
 ]
 description = "Analysis of body movement"
 readme = "README.md"
-requires-python = ">=3.10.0"
+requires-python = ">=3.11.0"
 dynamic = ["version"]
 
 license = { text = "BSD-3-Clause" }
@@ -29,9 +29,9 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent",
   "License :: OSI Approved :: BSD License",
 ]
@@ -143,14 +143,14 @@ legacy_tox_ini = """
 requires =
     tox-conda
     tox-gh-actions
-envlist = py{310,311,312}
+envlist = py{311,312,313}
 isolated_build = True
 
 [gh-actions]
 python =
-    3.10: py310
     3.11: py311
     3.12: py312
+    3.13: py313
 
 [testenv]
 conda_deps =
