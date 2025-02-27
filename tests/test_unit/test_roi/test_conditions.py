@@ -68,7 +68,7 @@ def triangle_moved_100(triangle_coords) -> PolygonOfInterest:
                         [True, False, True, False],
                     ]
                 ),
-                "coords": ["triangle_00", "triangle_01", "triangle_02"],
+                "coords": ["triangle_0", "triangle_1", "triangle_2"],
             },
             id="3 superimposed triangles with same name",
         ),
@@ -96,7 +96,7 @@ def triangle_moved_100(triangle_coords) -> PolygonOfInterest:
                         [True, False, True, False],
                     ]
                 ),
-                "coords": ["triangle_00", "triangle_01"],
+                "coords": ["triangle_0", "triangle_1"],
             },
             id="2 different triangles with same name",
         ),
@@ -111,7 +111,7 @@ def triangle_moved_100(triangle_coords) -> PolygonOfInterest:
                         [False, False, False, True],
                     ]
                 ),
-                "coords": ["triangle_00", "triangle_01", "triangle_02"],
+                "coords": ["triangle_0", "triangle_1", "triangle_2"],
             },
             id="3 different triangles with same name",
         ),
@@ -144,6 +144,25 @@ def test_region_occupancy(
         dims=["time", "space"],
         coords={"space": ["x", "y"]},
     )
+    occupancies = compute_region_occupancy(data, regions)
+
+    assert occupancies.dims == ("occupancy", "time")
+    assert (expected_output["data"] == occupancies.data).all()
+    assert occupancies.occupancy.values.tolist() == expected_output["coords"]
+
+
+def test_region_occupancy_1000_triangles(triangle):
+    """Tests region_occupancy 1000 triangles with the same name."""
+    regions = [triangle] * 1000
+    data = xr.DataArray(
+        data=np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
+        dims=["time", "space"],
+        coords={"space": ["x", "y"]},
+    )
+    expected_output = {
+        "data": np.array([[True, False, True, False]] * 1000),
+        "coords": [f"triangle_{i:03d}" for i in range(1000)],
+    }
     occupancies = compute_region_occupancy(data, regions)
 
     assert occupancies.dims == ("occupancy", "time")

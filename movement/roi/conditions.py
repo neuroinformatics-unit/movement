@@ -73,24 +73,26 @@ def compute_region_occupancy(
 
     """
     # Filter out duplicate names if they are provided
-    duplicate_names_count: defaultdict[str, int] = defaultdict(int)
+    number_of_times_name_appears: defaultdict[str, int] = defaultdict(int)
     for r in regions:
-        duplicate_names_count[r.name] += 1
+        number_of_times_name_appears[r.name] += 1
+
     duplicate_names_max_chars = {
-        key: int(np.ceil(np.log10(value)).item()) + 1
-        for key, value in duplicate_names_count.items()
+        key: int(np.ceil(np.log10(value)).item())
+        for key, value in number_of_times_name_appears.items()
+        if value > 1
     }
     duplicate_names_used: defaultdict[str, int] = defaultdict(int)
 
     occupancies = {}
     for r in regions:
         name = r.name
-        if duplicate_names_count[name] > 1:
+        if name in duplicate_names_max_chars:
             name_suffix = str(duplicate_names_used[name]).zfill(
                 duplicate_names_max_chars[name]
             )
-            name = f"{name}_{name_suffix}"
             duplicate_names_used[name] += 1
+            name = f"{name}_{name_suffix}"
         occupancies[name] = r.contains_point(data)
 
     return xr.concat(occupancies.values(), dim="occupancy").assign_coords(
