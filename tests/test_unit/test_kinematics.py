@@ -1,6 +1,6 @@
 import re
 from contextlib import nullcontext as does_not_raise
-from typing import Any, Literal
+from typing import Literal
 
 import numpy as np
 import pytest
@@ -738,16 +738,12 @@ class TestForwardVectorAngle:
         )
 
     @pytest.mark.parametrize(
-        ["swap_left_right", "swap_camera_view", "swap_angle_rotation"],
+        ["swap_left_right", "swap_camera_view"],
         [
-            pytest.param(True, True, True, id="(TTT) LR, Camera, Angle"),
-            pytest.param(True, True, False, id="(TTF) LR, Camera"),
-            pytest.param(True, False, True, id="(TFT) LR, Angle"),
-            pytest.param(True, False, False, id="(TFF) LR"),
-            pytest.param(False, True, True, id="(FTT) Camera, Angle"),
-            pytest.param(False, True, False, id="(FTF) Camera"),
-            pytest.param(False, False, True, id="(FFT) Angle"),
-            pytest.param(False, False, False, id="(FFF)"),
+            pytest.param(True, True, id="(TT) LR, Camera"),
+            pytest.param(True, False, id="(TF) LR"),
+            pytest.param(False, True, id="(FT) Camera"),
+            pytest.param(False, False, id="(FF)"),
         ],
     )
     def test_antisymmetry_properties(
@@ -756,7 +752,6 @@ class TestForwardVectorAngle:
         spinning_on_the_spot: xr.DataArray,
         swap_left_right: bool,
         swap_camera_view: bool,
-        swap_angle_rotation: bool,
     ) -> None:
         r"""Test antisymmetry arises where expected.
 
@@ -784,8 +779,6 @@ class TestForwardVectorAngle:
             args_to_function["right_keypoint"] = right_keypoint
         if swap_camera_view:
             args_to_function["camera_view"] = "bottom_up"
-        if swap_angle_rotation:
-            args_to_function["angle_rotates"] = "forward to ref"
 
         # mypy call here is angry, https://github.com/python/mypy/issues/1969
         with_orientations_swapped = kinematics.compute_forward_vector_angle(
@@ -803,14 +796,12 @@ class TestForwardVectorAngle:
         expected_orientations = without_orientations_swapped.copy(deep=True)
         if swap_left_right:
             expected_orientations = push_into_range(
-                expected_orientations + 180.0
+                expected_orientations + np.pi, lower=-np.pi, upper=np.pi
             )
         if swap_camera_view:
             expected_orientations = push_into_range(
-                expected_orientations + 180.0
+                expected_orientations + np.pi, lower=-np.pi, upper=np.pi
             )
-        if swap_angle_rotation:
-            expected_orientations *= -1.0
         expected_orientations = push_into_range(expected_orientations)
 
         xr.testing.assert_allclose(
@@ -875,47 +866,6 @@ class TestForwardVectorAngle:
         )
 
         xr.testing.assert_allclose(untranslated_output, translated_output)
-
-    @pytest.mark.parametrize(
-        ["args_to_fn", "expected_error"],
-        [
-            pytest.param(
-                {
-                    "reference_vector": x_axis,
-                    "angle_rotates": "elephants first",
-                },
-                ValueError("Unknown angle convention: 'elephants first'"),
-                id="Unknown angle orientation",
-            ),
-            pytest.param(
-                {
-                    "reference_vector": np.array([1.0, 0.0, 0.0]),
-                },
-                ValueError(
-                    "conflicting sizes for dimension 'space': length 3 on the "
-                    "data but length 2 on coordinate 'space'"
-                ),
-                id="Reference vector not of shape (2,)",
-            ),
-        ],
-    )
-    def test_error_cases(
-        self,
-        spinning_on_the_spot: xr.DataArray,
-        args_to_fn: dict[str, Any],
-        expected_error: Exception,
-    ) -> None:
-        """Test that the angle orientation provided has to be recognised."""
-        with pytest.raises(
-            type(expected_error),
-            match=re.escape(str(expected_error)),
-        ):
-            kinematics.compute_forward_vector_angle(
-                spinning_on_the_spot,
-                "left",
-                "right",
-                **args_to_fn,
-            )
 
     def test_casts_from_tuple(
         self, spinning_on_the_spot: xr.DataArray
