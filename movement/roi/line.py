@@ -72,7 +72,11 @@ class LineOfInterest(BaseRegionOfInterest):
         self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
     ) -> tuple[plt.Figure, plt.Axes]:
         """LinesOfInterest can simply be plotted as lines."""
-        ax.plot(np.asarray(self.coords), **matplotlib_kwargs)
+        ax.plot(
+            [c[0] for c in self.coords],
+            [c[1] for c in self.coords],
+            **matplotlib_kwargs,
+        )
         return fig, ax
 
     @broadcastable_method(
