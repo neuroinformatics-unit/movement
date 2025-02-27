@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
@@ -10,9 +11,9 @@ from movement.roi.base import BaseRegionOfInterest
 
 @pytest.fixture
 def havarti() -> PolygonOfInterest:
-    """Triangular RoI with several holes.
+    """Wedge-shaped RoI with several holes.
 
-    Havarti is a type of cheese, FYI.
+    Havarti is a type of cheese that typically has holes and divots.
     """
     wedge = [(0, 0), (4, 0), (4, 0.5), (0, 2)]
     hole1 = [(0.5, 0.5), (0.5, 0.75), (0.625, 0.625)]
@@ -21,6 +22,40 @@ def havarti() -> PolygonOfInterest:
     hole4 = [(0.5, 1.75), (0.75, 1.5), (1.0, 1.25), (1.25, 1.25), (1.5, 1.4)]
     return PolygonOfInterest(
         wedge, holes=[hole1, hole2, hole3, hole4], name="Havarti"
+    )
+
+
+@pytest.fixture
+def octagonal_doughnut() -> PolygonOfInterest:
+    """18-sided doughnut.
+
+    This region matches (approximately) to the arena in the
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5" dataset.
+    """
+    centre = np.array([712.5, 541])
+    width = 40.0
+    extent = 1090.0
+
+    n_pts = 18
+    unit_shape = np.array(
+        [
+            np.exp((np.pi / 2.0 + (2.0 * i * np.pi) / n_pts) * 1.0j)
+            for i in range(n_pts)
+        ],
+        dtype=complex,
+    )
+    outer_boundary = extent / 2.0 * unit_shape.copy()
+    outer_boundary = (
+        np.array([outer_boundary.real, outer_boundary.imag]).transpose()
+        + centre
+    )
+    inner_boundary = (extent - width) / 2.0 * unit_shape.copy()
+    inner_boundary = (
+        np.array([inner_boundary.real, inner_boundary.imag]).transpose()
+        + centre
+    )
+    return PolygonOfInterest(
+        outer_boundary, holes=[inner_boundary], name="Arena"
     )
 
 
@@ -33,6 +68,11 @@ def havarti() -> PolygonOfInterest:
             "havarti",
             {"facecolor": "yellow", "edgecolor": "black"},
             id="Cheese",
+        ),
+        pytest.param(
+            "octagonal_doughnut",
+            {"facecolor": ("black", 0.0)},  # Transparency hack
+            id="Octagonal doughnut",
         ),
         pytest.param(
             LineOfInterest([(0.0, 0.0), (1.0, 0.0)]), {}, id="Segment"
