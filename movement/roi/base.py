@@ -59,10 +59,26 @@ class BaseRegionOfInterest:
     """
 
     __default_name: str = "Un-named region"
-    __default_plot_args: dict[str, Any] = {}
 
     _name: str | None
     _shapely_geometry: SupportedGeometry
+
+    @property
+    def __default_plot_args(self) -> dict[str, Any]:
+        """Default plotting arguments used when drawing the region.
+
+        This argument is used inside ``self.plot``, which is implemented in the
+        base class.
+
+        This is implemented as a property for two reasons;
+        - To ensure that the defaults can be set in a single place within the
+        class definition,
+        - To allow for easy overwriting in subclasses, which will be necessary
+        given lines and polygons must be plotted differently,
+        - In future, allows us to customise the defaults on a per-region basis
+        (e.g., default labels can inherit ``self.name``).
+        """
+        return {}
 
     @property
     def coords(self) -> CoordinateSequence:

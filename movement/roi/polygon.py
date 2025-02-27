@@ -38,10 +38,12 @@ class PolygonOfInterest(BaseRegionOfInterest):
     via the ``holes`` property.
     """
 
-    __default_plot_args: dict[str, Any] = {
-        "facecolor": "lightblue",
-        "edgecolor": "black",
-    }
+    @property
+    def __default_plot_args(self) -> dict[str, Any]:
+        return {
+            "facecolor": "lightblue",
+            "edgecolor": "black",
+        }
 
     def __init__(
         self,
