@@ -9,7 +9,7 @@ as points overlaid on video frames.
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
-out the [kinks](target-plugin-known-issues).
+out the [kinks](https://github.com/neuroinformatics-unit/movement/issues?q=sort%3Aupdated-desc+is%3Aissue+state%3Aopen+label%3AGUI+label%3Abug).
 Please [get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
 :::
@@ -172,23 +172,3 @@ enabling you to change the point size, colour, or shape.
 We are also working on enabling the visualisation of
 [bounding boxes datasets](target-poses-and-bboxes-dataset) in the plugin.
 :::
-
-
-(target-plugin-known-issues)=
-## Known Issues
-
-1. The aforementioned
-   [video playback limitations](target-video-playback-limitations),
-   which are inherited from the `napari-video` plugin.
-
-2. Sometimes `napari` may show the following error message:
-
-   ```console
-   wrapped C/C++ object of type QtDimSliderWidget has been deleted
-   ```
-
-   This tends to happen when you delete a points layer containing the
-   pose data, load a new dataset, and then press on the play button (see
-   [GitHub issue](https://github.com/neuroinformatics-unit/movement/issues/433)
-   for more details). If you encounter this error, close the
-   `napari` window and relaunch the GUI.
