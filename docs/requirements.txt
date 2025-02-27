@@ -1,4 +1,4 @@
--e .
+-e .[napari]
 ablog
 linkify-it-py
 myst-parser
