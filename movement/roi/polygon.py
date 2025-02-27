@@ -142,4 +142,5 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         polygon_shape = PltPatch(path, **matplotlib_kwargs)
         ax.add_patch(polygon_shape)
+        ax.autoscale_view(tight=True)
         return fig, ax
