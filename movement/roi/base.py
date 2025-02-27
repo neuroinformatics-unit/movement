@@ -17,7 +17,7 @@ from movement.utils.vector import compute_signed_angle_2d
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
-PointLikeList: TypeAlias = Sequence[PointLike]
+PointLikeList: TypeAlias = Sequence[PointLike] | np.ndarray
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 
@@ -446,7 +446,7 @@ class BaseRegionOfInterest:
         boundary_only: bool = False,
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
-    ) -> float:
+    ) -> xr.DataArray:
         """Compute the allocentric angle to the nearest point in the region.
 
         With the term "allocentric", we indicate that we are measuring angles
