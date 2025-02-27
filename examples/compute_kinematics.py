@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """Compute and visualise kinematics.
 ====================================
 
