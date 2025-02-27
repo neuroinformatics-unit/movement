@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,7 +38,10 @@ class PolygonOfInterest(BaseRegionOfInterest):
     via the ``holes`` property.
     """
 
-    __default_plot_args = {"facecolor": "lightblue", "edgecolor": "black"}
+    __default_plot_args: dict[str, Any] = {
+        "facecolor": "lightblue",
+        "edgecolor": "black",
+    }
 
     def __init__(
         self,
@@ -112,7 +116,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
         )
 
     def plot(
-        self, ax: plt.Axes = None, **matplotlib_kwargs
+        self, ax: plt.Axes | None = None, **matplotlib_kwargs
     ) -> tuple[plt.Figure, plt.Axes]:
         for arg, default in self.__default_plot_args.items():
             if arg not in matplotlib_kwargs:
