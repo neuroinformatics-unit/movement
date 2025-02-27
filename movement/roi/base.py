@@ -64,8 +64,8 @@ class BaseRegionOfInterest:
     _shapely_geometry: SupportedGeometry
 
     @property
-    def __default_plot_args(self) -> dict[str, Any]:
-        """Default plotting arguments used when drawing the region.
+    def _default_plot_args(self) -> dict[str, Any]:
+        """Define default plotting arguments used when drawing the region.
 
         This argument is used inside ``self.plot``, which is implemented in the
         base class.
@@ -608,7 +608,7 @@ class BaseRegionOfInterest:
             function.
 
         """
-        for arg, default in self.__default_plot_args.items():
+        for arg, default in self._default_plot_args.items():
             if arg not in matplotlib_kwargs:
                 matplotlib_kwargs[arg] = default
 

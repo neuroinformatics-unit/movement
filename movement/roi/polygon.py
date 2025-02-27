@@ -38,13 +38,6 @@ class PolygonOfInterest(BaseRegionOfInterest):
     via the ``holes`` property.
     """
 
-    @property
-    def __default_plot_args(self) -> dict[str, Any]:
-        return {
-            "facecolor": "lightblue",
-            "edgecolor": "black",
-        }
-
     def __init__(
         self,
         exterior_boundary: PointLikeList,
@@ -76,6 +69,13 @@ class PolygonOfInterest(BaseRegionOfInterest):
         super().__init__(
             points=exterior_boundary, dimensions=2, holes=holes, name=name
         )
+
+    @property
+    def _default_plot_args(self) -> dict[str, Any]:
+        return {
+            "facecolor": "lightblue",
+            "edgecolor": "black",
+        }
 
     @property
     def exterior_boundary(self) -> LineOfInterest:
