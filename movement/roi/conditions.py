@@ -15,12 +15,13 @@ def compute_region_occupancy(
 ) -> xr.DataArray:
     """Return a condition array indicating if points were inside regions.
 
-    The returned condition array has one extra dimension on top of those in
-    ``data``, called ``"occupancy"``. This extra dimension has a number
-    of elements equal to the ``regions`` argument, and has coordinates
-    corresponding to the names of the given RoIs. For each ``region`` in
-    ``regions``, values along this dimension are the result of
-    ``region.contains_point(data)``.
+    The function returns a boolean DataArray where each element indicates
+    whether a point in the input ``data`` lies within the corresponding RoIs
+    in ``regions``. The original dimensions of ``data`` are preserved, except
+    for the ``space`` dimension which is replaced by the ``occupancy``
+    dimension. The ``occupancy`` dimension has a number of elements equal to
+    the number of RoIs in the ``regions`` argument and it's coordinate names
+    correspond to the names of the given RoIs.
 
     Parameters
     ----------
@@ -35,13 +36,13 @@ def compute_region_occupancy(
     Returns
     -------
     xarray.DataArray
-        Output that matches the dimensions of ``data``, except for the
-        ``"space"`` dimension which is dropped, and the addition of the
-        ``"occupancy"`` dimension that has the same length as the number
-        of regions provided. Coordinates along the ``"occupancy"`` dimension
-        match the names of the ``regions``. Values along this dimension match
-        the output of ``BaseRegionOfInterest.contains_point(data)`` when called
-        on the corresponding regions.
+        A boolean DataArray that matches the dimensions of ``data``, except
+        for the ``space`` dimension which is dropped, and the addition of the
+        ``occupancy`` dimension that has the same length as the number
+        of regions provided. Coordinates along the ``occupancy`` dimension
+        match the names of the ``regions``. Values along this dimension are
+        boolean, indicating whether each point in ``data`` lies within the
+        corresponding region.
 
     Examples
     --------
