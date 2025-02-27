@@ -67,12 +67,16 @@ def compute_region_occupancy(
 
     Notes
     -----
-    Regions that have the same name will have a suffix of the form "_XX"
-    appended to their names when generating the coordinates. Regions with
-    unique names will retain the same name as their corresponding coordinate.
+    When RoIs in ``regions`` have identical names, a suffix
+    will be appended to their name in the form of "_X", where "X" is a number
+    starting from 0. These numbers are zero-padded depending on the maximum
+    number of regions with identical names (e.g. if there are 100 RoIs with the
+    same name, "00" will be appended to the first of them)
+
+    Regions with unique names will retain their original name as their
+    corresponding coordinate name.
 
     """
-    # Filter out duplicate names if they are provided
     number_of_times_name_appears: defaultdict[str, int] = defaultdict(int)
     for r in regions:
         number_of_times_name_appears[r.name] += 1
