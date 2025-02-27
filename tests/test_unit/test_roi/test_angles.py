@@ -1,4 +1,3 @@
-import re
 from collections.abc import Iterable
 from typing import Any
 
@@ -83,27 +82,6 @@ def sample_position_array() -> xr.DataArray:
 @pytest.mark.parametrize(
     ["region", "fn_args", "fn_kwargs", "expected_output", "egocentric"],
     [
-        pytest.param(
-            "unit_square_with_hole",
-            [
-                compute_forward_vector(
-                    sample_position_array(), "left", "right"
-                ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
-            ],
-            {"angle_rotates": "elephant to region"},
-            ValueError("Unknown angle convention: elephant to region"),
-            True,
-            id="[Egocentric] Unknown angle convention",
-        ),
-        pytest.param(
-            "unit_square_with_hole",
-            [sample_position_array()],
-            {"angle_rotates": "elephant to region"},
-            ValueError("Unknown angle convention: elephant to region"),
-            False,
-            id="[Allocentric] Unknown angle convention",
-        ),
         pytest.param(
             "unit_square_with_hole",
             [
@@ -248,11 +226,10 @@ def sample_position_array() -> xr.DataArray:
     ],
 )
 def test_ego_and_allocentric_angle_to_region(
-    push_into_range,
     region: BaseRegionOfInterest,
     fn_args: Iterable[Any],
     fn_kwargs: dict[str, Any],
-    expected_output: xr.DataArray | Exception,
+    expected_output: xr.DataArray,
     egocentric: bool,
     request,
 ) -> None:
@@ -261,9 +238,6 @@ def test_ego_and_allocentric_angle_to_region(
     Note, we only test functionality explicitly introduced in this method.
     Input arguments that are just handed to other functions (i.e.,
     ``in_degrees``), are not explicitly tested here.
-
-    The ``angle_rotates`` argument is tested in all cases (signs should be
-    reversed when toggling the argument).
     """
     if isinstance(region, str):
         region = request.getfixturevalue(region)
@@ -272,44 +246,12 @@ def test_ego_and_allocentric_angle_to_region(
 
     if egocentric:
         which_method = "compute_egocentric_angle_to_nearest_point"
-        other_vector_name = "direction"
     else:
         which_method = "compute_allocentric_angle_to_nearest_point"
-        other_vector_name = "ref"
     method = getattr(region, which_method)
 
-    if isinstance(expected_output, Exception):
-        with pytest.raises(
-            type(expected_output), match=re.escape(str(expected_output))
-        ):
-            method(*fn_args, **fn_kwargs)
-    else:
-        angles = method(*fn_args, **fn_kwargs)
-        xr.testing.assert_allclose(angles, expected_output)
-
-        # Check reversal of the angle convention,
-        # which should just reverse the sign of the angles,
-        # except for 180-degrees -> 180-degrees.
-        if fn_kwargs.get("in_degrees", False):
-            lower = -180.0
-            upper = 180.0
-        else:
-            lower = -np.pi
-            upper = np.pi
-        if (
-            fn_kwargs.get("angle_rotates", f"approach to {other_vector_name}")
-            == f"approach to {other_vector_name}"
-        ):
-            fn_kwargs["angle_rotates"] = f"{other_vector_name} to approach"
-        else:
-            fn_kwargs["angle_rotates"] = f"approach to {other_vector_name}"
-
-        reverse_angles = push_into_range(
-            method(*fn_args, **fn_kwargs), lower=lower, upper=upper
-        )
-        xr.testing.assert_allclose(
-            angles, push_into_range(-reverse_angles, lower=lower, upper=upper)
-        )
+    angles = method(*fn_args, **fn_kwargs)
+    xr.testing.assert_allclose(angles, expected_output)
 
 
 @pytest.fixture
