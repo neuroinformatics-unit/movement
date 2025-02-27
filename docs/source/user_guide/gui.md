@@ -9,7 +9,7 @@ as points overlaid on video frames.
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
-out the [kinks](https://github.com/neuroinformatics-unit/movement/issues?q=sort%3Aupdated-desc+is%3Aissue+state%3Aopen+label%3AGUI+label%3Abug).
+out the [kinks](movement-github:issues?q=sort%3Aupdated-desc+is%3Aissue+state%3Aopen+label%3AGUI+label%3Abug).
 Please [get in touch](target-get-in-touch)
 if you find any bugs or have suggestions for improvements!
 :::
