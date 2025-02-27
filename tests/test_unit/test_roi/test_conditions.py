@@ -39,92 +39,94 @@ def triangle_moved_100(triangle_coords) -> PolygonOfInterest:
     )
 
 
-# TSTK need to parametrise this!
-# 1) There is no check that RoI names match the coordinates along the created
-#   dimension
-# 2) There is no check that duplicate names are handled in the expected way
-#   (appends _00, 01, 02, ... 09, 10, etc)
-# Need to reorganise the inputs; should probably be
-# list_of_regions (or list_of_strs_of_region_fixture_names)
-# expected_output_array (np.array of bools, like ``results`` below)
-
-
 @pytest.mark.parametrize(
-    "region_fixtures, data, expected_output_array,expected_output_coords",
+    "region_fixtures, data, expected_output",
     [
         pytest.param(
             ["triangle", "unit_square", "unit_square_with_hole"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
-            np.array(
-                [
-                    [True, False, True, False],
-                    [True, True, True, False],
-                    [True, True, False, False],
-                ]
-            ),
-            ["triangle", "Unit square", "Unit square with hole"],
+            {
+                "data": np.array(
+                    [
+                        [True, False, True, False],
+                        [True, True, True, False],
+                        [True, True, False, False],
+                    ]
+                ),
+                "coords": ["triangle", "Unit square", "Unit square with hole"],
+            },
             id="triangle, unit_square, unit_square_with_hole",
         ),
         pytest.param(
             ["triangle", "triangle", "triangle"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
-            np.array(
-                [
-                    [True, False, True, False],
-                    [True, False, True, False],
-                    [True, False, True, False],
-                ]
-            ),
-            ["triangle_00", "triangle_01", "triangle_02"],
+            {
+                "data": np.array(
+                    [
+                        [True, False, True, False],
+                        [True, False, True, False],
+                        [True, False, True, False],
+                    ]
+                ),
+                "coords": ["triangle_00", "triangle_01", "triangle_02"],
+            },
             id="3 superimposed triangles with same name",
         ),
         pytest.param(
             ["triangle", "triangle_different_name"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
-            np.array(
-                [
-                    [True, False, True, False],
-                    [True, False, True, False],
-                ]
-            ),
-            ["triangle", "pizza_slice"],
+            {
+                "data": np.array(
+                    [
+                        [True, False, True, False],
+                        [True, False, True, False],
+                    ]
+                ),
+                "coords": ["triangle", "pizza_slice"],
+            },
             id="2 superimposed triangles with different names",
         ),
         pytest.param(
             ["triangle", "triangle_moved_01"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
-            np.array(
-                [
-                    [True, False, True, False],
-                    [True, False, True, False],
-                ]
-            ),
-            ["triangle_00", "triangle_01"],
+            {
+                "data": np.array(
+                    [
+                        [True, False, True, False],
+                        [True, False, True, False],
+                    ]
+                ),
+                "coords": ["triangle_00", "triangle_01"],
+            },
             id="2 different triangles with same name",
         ),
         pytest.param(
             ["triangle", "triangle_moved_01", "triangle_moved_100"],
             np.array([[0.15, 0.15], [0.85, 0.85], [0.5, 0.5], [1.5, 1.5]]),
-            np.array(
-                [
-                    [True, False, True, False],
-                    [True, False, True, False],
-                    [False, False, False, True],
-                ]
-            ),
-            ["triangle_00", "triangle_01", "triangle_02"],
+            {
+                "data": np.array(
+                    [
+                        [True, False, True, False],
+                        [True, False, True, False],
+                        [False, False, False, True],
+                    ]
+                ),
+                "coords": ["triangle_00", "triangle_01", "triangle_02"],
+            },
             id="3 different triangles with same name",
         ),
         pytest.param(
             ["triangle", "unit_square"],
             np.array([[0.15, 0.15], [0.5, 0.5]]),
-            np.array(
-                [
-                    [True, True],
-                    [True, True],
-                ]
-            ),
-            ["triangle", "Unit square"],
+            {
+                "data": np.array(
+                    [
+                        [True, True],
+                        [True, True],
+                    ]
+                ),
+                "coords": ["triangle", "Unit square"],
+            },
             id="triangle, square, data points occupy both regions",
         ),
     ],
@@ -133,8 +135,7 @@ def test_region_occupancy(
     request: pytest.FixtureRequest,
     region_fixtures: list[str],
     data,
-    expected_output_array,
-    expected_output_coords: list[str],
+    expected_output: dict,
 ) -> None:
     """Tests region_occupancy for several RoIs."""
     regions = [request.getfixturevalue(r) for r in region_fixtures]
@@ -146,5 +147,5 @@ def test_region_occupancy(
     occupancies = compute_region_occupancy(data, regions)
 
     assert occupancies.dims == ("occupancy", "time")
-    assert (expected_output_array == occupancies.values).all()
-    assert occupancies.occupancy.values.tolist() == expected_output_coords
+    assert (expected_output["data"] == occupancies.data).all()
+    assert occupancies.occupancy.values.tolist() == expected_output["coords"]
