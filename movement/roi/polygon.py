@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import PathPatch as PltPatch
+from matplotlib.path import Path as PltPath
+
 from movement.roi.base import BaseRegionOfInterest, PointLikeList
 from movement.roi.line import LineOfInterest
 
@@ -31,6 +36,8 @@ class PolygonOfInterest(BaseRegionOfInterest):
     property, and the polygonal regions that make up the holes are accessible
     via the ``holes`` property.
     """
+
+    __default_plot_args = {"facecolor": "lightblue", "edgecolor": "black"}
 
     def __init__(
         self,
@@ -103,3 +110,36 @@ class PolygonOfInterest(BaseRegionOfInterest):
             )
             for i, int_boundary in enumerate(self.region.interiors)
         )
+
+    def plot(
+        self, ax: plt.Axes = None, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        for arg, default in self.__default_plot_args.items():
+            if arg not in matplotlib_kwargs:
+                matplotlib_kwargs[arg] = default
+
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        else:
+            fig = ax.get_figure()
+
+        # matplotlib requires hole coordinates to be listed in the reverse
+        # orientation to the exterior boundary.
+        # np.flip on the exterior coordinates is a cheap way to ensure that
+        # we adhere to this convention, since our geometry is normalised upon
+        # creation.
+        exterior_boundary_as_path = PltPath(
+            np.flip(np.asarray(self.exterior_boundary.coords), axis=0)
+        )
+        interior_boundaries_as_paths = [
+            PltPath(np.asarray(ib.coords)) for ib in self.interior_boundaries
+        ]
+        path = PltPath.make_compound_path(
+            exterior_boundary_as_path,
+            *interior_boundaries_as_paths,
+        )
+
+        polygon_shape = PltPatch(path, **matplotlib_kwargs)
+        ax.add_patch(polygon_shape)
+
+        return fig, ax
