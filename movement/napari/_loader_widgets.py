@@ -8,12 +8,12 @@ from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
+    QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QLineEdit,
     QPushButton,
-    QSpinBox,
     QWidget,
 )
 
@@ -56,11 +56,20 @@ class PosesLoader(QWidget):
 
     def _create_fps_widget(self):
         """Create a spinbox for selecting the frames per second (fps)."""
-        self.fps_spinbox = QSpinBox()
+        self.fps_spinbox = QDoubleSpinBox()
         self.fps_spinbox.setObjectName("fps_spinbox")
-        self.fps_spinbox.setMinimum(1)
-        self.fps_spinbox.setMaximum(1000)
-        self.fps_spinbox.setValue(30)
+        self.fps_spinbox.setMinimum(0.1)
+        self.fps_spinbox.setMaximum(1000.0)
+        self.fps_spinbox.setValue(1.0)
+        self.fps_spinbox.setDecimals(2)
+        # How much we increment/decrement when the user clicks the arrows
+        self.fps_spinbox.setSingleStep(1)
+        # Add a tooltip
+        self.fps_spinbox.setToolTip(
+            "Set the frames per second of the tracking data.\n"
+            "This just affects the displayed time when hovering over a point\n"
+            "(it doesn't set the playback speed)."
+        )
         self.layout().addRow("fps:", self.fps_spinbox)
 
     def _create_file_path_widget(self):
@@ -124,9 +133,6 @@ class PosesLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
-        self._set_playback_fps(fps)
-        logger.debug(f"Set napari playback speed to {fps} fps.")
-
     def _add_points_layer(self):
         """Add the predicted poses to the viewer as a Points layer."""
         # Style properties for the napari Points layer
@@ -143,12 +149,6 @@ class PosesLoader(QWidget):
         # Add the points layer to the viewer
         self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
         logger.info("Added poses dataset as a napari Points layer.")
-
-    @staticmethod
-    def _set_playback_fps(fps: int):
-        """Set the playback speed for the napari viewer."""
-        settings = get_settings()
-        settings.application.playback_fps = fps
 
     @staticmethod
     def _enable_layer_tooltips():

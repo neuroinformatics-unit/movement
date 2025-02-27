@@ -8,7 +8,7 @@ instantiated (the methods would have already been connected to signals).
 import pytest
 from napari.settings import get_settings
 from pytest import DATA_PATHS
-from qtpy.QtWidgets import QComboBox, QLineEdit, QPushButton, QSpinBox
+from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
 from movement.napari._loader_widgets import PosesLoader
 
@@ -25,7 +25,7 @@ def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
     # Check that the expected widgets are present in the layout
     expected_widgets = [
         (QComboBox, "source_software_combo"),
-        (QSpinBox, "fps_spinbox"),
+        (QDoubleSpinBox, "fps_spinbox"),
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
         (QPushButton, "browse_button"),
@@ -160,7 +160,6 @@ def test_on_load_clicked_with_valid_file_path(
         "Converted poses dataset to a napari Tracks array.",
         "Tracks array shape: (2170, 4)",
         "Added poses dataset as a napari Points layer.",
-        "Set napari playback speed to 60 fps.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
@@ -168,6 +167,3 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that a Points layer was added to the viewer
     points_layer = poses_loader_widget.viewer.layers[0]
     assert points_layer.name == f"poses: {file_path.name}"
-
-    # Check that the playback fps was set correctly
-    assert get_settings().application.playback_fps == 60
