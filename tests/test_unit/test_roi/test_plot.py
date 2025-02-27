@@ -1,5 +1,7 @@
+import re
 from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.lines import Line2D
@@ -66,7 +68,11 @@ def octagonal_doughnut() -> PolygonOfInterest:
         pytest.param("unit_square_with_hole", {}, id="Unit square with hole"),
         pytest.param(
             "havarti",
-            {"facecolor": "yellow", "edgecolor": "black"},
+            {
+                "facecolor": "yellow",
+                "edgecolor": "black",
+                "ax": "new",  # Interpreted by test as create & pass in an axis
+            },
             id="Cheese",
         ),
         pytest.param(
@@ -92,10 +98,31 @@ def test_plot(
     if isinstance(region_to_plot, str):
         region_to_plot = request.getfixturevalue(region_to_plot)
 
-    _, ax = region_to_plot.plot(**kwargs)
+    if kwargs.get("ax") is not None:
+        # Simulate passing in existing axis,
+        # so we don't want to directly save the output ax
+        _, ax = plt.subplots(1, 1)
+        kwargs["ax"] = ax
+        region_to_plot.plot(**kwargs)
+    else:
+        # Simulate creation of a new axis and figure
+        kwargs["ax"] = None
+        _, ax = region_to_plot.plot(**kwargs)
+
     if region_to_plot.dimensions == 2:
         assert len(ax.patches) == 1 and len(ax.lines) == 0
         assert type(ax.patches[0]) is PathPatch
     else:
         assert len(ax.patches) == 0 and len(ax.lines) == 1
         assert type(ax.lines[0]) is Line2D
+
+
+def test_requires_explicit_implementation() -> None:
+    """Test that the BaseRegionOfInterest class cannot be plotted."""
+    base_region = BaseRegionOfInterest([(0.0, 0.0), (1.0, 0.0)], dimensions=1)
+
+    with pytest.raises(
+        NotImplementedError,
+        match=re.escape("_plot must be implemented by subclass."),
+    ):
+        base_region.plot()
