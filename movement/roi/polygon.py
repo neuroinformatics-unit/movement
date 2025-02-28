@@ -3,6 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import PathPatch as PltPatch
+from matplotlib.path import Path as PltPath
 
 from movement.roi.base import BaseRegionOfInterest, PointLikeList
 from movement.roi.line import LineOfInterest
@@ -65,6 +71,13 @@ class PolygonOfInterest(BaseRegionOfInterest):
         )
 
     @property
+    def _default_plot_args(self) -> dict[str, Any]:
+        return {
+            "facecolor": "lightblue",
+            "edgecolor": "black",
+        }
+
+    @property
     def exterior_boundary(self) -> LineOfInterest:
         """The exterior boundary of this RoI."""
         return LineOfInterest(
@@ -103,3 +116,31 @@ class PolygonOfInterest(BaseRegionOfInterest):
             )
             for i, int_boundary in enumerate(self.region.interiors)
         )
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """Polygonal regions need to use patch to be plotted.
+
+        In addition, ``matplotlib`` requires hole coordinates to be listed in
+        the reverse orientation to the exterior boundary. Running
+        ``numpy.flip`` on the exterior coordinates is a cheap way to ensure
+        that we adhere to this convention, since our geometry is normalised
+        upon creation, so this amounts to reversing the order of the
+        coordinates.
+        """
+        exterior_boundary_as_path = PltPath(
+            np.flip(np.asarray(self.exterior_boundary.coords), axis=0)
+        )
+        interior_boundaries_as_paths = [
+            PltPath(np.asarray(ib.coords)) for ib in self.interior_boundaries
+        ]
+        path = PltPath.make_compound_path(
+            exterior_boundary_as_path,
+            *interior_boundaries_as_paths,
+        )
+
+        polygon_shape = PltPatch(path, **matplotlib_kwargs)
+        ax.add_patch(polygon_shape)
+        ax.autoscale_view(tight=True)
+        return fig, ax

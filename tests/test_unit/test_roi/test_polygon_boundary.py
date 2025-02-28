@@ -16,8 +16,8 @@ from movement.roi.polygon import PolygonOfInterest
         pytest.param(
             "unit_square_pts",
             (
-                np.array([[0.0, 0.0], [0.25, 0.0], [0.0, 0.25]]),
-                np.array([[0.75, 0.0], [1.0, 0.0], [1.0, 0.25]]),
+                np.array([[0.0, 0.0], [0.0, 0.25], [0.25, 0.0]]),
+                np.array([[0.75, 0.0], [1.0, 0.25], [1.0, 0.0]]),
             ),
             id="Corners shaved off",
         ),
