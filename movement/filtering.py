@@ -6,8 +6,10 @@ from typing import Literal
 import xarray as xr
 from scipy import signal
 
+from movement.kinematics import compute_displacement
 from movement.utils.logging import log_error, log_to_attrs
 from movement.utils.reports import report_nan_values
+from movement.utils.vector import compute_norm
 
 
 @log_to_attrs
@@ -58,6 +60,54 @@ def filter_by_confidence(
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_filtered, "output"))
     return data_filtered
+
+
+def filter_by_distance(
+    position: xr.DataArray,
+    threshold: float = 10.0,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Drop data points with a displacement above a certain distance threshold.
+
+    Frames in the ``position`` array that have a displacement above the
+    given ``threshold`` are set to NaN. In effect, if a point at time ``t``
+    has moved more than the ``threshold`` distance from the same point at time
+    ``t-1``, its value at time ``t`` is set to NaN.
+
+    Parameters
+    ----------
+    position : xr.DataArray
+        The position array to filter. It should have the dimensions
+        ``("individuals", "time", "keypoints", "space")``.
+    threshold : float, optional
+        The maximum distance allowed between 2 consecutive positions.
+        Defaults to 10.0.
+    print_report : bool, optional
+        Whether to print a report of the number of NaN values before and after
+        filtering. Defaults to True.
+
+    Returns
+    -------
+    xr.DataArray
+        The filtered position array.
+
+    See Also
+    --------
+    movement.kinematics.compute_displacement:
+        The function used to compute an array of displacement vectors.
+    movement.utils.vector.compute_norm:
+        The function used to compute distance as the magnitude of
+        displacement vectors.
+
+    """
+    displacement = compute_displacement(position)
+    distance = compute_norm(displacement)
+    position_filtered = position.where(distance < threshold)
+
+    if print_report:
+        print(report_nan_values(position, "input"))
+        print(report_nan_values(position_filtered, "output"))
+    return position_filtered
 
 
 @log_to_attrs
