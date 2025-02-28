@@ -120,13 +120,14 @@ def interpolate_over_time(
 
 
 @log_to_attrs
-def median_filter(
+def rolling_filter(
     data: xr.DataArray,
     window: int,
+    method: str = "mean",
     min_periods: int | None = None,
     print_report: bool = True,
 ) -> xr.DataArray:
-    """Smooth data by applying a median filter over time.
+    """Smooth data by applying a rolling filter (mean or median) over time.
 
     Parameters
     ----------
@@ -135,11 +136,14 @@ def median_filter(
     window : int
         The size of the smoothing window, representing the fixed number
         of observations used for each window.
+    method : str
+        The type of filter to apply. Choose either "mean" or "median".
+        Default is "mean".
     min_periods : int
         Minimum number of observations in the window required to have
         a value (otherwise result is NaN). The default, None, is
         equivalent to setting ``min_periods`` equal to the size of the window.
-        This argument is directly  passed to the ``min_periods`` parameter of
+        This argument is directly passed to the ``min_periods`` parameter of
         :meth:`xarray.DataArray.rolling`.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
@@ -148,20 +152,20 @@ def median_filter(
     Returns
     -------
     xarray.DataArray
-        The data smoothed using a median filter with the provided parameters.
+        The data smoothed using a rolling filter (mean or median) with the provided parameters.
 
     Notes
     -----
     By default, whenever one or more NaNs are present in the smoothing window,
     a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
-    proportionally to the size of the window  (specifically, by
+    proportionally to the size of the window (specifically, by
     ``floor(window/2)``). To control this behaviour, the
     ``min_periods`` option can be used to specify the minimum number of
     non-NaN values required in the window to compute a result. For example,
     setting ``min_periods=1`` will result in the filter returning NaNs
     only when all values in the window are NaN, since 1 non-NaN value
-    is sufficient to compute the median.
+    is sufficient to compute the result.
 
     """
     half_window = window // 2
@@ -172,16 +176,24 @@ def median_filter(
         .rolling(  # Take rolling windows across time
             time=window, center=True, min_periods=min_periods
         )
-        .median(  # Compute the median of each window
-            skipna=True
-        )
-        .isel(  # Remove the padded edges
-            time=slice(half_window, -half_window)
-        )
     )
+    
+    # Apply the chosen method
+    if method == "mean":
+        data_smoothed = data_smoothed.mean(skipna=True)  # Apply mean filter
+    elif method == "median":
+        data_smoothed = data_smoothed.median(skipna=True)  # Apply median filter
+    else:
+        raise ValueError("Invalid method. Choose 'mean' or 'median'.")
+
+    # Remove the padded edges
+    data_smoothed = data_smoothed.isel(time=slice(half_window, -half_window))
+
+    # Optional: Print NaN report
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
+
     return data_smoothed
 
 
