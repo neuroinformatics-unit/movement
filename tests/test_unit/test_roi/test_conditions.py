@@ -126,62 +126,6 @@ def test_region_occupancy_many_regions(
     xr.testing.assert_identical(occupancies, expected_output)
 
 
-@pytest.fixture
-def two_individuals():
-    """Sample data for testing.
-
-    Data has two keypoints for two individuals centered
-    around the origin. Both individuals move in the direction from tail to
-    snout along the y axis in a step of 1.
-
-    Keypoint starting position (x, y):
-        individual_0
-        - snout (0, 1)
-        - tail (0, -1)
-        individual_1
-        - snout (0, -1)
-        - tail (0, 1)
-
-    """
-    time_steps = 4
-    individuals = ["individual_0"]
-    keypoints = ["snout", "tail"]
-    space = ["x", "y"]
-    positions = {
-        "snout": {"x": 0, "y": np.arange(time_steps) + 1},
-        "tail": {"x": 0, "y": np.arange(time_steps) - 1},
-    }
-
-    time = np.arange(time_steps)
-    position_data = np.zeros(
-        (time_steps, len(space), len(keypoints), len(individuals))
-    )
-
-    # Create x and y coordinates arrays
-    x_coords = np.array([positions[key]["x"] for key in keypoints])
-    y_coords = np.array([positions[key]["y"] for key in keypoints])
-
-    for i, _ in enumerate(keypoints):
-        position_data[:, 0, i, 0] = x_coords[i]  # x-coordinates
-        position_data[:, 1, i, 0] = y_coords[i]  # y-coordinates
-
-    da = xr.DataArray(
-        position_data,
-        name="position",
-        dims=["time", "space", "keypoints", "individuals"],
-        coords={
-            "time": time,
-            "space": space,
-            "keypoints": keypoints,
-            "individuals": individuals,
-        },
-    )
-    da_id1 = da.copy()
-    da_id1.loc[dict(space="y")] = da_id1.sel(space="y") * -1
-    da_id1 = da_id1.assign_coords(individuals=["individual_1"])
-    return xr.concat([da, da_id1], "individuals")
-
-
 def test_region_occupancy_multiple_dims(triangle, two_individuals):
     """Tests region occupancy for data with common location dimensions.
 
