@@ -1,7 +1,7 @@
 """The main napari widget for the ``movement`` package."""
 
-from brainglobe_utils.qtpy.collapsible_widget import CollapsibleWidgetContainer
 from napari.viewer import Viewer
+from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
 from movement.napari._loader_widgets import PosesLoader
 
