@@ -152,7 +152,7 @@ def rolling_filter(
     Returns
     -------
     xarray.DataArray
-        The data smoothed using a rolling filter (mean or median) with the provided parameters.
+        The data smoothed using a rolling filter with the provided parameters.
 
     Notes
     -----
@@ -169,20 +169,18 @@ def rolling_filter(
 
     """
     half_window = window // 2
-    data_smoothed = (
-        data.pad(  # Pad the edges to avoid NaNs
-            time=half_window, mode="reflect"
-        )
-        .rolling(  # Take rolling windows across time
-            time=window, center=True, min_periods=min_periods
-        )
+    data_smoothed = data.pad(  # Pad the edges to avoid NaNs
+        time=half_window, mode="reflect"
+    ).rolling(  # Take rolling windows across time
+        time=window, center=True, min_periods=min_periods
     )
-    
-    # Apply the chosen method
+
     if method == "mean":
         data_smoothed = data_smoothed.mean(skipna=True)  # Apply mean filter
     elif method == "median":
-        data_smoothed = data_smoothed.median(skipna=True)  # Apply median filter
+        data_smoothed = data_smoothed.median(
+            skipna=True
+        )  # Apply median filter
     else:
         raise ValueError("Invalid method. Choose 'mean' or 'median'.")
 

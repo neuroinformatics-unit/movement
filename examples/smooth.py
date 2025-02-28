@@ -8,13 +8,13 @@ Smooth pose tracks using the median and Savitzky-Golay filters.
 # Imports
 # -------
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from scipy.signal import welch
 
 from movement import sample_data
 from movement.filtering import (
     interpolate_over_time,
-    median_filter,
+    rolling_filter,
     savgol_filter,
 )
 
@@ -124,7 +124,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(0.1 * ds_wasp.fps)
 ds_wasp_smooth = ds_wasp.copy()
-ds_wasp_smooth.update({"position": median_filter(ds_wasp.position, window)})
+ds_wasp_smooth.update(
+    {"position": rolling_filter(ds_wasp.position, window, method="median")}
+)
 
 # %%
 # We see from the printed report that the dataset has no missing values
@@ -168,7 +170,9 @@ print(ds_mouse)
 
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
-ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
+ds_mouse_smooth.update(
+    {"position": rolling_filter(ds_mouse.position, window, method="median")}
+)
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
@@ -184,7 +188,11 @@ ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
 # window are sufficient for the median to be calculated. Let's try this.
 
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": rolling_filter(
+            ds_mouse.position, window, min_periods=2, method="median"
+        )
+    }
 )
 
 # %%
@@ -207,7 +215,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(2 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": rolling_filter(
+            ds_mouse.position, window, min_periods=2, method="median"
+        )
+    }
 )
 
 # %%
@@ -300,7 +312,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 # First, we will apply the median filter.
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": rolling_filter(
+            ds_mouse.position, window, min_periods=2, method="median"
+        )
+    }
 )
 
 # Next, let's linearly interpolate over gaps smaller
