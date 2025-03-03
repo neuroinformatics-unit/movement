@@ -55,12 +55,11 @@ and some of its dependencies.
 To test the GUI installation, you can run:
 
 ```sh
-napari -w movement
+movement launch
 ```
 
-This should open a new `napari` window with the `movement` plugin loaded
-on the right side.
-
+This is equivalent to running `napari -w movement` and should open the `napari`
+window with the `movement` widget docked on the right-hand side.
 
 ## Update the package
 To update movement to the latest version, we recommend installing it in a new environment,
