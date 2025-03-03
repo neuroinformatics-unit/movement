@@ -5,12 +5,6 @@ Compute the head direction vector and angle using different methods.
 """
 
 # %%
-# The head direction of an animal can be an important feature in behavioural
-# analyses, e.g., to deduce where the animal is looking or to infer its
-# focus of attention. In this example, we will demonstrate several ways
-# to compute the head direction based on the position of several keypoints.
-
-# %%
 # Imports
 # -------
 
