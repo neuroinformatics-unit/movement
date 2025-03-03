@@ -113,13 +113,14 @@ head_to_snout = snout - midpoint_ears
 # .. admonition:: Vector subtraction
 #   :class: note
 #
-#   You can think of each point's position as a 2D vector, with its base at the
-#   origin (for image coordinates, that's the centre of the pixel at
-#   the top-left corner of the image) and its tip at the point's position.
+#   Note that any position data point can be seen as a point :math:`U` in the
+#   2D plane, or as a 2D vector :math:`\vec{u}` that goes from the image
+#   coordinate system origin (by default, the centre of the top-left pixel)
+#   to the point :math:`U` (see left subplot).
 #
 #   The vector that goes from point :math:`U` to point :math:`V` can be
-#   computed as the difference :math:`\vec{v} - \vec{u}`, i.e.
-#   "tip - base" (see the image below).
+#   computed as the difference :math:`\vec{v} - \vec{u}`
+#   (see right subplot).
 #
 #   .. image:: ../_static/Vector-Subtraction.png
 #     :width: 600
@@ -191,21 +192,26 @@ print(head_to_snout_polar)
 # coordinates: ``rho`` and ``phi``. These are the polar coordinates of the
 # head vector.
 #
-# The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
-# In our case, the distance from the midpoint between the ears to the snout.
-# The coordinate ``phi`` is the orientation of the head vector relative to the
-# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians
-# (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
+# .. admonition:: Polar coordinates
+#   :class: note
 #
-# In the default image coordinate system and with this convention, the angle
-# ``phi`` will be positive if the shortest path from the positive x-axis to
-# the vector is a clockwise rotation. Conversely, ``phi`` will be negative
-# if the shortest path from the positive x-axis to the vector is an
-# anti-clockwise rotation.
+#   The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
+#   In our case, the distance from the midpoint between the ears to the snout.
 #
-# .. image:: ../_static/Cartesian-vs-Polar.png
-#   :width: 600
-#   :alt: Schematic comparing cartesian and polar coordinates
+#   The coordinate ``phi`` is the shortest angle (in radians) between the
+#   positive x-axis and the  vector, and ranges from :math:`-\pi` to
+#   :math:`\pi` (following the
+#   `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
+#   The ``phi`` angle is positive if the rotation
+#   from the positive x-axis to the vector is in the same direction as
+#   the rotation from the positive x-axis to the positive y-axis.
+#   In the default image coordinate system, this means  ``phi`` will be
+#   positive if the rotation is clockwise, and negative if the rotation
+#   is anti-clockwise.
+#
+#   .. image:: ../_static/Cartesian-vs-Polar.png
+#     :width: 600
+#     :alt: Schematic comparing cartesian and polar coordinates
 
 # %%
 # ``movement`` also provides a ``pol2cart`` function to transform
