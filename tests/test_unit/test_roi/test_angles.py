@@ -298,7 +298,7 @@ def test_angle_to_normal(
     segment_of_y_equals_x: LineOfInterest,
     points_around_segment: xr.DataArray,
 ) -> None:
-    """Test the angle_to_support_plane method.
+    """Test the angle with normal vector computation.
 
     This method checks two things:
 
