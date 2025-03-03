@@ -120,8 +120,8 @@ class LineOfInterest(BaseRegionOfInterest):
     ) -> xr.DataArray:
         """Compute the angle between the normal to the segment and a direction.
 
-        The returned angle is the signed angle between the normal directed
-        toward the segment and the ``direction`` provided.
+        The returned angle is the signed angle between the normal to the
+        segment and the ``direction`` vector(s) provided.
 
         Parameters
         ----------

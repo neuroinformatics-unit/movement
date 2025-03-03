@@ -413,7 +413,7 @@ def compute_forward_vector_angle(
     --------
     movement.utils.vector.compute_signed_angle_2d :
         The underlying function used to compute the signed angle between two
-        2D vectors. Also see this function for a definition of the signed
+        2D vectors. See this function for a definition of the signed
         angle between two vectors.
     movement.kinematics.compute_forward_vector :
         The function used to compute the forward vector.
