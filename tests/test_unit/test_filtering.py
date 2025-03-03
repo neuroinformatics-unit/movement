@@ -45,7 +45,7 @@ class TestFilteringValidDataset:
         self, filter_func, filter_kwargs, valid_dataset, helpers, request
     ):
         """Test NaN behaviour of the median, mean and SG filters.
-        Both filters should set all values to NaN if one element of the
+        All filters should set all values to NaN if one element of the
         sliding window is NaN.
         """
         # Expected number of nans in the position array per individual
