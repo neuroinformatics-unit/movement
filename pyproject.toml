@@ -78,6 +78,9 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=movement"
+filterwarnings = [
+  "ignore::UserWarning",
+]
 
 [tool.setuptools_scm]
 
