@@ -181,8 +181,6 @@ def rolling_filter(
         data_smoothed = data_smoothed.median(
             skipna=True
         )  # Apply median filter
-    else:
-        raise ValueError("Invalid method. Choose 'mean' or 'median'.")
 
     # Remove the padded edges
     data_smoothed = data_smoothed.isel(time=slice(half_window, -half_window))
