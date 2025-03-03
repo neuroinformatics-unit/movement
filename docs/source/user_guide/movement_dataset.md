@@ -203,7 +203,7 @@ and rich built-in functionalities for data manipulation and analysis.
 For example, you can:
 - access the **data variables** and **attributes** of a dataset `ds` using dot notation (e.g. `ds.position`, `ds.fps`),
 - [index and select data](xarray:user-guide/indexing.html) by **coordinate** label
-(e.g. `ds.sel(individuals=["individual1", "individual2"])`) or by integer index (e.g. `ds.isel(time=slice(0,50))`),
+(e.g. `ds.sel(individual=["individual1", "individual2"])`) or by integer index (e.g. `ds.isel(time=slice(0,50))`),
 - use **dimension** names for
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
@@ -216,14 +216,14 @@ data:
 ds_sel = ds.sel(time=slice(0, 100))
 
 # select specific individuals or keypoints
-ds_sel = ds.sel(individuals=["individual1", "individual2"])
-ds_sel = ds.sel(keypoints="snout")
+ds_sel = ds.sel(individual=["individual1", "individual2"])
+ds_sel = ds.sel(keypoint="snout")
 
 # combine selections
 ds_sel = ds.sel(
     time=slice(0, 100),
-    individuals=["individual1", "individual2"],
-    keypoints="snout"
+    individual=["individual1", "individual2"],
+    keypoint="snout"
 )
 ```
 The same selections can be applied to the **data variables** inside a dataset. In that case the selection operations will
@@ -231,8 +231,8 @@ return an {class}`xarray.DataArray` rather than an {class}`xarray.Dataset`:
 
 ```python
 position = ds.position.sel(
-    individuals="individual1",
-    keypoints="snout"
+    individual="individual1",
+    keypoint="snout"
 )  # the output is a data array
 ```
 

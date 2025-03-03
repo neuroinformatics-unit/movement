@@ -52,12 +52,12 @@ def single_cross():
     ds = xr.DataArray(
         position_data,
         name="position",
-        dims=["time", "space", "keypoints", "individuals"],
+        dims=["time", "space", "keypoint", "individual"],
         coords={
             "time": time,
             "space": space,
-            "keypoints": keypoints,
-            "individuals": individuals,
+            "keypoint": keypoints,
+            "individual": individuals,
         },
     )
     return ds
@@ -76,8 +76,8 @@ def two_crosses(single_cross):
     """
     da_id1 = single_cross.copy()
     da_id1.loc[dict(space="y")] = da_id1.sel(space="y") * -1
-    da_id1 = da_id1.assign_coords(individuals=["individual_1"])
-    return xr.concat([single_cross.copy(), da_id1], "individuals")
+    da_id1 = da_id1.assign_coords(individual=["individual_1"])
+    return xr.concat([single_cross.copy(), da_id1], "individual")
 
 
 @pytest.mark.parametrize(
@@ -142,15 +142,15 @@ def test_trajectory_plot(single_cross, image, selection, expected_data):
     ["selection"],
     [
         pytest.param(
-            {"keypoints": "centre"},
+            {"keypoint": "centre"},
             id="no_keypoints",
         ),
         pytest.param(
-            {"individuals": "individual_0"},
+            {"individual": "individual_0"},
             id="no_individuals",
         ),
         pytest.param(
-            {"keypoints": "centre", "individuals": "individual_0"},
+            {"keypoint": "centre", "individual": "individual_0"},
             id="only_time_space",
         ),
     ],
