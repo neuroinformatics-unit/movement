@@ -245,7 +245,7 @@ def test_from_file(
 
 
 expected_values_bboxes = {
-    "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
+    "vars_dims": {"position": 4, "shape": 4, "confidence": 3},
     "dim_names": ValidBboxesDataset.DIM_NAMES,
 }
 
