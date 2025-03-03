@@ -13,8 +13,6 @@ Compute the head direction vector and angle using different methods.
 # %%
 # Imports
 # -------
-# We will import ``numpy`` and ``matplotlib`` here. Imports from ``movement``
-# will be done as needed throughout the example.
 
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
@@ -22,12 +20,19 @@ Compute the head direction vector and angle using different methods.
 import numpy as np
 from matplotlib import pyplot as plt
 
+from movement import sample_data
+from movement.kinematics import (
+    compute_forward_vector,
+    compute_forward_vector_angle,
+)
+from movement.plots import plot_trajectory
+from movement.utils.vector import cart2pol, pol2cart
+
 # %%
 # Load sample dataset
-# ------------------------
+# -------------------
 # In this tutorial, we will use a sample dataset with a single individual
 # (a mouse) and six keypoints.
-from movement import sample_data
 
 ds = sample_data.fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
 
@@ -38,8 +43,8 @@ print(f"Keypoints: {ds.keypoints.values}")
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:``position`` and
-# ``confidence``. In this tutorial, we will only use the ``position`` data array.
-# We use the ``squeeze()`` method to remove
+# ``confidence``. In this tutorial, we will only use the ``position`` data
+# array. We use the ``squeeze()`` method to remove
 # the redundant ``individuals`` dimension, as there is only one individual
 # in this dataset.
 
@@ -58,8 +63,6 @@ position = ds.position.squeeze()
 # Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
 # will plot the centroid (midpoint) of the selected keypoints.
 # By default, the first individual in the dataset is shown.
-
-from movement.plots import plot_trajectory
 
 # Create figure and axis
 fig, ax = plt.subplots(1, 1)
@@ -97,7 +100,8 @@ fig.show()
 # %%
 # Compute the head-to-snout vector
 # --------------------------------
-# We can define the head direction as the vector from the midpoint between the ears to the snout.
+# We can define the head direction as the vector from the midpoint between
+# the ears to the snout.
 
 # Compute the head centre as the midpoint between the ears
 midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
@@ -107,8 +111,8 @@ midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
 # (`drop=True` removes the keypoints dimension, which is now redundant)
 snout = position.sel(keypoints="snout", drop=True)
 
-# Compute the head vector as the difference vector between the snout position and the
-# head-centre position.
+# Compute the head vector as the difference vector between the snout position
+# and the head-centre position.
 head_to_snout = snout - midpoint_ears
 
 # %%
@@ -178,13 +182,11 @@ ax.legend(loc="upper left")
 
 # %%
 # Head-to-snout vector in polar coordinates
-# -------------------------------
+# -----------------------------------------
 # Now that we have the head-to-snout vector, we can compute its
 # angle in 2D space. A convenient way to achieve that is to convert the
 # vector from cartesian to polar coordinates using the
 # :func:`cart2pol()<movement.utils.vector.cart2pol>` function.
-
-from movement.utils.vector import cart2pol, pol2cart
 
 head_to_snout_polar = cart2pol(head_to_snout)
 
@@ -201,10 +203,11 @@ print(head_to_snout_polar)
 # positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians
 # (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
-# In the default image coordinate system and with this convention, the angle ``phi`` will be
-# positive if the shortest path from the positive x-axis to the vector is
-# a clockwise rotation. Conversely, ``phi`` will be negative if the shortest path from
-# the positive x-axis to the vector is an anti-clockwise rotation.
+# In the default image coordinate system and with this convention, the angle
+# ``phi`` will be positive if the shortest path from the positive x-axis to
+# the vector is a clockwise rotation. Conversely, ``phi`` will be negative
+# if the shortest path from the positive x-axis to the vector is an
+# anti-clockwise rotation.
 #
 # .. image:: ../_static/Cartesian-vs-Polar.png
 #   :width: 600
@@ -231,11 +234,6 @@ print(head_to_snout_cart)
 # Here we will use the two ears to find the head direction vector.
 # We may prefer this method if we expect the snout detection to be
 # unreliable (e.g., because it's often occluded in a top-down camera view).
-
-from movement.kinematics import (
-    compute_forward_vector,
-    compute_forward_vector_angle,
-)
 
 forward_vector = compute_forward_vector(
     position,
@@ -276,8 +274,9 @@ print(forward_vector)
 # %%
 # Compute head direction angle
 # ----------------------------
-# We may want to explicitly compute the orientation of the animal's head as an angle, rather than
-# as a vector. We can compute this angle from the forward vector as
+# We may want to explicitly compute the orientation of the animal's head
+# as an angle, rather than as a vector.
+# We can compute this angle from the forward vector as
 # we did with the head-to-snout vector, i.e., by converting the vector to
 # polar coordinates and extracting the ``phi`` coordinate. However, it's
 # more convenient to use the :func:`compute_forward_vector_angle()\

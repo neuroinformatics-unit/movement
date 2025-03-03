@@ -14,6 +14,7 @@ visualise the results.
 # %matplotlib widget
 from matplotlib import pyplot as plt
 
+import movement.kinematics as kin
 from movement import sample_data
 from movement.plots import plot_trajectory
 from movement.utils.vector import compute_norm
@@ -130,8 +131,6 @@ plt.gcf().show()
 # such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
 # their trajectories:
-
-import movement.kinematics as kin
 
 displacement = kin.compute_displacement(position)
 
