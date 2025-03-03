@@ -42,4 +42,5 @@ Learn about our data structures.
 installation
 input_output
 movement_dataset
+glossary
 ```
