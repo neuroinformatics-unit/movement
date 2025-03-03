@@ -1,6 +1,7 @@
 include LICENSE
 include *.md
 include CITATION.CFF
+include movement/napari/napari.yaml
 exclude .pre-commit-config.yaml
 exclude .cruft.json
 
