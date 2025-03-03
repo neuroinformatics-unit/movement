@@ -38,7 +38,7 @@ print(f"Keypoints: {ds.keypoints.values}")
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:``position`` and
-# ``confidence``. In this tutorial, we will only use the ``position`` data array. 
+# ``confidence``. In this tutorial, we will only use the ``position`` data array.
 # We use the ``squeeze()`` method to remove
 # the redundant ``individuals`` dimension, as there is only one individual
 # in this dataset.
@@ -68,7 +68,7 @@ fig, ax = plt.subplots(1, 1)
 frame = plt.imread(ds.frame_path)
 ax.imshow(frame)
 
-# Plot the trajectory of the head centre 
+# Plot the trajectory of the head centre
 plot_trajectory(
     ds.position,
     keypoints=["left_ear", "right_ear"],
@@ -198,7 +198,7 @@ print(head_to_snout_polar)
 # The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
 # In our case, the distance from the midpoint between the ears to the snout.
 # The coordinate ``phi`` is the orientation of the head vector relative to the
-# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians 
+# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians
 # (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
 # In the default image coordinate system and with this convention, the angle ``phi`` will be
@@ -301,7 +301,7 @@ print(forward_vector_angle)
 # the angle is zero when the head vector is pointing to the right of the frame.
 # We could have also used an alternative reference vector, such as the
 # negative y-axis (pointing to the top edge of the frame) by setting
-# ``reference_vector=(0, -1)``. 
+# ``reference_vector=(0, -1)``.
 
 # %%
 # Visualise head direction angles
