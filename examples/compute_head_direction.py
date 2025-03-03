@@ -1,7 +1,7 @@
 """Compute head direction
 =========================
 
-Various ways to compute the head direction vector and angle.
+Compute the head direction vector and angle using different methods.
 """
 
 # %%
@@ -37,9 +37,9 @@ print(f"Individuals: {ds.individuals.values}")
 print(f"Keypoints: {ds.keypoints.values}")
 
 # %%
-# The loaded dataset ``ds`` contains two data variables:``position`` and
-# ``confidence``. Both are stored as data arrays. In this tutorial, we will
-# use only ``position``. The ``squeeze()`` method is used to remove
+# The loaded dataset ``ds`` contains two data arrays:``position`` and
+# ``confidence``. In this tutorial, we will only use the ``position`` data array. 
+# We use the ``squeeze()`` method to remove
 # the redundant ``individuals`` dimension, as there is only one individual
 # in this dataset.
 
@@ -49,7 +49,7 @@ position = ds.position.squeeze()
 # Visualise the head trajectory
 # -----------------------------
 # We can start by visualising the head trajectory, taking the midpoint
-# between the two ears as a proxy for the head position.
+# between the ears as an estimate for the head centre.
 # We will overlay that on a single video frame that comes
 # as part of the sample dataset.
 #
@@ -68,7 +68,7 @@ fig, ax = plt.subplots(1, 1)
 frame = plt.imread(ds.frame_path)
 ax.imshow(frame)
 
-# Plot the trajectory of ears midpoint on the same axis
+# Plot the trajectory of the head centre 
 plot_trajectory(
     ds.position,
     keypoints=["left_ear", "right_ear"],
@@ -92,15 +92,14 @@ fig.show()
 # cruciform shape, because the mouse is moving on an
 # `Elevated Plus Maze <https://en.wikipedia.org/wiki/Elevated_plus_maze>`_.
 # The plot suggests the mouse spends most of its time in the
-# covered arms of the maze.
+# covered arms of the maze (the vertical arms).
 
 # %%
 # Compute the head-to-snout vector
 # --------------------------------
-# We can choose to define head direction as the vector from the middle
-# of the head (midpoint between ears) to the front of the head (the snout).
+# We can define the head direction as the vector from the midpoint between the ears to the snout.
 
-# Compute the midpoint between the ears
+# Compute the head centre as the midpoint between the ears
 midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
     dim="keypoints"
 )
@@ -108,8 +107,8 @@ midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
 # (`drop=True` removes the keypoints dimension, which is now redundant)
 snout = position.sel(keypoints="snout", drop=True)
 
-# Compute the head vector as the difference between the snout and the
-# midpoint between the ears.
+# Compute the head vector as the difference vector between the snout position and the
+# head-centre position.
 head_to_snout = snout - midpoint_ears
 
 # %%
@@ -117,10 +116,10 @@ head_to_snout = snout - midpoint_ears
 #   :class: note
 #
 #   You can think of each point's position as a 2D vector, with its base at the
-#   origin (for image coordinates, that's the center of the pixel at
+#   origin (for image coordinates, that's the centre of the pixel at
 #   the top-left corner of the image) and its tip at the point's position.
 #
-#   The vector that goes form point :math:`U` to point :math:`V` can be
+#   The vector that goes from point :math:`U` to point :math:`V` can be
 #   computed as the difference :math:`\vec{v} - \vec{u}`, i.e.
 #   "tip - base" (see the image below).
 #
@@ -178,9 +177,9 @@ ax.legend(loc="upper left")
 
 
 # %%
-# 2D vectors in polar coordinates
+# Head-to-snout vector in polar coordinates
 # -------------------------------
-# Now that we have the head-to-snout vector, we can compute its orientation
+# Now that we have the head-to-snout vector, we can compute its
 # angle in 2D space. A convenient way to achieve that is to convert the
 # vector from cartesian to polar coordinates using the
 # :func:`cart2pol()<movement.utils.vector.cart2pol>` function.
@@ -199,21 +198,21 @@ print(head_to_snout_polar)
 # The coordinate ``rho`` is the norm (i.e., magnitude, length) of the vector.
 # In our case, the distance from the midpoint between the ears to the snout.
 # The coordinate ``phi`` is the orientation of the head vector relative to the
-# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians.
+# positive x-axis, and ranges from :math:`-\pi` to :math:`\pi` in radians 
 # (following the `atan2 <https://en.wikipedia.org/wiki/Atan2>`_ convention).
 #
-# In our coordinate system, ``phi`` will be
+# In the default image coordinate system and with this convention, the angle ``phi`` will be
 # positive if the shortest path from the positive x-axis to the vector is
-# clockwise. Conversely, ``phi`` will be negative if the shortest path from
-# the positive x-axis to the vector is anti-clockwise.
+# a clockwise rotation. Conversely, ``phi`` will be negative if the shortest path from
+# the positive x-axis to the vector is an anti-clockwise rotation.
 #
 # .. image:: ../_static/Cartesian-vs-Polar.png
 #   :width: 600
 #   :alt: Schematic comparing cartesian and polar coordinates
 
 # %%
-# ``movement`` also provides a ``pol2cart`` utility to transform
-# data in polar coordinates back to cartesian.
+# ``movement`` also provides a ``pol2cart`` function to transform
+# data in polar coordinates to cartesian.
 # Note that the resulting ``head_to_snout_cart`` array has a ``space``
 # dimension with two coordinates: ``x`` and ``y``.
 
@@ -223,7 +222,7 @@ print(head_to_snout_cart)
 # %%
 # Compute the "forward" vector
 # ----------------------------
-# We can also compute head direction using the
+# We can also estimate the head direction using the
 # :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
 # function, which takes a different approach to the one we used above:
 # it accepts a pair of bilaterally symmetric keypoints and
@@ -277,13 +276,13 @@ print(forward_vector)
 # %%
 # Compute head direction angle
 # ----------------------------
-# We could compute the head direction angle from the forward vector as
+# We may want to explicitly compute the orientation of the animal's head as an angle, rather than
+# as a vector. We can compute this angle from the forward vector as
 # we did with the head-to-snout vector, i.e., by converting the vector to
 # polar coordinates and extracting the ``phi`` coordinate. However, it's
 # more convenient to use the :func:`compute_forward_vector_angle()\
 # <movement.kinematics.compute_forward_vector_angle>` function, which
-# directly returns the angle between the forward vector and the positive
-# x-axis.
+# by default would return the same ``phi`` angle.
 
 forward_vector_angle = compute_forward_vector_angle(
     position,
@@ -298,20 +297,17 @@ print(forward_vector_angle)
 
 # %%
 # The resulting ``forward_vector_angle`` array contains the head direction
-# angle in radians, with respect to the positive x-axis, meaning that
-# the angle is zero when the head is pointing to the right.
+# angle in radians, with respect to the positive x-axis. This means that
+# the angle is zero when the head vector is pointing to the right of the frame.
 # We could have also used an alternative reference vector, such as the
-# negative y-axis (pointing up in image coordinates) by setting
-# ``reference_vector=(0, -1)``. You may control the sign of the angle
-# by altering the ``ref_to_forward`` parameter, see notes is
-# :func:`compute_forward_vector_angle()\
-# <movement.kinematics.compute_forward_vector_angle>`'s documentation.
+# negative y-axis (pointing to the top edge of the frame) by setting
+# ``reference_vector=(0, -1)``. 
 
 # %%
 # Visualise head direction angles
 # -------------------------------
 # We can compare the head direction angles computed from the two methods,
-# i.e. the polar angle ``phi`` of the head-to-snout vector and the angle
+# i.e. the polar angle ``phi`` of the head-to-snout vector and the polar angle
 # of the forward vector, by plotting their histograms in polar coordinates.
 # First, let's define a custom plotting function that will help us with this.
 
@@ -393,5 +389,5 @@ fig, ax = plot_polar_histogram(angles_diff, bin_width_deg=10)
 ax.set_title("Forward vector angle - head-to-snout angle", pad=25)
 
 # %%
-# For the vast majority of the time, the two methods
-# do not differ by more than 20 degrees (2 histogram bins).
+# For the majority of the time, the two methods
+# differ less than 20 degrees (2 histogram bins).
