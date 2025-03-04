@@ -143,7 +143,7 @@ ax.quiver(
     midpoint_ears.sel(space="y", time=time_window),
     head_to_snout.sel(space="x", time=time_window),
     head_to_snout.sel(space="y", time=time_window),
-    midpoint_ears.sel(time=time_window).time.values,  # color by time
+    color="gray",
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -166,10 +166,12 @@ plot_trajectory(
     snout.sel(time=time_window),
     ax=ax,
     s=60,
-    label="snout",
     marker="*",
-    c="r",
+    label="snout",
 )
+
+# Calling plot_trajectory twice will add 2 identical colorbars, so we remove 1
+ax.collections[2].colorbar.remove()
 
 ax.set_title("Zoomed in head-to-snout vectors")
 ax.invert_yaxis()  # invert y-axis to match image coordinates
