@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 from napari.settings import get_settings
-from napari.utils.colormaps import ensure_colormap
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
@@ -21,6 +20,7 @@ from qtpy.QtWidgets import (
 
 from movement.io import load_bboxes, load_poses
 from movement.napari.convert import movement_ds_to_napari_tracks
+from movement.napari.layer_styles import PointsStyle
 
 logger = logging.getLogger(__name__)
 
@@ -162,38 +162,25 @@ class DataLoader(QWidget):
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
-        # Set property to color by
-        color_prop = "individual"
-        if (
-            len(self.props["individual"].unique()) == 1
-            and "keypoint" in self.props
-        ):
-            color_prop = "keypoint"
-
-        def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
-            cmap = ensure_colormap(cmap_name)
-            samples = np.linspace(0, len(cmap.colors) - 1, n).astype(int)
-            return [tuple(cmap.colors[i]) for i in samples]
-
-        # Define color cycle
-        n_colors = len(np.unique(self.props[color_prop]))
-        color_cycle = _sample_colormap(n_colors, "turbo")
-
-        # Add the first element of the data as a points layer
-        slc_not_nan = ~np.any(np.isnan(self.data), axis=1)
-        self.viewer.add_points(
-            self.data[slc_not_nan, 1:],
-            features=self.props.iloc[slc_not_nan, :],
-            face_color=color_prop,
-            face_color_cycle=color_cycle,
-            border_width=0,
-            text={
-                "string": "{keypoint:}",
-                "color": {"feature": color_prop, "colormap": color_cycle},
-                "visible": False,
-            },
-            size=20,
+        # Define style for Points layer
+        bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
+            properties=self.props.iloc[bool_not_nan, :],
+            text={"string": "{keypoint:}", "visible": False},
+        )
+
+        # Set color of markers and text by selected property
+        color_prop = "individual"
+        n_individuals = len(self.props["individual"].unique())
+        if n_individuals == 1 and "keypoint" in self.props:
+            color_prop = "keypoint"
+        props_and_style.set_color_by(prop=color_prop)
+
+        # Add data as a points layer
+        self.viewer.add_points(
+            self.data[bool_not_nan, 1:],
+            **props_and_style.as_kwargs(),
         )
         logger.info("Added dataset as a napari Points layer.")
 
