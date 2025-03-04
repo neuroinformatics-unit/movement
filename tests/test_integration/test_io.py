@@ -2,7 +2,7 @@ import h5py
 import numpy as np
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
+import pytest 
 
 from movement.io import load_poses, save_poses
 
