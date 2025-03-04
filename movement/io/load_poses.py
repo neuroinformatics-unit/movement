@@ -289,8 +289,7 @@ def from_sleap_file(
         ds = _ds_from_sleap_labels_file(file.path, fps=fps)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:")
-    logger.info(ds)
+    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
     return ds
 
 
@@ -434,8 +433,7 @@ def _ds_from_lp_or_dlc_file(
     ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:")
-    logger.info(ds)
+    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
     return ds
 
 

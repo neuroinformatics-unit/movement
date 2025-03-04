@@ -361,7 +361,7 @@ def from_via_tracks_file(
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
-    logger.info(f"Loaded bounding boxes tracks from {via_file.path}: {ds}")
+    logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
     return ds
 
 
