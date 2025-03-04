@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -133,6 +134,7 @@ class DataLoader(QWidget):
 
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
+        # Get data from user input
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
@@ -181,7 +183,10 @@ class DataLoader(QWidget):
 
         # Add the first element of the data as a points layer
         self.viewer.add_points(
-            self.data[:, 1:],
+            # self.data[:, 1:],  # 4 columns are (track_id, frame_idx, y, x).
+            self.data[
+                ~np.any(np.isnan(self.data), axis=1), 1:
+            ],  # self.data[~np.any(np.isnan(self.data[:, 3:4]), axis=1), 1:]
             # features=self.props, #.to_dict(orient="list"),
             # text={"color": {"feature": "individual"}},
             # size=20,
