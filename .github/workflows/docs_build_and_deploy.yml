@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
         with:
-          python-version: 3.11
+          python-version: 3.12
           use-make: true
 
   deploy_sphinx_docs:

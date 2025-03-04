@@ -20,7 +20,7 @@ navigation, social interactions, etc.
 - __Integrate with neurophysiological data analysis tools__. We eventually aim to facilitate combined analysis of motion and neural data.
 
 ## Short-term milestone - `v0.1`
-We plan to release version `v0.1` of `movement` in early 2025, providing a minimal set of features to demonstrate the project's potential and to gather feedback from users. At minimum, it should include:
+We've released version `v0.1` of `movement` in March 2025, providing a basic set of features to demonstrate the project's potential and to gather feedback from users. Our minimum requirements for this milestone were:
 
 - [x] Ability to import pose tracks from [DeepLabCut](dlc:), [SLEAP](sleap:) and [LightningPose](lp:) into a common `xarray.Dataset` structure.
 - [x] At least one function for cleaning the pose tracks.
@@ -28,4 +28,4 @@ We plan to release version `v0.1` of `movement` in early 2025, providing a minim
 - [x] Public website with [documentation](target-movement).
 - [x] Package released on [PyPI](https://pypi.org/project/movement/).
 - [x] Package released on [conda-forge](https://anaconda.org/conda-forge/movement).
-- [ ] Ability to visualise pose tracks using [napari](napari:). We aim to represent pose tracks as napari [layers](napari:howtos/layers/index.html), overlaid on video frames.
+- [x] Ability to visualise pose tracks using [napari](napari:). We aim to represent pose tracks as napari [layers](napari:howtos/layers/index.html), overlaid on video frames.
