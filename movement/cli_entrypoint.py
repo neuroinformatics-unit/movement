@@ -56,7 +56,7 @@ def main() -> None:
     )
     launch_parser.set_defaults(func=launch)
 
-    args = parser.parse_args('')
+    args = parser.parse_args("")
     if args.command is None:
         help_message = parser.format_help()
         print(help_message)
