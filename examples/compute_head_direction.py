@@ -230,7 +230,8 @@ print(head_to_snout_cart)
 # :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
 # function, which takes a different approach to the one we used above:
 # it accepts a pair of bilaterally symmetric keypoints and
-# computes the vector that's perpendicular to the line connecting them.
+# computes the vector that originates at the midpoint between the keypoints
+# and is perpendicular to the line connecting them.
 #
 # Here we will use the two ears to find the head direction vector.
 # We may prefer this method if we expect the snout detection to be
@@ -262,10 +263,10 @@ print(forward_vector)
 
 
 # %%
-# You can use ``compute_forward_vector`` to compute the direction
-# of any body segment, as long as bilaterally symmetric keypoints are
-# available. For example, you could estimate body direction given the
-# the two hips or shoulders.
+# You can use ``compute_forward_vector`` to compute the perpendicular
+# vector to any line connecting two bilaterally symmetric keypoints.
+# For example, you could estimate the forward direction for the pelvis given
+# two keypoints at the hips.
 #
 # Specifically for the head direction vector, you may also use the alias
 # :func:`compute_head_direction_vector()\
