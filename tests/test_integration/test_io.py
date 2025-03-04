@@ -2,7 +2,6 @@ import h5py
 import numpy as np
 import pytest
 import xarray as xr
-import pytest 
 
 from movement.io import load_poses, save_poses
 
