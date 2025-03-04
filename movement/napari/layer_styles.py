@@ -46,10 +46,18 @@ class PointsStyle(LayerStyle):
             The name of the colormap to use, otherwise use the face_colormap.
 
         """
+        # set marker color
         if cmap is None:
             cmap = self.face_colormap
         self.face_color = prop
+
+        # set text label and color
         self.text["string"] = prop
+        self.text["color"] = {"feature": prop, "colormap": cmap}
+        self.text["size"] = 20
+        # self.text
+
+        # set color cycle
         n_colors = len(self.properties[prop].unique())
         self.face_color_cycle = _sample_colormap(n_colors, cmap)
 
