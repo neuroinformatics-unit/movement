@@ -98,7 +98,6 @@ def plot_trajectory(
 
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    ax.axis("equal")
     ax.set_title("Trajectory")
 
     # Add 'colorbar' for time dimension if no colour was provided by user
