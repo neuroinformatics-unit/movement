@@ -6,7 +6,7 @@ import xarray as xr
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    rolling_filter,
+    median_filter,
     savgol_filter,
 )
 
@@ -33,15 +33,14 @@ class TestFilteringValidDataset:
     @pytest.mark.parametrize(
         ("filter_func, filter_kwargs"),
         [
-            (rolling_filter, {"window": 3, "method": "median"}),
-            (rolling_filter, {"window": 3, "method": "mean"}),
+            (median_filter, {"window": 3}),
             (savgol_filter, {"window": 3, "polyorder": 2}),
         ],
     )
     def test_filter_with_nans_on_position(
         self, filter_func, filter_kwargs, valid_dataset, helpers, request
     ):
-        """Test NaN behaviour of the median, mean and SG filters.
+        """Test NaN behaviour of the median and SG filters.
         Both filters should set all values to NaN if one element of the
         sliding window is NaN.
         """
@@ -156,7 +155,7 @@ class TestFilteringValidDatasetWithNaNs:
         "window",
         [3, 5, 6, 10],  # input data has 10 frames
     )
-    @pytest.mark.parametrize("filter_func", [rolling_filter, savgol_filter])
+    @pytest.mark.parametrize("filter_func", [median_filter, savgol_filter])
     def test_filter_with_nans_on_position_varying_window(
         self, valid_dataset_with_nan, window, filter_func, helpers, request
     ):
