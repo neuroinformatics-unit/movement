@@ -2,7 +2,8 @@ import h5py
 import numpy as np
 import pytest
 import xarray as xr
-
+import pytest 
+import pathlib
 from movement.io import load_poses, save_poses
 
 
@@ -61,7 +62,7 @@ class TestPosesIO:
         file) to a SLEAP-style .h5 analysis file returns the same file
         contents.
         """
-        sleap_h5_file_path = DATA_PATHS.get(sleap_h5_file)
+        sleap_h5_file_path = pathlib.Path(sleap_h5_file)
         ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
         save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
@@ -92,7 +93,7 @@ class TestPosesIO:
         to a SLEAP-style .h5 analysis file stores the .slp labels path
         only when the source file is a .slp file.
         """
-        file_path = DATA_PATHS.get(file)
+        file_path = pathlib.get(file)
         if file.startswith("DLC"):
             ds = load_poses.from_dlc_file(file_path)
         else:
