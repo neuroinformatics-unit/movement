@@ -184,18 +184,6 @@ class DataLoader(QWidget):
         )
         logger.info("Added dataset as a napari Points layer.")
 
-    def _add_tracks_layer(self):
-        """Add the tracks data to the viewer as a Tracks layer."""
-        # Style properties for the napari Tracks layer
-        tracks_style = {
-            "name": f"tracks: {self.file_name}",
-            "properties": self.props,
-        }
-
-        # Add all data as a tracks layer
-        self.viewer.add_tracks(self.data, **tracks_style)
-        logger.info("Added dataset as a napari Tracks layer.")
-
     @staticmethod
     def _enable_layer_tooltips():
         """Toggle on tooltip visibility for napari layers.
