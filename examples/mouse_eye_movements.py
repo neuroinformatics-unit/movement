@@ -102,9 +102,9 @@ fig.show()
 # %%
 # Keypoint positions over time
 # ----------------------------
-# For the rest of this example we are interested in the position data only, to
-# make the data easy to combine the arrays into a single array with a new
-# dimension ``lighting``.
+# For the rest of this example we are only interested in the position data.
+# For convenience, We will combine the two position arrays into a single
+# array with a new dimension called ``lighting``.
 positions = xr.concat([ds_black.position, ds_uniform.position], "lighting")
 positions.coords["lighting"] = ["black", "uniform"]
 
@@ -117,20 +117,12 @@ plot_params = {
     "row": "lighting",
     "aspect": 1.5,
     "size": 2.5,
-    "add_legend": False,  # Disable default legend
 }
-legend_params = {
-    "bbox_to_anchor": (1.02, 1),
-    "loc": "upper right",
-}
-
 sel = {"time": slice(8, 25)}
-
 # %%
 # Plot the keypoint positions over time.
-positions.sel(**sel).squeeze().plot.line(**plot_params).add_legend(
-    **legend_params
-)
+positions.sel(**sel).squeeze().plot.line(**plot_params)
+plt.subplots_adjust(right=0.85)  # Make space on the right for the legend
 plt.show()
 # %%
 # Normalised keypoint positions over time
@@ -144,9 +136,8 @@ eye_midpoint = positions.sel(keypoints=["eye-L", "eye-R"]).mean("keypoints")
 positions_norm = positions - eye_midpoint
 # %%
 # We plot the x and y positions again, but now using the normalised data.
-positions_norm.sel(**sel).squeeze().plot.line(**plot_params).add_legend(
-    **legend_params
-)
+positions_norm.sel(**sel).squeeze().plot.line(**plot_params)
+plt.subplots_adjust(right=0.85)
 plt.show()
 # %%
 # Pupil position over time
