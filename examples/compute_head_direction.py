@@ -79,6 +79,7 @@ plot_trajectory(
 
 # Adjust title
 ax.set_title("Head trajectory")
+ax.set_ylim(frame.shape[0], 0)  # match y-axis limits to image coordinates
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.collections[0].colorbar.set_label("Time (seconds)")
