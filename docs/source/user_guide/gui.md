@@ -150,9 +150,9 @@ You will see a view similar to the one below:
 The keypoints are represented as points, colour-coded by
 keypoint ID for single-individual datasets, or by individual ID for
 multi-individual datasets. In bounding boxes datasets, since there are no keypoints,
-the points are colour-coded by individual ID. The value for each point's colour can be displayed as text
-next to the points by enabling the `display text` option from the
-layer controls panel.
+the points are colour-coded by individual ID. If we enable the `display_text` option in the
+layer controls panel, the keypoint name will be displayed next to each point. If the
+dataset has no keypoint dimension, the individual name is shown.
 
 Hovering with your mouse over a point
 (with the points layer selected) will
