@@ -155,7 +155,6 @@ def test_on_load_clicked_with_valid_file_path(
     assert poses_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
-    # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted poses dataset to a napari Tracks array.",
         "Tracks array shape: (2170, 4)",

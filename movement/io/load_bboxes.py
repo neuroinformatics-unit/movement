@@ -1,7 +1,6 @@
 """Load bounding boxes tracking data into ``movement``."""
 
 import ast
-import logging
 import re
 from collections.abc import Callable
 from pathlib import Path
@@ -10,6 +9,7 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import xarray as xr
+from loguru import logger
 
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset
@@ -18,8 +18,6 @@ from movement.validators.files import (
     ValidFile,
     ValidVIATracksCSV,
 )
-
-logger = logging.getLogger(__name__)
 
 
 def from_numpy(
@@ -337,7 +335,7 @@ def from_via_tracks_file(
 
     # Specific VIA-tracks .csv file validation
     via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
-    logger.debug(f"Validated VIA tracks .csv file {via_file.path}.")
+    logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(
@@ -363,8 +361,7 @@ def from_via_tracks_file(
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
-    logger.info(f"Loaded tracks of the bounding boxes from {via_file.path}:")
-    logger.info(ds)
+    logger.info(f"Loaded bounding boxes tracks from {via_file.path}: {ds}")
     return ds
 
 

@@ -1,6 +1,5 @@
 """Save pose tracking data from ``movement`` to various file formats."""
 
-import logging
 from pathlib import Path
 from typing import Literal
 
@@ -8,12 +7,11 @@ import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
+from loguru import logger
 
 from movement.utils.logging import log_error
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile
-
-logger = logging.getLogger(__name__)
 
 
 def _ds_to_dlc_style_df(

@@ -1,7 +1,6 @@
-import logging
-
 import pytest
 import xarray as xr
+from loguru import logger
 
 from movement.utils.logging import log_error, log_to_attrs, log_warning
 
@@ -18,9 +17,8 @@ def test_logfile_contains_message(level, message):
     """Check if the last line of the logfile contains
     the expected message.
     """
-    logger = logging.getLogger("movement")
     eval(f"logger.{level.lower()}('{message}')")
-    log_file = logger.handlers[0].baseFilename
+    log_file = logger._core.handlers[1]._sink._file.name
     with open(log_file) as f:
         last_line = f.readlines()[-1]
     assert level in last_line
