@@ -185,7 +185,6 @@ def median_filter(
     return data_smoothed
 
 
-
 @log_to_attrs
 def savgol_filter(
     data: xr.DataArray,
