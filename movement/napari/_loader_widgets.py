@@ -1,8 +1,8 @@
 """Widgets for loading movement datasets from file."""
 
-import logging
 from pathlib import Path
 
+from loguru import logger
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -20,8 +20,6 @@ from qtpy.QtWidgets import (
 from movement.io import load_poses
 from movement.napari.convert import poses_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
-
-logger = logging.getLogger(__name__)
 
 # Allowed poses file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
