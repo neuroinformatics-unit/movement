@@ -10,7 +10,7 @@ from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
-from movement.napari._loader_widgets import DataLoader
+from movement.napari.widgets import DataLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#

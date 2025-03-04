@@ -44,7 +44,7 @@ class DataLoader(QWidget):
     """Widget for loading movement datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the loader widget."""
+        """Initialize the data loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
@@ -148,20 +148,18 @@ class DataLoader(QWidget):
 
         # Convert to napari Tracks array
         self.data, self.props = movement_ds_to_napari_tracks(ds)
-
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
+        # Add the data as a Points layer
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
+        # Add previous positions as a Tracks layer
+        # self._add_tracks_layer()
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
-        # Style properties for the napari Points layer
-        points_style = PointsStyle(
-            name=f"data: {self.file_name}",
-            properties=self.props,
-        )
         # Color the points by individual if there are multiple individuals
         # Otherwise, color by keypoint
         color_prop = "individual"
@@ -170,10 +168,39 @@ class DataLoader(QWidget):
             and "keypoint" in self.props
         ):
             color_prop = "keypoint"
+
+        # Style properties for the napari Points layer
+        points_style = PointsStyle(
+            name=f"data: {self.file_name}",
+            properties=self.props,
+            text={"visible": False, "color": {"feature": color_prop}},
+            size=20,
+            # face_color=color_prop,
+        )
         points_style.set_color_by(prop=color_prop)
-        # Add the points layer to the viewer
-        self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
-        logger.info("Added tracked dataset as a napari Points layer.")
+
+        # Add the first element of the data as a points layer
+        self.viewer.add_points(
+            self.data[:, 1:],
+            # features=self.props, #.to_dict(orient="list"),
+            # text={"color": {"feature": "individual"}},
+            # size=20,
+            # face_color="individual",
+            **points_style.as_kwargs(),
+        )
+        logger.info("Added dataset as a napari Points layer.")
+
+    def _add_tracks_layer(self):
+        """Add the tracks data to the viewer as a Tracks layer."""
+        # Style properties for the napari Tracks layer
+        tracks_style = {
+            "name": f"tracks: {self.file_name}",
+            "properties": self.props,
+        }
+
+        # Add all data as a tracks layer
+        self.viewer.add_tracks(self.data, **tracks_style)
+        logger.info("Added dataset as a napari Tracks layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
