@@ -6,18 +6,16 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
-import logging
 from pathlib import Path
 
 import pooch
 import xarray
 import yaml
+from loguru import logger
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses
 from movement.utils.logging import log_error, log_warning
-
-logger = logging.getLogger(__name__)
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -101,6 +99,7 @@ def _fetch_metadata(
     # if download fails, try loading an existing local metadata file,
     # otherwise raise an error
     except RequestException as exc_info:
+        # operational event to record: logging.warn
         if local_file_path.is_file():
             log_warning(
                 f"{failed_msg} Will use the existing local version instead."
