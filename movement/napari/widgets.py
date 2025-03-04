@@ -157,17 +157,17 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
-        # Add previous positions as a Tracks layer
-        # self._add_tracks_layer()
-
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
-        # Define style for Points layer
+        # Define style for points layer
         bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        property_for_text = (
+            "keypoint" if "keypoint" in self.props else "individual"
+        )
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
-            text={"string": "{keypoint:}", "visible": False},
+            text={"string": property_for_text, "visible": False},
         )
 
         # Set color of markers and text by selected property
