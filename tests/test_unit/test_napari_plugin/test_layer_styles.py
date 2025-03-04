@@ -7,6 +7,7 @@ from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
     LayerStyle,
     PointsStyle,
+    _sample_colormap,
 )
 
 
@@ -94,19 +95,45 @@ def test_layer_style_as_kwargs(sample_layer_style, default_style_attributes):
         ("value", 5),
     ],
 )
+@pytest.mark.parametrize(
+    "points_style_id",
+    [
+        "default",
+        "with_text_color",
+    ],
+)
 def test_points_style_set_color_by(
-    sample_layer_style, prop, expected_n_colors
+    sample_layer_style, points_style_id, prop, expected_n_colors
 ):
     """Test that set_color_by updates face_color and face_color_cycle."""
+    # Create a points style
     points_style = sample_layer_style(PointsStyle)
+    if points_style_id == "with_text_color":
+        points_style.text = {"color": {"fallback": "white"}}
 
+    # Set the color of the markers and text by the property "prop"
     points_style.set_color_by(prop=prop)
-    # Check that face_color and text are updated correctly
-    assert points_style.face_color == prop
-    assert points_style.text == {"visible": False, "string": prop}
 
-    # Check that face_color_cycle has the correct number of colors
+    # Check that the markers' face_color and the text color
+    # follow the property "prop"
+    assert points_style.face_color == prop
+    assert "color" in points_style.text
+    assert points_style.text["color"]["feature"] == prop
+
+    # Check the color cycle is assigned correctly
+    color_cycle = _sample_colormap(
+        len(points_style.properties[prop].unique()),
+        cmap_name=DEFAULT_COLORMAP,
+    )
+
+    # Check the color array
+    assert points_style.face_color_cycle == color_cycle
+    assert points_style.text["color"]["colormap"] == color_cycle
+
+    # Check number of colors is as expected
     assert len(points_style.face_color_cycle) == expected_n_colors
+    assert len(points_style.text["color"]["colormap"]) == expected_n_colors
+
     # Check that all colors are tuples of length 4 (RGBA)
     assert all(
         isinstance(c, tuple) and len(c) == 4

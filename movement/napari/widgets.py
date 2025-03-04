@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -44,7 +45,7 @@ class DataLoader(QWidget):
     """Widget for loading movement datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the loader widget."""
+        """Initialize the data loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
@@ -133,6 +134,7 @@ class DataLoader(QWidget):
 
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
+        # Get data from user input
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
@@ -148,32 +150,39 @@ class DataLoader(QWidget):
 
         # Convert to napari Tracks array
         self.data, self.props = movement_ds_to_napari_tracks(ds)
-
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
+        # Add the data as a Points layer
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
-        # Style properties for the napari Points layer
-        points_style = PointsStyle(
-            name=f"data: {self.file_name}",
-            properties=self.props,
+        # Define style for points layer
+        bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        property_for_text = (
+            "keypoint" if "keypoint" in self.props else "individual"
         )
-        # Color the points by individual if there are multiple individuals
-        # Otherwise, color by keypoint
+        props_and_style = PointsStyle(
+            name=f"data: {self.file_name}",
+            properties=self.props.iloc[bool_not_nan, :],
+            text={"string": property_for_text, "visible": False},
+        )
+
+        # Set color of markers and text by selected property
         color_prop = "individual"
-        if (
-            len(self.props["individual"].unique()) == 1
-            and "keypoint" in self.props
-        ):
+        n_individuals = len(self.props["individual"].unique())
+        if n_individuals == 1 and "keypoint" in self.props:
             color_prop = "keypoint"
-        points_style.set_color_by(prop=color_prop)
-        # Add the points layer to the viewer
-        self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
-        logger.info("Added tracked dataset as a napari Points layer.")
+        props_and_style.set_color_by(prop=color_prop)
+
+        # Add data as a points layer
+        self.viewer.add_points(
+            self.data[bool_not_nan, 1:],
+            **props_and_style.as_kwargs(),
+        )
+        logger.info("Added dataset as a napari Points layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
