@@ -294,7 +294,7 @@ forward_vector_angle = compute_forward_vector_angle(
     # Optional parameters:
     reference_vector=(1, 0),  # positive x-axis
     camera_view="top_down",
-    in_radians=True,  # set to False for degrees
+    in_degrees=False,  # set to True for degrees
 )
 print(forward_vector_angle)
 
