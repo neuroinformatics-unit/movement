@@ -3,6 +3,7 @@
 import logging
 from pathlib import Path
 
+import numpy as np
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -147,7 +148,10 @@ class PosesLoader(QWidget):
             prop="individual" if n_individuals > 1 else "keypoint"
         )
         # Add the points layer to the viewer
-        self.viewer.add_points(self.data[:, 1:], **points_style.as_kwargs())
+        self.viewer.add_points(
+            self.data[~np.any(np.isnan(self.data), axis=1), 1:],
+            **points_style.as_kwargs(),
+        )
         logger.info("Added poses dataset as a napari Points layer.")
 
     @staticmethod
