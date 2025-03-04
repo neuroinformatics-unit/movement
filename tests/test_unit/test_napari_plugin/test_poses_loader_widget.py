@@ -6,10 +6,12 @@ instantiated (the methods would have already been connected to signals).
 """
 
 import pytest
+from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
+from movement.io import load_poses
 from movement.napari.widgets import PosesLoader
 
 
@@ -155,7 +157,6 @@ def test_on_load_clicked_with_valid_file_path(
     assert poses_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
-    # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted poses dataset to a napari Tracks array.",
         "Tracks array shape: (2170, 4)",
@@ -167,3 +168,28 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that a Points layer was added to the viewer
     points_layer = poses_loader_widget.viewer.layers[0]
     assert points_layer.name == f"poses: {file_path.name}"
+
+
+def test_dimension_slider_matches_frames(make_napari_viewer_proxy):
+    """Test that the dimension slider is set to the correct value when
+    data with NaNs is loaded.
+    """
+    viewer = make_napari_viewer_proxy()
+    poses_loader_widget = PosesLoader(viewer)
+
+    # Set the file path to a file
+    file_path = pytest.DATA_PATHS.get("SLEAP_two-mice_octagon.analysis.h5")
+    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
+    poses_loader_widget.source_software_combo.setCurrentText("SLEAP")
+
+    # Check the data contains nans
+    ds = load_poses.from_file(file_path, "SLEAP", fps=1)
+    assert ds.position.isnull().any()
+
+    # Call the _on_load_clicked method (pretend the user clicked "Load")
+    poses_loader_widget._on_load_clicked()
+
+    # Check the frame slider is set to the correct value
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
+    )
