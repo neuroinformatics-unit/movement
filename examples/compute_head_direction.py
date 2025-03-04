@@ -361,10 +361,8 @@ def plot_polar_histogram(da, bin_width_deg=15, ax=None):
 
 # sphinx_gallery_thumbnail_number = 3
 
-head_to_snout_angles = head_to_snout_polar.sel(space_pol="phi")
-forward_vector_angles = forward_vector_angle
-
-angle_arrays = [head_to_snout_angles, forward_vector_angles]
+head_to_snout_angle = head_to_snout_polar.sel(space_pol="phi")
+angle_arrays = [head_to_snout_angle, forward_vector_angle]
 angle_titles = ["Head-to-snout", "Forward"]
 
 fig, axes = plt.subplots(
@@ -384,7 +382,7 @@ for i, angles in enumerate(angle_arrays):
 # How large are the differences between the two methods?
 # We could check that by plotting a histogram of the differences.
 
-angles_diff = forward_vector_angles - head_to_snout_angles
+angles_diff = forward_vector_angle - head_to_snout_angle
 fig, ax = plot_polar_histogram(angles_diff, bin_width_deg=10)
 ax.set_title("Forward vector angle - head-to-snout angle", pad=25)
 
