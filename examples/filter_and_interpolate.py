@@ -81,9 +81,9 @@ ds.confidence.squeeze().plot.line(
 # This function takes ``position`` and ``confidence`` as required arguments,
 # and accepts an optional ``threshold`` parameter,
 # which defaults to ``threshold=0.6`` unless specified otherwise.
-# The function will also report the number of NaN values in the dataset before
-# and after the filtering operation by default, but you can disable this
-# by passing ``print_report=False``.
+# By default, the function does not report the number of NaN values
+# in the dataset before and after the filtering operation.
+# You can enable this by passing print_report=True
 #
 # We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
@@ -170,7 +170,7 @@ ds["velocity"] = compute_velocity(ds.position)
 # Create a dictionary mapping data variable names to filtered DataArrays
 # We disable report printing for brevity
 update_dict = {
-    var: filter_by_confidence(ds[var], ds.confidence, print_report=False)
+    var: filter_by_confidence(ds[var], ds.confidence)
     for var in ["position", "velocity"]
 }
 

@@ -82,9 +82,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
         )
 
         # interpolate data to remove NaNs in the PSD calculation
-        pos_interp = interpolate_over_time(
-            pos, print_report=False, fill_value="extrapolate"
-        )
+        pos_interp = interpolate_over_time(pos, fill_value="extrapolate")
 
         # compute and plot the PSD
         freq, psd = welch(pos_interp, fs=ds.fps, nperseg=256)
