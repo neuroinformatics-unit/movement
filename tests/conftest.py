@@ -1,9 +1,10 @@
 """Fixtures and configurations shared by the entire test suite."""
 
-import logging
 from glob import glob
 
 import pytest
+from _pytest.logging import LogCaptureFixture
+from loguru import logger
 
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
@@ -38,7 +39,20 @@ def setup_logging(tmp_path):
     Redirects all logging to a temporary directory.
     """
     configure_logging(
-        log_level=logging.DEBUG,
-        logger_name="movement",
+        log_level="DEBUG",
+        log_file_name="movement-test",
         log_directory=(tmp_path / ".movement"),
     )
+
+
+@pytest.fixture
+def caplog(caplog: LogCaptureFixture):
+    handler_id = logger.add(
+        caplog.handler,
+        format="{message}",
+        level="DEBUG",
+        filter=lambda record: record["level"].no >= caplog.handler.level,
+        enqueue=False,
+    )
+    yield caplog
+    logger.remove(handler_id)

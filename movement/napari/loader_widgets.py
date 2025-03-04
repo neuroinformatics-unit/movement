@@ -1,9 +1,9 @@
 """Widgets for loading movement datasets from file."""
 
-import logging
 from pathlib import Path
 
 import numpy as np
+from loguru import logger
 from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
@@ -22,8 +22,6 @@ from qtpy.QtWidgets import (
 from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
-
-logger = logging.getLogger(__name__)
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
