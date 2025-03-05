@@ -81,9 +81,10 @@ ds.confidence.squeeze().plot.line(
 # This function takes ``position`` and ``confidence`` as required arguments,
 # and accepts an optional ``threshold`` parameter,
 # which defaults to ``threshold=0.6`` unless specified otherwise.
-# By default, the function does not report the number of NaN values
-# in the dataset before and after the filtering operation.
-# You can enable this by passing print_report=True
+# Setting ``print_report=True``, will make the function print a report
+# on the number of NaN values before and after the filtering operation.
+# This is ``False`` by default, but can be useful for understanding
+# and debugging the impact of filtering on the data.
 #
 # We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
