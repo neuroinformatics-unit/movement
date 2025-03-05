@@ -267,12 +267,12 @@ def make_broadcastable(  # noqa: C901
         """
 
         @wraps(f)
-        def inner_clsmethod(  # type: ignore[valid-type]
+        def inner_clsmethod(
             self,
             data: xr.DataArray,
-            *args: KeywordArgs.args,
+            *args: KeywordArgs.args,  # type: ignore[valid-type]
             broadcast_dimension: str = "space",
-            **kwargs: KeywordArgs.kwargs,
+            **kwargs: KeywordArgs.kwargs,  # type: ignore[valid-type]
         ) -> xr.DataArray:
             # Preserve original functionality
             if not isinstance(data, xr.DataArray):
@@ -288,8 +288,8 @@ def make_broadcastable(  # noqa: C901
         def inner_clsmethod_fixeddim(
             self,
             data: xr.DataArray,
-            *args: KeywordArgs.args,
-            **kwargs: KeywordArgs.kwargs,
+            *args: KeywordArgs.args,  # type: ignore[valid-type]
+            **kwargs: KeywordArgs.kwargs,  # type: ignore[valid-type]
         ) -> xr.DataArray:
             return inner_clsmethod(
                 self,
@@ -300,11 +300,11 @@ def make_broadcastable(  # noqa: C901
             )
 
         @wraps(f)
-        def inner(  # type: ignore[valid-type]
+        def inner(
             data: xr.DataArray,
-            *args: KeywordArgs.args,
+            *args: KeywordArgs.args,  # type: ignore[valid-type]
             broadcast_dimension: str = "space",
-            **kwargs: KeywordArgs.kwargs,
+            **kwargs: KeywordArgs.kwargs,  # type: ignore[valid-type]
         ) -> xr.DataArray:
             # Preserve original functionality
             if not isinstance(data, xr.DataArray):
@@ -319,8 +319,8 @@ def make_broadcastable(  # noqa: C901
         @wraps(f)
         def inner_fixeddim(
             data: xr.DataArray,
-            *args: KeywordArgs.args,
-            **kwargs: KeywordArgs.kwargs,
+            *args: KeywordArgs.args,  # type: ignore[valid-type]
+            **kwargs: KeywordArgs.kwargs,  # type: ignore[valid-type]
         ) -> xr.DataArray:
             return inner(
                 data,
