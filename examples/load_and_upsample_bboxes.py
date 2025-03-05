@@ -277,7 +277,10 @@ ds_interp = ds_nan.copy()
 
 for data_array_str in ["position", "shape"]:
     ds_interp[data_array_str] = interpolate_over_time(
-        data=ds_interp[data_array_str]
+        data=ds_interp[data_array_str],
+        method="linear",
+        max_gap=None,
+        print_report=False,
     )
 
 # %%
