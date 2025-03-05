@@ -219,7 +219,7 @@ def compute_signed_angle_2d(
     coordinates ``"x"`` and ``"y"`` only, and must have a ``time`` dimension
     matching that of ``u``.
 
-    If passed as a numpy array, the ``v`` must have one of three shapes:
+    If passed as a numpy array, ``v`` must have one of three shapes:
 
     - ``(2,)``: where dimension ``0`` contains spatial
       coordinates (x,y), and no time dimension is specified.
