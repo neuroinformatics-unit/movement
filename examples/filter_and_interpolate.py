@@ -89,7 +89,13 @@ ds.confidence.squeeze().plot.line(
 # We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
 
-ds.update({"position": filter_by_confidence(ds.position, ds.confidence)})
+ds.update(
+    {
+        "position": filter_by_confidence(
+            ds.position, ds.confidence, print_report=True
+        )
+    }
+)
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
@@ -116,7 +122,13 @@ ds.position.squeeze().plot.line(
 # their length, but this should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-ds.update({"position": interpolate_over_time(ds.position, max_gap=40)})
+ds.update(
+    {
+        "position": interpolate_over_time(
+            ds.position, max_gap=40, print_report=True
+        )
+    }
+)
 
 # %%
 # We see that most, but not all, NaN values have disappeared, meaning that
