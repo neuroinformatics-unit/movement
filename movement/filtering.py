@@ -1,5 +1,7 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
+from typing import Literal
+
 import xarray as xr
 from scipy import signal
 
@@ -123,22 +125,27 @@ def interpolate_over_time(
 def rolling_filter(
     data: xr.DataArray,
     window: int,
-    method: str = "mean",
+    statistic: Literal["median", "mean", "max", "min"] = "median",
     min_periods: int | None = None,
     print_report: bool = True,
 ) -> xr.DataArray:
-    """Smooth data by applying a rolling filter (mean or median) over time.
+    """Apply a rolling window filter across time.
+
+    This function uses :meth:`xarray.DataArray.rolling` to apply a rolling
+    window filter across the ``time`` dimension of the input data and computes
+    the specified ``statistic`` over each window.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data to be smoothed.
+        The input data array.
     window : int
-        The size of the smoothing window, representing the fixed number
+        The size of the rolling window, representing the fixed number
         of observations used for each window.
-    method : str
-        The type of filter to apply. Choose either "mean" or "median".
-        Default is "mean".
+    statistic : str
+        Which statistic to compute over the rolling window.
+        Options are ``median``, ``mean``, ``max``, and ``min``.
+        The default is ``median``.
     min_periods : int
         Minimum number of observations in the window required to have
         a value (otherwise result is NaN). The default, None, is
@@ -147,16 +154,16 @@ def rolling_filter(
         :meth:`xarray.DataArray.rolling`.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after smoothing. Default is ``True``.
+        before and after filtering. Default is ``True``.
 
     Returns
     -------
     xarray.DataArray
-        The data smoothed using a rolling filter with the provided parameters.
+        The filtered data array.
 
     Notes
     -----
-    By default, whenever one or more NaNs are present in the smoothing window,
+    By default, whenever one or more NaNs are present in the window,
     a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
     proportionally to the size of the window (specifically, by
@@ -169,28 +176,32 @@ def rolling_filter(
 
     """
     half_window = window // 2
-    data_smoothed = data.pad(  # Pad the edges to avoid NaNs
+    data_windows = data.pad(  # Pad the edges to avoid NaNs
         time=half_window, mode="reflect"
     ).rolling(  # Take rolling windows across time
         time=window, center=True, min_periods=min_periods
     )
 
-    if method == "mean":
-        data_smoothed = data_smoothed.mean(skipna=True)  # Apply mean filter
-    elif method == "median":
-        data_smoothed = data_smoothed.median(
-            skipna=True
-        )  # Apply median filter
+    # Compute the statistic over each window
+    allowed_statistics = ["mean", "median", "max", "min"]
+    if statistic not in allowed_statistics:
+        raise log_error(
+            ValueError,
+            f"Invalid statistic '{statistic}'. "
+            f"Must be one of {allowed_statistics}.",
+        )
+
+    data_rolled = getattr(data_windows, statistic)(skipna=True)
 
     # Remove the padded edges
-    data_smoothed = data_smoothed.isel(time=slice(half_window, -half_window))
+    data_rolled = data_rolled.isel(time=slice(half_window, -half_window))
 
     # Optional: Print NaN report
     if print_report:
         print(report_nan_values(data, "input"))
-        print(report_nan_values(data_smoothed, "output"))
+        print(report_nan_values(data_rolled, "output"))
 
-    return data_smoothed
+    return data_rolled
 
 
 @log_to_attrs
