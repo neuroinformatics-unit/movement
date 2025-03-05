@@ -42,28 +42,28 @@ The ``*args`` and ``**kwargs`` retain their original interpretations from
 
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, Concatenate, ParamSpec, TypeVar
+from typing import Concatenate, ParamSpec, TypeAlias, TypeVar
 
 import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
 ScalarOr1D = TypeVar("ScalarOr1D", float, int, bool, ArrayLike)
-# Self = TypeVar("Self")
-# KeywordArgs = ParamSpec("KeywordArgs")
-# ClsMethod1DTo1D = Callable[
-#     Concatenate[Self, ArrayLike, KeywordArgs],
-#     ScalarOr1D,
-# ]
-# Function1DTo1D: TypeAlias = Callable[
-#     Concatenate[ArrayLike, KeywordArgs],
-#     ScalarOr1D,
-# ]
-# FunctionDaToDa: TypeAlias = Callable[
-#     Concatenate[xr.DataArray, KeywordArgs], xr.DataArray
-# ]
-# DecoratorInput: TypeAlias = Function1DTo1D | ClsMethod1DTo1D
-# Decorator: TypeAlias = Callable[[DecoratorInput], FunctionDaToDa]
+Self = TypeVar("Self")
+KeywordArgs = ParamSpec("KeywordArgs")
+ClsMethod1DTo1D = Callable[
+    Concatenate[Self, ArrayLike, KeywordArgs],
+    ScalarOr1D,
+]
+Function1DTo1D: TypeAlias = Callable[
+    Concatenate[ArrayLike, KeywordArgs],
+    ScalarOr1D,
+]
+FunctionDaToDa: TypeAlias = Callable[
+    Concatenate[xr.DataArray, KeywordArgs], xr.DataArray
+]
+DecoratorInput: TypeAlias = Function1DTo1D | ClsMethod1DTo1D
+Decorator: TypeAlias = Callable[[DecoratorInput], FunctionDaToDa]
 
 
 def apply_along_da_axis(
@@ -71,7 +71,7 @@ def apply_along_da_axis(
     data: xr.DataArray,
     dimension: str,
     new_dimension_name: str | None = None,
-):
+) -> xr.DataArray:
     """Apply a function ``f`` across ``dimension`` of ``data``.
 
     ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a one-
@@ -125,14 +125,11 @@ def apply_along_da_axis(
     return output
 
 
-P = ParamSpec("P")
-
-
 def make_broadcastable(  # noqa: C901
     is_classmethod: bool = False,
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
-):
+) -> Decorator:
     """Create a decorator that allows a function to be broadcast.
 
     Parameters
@@ -225,16 +222,12 @@ def make_broadcastable(  # noqa: C901
     ```
 
     """
-    default_broadcast_dimension = (
-        str(only_broadcastable_along) if only_broadcastable_along else ""
-    )
+    if not only_broadcastable_along:
+        only_broadcastable_along = ""
 
     def make_broadcastable_inner(
-        f: Callable[Concatenate[ArrayLike, P], ScalarOr1D],
-    ) -> (
-        Callable[Concatenate[xr.DataArray, P], xr.DataArray]
-        | Callable[Concatenate[Any, xr.DataArray, P], xr.DataArray]
-    ):
+        f: DecoratorInput,
+    ) -> FunctionDaToDa:
         """Broadcast a 1D function along a ``xarray.DataArray`` dimension.
 
         Parameters
@@ -277,15 +270,15 @@ def make_broadcastable(  # noqa: C901
         def inner_clsmethod(  # type: ignore[valid-type]
             self,
             data: xr.DataArray,
-            *args: P.args,
+            *args: KeywordArgs.args,
             broadcast_dimension: str = "space",
-            **kwargs: P.kwargs,
+            **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
             # Preserve original functionality
             if not isinstance(data, xr.DataArray):
                 return f(self, data, *args, **kwargs)
             return apply_along_da_axis(
-                lambda input_1D: f(self, input_1D, *args, **kwargs),  # type: ignore[arg-type]
+                lambda input_1D: f(self, input_1D, *args, **kwargs),
                 data,
                 broadcast_dimension,
                 new_dimension_name=new_dimension_name,
@@ -295,23 +288,23 @@ def make_broadcastable(  # noqa: C901
         def inner_clsmethod_fixeddim(
             self,
             data: xr.DataArray,
-            *args: P.args,
-            **kwargs: P.kwargs,
+            *args: KeywordArgs.args,
+            **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
             return inner_clsmethod(
                 self,
                 data,
                 *args,
-                broadcast_dimension=default_broadcast_dimension,
+                broadcast_dimension=only_broadcastable_along,
                 **kwargs,
             )
 
         @wraps(f)
         def inner(  # type: ignore[valid-type]
             data: xr.DataArray,
-            *args: P.args,
+            *args: KeywordArgs.args,
             broadcast_dimension: str = "space",
-            **kwargs: P.kwargs,
+            **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
             # Preserve original functionality
             if not isinstance(data, xr.DataArray):
@@ -326,21 +319,21 @@ def make_broadcastable(  # noqa: C901
         @wraps(f)
         def inner_fixeddim(
             data: xr.DataArray,
-            *args: P.args,
-            **kwargs: P.kwargs,
+            *args: KeywordArgs.args,
+            **kwargs: KeywordArgs.kwargs,
         ) -> xr.DataArray:
             return inner(
                 data,
                 *args,
-                broadcast_dimension=default_broadcast_dimension,
+                broadcast_dimension=only_broadcastable_along,
                 **kwargs,
             )
 
-        if is_classmethod and default_broadcast_dimension:
+        if is_classmethod and only_broadcastable_along:
             return inner_clsmethod_fixeddim
         elif is_classmethod:
             return inner_clsmethod
-        elif default_broadcast_dimension:
+        elif only_broadcastable_along:
             return inner_fixeddim
         else:
             return inner
@@ -351,7 +344,7 @@ def make_broadcastable(  # noqa: C901
 def space_broadcastable(
     is_classmethod: bool = False,
     new_dimension_name: str | None = None,
-):
+) -> Decorator:
     """Broadcast a 1D function along the 'space' dimension.
 
     This is a convenience wrapper for
@@ -384,7 +377,7 @@ def space_broadcastable(
 def broadcastable_method(
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
-):
+) -> Decorator:
     """Broadcast a class method along a ``xarray.DataArray`` dimension.
 
     This is a convenience wrapper for

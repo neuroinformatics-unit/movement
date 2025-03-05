@@ -6,6 +6,7 @@ import pytest
 import xarray as xr
 
 from movement.utils.broadcasting import (
+    KeywordArgs,
     ScalarOr1D,
     broadcastable_method,
     make_broadcastable,
@@ -108,7 +109,7 @@ def test_make_broadcastable(
     mock_data_array: xr.DataArray,
     along_dimension: str,
     expected_output: xr.DataArray,
-    mimic_fn: Callable[Concatenate[Any, ...], ScalarOr1D],
+    mimic_fn: Callable[Concatenate[Any, KeywordArgs], ScalarOr1D],
     fn_args: list[Any],
     fn_kwargs: dict[str, Any],
 ) -> None:
