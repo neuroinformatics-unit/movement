@@ -54,7 +54,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
-          channels: conda-forge
+          channels: defaults,conda-forge
           activate-environment: movement-env
       - uses: neuroinformatics-unit/actions/test@v2
         with:
