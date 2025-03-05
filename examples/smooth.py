@@ -1,7 +1,7 @@
 """Smooth pose tracks
 =====================
 
-Smooth pose tracks using the median and Savitzky-Golay filters.
+Smooth pose tracks using the rolling and Savitzky-Golay filters.
 """
 
 # %%
@@ -112,15 +112,21 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
 
 # %%
-# Smoothing with a median filter
+# Smoothing with a rolling filter
 # ------------------------------
-# Using the :func:`movement.filtering.median_filter` function on the
-# ``position`` data variable, we can apply a rolling window median filter
+# Using the :func:`movement.filtering.rolling_filter` function on the
+# ``position`` data variable, we can apply a rolling window filter
 # over a 0.1-second window (4 frames) to the wasp dataset.
 # As the ``window`` parameter is defined in *number of observations*,
 # we can simply multiply the desired time window by the frame rate
 # of the video. We will also create a copy of the dataset to avoid
 # modifying the original data.
+#
+# Here we use the default ``statistic="median"`` option, which is a sensible
+# choice for smoothing time-series data while being robust to outliers.
+# You can also use the ``rolling_filter`` function to compute the rolling
+# mean, maximum, and minimum values (instead of the median), by
+# setting ``statistic`` to ``"mean"``, ``"max"``, or ``"min"``, respectively.
 
 window = int(0.1 * ds_wasp.fps)
 ds_wasp_smooth = ds_wasp.copy()
@@ -131,29 +137,30 @@ ds_wasp_smooth.update(
 # %%
 # We see from the printed report that the dataset has no missing values
 # neither before nor after smoothing. Let's visualise the effects of the
-# median filter in the time and frequency domains.
+# ``median`` statistic in the time and frequency domains.
 
 plot_raw_and_smooth_timeseries_and_psd(
     ds_wasp, ds_wasp_smooth, keypoint="stinger"
 )
 
 # %%
-# We see that the median filter has removed the "spikes" present around the
+# We see that the median statistic has removed the "spikes" present around the
 # 14 second mark in the raw data. However, it has not dealt the big shift
 # occurring during the final second. In the frequency domain, we can see that
 # the filter has reduced the power in the high-frequency components, without
 # affecting the low frequency components.
 #
-# This illustrates what the median filter is good at: removing brief "spikes"
+# This illustrates what median statistic is good at: removing brief "spikes"
 # (e.g. a keypoint abruptly jumping to a different location for a frame or two)
 # and high-frequency "jitter" (often present due to pose estimation
 # working on a per-frame basis).
 
 # %%
-# Choosing parameters for the median filter
+# Choosing parameters for the rolling filter
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# We can control the behaviour of the median filter
-# via two parameters: ``window`` and ``min_periods``.
+# We can control the behaviour of the rolling filter
+# via two parameters: ``window``, ``min_periods`` and ``statistic`` which was
+# mentioned above.
 # To better understand the effect of these parameters, let's use a
 # dataset that contains missing values.
 
@@ -165,7 +172,7 @@ print(ds_mouse)
 # 2D space. The video was recorded at 30 fps and lasts for ~616 seconds. We can
 # see that there are some missing values, indicated as "nan" in the
 # printed dataset.
-# Let's apply the median filter over a 0.1-second window (3 frames)
+# Let's apply the median statistic over a 0.1-second window (3 frames)
 # to the dataset.
 
 window = int(0.1 * ds_mouse.fps)
@@ -178,7 +185,7 @@ ds_mouse_smooth.update(
 # The report informs us that the raw data contains NaN values, most of which
 # occur at the ``snout`` and ``tail_end`` keypoints. After filtering, the
 # number of NaNs has increased. This is because the default behaviour of the
-# median filter is to propagate NaN values, i.e. if any value in the rolling
+# rolling filter is to propagate NaN values, i.e. if any value in the rolling
 # window is NaN, the output will also be NaN.
 #
 # To modify this behaviour, you can set the value of the ``min_periods``
@@ -198,7 +205,7 @@ ds_mouse_smooth.update(
 # %%
 # We see that this time the number of NaN values has decreased
 # across all keypoints.
-# Let's visualise the effects of the median filter in the time and frequency
+# Let's visualise the effects of the median statistic in the time and frequency
 # domains. Here we focus on the first 80 seconds for the ``snout`` keypoint.
 # You can adjust the ``keypoint`` and ``time_range`` arguments to explore other
 # parts of the data.
@@ -265,9 +272,9 @@ ds_mouse_smooth.update({"position": savgol_filter(ds_mouse.position, window)})
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
-# for the same reason as with the median filter (in its default mode), i.e.
+# for the same reason as with the rolling filter (in its default mode), i.e.
 # if there is at least one NaN value in the window, the output will be NaN.
-# Unlike the median filter, the Savitzky-Golay filter does not provide a
+# Unlike the rolling filter, the Savitzky-Golay filter does not provide a
 # ``min_periods`` parameter to control this behaviour. Let's visualise the
 # effects in the time and frequency domains.
 
@@ -303,13 +310,13 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Combining multiple smoothing filters
 # ------------------------------------
 # We can also combine multiple smoothing filters by applying them
-# sequentially. For example, we can first apply the median filter with a small
+# sequentially. For example, we can first apply the rolling filter with a small
 # ``window`` to remove "spikes" and then apply the Savitzky-Golay filter
 # with a larger ``window`` to further smooth the data.
 # Between the two filters, we can interpolate over small gaps to avoid the
 # excessive proliferation of NaN values. Let's try this on the mouse dataset.
 
-# First, we will apply the median filter.
+# First, we will apply the rolling filter.
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
     {
