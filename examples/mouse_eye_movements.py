@@ -204,9 +204,40 @@ pupil_diameter.plot.line(x="time", hue="lighting")
 plt.show()
 # %%
 # The plot of the pupil diameter looks noisy. The very steep peaks are
-# unlikely to represent real changes in the pupil size. Unlike eye movements,
-# which can be extremely fast, changes in pupil size do not occur this fast.
-# Filters can be applied to reduce noise and make underlying trends clearer.
+# unlikely to represent real changes in the pupil size.
+# In fact, these steep peaks are probably caused by tracking errors
+# during blinking or squinting.
+# By looking at the distance between the two eye keypoints we can get an idea
+# of whether (and when) the animal is blinking or squinting.
+distance_between_eye_keypoints: xr.DataArray = kin.compute_pairwise_distances(
+    positions_norm, dim="keypoints", pairs={"eye-L": "eye-R"}
+)
+distance_between_eye_keypoints.name = "distance (eye-L - eye-R)"
+
+# Combine the datasets into one DataArray
+combined = xr.concat(
+    [distance_between_eye_keypoints, pupil_diameter], dim="variable"
+)
+combined = combined.assign_coords(
+    variable=["distance (eye-L - eye-R)", "pupil diameter"]
+)
+
+# Plot the distance between the eye keypoints alongside the pupil diameter
+combined.plot.line(
+    x="time", row="lighting", hue="variable", figsize=(8, 4), add_legend=False
+)
+labels = combined.coords["variable"].values
+plt.legend(labels, loc="center", bbox_to_anchor=(0.5, 1.4), ncol=2)
+plt.xlabel("time (s)")
+[ax.set_ylabel("distance (pixels)") for ax in plt.gcf().axes]
+plt.show()
+
+# %%
+# We indeed see that the sharp peaks in pupil diameter correspond to abrupt
+# changes of distance between the two eye keypoints.
+# Compared to fast eye movements and blinking, changes in pupil size are slow.
+# Filters can be applied to reduce noise and make underlying trends
+# in pupil diameter clearer.
 
 # %%
 # Average filtered pupil diameter
