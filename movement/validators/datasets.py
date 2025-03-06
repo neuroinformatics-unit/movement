@@ -144,7 +144,7 @@ class ValidPosesDataset:
     )
 
     # Class variables
-    DIM_NAMES: ClassVar[tuple] = ("time", "space", "keypoints", "individuals")
+    DIM_NAMES: ClassVar[tuple] = ("time", "space", "keypoint", "individual")
     VAR_NAMES: ClassVar[tuple] = ("position", "confidence")
 
     # Add validators
@@ -309,7 +309,7 @@ class ValidBboxesDataset:
         validator=validators.optional(validators.instance_of(str)),
     )
 
-    DIM_NAMES: ClassVar[tuple] = ("time", "space", "individuals")
+    DIM_NAMES: ClassVar[tuple] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple] = ("position", "shape", "confidence")
 
     # Validators

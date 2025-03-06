@@ -55,24 +55,24 @@ def plot_trajectory(
 
     selection = {}
 
-    if "individuals" in da.dims:
+    if "individual" in da.dims:
         if individual is None:
-            selection["individuals"] = da.individuals.values[0]
+            selection["individual"] = da.individual.values[0]
         else:
-            selection["individuals"] = individual
+            selection["individual"] = individual
 
-    if "keypoints" in da.dims:
+    if "keypoint" in da.dims:
         if keypoints is None:
-            selection["keypoints"] = da.keypoints.values
+            selection["keypoint"] = da.keypoint.values
         else:
-            selection["keypoints"] = keypoints
+            selection["keypoint"] = keypoints
 
     plot_point = da.sel(**selection)
 
     # If there are multiple selected keypoints, calculate the centroid
     plot_point = (
-        plot_point.mean(dim="keypoints", skipna=True)
-        if "keypoints" in plot_point.dims and plot_point.sizes["keypoints"] > 1
+        plot_point.mean(dim="keypoint", skipna=True)
+        if "keypoint" in plot_point.dims and plot_point.sizes["keypoint"] > 1
         else plot_point
     )
 

@@ -97,12 +97,12 @@ def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
     ds_from_tracked = load_poses.from_sleap_file(
         DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
     )
-    # Check if the "individuals" coordinate matches
+    # Check if the "individual" coordinate matches
     # the assigned default "individuals_0"
-    assert ds_from_trackless.individuals == ["individual_0"]
+    assert ds_from_trackless.individual == ["individual_0"]
     xr.testing.assert_allclose(
-        ds_from_trackless.drop_vars("individuals"),
-        ds_from_tracked.drop_vars("individuals"),
+        ds_from_trackless.drop_vars("individual"),
+        ds_from_tracked.drop_vars("individual"),
     )
 
 
@@ -326,7 +326,7 @@ def test_load_from_anipose_file():
     ds = load_poses.from_anipose_file(file_path)
     assert ds.position.shape == (246, 3, 6, 1)
     assert ds.confidence.shape == (246, 6, 1)
-    assert ds.coords["keypoints"].values.tolist() == [
+    assert ds.coords["keypoint"].values.tolist() == [
         "l-base",
         "l-edge",
         "l-middle",

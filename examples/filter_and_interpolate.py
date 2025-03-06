@@ -33,7 +33,7 @@ print(ds)
 # the dimension of length 1 from the data (the ``individuals`` dimension).
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%
@@ -63,9 +63,7 @@ ds.confidence.squeeze().plot.hist(bins=20)
 # indeed range between 0 and 1, with most values closer to 1. Now let's see how
 # they evolve over time.
 
-ds.confidence.squeeze().plot.line(
-    x="time", row="keypoints", aspect=2, size=2.5
-)
+ds.confidence.squeeze().plot.line(x="time", row="keypoint", aspect=2, size=2.5)
 
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -102,7 +100,7 @@ ds.update(
 # ``position`` data variable. Let's visualise the filtered data.
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%
@@ -136,7 +134,7 @@ ds.update(
 # Let's visualise the interpolated pose tracks.
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%
