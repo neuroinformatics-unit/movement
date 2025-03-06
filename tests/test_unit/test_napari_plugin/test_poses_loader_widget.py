@@ -12,7 +12,7 @@ from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
 from movement.io import load_poses
-from movement.napari.widgets import PosesLoader
+from movement.napari.loader_widgets import PosesLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#
@@ -48,7 +48,7 @@ def test_button_connected_to_on_clicked(
 ):
     """Test that clicking a button calls the right function."""
     mock_method = mocker.patch(
-        f"movement.napari.widgets.PosesLoader._on_{button}_clicked"
+        f"movement.napari.loader_widgets.PosesLoader._on_{button}_clicked"
     )
     poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
     button = poses_loader_widget.findChild(QPushButton, f"{button}_button")
@@ -81,7 +81,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
 
     # Mock the QFileDialog.getOpenFileName method to return the file path
     mocker.patch(
-        "movement.napari.widgets.QFileDialog.getOpenFileName",
+        "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=(file_path, None),  # tuple(file_path, filter)
     )
     # Simulate the user clicking the 'Browse' button
@@ -105,7 +105,7 @@ def test_file_filters_per_source_software(
     poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
     poses_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
-        "movement.napari.widgets.QFileDialog.getOpenFileName",
+        "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=("", None),
     )
     poses_loader_widget._on_browse_clicked()
@@ -170,7 +170,16 @@ def test_on_load_clicked_with_valid_file_path(
     assert points_layer.name == f"poses: {file_path.name}"
 
 
-def test_dimension_slider_matches_frames(make_napari_viewer_proxy):
+@pytest.mark.parametrize(
+    "file, source_software",
+    [
+        ("DLC_single-mouse_EPM.predictions.h5", "DeepLabCut"),
+        ("SLEAP_two-mice_octagon.analysis.h5", "SLEAP"),
+    ],
+)
+def test_dimension_slider_matches_frames(
+    file, source_software, make_napari_viewer_proxy
+):
     """Test that the dimension slider is set to the correct value when
     data with NaNs is loaded.
     """
@@ -178,12 +187,12 @@ def test_dimension_slider_matches_frames(make_napari_viewer_proxy):
     poses_loader_widget = PosesLoader(viewer)
 
     # Set the file path to a file
-    file_path = pytest.DATA_PATHS.get("SLEAP_two-mice_octagon.analysis.h5")
+    file_path = pytest.DATA_PATHS.get(file)
     poses_loader_widget.file_path_edit.setText(file_path.as_posix())
-    poses_loader_widget.source_software_combo.setCurrentText("SLEAP")
+    poses_loader_widget.source_software_combo.setCurrentText(source_software)
 
     # Check the data contains nans
-    ds = load_poses.from_file(file_path, "SLEAP", fps=1)
+    ds = load_poses.from_file(file_path, source_software, fps=1)
     assert ds.position.isnull().any()
 
     # Call the _on_load_clicked method (pretend the user clicked "Load")
