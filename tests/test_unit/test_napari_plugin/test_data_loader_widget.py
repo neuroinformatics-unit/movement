@@ -224,13 +224,13 @@ def test_dimension_slider_matches_frames(
     if nan_location["time"] == "start":
         expected_frame = ds.coords["time"][0]
     elif nan_location["time"] == "middle":
-        expected_frame = ds.coord["time"][ds.coords["time"].shape[0] // 2]
+        expected_frame = ds.coords["time"][ds.coords["time"].shape[0] // 2]
     elif nan_location["time"] == "end":
         expected_frame = ds.coords["time"][-1]
 
     # Load the poses loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    poses_loader_widget = DataLoader(viewer)
 
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
