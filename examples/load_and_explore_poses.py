@@ -10,7 +10,7 @@ Load and explore an example dataset of pose tracks.
 
 from movement import sample_data
 from movement.io import load_poses
-from movement.plots import plot_trajectory
+from movement.plots import plot_centroid_trajectory
 
 # %%
 # Define the file path
@@ -71,9 +71,9 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
 # The ``movement.plots`` module provides some additional
-# visualisations, like ``plot_trajectory()``.
+# visualisations, like ``plot_centroid_trajectory()``.
 
 
 mouse_name = "AEON3B_TP1"
-fig, ax = plot_trajectory(position, individual=mouse_name)
+fig, ax = plot_centroid_trajectory(position, individual=mouse_name)
 fig.show()

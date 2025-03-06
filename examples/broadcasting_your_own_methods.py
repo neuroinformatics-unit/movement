@@ -24,10 +24,8 @@ import numpy as np
 import xarray as xr
 
 from movement import sample_data
-from movement.plots import plot_trajectory
-from movement.utils.broadcasting import (
-    make_broadcastable,
-)
+from movement.plots import plot_centroid_trajectory
+from movement.utils.broadcasting import make_broadcastable
 
 # %%
 # Load Sample Dataset
@@ -53,7 +51,7 @@ fig, ax = plt.subplots(1, 1)
 for mouse_name, col in zip(
     positions.individuals.values, ["r", "g", "b"], strict=False
 ):
-    plot_trajectory(
+    plot_centroid_trajectory(
         positions,
         individual=mouse_name,
         keypoints="centroid",

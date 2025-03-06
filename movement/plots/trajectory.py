@@ -10,19 +10,20 @@ DEFAULT_PLOTTING_ARGS = {
 }
 
 
-def plot_trajectory(
+def plot_centroid_trajectory(
     da: xr.DataArray,
     individual: str | None = None,
     keypoints: str | list[str] | None = None,
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot trajectory.
+    """Plot centroid trajectory.
 
-    This function plots the trajectory of a specified keypoint or the centroid
-    of multiple keypoints for a given individual. By default, the first
+    This function plots the trajectory of the centroid
+    of multiple keypoints for a given individual. By default, the trajectory
     is colored by time (using the default colormap). Pass a different colormap
-    through ``cmap`` if desired.
+    through ``cmap`` if desired. If a single keypoint is passed, the trajectory
+    will be the same as the trajectory of the keypoint.
 
     Parameters
     ----------
