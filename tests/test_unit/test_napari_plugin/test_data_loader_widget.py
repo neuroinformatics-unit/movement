@@ -230,7 +230,7 @@ def test_dimension_slider_matches_frames(
 
     # Load the poses loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    poses_loader_widget = DataLoader(viewer)
 
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
