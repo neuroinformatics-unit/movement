@@ -11,7 +11,6 @@ from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
-from movement.io import load_poses
 from movement.napari.loader_widgets import PosesLoader
 
 
@@ -171,31 +170,73 @@ def test_on_load_clicked_with_valid_file_path(
 
 
 @pytest.mark.parametrize(
-    "file, source_software",
+    "nan_time_location",
+    ["start", "middle", "end"],
+)
+@pytest.mark.parametrize(
+    "nan_individuals",
     [
-        # ("DLC_single-mouse_EPM.predictions.h5", "DeepLabCut"),
-        ("SLEAP_two-mice_octagon.analysis.h5", "SLEAP"),
+        ["id_0"],  # one individual
+        ["id_0", "id_1"],  # all individuals
     ],
+    ids=["one_individual", "all_individuals"],
+)
+@pytest.mark.parametrize(
+    "nan_keypoints",
+    [
+        ["centroid"],  # one keypoint
+        ["centroid", "left", "right"],  # all keypoints
+    ],
+    ids=["one_keypoint", "all_keypoints"],
 )
 def test_dimension_slider_matches_frames(
-    file, source_software, make_napari_viewer_proxy
+    valid_dataset_with_single_nan,
+    nan_time_location,
+    nan_individuals,
+    nan_keypoints,
+    make_napari_viewer_proxy,
 ):
     """Test that the dimension slider is set to the correct value when
     data with NaNs is loaded.
     """
+    # Get data with nans at the expected location
+    nan_location = {
+        "time": nan_time_location,
+        "individuals": nan_individuals,
+        "keypoints": nan_keypoints,
+    }
+    file_path, ds = valid_dataset_with_single_nan(nan_location)
+
+    # Define the expected frame index with the NaN value
+    if nan_location["time"] == "start":
+        expected_frame = ds.coords["time"][0]
+    elif nan_location["time"] == "middle":
+        expected_frame = 2
+    elif nan_location["time"] == "end":
+        expected_frame = ds.coords["time"][-1]
+
+    # Load the poses loader widget
     viewer = make_napari_viewer_proxy()
     poses_loader_widget = PosesLoader(viewer)
 
-    # Set the file path to a file
-    file_path = pytest.DATA_PATHS.get(file)
+    # Read sample data with a NaN at the specified
+    # location (start, middle, or end)
     poses_loader_widget.file_path_edit.setText(file_path.as_posix())
-    poses_loader_widget.source_software_combo.setCurrentText(source_software)
+    poses_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
 
-    # Check the data contains nans
-    ds = load_poses.from_file(file_path, source_software, fps=1)
-    assert ds.position.isnull().any()
+    # Check the data contains nans where expected
+    assert (
+        ds.position.sel(
+            individuals=nan_location["individuals"],
+            keypoints=nan_location["keypoints"],
+            time=expected_frame,
+        )
+        .isnull()
+        .all()
+    )
 
-    # Call the _on_load_clicked method (pretend the user clicked "Load")
+    # Call the _on_load_clicked method
+    # (pretend the user clicked "Load")
     poses_loader_widget._on_load_clicked()
 
     # Check the frame slider is set to the correct value
