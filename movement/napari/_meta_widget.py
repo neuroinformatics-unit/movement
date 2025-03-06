@@ -3,7 +3,7 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
-from movement.napari.widgets import DataLoader
+from movement.napari.loader_widgets import DataLoader
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):

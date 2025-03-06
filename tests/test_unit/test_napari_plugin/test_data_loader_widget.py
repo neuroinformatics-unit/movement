@@ -10,7 +10,7 @@ from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
-from movement.napari.widgets import DataLoader
+from movement.napari.loader_widgets import DataLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#
@@ -46,7 +46,7 @@ def test_button_connected_to_on_clicked(
 ):
     """Test that clicking a button calls the right function."""
     mock_method = mocker.patch(
-        f"movement.napari.widgets.DataLoader._on_{button}_clicked"
+        f"movement.napari.loader_widgets.DataLoader._on_{button}_clicked"
     )
     data_loader_widget = DataLoader(make_napari_viewer_proxy)
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
@@ -82,7 +82,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
 
     # Mock the QFileDialog.getOpenFileName method to return the file path
     mocker.patch(
-        "movement.napari.widgets.QFileDialog.getOpenFileName",
+        "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=(file_path, None),  # tuple(file_path, filter)
     )
     # Simulate the user clicking the 'Browse' button
@@ -107,7 +107,7 @@ def test_file_filters_per_source_software(
     data_loader_widget = DataLoader(make_napari_viewer_proxy)
     data_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
-        "movement.napari.widgets.QFileDialog.getOpenFileName",
+        "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=("", None),
     )
     data_loader_widget._on_browse_clicked()
