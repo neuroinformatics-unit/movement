@@ -6,8 +6,8 @@ from pathlib import Path
 # Modules to exclude from the API index
 exclude_modules = [
     "cli_entrypoint",
-    "napari/loader_widgets",
-    "napari/meta_widget",
+    "loader_widgets",
+    "meta_widget",
 ]
 
 # Set the current working directory to the directory of this script
