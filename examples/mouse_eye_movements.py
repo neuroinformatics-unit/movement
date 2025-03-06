@@ -246,7 +246,7 @@ plt.show()
 # rolling mean filter can be used by setting statistic='mean' in
 # ``rolling filter`` from the``movement.filtering``
 filter_len = 80
-mean_filter = rolling_filter(pupil_diameter, filter_len, statistic='mean')
+mean_filter = rolling_filter(pupil_diameter, filter_len, statistic="mean")
 
 # %%
 # The filter distorts the first few and last frames of the pupil diameter data
@@ -258,7 +258,7 @@ fps = ds_dict["black"].attrs["fps"]  # good to double-check in video properties
 exclude_duration = filter_len // 2 / fps  # in seconds
 time_window = slice(
     exclude_duration, pupil_diameter.time[-1] - exclude_duration
-    )
+)
 
 # %%
 # Now the filtered pupil diameter can be plotted.
@@ -268,13 +268,13 @@ plt.show()
 # %%
 # Median filtered pupil diameter
 # ------------------------------
-# Another way to filter the data is by using statistic='median' in 
+# Another way to filter the data is by using statistic='median' in
 # ``rolling filter`` from the``movement.filtering`` module. The statistic=
-# 'median' applys a median filter and it conveniently takes care of creating
+# 'median' applies a median filter and it conveniently takes care of creating
 # the filter and excluding the first and last number of frames corresponding to
 # half the filter length. It can be applied to multidimensional data.
 
-mdn_filter = rolling_filter(pupil_diameter, filter_len, statistic='median')
+mdn_filter = rolling_filter(pupil_diameter, filter_len, statistic="median")
 mdn_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
 plt.show()
 # %%
