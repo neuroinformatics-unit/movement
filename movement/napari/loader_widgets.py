@@ -158,14 +158,12 @@ class PosesLoader(QWidget):
             **points_style.as_kwargs(),
         )
         # Ensure the frame slider reflects the total number of frames
-        if self.viewer.dims.range[0] != RangeTuple(
+        expected_frame_range = RangeTuple(
             start=0.0, stop=max(self.data[:, 1]), step=1.0
-        ):
-            new_range_tuple = RangeTuple(
-                start=0.0, stop=max(self.data[:, 1]), step=1.0
-            )
+        )
+        if self.viewer.dims.range[0] != expected_frame_range:
             self.viewer.dims.range = (
-                new_range_tuple,
+                expected_frame_range,
             ) + self.viewer.dims.range[1:]
 
         logger.info("Added poses dataset as a napari Points layer.")
