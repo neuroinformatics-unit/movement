@@ -312,7 +312,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Combining multiple smoothing filters
 # ------------------------------------
 # We can also combine multiple smoothing filters by applying them
-# sequentially. For example, we can first apply the rolling median filter with 
+# sequentially. For example, we can first apply the rolling median filter with
 # a small ``window`` to remove "spikes" and then apply the Savitzky-Golay
 # filter with a larger ``window`` to further smooth the data.
 # Between the two filters, we can interpolate over small gaps to avoid the
