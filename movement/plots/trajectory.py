@@ -17,7 +17,7 @@ def plot_centroid_trajectory(
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> tuple[plt.Figure, plt.Axes]:
-    """Plot trajectory.
+    """Plot centroid trajectory.
 
     This function plots the trajectory of the centroid
     of multiple keypoints for a given individual. By default, the trajectory
