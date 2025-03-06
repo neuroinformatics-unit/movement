@@ -14,7 +14,7 @@ def filter_by_confidence(
     data: xr.DataArray,
     confidence: xr.DataArray,
     threshold: float = 0.6,
-    print_report: bool = True,
+    print_report: bool = False,
 ) -> xr.DataArray:
     """Drop data points below a certain confidence threshold.
 
@@ -32,7 +32,7 @@ def filter_by_confidence(
         A default value of ``0.6`` is used. See notes for more information.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after filtering. Default is ``True``.
+        before and after filtering. Default is ``False``.
 
     Returns
     -------
@@ -64,7 +64,7 @@ def interpolate_over_time(
     data: xr.DataArray,
     method: str = "linear",
     max_gap: int | None = None,
-    print_report: bool = True,
+    print_report: bool = False,
     **kwargs: dict | None,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
@@ -88,7 +88,7 @@ def interpolate_over_time(
         (see Notes for more information).
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after interpolation. Default is ``True``.
+        before and after interpolation. Default is ``False``.
     **kwargs : dict
         Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
         which in turn passes them verbatim to the underlying
@@ -127,7 +127,7 @@ def rolling_filter(
     window: int,
     statistic: Literal["median", "mean", "max", "min"] = "median",
     min_periods: int | None = None,
-    print_report: bool = True,
+    print_report: bool = False,
 ) -> xr.DataArray:
     """Apply a rolling window filter across time.
 
@@ -154,7 +154,7 @@ def rolling_filter(
         :meth:`xarray.DataArray.rolling`.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after filtering. Default is ``True``.
+        before and after smoothing. Default is ``False``.
 
     Returns
     -------
@@ -209,7 +209,7 @@ def savgol_filter(
     data: xr.DataArray,
     window: int,
     polyorder: int = 2,
-    print_report: bool = True,
+    print_report: bool = False,
     **kwargs,
 ) -> xr.DataArray:
     """Smooth data by applying a Savitzky-Golay filter over time.
@@ -227,7 +227,7 @@ def savgol_filter(
         2 is used.
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
-        before and after smoothing. Default is ``True``.
+        before and after smoothing. Default is ``False``.
     **kwargs : dict
         Additional keyword arguments are passed to
         :func:`scipy.signal.savgol_filter`.

@@ -82,9 +82,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
         )
 
         # interpolate data to remove NaNs in the PSD calculation
-        pos_interp = interpolate_over_time(
-            pos, print_report=False, fill_value="extrapolate"
-        )
+        pos_interp = interpolate_over_time(pos, fill_value="extrapolate")
 
         # compute and plot the PSD
         freq, psd = welch(pos_interp, fs=ds.fps, nperseg=256)
@@ -177,7 +175,7 @@ print(ds_mouse)
 
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
-ds_mouse_smooth.update(
+ds_mouse_smooth.up
     {"position": rolling_filter(ds_mouse.position, window, method="median")}
 )
 
@@ -268,7 +266,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # to be used as the ``window`` size.
 
 window = int(0.2 * ds_mouse.fps)
-ds_mouse_smooth.update({"position": savgol_filter(ds_mouse.position, window)})
+ds_mouse_smooth.update(
+    {"position": savgol_filter(ds_mouse.position, window, print_report=True)}
+)
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
@@ -289,7 +289,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
 window = int(0.2 * ds_wasp.fps)
-ds_wasp_smooth.update({"position": savgol_filter(ds_wasp.position, window)})
+ds_wasp_smooth.update(
+    {"position": savgol_filter(ds_wasp.position, window, print_report=True)}
+)
 
 # %%
 plot_raw_and_smooth_timeseries_and_psd(
