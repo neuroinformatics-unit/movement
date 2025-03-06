@@ -4,7 +4,11 @@ import os
 from pathlib import Path
 
 # Modules to exclude from the API index
-exclude_modules = ["cli_entrypoint"]
+exclude_modules = [
+    "cli_entrypoint",
+    "loader_widgets",
+    "meta_widget",
+]
 
 # Set the current working directory to the directory of this script
 script_dir = Path(__file__).resolve().parent

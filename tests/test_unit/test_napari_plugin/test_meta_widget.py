@@ -1,6 +1,6 @@
 """Test the napari plugin meta widget."""
 
-from movement.napari._meta_widget import MovementMetaWidget
+from movement.napari.meta_widget import MovementMetaWidget
 
 
 def test_meta_widget_instantiation(make_napari_viewer_proxy):
