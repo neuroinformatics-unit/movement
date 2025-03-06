@@ -278,7 +278,7 @@ plt.show()
 # frames corresponding to half the filter length. Unlike ``np.convolve``, it
 # can be applied to multidimensional data.
 
-mdn_filter = median_filter(pupil_diameter, filter_len, print_report=False)
+mdn_filter = median_filter(pupil_diameter, filter_len)
 mdn_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
 plt.show()
 # %%
