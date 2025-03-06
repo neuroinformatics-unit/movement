@@ -129,7 +129,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
 window = int(0.1 * ds_wasp.fps)
 ds_wasp_smooth = ds_wasp.copy()
 ds_wasp_smooth.update(
-    {"position": rolling_filter(ds_wasp.position, window, method="median")}
+    {"position": rolling_filter(ds_wasp.position, window, statistic="median")}
 )
 
 # %%
@@ -176,7 +176,7 @@ print(ds_mouse)
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
 ds_mouse_smooth.update(
-    {"position": rolling_filter(ds_mouse.position, window, method="median")}
+    {"position": rolling_filter(ds_mouse.position, window, statistic="median")}
 )
 
 # %%
@@ -195,7 +195,7 @@ ds_mouse_smooth.update(
 ds_mouse_smooth.update(
     {
         "position": rolling_filter(
-            ds_mouse.position, window, min_periods=2, method="median"
+            ds_mouse.position, window, min_periods=2, statistic="median"
         )
     }
 )
@@ -222,7 +222,7 @@ window = int(2 * ds_mouse.fps)
 ds_mouse_smooth.update(
     {
         "position": rolling_filter(
-            ds_mouse.position, window, min_periods=2, method="median"
+            ds_mouse.position, window, min_periods=2, statistic="median"
         )
     }
 )
@@ -323,7 +323,7 @@ window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
     {
         "position": rolling_filter(
-            ds_mouse.position, window, min_periods=2, method="median"
+            ds_mouse.position, window, min_periods=2, statistic="median"
         )
     }
 )
