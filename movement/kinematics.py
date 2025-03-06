@@ -364,7 +364,7 @@ def compute_forward_vector_angle(
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
     in_degrees: bool = False,
 ) -> xr.DataArray:
-    r"""Compute the signed angle between a forward and reference vector.
+    r"""Compute the signed angle between a reference and a forward vector.
 
     Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
@@ -428,8 +428,10 @@ def compute_forward_vector_angle(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
 
-    # Compute signed angle between forward vector and reference vector
-    heading_array = compute_signed_angle_2d(forward_vector, reference_vector)
+    # Compute signed angle between reference vector and forward vector
+    heading_array = compute_signed_angle_2d(
+        forward_vector, reference_vector, v_as_left_operand=True
+    )
 
     # Convert to degrees
     if in_degrees:
