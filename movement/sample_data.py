@@ -15,7 +15,7 @@ from loguru import logger
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import log_error, log_exception, log_warning
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -105,7 +105,7 @@ def _fetch_metadata(
                 f"{failed_msg} Will use the existing local version instead."
             )
         else:
-            raise log_error(RequestException, failed_msg) from exc_info
+            raise log_exception(RequestException, failed_msg) from exc_info
 
     with open(local_file_path) as metadata_file:
         metadata = yaml.safe_load(metadata_file)
