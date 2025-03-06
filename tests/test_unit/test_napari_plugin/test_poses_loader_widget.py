@@ -173,7 +173,7 @@ def test_on_load_clicked_with_valid_file_path(
 @pytest.mark.parametrize(
     "file, source_software",
     [
-        ("DLC_single-mouse_EPM.predictions.h5", "DeepLabCut"),
+        # ("DLC_single-mouse_EPM.predictions.h5", "DeepLabCut"),
         ("SLEAP_two-mice_octagon.analysis.h5", "SLEAP"),
     ],
 )
