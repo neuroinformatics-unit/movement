@@ -13,13 +13,13 @@ log_messages = {
 
 
 @pytest.mark.parametrize("level, message", log_messages.items())
-def test_logfile_contains_message(level, message):
+def test_logfile_contains_message(level, message, setup_logging):
     """Check if the last line of the logfile contains
     the expected message.
     """
-    eval(f"logger.{level.lower()}('{message}')")
-    log_file = logger._core.handlers[1]._sink._file.name
-    with open(log_file) as f:
+    log_method = getattr(logger, level.lower())
+    log_method(message)
+    with open(setup_logging) as f:
         last_line = f.readlines()[-1]
     assert level in last_line
     assert message in last_line
