@@ -1,6 +1,5 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
-import logging
 from pathlib import Path
 from typing import Literal
 
@@ -8,6 +7,7 @@ import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
+from loguru import logger
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
@@ -19,8 +19,6 @@ from movement.validators.files import (
     ValidFile,
     ValidHDF5,
 )
-
-logger = logging.getLogger(__name__)
 
 
 def from_numpy(
@@ -291,8 +289,7 @@ def from_sleap_file(
         ds = _ds_from_sleap_labels_file(file.path, fps=fps)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:")
-    logger.info(ds)
+    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
     return ds
 
 
@@ -436,8 +433,7 @@ def _ds_from_lp_or_dlc_file(
     ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:")
-    logger.info(ds)
+    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
     return ds
 
 
@@ -469,6 +465,7 @@ def _ds_from_sleap_analysis_file(
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
+            # operational event; logging.warn
             log_warning(
                 f"Could not find SLEAP Track in {file.path}. "
                 "Assuming single-individual dataset and assigning "
@@ -513,6 +510,7 @@ def _ds_from_sleap_labels_file(
     tracks_with_scores = _sleap_labels_to_numpy(labels)
     individual_names = [track.name for track in labels.tracks] or None
     if individual_names is None:
+        # operational event; logging.warn
         log_warning(
             f"Could not find SLEAP Track in {file.path}. "
             "Assuming single-individual dataset and assigning "

@@ -1,10 +1,7 @@
 """Utility functions for reporting missing data."""
 
-import logging
-
 import xarray as xr
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def calculate_nan_stats(

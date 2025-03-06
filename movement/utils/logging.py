@@ -1,78 +1,79 @@
 """Logging utilities for the movement package."""
 
-import logging
+import sys
 from datetime import datetime
 from functools import wraps
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-FORMAT = (
-    "%(asctime)s - %(levelname)s - "
-    "%(processName)s %(filename)s:%(lineno)s - %(message)s"
-)
+from loguru import logger
+
+FORMAT = "{time} - {level} - {process.name} {file}:{line} - {message}"
 DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
 def configure_logging(
-    log_level: int = logging.DEBUG,
-    logger_name: str = "movement",
+    log_file_name: str = "movement",
     log_directory: Path = DEFAULT_LOG_DIRECTORY,
-):
-    """Configure the logging module.
+) -> str:
+    """Configure a rotating log file and console (stdout) logger.
 
-    This function sets up a circular log file with a rotating file handler.
+    This function sets up a rotating log file that logs at the DEBUG level
+    with a maximum size of 5 MB and retains the last 5 log files.
+    It also configures a console logger that logs at the INFO level.
 
     Parameters
     ----------
-    log_level : int, optional
-        The logging level to use. Defaults to logging.DEBUG.
-    logger_name : str, optional
-        The name of the logger to configure.
-        Defaults to "movement".
+    log_file_name : str, optional
+        The name of the log file. Defaults to "movement".
     log_directory : pathlib.Path, optional
         The directory to store the log file in. Defaults to
         ~/.movement. A different directory can be specified,
         for example for testing purposes.
 
+    Returns
+    -------
+    str
+        The path to the log file.
+
     """
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
-    log_file = (log_directory / f"{logger_name}.log").as_posix()
-
-    # Check if logger with the given name is already configured
-    logger_configured = logger_name in logging.root.manager.loggerDict
-
-    logger = logging.getLogger(logger_name)
-
-    # Logger needs to be (re)configured if unconfigured or
-    # if configured but the log file path has changed
-    configure_logger = (
-        not logger_configured
-        or not logger.handlers
-        or log_file != logger.handlers[0].baseFilename  # type: ignore
+    log_file = (log_directory / f"{log_file_name}.log").as_posix()
+    # Remove any existing handlers
+    logger.remove()
+    # Add a console handler and a rotating file handler
+    logger.add(sys.stdout, level="INFO", format=FORMAT)
+    logger.add(
+        log_file, level="DEBUG", format=FORMAT, rotation="5 MB", retention=5
     )
-
-    if configure_logger:
-        if logger_configured:
-            # remove the handlers to allow for reconfiguration
-            logger.handlers.clear()
-
-        logger.setLevel(log_level)
-
-        # Create a rotating file handler
-        max_log_size = 5 * 1024 * 1024  # 5 MB
-        handler = RotatingFileHandler(log_file, maxBytes=max_log_size)
-
-        # Create a formatter and set it to the handler
-        formatter = logging.Formatter(FORMAT)
-        handler.setFormatter(formatter)
-
-        # Add the handler to the logger
-        logger.addHandler(handler)
+    return log_file
 
 
-def log_error(error, message: str, logger_name: str = "movement"):
-    """Log an error message and return the Exception.
+def _log_and_return_exception(log_func, exception, message: str):
+    """Log a message and return an exception.
+
+    Parameters
+    ----------
+    log_func : callable
+        The logging function to use
+        (e.g., ``logger.error``, ``logger.exception``).
+    exception : Exception
+        The exception to log and return.
+    message : str
+        The log message.
+
+    Returns
+    -------
+    Exception
+        The exception that was passed in.
+
+    """
+    log_func(message)
+    return exception(message)
+
+
+def log_error(error, message: str):
+    """Log an error message and return the Error.
 
     Parameters
     ----------
@@ -80,8 +81,6 @@ def log_error(error, message: str, logger_name: str = "movement"):
         The error to log and return.
     message : str
         The error message.
-    logger_name : str, optional
-        The name of the logger to use. Defaults to "movement".
 
     Returns
     -------
@@ -89,23 +88,37 @@ def log_error(error, message: str, logger_name: str = "movement"):
         The error that was passed in.
 
     """
-    logger = logging.getLogger(logger_name)
-    logger.error(message)
-    return error(message)
+    return _log_and_return_exception(logger.error, error, message)
 
 
-def log_warning(message: str, logger_name: str = "movement"):
+def log_exception(exception, message: str):
+    """Log an exception message and return the Exception.
+
+    Parameters
+    ----------
+    exception : Exception
+        The exception to log and return.
+    message : str
+        The exception message.
+
+    Returns
+    -------
+    Exception
+        The exception that was passed in.
+
+    """
+    return _log_and_return_exception(logger.exception, exception, message)
+
+
+def log_warning(message: str):
     """Log a warning message.
 
     Parameters
     ----------
     message : str
         The warning message.
-    logger_name : str, optional
-        The name of the logger to use. Defaults to "movement".
 
     """
-    logger = logging.getLogger(logger_name)
     logger.warning(message)
 
 

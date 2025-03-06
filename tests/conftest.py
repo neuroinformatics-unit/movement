@@ -1,9 +1,10 @@
 """Fixtures and configurations shared by the entire test suite."""
 
-import logging
 from glob import glob
 
 import pytest
+from _pytest.logging import LogCaptureFixture
+from loguru import logger
 
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
@@ -22,9 +23,8 @@ pytest_plugins = [
 
 
 def pytest_configure():
-    """Perform initial configuration for pytest.
-    Fetches pose data file paths as a dictionary for tests.
-    """
+    """Perform initial configuration for pytest."""
+    # Fetch pose data file paths as a dictionary for tests.
     pytest.DATA_PATHS = {}
     for file_name in list_datasets():
         paths_dict = fetch_dataset_paths(file_name)
@@ -32,13 +32,25 @@ def pytest_configure():
         pytest.DATA_PATHS[file_name] = data_path
 
 
-@pytest.fixture(autouse=True)
-def setup_logging(tmp_path):
+@pytest.fixture(scope="session")
+def setup_logging(tmp_path_factory):
     """Set up logging for the test module.
     Redirects all logging to a temporary directory.
     """
-    configure_logging(
-        log_level=logging.DEBUG,
-        logger_name="movement",
-        log_directory=(tmp_path / ".movement"),
+    return configure_logging(
+        log_file_name="movement-test",
+        log_directory=tmp_path_factory.mktemp(".movement"),
     )
+
+
+@pytest.fixture
+def caplog(caplog: LogCaptureFixture):
+    handler_id = logger.add(
+        caplog.handler,
+        format="{message}",
+        level="DEBUG",
+        filter=lambda record: record["level"].no >= caplog.handler.level,
+        enqueue=False,
+    )
+    yield caplog
+    logger.remove(handler_id)

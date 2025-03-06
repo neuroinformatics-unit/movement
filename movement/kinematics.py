@@ -908,6 +908,7 @@ def _warn_about_nan_proportion(
         n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
     )
     if len(data_to_warn_about) > 0:
+        # warnings.warn
         log_warning(
             "The result may be unreliable for point tracks with many "
             "missing values. The following tracks have more than "

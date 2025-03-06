@@ -23,6 +23,7 @@ dependencies = [
   "sleap-io",
   "xarray[accel,viz]",
   "PyYAML",
+  "loguru",
 ]
 
 classifiers = [
