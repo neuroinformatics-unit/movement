@@ -6,6 +6,7 @@ instantiated (the methods would have already been connected to signals).
 """
 
 import pytest
+from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -174,11 +175,10 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
-    # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted dataset to a napari Tracks array.",
-        "Added dataset as a napari Points layer.",
         f"Tracks array shape: {tracks_array_shape}",
+        "Added tracked dataset as a napari Points layer.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
@@ -186,3 +186,73 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that a Points layer was added to the viewer
     points_layer = data_loader_widget.viewer.layers[0]
     assert points_layer.name == f"data: {file_path.name}"
+
+
+@pytest.mark.parametrize(
+    "nan_time_location",
+    ["start", "middle", "end"],
+)
+@pytest.mark.parametrize(
+    "nan_individuals",
+    [["id_0"], ["id_0", "id_1"]],
+    ids=["one_individual", "all_individuals"],
+)
+@pytest.mark.parametrize(
+    "nan_keypoints",
+    [["centroid"], ["centroid", "left", "right"]],
+    ids=["one_keypoint", "all_keypoints"],
+)
+def test_dimension_slider_matches_frames(
+    valid_dataset_with_localised_nans,
+    nan_time_location,
+    nan_individuals,
+    nan_keypoints,
+    make_napari_viewer_proxy,
+):
+    """Test that the dimension slider is set to the total number of frames
+    when data with NaNs is loaded.
+    """
+    # Get data with nans at the expected locations
+    nan_location = {
+        "time": nan_time_location,
+        "individuals": nan_individuals,
+        "keypoints": nan_keypoints,
+    }
+    file_path, ds = valid_dataset_with_localised_nans(nan_location)
+
+    # Define the expected frame index with the NaN value
+    if nan_location["time"] == "start":
+        expected_frame = ds.coords["time"][0]
+    elif nan_location["time"] == "middle":
+        expected_frame = ds.coords["time"][ds.coords["time"].shape[0] // 2]
+    elif nan_location["time"] == "end":
+        expected_frame = ds.coords["time"][-1]
+
+    # Load the poses loader widget
+    viewer = make_napari_viewer_proxy()
+    poses_loader_widget = DataLoader(viewer)
+
+    # Read sample data with a NaN at the specified
+    # location (start, middle, or end)
+    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
+    poses_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+
+    # Check the data contains nans where expected
+    assert (
+        ds.position.sel(
+            individuals=nan_location["individuals"],
+            keypoints=nan_location["keypoints"],
+            time=expected_frame,
+        )
+        .isnull()
+        .all()
+    )
+
+    # Call the _on_load_clicked method
+    # (to pretend the user clicked "Load")
+    poses_loader_widget._on_load_clicked()
+
+    # Check the frame slider is set to the full range of frames
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
+    )

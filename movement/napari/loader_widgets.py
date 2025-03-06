@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -143,10 +144,12 @@ class DataLoader(QWidget):
         if file_path == "":
             show_warning("No file path specified.")
             return
-        elif source_software in SUPPORTED_POSES_FILES:
-            ds = load_poses.from_file(file_path, source_software, fps)
-        elif source_software in SUPPORTED_BBOXES_FILES:
-            ds = load_bboxes.from_file(file_path, source_software, fps)
+
+        if source_software in SUPPORTED_POSES_FILES:
+            loader = load_poses
+        else:
+            loader = load_bboxes
+        ds = loader.from_file(file_path, source_software, fps)
 
         # Convert to napari Tracks array
         self.data, self.props = movement_ds_to_napari_tracks(ds)
@@ -159,18 +162,18 @@ class DataLoader(QWidget):
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
-        # Define style for points layer
+        # Find rows in data array that do not contain NaN values
         bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
-        property_for_text = (
-            "keypoint" if "keypoint" in self.props else "individual"
-        )
+
+        # Define style for points layer
+        text_prop = "keypoint" if "keypoint" in self.props else "individual"
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
-            text={"string": property_for_text, "visible": False},
+            text={"string": text_prop, "visible": False},
         )
 
-        # Set color of markers and text by selected property
+        # Set color of markers and text
         color_prop = "individual"
         n_individuals = len(self.props["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.props:
@@ -182,7 +185,17 @@ class DataLoader(QWidget):
             self.data[bool_not_nan, 1:],
             **props_and_style.as_kwargs(),
         )
-        logger.info("Added dataset as a napari Points layer.")
+
+        # Ensure the frame slider reflects the total number of frames
+        expected_frame_range = RangeTuple(
+            start=0.0, stop=max(self.data[:, 1]), step=1.0
+        )
+        if self.viewer.dims.range[0] != expected_frame_range:
+            self.viewer.dims.range = (
+                expected_frame_range,
+            ) + self.viewer.dims.range[1:]
+
+        logger.info("Added tracked dataset as a napari Points layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
