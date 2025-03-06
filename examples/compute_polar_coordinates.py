@@ -70,12 +70,12 @@ head_vector = head_vector.drop_vars("keypoints")
 # We can plot the data to check that our computation of the head vector is
 # correct.
 #
-# We can start by plotting the head trajectory with the
-# ``plot_centroid_trajectory`` from ``movement.plots``
-# which creates a plot of the centroid of
-# the selected keypoints, for the head trajectory, we will use the midpoint
-# between the ears. By default, the trajectory of the first listed individual
-# is shown.
+# We can start by plotting the head trajectory using  the
+# ``plot_centroid_trajectory`` function from ``movement.plots``,
+# which plots the centroid of the selected keypoints.
+# For the head trajectory, we will select the two ear keypoints,
+# so we actually end up plotting the midpoint between the ears.
+# By default, the trajectory of the first listed individual is shown.
 
 fig, ax = plot_centroid_trajectory(
     position, keypoints=["left_ear", "right_ear"]
