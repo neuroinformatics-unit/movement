@@ -19,7 +19,7 @@ from movement.kinematics import (
     compute_forward_vector,
     compute_forward_vector_angle,
 )
-from movement.plots import plot_trajectory
+from movement.plots import plot_centroid_trajectory
 from movement.utils.vector import cart2pol, pol2cart
 
 # %%
@@ -52,7 +52,8 @@ position = ds.position.squeeze()
 # We will overlay that on a single video frame that comes
 # as part of the sample dataset.
 #
-# The :func:`plot_trajectory()<movement.plots.trajectory.plot_trajectory>`
+# The :func:`plot_centroid_trajectory()\
+# <movement.plots.trajectory.plot_centroid_trajectory>`
 # function can help you visualise the trajectory of any keypoint in the data.
 # Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
 # will plot the centroid (midpoint) of the selected keypoints.
@@ -66,7 +67,7 @@ frame = plt.imread(ds.frame_path)
 ax.imshow(frame)
 
 # Plot the trajectory of the head centre
-plot_trajectory(
+plot_centroid_trajectory(
     ds.position,
     keypoints=["left_ear", "right_ear"],
     ax=ax,
@@ -154,7 +155,7 @@ ax.quiver(
 )
 
 # Plot midpoint between the ears within the time window
-plot_trajectory(
+plot_centroid_trajectory(
     midpoint_ears.sel(time=time_window),
     ax=ax,
     s=60,
@@ -162,7 +163,7 @@ plot_trajectory(
 )
 
 # Plot the snout position within the time window
-plot_trajectory(
+plot_centroid_trajectory(
     snout.sel(time=time_window),
     ax=ax,
     s=60,
@@ -170,7 +171,8 @@ plot_trajectory(
     label="snout",
 )
 
-# Calling plot_trajectory twice will add 2 identical colorbars, so we remove 1
+# Calling plot_centroid_trajectory twice will add 2 identical colorbars
+# so we remove 1
 ax.collections[2].colorbar.remove()
 
 ax.set_title("Zoomed in head-to-snout vectors")

@@ -13,8 +13,10 @@ from matplotlib import pyplot as plt
 
 import movement.kinematics as kin
 from movement import sample_data
+
 from movement.filtering import rolling_filter
 from movement.plots import plot_trajectory
+
 
 # %%
 # Load the data
@@ -73,10 +75,12 @@ plt.show()
 # Pupil trajectory
 # ----------------
 # A quick plot of the trajectory of the centre of the pupil using the
-# ``plot_trajectory`` function from ``movement.plots``.
+# ``plot_centroid_trajectory`` function from ``movement.plots``.
 time_window = slice(1, 24)  # seconds
 position_black = ds_black.position.sel(time=time_window)  # data array to plot
-fig, ax = plot_trajectory(position_black, keypoints=["pupil-L", "pupil-R"])
+fig, ax = plot_centroid_trajectory(
+    position_black, keypoints=["pupil-L", "pupil-R"]
+)
 fig.show()
 
 # %%
@@ -86,7 +90,7 @@ fig.show()
 fig, ax = plt.subplots(1, 2, figsize=(11, 3))
 for i, (ds_name, ds) in enumerate(ds_dict.items()):
     ax[i].imshow(ds.video[100], cmap="gray")  # Plot frame 100 as background
-    plot_trajectory(
+    plot_centroid_trajectory(
         ds.position.sel(time=time_window),  # Select time window
         ax=ax[i],
         keypoints=["pupil-L", "pupil-R"],
