@@ -175,7 +175,7 @@ print(ds_mouse)
 
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
-ds_mouse_smooth.up
+ds_mouse_smooth.update(
     {"position": rolling_filter(ds_mouse.position, window, method="median")}
 )
 
