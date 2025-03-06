@@ -16,7 +16,7 @@ visualise the results.
 from matplotlib import pyplot as plt
 
 from movement import sample_data
-from movement.plots import plot_trajectory
+from movement.plots import plot_centroid_trajectory
 from movement.utils.vector import compute_norm
 
 # %%
@@ -49,8 +49,8 @@ position = ds.position
 # Visualise the data
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
-# colouring them by individual. We use the ``plot_trajectory`` function from
-# ``movement.plots`` which is a wrapper around
+# colouring them by individual. We use the ``plot_centroid_trajectory``
+# function from ``movement.plots`` which is a wrapper around
 # ``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
 # individuals in the dataset. The fig and ax objects returned can be used to
 # further customise the plot.
@@ -66,7 +66,7 @@ for mouse_name, col in zip(
     ["r", "g", "b"],  # colours
     strict=False,
 ):
-    plot_trajectory(
+    plot_centroid_trajectory(
         position,
         individual=mouse_name,
         ax=ax,  # Use the same axes for all plots
@@ -86,12 +86,12 @@ fig.show()
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# By default the ``plot_trajectory`` function in ``movement.plots`` colours
-# data points based on their timestamps:
+# By default the ``plot_centroid_trajectory`` function in ``movement.plots``
+# colours data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     ax.invert_yaxis()
-    fig, ax = plot_trajectory(
+    fig, ax = plot_centroid_trajectory(
         position,
         individual=mouse_name,
         ax=ax,
