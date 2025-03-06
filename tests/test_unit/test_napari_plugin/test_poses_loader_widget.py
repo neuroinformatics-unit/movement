@@ -175,43 +175,37 @@ def test_on_load_clicked_with_valid_file_path(
 )
 @pytest.mark.parametrize(
     "nan_individuals",
-    [
-        ["id_0"],  # one individual
-        ["id_0", "id_1"],  # all individuals
-    ],
+    [["id_0"], ["id_0", "id_1"]],
     ids=["one_individual", "all_individuals"],
 )
 @pytest.mark.parametrize(
     "nan_keypoints",
-    [
-        ["centroid"],  # one keypoint
-        ["centroid", "left", "right"],  # all keypoints
-    ],
+    [["centroid"], ["centroid", "left", "right"]],
     ids=["one_keypoint", "all_keypoints"],
 )
 def test_dimension_slider_matches_frames(
-    valid_dataset_with_single_nan,
+    valid_dataset_with_localised_nans,
     nan_time_location,
     nan_individuals,
     nan_keypoints,
     make_napari_viewer_proxy,
 ):
-    """Test that the dimension slider is set to the correct value when
-    data with NaNs is loaded.
+    """Test that the dimension slider is set to the total number of frames
+    when data with NaNs is loaded.
     """
-    # Get data with nans at the expected location
+    # Get data with nans at the expected locations
     nan_location = {
         "time": nan_time_location,
         "individuals": nan_individuals,
         "keypoints": nan_keypoints,
     }
-    file_path, ds = valid_dataset_with_single_nan(nan_location)
+    file_path, ds = valid_dataset_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
         expected_frame = ds.coords["time"][0]
     elif nan_location["time"] == "middle":
-        expected_frame = 2
+        expected_frame = ds.coord["time"][ds.coords["time"].shape[0] // 2]
     elif nan_location["time"] == "end":
         expected_frame = ds.coords["time"][-1]
 
@@ -236,10 +230,10 @@ def test_dimension_slider_matches_frames(
     )
 
     # Call the _on_load_clicked method
-    # (pretend the user clicked "Load")
+    # (to pretend the user clicked "Load")
     poses_loader_widget._on_load_clicked()
 
-    # Check the frame slider is set to the correct value
+    # Check the frame slider is set to the full range of frames
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=ds.position.shape[0] - 1, step=1.0
     )
