@@ -143,10 +143,12 @@ class DataLoader(QWidget):
         if file_path == "":
             show_warning("No file path specified.")
             return
-        elif source_software in SUPPORTED_POSES_FILES:
-            ds = load_poses.from_file(file_path, source_software, fps)
-        elif source_software in SUPPORTED_BBOXES_FILES:
-            ds = load_bboxes.from_file(file_path, source_software, fps)
+
+        if source_software in SUPPORTED_POSES_FILES:
+            loader = load_poses
+        else:
+            loader = load_bboxes
+        ds = loader.from_file(file_path, source_software, fps)
 
         # Convert to napari Tracks array
         self.data, self.props = movement_ds_to_napari_tracks(ds)
