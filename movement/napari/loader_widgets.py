@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -153,9 +154,20 @@ class PosesLoader(QWidget):
         )
         # Add the points layer to the viewer
         self.viewer.add_points(
-            self.data[bool_not_nan, 1:],
+            self.data[bool_not_nan, 1:],  # columns:(track_id, frame_idx, y, x)
             **points_style.as_kwargs(),
         )
+        # Ensure the frame slider reflects the total number of frames
+        if self.viewer.dims.range[0] != RangeTuple(
+            start=0.0, stop=max(self.data[:, 1]), step=1.0
+        ):
+            new_range_tuple = RangeTuple(
+                start=0.0, stop=max(self.data[:, 1]), step=1.0
+            )
+            self.viewer.dims.range = (
+                new_range_tuple,
+            ) + self.viewer.dims.range[1:]
+
         logger.info("Added poses dataset as a napari Points layer.")
 
     @staticmethod
