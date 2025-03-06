@@ -136,11 +136,15 @@ class PosesLoader(QWidget):
 
     def _add_points_layer(self):
         """Add the predicted poses to the viewer as a Points layer."""
+        # Find rows in data array that do not contain NaN values
+        bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+
         # Style properties for the napari Points layer
         points_style = PointsStyle(
             name=f"poses: {self.file_name}",
-            properties=self.props,
+            properties=self.props.iloc[bool_not_nan, :],
         )
+
         # Color the points by individual if there are multiple individuals
         # Otherwise, color by keypoint
         n_individuals = len(self.props["individual"].unique())
@@ -149,7 +153,7 @@ class PosesLoader(QWidget):
         )
         # Add the points layer to the viewer
         self.viewer.add_points(
-            self.data[~np.any(np.isnan(self.data), axis=1), 1:],
+            self.data[bool_not_nan, 1:],
             **points_style.as_kwargs(),
         )
         logger.info("Added poses dataset as a napari Points layer.")
