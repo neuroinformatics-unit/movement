@@ -1,6 +1,5 @@
 """Logging utilities for the movement package."""
 
-import sys
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -15,11 +14,11 @@ def configure_logging(
     log_file_name: str = "movement",
     log_directory: Path = DEFAULT_LOG_DIRECTORY,
 ) -> str:
-    """Configure a rotating log file and console (stdout) logger.
+    """Configure a rotating log file.
 
     This function sets up a rotating log file that logs at the DEBUG level
     with a maximum size of 5 MB and retains the last 5 log files.
-    It also configures a console logger that logs at the INFO level.
+    This is in addition to the default loguru logging to ``sys.stderr``.
 
     Parameters
     ----------
@@ -39,10 +38,7 @@ def configure_logging(
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
     log_file = (log_directory / f"{log_file_name}.log").as_posix()
-    # Remove any existing handlers
-    logger.remove()
-    # Add a console handler and a rotating file handler
-    logger.add(sys.stdout, level="INFO", format=FORMAT)
+    # Add a rotating file handler
     logger.add(
         log_file, level="DEBUG", format=FORMAT, rotation="5 MB", retention=5
     )
