@@ -107,6 +107,9 @@ class ValidPosesDataset:
         etc.
     fps : float, optional
         Frames per second of the video. Defaults to None.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames) corresponding to the timestamp of each
+        frame in chronological order.
     source_software : str, optional
         Name of the software from which the poses were loaded.
         Defaults to None.
@@ -138,6 +141,7 @@ class ValidPosesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
+    timestamps: np.ndarray | None = field(default=None)
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
@@ -274,6 +278,9 @@ class ValidBboxesDataset:
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames) corresponding to the timestamp of each
+        frame in chronological order.
     source_software : str, optional
         Name of the software that generated the data. Defaults to None.
 
@@ -304,6 +311,7 @@ class ValidBboxesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
+    timestamps: np.ndarray | None = field(default=None)
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
