@@ -64,7 +64,7 @@ def movement_ds_to_napari_tracks(
     n_tracks = n_individuals * n_keypoints
 
     # Construct the napari Tracks array
-    # Reorder axes to (individuals, keypoints, frames, y, x)
+    # Reorder axes to (individuals, keypoints, frames, xy)
     axes_reordering: tuple[int, ...] = (2, 0, 1)
     if "keypoints" in ds.coords:
         axes_reordering = (3,) + axes_reordering
