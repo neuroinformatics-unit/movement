@@ -1,6 +1,5 @@
 """Kalman filtering example for movement data."""
 
-
 import matplotlib.pyplot as plt
 import numpy as np
 from filterpy.kalman import KalmanFilter
