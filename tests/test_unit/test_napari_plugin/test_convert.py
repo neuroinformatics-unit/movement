@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from movement.napari.convert import poses_to_napari_tracks
+from movement.napari.convert import movement_ds_to_napari_tracks
 
 
 @pytest.fixture
@@ -33,29 +33,36 @@ def confidence_with_all_nan(valid_poses_dataset):
         "confidence_with_all_nan",
     ],
 )
-def test_valid_poses_to_napari_tracks(ds_name, request):
-    """Test that the conversion from movement poses dataset to napari
+def test_valid_dataset_to_napari_tracks(ds_name, request):
+    """Test that the conversion from movement dataset to napari
     tracks returns the expected data and properties.
     """
     ds = request.getfixturevalue(ds_name)
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
-    n_keypoints = ds.sizes["keypoints"]
+    n_keypoints = ds.sizes.get("keypoints", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
-    data, props = poses_to_napari_tracks(ds)
+    data, props = movement_ds_to_napari_tracks(ds)
 
     # Prepare expected y, x positions and corresponding confidence values.
     # Assume values are extracted from the dataset in a specific way,
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence = [], [], []
+
     for id in ds.individuals.values:
-        for kpt in ds.keypoints.values:
-            position = ds.position.sel(individuals=id, keypoints=kpt)
-            y_coords.extend(position.sel(space="y").values)
-            x_coords.extend(position.sel(space="x").values)
-            conf = ds.confidence.sel(individuals=id, keypoints=kpt)
-            confidence.extend(conf.values)
+        positions = ds.position.sel(individuals=id)
+        confidences = ds.confidence.sel(individuals=id)
+
+        if "keypoints" in ds:
+            for kpt in ds.keypoints.values:
+                y_coords.extend(positions.sel(keypoints=kpt, space="y").values)
+                x_coords.extend(positions.sel(keypoints=kpt, space="x").values)
+                confidence.extend(confidences.sel(keypoints=kpt).values)
+        else:
+            y_coords.extend(positions.sel(space="y").values)
+            x_coords.extend(positions.sel(space="x").values)
+            confidence.extend(confidences.values)
 
     # Generate expected data array
     expected_track_ids = np.repeat(np.arange(n_tracks), n_frames)
@@ -66,18 +73,23 @@ def test_valid_poses_to_napari_tracks(ds_name, request):
     )
 
     # Generate expected properties DataFrame
-    expected_props = pd.DataFrame(
-        {
-            "individual": np.repeat(
-                ds.individuals.values.repeat(n_keypoints), n_frames
-            ),
-            "keypoint": np.repeat(
-                np.tile(ds.keypoints.values, n_individuals), n_frames
-            ),
-            "time": expected_frame_ids,
-            "confidence": confidence,
-        }
-    )
+    expected_props_dict = {
+        "individual": np.repeat(
+            ds.individuals.values.repeat(n_keypoints), n_frames
+        ),
+        **(
+            {
+                "keypoint": np.repeat(
+                    np.tile(ds.keypoints.values, n_individuals), n_frames
+                )
+            }
+            if "keypoints" in ds
+            else {}
+        ),
+        "time": expected_frame_ids,
+        "confidence": confidence,
+    }
+    expected_props = pd.DataFrame(expected_props_dict)
 
     # Assert that the data array matches the expected data
     np.testing.assert_allclose(data, expected_data, equal_nan=True)
@@ -101,4 +113,4 @@ def test_invalid_poses_to_napari_tracks(ds_name, expected_exception, request):
     """
     ds = request.getfixturevalue(ds_name)
     with pytest.raises(expected_exception):
-        poses_to_napari_tracks(ds)
+        movement_ds_to_napari_tracks(ds)
