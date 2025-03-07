@@ -15,19 +15,31 @@ We will use `movement-env` as the environment name, but you can choose any name 
 
 ::::{tab-set}
 :::{tab-item} Conda
-Create and activate an environment with movement installed:
+To create an environment with the core package only:
 ```sh
 conda create -n movement-env -c conda-forge movement
+```
+
+If you wish to use the GUI, which additionally requires [napari](napari:),
+you should instead run:
+```sh
+conda create -n movement-env -c conda-forge movement napari pyqt
 conda activate movement-env
 ```
-This will install all dependencies, including [napari](napari:),
-which provides the GUI for movement.
+You may exchange `pyqt` for `pyside2` if you prefer.
+See [napari's installation guide](napari:tutorials/fundamentals/installation.html)
+for more information on the backends.
+
+To activate the environment:
+```sh
+conda activate movement-env
+```
 :::
+
 :::{tab-item} Pip
 Create and activate an environment with some prerequisites:
 ```sh
 conda create -n movement-env -c conda-forge python=3.12 pytables
-conda activate movement-env
 ```
 Install the core package from the latest release on PyPI:
 ```sh
