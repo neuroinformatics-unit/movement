@@ -44,18 +44,20 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=3294188c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/index';</script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/index.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Load and explore pose tracks" href="load_and_explore_poses.html" />
-    <link rel="prev" title="The movement datasets" href="../user_guide/movement_dataset.html" /> 
+    <link rel="prev" title="Graphical User Interface" href="../user_guide/gui.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -120,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -363,9 +365,11 @@
 <li class="toctree-l1"><a class="reference internal" href="filter_and_interpolate.html">Drop outliers and interpolate</a></li>
 <li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compute_polar_coordinates.html">Express 2D vectors in polar coordinates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
 </ul>
 </div>
 </nav></div>
@@ -437,15 +441,21 @@
 </div><div class="sphx-glr-thumbcontainer" tooltip="Smooth pose tracks using the median and Savitzky-Golay filters."><img alt="" src="../_images/sphx_glr_smooth_thumb.png" />
 <p><a class="reference internal" href="smooth.html#sphx-glr-examples-smooth-py"><span class="std std-ref">Smooth pose tracks</span></a></p>
   <div class="sphx-glr-thumbnail-title">Smooth pose tracks</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Look at eye movements and pupil diameter."><img alt="" src="../_images/sphx_glr_mouse_eye_movements_thumb.png" />
+<p><a class="reference internal" href="mouse_eye_movements.html#sphx-glr-examples-mouse-eye-movements-py"><span class="std std-ref">Pupil tracking</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Pupil tracking</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Compute the head direction vector and angle using different methods."><img alt="" src="../_images/sphx_glr_compute_head_direction_thumb.png" />
+<p><a class="reference internal" href="compute_head_direction.html#sphx-glr-examples-compute-head-direction-py"><span class="std std-ref">Compute head direction</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Compute head direction</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration, and visualise the results."><img alt="" src="../_images/sphx_glr_compute_kinematics_thumb.png" />
 <p><a class="reference internal" href="compute_kinematics.html#sphx-glr-examples-compute-kinematics-py"><span class="std std-ref">Compute and visualise kinematics.</span></a></p>
   <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics.</div>
-</div><div class="sphx-glr-thumbcontainer" tooltip="Compute a vector representing head direction and express it in polar coordinates."><img alt="" src="../_images/sphx_glr_compute_polar_coordinates_thumb.png" />
-<p><a class="reference internal" href="compute_polar_coordinates.html#sphx-glr-examples-compute-polar-coordinates-py"><span class="std std-ref">Express 2D vectors in polar coordinates</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Express 2D vectors in polar coordinates</div>
 </div><div class="sphx-glr-thumbcontainer" tooltip="Load bounding box tracks and upsample them to match the video frame rate."><img alt="" src="../_images/sphx_glr_load_and_upsample_bboxes_thumb.png" />
 <p><a class="reference internal" href="load_and_upsample_bboxes.html#sphx-glr-examples-load-and-upsample-bboxes-py"><span class="std std-ref">Load and upsample bounding box tracks</span></a></p>
   <div class="sphx-glr-thumbnail-title">Load and upsample bounding box tracks</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Learn how to use the make_broadcastable decorator, to easily cast functions  across an entire xarray.DataArray."><img alt="" src="../_images/sphx_glr_broadcasting_your_own_methods_thumb.png" />
+<p><a class="reference internal" href="broadcasting_your_own_methods.html#sphx-glr-examples-broadcasting-your-own-methods-py"><span class="std std-ref">Extend your analysis methods along data dimensions</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Extend your analysis methods along data dimensions</div>
 </div></div><div class="toctree-wrapper compound">
 </div>
 <div class="sphx-glr-footer sphx-glr-footer-gallery docutils container">
@@ -473,12 +483,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../user_guide/movement_dataset.html"
+       href="../user_guide/gui.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">The movement datasets</p>
+        <p class="prev-next-title">Graphical User Interface</p>
       </div>
     </a>
     <a class="right-next"

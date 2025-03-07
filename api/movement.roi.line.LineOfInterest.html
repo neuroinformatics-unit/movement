@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=3294188c"></script>
+    <script src="../_static/documentation_options.js?v=01f34227"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -404,6 +404,23 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.poses_to_napari_tracks.html">poses_to_napari_tracks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.plots.occupancy.html">movement.plots.occupancy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.plots.occupancy.plot_occupancy.html">plot_occupancy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.plots.trajectory.html">movement.plots.trajectory</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.plots.trajectory.plot_centroid_trajectory.html">plot_centroid_trajectory</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.base.html">movement.roi.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
 </ul>
@@ -424,6 +441,13 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.broadcasting.html">movement.utils.broadcasting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.apply_along_da_axis.html">apply_along_da_axis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.broadcastable_method.html">broadcastable_method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.make_broadcastable.html">make_broadcastable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.space_broadcastable.html">space_broadcastable</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -544,6 +568,251 @@ regions” (lines of interest, LoIs) in an analysis. The basic usage is to
 construct an instance of this class by passing in a list of points, which
 will then be joined (in sequence) by straight lines between consecutive
 pairs of points, to form the LoI that is to be studied.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_allocentric_angle_to_nearest_point</span></code></a>(...)</p></td>
+<td><p>Compute the allocentric angle to the nearest point in the region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_angle_to_normal" title="movement.roi.line.LineOfInterest.compute_angle_to_normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_angle_to_normal</span></code></a>(direction, position)</p></td>
+<td><p>Compute the angle between the normal to the segment and a direction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_approach_vector" title="movement.roi.line.LineOfInterest.compute_approach_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_approach_vector</span></code></a>(point[, ...])</p></td>
+<td><p>Compute the approach vector from a <code class="docutils literal notranslate"><span class="pre">point</span></code> to the region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_distance_to" title="movement.roi.line.LineOfInterest.compute_distance_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_distance_to</span></code></a>(point[, boundary_only])</p></td>
+<td><p>Compute the distance from the region to a point.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_egocentric_angle_to_nearest_point</span></code></a>(...)</p></td>
+<td><p>Compute the egocentric angle to the nearest point in the region.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_nearest_point_to" title="movement.roi.line.LineOfInterest.compute_nearest_point_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_nearest_point_to</span></code></a>(position[, ...])</p></td>
+<td><p>Compute (one of) the nearest point(s) in the region to <code class="docutils literal notranslate"><span class="pre">position</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.contains_point" title="movement.roi.line.LineOfInterest.contains_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains_point</span></code></a>(position[, include_boundary])</p></td>
+<td><p>Determine if a position is inside the region of interest.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.normal" title="movement.roi.line.LineOfInterest.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a>([on_same_side_as])</p></td>
+<td><p>Compute the unit normal to this line.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point">
+<span class="sig-name descname"><span class="pre">compute_allocentric_angle_to_nearest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point" title="Link to this definition">#</a></dt>
+<dd><p>Compute the allocentric angle to the nearest point in the region.</p>
+<p>With the term “allocentric”, we indicate that we are measuring angles
+with respect to a reference frame that is fixed relative to the
+experimental/camera setup. By default, we assume this is the positive
+x-axis of the coordinate system in which <code class="docutils literal notranslate"><span class="pre">position</span></code> is.</p>
+<p>The allocentric angle is the <a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">signed</span> <span class="pre">angle</span></code></a> between the approach
+vector and a given reference vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> of spatial positions.</p></li>
+<li><p><strong>boundary_only</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the allocentric angle to the closest boundary point of
+the region is computed. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>in_degrees</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
+returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>reference_vector</strong> (<em>ArrayLike</em><em> | </em><em>xr.DataArray</em>) – The reference vector to be used. Dimensions must be compatible with
+the argument of the same name that is passed to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code>. Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_approach_vector" title="movement.roi.line.LineOfInterest.compute_approach_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_approach_vector</span></code></a></dt><dd><p>The method used to compute the approach vector.</p>
+</dd>
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_egocentric_angle_to_nearest_point</span></code></a></dt><dd><p>Related class method for computing the egocentric angle to the region.</p>
+</dd>
+<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>The underlying function used to compute the signed angle between the approach vector and the reference vector.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_angle_to_normal">
+<span class="sig-name descname"><span class="pre">compute_angle_to_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/line.html#LineOfInterest.compute_angle_to_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_angle_to_normal" title="Link to this definition">#</a></dt>
+<dd><p>Compute the angle between the normal to the segment and a direction.</p>
+<p>The returned angle is the signed angle between the normal to the
+segment and the <code class="docutils literal notranslate"><span class="pre">direction</span></code> vector(s) provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
+e.g., the forward vector(s).</p></li>
+<li><p><strong>position</strong> (<em>xr.DataArray</em>) – Spatial positions, considered the origin of the <code class="docutils literal notranslate"><span class="pre">direction</span></code>.</p></li>
+<li><p><strong>in_degrees</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
+returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>For the definition of the signed angle between two vectors.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_approach_vector">
+<span class="sig-name descname"><span class="pre">compute_approach_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_approach_vector" title="Link to this definition">#</a></dt>
+<dd><p>Compute the approach vector from a <code class="docutils literal notranslate"><span class="pre">point</span></code> to the region.</p>
+<p>The approach vector is defined as the vector directed from the
+<code class="docutils literal notranslate"><span class="pre">point</span></code> provided, to the closest point that belongs to the region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> (<em>ArrayLike</em>) – Coordinates of a point to compute the vector to (or from) the
+region.</p></li>
+<li><p><strong>boundary_only</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the approach vector to the boundary of the region is
+computed. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>unit</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the approach vector is returned normalised, otherwise
+it is not normalised. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Approach vector from the point to the region.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_allocentric_angle_to_nearest_point</span></code></a></dt><dd><p>Relies on this method to compute the approach vector.</p>
+</dd>
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_egocentric_angle_to_nearest_point</span></code></a></dt><dd><p>Relies on this method to compute the approach vector.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_distance_to">
+<span class="sig-name descname"><span class="pre">compute_distance_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_distance_to" title="Link to this definition">#</a></dt>
+<dd><p>Compute the distance from the region to a point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> (<em>ArrayLike</em>) – Coordinates of a point, from which to find the nearest point in the
+region defined by <code class="docutils literal notranslate"><span class="pre">self</span></code>.</p></li>
+<li><p><strong>boundary_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute the distance from <code class="docutils literal notranslate"><span class="pre">point</span></code> to the boundary of
+the region, rather than the closest point belonging to the region.
+Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Euclidean distance from the <code class="docutils literal notranslate"><span class="pre">point</span></code> to the (closest point on the)
+region.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point">
+<span class="sig-name descname"><span class="pre">compute_egocentric_angle_to_nearest_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point" title="Link to this definition">#</a></dt>
+<dd><p>Compute the egocentric angle to the nearest point in the region.</p>
+<p>With the term “egocentric”, we indicate that we are measuring angles
+with respect to a reference frame that is varying in time relative to
+the experimental/camera setup.</p>
+<p>The egocentric angle is the signed angle between the approach vector
+and a <code class="docutils literal notranslate"><span class="pre">direction</span></code> vector (examples include the forward vector of
+a given individual, or the velocity vector of a given point).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
+e.g., the forward vector(s).</p></li>
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – <cite>DataArray</cite> of spatial positions, considered the origin of the
+<code class="docutils literal notranslate"><span class="pre">direction</span></code> vector.</p></li>
+<li><p><strong>boundary_only</strong> (<em>bool</em>) – Passed to <code class="docutils literal notranslate"><span class="pre">compute_approach_vector</span></code> (see Notes). Default
+<code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>in_degrees</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
+returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point" title="movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_allocentric_angle_to_nearest_point</span></code></a></dt><dd><p>Related class method for computing the egocentric angle to the region.</p>
+</dd>
+<dt><a class="reference internal" href="#movement.roi.line.LineOfInterest.compute_approach_vector" title="movement.roi.line.LineOfInterest.compute_approach_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_approach_vector</span></code></a></dt><dd><p>The method used to compute the approach vector.</p>
+</dd>
+<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>The underlying function used to compute the signed angle between the approach vector and the reference vector.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.compute_nearest_point_to">
+<span class="sig-name descname"><span class="pre">compute_nearest_point_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.compute_nearest_point_to" title="Link to this definition">#</a></dt>
+<dd><p>Compute (one of) the nearest point(s) in the region to <code class="docutils literal notranslate"><span class="pre">position</span></code>.</p>
+<p>If there are multiple equidistant points, one of them is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>ArrayLike</em>) – Coordinates of a point, from which to find the nearest point in the
+region.</p></li>
+<li><p><strong>boundary_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, compute the nearest point to <code class="docutils literal notranslate"><span class="pre">position</span></code> that is on
+the  boundary of <code class="docutils literal notranslate"><span class="pre">self</span></code>. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coordinates of the point on <code class="docutils literal notranslate"><span class="pre">self</span></code> that is closest to
+<code class="docutils literal notranslate"><span class="pre">position</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.contains_point">
+<span class="sig-name descname"><span class="pre">contains_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.contains_point" title="Link to this definition">#</a></dt>
+<dd><p>Determine if a position is inside the region of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>ArrayLike</em>) – Spatial coordinates [x, y, [z]] to check as being inside the
+region.</p></li>
+<li><p><strong>include_boundary</strong> (<em>bool</em>) – Whether to treat a position on the region’s boundary as inside the
+region (True) or outside the region (False). Default True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the <code class="docutils literal notranslate"><span class="pre">position</span></code> provided is within the region of interest.
+False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.coords">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></em><a class="headerlink" href="#movement.roi.line.LineOfInterest.coords" title="Link to this definition">#</a></dt>
@@ -573,6 +842,32 @@ exterior boundary, interior boundaries must be accessed via
 <dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.name">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#movement.roi.line.LineOfInterest.name" title="Link to this definition">#</a></dt>
 <dd><p>Name of the instance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.normal">
+<span class="sig-name descname"><span class="pre">normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_same_side_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/line.html#LineOfInterest.normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.line.LineOfInterest.normal" title="Link to this definition">#</a></dt>
+<dd><p>Compute the unit normal to this line.</p>
+<p>The unit normal is a vector perpendicular to the input line
+whose norm is equal to 1. The direction of the normal vector
+is not fully defined: the line divides the 2D plane in two
+halves, and the normal could be pointing to either of the half-planes.
+For example, a horizontal line divides the 2D plane in a
+bottom and a top half-plane, and we can choose whether
+the normal points “upwards” or “downwards”. We use a sample
+point to define the half-plane the normal vector points to.</p>
+<p>If this is a multi-segment line, the method raises an error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>on_same_side_as</strong> (<em>ArrayLike</em>) – A sample point in the (x,y) plane the normal is in. If multiple
+points are given, one normal vector is returned for each point
+given. By default, the origin is used.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+<p>:raises ValueError : When the normal is requested for a multi-segment geometry.:</p>
 </dd></dl>
 
 <dl class="py property">
@@ -636,10 +931,18 @@ exterior boundary, interior boundaries must be accessed via
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest"><code class="docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_allocentric_angle_to_nearest_point"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_allocentric_angle_to_nearest_point()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_angle_to_normal"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_angle_to_normal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_approach_vector"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_approach_vector()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_distance_to"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_distance_to()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_egocentric_angle_to_nearest_point()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.compute_nearest_point_to"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_nearest_point_to()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.contains_point"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.contains_point()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.coords"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.coords</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.dimensions"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.dimensions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.is_closed"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.name"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.normal"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.normal()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.region"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.region</span></code></a></li>
 </ul>
 </li>

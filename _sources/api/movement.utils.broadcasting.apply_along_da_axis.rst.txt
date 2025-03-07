@@ -1,0 +1,6 @@
+apply\_along\_da\_axis
+======================
+
+.. currentmodule:: movement.utils.broadcasting
+
+.. autofunction:: apply_along_da_axis

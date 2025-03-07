@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=3294188c"></script>
+    <script src="_static/documentation_options.js?v=01f34227"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -122,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -406,6 +406,23 @@
 <li class="toctree-l2"><a class="reference internal" href="api/movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.napari.convert.poses_to_napari_tracks.html">poses_to_napari_tracks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.plots.occupancy.html">movement.plots.occupancy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.plots.occupancy.plot_occupancy.html">plot_occupancy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.plots.trajectory.html">movement.plots.trajectory</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.plots.trajectory.plot_centroid_trajectory.html">plot_centroid_trajectory</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.roi.base.html">movement.roi.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
 </ul>
@@ -426,6 +443,13 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.transforms.scale.html">scale</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.utils.broadcasting.html">movement.utils.broadcasting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.utils.broadcasting.apply_along_da_axis.html">apply_along_da_axis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.utils.broadcasting.broadcastable_method.html">broadcastable_method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.utils.broadcasting.make_broadcastable.html">make_broadcastable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.utils.broadcasting.space_broadcastable.html">space_broadcastable</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -543,6 +567,18 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.kinematics.html#module-movement.kinematics" title="movement.kinematics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics</span></code></a></p></td>
 <td><p>Compute kinematic variables like velocity and acceleration.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.napari.convert.html#module-movement.napari.convert" title="movement.napari.convert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.convert</span></code></a></p></td>
+<td><p>Conversion functions from <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets to napari layers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.napari.layer_styles.html#module-movement.napari.layer_styles" title="movement.napari.layer_styles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.layer_styles</span></code></a></p></td>
+<td><p>Dataclasses containing layer styles for napari.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.plots.occupancy.html#module-movement.plots.occupancy" title="movement.plots.occupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.plots.occupancy</span></code></a></p></td>
+<td><p>Wrappers for plotting occupancy data of select individuals.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.plots.trajectory.html#module-movement.plots.trajectory" title="movement.plots.trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.plots.trajectory</span></code></a></p></td>
+<td><p>Wrappers to plot movement data.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="api/movement.roi.base.html#module-movement.roi.base" title="movement.roi.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.roi.base</span></code></a></p></td>
 <td><p>Class for representing 1- or 2-dimensional regions of interest (RoIs).</p></td>
 </tr>
@@ -558,22 +594,25 @@
 <tr class="row-even"><td><p><a class="reference internal" href="api/movement.transforms.html#module-movement.transforms" title="movement.transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.transforms</span></code></a></p></td>
 <td><p>Transform and add unit attributes to xarray.DataArray datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.logging.html#module-movement.utils.logging" title="movement.utils.logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.logging</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.broadcasting.html#module-movement.utils.broadcasting" title="movement.utils.broadcasting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.broadcasting</span></code></a></p></td>
+<td><p>Broadcasting operations across <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> dimensions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.logging.html#module-movement.utils.logging" title="movement.utils.logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.logging</span></code></a></p></td>
 <td><p>Logging utilities for the movement package.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.reports.html#module-movement.utils.reports" title="movement.utils.reports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.reports</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.reports.html#module-movement.utils.reports" title="movement.utils.reports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.reports</span></code></a></p></td>
 <td><p>Utility functions for reporting missing data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.vector.html#module-movement.utils.vector" title="movement.utils.vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.vector.html#module-movement.utils.vector" title="movement.utils.vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector</span></code></a></p></td>
 <td><p>Utility functions for vector operations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.arrays.html#module-movement.validators.arrays" title="movement.validators.arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.arrays</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.arrays.html#module-movement.validators.arrays" title="movement.validators.arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.arrays</span></code></a></p></td>
 <td><p>Validators for data arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.datasets</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.datasets</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes for validating data structures.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes for validating file paths.</p></td>
 </tr>
 </tbody>

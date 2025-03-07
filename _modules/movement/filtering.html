@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=3294188c"></script>
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -419,7 +419,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
-    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop data points below a certain confidence threshold.</span>
 
@@ -437,7 +437,7 @@
 <span class="sd">        A default value of ``0.6`` is used. See notes for more information.</span>
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
-<span class="sd">        before and after filtering. Default is ``True``.</span>
+<span class="sd">        before and after filtering. Default is ``False``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -472,7 +472,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
     <span class="n">max_gap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in NaN values by interpolating over the ``time`` dimension.</span>
@@ -496,7 +496,7 @@
 <span class="sd">        (see Notes for more information).</span>
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
-<span class="sd">        before and after interpolation. Default is ``True``.</span>
+<span class="sd">        before and after interpolation. Default is ``False``.</span>
 <span class="sd">    **kwargs : dict</span>
 <span class="sd">        Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,</span>
 <span class="sd">        which in turn passes them verbatim to the underlying</span>
@@ -537,7 +537,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">min_periods</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth data by applying a median filter over time.</span>
 
@@ -556,7 +556,7 @@
 <span class="sd">        :meth:`xarray.DataArray.rolling`.</span>
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
-<span class="sd">        before and after smoothing. Default is ``True``.</span>
+<span class="sd">        before and after smoothing. Default is ``False``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -606,7 +606,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">polyorder</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth data by applying a Savitzky-Golay filter over time.</span>
@@ -624,7 +624,7 @@
 <span class="sd">        2 is used.</span>
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
-<span class="sd">        before and after smoothing. Default is ``True``.</span>
+<span class="sd">        before and after smoothing. Default is ``False``.</span>
 <span class="sd">    **kwargs : dict</span>
 <span class="sd">        Additional keyword arguments are passed to</span>
 <span class="sd">        :func:`scipy.signal.savgol_filter`.</span>

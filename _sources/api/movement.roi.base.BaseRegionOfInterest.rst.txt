@@ -15,6 +15,48 @@ BaseRegionOfInterest
    
    
    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
 
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point
+   
+   
+      ~BaseRegionOfInterest.compute_approach_vector
+   
+   
+      ~BaseRegionOfInterest.compute_distance_to
+   
+   
+      ~BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point
+   
+   
+      ~BaseRegionOfInterest.compute_nearest_point_to
+   
+   
+      ~BaseRegionOfInterest.contains_point
+   
    
    

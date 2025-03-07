@@ -85,6 +85,40 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Look at eye movements and pupil diameter.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_mouse_eye_movements_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_mouse_eye_movements.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Pupil tracking</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute the head direction vector and angle using different methods.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_compute_head_direction_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_compute_head_direction.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Compute head direction</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration, and visualise the results.">
 
 .. only:: html
@@ -97,23 +131,6 @@ Below is a gallery of examples using ``movement``.
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics.</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Compute a vector representing head direction and express it in polar coordinates.">
-
-.. only:: html
-
-  .. image:: /examples/images/thumb/sphx_glr_compute_polar_coordinates_thumb.png
-    :alt:
-
-  :ref:`sphx_glr_examples_compute_polar_coordinates.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Express 2D vectors in polar coordinates</div>
     </div>
 
 
@@ -134,6 +151,23 @@ Below is a gallery of examples using ``movement``.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Learn how to use the make_broadcastable decorator, to easily cast functions  across an entire xarray.DataArray.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_broadcasting_your_own_methods_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_broadcasting_your_own_methods.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Extend your analysis methods along data dimensions</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -148,9 +182,11 @@ Below is a gallery of examples using ``movement``.
    /examples/filter_and_interpolate
    /examples/convert_file_formats
    /examples/smooth
+   /examples/mouse_eye_movements
+   /examples/compute_head_direction
    /examples/compute_kinematics
-   /examples/compute_polar_coordinates
    /examples/load_and_upsample_bboxes
+   /examples/broadcasting_your_own_methods
 
 
 .. only:: html

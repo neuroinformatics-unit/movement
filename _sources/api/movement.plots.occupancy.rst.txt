@@ -1,0 +1,21 @@
+﻿movement.plots.occupancy
+========================
+
+.. rubric:: Description
+
+.. automodule:: movement.plots.occupancy
+
+.. currentmodule:: movement.plots.occupancy
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    plot_occupancy
+    
+

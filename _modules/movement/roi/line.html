@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=3294188c"></script>
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -405,7 +405,15 @@
                    <h1>Source code for movement.roi.line</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;1-dimensional lines of interest.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRegionOfInterest</span><span class="p">,</span> <span class="n">PointLikeList</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BaseRegionOfInterest</span><span class="p">,</span>
+    <span class="n">PointLikeList</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.broadcasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcastable_method</span>
 
 
 <div class="viewcode-block" id="LineOfInterest">
@@ -462,7 +470,97 @@
 <span class="sd">            The base class that constructor arguments are passed to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LineOfInterest.normal">
+<a class="viewcode-back" href="../../../api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.normal">[docs]</a>
+    <span class="nd">@broadcastable_method</span><span class="p">(</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">normal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_same_side_as</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the unit normal to this line.</span>
+
+<span class="sd">        The unit normal is a vector perpendicular to the input line</span>
+<span class="sd">        whose norm is equal to 1. The direction of the normal vector</span>
+<span class="sd">        is not fully defined: the line divides the 2D plane in two</span>
+<span class="sd">        halves, and the normal could be pointing to either of the half-planes.</span>
+<span class="sd">        For example, a horizontal line divides the 2D plane in a</span>
+<span class="sd">        bottom and a top half-plane, and we can choose whether</span>
+<span class="sd">        the normal points &quot;upwards&quot; or &quot;downwards&quot;. We use a sample</span>
+<span class="sd">        point to define the half-plane the normal vector points to.</span>
+
+<span class="sd">        If this is a multi-segment line, the method raises an error.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        on_same_side_as : ArrayLike</span>
+<span class="sd">            A sample point in the (x,y) plane the normal is in. If multiple</span>
+<span class="sd">            points are given, one normal vector is returned for each point</span>
+<span class="sd">            given. By default, the origin is used.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError : When the normal is requested for a multi-segment geometry.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># A multi-segment geometry always has at least 3 coordinates.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Normal is not defined for multi-segment geometries.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">on_same_side_as</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">on_same_side_as</span><span class="p">)</span>
+
+        <span class="n">parallel_to_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">normal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">parallel_to_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">parallel_to_line</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">normal</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">normal</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">on_same_side_as</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">normal</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">normal</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">normal</span></div>
+
+
+<div class="viewcode-block" id="LineOfInterest.compute_angle_to_normal">
+<a class="viewcode-back" href="../../../api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest.compute_angle_to_normal">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_angle_to_normal</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">direction</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the angle between the normal to the segment and a direction.</span>
+
+<span class="sd">        The returned angle is the signed angle between the normal to the</span>
+<span class="sd">        segment and the ``direction`` vector(s) provided.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction : xarray.DataArray</span>
+<span class="sd">            An array of vectors representing a given direction,</span>
+<span class="sd">            e.g., the forward vector(s).</span>
+<span class="sd">        position : xr.DataArray</span>
+<span class="sd">            Spatial positions, considered the origin of the ``direction``.</span>
+<span class="sd">        in_degrees : bool</span>
+<span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
+<span class="sd">            returned in radians. Default ``False``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        movement.utils.vector.compute_signed_angle_2d :</span>
+<span class="sd">            For the definition of the signed angle between two vectors.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_angle_computation</span><span class="p">(</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">reference_vector</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+            <span class="n">how_to_compute_vector_to_region</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reassign_space_dim</span><span class="p">(</span>
+                <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="s2">&quot;normal&quot;</span>
+            <span class="p">),</span>
+            <span class="n">in_degrees</span><span class="o">=</span><span class="n">in_degrees</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

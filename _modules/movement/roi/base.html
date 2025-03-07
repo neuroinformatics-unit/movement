@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=3294188c"></script>
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.0.23</p>
+    <p class="title logo__title">movement v0.1.0</p>
   
 </a></div>
     
@@ -407,16 +407,21 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.coords</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateSequence</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.broadcasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcastable_method</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_signed_angle_2d</span>
 
 <span class="n">LineLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LinearRing</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span>
-<span class="n">PointLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="n">PointLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 <span class="n">PointLikeList</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PointLike</span><span class="p">]</span>
 <span class="n">RegionLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span>
 <span class="n">SupportedGeometry</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">LineLike</span> <span class="o">|</span> <span class="n">RegionLike</span>
@@ -425,25 +430,38 @@
 <div class="viewcode-block" id="BaseRegionOfInterest">
 <a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseRegionOfInterest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for representing regions of interest (RoIs).</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for regions of interest (RoIs).</span>
 
 <span class="sd">    Regions of interest can be either 1 or 2 dimensional, and are represented</span>
-<span class="sd">    by appropriate ``shapely.Geometry`` objects depending on which. Note that</span>
-<span class="sd">    there are a number of discussions concerning subclassing ``shapely``</span>
-<span class="sd">    objects;</span>
+<span class="sd">    by corresponding ``shapely.Geometry`` objects.</span>
 
-<span class="sd">    - https://github.com/shapely/shapely/issues/1233.</span>
-<span class="sd">    - https://stackoverflow.com/questions/10788976/how-do-i-properly-inherit-from-a-superclass-that-has-a-new-method</span>
+<span class="sd">    To avoid the complexities of subclassing ``shapely`` objects (due to them</span>
+<span class="sd">    relying on ``__new__()`` methods, see</span>
+<span class="sd">    https://github.com/shapely/shapely/issues/1233), we simply wrap the</span>
+<span class="sd">    relevant ``shapely`` object in the ``_shapely_geometry`` attribute of the</span>
+<span class="sd">    class. This is accessible via the property ``region``. This also allows us</span>
+<span class="sd">    to forbid certain operations and make the manipulation of ``shapely``</span>
+<span class="sd">    objects more user friendly.</span>
 
-<span class="sd">    To avoid the complexities of subclassing ourselves, we simply elect to wrap</span>
-<span class="sd">    the appropriate ``shapely`` object in the ``_shapely_geometry`` attribute,</span>
-<span class="sd">    accessible via the property ``region``. This also has the benefit of</span>
-<span class="sd">    allowing us to &#39;forbid&#39; certain operations (that ``shapely`` would</span>
-<span class="sd">    otherwise interpret in a set-theoretic sense, giving confusing answers to</span>
-<span class="sd">    users).</span>
+<span class="sd">    Although this class can be instantiated directly, it is not designed for</span>
+<span class="sd">    this. Its primary purpose is to reduce code duplication.</span>
 
-<span class="sd">    This class is not designed to be instantiated directly. It can be</span>
-<span class="sd">    instantiated, however its primary purpose is to reduce code duplication.</span>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    A region of interest includes the points that make up its boundary and the</span>
+<span class="sd">    points contained in its interior. This convention means that points inside</span>
+<span class="sd">    the region will be treated as having zero distance to the region, and the</span>
+<span class="sd">    approach vector from these points to the region will be the null vector.</span>
+
+<span class="sd">    This may be undesirable in certain situations, when we explicitly want to</span>
+<span class="sd">    find the distance of a point to the boundary of a region, for example. To</span>
+<span class="sd">    accommodate this, most methods of this class accept a keyword argument that</span>
+<span class="sd">    forces the method to perform all computations using only the boundary of</span>
+<span class="sd">    the region, rather than the region itself. For polygons, this will force</span>
+<span class="sd">    the method in question to only consider distances or closest points on the</span>
+<span class="sd">    segments that form the (interior and exterior) boundaries. For segments,</span>
+<span class="sd">    the boundary is considered to be just the two endpoints of the segment.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__default_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Un-named region&quot;</span>
@@ -494,6 +512,86 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">region</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SupportedGeometry</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;``shapely.Geometry`` representation of the region.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_boundary_angle_computation</span><span class="p">(</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">reference_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">how_to_compute_vector_to_region</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
+            <span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+        <span class="p">],</span>
+        <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform a boundary angle computation.</span>
+
+<span class="sd">        Intended for internal use when conducting boundary angle computations,</span>
+<span class="sd">        to reduce code duplication. All boundary angle computations involve two</span>
+<span class="sd">        parts:</span>
+
+<span class="sd">        - From some given spatial position data, compute the &quot;vector towards</span>
+<span class="sd">        the region&quot;. This is typically the approach vector, but might also be</span>
+<span class="sd">        the normal vector if we are dealing with a segment or the plane</span>
+<span class="sd">        supported by a segment.</span>
+<span class="sd">        - Compute the signed angle between the &quot;vector towards the region&quot; and</span>
+<span class="sd">        some given reference vector, which may be constant or varying in time</span>
+<span class="sd">        (such as an animal&#39;s heading or forward vector).</span>
+
+<span class="sd">        As such, we generalise the process into this internal method, and</span>
+<span class="sd">        provide more explicit wrappers to the user to make working with the</span>
+<span class="sd">        methods easier.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : xarray.DataArray</span>
+<span class="sd">            Spatial position data, that is passed to</span>
+<span class="sd">            ``how_to_compute_vector_to_region`` and used to compute the</span>
+<span class="sd">            &quot;vector to the region&quot;.</span>
+<span class="sd">        reference_vector : xarray.DataArray | np.ndarray</span>
+<span class="sd">            Constant or time-varying vector to take signed angle with the</span>
+<span class="sd">            &quot;vector to the region&quot;.</span>
+<span class="sd">        how_to_compute_vector_to_region : Callable</span>
+<span class="sd">            How to compute the &quot;vector to the region&quot; from ``position``.</span>
+<span class="sd">        in_degrees : bool</span>
+<span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
+<span class="sd">            returned in radians. Default ``False``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vec_to_segment</span> <span class="o">=</span> <span class="n">how_to_compute_vector_to_region</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">compute_signed_angle_2d</span><span class="p">(</span><span class="n">vec_to_segment</span><span class="p">,</span> <span class="n">reference_vector</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
+            <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">angles</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reassign_space_dim</span><span class="p">(</span>
+        <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">old_dimension</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rename a computed dimension &#39;space&#39; and assign coordinates.</span>
+
+<span class="sd">        Intended for internal use when chaining ``DataArray``-broadcastable</span>
+<span class="sd">        operations together. In some instances, the outputs drop the spatial</span>
+<span class="sd">        coordinates, or the &quot;space&quot; axis is returned under a different name.</span>
+<span class="sd">        This needs to be corrected before further computations can be</span>
+<span class="sd">        performed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        da : xarray.DataArray</span>
+<span class="sd">            ``DataArray`` lacking a &quot;space&quot; dimension, that is to be assigned.</span>
+<span class="sd">        old_dimension : Hashable</span>
+<span class="sd">            The dimension that should be renamed to &quot;space&quot;, and reassigned</span>
+<span class="sd">            coordinates.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">da</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="n">old_dimension</span><span class="p">:</span> <span class="s2">&quot;space&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="n">old_dimension</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -564,7 +662,304 @@
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">n_points</span><span class="si">}{</span><span class="n">display_type</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span></div>
+        <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseRegionOfInterest.contains_point">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.contains_point">[docs]</a>
+    <span class="nd">@broadcastable_method</span><span class="p">(</span><span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">contains_point</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span>
+        <span class="n">include_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if a position is inside the region of interest.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : ArrayLike</span>
+<span class="sd">            Spatial coordinates [x, y, [z]] to check as being inside the</span>
+<span class="sd">            region.</span>
+<span class="sd">        include_boundary : bool</span>
+<span class="sd">            Whether to treat a position on the region&#39;s boundary as inside the</span>
+<span class="sd">            region (True) or outside the region (False). Default True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the ``position`` provided is within the region of interest.</span>
+<span class="sd">            False otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+        <span class="n">current_region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
+        <span class="n">point_is_inside</span> <span class="o">=</span> <span class="n">current_region</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">include_boundary</span><span class="p">:</span>
+            <span class="c1"># 2D objects have 1D object boundaries,</span>
+            <span class="c1"># which in turn have point-boundaries.</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">current_region</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+                <span class="n">current_region</span> <span class="o">=</span> <span class="n">current_region</span><span class="o">.</span><span class="n">boundary</span>
+                <span class="n">point_is_inside</span> <span class="o">=</span> <span class="n">point_is_inside</span> <span class="ow">or</span> <span class="n">current_region</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
+                    <span class="n">point</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">point_is_inside</span></div>
+
+
+<div class="viewcode-block" id="BaseRegionOfInterest.compute_distance_to">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_distance_to">[docs]</a>
+    <span class="nd">@broadcastable_method</span><span class="p">(</span><span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_distance_to</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the distance from the region to a point.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point : ArrayLike</span>
+<span class="sd">            Coordinates of a point, from which to find the nearest point in the</span>
+<span class="sd">            region defined by ``self``.</span>
+<span class="sd">        boundary_only : bool, optional</span>
+<span class="sd">            If ``True``, compute the distance from ``point`` to the boundary of</span>
+<span class="sd">            the region, rather than the closest point belonging to the region.</span>
+<span class="sd">            Default ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Euclidean distance from the ``point`` to the (closest point on the)</span>
+<span class="sd">            region.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">region_to_consider</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">boundary</span> <span class="k">if</span> <span class="n">boundary_only</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">region_to_consider</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="BaseRegionOfInterest.compute_nearest_point_to">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_nearest_point_to">[docs]</a>
+    <span class="nd">@broadcastable_method</span><span class="p">(</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;nearest point&quot;</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_nearest_point_to</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute (one of) the nearest point(s) in the region to ``position``.</span>
+
+<span class="sd">        If there are multiple equidistant points, one of them is returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : ArrayLike</span>
+<span class="sd">            Coordinates of a point, from which to find the nearest point in the</span>
+<span class="sd">            region.</span>
+<span class="sd">        boundary_only : bool, optional</span>
+<span class="sd">            If ``True``, compute the nearest point to ``position`` that is on</span>
+<span class="sd">            the  boundary of ``self``. Default ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Coordinates of the point on ``self`` that is closest to</span>
+<span class="sd">            ``position``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">region_to_consider</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">boundary</span> <span class="k">if</span> <span class="n">boundary_only</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
+        <span class="p">)</span>
+        <span class="c1"># shortest_line returns a line from 1st arg to 2nd arg,</span>
+        <span class="c1"># therefore the point on self is the 0th coordinate</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">shapely</span><span class="o">.</span><span class="n">shortest_line</span><span class="p">(</span>
+                <span class="n">region_to_consider</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseRegionOfInterest.compute_approach_vector">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_approach_vector">[docs]</a>
+    <span class="nd">@broadcastable_method</span><span class="p">(</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;vector to&quot;</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_approach_vector</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">point</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span>
+        <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the approach vector from a ``point`` to the region.</span>
+
+<span class="sd">        The approach vector is defined as the vector directed from the</span>
+<span class="sd">        ``point`` provided, to the closest point that belongs to the region.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        point : ArrayLike</span>
+<span class="sd">            Coordinates of a point to compute the vector to (or from) the</span>
+<span class="sd">            region.</span>
+<span class="sd">        boundary_only : bool</span>
+<span class="sd">            If ``True``, the approach vector to the boundary of the region is</span>
+<span class="sd">            computed. Default ``False``.</span>
+<span class="sd">        unit : bool</span>
+<span class="sd">            If ``True``, the approach vector is returned normalised, otherwise</span>
+<span class="sd">            it is not normalised. Default is ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Approach vector from the point to the region.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        compute_allocentric_angle_to_nearest_point :</span>
+<span class="sd">            Relies on this method to compute the approach vector.</span>
+<span class="sd">        compute_egocentric_angle_to_nearest_point :</span>
+<span class="sd">            Relies on this method to compute the approach vector.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">region_to_consider</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">boundary</span> <span class="k">if</span> <span class="n">boundary_only</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
+        <span class="p">)</span>
+
+        <span class="c1"># &quot;point to region&quot; by virtue of order of arguments to shapely call</span>
+        <span class="n">directed_line</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">shortest_line</span><span class="p">(</span>
+            <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">),</span> <span class="n">region_to_consider</span>
+        <span class="p">)</span>
+
+        <span class="n">approach_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">directed_line</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="n">directed_line</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unit</span><span class="p">:</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">approach_vector</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="c1"># Cannot normalise the 0 vector</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">):</span>
+                <span class="n">approach_vector</span> <span class="o">/=</span> <span class="n">norm</span>
+        <span class="k">return</span> <span class="n">approach_vector</span></div>
+
+
+<div class="viewcode-block" id="BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_allocentric_angle_to_nearest_point</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reference_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the allocentric angle to the nearest point in the region.</span>
+
+<span class="sd">        With the term &quot;allocentric&quot;, we indicate that we are measuring angles</span>
+<span class="sd">        with respect to a reference frame that is fixed relative to the</span>
+<span class="sd">        experimental/camera setup. By default, we assume this is the positive</span>
+<span class="sd">        x-axis of the coordinate system in which ``position`` is.</span>
+
+<span class="sd">        The allocentric angle is the :func:`signed angle\</span>
+<span class="sd">        &lt;movement.utils.vector.compute_signed_angle_2d&gt;` between the approach</span>
+<span class="sd">        vector and a given reference vector.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        position : xarray.DataArray</span>
+<span class="sd">            ``DataArray`` of spatial positions.</span>
+<span class="sd">        boundary_only : bool</span>
+<span class="sd">            If ``True``, the allocentric angle to the closest boundary point of</span>
+<span class="sd">            the region is computed. Default ``False``.</span>
+<span class="sd">        in_degrees : bool</span>
+<span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
+<span class="sd">            returned in radians. Default ``False``.</span>
+<span class="sd">        reference_vector : ArrayLike | xr.DataArray</span>
+<span class="sd">            The reference vector to be used. Dimensions must be compatible with</span>
+<span class="sd">            the argument of the same name that is passed to</span>
+<span class="sd">            :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        compute_approach_vector :</span>
+<span class="sd">            The method used to compute the approach vector.</span>
+<span class="sd">        compute_egocentric_angle_to_nearest_point :</span>
+<span class="sd">            Related class method for computing the egocentric angle to the</span>
+<span class="sd">            region.</span>
+<span class="sd">        movement.utils.vector.compute_signed_angle_2d :</span>
+<span class="sd">            The underlying function used to compute the signed angle between</span>
+<span class="sd">            the approach vector and the reference vector.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reference_vector</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reference_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_angle_computation</span><span class="p">(</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">reference_vector</span><span class="o">=</span><span class="n">reference_vector</span><span class="p">,</span>
+            <span class="n">how_to_compute_vector_to_region</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reassign_space_dim</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compute_approach_vector</span><span class="p">(</span>
+                    <span class="n">p</span><span class="p">,</span> <span class="n">boundary_only</span><span class="o">=</span><span class="n">boundary_only</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;vector to&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">in_degrees</span><span class="o">=</span><span class="n">in_degrees</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point">
+<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_egocentric_angle_to_nearest_point</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">direction</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the egocentric angle to the nearest point in the region.</span>
+
+<span class="sd">        With the term &quot;egocentric&quot;, we indicate that we are measuring angles</span>
+<span class="sd">        with respect to a reference frame that is varying in time relative to</span>
+<span class="sd">        the experimental/camera setup.</span>
+
+<span class="sd">        The egocentric angle is the signed angle between the approach vector</span>
+<span class="sd">        and a ``direction`` vector (examples include the forward vector of</span>
+<span class="sd">        a given individual, or the velocity vector of a given point).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        direction : xarray.DataArray</span>
+<span class="sd">            An array of vectors representing a given direction,</span>
+<span class="sd">            e.g., the forward vector(s).</span>
+<span class="sd">        position : xarray.DataArray</span>
+<span class="sd">            `DataArray` of spatial positions, considered the origin of the</span>
+<span class="sd">            ``direction`` vector.</span>
+<span class="sd">        boundary_only : bool</span>
+<span class="sd">            Passed to ``compute_approach_vector`` (see Notes). Default</span>
+<span class="sd">            ``False``.</span>
+<span class="sd">        in_degrees : bool</span>
+<span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
+<span class="sd">            returned in radians. Default ``False``.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        compute_allocentric_angle_to_nearest_point :</span>
+<span class="sd">            Related class method for computing the egocentric angle to the</span>
+<span class="sd">            region.</span>
+<span class="sd">        compute_approach_vector :</span>
+<span class="sd">            The method used to compute the approach vector.</span>
+<span class="sd">        movement.utils.vector.compute_signed_angle_2d :</span>
+<span class="sd">            The underlying function used to compute the signed angle between</span>
+<span class="sd">            the approach vector and the reference vector.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_angle_computation</span><span class="p">(</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">position</span><span class="p">,</span>
+            <span class="n">reference_vector</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span>
+            <span class="n">how_to_compute_vector_to_region</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reassign_space_dim</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compute_approach_vector</span><span class="p">(</span>
+                    <span class="n">p</span><span class="p">,</span> <span class="n">boundary_only</span><span class="o">=</span><span class="n">boundary_only</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;vector to&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">in_degrees</span><span class="o">=</span><span class="n">in_degrees</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

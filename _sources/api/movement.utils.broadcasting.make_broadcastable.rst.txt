@@ -1,0 +1,6 @@
+make\_broadcastable
+===================
+
+.. currentmodule:: movement.utils.broadcasting
+
+.. autofunction:: make_broadcastable

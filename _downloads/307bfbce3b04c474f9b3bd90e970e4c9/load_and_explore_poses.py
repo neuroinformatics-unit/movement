@@ -7,10 +7,10 @@ Load and explore an example dataset of pose tracks.
 # %%
 # Imports
 # -------
-from matplotlib import pyplot as plt
 
 from movement import sample_data
 from movement.io import load_poses
+from movement.plots import plot_centroid_trajectory
 
 # %%
 # Define the file path
@@ -70,19 +70,10 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # Trajectory plots
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
-# For example, we can use ``matplotlib`` to plot trajectories
-# (using scatter plots):
+# The ``movement.plots`` module provides some additional
+# visualisations, like ``plot_centroid_trajectory()``.
+
 
 mouse_name = "AEON3B_TP1"
-
-plt.scatter(
-    da.sel(individuals=mouse_name, space="x"),
-    da.sel(individuals=mouse_name, space="y"),
-    s=2,
-    c=da.time,
-    cmap="viridis",
-)
-plt.title(f"Trajectory of {mouse_name}")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.colorbar(label="time (sec)")
+fig, ax = plot_centroid_trajectory(position, individual=mouse_name)
+fig.show()

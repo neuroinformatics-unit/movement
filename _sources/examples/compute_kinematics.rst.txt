@@ -23,12 +23,12 @@ Compute and visualise kinematics.
 Compute displacement, velocity and acceleration, and
 visualise the results.
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-12
+.. GENERATED FROM PYTHON SOURCE LINES 9-11
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 12-21
+.. GENERATED FROM PYTHON SOURCE LINES 11-22
 
 .. code-block:: Python
 
@@ -38,7 +38,9 @@ Imports
     # %matplotlib widget
     from matplotlib import pyplot as plt
 
+    import movement.kinematics as kin
     from movement import sample_data
+    from movement.plots import plot_centroid_trajectory
     from movement.utils.vector import compute_norm
 
 
@@ -48,14 +50,14 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-26
+.. GENERATED FROM PYTHON SOURCE LINES 23-27
 
 Load sample dataset
 ------------------------
 First, we load an example dataset. In this case, we select the
 ``SLEAP_three-mice_Aeon_proofread`` sample data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-32
+.. GENERATED FROM PYTHON SOURCE LINES 27-33
 
 .. code-block:: Python
 
@@ -95,7 +97,7 @@ First, we load an example dataset. In this case, we select the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-38
+.. GENERATED FROM PYTHON SOURCE LINES 34-39
 
 We can see in the printed description of the dataset ``ds`` that
 the data was acquired at 50 fps, and the time axis is expressed in seconds.
@@ -103,14 +105,14 @@ It includes data for three individuals(``AEON3B_NTP``, ``AEON3B_TP1``,
 and ``AEON3B_TP2``), and only one keypoint called ``centroid`` was tracked
 in ``x`` and ``y`` dimensions.
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-44
+.. GENERATED FROM PYTHON SOURCE LINES 41-45
 
 The loaded dataset ``ds`` contains two data arrays:
 ``position`` and ``confidence``.
 To compute displacement, velocity and acceleration, we will need the
 ``position`` one:
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-47
+.. GENERATED FROM PYTHON SOURCE LINES 45-48
 
 .. code-block:: Python
 
@@ -124,43 +126,51 @@ To compute displacement, velocity and acceleration, we will need the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-52
+.. GENERATED FROM PYTHON SOURCE LINES 49-57
 
 Visualise the data
 ---------------------------
 First, let's visualise the trajectories of the mice in the XY plane,
-colouring them by individual.
+colouring them by individual. We use the ``plot_centroid_trajectory``
+function from ``movement.plots`` which is a wrapper around
+``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
+individuals in the dataset. The fig and ax objects returned can be used to
+further customise the plot.
 
-.. GENERATED FROM PYTHON SOURCE LINES 52-73
+.. GENERATED FROM PYTHON SOURCE LINES 57-82
 
 .. code-block:: Python
 
 
+    # Create a single figure and axes
     fig, ax = plt.subplots(1, 1)
+    # Invert y-axis so (0,0) is in the top-left,
+    # matching typical image coordinate systems
+    ax.invert_yaxis()
+    # Plot trajectories for each mouse on the same axes
     for mouse_name, col in zip(
-        position.individuals.values, ["r", "g", "b"], strict=False
+        position.individuals.values,
+        ["r", "g", "b"],  # colours
+        strict=False,
     ):
-        ax.plot(
-            position.sel(individuals=mouse_name, space="x"),
-            position.sel(individuals=mouse_name, space="y"),
-            linestyle="-",
-            marker=".",
-            markersize=2,
-            linewidth=0.5,
+        plot_centroid_trajectory(
+            position,
+            individual=mouse_name,
+            ax=ax,  # Use the same axes for all plots
             c=col,
+            marker="o",
+            s=10,
+            alpha=0.2,
             label=mouse_name,
         )
-        ax.invert_yaxis()
-        ax.set_xlabel("x (pixels)")
-        ax.set_ylabel("y (pixels)")
-        ax.axis("equal")
-        ax.legend()
+        ax.legend().set_alpha(1)
+    fig.show()
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_compute_kinematics_001.png
-   :alt: compute kinematics
+   :alt: Trajectory
    :srcset: /examples/images/sphx_glr_compute_kinematics_001.png
    :class: sphx-glr-single-img
 
@@ -168,43 +178,43 @@ colouring them by individual.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-78
+.. GENERATED FROM PYTHON SOURCE LINES 83-87
 
 We can see that the trajectories of the three mice are close to a circular
 arc. Notice that the x and y axes are set to equal scales, and that the
 origin of the coordinate system is at the top left of the image. This
 follows the convention for SLEAP and most image processing tools.
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-81
+.. GENERATED FROM PYTHON SOURCE LINES 89-91
 
-We can also color the data points based on their timestamps:
+By default the ``plot_centroid_trajectory`` function in ``movement.plots``
+colours data points based on their timestamps:
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-98
+.. GENERATED FROM PYTHON SOURCE LINES 91-107
 
 .. code-block:: Python
 
     fig, axes = plt.subplots(3, 1, sharey=True)
     for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
-        sc = ax.scatter(
-            position.sel(individuals=mouse_name, space="x"),
-            position.sel(individuals=mouse_name, space="y"),
-            s=2,
-            c=position.time,
-            cmap="viridis",
-        )
         ax.invert_yaxis()
-        ax.set_title(mouse_name)
+        fig, ax = plot_centroid_trajectory(
+            position,
+            individual=mouse_name,
+            ax=ax,
+            s=2,
+        )
+        ax.set_title(f"Trajectory {mouse_name}")
         ax.set_xlabel("x (pixels)")
         ax.set_ylabel("y (pixels)")
-        ax.axis("equal")
-        fig.colorbar(sc, ax=ax, label="time (s)")
+        ax.collections[0].colorbar.set_label("Time (frames)")
     fig.tight_layout()
+    fig.show()
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_compute_kinematics_002.png
-   :alt: AEON3B_NTP, AEON3B_TP1, AEON3B_TP2
+   :alt: Trajectory AEON3B_NTP, Trajectory AEON3B_TP1, Trajectory AEON3B_TP2
    :srcset: /examples/images/sphx_glr_compute_kinematics_002.png
    :class: sphx-glr-single-img
 
@@ -212,21 +222,21 @@ We can also color the data points based on their timestamps:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-103
+.. GENERATED FROM PYTHON SOURCE LINES 108-112
 
 These plots show that for this snippet of the data,
 two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``)
 moved around the circle in clockwise direction, and
 the third mouse (``AEON3B_TP2``) followed an anti-clockwise direction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-109
+.. GENERATED FROM PYTHON SOURCE LINES 114-118
 
 We can also easily plot the components of the position vector against time
 using ``xarray``'s built-in plotting methods. We use
 :meth:`xarray.DataArray.squeeze` to
 remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
-.. GENERATED FROM PYTHON SOURCE LINES 109-112
+.. GENERATED FROM PYTHON SOURCE LINES 118-121
 
 .. code-block:: Python
 
@@ -245,13 +255,13 @@ remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-116
+.. GENERATED FROM PYTHON SOURCE LINES 122-125
 
 If we use ``xarray``'s plotting function, the axes units are automatically
 taken from the data array. In our case, ``time`` is expressed in seconds,
 and the ``x`` and ``y`` coordinates of the ``position`` are in pixels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-125
+.. GENERATED FROM PYTHON SOURCE LINES 127-134
 
 Compute displacement
 ---------------------
@@ -261,12 +271,10 @@ such as displacement, velocity, and acceleration.
 We can start off by computing the distance travelled by the mice along
 their trajectories:
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-130
+.. GENERATED FROM PYTHON SOURCE LINES 134-137
 
 .. code-block:: Python
 
-
-    import movement.kinematics as kin
 
     displacement = kin.compute_displacement(position)
 
@@ -277,7 +285,7 @@ their trajectories:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-139
+.. GENERATED FROM PYTHON SOURCE LINES 138-146
 
 The :func:`movement.kinematics.compute_displacement`
 function will return a data array equivalent to the ``position`` one,
@@ -288,14 +296,14 @@ The ``displacement`` data array holds, for a given individual and keypoint
 at timestep ``t``, the vector that goes from its previous position at time
 ``t-1`` to its current position at time ``t``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-145
+.. GENERATED FROM PYTHON SOURCE LINES 148-152
 
 And what happens at ``t=0``, since there is no previous timestep?
 We define the displacement vector at time ``t=0`` to be the zero vector.
 This way the shape of the ``displacement`` data array is the
 same as the  ``position`` array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-148
+.. GENERATED FROM PYTHON SOURCE LINES 152-155
 
 .. code-block:: Python
 
@@ -316,12 +324,12 @@ same as the  ``position`` array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-151
+.. GENERATED FROM PYTHON SOURCE LINES 156-158
 
 We can visualise these displacement vectors with a quiver plot. In this case
 we focus on the mouse ``AEON3B_TP2``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 151-188
+.. GENERATED FROM PYTHON SOURCE LINES 158-195
 
 .. code-block:: Python
 
@@ -376,18 +384,18 @@ we focus on the mouse ``AEON3B_TP2``:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f621861ed90>
+    <matplotlib.colorbar.Colorbar object at 0x7f9c5c2ea510>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 189-193
+.. GENERATED FROM PYTHON SOURCE LINES 196-200
 
 Notice that this figure is not very useful as a visual check:
 we can see that there are vectors defined for each point in
 the trajectory, but we have no easy way to verify they are indeed
 the displacement vectors from ``t-1`` to ``t``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-202
+.. GENERATED FROM PYTHON SOURCE LINES 202-209
 
 If instead we plot
 the opposite of the displacement vector, we will see that at every time
@@ -397,12 +405,12 @@ time ``t``, that goes from the previous position ``t-1`` to the
 current position at ``t``. Therefore, the opposite vector will point
 from the position point at ``t``, to the position point at ``t-1``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-206
+.. GENERATED FROM PYTHON SOURCE LINES 211-213
 
 We can easily do this by flipping the sign of the displacement vector in
 the plot above:
 
-.. GENERATED FROM PYTHON SOURCE LINES 206-243
+.. GENERATED FROM PYTHON SOURCE LINES 213-250
 
 .. code-block:: Python
 
@@ -457,21 +465,21 @@ the plot above:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f6218535d50>
+    <matplotlib.colorbar.Colorbar object at 0x7f9c5c16eae0>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-246
+.. GENERATED FROM PYTHON SOURCE LINES 251-253
 
 Now we can visually verify that indeed the displacement vector
 connects the previous and current positions as expected.
 
-.. GENERATED FROM PYTHON SOURCE LINES 248-250
+.. GENERATED FROM PYTHON SOURCE LINES 255-257
 
 With the displacement data we can compute the distance travelled by the
 mouse along its trajectory.
 
-.. GENERATED FROM PYTHON SOURCE LINES 250-264
+.. GENERATED FROM PYTHON SOURCE LINES 257-271
 
 .. code-block:: Python
 
@@ -502,14 +510,14 @@ mouse along its trajectory.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 265-269
+.. GENERATED FROM PYTHON SOURCE LINES 272-276
 
 Compute velocity
 ----------------
 We can easily compute the velocity vectors for all individuals in our data
 array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 269-271
+.. GENERATED FROM PYTHON SOURCE LINES 276-278
 
 .. code-block:: Python
 
@@ -522,7 +530,7 @@ array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-277
+.. GENERATED FROM PYTHON SOURCE LINES 279-284
 
 The :func:`movement.kinematics.compute_velocity`
 function will return a data array equivalent to
@@ -530,14 +538,14 @@ the ``position`` one, but holding velocity data along the ``space`` axis,
 rather than position data. Notice how ``xarray`` nicely deals with the
 different individuals and spatial dimensions for us! ✨
 
-.. GENERATED FROM PYTHON SOURCE LINES 279-283
+.. GENERATED FROM PYTHON SOURCE LINES 286-290
 
 We can plot the components of the velocity vector against time
 using ``xarray``'s built-in plotting methods. We use
 :meth:`xarray.DataArray.squeeze` to
 remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
-.. GENERATED FROM PYTHON SOURCE LINES 283-287
+.. GENERATED FROM PYTHON SOURCE LINES 290-294
 
 .. code-block:: Python
 
@@ -557,7 +565,7 @@ remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-294
+.. GENERATED FROM PYTHON SOURCE LINES 295-301
 
 The components of the velocity vector seem noisier than the components of
 the position vector.
@@ -566,12 +574,12 @@ position (which is somewhat noisy), over small stepsizes.
 More specifically, we use numpy's gradient implementation, which
 uses second order central differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 296-298
+.. GENERATED FROM PYTHON SOURCE LINES 303-305
 
 We can also visualise the speed, as the magnitude (norm)
 of the velocity vector:
 
-.. GENERATED FROM PYTHON SOURCE LINES 298-309
+.. GENERATED FROM PYTHON SOURCE LINES 305-316
 
 .. code-block:: Python
 
@@ -598,12 +606,12 @@ of the velocity vector:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-312
+.. GENERATED FROM PYTHON SOURCE LINES 317-319
 
 To visualise the direction of the velocity vector at each timestep, we can
 use a quiver plot:
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-342
+.. GENERATED FROM PYTHON SOURCE LINES 319-349
 
 .. code-block:: Python
 
@@ -649,19 +657,19 @@ use a quiver plot:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 343-345
+.. GENERATED FROM PYTHON SOURCE LINES 350-352
 
 Here we scaled the length of vectors to half of their actual value
 (``scale=2``) for easier visualisation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 347-351
+.. GENERATED FROM PYTHON SOURCE LINES 354-358
 
 Compute acceleration
 ---------------------
 Let's now compute the acceleration for all individuals in our data
 array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-353
+.. GENERATED FROM PYTHON SOURCE LINES 358-360
 
 .. code-block:: Python
 
@@ -674,12 +682,12 @@ array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 354-356
+.. GENERATED FROM PYTHON SOURCE LINES 361-363
 
 and plot of the components of the acceleration vector ``ax``, ``ay`` per
 individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 356-374
+.. GENERATED FROM PYTHON SOURCE LINES 363-381
 
 .. code-block:: Python
 
@@ -713,12 +721,12 @@ individual:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 375-377
+.. GENERATED FROM PYTHON SOURCE LINES 382-384
 
 We can also compute and visualise the magnitude (norm) of the
 acceleration vector for each individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 377-388
+.. GENERATED FROM PYTHON SOURCE LINES 384-395
 
 .. code-block:: Python
 
@@ -748,7 +756,7 @@ acceleration vector for each individual:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.836 seconds)
+   **Total running time of the script:** (0 minutes 2.096 seconds)
 
 
 .. _sphx_glr_download_examples_compute_kinematics.py:

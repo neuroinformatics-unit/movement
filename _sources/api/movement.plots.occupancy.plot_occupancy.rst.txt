@@ -1,0 +1,6 @@
+plot\_occupancy
+===============
+
+.. currentmodule:: movement.plots.occupancy
+
+.. autofunction:: plot_occupancy
