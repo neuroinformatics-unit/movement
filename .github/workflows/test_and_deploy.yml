@@ -38,6 +38,10 @@ jobs:
           python-version: "3.13"
 
     steps:
+      # these libraries enable testing on Qt on linux
+      - uses: pyvista/setup-headless-display-action@v3
+        with:
+          qt: true
       - name: Cache Test Data
         uses: actions/cache@v4
         with:
@@ -50,7 +54,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
-          channels: conda-forge,nodefaults
+          channels: conda-forge,defaults
           activate-environment: movement-env
       - uses: neuroinformatics-unit/actions/test@v2
         with:
