@@ -96,37 +96,37 @@ def test_layer_style_as_kwargs(sample_layer_style, default_style_attributes):
     ],
 )
 @pytest.mark.parametrize(
-    "points_style_id",
+    "points_style_text_dict",
     [
         "default",
-        "with_text_color",
+        "with_color_key",
     ],
 )
 def test_points_style_set_color_by(
-    sample_layer_style, points_style_id, prop, expected_n_colors
+    sample_layer_style, points_style_text_dict, prop, expected_n_colors
 ):
-    """Test that set_color_by updates face_color and face_color_cycle."""
-    # Create a points style
+    """Test that set_color_by updates the color and color cycle of
+    the point markers and the text.
+    """
+    # Create a points style object with predefined properties
     points_style = sample_layer_style(PointsStyle)
-    if points_style_id == "with_text_color":
+    # add a color key to the text dictionary if required
+    if points_style_text_dict == "with_color_key":
         points_style.text = {"color": {"fallback": "white"}}
 
-    # Set the color of the markers and text by the property "prop"
+    # Color markers and text by the property "prop"
     points_style.set_color_by(prop=prop)
 
-    # Check that the markers' face_color and the text color
-    # follow the property "prop"
+    # Check that the markers and the text color follow "prop"
     assert points_style.face_color == prop
     assert "color" in points_style.text
     assert points_style.text["color"]["feature"] == prop
 
-    # Check the color cycle is assigned correctly
+    # Check the color cycle
     color_cycle = _sample_colormap(
         len(points_style.properties[prop].unique()),
         cmap_name=DEFAULT_COLORMAP,
     )
-
-    # Check the color array
     assert points_style.face_color_cycle == color_cycle
     assert points_style.text["color"]["colormap"] == color_cycle
 
