@@ -8,7 +8,7 @@ Smooth pose tracks using the median and Savitzky-Golay filters.
 # Imports
 # -------
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 from scipy.signal import welch
 
 from movement import sample_data
@@ -314,7 +314,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 # First, we will apply the median filter.
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": median_filter(
+            ds_mouse.position, window, min_periods=2, print_report=True
+        )
+    }
 )
 
 # Next, let's linearly interpolate over gaps smaller
