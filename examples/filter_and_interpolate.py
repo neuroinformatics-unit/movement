@@ -81,14 +81,21 @@ ds.confidence.squeeze().plot.line(
 # This function takes ``position`` and ``confidence`` as required arguments,
 # and accepts an optional ``threshold`` parameter,
 # which defaults to ``threshold=0.6`` unless specified otherwise.
-# The function will also report the number of NaN values in the dataset before
-# and after the filtering operation by default, but you can disable this
-# by passing ``print_report=False``.
+# Setting ``print_report=True``, will make the function print a report
+# on the number of NaN values before and after the filtering operation.
+# This is ``False`` by default, but can be useful for understanding
+# and debugging the impact of filtering on the data.
 #
 # We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 # with the filtered ``position``.
 
-ds.update({"position": filter_by_confidence(ds.position, ds.confidence)})
+ds.update(
+    {
+        "position": filter_by_confidence(
+            ds.position, ds.confidence, print_report=True
+        )
+    }
+)
 
 # %%
 # We can see that the filtering operation has introduced NaN values in the
@@ -115,7 +122,13 @@ ds.position.squeeze().plot.line(
 # their length, but this should be used with caution as it can introduce
 # spurious data. The ``print_report`` argument acts as described above.
 
-ds.update({"position": interpolate_over_time(ds.position, max_gap=40)})
+ds.update(
+    {
+        "position": interpolate_over_time(
+            ds.position, max_gap=40, print_report=True
+        )
+    }
+)
 
 # %%
 # We see that most, but not all, NaN values have disappeared, meaning that
@@ -170,7 +183,7 @@ ds["velocity"] = compute_velocity(ds.position)
 # Create a dictionary mapping data variable names to filtered DataArrays
 # We disable report printing for brevity
 update_dict = {
-    var: filter_by_confidence(ds[var], ds.confidence, print_report=False)
+    var: filter_by_confidence(ds[var], ds.confidence)
     for var in ["position", "velocity"]
 }
 
