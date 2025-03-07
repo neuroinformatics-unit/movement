@@ -80,9 +80,9 @@ def test_region_occupancy(
     )
     occupancies = compute_region_occupancy(data, regions)
 
-    assert occupancies.dims == ("occupancy", "time")
+    assert occupancies.dims == ("region", "time")
     assert (expected_output["data"] == occupancies.data).all()
-    assert occupancies.occupancy.values.tolist() == expected_output["coords"]
+    assert occupancies.region.values.tolist() == expected_output["coords"]
 
 
 def test_region_occupancy_many_regions(
@@ -114,9 +114,9 @@ def test_region_occupancy_many_regions(
     )
     expected_output = xr.DataArray(
         data=np.array([[True]] * 1100 + [[False]] * 10 + [[True]] * 1),
-        dims=["occupancy", "time"],
+        dims=["region", "time"],
         coords={
-            "occupancy": [f"triangle_{i:03d}" for i in range(1000)]
+            "region": [f"triangle_{i:03d}" for i in range(1000)]
             + [f"Unit square_{i:02d}" for i in range(100)]
             + [f"Unit square with hole_{i:01d}" for i in range(10)]
             + ["pizza_slice"]
@@ -129,7 +129,7 @@ def test_region_occupancy_many_regions(
 def test_region_occupancy_multiple_dims(triangle, two_individuals):
     """Tests region occupancy for data with common dimensions.
 
-    This test ensures that the 'space' dimension is removed and the 'occupancy'
+    This test ensures that the 'space' dimension is removed and the 'region'
     dimension is added, while all other dimensions ('time', 'keypoints',
     'individuals') are preserved.
     """
@@ -142,5 +142,5 @@ def test_region_occupancy_multiple_dims(triangle, two_individuals):
 
     assert shared_dims == {"time", "keypoints", "individuals"}
     assert input_dims - output_dims == {"space"}  # 'space' is removed
-    assert output_dims - input_dims == {"occupancy"}  # 'occupancy' is added
-    assert occupancies.occupancy.shape == (len(regions),)
+    assert output_dims - input_dims == {"region"}  # 'region' is added
+    assert occupancies.region.shape == (len(regions),)

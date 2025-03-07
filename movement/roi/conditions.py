@@ -18,8 +18,8 @@ def compute_region_occupancy(
     The function returns a boolean DataArray where each element indicates
     whether a point in the input ``data`` lies within the corresponding RoIs
     in ``regions``. The original dimensions of ``data`` are preserved, except
-    for the ``space`` dimension which is replaced by the ``occupancy``
-    dimension. The ``occupancy`` dimension has a number of elements equal to
+    for the ``space`` dimension which is replaced by the ``region``
+    dimension. The ``region`` dimension has a number of elements equal to
     the number of RoIs in the ``regions`` argument and it's coordinate names
     correspond to the names of the given RoIs.
 
@@ -55,9 +55,9 @@ def compute_region_occupancy(
     ...     coords={"space": ["x", "y"]},
     ... )
     >>> occupancies = compute_region_occupancy(data, [square, triangle])
-    >>> occupancies.sel(occupancy="square").values
+    >>> occupancies.sel(region="square").values
     np.array([True, True])
-    >>> occupancies.sel(occupancy="triangle").values
+    >>> occupancies.sel(region="triangle").values
     np.array([True, False])
 
     Notes
@@ -94,6 +94,6 @@ def compute_region_occupancy(
             name = f"{name}_{name_suffix}"
         occupancies[name] = r.contains_point(data)
 
-    return xr.concat(occupancies.values(), dim="occupancy").assign_coords(
-        occupancy=list(occupancies.keys())
+    return xr.concat(occupancies.values(), dim="region").assign_coords(
+        region=list(occupancies.keys())
     )
