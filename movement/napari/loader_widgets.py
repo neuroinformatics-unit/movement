@@ -41,7 +41,6 @@ SUPPORTED_DATA_FILES = {
     **SUPPORTED_BBOXES_FILES,
 }
 
-
 class DataLoader(QWidget):
     """Widget for loading movement datasets from file."""
 
