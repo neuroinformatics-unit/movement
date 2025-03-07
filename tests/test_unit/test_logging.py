@@ -1,47 +1,45 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
-from loguru import logger
 
-from movement.utils.logging import log_error, log_to_attrs, log_warning
+from movement.utils import logging
+from movement.utils.logging import log_to_attrs
 
-log_messages = {
-    "DEBUG": "This is a debug message",
-    "INFO": "This is an info message",
-    "WARNING": "This is a warning message",
-    "ERROR": "This is an error message",
-}
+log_methods = ["debug", "info", "warning", "error", "exception"]
 
 
-@pytest.mark.parametrize("level, message", log_messages.items())
-def test_logfile_contains_message(level, message, setup_logging):
-    """Check if the last line of the logfile contains
-    the expected message.
+@pytest.mark.parametrize("method", log_methods)
+def test_log_to_file(method, setup_logging):
+    """Ensure the correct logger method is called and
+    the expected message is in the logfile.
     """
-    log_method = getattr(logger, level.lower())
-    log_method(message)
+    log_method = getattr(logging, f"log_{method}")
+    log_message = f"{method} message"
+    log_method(log_message)
     with open(setup_logging) as f:
-        last_line = f.readlines()[-1]
+        all_lines = f.readlines()
+    # For exceptions, the last line is the traceback
+    last_line = all_lines[-1] if method != "exception" else all_lines[-2]
+    level = method.upper() if method != "exception" else "ERROR"
     assert level in last_line
-    assert message in last_line
+    assert log_message in last_line
 
 
-def test_log_error(caplog):
-    """Check if the log_error function
-    logs the error message and returns an Exception.
+@pytest.mark.parametrize("method", ["error", "exception"])
+@pytest.mark.parametrize("exception", [TypeError, None])
+@pytest.mark.parametrize("message", ["message str", None])
+def test_log_with_args(method, exception, message):
+    """Ensure only 1 or 2 arguments are passed to
+    the decorated logging functions.
     """
-    with pytest.raises(ValueError):
-        raise log_error(ValueError, "This is a test error")
-    assert caplog.records[0].message == "This is a test error"
-    assert caplog.records[0].levelname == "ERROR"
-
-
-def test_log_warning(caplog):
-    """Check if the log_warning function
-    logs the warning message.
-    """
-    log_warning("This is a test warning")
-    assert caplog.records[0].message == "This is a test warning"
-    assert caplog.records[0].levelname == "WARNING"
+    log_method = getattr(logging, f"log_{method}")
+    args = tuple(arg for arg in (exception, message) if arg is not None)
+    expectation = (
+        does_not_raise() if len(args) in (1, 2) else pytest.raises(ValueError)
+    )
+    with expectation:
+        log_method(*args)
 
 
 @pytest.mark.parametrize(

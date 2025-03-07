@@ -11,7 +11,10 @@ from loguru import logger
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import (  # type: ignore[attr-defined]
+    log_error,
+    log_warning,
+)
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import (
     ValidAniposeCSV,

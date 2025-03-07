@@ -9,7 +9,10 @@ import xarray as xr
 from numpy.typing import ArrayLike
 from scipy.spatial.distance import cdist
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import (  # type: ignore[attr-defined]
+    log_error,
+    log_warning,
+)
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import (
     compute_norm,

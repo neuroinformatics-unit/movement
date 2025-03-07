@@ -12,7 +12,7 @@ from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
 from movement.utils.broadcasting import broadcastable_method
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error  # type: ignore[attr-defined]
 from movement.utils.vector import compute_signed_angle_2d
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString

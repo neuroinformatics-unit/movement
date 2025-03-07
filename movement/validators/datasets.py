@@ -7,7 +7,10 @@ import attrs
 import numpy as np
 from attrs import converters, define, field, validators
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import (  # type: ignore[attr-defined]
+    log_error,
+    log_warning,
+)
 
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:

@@ -3,7 +3,10 @@
 import xarray as xr
 from scipy import signal
 
-from movement.utils.logging import log_error, log_to_attrs
+from movement.utils.logging import (  # type: ignore[attr-defined]
+    log_error,
+    log_to_attrs,
+)
 from movement.utils.reports import report_nan_values
 
 

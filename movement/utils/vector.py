@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error  # type: ignore[attr-defined]
 from movement.validators.arrays import (
     validate_dims_coords,
     validate_reference_vector,

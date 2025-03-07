@@ -45,6 +45,7 @@ def setup_logging(tmp_path_factory):
 
 @pytest.fixture
 def caplog(caplog: LogCaptureFixture):
+    """Override the caplog fixture."""
     handler_id = logger.add(
         caplog.handler,
         format="{message}",
