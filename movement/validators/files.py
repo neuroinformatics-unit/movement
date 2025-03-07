@@ -10,7 +10,7 @@ import h5py
 import pandas as pd
 from attrs import define, field, validators
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error  # type: ignore[attr-defined]
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 

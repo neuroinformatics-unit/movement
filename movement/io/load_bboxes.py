@@ -11,7 +11,7 @@ import pandas as pd
 import xarray as xr
 from loguru import logger
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error  # type: ignore[attr-defined]
 from movement.validators.datasets import ValidBboxesDataset
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,

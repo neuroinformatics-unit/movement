@@ -15,7 +15,11 @@ from loguru import logger
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses
-from movement.utils.logging import log_error, log_exception, log_warning
+from movement.utils.logging import (  # type: ignore[attr-defined]
+    log_error,
+    log_exception,
+    log_warning,
+)
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter

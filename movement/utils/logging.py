@@ -1,5 +1,7 @@
 """Logging utilities for the movement package."""
 
+import sys
+from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -45,77 +47,78 @@ def configure_logging(
     return log_file
 
 
-def _log_and_return_exception(log_func, exception, message: str):
-    """Log a message and return an exception.
+def log_redirect(func: Callable):
+    """Redirect logging calls to the appropriate logger method.
+
+    This decorator is used to redirect a function in the format
+    `log_<method>` to the appropriate ``loguru logger`` method
+    (e.g. `log_info` to `logger.info`) and log the ``message``.
+    The function should accept either one or two arguments.
+    If one argument is passed, it is assumed to be the ``message`` to log.
+    If two arguments are passed, the first is assumed to be an
+    Exception and the second is the ``message`` to log. This
+    Exception will be returned if the method is ``"error"`` or
+    ``"exception"``.
 
     Parameters
     ----------
-    log_func : callable
-        The logging function to use
-        (e.g., ``logger.error``, ``logger.exception``).
-    exception : Exception
-        The exception to log and return.
-    message : str
-        The log message.
+    func : Callable
+        The function to be decorated.
+        The function name must be in the format `log_<method>`.
 
     Returns
     -------
-    Exception
-        The exception that was passed in.
+    Callable
+        The decorated function.
 
-    """
-    log_func(message)
-    return exception(message)
+    Raises
+    ------
+    ValueError
+        If the number of arguments passed to
+        the decorated function is not 1 or 2.
 
-
-def log_error(error, message: str):
-    """Log an error message and return the Error.
-
-    Parameters
-    ----------
-    error : Exception
-        The error to log and return.
-    message : str
-        The error message.
-
-    Returns
+    Example
     -------
-    Exception
-        The error that was passed in.
+    >>> @log_redirect
+    ... def log_info(message: str):
+    ...     pass
+    >>> log_info("This is an info message.")
+    >>> @log_redirect
+    ... def log_error(exception: Exception, message: str):
+    ...     return exception(message)
+    >>> log_error(ValueError, "This is an error message.")
 
     """
-    return _log_and_return_exception(logger.error, error, message)
+
+    def wrapper(*args, **kwargs):
+        method = func.__name__.split("_")[1]
+        if len(args) == 1:
+            message = args[0]
+            exception = None
+        elif len(args) == 2:
+            exception = args[0]
+            message = args[1]
+        else:
+            raise ValueError("Invalid number of arguments. Must be 1 or 2.")
+        getattr(logger, method)(message)
+        if exception and method in ["error", "exception"]:
+            return exception(message)
+
+    return wrapper
 
 
-def log_exception(exception, message: str):
-    """Log an exception message and return the Exception.
+# Dynamically create log functions
+log_methods = ["debug", "info", "warning", "error", "exception"]
+for method in log_methods:
+    func_name = f"log_{method}"
 
-    Parameters
-    ----------
-    exception : Exception
-        The exception to log and return.
-    message : str
-        The exception message.
+    # Create a new function
+    def log_function(*args, **kwargs):  # noqa: D103 # pragma: no cover
+        pass
 
-    Returns
-    -------
-    Exception
-        The exception that was passed in.
-
-    """
-    return _log_and_return_exception(logger.exception, exception, message)
-
-
-def log_warning(message: str):
-    """Log a warning message.
-
-    Parameters
-    ----------
-    message : str
-        The warning message.
-
-    """
-    logger.warning(message)
+    # Change the name of the function
+    log_function.__name__ = func_name
+    setattr(sys.modules[__name__], func_name, log_redirect(log_function))
 
 
 def log_to_attrs(func):

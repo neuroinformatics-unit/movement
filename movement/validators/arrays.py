@@ -4,7 +4,7 @@ from collections.abc import Hashable
 
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error  # type: ignore[attr-defined]
 
 
 def validate_dims_coords(
