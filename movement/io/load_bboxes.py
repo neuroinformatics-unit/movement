@@ -667,7 +667,10 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # if fps is provided:
     # time_coords is expressed in seconds, with the time origin
     # set as frame 0 == time 0 seconds
-    if data.fps:
+    if data.timestamps:
+        time_coords = data.timestamps
+        time_unit = "seconds"
+    elif data.timestamps is None and data.fps is not None:
         # Compute elapsed time from frame 0.
         # Ignoring type error because `data.frame_array` is not None after
         # ValidBboxesDataset.__attrs_post_init__()  # type: ignore
@@ -695,6 +698,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
         },
         attrs={
             "fps": data.fps,
+            "timestamps": data.timestamps,
             "time_unit": time_unit,
             "source_software": data.source_software,
             "source_file": None,
