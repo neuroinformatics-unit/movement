@@ -6,7 +6,7 @@ import xarray as xr
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    median_filter,
+    rolling_filter,
     savgol_filter,
 )
 
@@ -28,19 +28,24 @@ list_all_valid_datasets = (
     list_all_valid_datasets,
 )
 class TestFilteringValidDataset:
-    """Test median and savgol filtering on valid datasets with/without NaNs."""
+    """Test rolling and savgol filtering on
+    valid datasets with/without NaNs.
+    """
 
     @pytest.mark.parametrize(
         ("filter_func, filter_kwargs"),
         [
-            (median_filter, {"window": 3}),
+            (rolling_filter, {"window": 3, "statistic": "mean"}),
+            (rolling_filter, {"window": 3, "statistic": "median"}),
+            (rolling_filter, {"window": 3, "statistic": "max"}),
+            (rolling_filter, {"window": 3, "statistic": "min"}),
             (savgol_filter, {"window": 3, "polyorder": 2}),
         ],
     )
     def test_filter_with_nans_on_position(
         self, filter_func, filter_kwargs, valid_dataset, helpers, request
     ):
-        """Test NaN behaviour of the median and SG filters.
+        """Test NaN behaviour of the rolling and SG filters.
         Both filters should set all values to NaN if one element of the
         sliding window is NaN.
         """
@@ -87,6 +92,27 @@ class TestFilteringValidDataset:
                 request.getfixturevalue(valid_dataset).position,
                 window=3,
                 **override_kwargs,
+            )
+
+    @pytest.mark.parametrize(
+        "statistic, expected_exception",
+        [
+            ("mean", does_not_raise()),
+            ("median", does_not_raise()),
+            ("max", does_not_raise()),
+            ("min", does_not_raise()),
+            ("invalid", pytest.raises(ValueError, match="Invalid statistic")),
+        ],
+    )
+    def test_rolling_filter_statistic(
+        self, valid_dataset, statistic, expected_exception, request
+    ):
+        """Test that the rolling filter works with different statistics."""
+        with expected_exception:
+            rolling_filter(
+                request.getfixturevalue(valid_dataset).position,
+                window=3,
+                statistic=statistic,
             )
 
 
@@ -155,7 +181,7 @@ class TestFilteringValidDatasetWithNaNs:
         "window",
         [3, 5, 6, 10],  # input data has 10 frames
     )
-    @pytest.mark.parametrize("filter_func", [median_filter, savgol_filter])
+    @pytest.mark.parametrize("filter_func", [rolling_filter, savgol_filter])
     def test_filter_with_nans_on_position_varying_window(
         self, valid_dataset_with_nan, window, filter_func, helpers, request
     ):
