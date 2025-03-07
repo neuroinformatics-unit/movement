@@ -160,15 +160,18 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
+        # Add the data as a Tracks layer
+        self._add_tracks_layer()
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
-        bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
         # Define style for points layer
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
-            properties=self.props.iloc[bool_not_nan, :],
+            properties=self.props.iloc[self.bool_not_nan, :],
         )
 
         # Set markers' text
@@ -190,7 +193,7 @@ class DataLoader(QWidget):
 
         # Add data as a points layer
         self.viewer.add_points(
-            self.data[bool_not_nan, 1:],
+            self.data[self.bool_not_nan, 1:],
             **props_and_style.as_kwargs(),
         )
 
@@ -204,6 +207,24 @@ class DataLoader(QWidget):
             ) + self.viewer.dims.range[1:]
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _add_tracks_layer(self):
+        self.viewer.add_tracks(
+            self.data[self.bool_not_nan, :],
+            properties=self.props.iloc[self.bool_not_nan, :],
+            name=f"data: {self.file_name}",
+        )
+
+        # Ensure the frame slider reflects the total number of frames
+        expected_frame_range = RangeTuple(
+            start=0.0, stop=max(self.data[:, 1]), step=1.0
+        )
+        if self.viewer.dims.range[0] != expected_frame_range:
+            self.viewer.dims.range = (
+                expected_frame_range,
+            ) + self.viewer.dims.range[1:]
+
+        logger.info("Added tracked dataset as a napari Tracks layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
