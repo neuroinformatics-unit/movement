@@ -66,15 +66,24 @@ def main() -> None:
 
 def info() -> None:
     """Output diagnostic information."""
-    print(
+    text = (
         f"{ASCII_ART}\n"
         f"     movement: {movement.__version__}\n"
         f"     Python: {platform.python_version()}\n"
         f"     NumPy: {np.__version__}\n"
         f"     xarray: {xr.__version__}\n"
         f"     pandas: {pd.__version__}\n"
-        f"     Platform: {platform.platform()}\n"
     )
+
+    try:
+        import napari
+
+        text += f"     napari: {napari.__version__}\n"
+    except ImportError:
+        text += "     napari: not installed\n"
+
+    text += f"     Platform: {platform.platform()}\n"
+    print(text)
 
 
 def launch() -> None:
