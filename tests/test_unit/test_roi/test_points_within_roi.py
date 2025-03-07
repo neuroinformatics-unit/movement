@@ -3,19 +3,6 @@ import pytest
 import xarray as xr
 
 from movement.roi.line import LineOfInterest
-from movement.roi.polygon import PolygonOfInterest
-
-
-@pytest.fixture
-def holey_polygon(request) -> PolygonOfInterest:
-    """Fixture for a polygon with a hole.
-
-    RoI is a unit square with a 0.5 by 0.5 hole in the middle.
-    (0.0, 0.0) -> (1.0, 0.0) -> (1.0, 1.0) -> (0.0, 1.0) -> (0.0, 0.0)
-    """
-    exterior_boundary = request.getfixturevalue("unit_square_pts")
-    interior_boundary = 0.25 + (exterior_boundary.copy() * 0.5)
-    return PolygonOfInterest(exterior_boundary, holes=[interior_boundary])
 
 
 @pytest.fixture
@@ -68,10 +55,12 @@ def test_point_within_line(
     ],
 )
 def test_point_within_polygon(
-    holey_polygon, point, include_boundary, inside
+    unit_square_with_hole, point, include_boundary, inside
 ) -> None:
     """Test whether a point is within RoI."""
-    assert holey_polygon.contains_point(point, include_boundary) == inside
+    assert (
+        unit_square_with_hole.contains_point(point, include_boundary) == inside
+    )
 
 
 @pytest.mark.parametrize(
@@ -111,10 +100,12 @@ def test_point_within_polygon(
         ),
     ],
 )
-def test_points_within_polygon(holey_polygon, points, expected) -> None:
+def test_points_within_polygon(
+    unit_square_with_hole, points, expected
+) -> None:
     """Test whether points (supplied as xr.DataArray) are within a polygon."""
     xr.testing.assert_equal(
-        holey_polygon.contains_point(points),
+        unit_square_with_hole.contains_point(points),
         expected,
     )
 
@@ -148,12 +139,12 @@ def test_points_within_polygon(holey_polygon, points, expected) -> None:
     ],
 )
 def test_shape_dims(
-    holey_polygon, points, expected_shape, expected_dims
+    unit_square_with_hole, points, expected_shape, expected_dims
 ) -> None:
     """Check the shape and dims of the result.
 
     The space dimension should have collapsed.
     """
-    result = holey_polygon.contains_point(points)
+    result = unit_square_with_hole.contains_point(points)
     assert result.shape == expected_shape
     assert result.dims == expected_dims
