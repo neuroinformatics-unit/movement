@@ -186,6 +186,72 @@ def median_filter(
 
 
 @log_to_attrs
+def mean_filter(
+    data: xr.DataArray,
+    window: int,
+    min_periods: int | None = None,
+    print_report: bool = True,
+) -> xr.DataArray:
+    """Smooth data by applying a mean filter over time.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to be smoothed.
+    window : int
+        The size of the smoothing window, representing the fixed number
+        of observations used for each window.
+    min_periods : int
+        Minimum number of observations in the window required to have
+        a value (otherwise result is NaN). The default, None, is
+        equivalent to setting ``min_periods`` equal to the size of the window.
+        This argument is directly  passed to the ``min_periods`` parameter of
+        :meth:`xarray.DataArray.rolling`.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after smoothing. Default is ``True``.
+
+    Returns
+    -------
+    xarray.DataArray
+        The data smoothed using a mean filter with the provided parameters.
+
+    Notes
+    -----
+    By default, whenever one or more NaNs are present in the smoothing window,
+    a NaN is returned to the output array. As a result, any
+    stretch of NaNs present in the input data will be propagated
+    proportionally to the size of the window  (specifically, by
+    ``floor(window/2)``). To control this behaviour, the
+    ``min_periods`` option can be used to specify the minimum number of
+    non-NaN values required in the window to compute a result. For example,
+    setting ``min_periods=1`` will result in the filter returning NaNs
+    only when all values in the window are NaN, since 1 non-NaN value
+    is sufficient to compute the mean.
+
+    """
+    half_window = window // 2
+    data_smoothed = (
+        data.pad(  # Pad the edges to avoid NaNs
+            time=half_window, mode="reflect"
+        )
+        .rolling(  # Take rolling windows across time
+            time=window, center=True, min_periods=min_periods
+        )
+        .mean(  # Compute the mean of each window
+            skipna=True
+        )
+        .isel(  # Remove the padded edges
+            time=slice(half_window, -half_window)
+        )
+    )
+    if print_report:
+        print(report_nan_values(data, "input"))
+        print(report_nan_values(data_smoothed, "output"))
+    return data_smoothed
+
+
+@log_to_attrs
 def savgol_filter(
     data: xr.DataArray,
     window: int,
