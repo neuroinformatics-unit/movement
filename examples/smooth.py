@@ -14,7 +14,7 @@ from scipy.signal import welch
 from movement import sample_data
 from movement.filtering import (
     interpolate_over_time,
-    rolling_filter,
+    median_filter,
     savgol_filter,
 )
 
@@ -315,8 +315,8 @@ plot_raw_and_smooth_timeseries_and_psd(
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth.update(
     {
-        "position": rolling_filter(
-            ds_mouse.position, window, min_periods=2, method="median"
+        "position": median_filter(
+            ds_mouse.position, window, min_periods=2, print_report=True
         )
     }
 )
