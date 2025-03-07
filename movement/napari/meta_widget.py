@@ -17,6 +17,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         """Initialize the meta-widget."""
         super().__init__()
 
+        # Add the data loader widget
         self.add_widget(
             DataLoader(napari_viewer, parent=self),
             collapsible=True,
