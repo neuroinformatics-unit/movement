@@ -166,15 +166,18 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
+        # Add the data as a Tracks layer
+        self._add_tracks_layer()
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
-        bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
         # Define style for points layer
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
-            properties=self.props.iloc[bool_not_nan, :],
+            properties=self.props.iloc[self.bool_not_nan, :],
         )
 
         # Set markers' text
@@ -203,42 +206,6 @@ class DataLoader(QWidget):
         )
 
         logger.info("Added tracked dataset as a napari Points layer.")
-
-    def _update_frame_slider_range(self):
-        """Check the frame slider range and update it if necessary.
-
-        This is required because if the data loaded starts or ends
-        with all NaN values, the frame slider range will not reflect
-        the full range of frames.
-        """
-        # Only update the frame slider range if there are layers
-        # that are Points, Tracks or Image
-        list_layers = [
-            ly
-            for ly in self.viewer.layers
-            if isinstance(ly, Points | Tracks | Image)
-        ]
-        if len(list_layers) > 0:
-            # Get the maximum frame index from all candidate layers
-            max_frame_idx = max(
-                # For every layer, get max_frame_idx metadata if it exists,
-                # else deduce it from the data shape
-                [
-                    getattr(ly, "metadata", {}).get(
-                        "max_frame_idx", ly.data.shape[0] - 1
-                    )
-                    for ly in list_layers
-                ]
-            )
-
-            # If the frame slider range is not set to the full range of frames,
-            # update it.
-            if (self.viewer.dims.range[0].stop != max_frame_idx) or (
-                int(self.viewer.dims.range[0].start) != 0
-            ):
-                self.viewer.dims.range = (
-                    RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
-                ) + self.viewer.dims.range[1:]
 
     @staticmethod
     def _enable_layer_tooltips():
