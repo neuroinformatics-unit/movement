@@ -127,7 +127,7 @@ def test_region_occupancy_many_regions(
 
 
 def test_region_occupancy_multiple_dims(triangle, two_individuals):
-    """Tests region occupancy for data with common location dimensions.
+    """Tests region occupancy for data with common dimensions.
 
     This test ensures that the 'space' dimension is removed and the 'occupancy'
     dimension is added, while all other dimensions ('time', 'keypoints',

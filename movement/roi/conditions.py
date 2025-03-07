@@ -28,7 +28,7 @@ def compute_region_occupancy(
     data : xarray.DataArray
         Spatial data to check for inclusion within the ``regions``. Must be
         compatible with the ``data`` argument to :func:`contains_point\
-        <movement.roi.base.BaseRegionOfInterest.contains_point`.
+        <movement.roi.base.BaseRegionOfInterest.contains_point>`.
     regions : Sequence[BaseRegionOfInterest]
         Regions of Interest that the points in ``data`` will be checked
         against, to see if they lie inside.
@@ -36,13 +36,7 @@ def compute_region_occupancy(
     Returns
     -------
     xarray.DataArray
-        A boolean DataArray that matches the dimensions of ``data``, except
-        for the ``space`` dimension which is dropped, and the addition of the
-        ``occupancy`` dimension that has the same length as the number
-        of regions provided. Coordinates along the ``occupancy`` dimension
-        match the names of the ``regions``. Values along this dimension are
-        boolean, indicating whether each point in ``data`` lies within the
-        corresponding region.
+        A boolean ``DataArray`` providing occupancy information.
 
     Examples
     --------
