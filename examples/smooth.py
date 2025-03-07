@@ -82,9 +82,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
         )
 
         # interpolate data to remove NaNs in the PSD calculation
-        pos_interp = interpolate_over_time(
-            pos, print_report=False, fill_value="extrapolate"
-        )
+        pos_interp = interpolate_over_time(pos, fill_value="extrapolate")
 
         # compute and plot the PSD
         freq, psd = welch(pos_interp, fs=ds.fps, nperseg=256)
@@ -124,7 +122,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(0.1 * ds_wasp.fps)
 ds_wasp_smooth = ds_wasp.copy()
-ds_wasp_smooth.update({"position": median_filter(ds_wasp.position, window)})
+ds_wasp_smooth.update(
+    {"position": median_filter(ds_wasp.position, window, print_report=True)}
+)
 
 # %%
 # We see from the printed report that the dataset has no missing values
@@ -168,7 +168,9 @@ print(ds_mouse)
 
 window = int(0.1 * ds_mouse.fps)
 ds_mouse_smooth = ds_mouse.copy()
-ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
+ds_mouse_smooth.update(
+    {"position": median_filter(ds_mouse.position, window, print_report=True)}
+)
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
@@ -184,7 +186,11 @@ ds_mouse_smooth.update({"position": median_filter(ds_mouse.position, window)})
 # window are sufficient for the median to be calculated. Let's try this.
 
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": median_filter(
+            ds_mouse.position, window, min_periods=2, print_report=True
+        )
+    }
 )
 
 # %%
@@ -207,7 +213,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(2 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": median_filter(ds_mouse.position, window, min_periods=2)}
+    {
+        "position": median_filter(
+            ds_mouse.position, window, min_periods=2, print_report=True
+        )
+    }
 )
 
 # %%
@@ -249,7 +259,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # to be used as the ``window`` size.
 
 window = int(0.2 * ds_mouse.fps)
-ds_mouse_smooth.update({"position": savgol_filter(ds_mouse.position, window)})
+ds_mouse_smooth.update(
+    {"position": savgol_filter(ds_mouse.position, window, print_report=True)}
+)
 
 # %%
 # We see that the number of NaN values has increased after filtering. This is
@@ -270,7 +282,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
 window = int(0.2 * ds_wasp.fps)
-ds_wasp_smooth.update({"position": savgol_filter(ds_wasp.position, window)})
+ds_wasp_smooth.update(
+    {"position": savgol_filter(ds_wasp.position, window, print_report=True)}
+)
 
 # %%
 plot_raw_and_smooth_timeseries_and_psd(

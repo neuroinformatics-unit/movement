@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt  # Importing explicitly to keep the plot open
 
 from movement import sample_data
 from movement.io import load_poses
-from movement.plots import plot_trajectory
+from movement.plots import plot_centroid_trajectory
 
 # %%
 # Define the file path
@@ -55,9 +55,20 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # %%
 # Trajectory plots
 # ----------------
+kalman-filter-example
 # Using movement's built-in trajectory plot function
 
 mouse_name = "AEON3B_TP1"
 fig, ax = plot_trajectory(position, individual=mouse_name)
 
 plt.show()  # Ensure the graph stays open
+=======
+# We are not limited to ``xarray``'s built-in plots.
+# The ``movement.plots`` module provides some additional
+# visualisations, like ``plot_centroid_trajectory()``.
+
+
+mouse_name = "AEON3B_TP1"
+fig, ax = plot_centroid_trajectory(position, individual=mouse_name)
+fig.show()
+main
