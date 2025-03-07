@@ -48,7 +48,8 @@ pip install movement
 If you wish to use the GUI, which additionally requires [napari](napari:),
 you should instead run:
 ```sh
-pip install movement[napari]
+pip install movement[napari]   # works on most shells
+pip install 'movement[napari]' # works on zsh (default shell on macOS)
 ```
 :::
 ::::
