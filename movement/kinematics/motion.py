@@ -1,10 +1,10 @@
 """Compute time-based motion properties like displacement, velocity, and acceleration."""
 
 import xarray as xr
-from numpy.typing import ArrayLike
+
+from movement.utils.logging import log_error
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
-from movement.utils.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
