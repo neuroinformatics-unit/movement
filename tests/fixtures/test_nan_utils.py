@@ -3,9 +3,11 @@
 import numpy as np
 import pytest
 import xarray as xr
+
 from movement.utils.reports import calculate_nan_stats, report_nan_values
 
 # Fixtures ----------------------------------------------------------------
+
 
 @pytest.fixture
 def full_dim_dataarray():
@@ -17,12 +19,13 @@ def full_dim_dataarray():
             "individuals": ["mouse1", "mouse2"],
             "keypoints": ["snout", "paw", "tail"],
             "time": range(100),
-            "space": ["x", "y", "z"]
+            "space": ["x", "y", "z"],
         },
-        name="full_dims"
+        name="full_dims",
     )
     da[0, 0, 0:5, :] = np.nan  # 5 NaNs for mouse1/snout
     return da
+
 
 @pytest.fixture
 def no_space_dataarray():
@@ -33,12 +36,13 @@ def no_space_dataarray():
         coords={
             "individuals": ["mouse1", "mouse2"],
             "keypoints": ["snout", "paw", "tail"],
-            "time": range(100)
+            "time": range(100),
         },
-        name="no_space"
+        name="no_space",
     )
     da[0, 0, 0:10] = np.nan  # 10 NaNs for mouse1/snout
     return da
+
 
 @pytest.fixture
 def minimal_dataarray():
@@ -47,16 +51,18 @@ def minimal_dataarray():
         np.random.randn(100),
         dims=("time",),
         coords={"time": range(100)},
-        name="minimal"
+        name="minimal",
     )
     da[0:15] = np.nan  # 15 NaNs
     return da
 
+
 # Tests -------------------------------------------------------------------
+
 
 class TestCalculateNanStats:
     """Test suite for calculate_nan_stats function."""
-    
+
     def test_full_dims(self, full_dim_dataarray):
         """Test calculation with all dimensions present."""
         result = calculate_nan_stats(full_dim_dataarray, "snout", "mouse1")
@@ -72,9 +78,10 @@ class TestCalculateNanStats:
         result = calculate_nan_stats(minimal_dataarray)
         assert "data: 15/100 (15.0%)" in result
 
+
 class TestReportNanValues:
     """Test suite for report_nan_values function."""
-    
+
     def test_full_dims(self, full_dim_dataarray):
         """Test report generation with all dimensions."""
         report = report_nan_values(full_dim_dataarray)
@@ -94,6 +101,7 @@ class TestReportNanValues:
         report = report_nan_values(minimal_dataarray)
         assert "data: 15/100 (15.0%)" in report
         assert "Individual:" not in report
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
