@@ -83,8 +83,6 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     compute_time_derivative : The underlying function used.
 
     """
-    # validate only presence of Cartesian space dimension
-    # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     return compute_time_derivative(data, order=1)
 
@@ -123,8 +121,6 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     compute_time_derivative : The underlying function used.
 
     """
-    # validate only presence of Cartesian space dimension
-    # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     return compute_time_derivative(data, order=2)
 
@@ -173,7 +169,6 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
 
     Speed is a scalar quantity computed as the Euclidean norm (magnitude)
     of the velocity vector at each time point.
-
 
     Parameters
     ----------

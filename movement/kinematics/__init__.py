@@ -25,4 +25,6 @@ __all__ = [
     "compute_head_direction_vector",
     "compute_forward_vector_angle",
     "compute_path_length",
+    "_cdist",
+    "compute_pairwise_distances",
 ]
