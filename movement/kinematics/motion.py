@@ -1,10 +1,10 @@
-"""Compute time-based motion properties like displacement, velocity, and acceleration."""
+"""Compute time-based motion properties."""
 
 import xarray as xr
-from numpy.typing import ArrayLike
+
+from movement.utils.logging import log_error
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
-from movement.utils.logging import log_error
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
@@ -173,6 +173,7 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
 
     Speed is a scalar quantity computed as the Euclidean norm (magnitude)
     of the velocity vector at each time point.
+
 
     Parameters
     ----------
