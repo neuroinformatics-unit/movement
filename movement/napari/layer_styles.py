@@ -14,7 +14,6 @@ class LayerStyle:
     """Base class for napari layer styles."""
 
     name: str
-    properties: pd.DataFrame
     visible: bool = True
     blending: str = "translucent"
 
@@ -43,13 +42,18 @@ class PointsStyle(LayerStyle):
         }
     )
 
-    def set_color_by(self, prop: str, cmap: str | None = None) -> None:
+    def set_color_by(
+        self, prop: str, properties: pd.DataFrame, cmap: str | None = None
+    ) -> None:
         """Color markers and text by a column in the properties DataFrame.
 
         Parameters
         ----------
         prop : str
             The column name in the properties DataFrame to color by.
+        properties : pd.DataFrame
+            The DataFrame containing the properties of the
+            points to color by.
         cmap : str, optional
             The name of the colormap to use, otherwise use the face_colormap.
 
@@ -64,7 +68,7 @@ class PointsStyle(LayerStyle):
         # Get color cycle
         if cmap is None:
             cmap = self.face_colormap
-        n_colors = len(self.properties[prop].unique())
+        n_colors = len(properties[prop].unique())
         color_cycle = _sample_colormap(n_colors, cmap)
 
         # Set color cycle for points and text
@@ -81,6 +85,18 @@ class PointsStyle(LayerStyle):
 
         """
         self.text["string"] = prop
+
+
+@dataclass
+class TracksStyle(LayerStyle):
+    """Style properties for a napari Tracks layer."""
+
+    blending: str = "opaque"
+    colormap: str = DEFAULT_COLORMAP
+    color_by: str | None = "track_id"
+    head_length: int = 0  # frames
+    tail_length: int = 30  # frames
+    tail_width: int = 2
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
