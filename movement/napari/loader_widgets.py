@@ -146,6 +146,7 @@ class DataLoader(QWidget):
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
+        self.file_name = Path(file_path).name
 
         # Load data
         if file_path == "":
@@ -162,18 +163,24 @@ class DataLoader(QWidget):
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
-        # Add the data as a Points layer
-        self.file_name = Path(file_path).name
-        self._add_points_layer()
-
-        # Add the data as a Tracks layer
-        self._add_tracks_layer()
-
-    def _add_points_layer(self):
-        """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
+        # Add the data as layers
+        self._add_points_layer()
+        self._add_tracks_layer()
+
+        # Ensure the frame slider reflects the total number of frames
+        expected_frame_range = RangeTuple(
+            start=0.0, stop=max(self.data[:, 1]), step=1.0
+        )
+        if self.viewer.dims.range[0] != expected_frame_range:
+            self.viewer.dims.range = (
+                expected_frame_range,
+            ) + self.viewer.dims.range[1:]
+
+    def _add_points_layer(self):
+        """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
@@ -195,6 +202,7 @@ class DataLoader(QWidget):
         n_individuals = len(self.props["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.props:
             color_prop = "keypoint"
+        self.color_property = color_prop
         props_and_style.set_color_by(prop=color_prop)
 
         # Add data as a points layer with metadata
@@ -206,6 +214,20 @@ class DataLoader(QWidget):
         )
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _add_tracks_layer(self):
+        # Define style for tracks layer
+        # Add data as a tracks layer
+        self.viewer.add_tracks(
+            self.data[self.bool_not_nan, :],
+            properties=self.props.iloc[self.bool_not_nan, :],
+            # color_by=self.color_property,
+            # colormap="turbo",
+            # head_length=1,
+            # name=f"data: {self.file_name}",
+        )
+
+        logger.info("Added tracked dataset as a napari Tracks layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
