@@ -14,43 +14,16 @@ def create_kalman_filter(
     General Kalman filter for different motion models.
 
     model_type:
-        - "pos" (Position only)
-        - "pos_vel" (Position + velocity) [Default]
-        - "pos_vel_acc" (Position + velocity + acceleration)
-        - "pos_vel_measured" (Position + velocity, but velocity is also measured)
+        - "pos_vel" (Position + velocity)
     """
 
-    if model_type == "pos":
-        dim_x, dim_z = 2, 2
-        F = np.eye(2)
-        H = np.eye(2)
-
-    elif model_type == "pos_vel":
+    if model_type == "pos_vel":
         dim_x, dim_z = 4, 2
         F = np.array(
             [[1, 0, dt, 0], [0, 1, 0, dt], [0, 0, 1, 0], [0, 0, 0, 1]]
         )
         H = np.array([[1, 0, 0, 0], [0, 1, 0, 0]])
 
-    elif model_type == "pos_vel_acc":
-        dim_x, dim_z = 6, 2
-        F = np.array(
-            [
-                [1, 0, dt, 0, 0.5 * dt**2, 0],
-                [0, 1, 0, dt, 0, 0.5 * dt**2],
-                [0, 0, 1, 0, dt, 0],
-                [0, 0, 0, 1, 0, dt],
-                [0, 0, 0, 0, 1, 0],
-                [0, 0, 0, 0, 0, 1],
-            ]
-        )
-        H = np.array([[1, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0]])
-    elif model_type == "pos_vel_measured":
-        dim_x, dim_z = 4, 4
-        F = np.array(
-            [[1, 0, dt, 0], [0, 1, 0, dt], [0, 0, 1, 0], [0, 0, 0, 1]]
-        )
-        H = np.eye(4)
     else:
         raise ValueError("Invalid model_type")
 
