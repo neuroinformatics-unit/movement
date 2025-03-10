@@ -1,3 +1,4 @@
+import builtins
 import subprocess
 import sys
 from contextlib import nullcontext as does_not_raise
@@ -32,6 +33,28 @@ def test_entrypoint_command(command, expected_exception):
         main()
         printed_message = " ".join(map(str, mock_print.call_args.args))
         assert e in printed_message
+
+
+original_import = builtins.__import__
+
+
+def fake_import(name, globals, locals, fromlist, level):
+    """Pretend that napari is not installed."""
+    if name == "napari":
+        raise ImportError("No module named 'napari'")
+    return original_import(name, globals, locals, fromlist, level)
+
+
+def test_info_without_napari_installed():
+    """Test the 'movement info' can report that napari is not installed."""
+    with (
+        patch("sys.argv", ["movement", "info"]),
+        patch("builtins.print") as mock_print,
+        patch("builtins.__import__", side_effect=fake_import),
+    ):
+        main()
+        printed_message = " ".join(map(str, mock_print.call_args.args))
+        assert "napari: not installed" in printed_message
 
 
 @pytest.mark.parametrize(
