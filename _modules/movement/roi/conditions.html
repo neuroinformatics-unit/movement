@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>movement.napari.layer_styles &#8212; movement</title>
+    <title>movement.roi.conditions &#8212; movement</title>
   
   
   
@@ -48,8 +48,8 @@
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/napari/layer_styles';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/napari/layer_styles.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/roi/conditions';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/roi/conditions.html" />
     <link rel="icon" href="../../../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -386,7 +386,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.napari.layer_styles</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.roi.conditions</span></li>
   </ul>
 </nav>
 </div>
@@ -402,83 +402,109 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <h1>Source code for movement.napari.layer_styles</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dataclasses containing layer styles for napari.&quot;&quot;&quot;</span>
+                   <h1>Source code for movement.roi.conditions</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for computing condition arrays involving RoIs.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_colormap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="n">DEFAULT_COLORMAP</span> <span class="o">=</span> <span class="s2">&quot;turbo&quot;</span>
-
-
-<div class="viewcode-block" id="LayerStyle">
-<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">LayerStyle</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for napari layer styles.&quot;&quot;&quot;</span>
-
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">properties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
-    <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">blending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;translucent&quot;</span>
-
-<div class="viewcode-block" id="LayerStyle.as_kwargs">
-<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle.as_kwargs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the style properties as a dictionary of kwargs.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span></div>
-</div>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRegionOfInterest</span>
 
 
+<div class="viewcode-block" id="compute_region_occupancy">
+<a class="viewcode-back" href="../../../api/movement.roi.conditions.compute_region_occupancy.html#movement.roi.conditions.compute_region_occupancy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_region_occupancy</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">regions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">BaseRegionOfInterest</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a condition array indicating if points were inside regions.</span>
 
-<div class="viewcode-block" id="PointsStyle">
-<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.PointsStyle.html#movement.napari.layer_styles.PointsStyle">[docs]</a>
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">PointsStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Points layer.&quot;&quot;&quot;</span>
+<span class="sd">    The function returns a boolean DataArray where each element indicates</span>
+<span class="sd">    whether a point in the input ``data`` lies within the corresponding RoIs</span>
+<span class="sd">    in ``regions``. The original dimensions of ``data`` are preserved, except</span>
+<span class="sd">    for the ``space`` dimension which is replaced by the ``region``</span>
+<span class="sd">    dimension. The ``region`` dimension has a number of elements equal to</span>
+<span class="sd">    the number of RoIs in the ``regions`` argument and it&#39;s coordinate names</span>
+<span class="sd">    correspond to the names of the given RoIs.</span>
 
-    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;disc&quot;</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="n">border_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">face_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">face_color_cycle</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">face_colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_COLORMAP</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        Spatial data to check for inclusion within the ``regions``. Must be</span>
+<span class="sd">        compatible with the ``data`` argument to :func:`contains_point\</span>
+<span class="sd">        &lt;movement.roi.base.BaseRegionOfInterest.contains_point&gt;`.</span>
+<span class="sd">    regions : Sequence[BaseRegionOfInterest]</span>
+<span class="sd">        Regions of Interest that the points in ``data`` will be checked</span>
+<span class="sd">        against, to see if they lie inside.</span>
 
-<div class="viewcode-block" id="PointsStyle.set_color_by">
-<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.PointsStyle.html#movement.napari.layer_styles.PointsStyle.set_color_by">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_color_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the face_color to a column in the properties DataFrame.</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        A boolean ``DataArray`` providing occupancy information.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        prop : str</span>
-<span class="sd">            The column name in the properties DataFrame to color by.</span>
-<span class="sd">        cmap : str, optional</span>
-<span class="sd">            The name of the colormap to use, otherwise use the face_colormap.</span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
+<span class="sd">    &gt;&gt;&gt; from movement.roi import PolygonOfInterest, compute_region_occupancy</span>
+<span class="sd">    &gt;&gt;&gt; square = PolygonOfInterest(</span>
+<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)], name=&quot;square&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; triangle = PolygonOfInterest(</span>
+<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)], name=&quot;triangle&quot;</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; data = xr.DataArray(</span>
+<span class="sd">    ...     data=np.array([[0.25, 0.25], [0.75, 0.75]]),</span>
+<span class="sd">    ...     dims=[&quot;time&quot;, &quot;space&quot;],</span>
+<span class="sd">    ...     coords={&quot;space&quot;: [&quot;x&quot;, &quot;y&quot;]},</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; occupancies = compute_region_occupancy(data, [square, triangle])</span>
+<span class="sd">    &gt;&gt;&gt; occupancies.sel(region=&quot;square&quot;).values</span>
+<span class="sd">    np.array([True, True])</span>
+<span class="sd">    &gt;&gt;&gt; occupancies.sel(region=&quot;triangle&quot;).values</span>
+<span class="sd">    np.array([True, False])</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_colormap</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">face_color</span> <span class="o">=</span> <span class="n">prop</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prop</span>
-        <span class="n">n_colors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">face_color_cycle</span> <span class="o">=</span> <span class="n">_sample_colormap</span><span class="p">(</span><span class="n">n_colors</span><span class="p">,</span> <span class="n">cmap</span><span class="p">)</span></div>
-</div>
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    When RoIs in ``regions`` have identical names, a suffix</span>
+<span class="sd">    will be appended to their name in the form of &quot;_X&quot;, where &quot;X&quot; is a number</span>
+<span class="sd">    starting from 0. These numbers are zero-padded depending on the maximum</span>
+<span class="sd">    number of regions with identical names (e.g. if there are 100 RoIs with the</span>
+<span class="sd">    same name, &quot;00&quot; will be appended to the first of them)</span>
 
+<span class="sd">    Regions with unique names will retain their original name as their</span>
+<span class="sd">    corresponding coordinate name.</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_sample_colormap</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cmap_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample n equally-spaced colors from a napari colormap.</span>
-
-<span class="sd">    This includes the endpoints of the colormap.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">ensure_colormap</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">)</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>
+    <span class="n">number_of_times_name_appears</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
+        <span class="n">number_of_times_name_appears</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">duplicate_names_max_chars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">number_of_times_name_appears</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="p">}</span>
+    <span class="n">duplicate_names_used</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">occupancies</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">duplicate_names_max_chars</span><span class="p">:</span>
+            <span class="n">name_suffix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">duplicate_names_used</span><span class="p">[</span><span class="n">name</span><span class="p">])</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span>
+                <span class="n">duplicate_names_max_chars</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">duplicate_names_used</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">occupancies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">contains_point</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">occupancies</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+        <span class="n">region</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">occupancies</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="p">)</span></div>
+
 </pre></div>
 <div class="section ablog__blog_comments">
    

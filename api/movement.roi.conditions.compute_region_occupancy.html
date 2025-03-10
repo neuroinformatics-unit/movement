@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.transforms &#8212; movement</title>
+    <title>compute_region_occupancy &#8212; movement</title>
   
   
   
@@ -49,13 +49,13 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.transforms';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.transforms.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.roi.conditions.compute_region_occupancy';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.roi.conditions.compute_region_occupancy.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="scale" href="movement.transforms.scale.html" />
-    <link rel="prev" title="list_datasets" href="movement.sample_data.list_datasets.html" /> 
+    <link rel="next" title="movement.roi.line" href="movement.roi.line.html" />
+    <link rel="prev" title="movement.roi.conditions" href="movement.roi.conditions.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -425,8 +425,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.conditions.html">movement.roi.conditions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.roi.conditions.compute_region_occupancy.html">compute_region_occupancy</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.roi.conditions.html">movement.roi.conditions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_region_occupancy</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.line.html">movement.roi.line</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -443,7 +443,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
@@ -535,7 +535,10 @@
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.transforms</span></li>
+    
+    <li class="breadcrumb-item"><a href="movement.roi.conditions.html" class="nav-link">movement.roi.conditions</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_region_occupancy</span></li>
   </ul>
 </nav>
 </div>
@@ -551,19 +554,67 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="movement-transforms">
-<h1>movement.transforms<a class="headerlink" href="#movement-transforms" title="Link to this heading">#</a></h1>
-<p class="rubric">Description</p>
-<p id="module-movement.transforms">Transform and add unit attributes to xarray.DataArray datasets.</p>
-<p class="rubric">Functions</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
-<td><p>Scale data by a given factor with an optional unit.</p></td>
-</tr>
-</tbody>
-</table>
+                   <section id="compute-region-occupancy">
+<h1>compute_region_occupancy<a class="headerlink" href="#compute-region-occupancy" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.roi.conditions.compute_region_occupancy">
+<span class="sig-prename descclassname"><span class="pre">movement.roi.conditions.</span></span><span class="sig-name descname"><span class="pre">compute_region_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/conditions.html#compute_region_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.conditions.compute_region_occupancy" title="Link to this definition">#</a></dt>
+<dd><p>Return a condition array indicating if points were inside regions.</p>
+<p>The function returns a boolean DataArray where each element indicates
+whether a point in the input <code class="docutils literal notranslate"><span class="pre">data</span></code> lies within the corresponding RoIs
+in <code class="docutils literal notranslate"><span class="pre">regions</span></code>. The original dimensions of <code class="docutils literal notranslate"><span class="pre">data</span></code> are preserved, except
+for the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension which is replaced by the <code class="docutils literal notranslate"><span class="pre">region</span></code>
+dimension. The <code class="docutils literal notranslate"><span class="pre">region</span></code> dimension has a number of elements equal to
+the number of RoIs in the <code class="docutils literal notranslate"><span class="pre">regions</span></code> argument and it’s coordinate names
+correspond to the names of the given RoIs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – Spatial data to check for inclusion within the <code class="docutils literal notranslate"><span class="pre">regions</span></code>. Must be
+compatible with the <code class="docutils literal notranslate"><span class="pre">data</span></code> argument to <a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.contains_point" title="movement.roi.base.BaseRegionOfInterest.contains_point"><code class="xref py py-func docutils literal notranslate"><span class="pre">contains_point</span></code></a>.</p></li>
+<li><p><strong>regions</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest"><em>BaseRegionOfInterest</em></a><em>]</em>) – Regions of Interest that the points in <code class="docutils literal notranslate"><span class="pre">data</span></code> will be checked
+against, to see if they lie inside.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A boolean <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> providing occupancy information.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)">xarray.DataArray</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolygonOfInterest</span><span class="p">,</span> <span class="n">compute_region_occupancy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">square</span> <span class="o">=</span> <span class="n">PolygonOfInterest</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;square&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">triangle</span> <span class="o">=</span> <span class="n">PolygonOfInterest</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;triangle&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">occupancies</span> <span class="o">=</span> <span class="n">compute_region_occupancy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="n">square</span><span class="p">,</span> <span class="n">triangle</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">occupancies</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;square&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="go">np.array([True, True])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">occupancies</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;triangle&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="go">np.array([True, False])</span>
+</pre></div>
 </div>
+<p class="rubric">Notes</p>
+<p>When RoIs in <code class="docutils literal notranslate"><span class="pre">regions</span></code> have identical names, a suffix
+will be appended to their name in the form of “_X”, where “X” is a number
+starting from 0. These numbers are zero-padded depending on the maximum
+number of regions with identical names (e.g. if there are 100 RoIs with the
+same name, “00” will be appended to the first of them)</p>
+<p>Regions with unique names will retain their original name as their
+corresponding coordinate name.</p>
+</dd></dl>
+
 </section>
 
 <div class="section ablog__blog_comments">
@@ -580,20 +631,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.sample_data.list_datasets.html"
+       href="movement.roi.conditions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">list_datasets</p>
+        <p class="prev-next-title">movement.roi.conditions</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.transforms.scale.html"
+       href="movement.roi.line.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">scale</p>
+        <p class="prev-next-title">movement.roi.line</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -609,10 +660,22 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.conditions.compute_region_occupancy"><code class="docutils literal notranslate"><span class="pre">compute_region_occupancy()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.transforms.rst.txt"
+      <li><a href="../_sources/api/movement.roi.conditions.compute_region_occupancy.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.transforms &#8212; movement</title>
+    <title>movement.roi.conditions &#8212; movement</title>
   
   
   
@@ -49,13 +49,13 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.transforms';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.transforms.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.roi.conditions';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.roi.conditions.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="scale" href="movement.transforms.scale.html" />
-    <link rel="prev" title="list_datasets" href="movement.sample_data.list_datasets.html" /> 
+    <link rel="next" title="compute_region_occupancy" href="movement.roi.conditions.compute_region_occupancy.html" />
+    <link rel="prev" title="BaseRegionOfInterest" href="movement.roi.base.BaseRegionOfInterest.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -425,7 +425,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html">BaseRegionOfInterest</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.roi.conditions.html">movement.roi.conditions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.roi.conditions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.conditions.compute_region_occupancy.html">compute_region_occupancy</a></li>
 </ul>
 </details></li>
@@ -443,7 +443,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
@@ -535,7 +535,7 @@
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.transforms</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.roi.conditions</span></li>
   </ul>
 </nav>
 </div>
@@ -551,15 +551,15 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="movement-transforms">
-<h1>movement.transforms<a class="headerlink" href="#movement-transforms" title="Link to this heading">#</a></h1>
+                   <section id="movement-roi-conditions">
+<h1>movement.roi.conditions<a class="headerlink" href="#movement-roi-conditions" title="Link to this heading">#</a></h1>
 <p class="rubric">Description</p>
-<p id="module-movement.transforms">Transform and add unit attributes to xarray.DataArray datasets.</p>
+<p id="module-movement.roi.conditions">Functions for computing condition arrays involving RoIs.</p>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a></p></td>
-<td><p>Scale data by a given factor with an optional unit.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.roi.conditions.compute_region_occupancy.html#movement.roi.conditions.compute_region_occupancy" title="movement.roi.conditions.compute_region_occupancy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_region_occupancy</span></code></a></p></td>
+<td><p>Return a condition array indicating if points were inside regions.</p></td>
 </tr>
 </tbody>
 </table>
@@ -580,20 +580,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.sample_data.list_datasets.html"
+       href="movement.roi.base.BaseRegionOfInterest.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">list_datasets</p>
+        <p class="prev-next-title">BaseRegionOfInterest</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.transforms.scale.html"
+       href="movement.roi.conditions.compute_region_occupancy.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">scale</p>
+        <p class="prev-next-title">compute_region_occupancy</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -612,7 +612,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.transforms.rst.txt"
+      <li><a href="../_sources/api/movement.roi.conditions.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

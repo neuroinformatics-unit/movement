@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../_static/documentation_options.js?v=938c9ccc"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.1.0</p>
+    <p class="title logo__title">movement v0.2.0</p>
   
 </a></div>
     
@@ -440,13 +440,22 @@ We will use <code class="docutils literal notranslate"><span class="pre">movemen
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 Conda</label><div class="sd-tab-content docutils">
-<p>Create and activate an environment with movement installed:</p>
+<p>To create an environment with the core package only:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>movement
-conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </pre></div>
 </div>
-<p>This will install all dependencies, including <a class="reference external" href="https://napari.org/dev/">napari</a>,
-which provides the GUI for movement.</p>
+<p>If you wish to use the GUI, which additionally requires <a class="reference external" href="https://napari.org/dev/">napari</a>,
+you should instead run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-env<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>movement<span class="w"> </span>napari<span class="w"> </span>pyqt
+</pre></div>
+</div>
+<p>You may exchange <code class="docutils literal notranslate"><span class="pre">pyqt</span></code> for <code class="docutils literal notranslate"><span class="pre">pyside2</span></code> if you prefer.
+See <a class="reference external" href="https://napari.org/dev/tutorials/fundamentals/installation.html">napari’s installation guide</a>
+for more information on the backends.</p>
+<p>To activate the environment:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>movement-env
+</pre></div>
+</div>
 </div>
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1">
@@ -462,7 +471,8 @@ conda<span class="w"> </span>activate<span class="w"> </span>movement-env
 </div>
 <p>If you wish to use the GUI, which additionally requires <a class="reference external" href="https://napari.org/dev/">napari</a>,
 you should instead run:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement<span class="o">[</span>napari<span class="o">]</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement<span class="o">[</span>napari<span class="o">]</span><span class="w">   </span><span class="c1"># works on most shells</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;movement[napari]&#39;</span><span class="w"> </span><span class="c1"># works on zsh (default shell on macOS)</span>
 </pre></div>
 </div>
 </div>

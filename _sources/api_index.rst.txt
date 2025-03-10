@@ -25,6 +25,7 @@ Information on specific functions, classes, and methods.
     movement.plots.occupancy
     movement.plots.trajectory
     movement.roi.base
+    movement.roi.conditions
     movement.roi.line
     movement.roi.polygon
     movement.sample_data

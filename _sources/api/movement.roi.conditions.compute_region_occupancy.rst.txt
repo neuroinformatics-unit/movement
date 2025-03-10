@@ -1,0 +1,6 @@
+compute\_region\_occupancy
+==========================
+
+.. currentmodule:: movement.roi.conditions
+
+.. autofunction:: compute_region_occupancy
