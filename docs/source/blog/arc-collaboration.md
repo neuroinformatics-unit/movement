@@ -19,7 +19,7 @@ Once these features were in place, development would start on supporting "Region
 RoIs are essentially labelled regions in space that have some significance in the experimental setup - the location of a nest, or the extent of the enclosure, for example.
 By providing a way to store and describe these objects within `movement`, analysis workflows can be simplified and can make use of the existing "backend" functions to provide convenient access to interesting quantities; such as the distance of each individual from a RoI, or the relative orientation of an individual from the nearest wall of the enclosure.
 
-There were also a few independent bursts of development in other areas; including providing sample pupilometry data and an example workflow showing how `movement` can be used to analyse it, making it easier to produce common plots that appear in analysis, and the ability to scale data.
+There were also a few independent bursts of development in other areas; including providing sample pupillometry data and an example workflow showing how `movement` can be used to explore different aspects of the data (e.g. position, velocity, and diameter of the pupil), and how to normalise and filter the data.
 
 A copy of the original roadmap that was [shared on Zulip](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Roadmap.3A.20Spatial.20Navigation/near/495022291) is provided below.
 
@@ -29,7 +29,7 @@ A copy of the original roadmap that was [shared on Zulip](https://neuroinformati
 
 In addition to the topic listed below, we have also introduced the following smaller, self-contained features to `movement`:
 
-- We have new sample datasets available, including two eye-movement tracking (pupilometry) datasets. An example of how to analyse the pupilometry data using `movement` is also [under development](https://github.com/neuroinformatics-unit/movement/pull/429).
+- We have new sample datasets available, including two eye-movement tracking (pupillometry) datasets. An example of how to analyse this data using `movement` was introduced in [#429](https://github.com/neuroinformatics-unit/movement/pull/429) and can be found [here](https://movement.neuroinformatics.dev/examples/mouse_eye_movements.html#sphx-glr-examples-mouse-eye-movements-py).
 - It is now possible to scale `DataArray`s expressed in pixels into other units via the {func}`movement.transforms.scale` function. Introduced in [#384](https://github.com/neuroinformatics-unit/movement/pull/384).
 
 Additionally, we have begun planning our approach to supporting annotations in time, via what we are calling [condition arrays](https://github.com/neuroinformatics-unit/movement/issues/418).
@@ -45,7 +45,7 @@ The {mod}`movement.plots` submodule has been created, which provides some helpfu
 These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate `matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use;
 
-- `plot_trajectory`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](https://github.com/neuroinformatics-unit/movement/pull/394).
+- `plot_centroid_trajectory`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](https://github.com/neuroinformatics-unit/movement/pull/394).
 - `plot_occupancy`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](https://github.com/neuroinformatics-unit/movement/pull/403).
 
 Examples to showcase the use of these plotting functions are currently [being produced](https://github.com/neuroinformatics-unit/movement/issues/415).
@@ -75,6 +75,8 @@ Highlights include;
 - Determining the distance from a given point(s) to the closest point on the RoI, {func}`movement.roi.base.BaseRegionOfInterest.compute_distance_to`.
 - Determining the approach vector from a given point(s) to the RoI, {func}`movement.roi.base.BaseRegionOfInterest.compute_approach_vector`.
 - Determining egocentric and allocentric boundary angles, relative to a given RoI. See {func}`movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point` and {func}`movement.roi.base.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point` for more information.
+
+### What's next?
 
 We have [an example underway](https://github.com/neuroinformatics-unit/movement/issues/415) that will demonstrate how to load in a dataset, define a region of interest, and query the loaded trajectories for the time periods when they were inside or outside the defined region.
 We also have [another example in the works](https://github.com/neuroinformatics-unit/movement/pull/440) that will go through the boundary-angle methods.
