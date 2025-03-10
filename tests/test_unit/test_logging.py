@@ -10,14 +10,14 @@ log_methods = ["debug", "info", "warning", "error", "exception"]
 
 
 @pytest.mark.parametrize("method", log_methods)
-def test_log_to_file(method, setup_logging):
+def test_log_to_file(method):
     """Ensure the correct logger method is called and
     the expected message is in the logfile.
     """
     log_method = getattr(logging, f"log_{method}")
     log_message = f"{method} message"
     log_method(log_message)
-    with open(setup_logging) as f:
+    with open(pytest.LOG_FILE) as f:
         all_lines = f.readlines()
     # For exceptions, the last line is the traceback
     last_line = all_lines[-1] if method != "exception" else all_lines[-2]

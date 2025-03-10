@@ -22,25 +22,21 @@ pytest_plugins = [
 ]
 
 
-def pytest_configure():
-    """Perform initial configuration for pytest."""
-    # Fetch pose data file paths as a dictionary for tests.
+def pytest_sessionstart(session):
+    """Set up logging to file and fetch pose data file paths."""
+    # Set up log file in a temporary directory
+    tmp_path_factory = session.config._tmp_path_factory
+    pytest.LOG_FILE = configure_logging(
+        log_file_name=".movement-test",
+        log_directory=tmp_path_factory.mktemp(".movement"),
+        console=False,
+    )
+    # Fetch pose data file paths as a dictionary
     pytest.DATA_PATHS = {}
     for file_name in list_datasets():
         paths_dict = fetch_dataset_paths(file_name)
         data_path = paths_dict.get("poses") or paths_dict.get("bboxes")
         pytest.DATA_PATHS[file_name] = data_path
-
-
-@pytest.fixture(scope="session")
-def setup_logging(tmp_path_factory):
-    """Set up logging for the test module.
-    Redirects all logging to a temporary directory.
-    """
-    return configure_logging(
-        log_file_name="movement-test",
-        log_directory=tmp_path_factory.mktemp(".movement"),
-    )
 
 
 @pytest.fixture

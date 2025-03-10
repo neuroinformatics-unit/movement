@@ -14,13 +14,14 @@ DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 def configure_logging(
     log_file_name: str = "movement",
     log_directory: Path = DEFAULT_LOG_DIRECTORY,
+    console: bool = True,
 ) -> str:
-    """Configure a console and rotating file logger.
+    """Configure a rotating file logger and optionally a console logger.
 
-    This function sets up a console (``sys.stderr``) logger
-    that logs at the WARNING level
-    and a rotating log file that logs at the DEBUG level,
+    This function sets up a rotating log file that logs at the DEBUG level,
     with a maximum size of 5 MB and retains the last 5 log files.
+    A console logger (``sys.stderr``) is also added by default,
+    that logs at the WARNING level.
 
     Parameters
     ----------
@@ -30,6 +31,8 @@ def configure_logging(
         The directory to store the log file in. Defaults to
         ~/.movement. A different directory can be specified,
         for example for testing purposes.
+    console : bool, optional
+        Whether to add a console logger. Defaults to ``True``.
 
     Returns
     -------
@@ -42,8 +45,9 @@ def configure_logging(
     log_file = (log_directory / f"{log_file_name}.log").as_posix()
     # Remove any existing handlers
     logger.remove()
-    # Add a stderr handler and a rotating file handler
-    logger.add(sys.stderr, level="WARNING")
+    # Add handler(s)
+    if console:
+        logger.add(sys.stderr, level="WARNING")
     logger.add(log_file, level="DEBUG", rotation="5 MB", retention=5)
     return log_file
 
@@ -52,8 +56,8 @@ def log_redirect(func: Callable):
     """Redirect logging calls to the appropriate logger method.
 
     This decorator is used to redirect a function in the format
-    `log_<method>` to the appropriate ``loguru logger`` method
-    (e.g. `log_info` to `logger.info`) and log the ``message``.
+    ``log_<method>`` to the appropriate ``loguru logger`` method
+    (e.g. ``log_info`` to ``logger.info``) and log the ``message``.
     The function should accept either one or two arguments.
     If one argument is passed, it is assumed to be the ``message`` to log.
     If two arguments are passed, the first is assumed to be an
