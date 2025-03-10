@@ -682,7 +682,10 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[1]
     # Create the time coordinate, depending on the value of fps
-    if data.fps is not None:
+    if data.timestamps is not None:
+        time_coords = data.timestamps
+        time_unit = "seconds"
+    elif data.timestamps is None and data.fps is not None:
         time_coords = np.arange(n_frames, dtype=float) / data.fps
         time_unit = "seconds"
     else:
@@ -706,6 +709,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
         },
         attrs={
             "fps": data.fps,
+            "timestamps": data.timestamps,
             "time_unit": time_unit,
             "source_software": data.source_software,
             "source_file": None,
