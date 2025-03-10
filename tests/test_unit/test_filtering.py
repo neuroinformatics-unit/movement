@@ -33,7 +33,7 @@ class TestFilteringValidDataset:
     @pytest.mark.parametrize(
         ("filter_func, filter_kwargs"),
         [
-            (median_filter, {"window": 3}),
+            (median_filter, {"window": 3, "print_report": True}),
             (savgol_filter, {"window": 3, "polyorder": 2}),
         ],
     )
@@ -70,7 +70,7 @@ class TestFilteringValidDataset:
     @pytest.mark.parametrize(
         "override_kwargs, expected_exception",
         [
-            ({"mode": "nearest"}, does_not_raise()),
+            ({"mode": "nearest", "print_report": True}, does_not_raise()),
             ({"axis": 1}, pytest.raises(ValueError)),
             ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
         ],
@@ -132,7 +132,10 @@ class TestFilteringValidDatasetWithNaNs:
         for time_unit in ["frames", "seconds"]:
             # interpolate
             position_interp = interpolate_over_time(
-                position[time_unit], method="linear", max_gap=max_gap
+                position[time_unit],
+                method="linear",
+                max_gap=max_gap,
+                print_report=True,
             )
             # count nans
             n_nans_after_per_time_unit[time_unit] = helpers.count_nans(
@@ -204,6 +207,7 @@ def test_filter_by_confidence_on_position(
         valid_input_dataset.position,
         confidence=valid_input_dataset.confidence,
         threshold=0.6,
+        print_report=True,
     )
     # Count number of NaNs in the full array
     n_nans = helpers.count_nans(position_filtered)
