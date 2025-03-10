@@ -8,7 +8,6 @@ from pathlib import Path
 
 from loguru import logger
 
-FORMAT = "{time} - {level} - {process.name} {file}:{line} - {message}"
 DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
@@ -16,11 +15,12 @@ def configure_logging(
     log_file_name: str = "movement",
     log_directory: Path = DEFAULT_LOG_DIRECTORY,
 ) -> str:
-    """Configure a rotating log file.
+    """Configure a console and rotating file logger.
 
-    This function sets up a rotating log file that logs at the DEBUG level
+    This function sets up a console (``sys.stderr``) logger
+    that logs at the WARNING level
+    and a rotating log file that logs at the DEBUG level,
     with a maximum size of 5 MB and retains the last 5 log files.
-    This is in addition to the default loguru logging to ``sys.stderr``.
 
     Parameters
     ----------
@@ -40,10 +40,11 @@ def configure_logging(
     # Set the log directory and file path
     log_directory.mkdir(parents=True, exist_ok=True)
     log_file = (log_directory / f"{log_file_name}.log").as_posix()
-    # Add a rotating file handler
-    logger.add(
-        log_file, level="DEBUG", format=FORMAT, rotation="5 MB", retention=5
-    )
+    # Remove any existing handlers
+    logger.remove()
+    # Add a stderr handler and a rotating file handler
+    logger.add(sys.stderr, level="WARNING")
+    logger.add(log_file, level="DEBUG", rotation="5 MB", retention=5)
     return log_file
 
 
