@@ -182,6 +182,11 @@ class DataLoader(QWidget):
                 self.expected_frame_range,
             ) + self.viewer.dims.range[1:]
 
+        # Set slider to first frame
+        self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
+            2:
+        ]
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
 
