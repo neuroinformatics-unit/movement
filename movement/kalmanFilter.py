@@ -1,6 +1,6 @@
-from filterpy.kalman import KalmanFilter
 import numpy as np
 import xarray as xr
+from filterpy.kalman import KalmanFilter
 
 
 def create_kalman_filter(
@@ -10,13 +10,11 @@ def create_kalman_filter(
     covariance_matrix: int = 10,
     dt: float = 1 / 40,
 ) -> xr.DataArray:
-    """
-    General Kalman filter for different motion models.
+    """General Kalman filter for different motion models.
 
     model_type:
         - "pos_vel" (Position + velocity)
     """
-
     if model_type == "pos_vel":
         dim_x, dim_z = 4, 2
         F = np.array(
@@ -40,6 +38,7 @@ def create_kalman_filter(
 def fit_kalman(
     data: xr.DataArray, Kalman_filter: create_kalman_filter
 ) -> xr.DataArray:
+    """Fit the Kalman filter on the data using this function."""
     filtered_data = data.values
     num_time_steps, _, num_keypoints, num_individuals = filtered_data.shape
 
