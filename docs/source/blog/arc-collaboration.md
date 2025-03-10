@@ -11,6 +11,12 @@ language: English
 
 _This is a short summary of the spatial navigation features introduced during Jan-Feb 2025._
 
+This work was part of a collaboration involving Sepiedeh Keshavarzi (Cambridge University), ARC (UCL), and the core `movement` development team and has been funded by the Wellcome Trust.
+
+*At a glance*
+- **Regions of Interest**: An RoI backend was added for analysis of RoIs, allowing future development of the napari plugin. 
+- **Plot Wrapper Functions**: Added to aid in initial "eyeballing" of data, making it easy to create common analysis plots with a single line of code.
+- **New examples**: [Extend your analysis methods along data dimensions](https://movement.neuroinformatics.dev/examples/broadcasting_your_own_methods.html#sphx-glr-examples-broadcasting-your-own-methods-py), [Pupil tracking](https://movement.neuroinformatics.dev/examples/mouse_eye_movements.html).
 ## Original Roadmap
 
 Between January and February 2025, the `movement` developer team decided to focus on expanding the suite of tools useful for the analysis of spatial navigation.
