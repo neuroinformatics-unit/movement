@@ -16,11 +16,10 @@ from movement.utils.logging import (  # type: ignore[attr-defined]
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
-        # user-fixable event; warnings.warn
-        # but also operational event; logging.warn
         log_warning(
             f"Invalid value ({value}). Expected a list of strings. "
-            "Converting to a list of length 1."
+            "Converting to a list of length 1.",
+            stacklevel=2,
         )
         return [value]
     elif isinstance(value, Iterable):
@@ -34,11 +33,10 @@ def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
 def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
-        # user-fixable event; warnings.warn
-        # but also operational event; logging.warn
         log_warning(
             f"Invalid fps value ({fps}). Expected a positive number. "
-            "Setting fps to None."
+            "Setting fps to None.",
+            stacklevel=2,
         )
         return None
     return fps
@@ -209,8 +207,6 @@ class ValidPosesDataset:
                 np.nan,
                 dtype="float32",
             )
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
@@ -219,8 +215,6 @@ class ValidPosesDataset:
             self.individual_names = [
                 f"individual_{i}" for i in range(position_array_shape[-1])
             ]
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
@@ -229,8 +223,6 @@ class ValidPosesDataset:
             self.keypoint_names = [
                 f"keypoint_{i}" for i in range(position_array_shape[2])
             ]
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
@@ -405,8 +397,6 @@ class ValidBboxesDataset:
                 np.nan,
                 dtype="float32",
             )
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Confidence array was not provided. "
                 "Setting to an array of NaNs."
@@ -416,8 +406,6 @@ class ValidBboxesDataset:
             self.individual_names = [
                 f"id_{i}" for i in range(position_array_shape[-1])
             ]
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
@@ -428,8 +416,6 @@ class ValidBboxesDataset:
         if self.frame_array is None:
             n_frames = position_array_shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            # user-fixable event; warnings.warn
-            # but also operational event; logging.warn
             log_warning(
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."

@@ -103,7 +103,6 @@ def _fetch_metadata(
     # if download fails, try loading an existing local metadata file,
     # otherwise raise an error
     except RequestException as exc_info:
-        # operational event to record: logging.warn
         if local_file_path.is_file():
             log_warning(
                 f"{failed_msg} Will use the existing local version instead."
