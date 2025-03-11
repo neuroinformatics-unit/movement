@@ -26,7 +26,7 @@ def test_log_to_file(method):
 
 def test_logger_repr():
     """Ensure the custom logger's representation equals the loguru logger."""
-    assert print(MovementLogger()) == print(loguru_logger)
+    assert repr(MovementLogger()) == repr(loguru_logger)
 
 
 @pytest.mark.parametrize(
