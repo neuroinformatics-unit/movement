@@ -11,8 +11,6 @@ from pathlib import Path
 import pooch
 import xarray
 import yaml
-
-# from loguru import logger
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses

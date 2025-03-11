@@ -5,7 +5,6 @@ from glob import glob
 import pytest
 from _pytest.logging import LogCaptureFixture
 
-# from loguru import logger
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import logger
 

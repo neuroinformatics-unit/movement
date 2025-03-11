@@ -2,7 +2,6 @@
 
 import xarray as xr
 
-# from loguru import logger
 from movement.utils.logging import logger
 
 
