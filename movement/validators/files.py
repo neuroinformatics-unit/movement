@@ -10,7 +10,7 @@ import h5py
 import pandas as pd
 from attrs import define, field, validators
 
-from movement.utils.logging import log_error  # type: ignore[attr-defined]
+from movement.utils.logging import logger
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 
@@ -65,9 +65,10 @@ class ValidFile:
     def _path_is_not_dir(self, attribute, value):
         """Ensure that the path does not point to a directory."""
         if value.is_dir():
-            raise log_error(
-                IsADirectoryError,
-                f"Expected a file path but got a directory: {value}.",
+            raise logger.error(
+                IsADirectoryError(
+                    f"Expected a file path but got a directory: {value}."
+                )
             )
 
     @path.validator
@@ -78,13 +79,13 @@ class ValidFile:
         """
         if "r" in self.expected_permission:
             if not value.exists():
-                raise log_error(
-                    FileNotFoundError, f"File {value} does not exist."
+                raise logger.error(
+                    FileNotFoundError(f"File {value} does not exist.")
                 )
         else:  # expected_permission is "w"
             if value.exists():
-                raise log_error(
-                    FileExistsError, f"File {value} already exists."
+                raise logger.error(
+                    FileExistsError(f"File {value} already exists.")
                 )
 
     @path.validator
@@ -96,26 +97,29 @@ class ValidFile:
         file_is_readable = os.access(value, os.R_OK)
         parent_is_writeable = os.access(value.parent, os.W_OK)
         if ("r" in self.expected_permission) and (not file_is_readable):
-            raise log_error(
-                PermissionError,
-                f"Unable to read file: {value}. "
-                "Make sure that you have read permissions.",
+            raise logger.error(
+                PermissionError(
+                    f"Unable to read file: {value}. "
+                    "Make sure that you have read permissions."
+                )
             )
         if ("w" in self.expected_permission) and (not parent_is_writeable):
-            raise log_error(
-                PermissionError,
-                f"Unable to write to file: {value}. "
-                "Make sure that you have write permissions.",
+            raise logger.error(
+                PermissionError(
+                    f"Unable to write to file: {value}. "
+                    "Make sure that you have write permissions."
+                )
             )
 
     @path.validator
     def _file_has_expected_suffix(self, attribute, value):
         """Ensure that the file has one of the expected suffix(es)."""
         if self.expected_suffix and value.suffix not in self.expected_suffix:
-            raise log_error(
-                ValueError,
-                f"Expected file with suffix(es) {self.expected_suffix} "
-                f"but got suffix {value.suffix} instead.",
+            raise logger.error(
+                ValueError(
+                    f"Expected file with suffix(es) {self.expected_suffix} "
+                    f"but got suffix {value.suffix} instead."
+                )
             )
 
 
@@ -154,9 +158,10 @@ class ValidHDF5:
             with h5py.File(value, "r") as f:
                 f.close()
         except Exception as e:
-            raise log_error(
-                ValueError,
-                f"File {value} does not seem to be in validHDF5 format.",
+            raise logger.error(
+                ValueError(
+                    f"File {value} does not seem to be in validHDF5 format."
+                )
             ) from e
 
     @path.validator
@@ -166,11 +171,12 @@ class ValidHDF5:
             with h5py.File(value, "r") as f:
                 diff = set(self.expected_datasets).difference(set(f.keys()))
                 if len(diff) > 0:
-                    raise log_error(
-                        ValueError,
-                        f"Could not find the expected dataset(s) {diff} "
-                        f"in file: {value}. Make sure that the file "
-                        "matches the expected source software format.",
+                    raise logger.error(
+                        ValueError(
+                            f"Could not find the expected dataset(s) {diff} "
+                            f"in file: {value}. Make sure that the file "
+                            "matches the expected source software format."
+                        )
                     )
 
 
@@ -215,10 +221,11 @@ class ValidDeepLabCutCSV:
                 expected_levels.insert(1, "individuals")
 
             if top4_row_starts != expected_levels:
-                raise log_error(
-                    ValueError,
-                    ".csv header rows do not match the known format for "
-                    "DeepLabCut pose estimation output files.",
+                raise logger.error(
+                    ValueError(
+                        ".csv header rows do not match the known format for "
+                        "DeepLabCut pose estimation output files."
+                    )
                 )
 
 
@@ -276,10 +283,11 @@ class ValidAniposeCSV:
 
         # Check that all expected headers are present
         if not all(col in columns for col in expected_non_keypoint_columns):
-            raise log_error(
-                ValueError,
-                "CSV file is missing some expected columns."
-                f"Expected: {expected_non_keypoint_columns}.",
+            raise logger.error(
+                ValueError(
+                    "CSV file is missing some expected columns."
+                    f"Expected: {expected_non_keypoint_columns}."
+                )
             )
 
         # For other headers, check they have expected suffixes and base names
@@ -291,9 +299,10 @@ class ValidAniposeCSV:
             if not any(
                 column.endswith(suffix) for suffix in expected_column_suffixes
             ):
-                raise log_error(
-                    ValueError,
-                    f"Column {column} ends with an unexpected suffix.",
+                raise logger.error(
+                    ValueError(
+                        f"Column {column} ends with an unexpected suffix."
+                    )
                 )
             # Get base name by removing suffix
             base = column.rsplit("_", 1)[0]
@@ -302,11 +311,12 @@ class ValidAniposeCSV:
                 f"{base}{suffix}" in columns
                 for suffix in expected_column_suffixes
             ):
-                raise log_error(
-                    ValueError,
-                    f"Keypoint {base} is missing some expected suffixes."
-                    f"Expected: {expected_column_suffixes};"
-                    f"Got: {columns}.",
+                raise logger.error(
+                    ValueError(
+                        f"Keypoint {base} is missing some expected suffixes."
+                        f"Expected: {expected_column_suffixes};"
+                        f"Got: {columns}."
+                    )
                 )
 
 
@@ -358,11 +368,12 @@ class ValidVIATracksCSV:
             header = f.readline().strip("\n").split(",")
 
             if header != expected_header:
-                raise log_error(
-                    ValueError,
-                    ".csv header row does not match the known format for "
-                    "VIA tracks .csv files. "
-                    f"Expected {expected_header} but got {header}.",
+                raise logger.error(
+                    ValueError(
+                        ".csv header row does not match the known format for "
+                        "VIA tracks .csv files. "
+                        f"Expected {expected_header} but got {header}."
+                    )
                 )
 
     @path.validator
@@ -405,12 +416,13 @@ class ValidVIATracksCSV:
 
         # Check we have as many unique frame numbers as unique image files
         if len(set(list_frame_numbers)) != len(df.filename.unique()):
-            raise log_error(
-                ValueError,
-                "The number of unique frame numbers does not match the number "
-                "of unique image files. Please review the VIA tracks .csv "
-                "file and ensure a unique frame number is defined for each "
-                "file. ",
+            raise logger.error(
+                ValueError(
+                    "The number of unique frame numbers does not match "
+                    "the number of unique image files. Please review the "
+                    "VIA tracks .csv file and ensure a unique frame number "
+                    "is defined for each file. "
+                )
             )
 
     def _extract_frame_numbers_from_file_attributes(
@@ -422,11 +434,12 @@ class ValidVIATracksCSV:
             try:
                 list_frame_numbers.append(int(k["frame"]))
             except ValueError as e:
-                raise log_error(
-                    ValueError,
-                    f"{df.filename.iloc[k_i]} (row {k_i}): "
-                    "'frame' file attribute cannot be cast as an integer. "
-                    f"Please review the file attributes: {k}.",
+                raise logger.error(
+                    ValueError(
+                        f"{df.filename.iloc[k_i]} (row {k_i}): "
+                        "'frame' file attribute cannot be cast as an integer. "
+                        f"Please review the file attributes: {k}."
+                    )
                 ) from e
         return list_frame_numbers
 
@@ -438,31 +451,34 @@ class ValidVIATracksCSV:
             try:
                 regex_match = re.search(self.frame_regexp, f)
             except re.error as e:
-                raise log_error(
-                    re.error,
-                    "The provided regular expression for the frame "
-                    f"numbers ({self.frame_regexp}) could not be compiled."
-                    " Please review its syntax.",
+                raise logger.error(
+                    re.error(
+                        "The provided regular expression for the frame "
+                        f"numbers ({self.frame_regexp}) could not be compiled."
+                        " Please review its syntax."
+                    )
                 ) from e
             # try extracting the frame number from the filename using the
             # compiled regexp
             try:
                 list_frame_numbers.append(int(regex_match.group(1)))
             except AttributeError as e:
-                raise log_error(
-                    AttributeError,
-                    f"{f} (row {f_i}): The provided frame regexp "
-                    f"({self.frame_regexp}) did not "
-                    "return any matches and a frame number could not "
-                    "be extracted from the filename.",
+                raise logger.error(
+                    AttributeError(
+                        f"{f} (row {f_i}): The provided frame regexp "
+                        f"({self.frame_regexp}) did not "
+                        "return any matches and a frame number could not "
+                        "be extracted from the filename."
+                    )
                 ) from e
             except ValueError as e:
-                raise log_error(
-                    ValueError,
-                    f"{f} (row {f_i}): "
-                    "The frame number extracted from the filename using "
-                    f"the provided regexp ({self.frame_regexp}) could not "
-                    "be cast as an integer.",
+                raise logger.error(
+                    ValueError(
+                        f"{f} (row {f_i}): "
+                        "The frame number extracted from the filename using "
+                        f"the provided regexp ({self.frame_regexp}) could not "
+                        "be cast as an integer."
+                    )
                 ) from e
 
         return list_frame_numbers
@@ -489,12 +505,13 @@ class ValidVIATracksCSV:
 
             # check annotation is a rectangle
             if row_region_shape_attrs["name"] != "rect":
-                raise log_error(
-                    ValueError,
-                    f"{row.filename} (row {row.Index}): "
-                    "bounding box shape must be 'rect' (rectangular) "
-                    "but instead got "
-                    f"'{row_region_shape_attrs['name']}'.",
+                raise logger.error(
+                    ValueError(
+                        f"{row.filename} (row {row.Index}): "
+                        "bounding box shape must be 'rect' (rectangular) "
+                        "but instead got "
+                        f"'{row_region_shape_attrs['name']}'."
+                    )
                 )
 
             # check all geometric parameters for the box are defined
@@ -504,34 +521,37 @@ class ValidVIATracksCSV:
                     for key in ["x", "y", "width", "height"]
                 ]
             ):
-                raise log_error(
-                    ValueError,
-                    f"{row.filename} (row {row.Index}): "
-                    f"at least one bounding box shape parameter is missing. "
-                    "Expected 'x', 'y', 'width', 'height' to exist as "
-                    "'region_shape_attributes', but got "
-                    f"'{list(row_region_shape_attrs.keys())}'.",
+                raise logger.error(
+                    ValueError(
+                        f"{row.filename} (row {row.Index}): "
+                        "missing bounding box shape parameter(s). "
+                        "Expected 'x', 'y', 'width', 'height' to exist as "
+                        "'region_shape_attributes', but got "
+                        f"'{list(row_region_shape_attrs.keys())}'."
+                    )
                 )
 
             # check track ID is defined
             if "track" not in row_region_attrs:
-                raise log_error(
-                    ValueError,
-                    f"{row.filename} (row {row.Index}): "
-                    "bounding box does not have a 'track' attribute defined "
-                    "under 'region_attributes'. "
-                    "Please review the VIA tracks .csv file.",
+                raise logger.error(
+                    ValueError(
+                        f"{row.filename} (row {row.Index}): "
+                        "bounding box does not have a 'track' attribute "
+                        "defined under 'region_attributes'. "
+                        "Please review the VIA tracks .csv file."
+                    )
                 )
 
             # check track ID is castable as an integer
             try:
                 int(row_region_attrs["track"])
             except Exception as e:
-                raise log_error(
-                    ValueError,
-                    f"{row.filename} (row {row.Index}): "
-                    "the track ID for the bounding box cannot be cast "
-                    "as an integer. Please review the VIA tracks .csv file.",
+                raise logger.error(
+                    ValueError(
+                        f"{row.filename} (row {row.Index}): "
+                        "the track ID for the bounding box cannot be cast as "
+                        "an integer. Please review the VIA tracks .csv file."
+                    )
                 ) from e
 
     @path.validator
@@ -554,10 +574,11 @@ class ValidVIATracksCSV:
             if len(set(list_track_ids_one_filename)) != len(
                 list_track_ids_one_filename
             ):
-                raise log_error(
-                    ValueError,
-                    f"{file}: "
-                    "multiple bounding boxes in this file "
-                    "have the same track ID. "
-                    "Please review the VIA tracks .csv file.",
+                raise logger.error(
+                    ValueError(
+                        f"{file}: "
+                        "multiple bounding boxes in this file "
+                        "have the same track ID. "
+                        "Please review the VIA tracks .csv file."
+                    )
                 )

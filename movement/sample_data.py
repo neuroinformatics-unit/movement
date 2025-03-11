@@ -11,15 +11,12 @@ from pathlib import Path
 import pooch
 import xarray
 import yaml
-from loguru import logger
+
+# from loguru import logger
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses
-from movement.utils.logging import (  # type: ignore[attr-defined]
-    log_error,
-    log_exception,
-    log_warning,
-)
+from movement.utils.logging import logger
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -104,11 +101,11 @@ def _fetch_metadata(
     # otherwise raise an error
     except RequestException as exc_info:
         if local_file_path.is_file():
-            log_warning(
+            logger.warning(
                 f"{failed_msg} Will use the existing local version instead."
             )
         else:
-            raise log_exception(RequestException, failed_msg) from exc_info
+            raise logger.exception(RequestException(failed_msg)) from exc_info
 
     with open(local_file_path) as metadata_file:
         metadata = yaml.safe_load(metadata_file)
@@ -217,10 +214,11 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """
     available_data_files = list_datasets()
     if filename not in available_data_files:
-        raise log_error(
-            ValueError,
-            f"File '{filename}' is not in the registry. "
-            f"Valid filenames are: {available_data_files}",
+        raise logger.error(
+            ValueError(
+                f"File '{filename}' is not in the registry. "
+                f"Valid filenames are: {available_data_files}"
+            )
         )
 
     frame_file_name = metadata[filename]["frame"]["file_name"]

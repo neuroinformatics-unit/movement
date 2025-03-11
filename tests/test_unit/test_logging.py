@@ -1,10 +1,8 @@
-from contextlib import nullcontext as does_not_raise
-
 import pytest
 import xarray as xr
+from loguru import logger as loguru_logger
 
-from movement.utils import logging
-from movement.utils.logging import log_to_attrs
+from movement.utils.logging import MovementLogger, log_to_attrs, logger
 
 log_methods = ["debug", "info", "warning", "error", "exception"]
 
@@ -14,7 +12,7 @@ def test_log_to_file(method):
     """Ensure the correct logger method is called and
     the expected message is in the logfile.
     """
-    log_method = getattr(logging, f"log_{method}")
+    log_method = getattr(logger, method)
     log_message = f"{method} message"
     log_method(log_message)
     with open(pytest.LOG_FILE) as f:
@@ -26,20 +24,9 @@ def test_log_to_file(method):
     assert log_message in last_line
 
 
-@pytest.mark.parametrize("method", ["error", "exception"])
-@pytest.mark.parametrize("exception", [TypeError, None])
-@pytest.mark.parametrize("message", ["message str", None])
-def test_log_with_args(method, exception, message):
-    """Ensure only 1 or 2 arguments are passed to
-    the decorated logging functions.
-    """
-    log_method = getattr(logging, f"log_{method}")
-    args = tuple(arg for arg in (exception, message) if arg is not None)
-    expectation = (
-        does_not_raise() if len(args) in (1, 2) else pytest.raises(ValueError)
-    )
-    with expectation:
-        log_method(*args)
+def test_logger_repr():
+    """Ensure the custom logger's representation equals the loguru logger."""
+    assert print(MovementLogger()) == print(loguru_logger)
 
 
 @pytest.mark.parametrize(

@@ -7,9 +7,8 @@ import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
-from loguru import logger
 
-from movement.utils.logging import log_error  # type: ignore[attr-defined]
+from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile
 
@@ -199,10 +198,11 @@ def to_dlc_file(
         split_individuals = _auto_split_individuals(ds)
 
     elif not isinstance(split_individuals, bool):
-        raise log_error(
-            ValueError,
-            "Expected 'split_individuals' to be a boolean or 'auto', but got "
-            f"{type(split_individuals)}.",
+        raise logger.error(
+            ValueError(
+                "Expected 'split_individuals' to be a boolean or 'auto', "
+                f"but got {type(split_individuals)}."
+            )
         )
 
     if split_individuals:
@@ -415,7 +415,7 @@ def _validate_file_path(
         )
     except (OSError, ValueError) as error:
         logger.error(error)
-        raise error
+        raise
     return file
 
 
@@ -436,8 +436,8 @@ def _validate_dataset(ds: xr.Dataset) -> None:
 
     """
     if not isinstance(ds, xr.Dataset):
-        raise log_error(
-            TypeError, f"Expected an xarray Dataset, but got {type(ds)}."
+        raise logger.error(
+            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
         )
 
     missing_vars = set(ValidPosesDataset.VAR_NAMES) - set(ds.data_vars)

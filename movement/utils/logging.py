@@ -1,129 +1,84 @@
 """Logging utilities for the movement package."""
 
 import sys
-from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 
-from loguru import logger
+from loguru import logger as loguru_logger
 
 DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
-def configure_logging(
-    log_file_name: str = "movement",
-    log_directory: Path = DEFAULT_LOG_DIRECTORY,
-    console: bool = True,
-) -> str:
-    """Configure a rotating file logger and optionally a console logger.
+class MovementLogger:
+    """A custom logger extending the loguru logger."""
 
-    This function sets up a rotating log file that logs at the DEBUG level,
-    with a maximum size of 5 MB and retains the last 5 log files.
-    A console logger (``sys.stderr``) is also added by default,
-    that logs at the WARNING level.
+    def __init__(self):
+        """Initialize the logger with the loguru logger."""
+        self.logger = loguru_logger
 
-    Parameters
-    ----------
-    log_file_name : str, optional
-        The name of the log file. Defaults to "movement".
-    log_directory : pathlib.Path, optional
-        The directory to store the log file in. Defaults to
-        ~/.movement. A different directory can be specified,
-        for example for testing purposes.
-    console : bool, optional
-        Whether to add a console logger. Defaults to ``True``.
+    def configure(
+        self,
+        log_file_name: str = "movement",
+        log_directory: Path = DEFAULT_LOG_DIRECTORY,
+        console: bool = True,
+    ):
+        """Configure a rotating file logger and optionally a console logger.
 
-    Returns
-    -------
-    str
-        The path to the log file.
+        This method configures a rotating log file that
+        logs at the DEBUG level with a maximum size of 5 MB
+        and retains the last 5 log files.
+        It also optionally adds a console (``sys.stderr``) handler
+        that logs at the WARNING level.
 
-    """
-    # Set the log directory and file path
-    log_directory.mkdir(parents=True, exist_ok=True)
-    log_file = (log_directory / f"{log_file_name}.log").as_posix()
-    # Remove any existing handlers
-    logger.remove()
-    # Add handler(s)
-    if console:
-        logger.add(sys.stderr, level="WARNING")
-    logger.add(log_file, level="DEBUG", rotation="5 MB", retention=5)
-    return log_file
+        Parameters
+        ----------
+        log_file_name : str, optional
+            The name of the log file. Defaults to ``"movement"``.
+        log_directory : pathlib.Path, optional
+            The directory to store the log file in. Defaults to
+            ``"~/.movement"``. A different directory can be specified,
+            for example, for testing purposes.
+        console : bool, optional
+            Whether to add a console logger. Defaults to ``True``.
 
+        """
+        log_directory.mkdir(parents=True, exist_ok=True)
+        log_file = (log_directory / f"{log_file_name}.log").as_posix()
+        self.remove()
+        if console:
+            self.add(sys.stderr, level="WARNING")
+        self.add(log_file, level="DEBUG", rotation="5 MB", retention=5)
+        return log_file
 
-def log_redirect(func: Callable):
-    """Redirect logging calls to the appropriate logger method.
+    def _log_and_return_exception(self, log_method, message, *args, **kwargs):
+        """Log the message and return an Exception if specified."""
+        log_method(message, *args, **kwargs)
+        if isinstance(message, Exception):
+            return message
 
-    This decorator is used to redirect a function in the format
-    ``log_<method>`` to the appropriate ``loguru logger`` method
-    (e.g. ``log_info`` to ``logger.info``) and log the ``message``.
-    The function should accept either one or two arguments.
-    If one argument is passed, it is assumed to be the ``message`` to log.
-    If two arguments are passed, the first is assumed to be an
-    Exception and the second is the ``message`` to log. This
-    Exception will be returned if the method is ``"error"`` or
-    ``"exception"``.
+    def error(self, message, *args, **kwargs):
+        """Override the error method to optionally return an Exception."""
+        return self._log_and_return_exception(
+            self.logger.error, message, *args, **kwargs
+        )
 
-    Parameters
-    ----------
-    func : Callable
-        The function to be decorated.
-        The function name must be in the format `log_<method>`.
+    def exception(self, message, *args, **kwargs):
+        """Override the exception method to optionally return an exception."""
+        return self._log_and_return_exception(
+            self.logger.exception, message, *args, **kwargs
+        )
 
-    Returns
-    -------
-    Callable
-        The decorated function.
+    def __getattr__(self, name):
+        """Redirect attribute access to the loguru logger."""
+        return getattr(self.logger, name)
 
-    Raises
-    ------
-    ValueError
-        If the number of arguments passed to
-        the decorated function is not 1 or 2.
-
-    Example
-    -------
-    >>> @log_redirect
-    ... def log_info(message: str):
-    ...     pass
-    >>> log_info("This is an info message.")
-    >>> @log_redirect
-    ... def log_error(exception: Exception, message: str):
-    ...     return exception(message)
-    >>> log_error(ValueError, "This is an error message.")
-
-    """
-
-    def wrapper(*args, **kwargs):
-        method = func.__name__.split("_")[1]
-        if len(args) == 1:
-            message = args[0]
-            exception = None
-        elif len(args) == 2:
-            exception = args[0]
-            message = args[1]
-        else:
-            raise ValueError("Invalid number of arguments. Must be 1 or 2.")
-        getattr(logger, method)(message)
-        if exception and method in ["error", "exception"]:
-            return exception(message)
-
-    return wrapper
+    def __repr__(self):
+        """Return the loguru logger's representation."""
+        return repr(self.logger)
 
 
-# Dynamically create log functions
-log_methods = ["debug", "info", "warning", "error", "exception"]
-for method in log_methods:
-    func_name = f"log_{method}"
-
-    # Create a new function
-    def log_function(*args, **kwargs):  # noqa: D103 # pragma: no cover
-        pass
-
-    # Change the name of the function
-    log_function.__name__ = func_name
-    setattr(sys.modules[__name__], func_name, log_redirect(log_function))
+logger = MovementLogger()
 
 
 def log_to_attrs(func):

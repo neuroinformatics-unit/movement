@@ -1,7 +1,9 @@
 """Utility functions for reporting missing data."""
 
 import xarray as xr
-from loguru import logger
+
+# from loguru import logger
+from movement.utils.logging import logger
 
 
 def calculate_nan_stats(

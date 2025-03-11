@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from movement.utils.logging import log_error  # type: ignore[attr-defined]
+from movement.utils.logging import logger
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -277,8 +277,9 @@ def compute_signed_angle_2d(
 
 
 def _raise_error_for_missing_spatial_dim() -> None:
-    raise log_error(
-        ValueError,
-        "Input data array must contain either 'space' or 'space_pol' "
-        "as dimensions.",
+    raise logger.error(
+        ValueError(
+            "Input data array must contain either 'space' or 'space_pol' "
+            "as dimensions."
+        )
     )

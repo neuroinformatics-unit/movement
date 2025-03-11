@@ -7,14 +7,10 @@ import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
-from loguru import logger
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.utils.logging import (  # type: ignore[attr-defined]
-    log_error,
-    log_warning,
-)
+from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import (
     ValidAniposeCSV,
@@ -152,8 +148,8 @@ def from_file(
     elif source_software == "Anipose":
         return from_anipose_file(file_path, fps, **kwargs)
     else:
-        raise log_error(
-            ValueError, f"Unsupported source software: {source_software}"
+        raise logger.error(
+            ValueError(f"Unsupported source software: {source_software}")
         )
 
 
@@ -468,7 +464,7 @@ def _ds_from_sleap_analysis_file(
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
-            log_warning(
+            logger.warning(
                 f"Could not find SLEAP Track in {file.path}. "
                 "Assuming single-individual dataset and assigning "
                 "default individual name."
@@ -512,7 +508,7 @@ def _ds_from_sleap_labels_file(
     tracks_with_scores = _sleap_labels_to_numpy(labels)
     individual_names = [track.name for track in labels.tracks] or None
     if individual_names is None:
-        log_warning(
+        logger.warning(
             f"Could not find SLEAP Track in {file.path}. "
             "Assuming single-individual dataset and assigning "
             "default individual name."

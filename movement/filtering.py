@@ -6,10 +6,7 @@ from typing import Literal
 import xarray as xr
 from scipy import signal
 
-from movement.utils.logging import (  # type: ignore[attr-defined]
-    log_error,
-    log_to_attrs,
-)
+from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
 
 
@@ -259,8 +256,8 @@ def savgol_filter(
 
     """
     if "axis" in kwargs:
-        raise log_error(
-            ValueError, "The 'axis' argument may not be overridden."
+        raise logger.error(
+            ValueError("The 'axis' argument may not be overridden.")
         )
     data_smoothed = data.copy()
     data_smoothed.values = signal.savgol_filter(

@@ -4,10 +4,10 @@ from glob import glob
 
 import pytest
 from _pytest.logging import LogCaptureFixture
-from loguru import logger
 
+# from loguru import logger
 from movement.sample_data import fetch_dataset_paths, list_datasets
-from movement.utils.logging import configure_logging
+from movement.utils.logging import logger
 
 
 def _to_module_string(path: str) -> str:
@@ -26,7 +26,7 @@ def pytest_sessionstart(session):
     """Set up logging to file and fetch pose data file paths."""
     # Set up log file in a temporary directory
     tmp_path_factory = session.config._tmp_path_factory
-    pytest.LOG_FILE = configure_logging(
+    pytest.LOG_FILE = logger.configure(
         log_file_name=".movement-test",
         log_directory=tmp_path_factory.mktemp(".movement"),
         console=False,

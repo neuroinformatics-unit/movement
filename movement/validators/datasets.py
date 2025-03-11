@@ -7,36 +7,31 @@ import attrs
 import numpy as np
 from attrs import converters, define, field, validators
 
-from movement.utils.logging import (  # type: ignore[attr-defined]
-    log_error,
-    log_warning,
-)
+from movement.utils.logging import logger
 
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
-        log_warning(
+        logger.warning(
             f"Invalid value ({value}). Expected a list of strings. "
-            "Converting to a list of length 1.",
-            stacklevel=2,
+            "Converting to a list of length 1."
         )
         return [value]
     elif isinstance(value, Iterable):
         return [str(item) for item in value]
     else:
-        raise log_error(
-            ValueError, f"Invalid value ({value}). Expected a list of strings."
+        raise logger.error(
+            ValueError(f"Invalid value ({value}). Expected a list of strings.")
         )
 
 
 def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
-        log_warning(
+        logger.warning(
             f"Invalid fps value ({fps}). Expected a positive number. "
-            "Setting fps to None.",
-            stacklevel=2,
+            "Setting fps to None."
         )
         return None
     return fps
@@ -45,8 +40,8 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 def _validate_type_ndarray(value: Any) -> None:
     """Raise ValueError the value is a not numpy array."""
     if not isinstance(value, np.ndarray):
-        raise log_error(
-            ValueError, f"Expected a numpy array, but got {type(value)}."
+        raise logger.error(
+            ValueError(f"Expected a numpy array, but got {type(value)}.")
         )
 
 
@@ -55,10 +50,11 @@ def _validate_array_shape(
 ):
     """Raise ValueError if the value does not have the expected shape."""
     if value.shape != expected_shape:
-        raise log_error(
-            ValueError,
-            f"Expected '{attribute.name}' to have shape {expected_shape}, "
-            f"but got {value.shape}.",
+        raise logger.error(
+            ValueError(
+                f"Expected '{attribute.name}' to have shape {expected_shape}, "
+                f"but got {value.shape}."
+            )
         )
 
 
@@ -67,10 +63,11 @@ def _validate_list_length(
 ):
     """Raise a ValueError if the list does not have the expected length."""
     if (value is not None) and (len(value) != expected_length):
-        raise log_error(
-            ValueError,
-            f"Expected '{attribute.name}' to have length {expected_length}, "
-            f"but got {len(value)}.",
+        raise logger.error(
+            ValueError(
+                f"Expected '{attribute.name}' to have "
+                f"length {expected_length}, but got {len(value)}."
+            )
         )
 
 
@@ -158,17 +155,19 @@ class ValidPosesDataset:
         _validate_type_ndarray(value)
         n_dims = value.ndim
         if n_dims != 4:
-            raise log_error(
-                ValueError,
-                f"Expected '{attribute.name}' to have 4 dimensions, "
-                f"but got {n_dims}.",
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have 4 dimensions, "
+                    f"but got {n_dims}."
+                )
             )
         space_dim_shape = value.shape[1]
         if space_dim_shape not in [2, 3]:
-            raise log_error(
-                ValueError,
-                f"Expected '{attribute.name}' to have 2 or 3 spatial "
-                f"dimensions, but got {space_dim_shape}.",
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have 2 or 3 spatial "
+                    f"dimensions, but got {space_dim_shape}."
+                )
             )
 
     @confidence_array.validator
@@ -207,7 +206,7 @@ class ValidPosesDataset:
                 np.nan,
                 dtype="float32",
             )
-            log_warning(
+            logger.warning(
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
@@ -215,7 +214,7 @@ class ValidPosesDataset:
             self.individual_names = [
                 f"individual_{i}" for i in range(position_array_shape[-1])
             ]
-            log_warning(
+            logger.warning(
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
             )
@@ -223,7 +222,7 @@ class ValidPosesDataset:
             self.keypoint_names = [
                 f"keypoint_{i}" for i in range(position_array_shape[2])
             ]
-            log_warning(
+            logger.warning(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
@@ -326,11 +325,12 @@ class ValidBboxesDataset:
         n_expected_spatial_coordinates = 2
         n_spatial_coordinates = value.shape[1]
         if n_spatial_coordinates != n_expected_spatial_coordinates:
-            raise log_error(
-                ValueError,
-                f"Expected '{attribute.name}' to have "
-                f"{n_expected_spatial_coordinates} spatial coordinates, "
-                f"but got {n_spatial_coordinates}.",
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have "
+                    f"{n_expected_spatial_coordinates} spatial coordinates, "
+                    f"but got {n_spatial_coordinates}."
+                )
             )
 
     @individual_names.validator
@@ -343,11 +343,12 @@ class ValidBboxesDataset:
             # NOTE: combined with the requirement above, we are enforcing
             # unique IDs per frame
             if len(value) != len(set(value)):
-                raise log_error(
-                    ValueError,
-                    "individual_names passed to the dataset are not unique. "
-                    f"There are {len(value)} elements in the list, but "
-                    f"only {len(set(value))} are unique.",
+                raise logger.error(
+                    ValueError(
+                        "individual_names are not unique. "
+                        f"There are {len(value)} elements in the list, but "
+                        f"only {len(set(value))} are unique."
+                    )
                 )
 
     @confidence_array.validator
@@ -375,10 +376,11 @@ class ValidBboxesDataset:
             )
             # check frames are monotonically increasing
             if not np.all(np.diff(value, axis=0) >= 1):
-                raise log_error(
-                    ValueError,
-                    f"Frame numbers in {attribute.name} are not monotonically "
-                    "increasing.",
+                raise logger.error(
+                    ValueError(
+                        f"Frame numbers in {attribute.name} are "
+                        "not monotonically increasing."
+                    )
                 )
 
     # Define defaults
@@ -397,7 +399,7 @@ class ValidBboxesDataset:
                 np.nan,
                 dtype="float32",
             )
-            log_warning(
+            logger.warning(
                 "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
@@ -406,7 +408,7 @@ class ValidBboxesDataset:
             self.individual_names = [
                 f"id_{i}" for i in range(position_array_shape[-1])
             ]
-            log_warning(
+            logger.warning(
                 "Individual names for the bounding boxes "
                 "were not provided. "
                 "Setting to 0-based IDs that are unique per frame: \n"
@@ -416,7 +418,7 @@ class ValidBboxesDataset:
         if self.frame_array is None:
             n_frames = position_array_shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            log_warning(
+            logger.warning(
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )

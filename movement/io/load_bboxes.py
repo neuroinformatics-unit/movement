@@ -9,9 +9,8 @@ from typing import Literal
 import numpy as np
 import pandas as pd
 import xarray as xr
-from loguru import logger
 
-from movement.utils.logging import log_error  # type: ignore[attr-defined]
+from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
@@ -227,8 +226,8 @@ def from_file(
             frame_regexp=frame_regexp,
         )
     else:
-        raise log_error(
-            ValueError, f"Unsupported source software: {source_software}"
+        raise logger.error(
+            ValueError(f"Unsupported source software: {source_software}")
         )
 
 
