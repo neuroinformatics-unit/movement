@@ -1,5 +1,4 @@
-# D:\Programs\NIU\movement\movement\kinematics\spatial.py
-"""Compute spatial properties like distances."""
+"""Compute distances between points."""
 
 import itertools
 from typing import Literal
