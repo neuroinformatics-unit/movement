@@ -28,6 +28,7 @@ def from_numpy(
     confidence_array: np.ndarray | None = None,
     individual_names: list[str] | None = None,
     keypoint_names: list[str] | None = None,
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
@@ -52,6 +53,10 @@ def from_numpy(
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
         etc.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
@@ -88,6 +93,7 @@ def from_numpy(
         confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
+        timestamps=timestamps,
         fps=fps,
         source_software=source_software,
     )
@@ -99,6 +105,7 @@ def from_file(
     source_software: Literal[
         "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
     ],
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -114,6 +121,10 @@ def from_file(
         the value of ``source_software``.
     source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
         The source software of the file.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -143,13 +154,13 @@ def from_file(
 
     """
     if source_software == "DeepLabCut":
-        return from_dlc_file(file_path, fps)
+        return from_dlc_file(file_path, timestamps, fps)
     elif source_software == "SLEAP":
-        return from_sleap_file(file_path, fps)
+        return from_sleap_file(file_path, timestamps, fps)
     elif source_software == "LightningPose":
-        return from_lp_file(file_path, fps)
+        return from_lp_file(file_path, timestamps, fps)
     elif source_software == "Anipose":
-        return from_anipose_file(file_path, fps, **kwargs)
+        return from_anipose_file(file_path, timestamps, fps, **kwargs)
     else:
         raise log_error(
             ValueError, f"Unsupported source software: {source_software}"
@@ -159,6 +170,7 @@ def from_file(
 def from_dlc_style_df(
     df: pd.DataFrame,
     fps: float | None = None,
+    timestamps: np.ndarray | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
@@ -168,6 +180,10 @@ def from_dlc_style_df(
     df : pandas.DataFrame
         DataFrame containing the pose tracks and confidence scores. Must
         be formatted as in DeepLabCut output files (see Notes).
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -218,13 +234,16 @@ def from_dlc_style_df(
         confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=keypoint_names,
+        timestamps=timestamps,
         fps=fps,
         source_software=source_software,
     )
 
 
 def from_sleap_file(
-    file_path: Path | str, fps: float | None = None
+    file_path: Path | str,
+    timestamps: np.ndarray | None = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a SLEAP file.
 
@@ -234,6 +253,10 @@ def from_sleap_file(
         Path to the file containing the SLEAP predictions in .h5
         (analysis) format. Alternatively, a .slp (labels) file can
         also be supplied (but this feature is experimental, see Notes).
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -286,9 +309,9 @@ def from_sleap_file(
     )
     # Load and validate data
     if file.path.suffix == ".h5":
-        ds = _ds_from_sleap_analysis_file(file.path, fps=fps)
+        ds = _ds_from_sleap_analysis_file(file.path, timestamps, fps=fps)
     else:  # file.path.suffix == ".slp"
-        ds = _ds_from_sleap_labels_file(file.path, fps=fps)
+        ds = _ds_from_sleap_labels_file(file.path, timestamps, fps=fps)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
     logger.info(f"Loaded pose tracks from {file.path}:")
@@ -297,7 +320,9 @@ def from_sleap_file(
 
 
 def from_lp_file(
-    file_path: Path | str, fps: float | None = None
+    file_path: Path | str,
+    timestamps: np.ndarray | None = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a LightningPose file.
 
@@ -305,6 +330,10 @@ def from_lp_file(
     ----------
     file_path : pathlib.Path or str
         Path to the file containing the predicted poses, in .csv format.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -322,12 +351,17 @@ def from_lp_file(
 
     """
     return _ds_from_lp_or_dlc_file(
-        file_path=file_path, source_software="LightningPose", fps=fps
+        file_path=file_path,
+        source_software="LightningPose",
+        timestamps=timestamps,
+        fps=fps,
     )
 
 
 def from_dlc_file(
-    file_path: Path | str, fps: float | None = None
+    file_path: Path | str,
+    timestamps: np.ndarray | None = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a DeepLabCut file.
 
@@ -336,6 +370,10 @@ def from_dlc_file(
     file_path : pathlib.Path or str
         Path to the file containing the predicted poses, either in .h5
         or .csv format.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -357,13 +395,17 @@ def from_dlc_file(
 
     """
     return _ds_from_lp_or_dlc_file(
-        file_path=file_path, source_software="DeepLabCut", fps=fps
+        file_path=file_path,
+        source_software="DeepLabCut",
+        timestamps=timestamps,
+        fps=fps,
     )
 
 
 def from_multiview_files(
     file_path_dict: dict[str, Path | str],
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
 ) -> xr.Dataset:
     """Load and merge pose tracking data from multiple views (cameras).
@@ -374,6 +416,10 @@ def from_multiview_files(
         A dict whose keys are the view names and values are the paths to load.
     source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
         The source software of the file.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -388,7 +434,9 @@ def from_multiview_files(
     views_list = list(file_path_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [
-        from_file(f, source_software=source_software, fps=fps)
+        from_file(
+            f, source_software=source_software, timestamps=timestamps, fps=fps
+        )
         for f in file_path_dict.values()
     ]
     return xr.concat(dataset_list, dim=new_coord_views)
@@ -397,6 +445,7 @@ def from_multiview_files(
 def _ds_from_lp_or_dlc_file(
     file_path: Path | str,
     source_software: Literal["LightningPose", "DeepLabCut"],
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a LightningPose or DLC file.
@@ -408,6 +457,10 @@ def _ds_from_lp_or_dlc_file(
         or .csv format.
     source_software : {'LightningPose', 'DeepLabCut'}
         The source software of the file.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -433,7 +486,9 @@ def _ds_from_lp_or_dlc_file(
     )
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
-    ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
+    ds = from_dlc_style_df(
+        df=df, timestamps=timestamps, fps=fps, source_software=source_software
+    )
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
     logger.info(f"Loaded pose tracks from {file.path}:")
@@ -442,7 +497,9 @@ def _ds_from_lp_or_dlc_file(
 
 
 def _ds_from_sleap_analysis_file(
-    file_path: Path, fps: float | None
+    file_path: Path,
+    timestamps: np.ndarray | None = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.
 
@@ -450,6 +507,10 @@ def _ds_from_sleap_analysis_file(
     ----------
     file_path : pathlib.Path
         Path to the SLEAP analysis file containing predicted pose tracks.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
@@ -483,13 +544,16 @@ def _ds_from_sleap_analysis_file(
             confidence_array=scores.astype(np.float32),
             individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
+            timestamps=timestamps,
             fps=fps,
             source_software="SLEAP",
         )
 
 
 def _ds_from_sleap_labels_file(
-    file_path: Path, fps: float | None
+    file_path: Path,
+    timestamps: np.ndarray | None = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.
 
@@ -497,6 +561,10 @@ def _ds_from_sleap_labels_file(
     ----------
     file_path : pathlib.Path
         Path to the SLEAP labels file containing predicted pose tracks.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
@@ -523,6 +591,7 @@ def _ds_from_sleap_labels_file(
         confidence_array=tracks_with_scores[:, -1, :, :],
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
+        timestamps=timestamps,
         fps=fps,
         source_software="SLEAP",
     )
@@ -720,6 +789,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
 def from_anipose_style_df(
     df: pd.DataFrame,
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     individual_name: str = "individual_0",
 ) -> xr.Dataset:
@@ -729,6 +799,10 @@ def from_anipose_style_df(
     ----------
     df : pd.DataFrame
         Anipose triangulation dataframe
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
@@ -790,6 +864,7 @@ def from_anipose_style_df(
 
 def from_anipose_file(
     file_path: Path | str,
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     individual_name: str = "individual_0",
 ) -> xr.Dataset:
@@ -799,6 +874,10 @@ def from_anipose_file(
     ----------
     file_path : pathlib.Path
         Path to the Anipose triangulation .csv file
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the time coordinates would be calculated
+        with the help of the fps value if provided.
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
@@ -827,5 +906,8 @@ def from_anipose_file(
     anipose_df = pd.read_csv(anipose_file.path)
 
     return from_anipose_style_df(
-        anipose_df, fps=fps, individual_name=individual_name
+        anipose_df,
+        timestamps=timestamps,
+        fps=fps,
+        individual_name=individual_name,
     )

@@ -28,6 +28,7 @@ def from_numpy(
     confidence_array: np.ndarray | None = None,
     individual_names: list[str] | None = None,
     frame_array: np.ndarray | None = None,
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
@@ -63,6 +64,10 @@ def from_numpy(
         be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
         these need to be integers sorted in increasing order.
+    timestamps: np.ndarray. optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the ``time`` coordinates would be calculated
+        with the help of the ``fps`` value if provided.
     fps : float, optional
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
@@ -144,6 +149,7 @@ def from_numpy(
         confidence_array=confidence_array,
         individual_names=individual_names,
         frame_array=frame_array,
+        timestamps=timestamps,
         fps=fps,
         source_software=source_software,
     )
@@ -153,6 +159,7 @@ def from_numpy(
 def from_file(
     file_path: Path | str,
     source_software: Literal["VIA-tracks"],
+    timestamps: np.ndarray | None = None,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -170,6 +177,10 @@ def from_file(
         The source software of the file. Currently only files from the
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
         See .
+    timestamps: np.ndarray. optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the ``time`` coordinates would be calculated
+        with the help of the ``fps`` value if provided.
     fps : float, optional
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
@@ -224,6 +235,7 @@ def from_file(
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
             file_path,
+            timestamps,
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
             frame_regexp=frame_regexp,
@@ -237,6 +249,7 @@ def from_file(
 def from_via_tracks_file(
     file_path: Path | str,
     fps: float | None = None,
+    timestamps: np.ndarray | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
@@ -248,6 +261,10 @@ def from_via_tracks_file(
         Path to the VIA tracks .csv file with the tracked bounding boxes.
         For more information on the VIA tracks .csv file format, see the VIA
         tutorial for tracking [1]_.
+    timestamps: np.ndarray. optional
+        Array of shape (n_frames, 1) with each entry corresponding to the
+        frame. If None (default), the ``time`` coordinates would be calculated
+        with the help of the ``fps`` value if provided.
     fps : float, optional
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
@@ -355,6 +372,7 @@ def from_via_tracks_file(
             if use_frame_numbers_from_file
             else None
         ),
+        timestamps=timestamps,
         fps=fps,
         source_software="VIA-tracks",
     )  # it validates the dataset via ValidBboxesDataset

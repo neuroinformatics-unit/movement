@@ -197,6 +197,18 @@ class ValidPosesDataset:
     def _validate_keypoint_names(self, attribute, value):
         _validate_list_length(attribute, value, self.position_array.shape[2])
 
+    @timestamps.validator
+    def _validate_timestamps(self, attribute, value):
+        _validate_type_ndarray(value)
+        expected_shape = (self.position_array[0], 1)
+        _validate_array_shape(attribute, value, expected_shape=expected_shape)
+        if not np.all(np.diff(value, axis=0) >= 1):
+            raise log_error(
+                ValueError,
+                f"""Timestamps in {attribute.name} are not
+                monotonically increasing.""",
+            )
+
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         position_array_shape = self.position_array.shape
@@ -382,6 +394,22 @@ class ValidBboxesDataset:
                     ValueError,
                     f"Frame numbers in {attribute.name} are not monotonically "
                     "increasing.",
+                )
+
+    @timestamps.validator
+    def _validate_timestamps(self, attribute, value):
+        if value is not None:
+            _validate_type_ndarray(value)
+            expected_shape = (self.position_array.shape[0], 1)
+            _validate_array_shape(
+                attribute, value, expected_shape=expected_shape
+            )
+            # to check if timestamps are increasing monotonically
+            if not np.all(np.diff(value, axis=0) >= 1):
+                raise log_error(
+                    ValueError,
+                    f"""Timestamps in {attribute.name} are not
+                    monotonically increasing.""",
                 )
 
     # Define defaults
