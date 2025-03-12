@@ -1,4 +1,4 @@
-"""Compute time-based motion properties."""
+"""Compute instantaneous kinematic variables, such as time derivatives."""
 
 import xarray as xr
 
