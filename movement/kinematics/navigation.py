@@ -1,4 +1,4 @@
-"""Compute navigation properties like direction vectors and path length."""
+"""Compute variables useful for spatial navigation analysis."""
 
 from collections.abc import Hashable
 from typing import Literal
