@@ -114,6 +114,7 @@ def test_points_style_set_color_by(
     """
     # Create a points style object with predefined properties
     points_style = sample_layer_style(PointsStyle)
+
     # add a color key to the text dictionary if required
     if points_style_text_dict == "with_color_key":
         points_style.text = {"color": {"fallback": "white"}}
@@ -142,4 +143,38 @@ def test_points_style_set_color_by(
     assert all(
         isinstance(c, tuple) and len(c) == 4
         for c in points_style.face_color_cycle
+    )
+
+
+@pytest.mark.parametrize(
+    "property",
+    [
+        "category",
+        "value",
+    ],
+)
+def test_points_style_set_text_by(
+    property, sample_layer_style, default_style_attributes
+):
+    """Test that set_text_by updates the text property of the points layer."""
+    # Create a points style object with predefined properties
+    points_style = sample_layer_style(PointsStyle)
+
+    # Get the default attributes
+    default_points_style = default_style_attributes[PointsStyle]
+
+    # Check there is no text set
+    assert (
+        "string" not in points_style.text
+        or points_style.text["string"] != property
+    )
+
+    # Set text by the property "category"
+    points_style.set_text_by(prop=property)
+
+    # Check that the text properties are as expected
+    assert points_style.text["string"] == property
+    assert all(
+        points_style.text[attr] == default_points_style["text"][attr]
+        for attr in default_points_style["text"]
     )
