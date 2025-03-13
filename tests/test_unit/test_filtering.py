@@ -35,10 +35,8 @@ class TestFilteringValidDataset:
     @pytest.mark.parametrize(
         ("filter_func, filter_kwargs"),
         [
-            (rolling_filter, {"window": 3, "statistic": "mean"}),
             (rolling_filter, {"window": 3, "statistic": "median"}),
-            (rolling_filter, {"window": 3, "statistic": "max"}),
-            (rolling_filter, {"window": 3, "statistic": "min"}),
+            (savgol_filter, {"window": 3, "polyorder": 2}),
         ],
     )
     def test_filter_with_nans_on_position(
