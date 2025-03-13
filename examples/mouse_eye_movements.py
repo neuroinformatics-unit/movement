@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 import movement.kinematics as kin
 from movement import sample_data
 from movement.filtering import rolling_filter
+from movement.plots import plot_centroid_trajectory
 
 # %%
 # Load the data

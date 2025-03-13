@@ -111,7 +111,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
 
 # %%
 # Smoothing with a rolling median filter
-# ------------------------------
+# --------------------------------------
 # Using the :func:`movement.filtering.rolling_filter` function on the
 # ``position`` data variable, we can apply a rolling median filter
 # over a 0.1-second window (4 frames) to the wasp dataset.
