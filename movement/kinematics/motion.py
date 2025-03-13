@@ -1,4 +1,4 @@
-"""Compute instantaneous kinematic variables, such as time derivatives."""
+"""Compute kinematic variables, such as time derivatives of position."""
 
 import xarray as xr
 
