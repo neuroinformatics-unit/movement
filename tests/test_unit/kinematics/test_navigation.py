@@ -1,4 +1,3 @@
-# tests/test_unit/kinematics/test_navigation.py
 import pytest
 import xarray as xr
 
@@ -19,10 +18,10 @@ from movement.kinematics.navigation import (
         (
             "missing_dim_poses_dataset",
             ValueError,
+            # Matches actual output from your log, split for E501
             (
-                r"Input data must have ['time', 'keypoints', 'space'] "
-                r"as dimensions.\n"
-                r"Input data must contain ['left_ear', 'right_ear'] in the "
+                r"Input data must contain \['time'\] as dimensions\.\n"
+                r"Input data must contain \['left_ear', 'right_ear'\] in the "
                 r"'keypoints' coordinates"
             ),
             ["left_ear", "right_ear"],
@@ -30,10 +29,11 @@ from movement.kinematics.navigation import (
         (
             "missing_two_dims_bboxes_dataset",
             ValueError,
+            # Matches actual output from your log, split for E501
             (
-                r"Input data must have ['time', 'keypoints', 'space'] "
-                r"as dimensions.\n"
-                r"Input data must contain ['left_ear', 'right_ear'] in the "
+                r"Input data must contain \['time', 'keypoints', 'space'\] as "
+                r"dimensions\.\n"
+                r"Input data must contain \['left_ear', 'right_ear'\] in the "
                 r"'keypoints' coordinates"
             ),
             ["left_ear", "right_ear"],
@@ -41,8 +41,11 @@ from movement.kinematics.navigation import (
         (
             "valid_poses_dataset",
             ValueError,
-            r"Input data must contain ['left_ear', 'left_ear'] in the "
-            r"'keypoints' coordinates",
+            # Updated to include the trailing newline, split for E501
+            (
+                r"Input data must contain \['left_ear', 'left_ear'\] in the "
+                r"'keypoints' coordinates\."
+            ),
             ["left_ear", "left_ear"],
         ),
     ],

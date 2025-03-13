@@ -1,4 +1,4 @@
-import numpy as np  # Added for NaN checking
+import numpy as np
 import pytest
 import xarray as xr
 
