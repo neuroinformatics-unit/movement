@@ -37,9 +37,9 @@ class PointsStyle(LayerStyle):
         default_factory=lambda: {
             "visible": False,
             "anchor": "lower_left",
-            "translation": 5,  # pixels
             # it actually displays the text in the lower
             # _right_ corner of the marker
+            "translation": 5,  # pixels
         }
     )
 
