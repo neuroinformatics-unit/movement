@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.2.0</p>
+    <p class="title logo__title">movement v0.3.0</p>
   
 </a></div>
     
@@ -363,6 +363,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">filter_by_confidence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">interpolate_over_time</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.median_filter.html">median_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.filtering.rolling_filter.html">rolling_filter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
@@ -565,9 +566,12 @@
 <td><p>Fill in NaN values by interpolating over the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.filtering.median_filter.html#movement.filtering.median_filter" title="movement.filtering.median_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median_filter</span></code></a></p></td>
-<td><p>Smooth data by applying a median filter over time.</p></td>
+<td><p>Smooth data by applying a median filter over time (deprecated).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">savgol_filter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rolling_filter</span></code></a></p></td>
+<td><p>Apply a rolling window filter across time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">savgol_filter</span></code></a></p></td>
 <td><p>Smooth data by applying a Savitzky-Golay filter over time.</p></td>
 </tr>
 </tbody>

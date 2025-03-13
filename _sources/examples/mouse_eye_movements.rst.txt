@@ -27,18 +27,17 @@ Look at eye movements and pupil diameter.
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-20
+.. GENERATED FROM PYTHON SOURCE LINES 10-19
 
 .. code-block:: Python
 
-    import numpy as np
     import sleap_io as sio
     import xarray as xr
     from matplotlib import pyplot as plt
 
     import movement.kinematics as kin
     from movement import sample_data
-    from movement.filtering import median_filter
+    from movement.filtering import rolling_filter
     from movement.plots import plot_centroid_trajectory
 
 
@@ -48,7 +47,7 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-30
+.. GENERATED FROM PYTHON SOURCE LINES 20-29
 
 Load the data
 -------------
@@ -60,7 +59,7 @@ datasets were tracked using DeepLabCut (DLC) and include four keypoints:
 two on either side of the pupil (``pupil-L`` and ``pupil-R``) and two on
 either side of the eye (``eye-L`` and ``eye-R``).
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-42
+.. GENERATED FROM PYTHON SOURCE LINES 29-41
 
 .. code-block:: Python
 
@@ -83,11 +82,11 @@ either side of the eye (``eye-L`` and ``eye-R``).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-44
+.. GENERATED FROM PYTHON SOURCE LINES 42-43
 
 Print the content of one of the datasets.
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-45
+.. GENERATED FROM PYTHON SOURCE LINES 43-44
 
 .. code-block:: Python
 
@@ -122,12 +121,12 @@ Print the content of one of the datasets.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-48
+.. GENERATED FROM PYTHON SOURCE LINES 45-47
 
 Explore the accompanying videos
 -------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-57
+.. GENERATED FROM PYTHON SOURCE LINES 47-56
 
 .. code-block:: Python
 
@@ -162,12 +161,12 @@ Explore the accompanying videos
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
 
 Plot first frame with keypoints
 -------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-73
+.. GENERATED FROM PYTHON SOURCE LINES 59-72
 
 .. code-block:: Python
 
@@ -196,14 +195,14 @@ Plot first frame with keypoints
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-78
+.. GENERATED FROM PYTHON SOURCE LINES 73-77
 
 Pupil trajectory
 ----------------
 A quick plot of the trajectory of the centre of the pupil using the
 ``plot_centroid_trajectory`` function from ``movement.plots``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-85
+.. GENERATED FROM PYTHON SOURCE LINES 77-84
 
 .. code-block:: Python
 
@@ -226,13 +225,13 @@ A quick plot of the trajectory of the centre of the pupil using the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-89
+.. GENERATED FROM PYTHON SOURCE LINES 85-88
 
 Pupil trajectories on top of video frame
 ----------------------------------------
 We can look at pupil trajectories plotted on top of a video frame.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-104
+.. GENERATED FROM PYTHON SOURCE LINES 88-103
 
 .. code-block:: Python
 
@@ -263,7 +262,7 @@ We can look at pupil trajectories plotted on top of a video frame.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-110
+.. GENERATED FROM PYTHON SOURCE LINES 104-109
 
 Keypoint positions over time
 ----------------------------
@@ -271,7 +270,7 @@ For the rest of this example we are only interested in the position data.
 For convenience, We will combine the two position arrays into a single
 array with a new dimension called ``lighting``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-113
+.. GENERATED FROM PYTHON SOURCE LINES 109-112
 
 .. code-block:: Python
 
@@ -285,11 +284,11 @@ array with a new dimension called ``lighting``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-115
+.. GENERATED FROM PYTHON SOURCE LINES 113-114
 
 Define plotting parameters for reuse.
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-124
+.. GENERATED FROM PYTHON SOURCE LINES 114-123
 
 .. code-block:: Python
 
@@ -309,11 +308,11 @@ Define plotting parameters for reuse.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 125-126
+.. GENERATED FROM PYTHON SOURCE LINES 124-125
 
 Plot the keypoint positions over time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-129
+.. GENERATED FROM PYTHON SOURCE LINES 125-128
 
 .. code-block:: Python
 
@@ -332,7 +331,7 @@ Plot the keypoint positions over time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-137
+.. GENERATED FROM PYTHON SOURCE LINES 129-136
 
 Normalised keypoint positions over time
 ---------------------------------------
@@ -342,7 +341,7 @@ subtracting the position of the eye's midpoint, we effectively transform the
 data into a moving coordinate system, with the eye's midpoint as the origin.
 In the rest of the example, the normalised data will be used.
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-139
+.. GENERATED FROM PYTHON SOURCE LINES 136-138
 
 .. code-block:: Python
 
@@ -355,11 +354,11 @@ In the rest of the example, the normalised data will be used.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 140-141
+.. GENERATED FROM PYTHON SOURCE LINES 139-140
 
 We plot the x and y positions again, but now using the normalised data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-144
+.. GENERATED FROM PYTHON SOURCE LINES 140-143
 
 .. code-block:: Python
 
@@ -378,7 +377,7 @@ We plot the x and y positions again, but now using the normalised data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-151
+.. GENERATED FROM PYTHON SOURCE LINES 144-150
 
 Pupil position over time
 ------------------------
@@ -387,7 +386,7 @@ pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 ``pupil-R``). The keypoint ``pupil-C`` is assigned using
 ``xarray.DataArray.assign_coords``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 151-157
+.. GENERATED FROM PYTHON SOURCE LINES 150-156
 
 .. code-block:: Python
 
@@ -404,12 +403,12 @@ pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 158-160
+.. GENERATED FROM PYTHON SOURCE LINES 157-159
 
 The pupil centroid keypoint ``pupil-C`` is be added to the ``positions_norm``
 using ``xarray.concat``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 160-161
+.. GENERATED FROM PYTHON SOURCE LINES 159-160
 
 .. code-block:: Python
 
@@ -421,11 +420,11 @@ using ``xarray.concat``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 162-163
+.. GENERATED FROM PYTHON SOURCE LINES 161-162
 
 Now the position of the pupil centroid ``pupil-C`` can be plotted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-167
+.. GENERATED FROM PYTHON SOURCE LINES 162-166
 
 .. code-block:: Python
 
@@ -445,7 +444,7 @@ Now the position of the pupil centroid ``pupil-C`` can be plotted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-174
+.. GENERATED FROM PYTHON SOURCE LINES 167-173
 
 Pupil velocity over time
 ------------------------
@@ -454,7 +453,7 @@ triggering the vestibulo-ocular reflex. This reflex involves the
 vestibular system in the inner ear, that detects head motion and adjusts eye
 position to maintain stable vision.
 
-.. GENERATED FROM PYTHON SOURCE LINES 176-183
+.. GENERATED FROM PYTHON SOURCE LINES 175-182
 
 When the head turns beyond the range that the vestibulo-ocular reflex
 can compensate for, a quick, ballistic eye movement is triggered to
@@ -464,7 +463,7 @@ centroid is plotted. To do this, we use ``compute_velocity`` from the
 ``movement.kinematics`` module to calculate the velocity of the eye
 movements.
 
-.. GENERATED FROM PYTHON SOURCE LINES 183-189
+.. GENERATED FROM PYTHON SOURCE LINES 182-188
 
 .. code-block:: Python
 
@@ -486,12 +485,12 @@ movements.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-192
+.. GENERATED FROM PYTHON SOURCE LINES 189-191
 
 The positive peaks correspond to rapid eye movements to the right, the
 negative peaks correspond to rapid eye movements to the left.
 
-.. GENERATED FROM PYTHON SOURCE LINES 194-199
+.. GENERATED FROM PYTHON SOURCE LINES 193-198
 
 Pupil diameter
 --------------
@@ -499,7 +498,7 @@ Here we define the pupil diameter as the distance between the two pupil
 keypoints. We use ``compute_pairwise_distances`` from ``movement.kinematics``
 to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-203
+.. GENERATED FROM PYTHON SOURCE LINES 198-202
 
 .. code-block:: Python
 
@@ -514,11 +513,11 @@ to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-205
+.. GENERATED FROM PYTHON SOURCE LINES 203-204
 
 Now the pupil diameter can be plotted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-207
+.. GENERATED FROM PYTHON SOURCE LINES 204-206
 
 .. code-block:: Python
 
@@ -536,7 +535,7 @@ Now the pupil diameter can be plotted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-214
+.. GENERATED FROM PYTHON SOURCE LINES 207-213
 
 The plot of the pupil diameter looks noisy. The very steep peaks are
 unlikely to represent real changes in the pupil size.
@@ -545,7 +544,7 @@ during blinking or squinting.
 By looking at the distance between the two eye keypoints we can get an idea
 of whether (and when) the animal is blinking or squinting.
 
-.. GENERATED FROM PYTHON SOURCE LINES 214-237
+.. GENERATED FROM PYTHON SOURCE LINES 213-236
 
 .. code-block:: Python
 
@@ -584,7 +583,7 @@ of whether (and when) the animal is blinking or squinting.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 238-243
+.. GENERATED FROM PYTHON SOURCE LINES 237-242
 
 We indeed see that the sharp peaks in pupil diameter correspond to abrupt
 changes of distance between the two eye keypoints.
@@ -592,50 +591,24 @@ Compared to fast eye movements and blinking, changes in pupil size are slow.
 Filters can be applied to reduce noise and make underlying trends
 in pupil diameter clearer.
 
-.. GENERATED FROM PYTHON SOURCE LINES 245-249
+.. GENERATED FROM PYTHON SOURCE LINES 244-250
 
-Average filtered pupil diameter
--------------------------------
-A moving average filter is used here to smooth the data by averaging a
-specified number of data points (``filter_len``)  to reduce noise.
+Smooth pupil diameter
+---------------------
+A rolling mean (moving average) filter is used here to smooth the data by
+averaging a specified number of data points (``window_len``).
+We achieve this by calling the :func:`movement.filtering.rolling_filter`
+function with the ``statistic="mean"`` option.
 
-.. GENERATED FROM PYTHON SOURCE LINES 249-260
-
-.. code-block:: Python
-
-    filter_len = 80
-    filter = np.ones(filter_len)
-    avg_filter = pupil_diameter.copy()
-    for lighting in avg_filter.coords["lighting"].values:
-        da = pupil_diameter.sel(lighting=lighting)
-        # numpy.convolve can be used to filter the data, because itexpects
-        # 1-dimensional input arrays we have to loop through the lighting
-        # dimensions to process the data
-        filtered_data = np.convolve(da, filter / filter_len, mode="same")
-        avg_filter.sel(lighting=lighting).loc[:] = filtered_data
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 261-264
-
-The filter distorts the first few and last frames of the pupil diameter data
-which is why we exclude the first and last number of frames corresponding to
-half the filter length.
-
-.. GENERATED FROM PYTHON SOURCE LINES 264-270
+.. GENERATED FROM PYTHON SOURCE LINES 250-256
 
 .. code-block:: Python
 
 
-    # In this case both datasets have videos with 40 frames per second.
-    fps = ds_dict["black"].attrs["fps"]  # good to double-check in video properties
-    exclude_duration = filter_len // 2 / fps  # in seconds
-    time_window = slice(exclude_duration, avg_filter.time[-1] - exclude_duration)
+    window_len = 80
+    mean_filter = rolling_filter(
+        pupil_diameter, window=window_len, statistic="mean"
+    )
 
 
 
@@ -644,16 +617,17 @@ half the filter length.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-272
+.. GENERATED FROM PYTHON SOURCE LINES 257-258
 
 Now the filtered pupil diameter can be plotted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 272-274
+.. GENERATED FROM PYTHON SOURCE LINES 258-261
 
 .. code-block:: Python
 
-    avg_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
+    mean_filter.plot.line(x="time", hue="lighting")
     plt.show()
+
 
 
 
@@ -666,24 +640,20 @@ Now the filtered pupil diameter can be plotted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-282
+.. GENERATED FROM PYTHON SOURCE LINES 262-264
 
-Median filtered pupil diameter
-------------------------------
-Another way to filter the data is by using ``median_filter`` from the
-``movement.filtering`` module. The ``median_filter`` function conveniently
-takes care of creating the filter and excluding the first and last number of
-frames corresponding to half the filter length. Unlike ``np.convolve``, it
-can be applied to multidimensional data.
+Instead of the mean, we could also use the median, which is the default
+option for the ``statistic`` argument, and should be more robust to outliers.
 
-.. GENERATED FROM PYTHON SOURCE LINES 282-286
+.. GENERATED FROM PYTHON SOURCE LINES 264-269
 
 .. code-block:: Python
 
 
-    mdn_filter = median_filter(pupil_diameter, filter_len)
-    mdn_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
+    mdn_filter = rolling_filter(pupil_diameter, window_len, statistic="median")
+    mdn_filter.plot.line(x="time", hue="lighting")
     plt.show()
+
 
 
 
@@ -696,10 +666,15 @@ can be applied to multidimensional data.
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 270-272
+
+.. seealso::
+  :ref:`sphx_glr_examples_smooth.py` example.
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.295 seconds)
+   **Total running time of the script:** (0 minutes 3.780 seconds)
 
 
 .. _sphx_glr_download_examples_mouse_eye_movements.py:

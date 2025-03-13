@@ -1,0 +1,6 @@
+rolling\_filter
+===============
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: rolling_filter

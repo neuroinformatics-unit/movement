@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=938c9ccc"></script>
+    <script src="../_static/documentation_options.js?v=e259d695"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.2.0</p>
+    <p class="title logo__title">movement v0.3.0</p>
   
 </a></div>
     
@@ -437,14 +437,13 @@ to download the full example code. or to run this example in your browser via Bi
 <p>Look at eye movements and pupil diameter.</p>
 <section id="imports">
 <h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sleap_io</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.filtering.median_filter.html#movement.filtering.median_filter" title="movement.filtering.median_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">median_filter</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">rolling_filter</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_centroid_trajectory</span>
 </pre></div>
 </div>
@@ -717,50 +716,35 @@ Compared to fast eye movements and blinking, changes in pupil size are slow.
 Filters can be applied to reduce noise and make underlying trends
 in pupil diameter clearer.</p>
 </section>
-<section id="average-filtered-pupil-diameter">
-<h2>Average filtered pupil diameter<a class="headerlink" href="#average-filtered-pupil-diameter" title="Link to this heading">#</a></h2>
-<p>A moving average filter is used here to smooth the data by averaging a
-specified number of data points (<code class="docutils literal notranslate"><span class="pre">filter_len</span></code>)  to reduce noise.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">filter_len</span> <span class="o">=</span> <span class="mi">80</span>
-<span class="nb">filter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">filter_len</span><span class="p">)</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_filter</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.copy.html#xarray.DataArray.copy" title="xarray.DataArray.copy" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">pupil_diameter</span><span class="o">.</span><span class="n">copy</span></a><span class="p">()</span>
-<span class="k">for</span> <span class="n">lighting</span> <span class="ow">in</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.coords.html#xarray.DataArray.coords" title="xarray.DataArray.coords" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">avg_filter</span><span class="o">.</span><span class="n">coords</span></a><span class="p">[</span><span class="s2">&quot;lighting&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
-    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">pupil_diameter</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">lighting</span><span class="o">=</span><span class="n">lighting</span><span class="p">)</span>
-    <span class="c1"># numpy.convolve can be used to filter the data, because itexpects</span>
-    <span class="c1"># 1-dimensional input arrays we have to loop through the lighting</span>
-    <span class="c1"># dimensions to process the data</span>
-    <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a><span class="p">,</span> <span class="nb">filter</span> <span class="o">/</span> <span class="n">filter_len</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;same&quot;</span><span class="p">)</span>
-    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">avg_filter</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">lighting</span><span class="o">=</span><span class="n">lighting</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">filtered_data</span>
-</pre></div>
-</div>
-<p>The filter distorts the first few and last frames of the pupil diameter data
-which is why we exclude the first and last number of frames corresponding to
-half the filter length.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In this case both datasets have videos with 40 frames per second.</span>
-<span class="n">fps</span> <span class="o">=</span> <span class="n">ds_dict</span><span class="p">[</span><span class="s2">&quot;black&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span>  <span class="c1"># good to double-check in video properties</span>
-<span class="n">exclude_duration</span> <span class="o">=</span> <span class="n">filter_len</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">fps</span>  <span class="c1"># in seconds</span>
-<span class="n">time_window</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">exclude_duration</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_filter</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">exclude_duration</span><span class="p">)</span>
+<section id="smooth-pupil-diameter">
+<h2>Smooth pupil diameter<a class="headerlink" href="#smooth-pupil-diameter" title="Link to this heading">#</a></h2>
+<p>A rolling mean (moving average) filter is used here to smooth the data by
+averaging a specified number of data points (<code class="docutils literal notranslate"><span class="pre">window_len</span></code>).
+We achieve this by calling the <a class="reference internal" href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.rolling_filter()</span></code></a>
+function with the <code class="docutils literal notranslate"><span class="pre">statistic=&quot;mean&quot;</span></code> option.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">window_len</span> <span class="o">=</span> <span class="mi">80</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mean_filter</span></a> <span class="o">=</span> <a href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">rolling_filter</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pupil_diameter</span></a><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window_len</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Now the filtered pupil diameter can be plotted.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">avg_filter</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;lighting&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mean_filter</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;lighting&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_mouse_eye_movements_010.png" srcset="../_images/sphx_glr_mouse_eye_movements_010.png" alt="mouse eye movements" class = "sphx-glr-single-img"/></section>
-<section id="median-filtered-pupil-diameter">
-<h2>Median filtered pupil diameter<a class="headerlink" href="#median-filtered-pupil-diameter" title="Link to this heading">#</a></h2>
-<p>Another way to filter the data is by using <code class="docutils literal notranslate"><span class="pre">median_filter</span></code> from the
-<code class="docutils literal notranslate"><span class="pre">movement.filtering</span></code> module. The <code class="docutils literal notranslate"><span class="pre">median_filter</span></code> function conveniently
-takes care of creating the filter and excluding the first and last number of
-frames corresponding to half the filter length. Unlike <code class="docutils literal notranslate"><span class="pre">np.convolve</span></code>, it
-can be applied to multidimensional data.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mdn_filter</span></a> <span class="o">=</span> <a href="../api/movement.filtering.median_filter.html#movement.filtering.median_filter" title="movement.filtering.median_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">median_filter</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pupil_diameter</span></a><span class="p">,</span> <span class="n">filter_len</span><span class="p">)</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">mdn_filter</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time_window</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;lighting&quot;</span><span class="p">)</span>
+<img src="../_images/sphx_glr_mouse_eye_movements_010.png" srcset="../_images/sphx_glr_mouse_eye_movements_010.png" alt="mouse eye movements" class = "sphx-glr-single-img"/><p>Instead of the mean, we could also use the median, which is the default
+option for the <code class="docutils literal notranslate"><span class="pre">statistic</span></code> argument, and should be more robust to outliers.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mdn_filter</span></a> <span class="o">=</span> <a href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">rolling_filter</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pupil_diameter</span></a><span class="p">,</span> <span class="n">window_len</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mdn_filter</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">x</span></a><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;lighting&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_mouse_eye_movements_011.png" srcset="../_images/sphx_glr_mouse_eye_movements_011.png" alt="mouse eye movements" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.295 seconds)</p>
+<img src="../_images/sphx_glr_mouse_eye_movements_011.png" srcset="../_images/sphx_glr_mouse_eye_movements_011.png" alt="mouse eye movements" class = "sphx-glr-single-img"/><div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="smooth.html#sphx-glr-examples-smooth-py"><span class="std std-ref">Smooth pose tracks</span></a> example.</p>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.780 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-mouse-eye-movements-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/mouse_eye_movements.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
@@ -841,8 +825,7 @@ can be applied to multidimensional data.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pupil-position-over-time">Pupil position over time</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pupil-velocity-over-time">Pupil velocity over time</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pupil-diameter">Pupil diameter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#average-filtered-pupil-diameter">Average filtered pupil diameter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#median-filtered-pupil-diameter">Median filtered pupil diameter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#smooth-pupil-diameter">Smooth pupil diameter</a></li>
 </ul>
   </nav></div>
 

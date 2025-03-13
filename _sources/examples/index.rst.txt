@@ -68,7 +68,7 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Smooth pose tracks using the median and Savitzky-Golay filters.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Smooth pose tracks using the rolling median and Savitzky-Golay filters.">
 
 .. only:: html
 
