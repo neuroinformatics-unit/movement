@@ -30,7 +30,7 @@ ASCII_ART = r"""
      ..**...###,,,*,,,(#####///////////////###########
      ...*..*(##,,,*,,,###.////////////(###############
      .../...###/,,*,,,###...,.////(###################
-     ...*...(##,,,*/,,###.,.,...####################(# 
+     ...*...(##,,,*/,,###.,.,...####################(#
          ...###,*,*,,,###...,...################(#####
                ,,,*,*,##(..*,...############(######(
                  ,*,,,###...,..*########(######(
@@ -50,13 +50,17 @@ def main() -> None:
     info_parser = subparsers.add_parser(
         "info", help="output diagnostic information about the environment"
     )
-    info_parser.set_defaults(func=info)  # Associate the 'info' function with the 'info' command
+    info_parser.set_defaults(
+        func=info
+    )  # Associate the 'info' function with the 'info' command
 
     # Add 'launch' command to launch the movement plugin in napari
     launch_parser = subparsers.add_parser(
         "launch", help="launch the movement plugin in napari"
     )
-    launch_parser.set_defaults(func=launch)  # Associate the 'launch' function with the 'launch' command
+    launch_parser.set_defaults(
+        func=launch
+    )  # Associate the 'launch' function with the 'launch' command
 
     # Parse the arguments from the CLI
     args = parser.parse_args()
@@ -82,6 +86,7 @@ def info() -> None:
 
     try:
         import napari  # Try importing napari
+
         text += f"     napari: {napari.__version__}\n"  # Show napari version if installed
     except ImportError:
         # If napari is not installed, indicate that it's missing
@@ -96,17 +101,31 @@ def launch() -> None:
     try:
         # Use sys.executable to ensure the correct Python interpreter is used
         subprocess.run(
-            [sys.executable, "-m", "napari", "-w", "movement"],  # Command to run napari with the movement plugin
+            [
+                sys.executable,
+                "-m",
+                "napari",
+                "-w",
+                "movement",
+            ],  # Command to run napari with the movement plugin
             check=True,  # This ensures that an exception is raised if the subprocess fails
             stdout=sys.stdout,  # Redirect the standard output to the terminal
-            stderr=sys.stderr   # Redirect the error output to the terminal
+            stderr=sys.stderr,  # Redirect the error output to the terminal
         )
     except subprocess.CalledProcessError as e:
         # Detailed exception handling for subprocess errors
-        print(f"\nError occurred while launching the movement plugin for napari:\n")
-        print(f"Exit Code: {e.returncode}")  # Print the return code of the failed subprocess
-        print(f"Error Output: {e.stderr.decode() if e.stderr else 'No error output'}")  # Print any stderr output
-        print(f"Command: {e.cmd}")  # Print the command that was run for context
+        print(
+            "\nError occurred while launching the movement plugin for napari:\n"
+        )
+        print(
+            f"Exit Code: {e.returncode}"
+        )  # Print the return code of the failed subprocess
+        print(
+            f"Error Output: {e.stderr.decode() if e.stderr else 'No error output'}"
+        )  # Print any stderr output
+        print(
+            f"Command: {e.cmd}"
+        )  # Print the command that was run for context
     except Exception as e:
         # Catch any other unexpected exceptions and print them
         print(f"\nUnexpected error: {str(e)}")
@@ -115,4 +134,3 @@ def launch() -> None:
 if __name__ == "__main__":  # pragma: no cover
     # Entry point of the script to start the CLI when executed
     main()
-
