@@ -7,14 +7,13 @@ Look at eye movements and pupil diameter.
 # %%
 # Imports
 # -------
-import numpy as np
 import sleap_io as sio
 import xarray as xr
 from matplotlib import pyplot as plt
 
 import movement.kinematics as kin
 from movement import sample_data
-from movement.filtering import median_filter
+from movement.filtering import rolling_filter
 from movement.plots import plot_centroid_trajectory
 
 # %%
@@ -242,45 +241,31 @@ plt.show()
 # in pupil diameter clearer.
 
 # %%
-# Average filtered pupil diameter
-# -------------------------------
-# A moving average filter is used here to smooth the data by averaging a
-# specified number of data points (``filter_len``)  to reduce noise.
-filter_len = 80
-filter = np.ones(filter_len)
-avg_filter = pupil_diameter.copy()
-for lighting in avg_filter.coords["lighting"].values:
-    da = pupil_diameter.sel(lighting=lighting)
-    # numpy.convolve can be used to filter the data, because itexpects
-    # 1-dimensional input arrays we have to loop through the lighting
-    # dimensions to process the data
-    filtered_data = np.convolve(da, filter / filter_len, mode="same")
-    avg_filter.sel(lighting=lighting).loc[:] = filtered_data
+# Smooth pupil diameter
+# ---------------------
+# A rolling mean (moving average) filter is used here to smooth the data by
+# averaging a specified number of data points (``window_len``).
+# We achieve this by calling the :func:`movement.filtering.rolling_filter`
+# function with the ``statistic="mean"`` option.
 
-# %%
-# The filter distorts the first few and last frames of the pupil diameter data
-# which is why we exclude the first and last number of frames corresponding to
-# half the filter length.
-
-# In this case both datasets have videos with 40 frames per second.
-fps = ds_dict["black"].attrs["fps"]  # good to double-check in video properties
-exclude_duration = filter_len // 2 / fps  # in seconds
-time_window = slice(exclude_duration, avg_filter.time[-1] - exclude_duration)
+window_len = 80
+mean_filter = rolling_filter(
+    pupil_diameter, window=window_len, statistic="mean"
+)
 
 # %%
 # Now the filtered pupil diameter can be plotted.
-avg_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
+mean_filter.plot.line(x="time", hue="lighting")
 plt.show()
-# %%
-# Median filtered pupil diameter
-# ------------------------------
-# Another way to filter the data is by using ``median_filter`` from the
-# ``movement.filtering`` module. The ``median_filter`` function conveniently
-# takes care of creating the filter and excluding the first and last number of
-# frames corresponding to half the filter length. Unlike ``np.convolve``, it
-# can be applied to multidimensional data.
 
-mdn_filter = median_filter(pupil_diameter, filter_len)
-mdn_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
-plt.show()
 # %%
+# Instead of the mean, we could also use the median, which is the default
+# option for the ``statistic`` argument, and should be more robust to outliers.
+
+mdn_filter = rolling_filter(pupil_diameter, window_len, statistic="median")
+mdn_filter.plot.line(x="time", hue="lighting")
+plt.show()
+
+# %%
+# .. seealso::
+#   :ref:`sphx_glr_examples_smooth.py` example.
