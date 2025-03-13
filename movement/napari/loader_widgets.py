@@ -170,7 +170,14 @@ class DataLoader(QWidget):
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
-            text={"string": text_prop, "visible": False},
+            text={
+                "string": text_prop,
+                "visible": False,
+                "anchor": "lower_left",
+                "translation": 5,  # pixels
+                # it actually displays the text in the lower
+                # right corner of the marker
+            },
         )
 
         # Set color of markers and text
