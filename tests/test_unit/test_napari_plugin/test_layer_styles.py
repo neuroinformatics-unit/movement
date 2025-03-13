@@ -51,7 +51,11 @@ def default_style_attributes(sample_properties):
             "face_color": None,
             "face_color_cycle": None,
             "face_colormap": DEFAULT_COLORMAP,
-            "text": {"visible": False},
+            "text": {
+                "visible": False,
+                "anchor": "lower_left",
+                "translation": 5,
+            },
         },
     }
 
