@@ -17,7 +17,7 @@ _At a glance_
 
 - **Regions of Interest (RoIs)**: An RoI backend was added for analysis of RoIs, allowing future development of the napari plugin.
 - **Plot Wrapper Functions**: Added to aid in initial "eyeballing" of data, making it easy to create common analysis plots with a single line of code.
-- **New examples**: :ref:`Extend your analysis methods along data dimensions <examples/broadcasting_your_own_methods.py>`, :ref:`Pupil tracking <examples/mouse_eye_movements.py>`.
+- **New examples**: {ref}`Extend your analysis methods along data dimensions <sphx_glr_examples_broadcasting_your_own_methods.py>`, {ref}`Pupil tracking <sphx_glr_examples_mouse_eye_movements.py>`.
 
 ## Original Roadmap
 
@@ -37,7 +37,7 @@ A copy of the original roadmap that was [shared on Zulip](movement-zulip:topic/R
 
 In addition to the topics listed below, we have also introduced the following smaller, self-contained features to `movement`:
 
-- We have new sample datasets available, including two eye-movement tracking (pupillometry) datasets. An example of how to analyse this data using `movement` was introduced in [#429](movement-github:pull/429) and can be found :ref:`here <examples/mouse_eye_movements.py>`.
+- We have new sample datasets available, including two eye-movement tracking (pupillometry) datasets. An example of how to analyse this data using `movement` was introduced in [#429](movement-github:pull/429) and can be found {ref}`here <sphx_glr_examples_mouse_eye_movements.py>`.
 - It is now possible to scale `DataArray`s expressed in pixels into other units via the {func}`movement.transforms.scale` function. Introduced in [#384](movement-github:pull/384).
 
 Additionally, we have begun planning our approach to supporting annotations in time, via what we are calling [condition arrays](movement-github:issues/418).
