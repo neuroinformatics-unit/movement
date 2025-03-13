@@ -7,6 +7,45 @@ from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
 
+def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
+    """Compute the time-derivative of an array using numerical differentiation.
+
+    This function uses :meth:`xarray.DataArray.differentiate`,
+    which differentiates the array with the second-order
+    accurate central differences method.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing ``time`` as a required dimension.
+    order : int
+        The order of the time-derivative. For an input containing position
+        data, use 1 to compute velocity, and 2 to compute acceleration. Value
+        must be a positive integer.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the time-derivative of the input data.
+
+    See Also
+    --------
+    :meth:`xarray.DataArray.differentiate` : The underlying method used.
+
+    """
+    if not isinstance(order, int):
+        raise log_error(
+            TypeError, f"Order must be an integer, but got {type(order)}."
+        )
+    if order <= 0:
+        raise log_error(ValueError, "Order must be a positive integer.")
+    validate_dims_coords(data, {"time": []})
+    result = data
+    for _ in range(order):
+        result = result.differentiate("time")
+    return result
+
+
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement array in cartesian coordinates.
 
@@ -123,45 +162,6 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     """
     validate_dims_coords(data, {"space": []})
     return compute_time_derivative(data, order=2)
-
-
-def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
-    """Compute the time-derivative of an array using numerical differentiation.
-
-    This function uses :meth:`xarray.DataArray.differentiate`,
-    which differentiates the array with the second-order
-    accurate central differences method.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data containing ``time`` as a required dimension.
-    order : int
-        The order of the time-derivative. For an input containing position
-        data, use 1 to compute velocity, and 2 to compute acceleration. Value
-        must be a positive integer.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the time-derivative of the input data.
-
-    See Also
-    --------
-    :meth:`xarray.DataArray.differentiate` : The underlying method used.
-
-    """
-    if not isinstance(order, int):
-        raise log_error(
-            TypeError, f"Order must be an integer, but got {type(order)}."
-        )
-    if order <= 0:
-        raise log_error(ValueError, "Order must be a positive integer.")
-    validate_dims_coords(data, {"time": []})
-    result = data
-    for _ in range(order):
-        result = result.differentiate("time")
-    return result
 
 
 def compute_speed(data: xr.DataArray) -> xr.DataArray:
