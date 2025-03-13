@@ -56,7 +56,7 @@ class TestFilteringValidDataset:
         # Filter position
         valid_input_dataset = request.getfixturevalue(valid_dataset)
         position_filtered = filter_func(
-            valid_input_dataset.position, **filter_kwargs
+            valid_input_dataset.position, **filter_kwargs, print_report=True
         )
         # Compute n nans in position after filtering per individual
         n_nans_after_filtering_per_indiv = [
