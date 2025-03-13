@@ -241,42 +241,27 @@ plt.show()
 # in pupil diameter clearer.
 
 # %%
-# Mean filtered pupil diameter
-# -------------------------------
-# A rolling mean filter is used here to smooth the data by averaging a
-# specified number of data points (``filter_len``)  to reduce noise. The
-# rolling mean filter can be used by setting statistic='mean' in
-# ``rolling filter`` from the``movement.filtering``
-filter_len = 80
-mean_filter = rolling_filter(pupil_diameter, filter_len, statistic="mean")
+# Smooth pupil diameter
+# ---------------------
+# A rolling mean (moving average) filter is used here to smooth the data by
+# averaging a specified number of data points (``window_len``).
+# We achieve this by calling the :func:`movement.filtering.rolling_filter`
+# function with the ``statistic="mean"`` option.
 
-# %%
-# The filter distorts the first few and last frames of the pupil diameter data
-# which is why we exclude the first and last number of frames corresponding to
-# half the filter length.
-
-# In this case both datasets have videos with 40 frames per second.
-fps = ds_dict["black"].attrs["fps"]  # good to double-check in video properties
-exclude_duration = filter_len // 2 / fps  # in seconds
-time_window = slice(
-    exclude_duration, pupil_diameter.time[-1] - exclude_duration
+window_len = 80
+mean_filter = rolling_filter(
+    pupil_diameter, window=window_len, statistic="mean"
 )
 
 # %%
 # Now the filtered pupil diameter can be plotted.
-mean_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
+mean_filter.plot.line(x="time", hue="lighting")
 plt.show()
 
 # %%
-# Median filtered pupil diameter
-# ------------------------------
-# Another way to filter the data is by using statistic='median' in
-# ``rolling filter`` from the``movement.filtering`` module. The statistic=
-# 'median' applies a median filter and it conveniently takes care of creating
-# the filter and excluding the first and last number of frames corresponding to
-# half the filter length. It can be applied to multidimensional data.
+# Instead of the mean, we could also use the median, which is the default
+# option for the ``statistic`` argument, and should be more robust to outliers.
 
-mdn_filter = rolling_filter(pupil_diameter, filter_len, statistic="median")
-mdn_filter.sel(time=time_window).squeeze().plot.line(x="time", hue="lighting")
+mdn_filter = rolling_filter(pupil_diameter, window_len, statistic="median")
+mdn_filter.plot.line(x="time", hue="lighting")
 plt.show()
-# %%
