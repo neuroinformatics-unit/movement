@@ -265,3 +265,7 @@ plt.show()
 mdn_filter = rolling_filter(pupil_diameter, window_len, statistic="median")
 mdn_filter.plot.line(x="time", hue="lighting")
 plt.show()
+
+# %%
+# .. seealso::
+#   :ref:`sphx_glr_examples_smooth.py` example.
