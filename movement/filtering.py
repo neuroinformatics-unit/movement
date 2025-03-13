@@ -1,5 +1,6 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
+import warnings
 from typing import Literal
 
 import xarray as xr
@@ -270,3 +271,22 @@ def savgol_filter(
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
     return data_smoothed
+
+
+def median_filter(*args, **kwargs):
+    """Smooth data by applying a median filter over time (deprecated).
+
+    .. deprecated:: 0.3.0
+       This function is deprecated and will be removed in a future release.
+       Use :func:`rolling_filter` with `statistic="median"` instead.
+
+    """
+    warnings.warn(
+        "The function `movement.filtering.median_filter` is deprecated and "
+        "will be removed in a future release. "
+        "Please use `movement.filtering.rolling_filter` instead, "
+        "with `statistic='median'`.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return rolling_filter(*args, statistic="median", **kwargs)
