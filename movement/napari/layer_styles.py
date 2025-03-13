@@ -33,7 +33,15 @@ class PointsStyle(LayerStyle):
     face_color: str | None = None
     face_color_cycle: list[tuple] | None = None
     face_colormap: str = DEFAULT_COLORMAP
-    text: dict = field(default_factory=lambda: {"visible": False})
+    text: dict = field(
+        default_factory=lambda: {
+            "visible": False,
+            "anchor": "lower_left",
+            "translation": 5,  # pixels
+            # it actually displays the text in the lower
+            # _right_ corner of the marker
+        }
+    )
 
     def set_color_by(self, prop: str, cmap: str | None = None) -> None:
         """Color markers and text by a column in the properties DataFrame.
@@ -62,6 +70,17 @@ class PointsStyle(LayerStyle):
         # Set color cycle for points and text
         self.face_color_cycle = color_cycle
         self.text["color"].update({"colormap": color_cycle})
+
+    def set_text_by(self, prop: str) -> None:
+        """Set the text property for the points layer.
+
+        Parameters
+        ----------
+        prop : str
+            The column name in the properties DataFrame to use for text.
+
+        """
+        self.text["string"] = prop
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:

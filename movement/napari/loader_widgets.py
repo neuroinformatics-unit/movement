@@ -166,19 +166,14 @@ class DataLoader(QWidget):
         bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
         # Define style for points layer
-        text_prop = "keypoint" if "keypoint" in self.props else "individual"
         props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
-            text={
-                "string": text_prop,
-                "visible": False,
-                "anchor": "lower_left",
-                "translation": 5,  # pixels
-                # it actually displays the text in the lower
-                # right corner of the marker
-            },
         )
+
+        # Set markers' text
+        text_prop = "keypoint" if "keypoint" in self.props else "individual"
+        props_and_style.set_color_by(prop=text_prop)
 
         # Set color of markers and text
         color_prop = "individual"
