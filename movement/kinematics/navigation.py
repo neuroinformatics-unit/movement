@@ -139,8 +139,7 @@ def compute_head_direction_vector(
 ):
     """Compute the 2D head direction vector given two keypoints on the head.
 
-    This function is an alias for :func:`compute_forward_vector()\
-    <movement.kinematics.compute_forward_vector>`. For more
+    This function is an alias for :func:`compute_forward_vector`. For more
     detailed information on how the head direction vector is computed,
     please refer to the documentation for that function.
 
@@ -168,6 +167,11 @@ def compute_head_direction_vector(
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
 
+    See Also
+    --------
+    compute_forward_vector :
+        The function used to compute the head direction vector.
+
     """
     return compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
@@ -187,7 +191,7 @@ def compute_forward_vector_angle(
     Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
-    <movement.kinematics.compute_forward_vector>`.
+    <compute_forward_vector>`.
     The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,
     unless ``in_degrees`` is set to ``True``.
 
@@ -233,7 +237,7 @@ def compute_forward_vector_angle(
         The underlying function used to compute the signed angle between two
         2D vectors. See this function for a definition of the signed
         angle between two vectors.
-    movement.kinematics.compute_forward_vector :
+    compute_forward_vector :
         The function used to compute the forward vector.
 
     """
