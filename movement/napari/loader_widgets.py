@@ -198,6 +198,9 @@ class DataLoader(QWidget):
             2:
         ]
 
+        # Select points layer
+        self.viewer.layers.selection.active = self.points_layer
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
@@ -218,9 +221,8 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Add data as a points layer with metadata
-        # (max_frame_idx is used to set the frame slider range)
-        self.viewer.add_points(
+        # Add data as a points layer
+        self.points_layer = self.viewer.add_points(
             self.data[self.bool_not_nan, 1:],
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
@@ -249,7 +251,7 @@ class DataLoader(QWidget):
         tracks_style.set_color_by(property=color_property_factorized)
 
         # Add data as a tracks layer
-        self.viewer.add_tracks(
+        self.tracks_layer = self.viewer.add_tracks(
             self.data[self.bool_not_nan, :],
             properties=self.properties.iloc[self.bool_not_nan, :],
             **tracks_style.as_kwargs(),
