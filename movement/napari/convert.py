@@ -26,7 +26,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     return pd.DataFrame(data).reindex(columns=desired_order)
 
 
-def movement_ds_to_napari_tracks(
+def ds_to_napari_tracks(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, pd.DataFrame]:
     """Convert ``movement`` dataset to napari Tracks array and properties.

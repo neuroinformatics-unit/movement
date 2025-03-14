@@ -20,7 +20,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.io import load_bboxes, load_poses
-from movement.napari.convert import movement_ds_to_napari_tracks
+from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
 
 logger = logging.getLogger(__name__)
@@ -152,7 +152,7 @@ class DataLoader(QWidget):
         ds = loader.from_file(file_path, source_software, fps)
 
         # Convert to napari Tracks array
-        self.data, self.props = movement_ds_to_napari_tracks(ds)
+        self.data, self.props = ds_to_napari_tracks(ds)
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
