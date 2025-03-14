@@ -1,12 +1,14 @@
-# D:\Programs\NIU\movement\movement\kinematics\utils.py
 """Utility functions for kinematics computations."""
 
 import xarray as xr
 
-from movement.kinematics.motion import compute_displacement
 from movement.utils.logging import log_error, log_warning
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm
+
+from .kinematics import (
+    compute_displacement,  # Fixed import: relative to kinematics subpackage
+)
 
 
 def _validate_type_data_array(data: xr.DataArray) -> None:

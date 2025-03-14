@@ -2,9 +2,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.kinematics.motion import (
+from movement.kinematics.kinematics import (
     compute_acceleration,
     compute_displacement,
+    compute_path_length,
     compute_speed,
     compute_velocity,
 )
@@ -18,7 +19,7 @@ class TestComputeKinematics:
     )
     @pytest.mark.parametrize(
         "kinematic_variable",
-        ["displacement", "velocity", "acceleration", "speed"],
+        ["displacement", "velocity", "acceleration", "speed", "path_length"],
     )
     def test_kinematics(self, valid_dataset, kinematic_variable, request):
         """Test kinematic computations with valid datasets."""
@@ -29,10 +30,21 @@ class TestComputeKinematics:
             "velocity": compute_velocity,
             "acceleration": compute_acceleration,
             "speed": compute_speed,
+            "path_length": compute_path_length,
         }[kinematic_variable]
         kinematic_array = kinematic_func(position)
         # Add assertions as needed (e.g., check output type, dims)
         assert isinstance(kinematic_array, xr.DataArray)
+        if kinematic_variable != "path_length":
+            assert (
+                "space" in kinematic_array.dims
+                or kinematic_array.dims == position.dims[:-1]
+            )  # speed has no space dim
+        else:
+            assert (
+                "time" not in kinematic_array.dims
+                and "space" not in kinematic_array.dims
+            )
 
     @pytest.mark.parametrize(
         "valid_dataset_with_nan, expected_nans_per_individual",
@@ -44,6 +56,10 @@ class TestComputeKinematics:
                     "velocity": [36, 0],
                     "acceleration": [40, 0],
                     "speed": [18, 0],
+                    "path_length": [
+                        0,
+                        0,
+                    ],  # Depends on nan_policy; assuming ffill
                 },
             ),
             (
@@ -53,13 +69,17 @@ class TestComputeKinematics:
                     "velocity": [12, 0],
                     "acceleration": [14, 0],
                     "speed": [6, 0],
+                    "path_length": [
+                        0,
+                        0,
+                    ],  # Depends on nan_policy; assuming ffill
                 },
             ),
         ],
     )
     @pytest.mark.parametrize(
         "kinematic_variable",
-        ["displacement", "velocity", "acceleration", "speed"],
+        ["displacement", "velocity", "acceleration", "speed", "path_length"],
     )
     def test_kinematics_with_dataset_with_nans(
         self,
@@ -77,6 +97,7 @@ class TestComputeKinematics:
             "velocity": compute_velocity,
             "acceleration": compute_acceleration,
             "speed": compute_speed,
+            "path_length": compute_path_length,
         }[kinematic_variable]
         kinematic_array = kinematic_func(position)
         expected_nans = expected_nans_per_individual[kinematic_variable]
@@ -105,7 +126,7 @@ class TestComputeKinematics:
     )
     @pytest.mark.parametrize(
         "kinematic_variable",
-        ["displacement", "velocity", "acceleration", "speed"],
+        ["displacement", "velocity", "acceleration", "speed", "path_length"],
     )
     def test_kinematics_with_invalid_dataset(
         self, invalid_dataset, expected_exception, kinematic_variable, request
@@ -118,5 +139,6 @@ class TestComputeKinematics:
                 "velocity": compute_velocity,
                 "acceleration": compute_acceleration,
                 "speed": compute_speed,
+                "path_length": compute_path_length,
             }[kinematic_variable]
             kinematic_func(position)

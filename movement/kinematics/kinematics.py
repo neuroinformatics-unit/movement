@@ -1,4 +1,15 @@
-"""Compute kinematic variables, such as time derivatives of position."""
+"""Core kinematics functions for computing proper kinematic variables.
+
+This module contains functions for calculating fundamental kinematic properties
+such as displacement, velocity, acceleration, speed, and path length, which are
+directly related to motion in a physical sense. In the current structure, the
+`movement.kinematics` subpackage encompasses a broader range of functionality
+(e.g., navigation and spatial relationships), but this file is intended to
+isolate 'true' kinematics for clarity. In a future release, the public API may
+be revised to reflect this distinction more explicitly.
+"""
+
+from typing import Literal  # Added this import
 
 import xarray as xr
 
@@ -185,3 +196,93 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
 
     """
     return compute_norm(compute_velocity(data))
+
+
+def compute_path_length(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute the length of a path travelled between two time points.
+
+    The path length is defined as the sum of the norms (magnitudes) of the
+    displacement vectors between two time points ``start`` and ``stop``,
+    which should be provided in the time units of the data array.
+    If not specified, the minimum and maximum time coordinates of the data
+    array are used as start and stop times, respectively.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    start : float, optional
+        The start time of the path. If None (default),
+        the minimum time coordinate in the data is used.
+    stop : float, optional
+        The end time of the path. If None (default),
+        the maximum time coordinate in the data is used.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
+        or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
+        See Notes for more details on the two policies.
+    nan_warn_threshold : float, optional
+        If more than this proportion of values are missing in any point track,
+        a warning will be emitted. Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    Notes
+    -----
+    Choosing ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill`
+    to forward-fill missing segments (NaN values) across time.
+    This equates to assuming that a track remains stationary for
+    the duration of the missing segment and then instantaneously moves to
+    the next valid position, following a straight line. This approach tends
+    to underestimate the path length, and the error increases with the number
+    of missing values.
+
+    Choosing ``nan_policy="scale"`` will adjust the path length based on the
+    the proportion of valid segments per point track. For example, if only
+    80% of segments are present, the path length will be computed based on
+    these and the result will be divided by 0.8. This approach assumes
+    that motion dynamics are similar across observed and missing time
+    segments, which may not accurately reflect actual conditions.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    data = data.sel(time=slice(start, stop))
+    # Check that the data is not empty or too short
+    n_time = data.sizes["time"]
+    if n_time < 2:
+        raise log_error(
+            ValueError,
+            f"At least 2 time points are required to compute path length, "
+            f"but {n_time} were found. Double-check the start and stop times.",
+        )
+
+    from .utils import _compute_scaled_path_length, _warn_about_nan_proportion
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    if nan_policy == "ffill":
+        return compute_norm(
+            compute_displacement(data.ffill(dim="time")).isel(
+                time=slice(1, None)
+            )  # skip first displacement (always 0)
+        ).sum(dim="time", min_count=1)  # return NaN if no valid segment
+    elif nan_policy == "scale":
+        return _compute_scaled_path_length(data)
+    else:
+        raise log_error(
+            ValueError,
+            f"Invalid value for nan_policy: {nan_policy}. "
+            "Must be one of 'ffill' or 'scale'.",
+        )

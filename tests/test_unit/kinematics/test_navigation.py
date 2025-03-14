@@ -3,6 +3,8 @@ import xarray as xr
 
 from movement.kinematics.navigation import (
     compute_forward_vector,
+    compute_forward_vector_angle,
+    compute_head_direction_vector,
 )
 
 
@@ -66,3 +68,30 @@ def test_compute_forward_vector_identical_keypoints(
     data = valid_data_array_for_forward_vector
     with pytest.raises(ValueError, match="keypoints may not be identical"):
         compute_forward_vector(data, "left_ear", "left_ear")
+
+
+# Optional: Add basic tests for other navigation functions
+@pytest.mark.parametrize("camera_view", ["top_down", "bottom_up"])
+def test_compute_head_direction_vector(
+    valid_data_array_for_forward_vector, camera_view
+):
+    data = valid_data_array_for_forward_vector
+    result = compute_head_direction_vector(
+        data, "left_ear", "right_ear", camera_view=camera_view
+    )
+    assert isinstance(result, xr.DataArray)
+    assert "space" in result.dims
+    assert "keypoints" not in result.dims
+
+
+@pytest.mark.parametrize("in_degrees", [True, False])
+def test_compute_forward_vector_angle(
+    valid_data_array_for_forward_vector, in_degrees
+):
+    data = valid_data_array_for_forward_vector
+    result = compute_forward_vector_angle(
+        data, "left_ear", "right_ear", in_degrees=in_degrees
+    )
+    assert isinstance(result, xr.DataArray)
+    assert "space" not in result.dims
+    assert "keypoints" not in result.dims
