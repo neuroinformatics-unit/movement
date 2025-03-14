@@ -78,7 +78,8 @@ class Helpers:
         assert dataset.source_software == expected_values.get(
             "source_software"
         )
-        assert dataset.fps == expected_values.get("fps")
+        fps = getattr(dataset, "fps", None)
+        assert fps == expected_values.get("fps")
 
     @staticmethod
     def count_nans(da):
