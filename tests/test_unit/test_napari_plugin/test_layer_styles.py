@@ -19,21 +19,20 @@ def sample_properties():
 
 
 @pytest.fixture
-def sample_layer_style(sample_properties):
+def sample_layer_style():
     """Fixture that provides a sample LayerStyle or subclass instance."""
 
     def _sample_layer_style(layer_class):
-        return layer_class(name="Layer1", properties=sample_properties)
+        return layer_class(name="Layer1")
 
     return _sample_layer_style
 
 
 @pytest.fixture
-def default_style_attributes(sample_properties):
+def default_style_attributes():
     """Fixture that provides expected attributes for LayerStyle and subclasses.
 
-    It holds the default values we expect after initialisation, as well as the
-    "name" and "properties" attributes that are defined in this test module.
+    It holds the default values we expect after initialisation.
     """
     return {
         # Shared attributes for LayerStyle and all its subclasses
@@ -41,7 +40,6 @@ def default_style_attributes(sample_properties):
             "name": "Layer1",  # as given in sample_layer_style
             "visible": True,
             "blending": "translucent",
-            "properties": sample_properties,  # as given by fixture above
         },
         # Additional attributes for PointsStyle
         PointsStyle: {
@@ -72,6 +70,7 @@ def test_layer_style_initialization(
 
     # Expected attributes of base LayerStyle, shared by all subclasses
     expected_attrs = default_style_attributes[LayerStyle].copy()
+
     # Additional attributes, specific to subclasses of LayerStyle
     if layer_class != LayerStyle:
         expected_attrs.update(default_style_attributes[layer_class])
@@ -107,7 +106,11 @@ def test_layer_style_as_kwargs(sample_layer_style, default_style_attributes):
     ],
 )
 def test_points_style_set_color_by(
-    sample_layer_style, points_style_text_dict, prop, expected_n_colors
+    sample_layer_style,
+    sample_properties,
+    points_style_text_dict,
+    prop,
+    expected_n_colors,
 ):
     """Test that set_color_by updates the color and color cycle of
     the point markers and the text.
@@ -115,12 +118,15 @@ def test_points_style_set_color_by(
     # Create a points style object with predefined properties
     points_style = sample_layer_style(PointsStyle)
 
-    # add a color key to the text dictionary if required
+    # Add a color key to the text dictionary if required
     if points_style_text_dict == "with_color_key":
         points_style.text = {"color": {"fallback": "white"}}
 
     # Color markers and text by the property "prop"
-    points_style.set_color_by(prop=prop)
+    points_style.set_color_by(
+        property=prop,
+        properties_df=sample_properties,
+    )
 
     # Check that the markers and the text color follow "prop"
     assert points_style.face_color == prop
@@ -129,7 +135,7 @@ def test_points_style_set_color_by(
 
     # Check the color cycle
     color_cycle = _sample_colormap(
-        len(points_style.properties[prop].unique()),
+        len(sample_properties[prop].unique()),
         cmap_name=DEFAULT_COLORMAP,
     )
     assert points_style.face_color_cycle == color_cycle
@@ -170,7 +176,7 @@ def test_points_style_set_text_by(
     )
 
     # Set text by the property "category"
-    points_style.set_text_by(prop=property)
+    points_style.set_text_by(property=property)
 
     # Check that the text properties are as expected
     assert points_style.text["string"] == property
