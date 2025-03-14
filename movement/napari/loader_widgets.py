@@ -154,8 +154,15 @@ class DataLoader(QWidget):
 
         # Convert dataset to napari Tracks array
         self.data, self.properties = ds_to_napari_tracks(ds)
+
         # Find rows that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+
+        # Get the expected frame range
+        # (i.e. the number of frames in the dataset)
+        self.expected_frame_range = RangeTuple(
+            start=0.0, stop=max(self.data[:, 1]), step=1.0
+        )
 
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
@@ -172,9 +179,6 @@ class DataLoader(QWidget):
         self._add_tracks_layer()
 
         # Ensure the frame slider reflects the total number of frames
-        self.expected_frame_range = RangeTuple(
-            start=0.0, stop=max(self.data[:, 1]), step=1.0
-        )
         if self.viewer.dims.range[0] != self.expected_frame_range:
             self.viewer.dims.range = (
                 self.expected_frame_range,
@@ -188,19 +192,19 @@ class DataLoader(QWidget):
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
-        points_style = PointsStyle(
-            name=f"data: {self.file_name}",
-            text={
-                "string": (
-                    "keypoint"
-                    if "keypoint" in self.properties
-                    else "individual"
-                ),
-                "visible": False,
-            },
-        )
+        points_style = PointsStyle(name=f"data: {self.file_name}")
 
-        # Color markers and optional text by selected property
+        # Set markers' text
+        if (
+            "keypoint" in self.properties
+            and len(self.properties["keypoint"].unique()) > 1
+        ):
+            text_prop = "keypoint"
+        else:
+            text_prop = "individual"
+        points_style.set_text_by(prop=text_prop)
+
+        # Set color of markers and text
         points_style.set_color_by(self.color_property, self.properties)
 
         # Add data as a points layer
