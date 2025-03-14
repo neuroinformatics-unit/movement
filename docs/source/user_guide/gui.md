@@ -4,7 +4,7 @@
 The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
-visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
+visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points overlaid on video frames.
 
 :::{warning}
@@ -45,7 +45,7 @@ Below, we'll explain how to do this.
 Though this is not strictly necessary, it is usually informative to
 view the keypoints overlaid on a background that provides
 some spatial context. You can either [load the video](target-load-video)
-corresponding to the poses dataset, or a [single image](target-load-frame),
+corresponding to the dataset, or a [single image](target-load-frame),
 e.g., a still frame derived from that video.
 You can do this by dragging and dropping the corresponding file onto the
 `napari` window or by using the `File > Open File(s)` menu option.
@@ -120,15 +120,15 @@ Dragging and dropping the image file onto the `napari` window
 (or opening it via the `File` menu) will load the image
 as a single 2D frame without a slider.
 
-## Load the poses dataset
+## Load the tracked dataset
 
 Now you are ready to load some motion tracks over your chosen background layer.
 
 On the right-hand side of the window you should see
-an expanded `Load poses` menu. To load pose data in napari:
+an expanded `Load tracked data` menu. To load tracked data in napari:
 1. Select the `source software` from the dropdown menu.
-2. Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
-3. Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
+2. Set the `fps`  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
+3. Select the file containing the tracked data. The path can be directly pasted or you can use the file browser button.
 4. Click `Load`.
 
 The data should be loaded into the viewer as a

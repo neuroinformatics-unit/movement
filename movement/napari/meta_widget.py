@@ -21,7 +21,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         self.add_widget(
             DataLoader(napari_viewer, parent=self),
             collapsible=True,
-            widget_title="Load data",
+            widget_title="Load tracked data",
         )
 
         self.loader = self.collapsible_widgets[0]
