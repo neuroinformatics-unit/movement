@@ -172,7 +172,13 @@ class DataLoader(QWidget):
         )
 
         # Set markers' text
-        text_prop = "keypoint" if "keypoint" in self.props else "individual"
+        if (
+            "keypoint" in self.props
+            and len(self.props["keypoint"].unique()) > 1
+        ):
+            text_prop = "keypoint"
+        else:
+            text_prop = "individual"
         props_and_style.set_text_by(prop=text_prop)
 
         # Set color of markers and text
