@@ -107,6 +107,9 @@ class ValidPosesDataset:
         etc.
     fps : float, optional
         Frames per second of the video. Defaults to None.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames) corresponding to the timestamp of each
+        frame in chronological order.
     source_software : str, optional
         Name of the software from which the poses were loaded.
         Defaults to None.
@@ -138,6 +141,7 @@ class ValidPosesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
+    timestamps: np.ndarray | None = field(default=None)
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
@@ -192,6 +196,18 @@ class ValidPosesDataset:
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         _validate_list_length(attribute, value, self.position_array.shape[2])
+
+    @timestamps.validator
+    def _validate_timestamps(self, attribute, value):
+        _validate_type_ndarray(value)
+        expected_shape = (self.position_array[0], 1)
+        _validate_array_shape(attribute, value, expected_shape=expected_shape)
+        if not np.all(np.diff(value, axis=0) >= 1):
+            raise log_error(
+                ValueError,
+                f"""Timestamps in {attribute.name} are not
+                monotonically increasing.""",
+            )
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
@@ -274,6 +290,9 @@ class ValidBboxesDataset:
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
+    timestamps : np.ndarray, optional
+        Array of shape (n_frames) corresponding to the timestamp of each
+        frame in chronological order.
     source_software : str, optional
         Name of the software that generated the data. Defaults to None.
 
@@ -304,6 +323,7 @@ class ValidBboxesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
+    timestamps: np.ndarray | None = field(default=None)
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
@@ -374,6 +394,22 @@ class ValidBboxesDataset:
                     ValueError,
                     f"Frame numbers in {attribute.name} are not monotonically "
                     "increasing.",
+                )
+
+    @timestamps.validator
+    def _validate_timestamps(self, attribute, value):
+        if value is not None:
+            _validate_type_ndarray(value)
+            expected_shape = (self.position_array.shape[0], 1)
+            _validate_array_shape(
+                attribute, value, expected_shape=expected_shape
+            )
+            # to check if timestamps are increasing monotonically
+            if not np.all(np.diff(value, axis=0) >= 1):
+                raise log_error(
+                    ValueError,
+                    f"""Timestamps in {attribute.name} are not
+                    monotonically increasing.""",
                 )
 
     # Define defaults
