@@ -384,7 +384,7 @@ we focus on the mouse ``AEON3B_TP2``:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7fd2c72fe000>
+    <matplotlib.colorbar.Colorbar object at 0x7f0018a8f8f0>
 
 
 
@@ -465,7 +465,7 @@ the plot above:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7fd2ce3fcdd0>
+    <matplotlib.colorbar.Colorbar object at 0x7f0013811b50>
 
 
 
@@ -756,7 +756,7 @@ acceleration vector for each individual:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.103 seconds)
+   **Total running time of the script:** (0 minutes 2.095 seconds)
 
 
 .. _sphx_glr_download_examples_compute_kinematics.py:

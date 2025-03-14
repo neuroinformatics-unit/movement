@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>poses_to_napari_tracks &#8212; movement</title>
+    <title>ds_to_napari_tracks &#8212; movement</title>
   
   
   
@@ -44,13 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/documentation_options.js?v=6c02275b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert.poses_to_napari_tracks';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert.poses_to_napari_tracks.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert.ds_to_napari_tracks';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert.ds_to_napari_tracks.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.3.0</p>
+    <p class="title logo__title">movement v0.4.0</p>
   
 </a></div>
     
@@ -406,7 +406,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">poses_to_napari_tracks</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ds_to_napari_tracks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -539,7 +539,7 @@
     
     <li class="breadcrumb-item"><a href="movement.napari.convert.html" class="nav-link">movement.napari.convert</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">poses_to_napari_tracks</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ds_to_napari_tracks</span></li>
   </ul>
 </nav>
 </div>
@@ -555,16 +555,16 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="poses-to-napari-tracks">
-<h1>poses_to_napari_tracks<a class="headerlink" href="#poses-to-napari-tracks" title="Link to this heading">#</a></h1>
+                   <section id="ds-to-napari-tracks">
+<h1>ds_to_napari_tracks<a class="headerlink" href="#ds-to-napari-tracks" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.napari.convert.poses_to_napari_tracks">
-<span class="sig-prename descclassname"><span class="pre">movement.napari.convert.</span></span><span class="sig-name descname"><span class="pre">poses_to_napari_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/convert.html#poses_to_napari_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.convert.poses_to_napari_tracks" title="Link to this definition">#</a></dt>
-<dd><p>Convert poses dataset to napari Tracks array and properties.</p>
+<dt class="sig sig-object py" id="movement.napari.convert.ds_to_napari_tracks">
+<span class="sig-prename descclassname"><span class="pre">movement.napari.convert.</span></span><span class="sig-name descname"><span class="pre">ds_to_napari_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/convert.html#ds_to_napari_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.convert.ds_to_napari_tracks" title="Link to this definition">#</a></dt>
+<dd><p>Convert <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to napari Tracks array and properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ds</strong> (<em>xr.Dataset</em>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing pose tracks, confidence scores,
-and associated metadata.</p>
+<dd class="field-odd"><p><strong>ds</strong> (<em>xr.Dataset</em>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing pose or bounding box tracks,
+confidence scores, and associated metadata.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span></p>
@@ -648,7 +648,7 @@ on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1"
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.convert.poses_to_napari_tracks"><code class="docutils literal notranslate"><span class="pre">poses_to_napari_tracks()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.convert.ds_to_napari_tracks"><code class="docutils literal notranslate"><span class="pre">ds_to_napari_tracks()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -656,7 +656,7 @@ on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1"
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.napari.convert.poses_to_napari_tracks.rst.txt"
+      <li><a href="../_sources/api/movement.napari.convert.ds_to_napari_tracks.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

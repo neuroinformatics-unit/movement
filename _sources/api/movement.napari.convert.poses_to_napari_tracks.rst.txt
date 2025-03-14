@@ -1,6 +1,0 @@
-poses\_to\_napari\_tracks
-=========================
-
-.. currentmodule:: movement.napari.convert
-
-.. autofunction:: poses_to_napari_tracks

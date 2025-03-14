@@ -16,6 +16,6 @@
     :toctree: .
     :nosignatures:
     
-    poses_to_napari_tracks
+    ds_to_napari_tracks
     
 

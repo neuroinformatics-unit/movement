@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/documentation_options.js?v=6c02275b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.3.0</p>
+    <p class="title logo__title">movement v0.4.0</p>
   
 </a></div>
     
@@ -406,7 +406,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.poses_to_napari_tracks.html">poses_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -569,7 +569,10 @@
 <td><p>Return the style properties as a dictionary of kwargs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="movement.napari.layer_styles.PointsStyle.set_color_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_color_by</span></code></a>(prop[, cmap])</p></td>
-<td><p>Set the face_color to a column in the properties DataFrame.</p></td>
+<td><p>Color markers and text by a column in the properties DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="movement.napari.layer_styles.PointsStyle.set_text_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_text_by</span></code></a>(prop)</p></td>
+<td><p>Set the text property for the points layer.</p></td>
 </tr>
 </tbody>
 </table>
@@ -588,13 +591,27 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.napari.layer_styles.PointsStyle.set_color_by">
 <span class="sig-name descname"><span class="pre">set_color_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_color_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="Link to this definition">#</a></dt>
-<dd><p>Set the face_color to a column in the properties DataFrame.</p>
+<dd><p>Color markers and text by a column in the properties DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prop</strong> (<em>str</em>) – The column name in the properties DataFrame to color by.</p></li>
 <li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the colormap to use, otherwise use the face_colormap.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.napari.layer_styles.PointsStyle.set_text_by">
+<span class="sig-name descname"><span class="pre">set_text_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_text_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="Link to this definition">#</a></dt>
+<dd><p>Set the text property for the points layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>str</em>) – The column name in the properties DataFrame to use for text.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
@@ -659,6 +676,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.PointsStyle"><code class="docutils literal notranslate"><span class="pre">PointsStyle</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.PointsStyle.as_kwargs"><code class="docutils literal notranslate"><span class="pre">PointsStyle.as_kwargs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.PointsStyle.set_color_by"><code class="docutils literal notranslate"><span class="pre">PointsStyle.set_color_by()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.PointsStyle.set_text_by"><code class="docutils literal notranslate"><span class="pre">PointsStyle.set_text_by()</span></code></a></li>
 </ul>
 </li>
 </ul>

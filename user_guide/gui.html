@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=e259d695"></script>
+    <script src="../_static/documentation_options.js?v=6c02275b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.3.0</p>
+    <p class="title logo__title">movement v0.4.0</p>
   
 </a></div>
     
@@ -427,7 +427,7 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> graphical user interface (GUI), powered by our custom plugin for
 <a class="reference external" href="https://napari.org/dev/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
-visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">poses datasets</span></a>
+visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
 as points overlaid on video frames.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -462,7 +462,7 @@ Below, we’ll explain how to do this.</p>
 <p>Though this is not strictly necessary, it is usually informative to
 view the keypoints overlaid on a background that provides
 some spatial context. You can either <a class="reference internal" href="#target-load-video"><span class="std std-ref">load the video</span></a>
-corresponding to the poses dataset, or a <a class="reference internal" href="#target-load-frame"><span class="std std-ref">single image</span></a>,
+corresponding to the dataset, or a <a class="reference internal" href="#target-load-frame"><span class="std std-ref">single image</span></a>,
 e.g., a still frame derived from that video.
 You can do this by dragging and dropping the corresponding file onto the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window or by using the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">File(s)</span></code> menu option.
@@ -524,15 +524,15 @@ to extract a still frame from a video.</p>
 as a single 2D frame without a slider.</p>
 </section>
 </section>
-<section id="load-the-poses-dataset">
-<h2>Load the poses dataset<a class="headerlink" href="#load-the-poses-dataset" title="Link to this heading">#</a></h2>
-<p>Now you are ready to load some pose tracks over your chosen background layer.</p>
+<section id="load-the-tracked-dataset">
+<h2>Load the tracked dataset<a class="headerlink" href="#load-the-tracked-dataset" title="Link to this heading">#</a></h2>
+<p>Now you are ready to load some motion tracks over your chosen background layer.</p>
 <p>On the right-hand side of the window you should see
-an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">poses</span></code> menu. To load pose data in napari:</p>
+an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. To load tracked data in napari:</p>
 <ol class="arabic simple">
 <li><p>Select the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> from the dropdown menu.</p></li>
-<li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code>  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.</p></li>
-<li><p>Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.</p></li>
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code>  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.</p></li>
+<li><p>Select the file containing the tracked data. The path can be directly pasted or you can use the file browser button.</p></li>
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
 <p>The data should be loaded into the viewer as a
@@ -546,10 +546,11 @@ the expected software and file formats.</p>
 <p>You will see a view similar to the one below:</p>
 <p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_with_poses_as_points.png" /></p>
 <p>The keypoints are represented as points, colour-coded by
-keypoint ID for single-individual datasets, or by individual ID for
-multi-individual datasets. These IDs can be also displayed as text
-next to the points by enabling the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> option from the
-layer controls panel.</p>
+keypoint for single-individual datasets, or by individual for
+multi-individual datasets. In datasets with one or no keypoints per individual,
+the points are always colour-coded by individual. If we enable the <code class="docutils literal notranslate"><span class="pre">display_text</span></code> option in the
+layer controls panel, the keypoint name will be displayed on the lower right corner of each point. If the
+dataset has no keypoint dimension, the individual name is shown instead.</p>
 <p>Hovering with your mouse over a point
 (with the points layer selected) will
 bring up a tooltip containing the names of the individual and keypoint,
@@ -564,8 +565,6 @@ in sync.</p>
 <p>Though the display style of the points layer is currently fixed, we are
 working on adding more customisation options in future releases, such as
 enabling you to change the point size, colour, or shape.</p>
-<p>We are also working on enabling the visualisation of
-<a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">bounding boxes datasets</span></a> in the plugin.</p>
 </div>
 </section>
 </section>
@@ -626,7 +625,7 @@ enabling you to change the point size, colour, or shape.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-image">Load an image</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-poses-dataset">Load the poses dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a></li>
 </ul>
   </nav></div>
 

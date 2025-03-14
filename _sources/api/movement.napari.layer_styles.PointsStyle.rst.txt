@@ -21,6 +21,9 @@ PointsStyle
    
    
    
+   
+   
+   
 
    
    .. rubric:: Methods
@@ -33,6 +36,9 @@ PointsStyle
    
    
       ~PointsStyle.set_color_by
+   
+   
+      ~PointsStyle.set_text_by
    
    
    
