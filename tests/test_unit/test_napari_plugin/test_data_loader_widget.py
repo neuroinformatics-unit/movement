@@ -7,6 +7,7 @@ instantiated (the methods would have already been connected to signals).
 
 import pytest
 from napari.components.dims import RangeTuple
+from napari.layers.points.points import Points
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -256,3 +257,79 @@ def test_dimension_slider_matches_frames(
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=ds.position.shape[0] - 1, step=1.0
     )
+
+
+@pytest.mark.parametrize(
+    (
+        "filename, source_software, "
+        "expected_text_property, expected_color_property"
+    ),
+    [
+        (
+            "VIA_multiple-crabs_5-frames_labels.csv",
+            "VIA-tracks",
+            "individual",
+            "individual",
+        ),
+        (
+            "SLEAP_single-mouse_EPM.predictions.slp",
+            "SLEAP",
+            "keypoint",
+            "keypoint",
+        ),
+        (
+            "DLC_two-mice.predictions.csv",
+            "DeepLabCut",
+            "keypoint",
+            "individual",
+        ),
+        (
+            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            "SLEAP",
+            "individual",
+            "individual",
+        ),
+    ],
+    ids=[
+        "multiple individuals, no keypoints",
+        "single individual, multiple keypoints",
+        "multiple individuals, multiple keypoints",
+        "multiple individuals, one keypoint",
+    ],
+)
+def test_add_points_layer_style(
+    filename,
+    source_software,
+    make_napari_viewer_proxy,
+    expected_text_property,
+    expected_color_property,
+    caplog,
+):
+    """Test that the Points layer is added to the viewer with the markers
+    and text following the expected properties.
+    """
+    # Instantiate the napari viewer and the data loader widget
+    viewer = make_napari_viewer_proxy()
+    loader_widget = DataLoader(viewer)
+
+    # Load data as a points layer
+    file_path = pytest.DATA_PATHS.get(filename)
+    loader_widget.file_path_edit.setText(file_path.as_posix())
+    loader_widget.source_software_combo.setCurrentText(source_software)
+    loader_widget._on_load_clicked()
+
+    # Check no warnings were emitted
+    log_messages = {record.getMessage() for record in caplog.records}
+    assert not any("Warning" in message for message in log_messages)
+
+    # Get the points layer
+    points_layer = next(
+        layer for layer in viewer.layers if isinstance(layer, Points)
+    )
+
+    # Check the color of markers and text follows the expected property
+    assert points_layer._face.color_properties.name == expected_color_property
+    assert points_layer.text.color.feature == expected_color_property
+
+    # Check the text follows the expected property
+    assert points_layer.text.string.feature == expected_text_property

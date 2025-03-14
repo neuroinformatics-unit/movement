@@ -46,7 +46,7 @@ class DataLoader(QWidget):
     """Widget for loading movement datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the loader widget."""
+        """Initialize the data loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
@@ -135,6 +135,7 @@ class DataLoader(QWidget):
 
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
+        # Get data from user input
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
@@ -152,10 +153,10 @@ class DataLoader(QWidget):
 
         # Convert to napari Tracks array
         self.data, self.props = movement_ds_to_napari_tracks(ds)
-
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
+        # Add the data as a Points layer
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
@@ -164,26 +165,35 @@ class DataLoader(QWidget):
         # Find rows in data array that do not contain NaN values
         bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
-        # Style properties for the napari Points layer
-        points_style = PointsStyle(
+        # Define style for points layer
+        props_and_style = PointsStyle(
             name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
         )
 
-        # Color the points by individual if there are multiple individuals
-        # Otherwise, color by keypoint
-        color_prop = "individual"
+        # Set markers' text
         if (
-            len(self.props["individual"].unique()) == 1
-            and "keypoint" in self.props
+            "keypoint" in self.props
+            and len(self.props["keypoint"].unique()) > 1
         ):
+            text_prop = "keypoint"
+        else:
+            text_prop = "individual"
+        props_and_style.set_text_by(prop=text_prop)
+
+        # Set color of markers and text
+        color_prop = "individual"
+        n_individuals = len(self.props["individual"].unique())
+        if n_individuals == 1 and "keypoint" in self.props:
             color_prop = "keypoint"
-        points_style.set_color_by(prop=color_prop)
-        # Add the points layer to the viewer
+        props_and_style.set_color_by(prop=color_prop)
+
+        # Add data as a points layer
         self.viewer.add_points(
-            self.data[bool_not_nan, 1:],  # columns:(track_id, frame_idx, y, x)
-            **points_style.as_kwargs(),
+            self.data[bool_not_nan, 1:],
+            **props_and_style.as_kwargs(),
         )
+
         # Ensure the frame slider reflects the total number of frames
         expected_frame_range = RangeTuple(
             start=0.0, stop=max(self.data[:, 1]), step=1.0
