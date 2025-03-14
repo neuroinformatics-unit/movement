@@ -142,18 +142,22 @@ class DataLoader(QWidget):
         file_path = self.file_path_edit.text()
         self.file_name = Path(file_path).name
 
-        # Load data as a movement dataset
-        if file_path == "":
+        # Check if the file path is empty
+        if not file_path:
             show_warning("No file path specified.")
             return
-        if source_software in SUPPORTED_POSES_FILES:
-            loader = load_poses
-        else:
-            loader = load_bboxes
-        ds = loader.from_file(file_path, source_software, fps)
 
-        # Convert dataset to napari Tracks array
+        # Load data as a movement dataset and convert to napari Tracks array
+        loader = (
+            load_poses
+            if source_software in SUPPORTED_POSES_FILES
+            else load_bboxes
+        )
+        ds = loader.from_file(file_path, source_software, fps)
         self.data, self.properties = ds_to_napari_tracks(ds)
+
+        logger.info("Converted dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
 
         # Find rows that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -164,10 +168,7 @@ class DataLoader(QWidget):
             start=0.0, stop=max(self.data[:, 1]), step=1.0
         )
 
-        logger.info("Converted dataset to a napari Tracks array.")
-        logger.debug(f"Tracks array shape: {self.data.shape}")
-
-        # Set property to color data and tracks by
+        # Set property to color points and tracks by
         color_prop = "individual"
         n_individuals = len(self.properties["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.properties:
@@ -195,17 +196,19 @@ class DataLoader(QWidget):
         points_style = PointsStyle(name=f"data: {self.file_name}")
 
         # Set markers' text
+        text_prop = "individual"
         if (
             "keypoint" in self.properties
             and len(self.properties["keypoint"].unique()) > 1
         ):
             text_prop = "keypoint"
-        else:
-            text_prop = "individual"
-        points_style.set_text_by(prop=text_prop)
+        points_style.set_text_by(property=text_prop)
 
         # Set color of markers and text
-        points_style.set_color_by(self.color_property, self.properties)
+        points_style.set_color_by(
+            property=self.color_property,
+            properties_df=self.properties,
+        )
 
         # Add data as a points layer
         self.viewer.add_points(
@@ -218,30 +221,30 @@ class DataLoader(QWidget):
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
-        # Factorize the color property
-        # (required for tracks layer)
+        # Factorize the color property (required for tracks layer)
         codes, _ = pd.factorize(self.properties[self.color_property])
         color_property_factorized = self.color_property + "_factorized"
         self.properties[color_property_factorized] = codes
 
         # Define style for tracks layer
-        # Note: tail_length needs to be set to the max number of frames
-        # to allow the tail and head length slider to work as expected
         tracks_style = TracksStyle(
             name=f"tracks: {self.file_name}",
-            color_by=self.color_property + "_factorized",
             tail_length=int(self.expected_frame_range[1]),
-            head_length=0,
+            # Set the tail length to the number of frames.
+            # If the value is over 300, it sets the maximum
+            # tail_length in the slider to the value passed.
+            # It also affects the head_length slider.
         )
 
+        # Set color by property
+        tracks_style.set_color_by(property=color_property_factorized)
+
         # Add data as a tracks layer
-        tracks_layer = self.viewer.add_tracks(
+        self.viewer.add_tracks(
             self.data[self.bool_not_nan, :],
             properties=self.properties.iloc[self.bool_not_nan, :],
             **tracks_style.as_kwargs(),
         )
-        tracks_layer.display_id = False  # Hide track IDs
-
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
     @staticmethod
