@@ -8,20 +8,44 @@ from pandas.testing import assert_frame_equal
 from movement.napari.convert import ds_to_napari_tracks
 
 
-@pytest.fixture
-def confidence_with_some_nan(valid_poses_dataset):
-    """Return a valid poses dataset with some NaNs in confidence values."""
-    ds = valid_poses_dataset
-    ds["confidence"].loc[{"individuals": "id_1", "time": [3, 7, 8]}] = np.nan
+def set_some_confidence_values_to_nan(ds, individuals, time):
+    """Set some confidence values to NaN for specific individuals and time."""
+    ds["confidence"].loc[{"individuals": individuals, "time": time}] = np.nan
     return ds
 
 
-@pytest.fixture
-def confidence_with_all_nan(valid_poses_dataset):
-    """Return a valid poses dataset with all NaNs in confidence values."""
-    ds = valid_poses_dataset
+def set_all_confidence_values_to_nan(ds):
+    """Set all confidence values to NaN."""
     ds["confidence"].data = np.full_like(ds["confidence"].data, np.nan)
     return ds
+
+
+@pytest.fixture
+def valid_poses_confidence_with_some_nan(valid_poses_dataset):
+    """Return a valid poses dataset with some NaNs in confidence values."""
+    return set_some_confidence_values_to_nan(
+        valid_poses_dataset, individuals=["id_1"], time=[3, 7, 8]
+    )
+
+
+@pytest.fixture
+def valid_poses_confidence_with_all_nan(valid_poses_dataset):
+    """Return a valid poses dataset with all NaNs in confidence values."""
+    return set_all_confidence_values_to_nan(valid_poses_dataset)
+
+
+@pytest.fixture
+def valid_bboxes_confidence_with_some_nan(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with some NaNs in confidence values."""
+    return set_some_confidence_values_to_nan(
+        valid_bboxes_dataset, individuals=["id_1"], time=[3, 7, 8]
+    )
+
+
+@pytest.fixture
+def valid_bboxes_confidence_with_all_nan(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with all NaNs in confidence values."""
+    return set_all_confidence_values_to_nan(valid_bboxes_dataset)
 
 
 @pytest.mark.parametrize(
@@ -29,8 +53,12 @@ def confidence_with_all_nan(valid_poses_dataset):
     [
         "valid_poses_dataset",
         "valid_poses_dataset_with_nan",
-        "confidence_with_some_nan",
-        "confidence_with_all_nan",
+        "valid_poses_confidence_with_some_nan",
+        "valid_poses_confidence_with_all_nan",
+        "valid_bboxes_dataset",
+        "valid_bboxes_dataset_with_nan",
+        "valid_bboxes_confidence_with_some_nan",
+        "valid_bboxes_confidence_with_all_nan",
     ],
 )
 def test_valid_dataset_to_napari_tracks(ds_name, request):
@@ -43,13 +71,13 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
     n_keypoints = ds.sizes.get("keypoints", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
+    # Convert the dataset to a napari Tracks array and properties DataFrame
     data, props = ds_to_napari_tracks(ds)
 
     # Prepare expected y, x positions and corresponding confidence values.
     # Assume values are extracted from the dataset in a specific way,
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence = [], [], []
-
     for id in ds.individuals.values:
         positions = ds.position.sel(individuals=id)
         confidences = ds.confidence.sel(individuals=id)
