@@ -4,7 +4,7 @@
 The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
-visualise 2D [poses datasets](target-poses-and-bboxes-dataset)
+visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points overlaid on video frames.
 
 :::{warning}
@@ -45,7 +45,7 @@ Below, we'll explain how to do this.
 Though this is not strictly necessary, it is usually informative to
 view the keypoints overlaid on a background that provides
 some spatial context. You can either [load the video](target-load-video)
-corresponding to the poses dataset, or a [single image](target-load-frame),
+corresponding to the dataset, or a [single image](target-load-frame),
 e.g., a still frame derived from that video.
 You can do this by dragging and dropping the corresponding file onto the
 `napari` window or by using the `File > Open File(s)` menu option.
@@ -120,15 +120,15 @@ Dragging and dropping the image file onto the `napari` window
 (or opening it via the `File` menu) will load the image
 as a single 2D frame without a slider.
 
-## Load the poses dataset
+## Load the tracked dataset
 
-Now you are ready to load some pose tracks over your chosen background layer.
+Now you are ready to load some motion tracks over your chosen background layer.
 
 On the right-hand side of the window you should see
-an expanded `Load poses` menu. To load pose data in napari:
+an expanded `Load tracked data` menu. To load tracked data in napari:
 1. Select the `source software` from the dropdown menu.
-2. Set the `fps`  (frames per second) of the video the pose data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
-3. Select the file containing the predicted poses. The path can be directly pasted or you can use the file browser button.
+2. Set the `fps`  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
+3. Select the file containing the tracked data. The path can be directly pasted or you can use the file browser button.
 4. Click `Load`.
 
 The data should be loaded into the viewer as a
@@ -148,10 +148,11 @@ You will see a view similar to the one below:
 ![napari widget with poses dataset loaded](../_static/napari_plugin_with_poses_as_points.png)
 
 The keypoints are represented as points, colour-coded by
-keypoint ID for single-individual datasets, or by individual ID for
-multi-individual datasets. These IDs can be also displayed as text
-next to the points by enabling the `display text` option from the
-layer controls panel.
+keypoint for single-individual datasets, or by individual for
+multi-individual datasets. In datasets with one or no keypoints per individual,
+the points are always colour-coded by individual. If we enable the `display_text` option in the
+layer controls panel, the keypoint name will be displayed on the lower right corner of each point. If the
+dataset has no keypoint dimension, the individual name is shown instead.
 
 Hovering with your mouse over a point
 (with the points layer selected) will
@@ -168,7 +169,4 @@ in sync.
 Though the display style of the points layer is currently fixed, we are
 working on adding more customisation options in future releases, such as
 enabling you to change the point size, colour, or shape.
-
-We are also working on enabling the visualisation of
-[bounding boxes datasets](target-poses-and-bboxes-dataset) in the plugin.
 :::

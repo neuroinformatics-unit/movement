@@ -3,7 +3,7 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
-from movement.napari.loader_widgets import PosesLoader
+from movement.napari.loader_widgets import DataLoader
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -17,10 +17,11 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         """Initialize the meta-widget."""
         super().__init__()
 
+        # Add the data loader widget
         self.add_widget(
-            PosesLoader(napari_viewer, parent=self),
+            DataLoader(napari_viewer, parent=self),
             collapsible=True,
-            widget_title="Load poses",
+            widget_title="Load tracked data",
         )
 
         self.loader = self.collapsible_widgets[0]
