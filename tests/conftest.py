@@ -11,6 +11,8 @@ import xarray.core.dtypes as xrdtypes
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
 
+rng = np.random.default_rng()
+
 
 # Patch for dtype promotion compatibility
 def patch_maybe_promote():
@@ -80,7 +82,7 @@ def setup_logging(tmp_path):
 @pytest.fixture
 def valid_data_array_for_forward_vector():
     return xr.DataArray(
-        np.random.rand(10, 3, 2),  # time, keypoints, space
+        rng.random((10, 3, 2)),  # time, keypoints, space
         dims=["time", "keypoints", "space"],
         coords={
             "time": range(10),
