@@ -105,8 +105,8 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     if "space" in da.dims:
         nan_report += " (any spatial coordinate)"
 
-    # Use the actual coordinates from the DataArray, not accessing via attribute
-    # This ensures we only get the individuals/keypoints that are actually in the subset
+    # Use coords to get only individuals/keypoints present in the DataArray
+    # This ensures correct handling of subsets
     if "individuals" in da.dims:
         individuals = da.coords["individuals"].values
     else:
@@ -125,11 +125,10 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
             nan_report += f"\n\tIndividual: {ind}"
 
         for kp in keypoints:
+            use_kp = kp if "keypoints" in da.dims and len(da.keypoints) > 1 else None
             nan_report += calculate_nan_stats(
                 da,
-                keypoint=kp
-                if "keypoints" in da.dims and len(da.keypoints) > 1
-                else None,
+                keypoint=use_kp,
                 individual=ind if "individuals" in da.dims else None,
             )
 
