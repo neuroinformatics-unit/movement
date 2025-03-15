@@ -125,7 +125,11 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
             nan_report += f"\n\tIndividual: {ind}"
 
         for kp in keypoints:
-            use_kp = kp if "keypoints" in da.dims and len(da.keypoints) > 1 else None
+            use_kp = (
+                kp
+                if "keypoints" in da.dims and len(da.keypoints) > 1
+                else None
+            )
             nan_report += calculate_nan_stats(
                 da,
                 keypoint=use_kp,
