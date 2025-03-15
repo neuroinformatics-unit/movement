@@ -11,7 +11,7 @@ import xarray.core.dtypes as xrdtypes
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
 
-rng = np.random.default_rng()
+rng = np.random.default_rng(42)
 
 
 # Patch for dtype promotion compatibility
