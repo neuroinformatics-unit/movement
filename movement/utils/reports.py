@@ -66,12 +66,12 @@ def calculate_nan_stats(
         round((n_nans / n_points) * 100, 1) if n_points != 0 else 0.0
     )
 
-    # Generate label
-    label = "data"
-    if "keypoints" in data.dims and keypoint:
+    # Generate label based on keypoint presence
+    # For single keypoint, don't include the name in the report
+    if "keypoints" in data.dims and keypoint and len(data.keypoints) > 1:
         label = keypoint
-    elif "keypoints" in data.dims and not keypoint:
-        label = "all_keypoints"
+    else:
+        label = "data"
 
     return f"\n\t\t{label}: {n_nans}/{n_points} ({percent_nans}%)"
 
@@ -105,11 +105,20 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     if "space" in da.dims:
         nan_report += " (any spatial coordinate)"
 
-    # Handle individuals dimension
-    individuals = da.individuals.values if "individuals" in da.dims else [None]
+    # Use the actual coordinates from the DataArray, not accessing via attribute
+    # This ensures we only get the individuals/keypoints that are actually in the subset
+    if "individuals" in da.dims:
+        individuals = da.coords["individuals"].values
+    else:
+        individuals = [None]
 
-    # Handle keypoints dimension
-    keypoints = da.keypoints.values if "keypoints" in da.dims else [None]
+    if "keypoints" in da.dims:
+        keypoints = da.coords["keypoints"].values
+        # Only explicitly list keypoints if more than one exists
+        if len(keypoints) <= 1:
+            keypoints = [None]
+    else:
+        keypoints = [None]
 
     for ind in individuals:
         if "individuals" in da.dims:
@@ -118,7 +127,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
         for kp in keypoints:
             nan_report += calculate_nan_stats(
                 da,
-                keypoint=kp if "keypoints" in da.dims else None,
+                keypoint=kp if "keypoints" in da.dims and len(da.keypoints) > 1 else None,
                 individual=ind if "individuals" in da.dims else None,
             )
 
