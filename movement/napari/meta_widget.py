@@ -3,9 +3,7 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
-from movement.napari.loader_widgets import PosesLoader
 from movement.napari.roi_widget import ROIDrawingWidget
-
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -35,6 +33,6 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         # Store references to widgets
         self.loader = self.collapsible_widgets[0]
         self.roi_drawer = self.collapsible_widgets[1]
-        
+
         # Expand the loader widget by default
         self.loader.expand()
