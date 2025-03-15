@@ -3,8 +3,9 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
-from movement.napari.roi_widget import ROIDrawingWidget
 from movement.napari.loader_widgets import DataLoader
+from movement.napari.roi_widget import ROIDrawingWidget
+
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
     """The widget to rule all ``movement`` napari widgets.
