@@ -1,4 +1,6 @@
 include LICENSE
+include coverage.xml
+
 include *.md
 include CITATION.CFF
 include movement/napari/napari.yaml
