@@ -14,7 +14,7 @@ class Bboxes:
 
     def __init__(self, bboxes, format: str):
         """Initialize mock bounding boxes.
-        
+
         Parameters
         ----------
         bboxes : list or np.ndarray
@@ -28,7 +28,7 @@ class Bboxes:
 
     def convert(self, target_format: str, inplace: bool = False) -> "Bboxes":
         """Convert bounding boxes to target format.
-        
+
         Parameters
         ----------
         target_format : str
@@ -54,14 +54,15 @@ class Bboxes:
             f"Unsupported conversion: {self.format}->{target_format}"
         )
 
+
 class TestVIATracksExport:
     """Test suite for VIA-tracks export functionality."""
-    
+
     @pytest.fixture
     def sample_bboxes(self):
         """Fixture providing sample bounding boxes in xyxy format."""
         return Bboxes([[10, 20, 50, 60]], format="xyxy")
-    
+
     @pytest.fixture
     def video_metadata(self):
         """Fixture providing sample video metadata."""
@@ -76,7 +77,7 @@ class TestVIATracksExport:
         """Test basic export functionality with valid inputs."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_bboxes, output_file, video_metadata)
-        
+
         assert output_file.exists()
         with open(output_file) as f:
             data = json.load(f)
@@ -87,7 +88,7 @@ class TestVIATracksExport:
         """Test file path validation logic."""
         valid_path = tmp_path / "valid.json"
         to_via_tracks_file(sample_bboxes, valid_path)
-        
+
         invalid_path = tmp_path / "invalid.txt"
         with pytest.raises(ValueError):
             to_via_tracks_file(sample_bboxes, invalid_path)
@@ -96,7 +97,7 @@ class TestVIATracksExport:
         """Test handling of missing metadata."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_bboxes, output_file)
-        
+
         with open(output_file) as f:
             data = json.load(f)
             vid = list(data["_via_data"]["vid_list"].keys())[0]
@@ -114,7 +115,7 @@ class TestVIATracksExport:
         output_file = tmp_path / "output.json"
         bboxes = Bboxes([[10, 20, 40, 40]], format="xywh")
         to_via_tracks_file(bboxes, output_file)
-        
+
         with open(output_file) as f:
             data = json.load(f)
             region = data["_via_data"]["metadata"][
