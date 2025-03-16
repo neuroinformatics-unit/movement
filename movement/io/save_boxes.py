@@ -3,20 +3,78 @@
 import json
 import logging
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Union
+
+import numpy as np
 
 # Configure logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+class Bboxes:
+    """Container for bounding box coordinates in various formats.
+    
+    Parameters
+    ----------
+    coordinates : list or np.ndarray
+        Array of bounding box coordinates
+    format : str
+        Coordinate format specification (e.g., 'xyxy', 'xywh')
+
+    """
+
+    def __init__(self, coordinates: list | np.ndarray, format: str):
+        """Initialize with box coordinates and format."""
+        self.coordinates = np.array(coordinates)
+        self.format = format
+
+    def convert(self, target_format: str, inplace: bool = False) -> "Bboxes":
+        """Convert coordinates to target format.
+        
+        Parameters
+        ----------
+        target_format : str
+            Desired output format ('xyxy' or 'xywh')
+        inplace : bool, optional
+            Whether to modify the current instance
+            
+        Returns
+        -------
+        Bboxes
+            Converted bounding boxes
+
+        """
+        if self.format == target_format:
+            return self
+            
+        if self.format == "xywh" and target_format == "xyxy":
+            converted = []
+            for box in self.coordinates:
+                x, y, w, h = box
+                converted.append([x, y, x + w, y + h])
+            new_coords = np.array(converted)
+            
+            if inplace:
+                self.coordinates = new_coords
+                self.format = target_format
+                return self
+            return Bboxes(new_coords, target_format)
+            
+        raise ValueError(
+            f"Unsupported conversion: {self.format} -> {target_format}"
+        )
+
+
 def _validate_file_path(
-    file_path: str | Path, expected_suffix: list[str]
+    file_path: str | Path, 
+    expected_suffix: Sequence[str]
 ) -> Path:
     """Validate and normalize file paths."""
     path = Path(file_path).resolve()
-    if path.suffix.lower() not in [s.lower() for s in expected_suffix]:
+    valid_suffixes = [s.lower() for s in expected_suffix]
+    if path.suffix.lower() not in valid_suffixes:
         raise ValueError(
             f"Invalid file extension. Expected: {expected_suffix}"
         )
@@ -25,36 +83,25 @@ def _validate_file_path(
 
 
 def to_via_tracks_file(
-    bboxes: Union["Bboxes", dict[int, "Bboxes"]],
+    boxes: Bboxes | dict[int, Bboxes],
     file_path: str | Path,
     video_metadata: dict | None = None,
 ) -> None:
-    """Save bounding boxes to a VIA-tracks format file.
-
+    """Save bounding boxes to VIA-tracks format.
+    
     Parameters
     ----------
-    bboxes : Bboxes or dict[int, Bboxes]
-        Bounding boxes to export. If dict, keys are frame indices.
+    boxes : Bboxes or dict[int, Bboxes]
+        Bounding boxes to export
     file_path : str or Path
-        Path to save the VIA-tracks JSON file.
+        Output JSON file path
     video_metadata : dict, optional
-        Video metadata including filename, size, width, height.
-        Defaults to minimal metadata if None.
-
-    Examples
-    --------
-    >>> from movement.io import save_poses
-    >>> bboxes = Bboxes([[10, 20, 50, 60]], format="xyxy")
-    >>> save_poses.to_via_tracks_file(
-    ...     bboxes,
-    ...     "output.json",
-    ...     {"filename": "video.mp4", "width": 1280, "height": 720},
-    ... )
+        Video metadata including filename, size, etc.
 
     """
-    file = _validate_file_path(file_path, expected_suffix=[".json"])
-
-    # Create minimal metadata if not provided
+    file = _validate_file_path(file_path, [".json"])
+    
+    # Set default metadata
     video_metadata = video_metadata or {
         "filename": "unknown_video.mp4",
         "size": -1,
@@ -62,19 +109,17 @@ def to_via_tracks_file(
         "height": 0,
     }
 
-    # Initialize VIA-tracks structure
     via_data = {
         "_via_settings": {
             "ui": {"file_content_align": "center"},
-            "core": {"buffer_size": 18, "filepath": {}},
+            "core": {"buffer_size": 18, "filepath": {}}
         },
         "_via_data_format_version": "2.0.10",
         "_via_image_id_list": [],
         "_via_attributes": {"region": {}, "file": {}},
-        "_via_data": {"metadata": {}, "vid_list": {}, "cache": {}},
+        "_via_data": {"metadata": {}, "vid_list": {}, "cache": {}}
     }
 
-    # Create video ID
     vid = str(uuid.uuid4())
     via_data["_via_data"]["vid_list"][vid] = {
         "fid_list": [],
@@ -85,19 +130,17 @@ def to_via_tracks_file(
         "height": video_metadata["height"],
     }
 
-    # Process bboxes
-    frame_dict = bboxes if isinstance(bboxes, dict) else {0: bboxes}
+    frame_dict = boxes if isinstance(boxes, dict) else {0: boxes}
 
-    for frame_idx, frame_bboxes in frame_dict.items():
-        # Convert to xyxy format if needed
-        current_bboxes = frame_bboxes
-        if frame_bboxes.format != "xyxy":
-            current_bboxes = frame_bboxes.convert("xyxy", inplace=False)
+    for frame_idx, frame_boxes in frame_dict.items():
+        current_boxes = frame_boxes
+        if frame_boxes.format != "xyxy":
+            current_boxes = frame_boxes.convert("xyxy", inplace=False)
 
-        # Add frame metadata
         fid = str(frame_idx)
         via_data["_via_data"]["vid_list"][vid]["fid_list"].append(fid)
         mid = f"{vid}_{fid}"
+        
         via_data["_via_data"]["metadata"][mid] = {
             "vid": vid,
             "flg": 0,
@@ -106,22 +149,20 @@ def to_via_tracks_file(
             "av": {},
         }
 
-        # Add regions
-        for i, bbox in enumerate(current_bboxes.bboxes):
-            x1, y1, x2, y2 = bbox
+        for i, box in enumerate(current_boxes.coordinates):
+            x1, y1, x2, y2 = box
             region = {
                 "shape_attributes": {
                     "name": "rect",
                     "x": float(x1),
                     "y": float(y1),
                     "width": float(x2 - x1),
-                    "height": float(y2 - y1),
+                    "height": float(y2 - y1)
                 },
-                "region_attributes": {"id": i},
+                "region_attributes": {"id": i}
             }
             via_data["_via_data"]["metadata"][mid]["xy"].append(region)
 
-    # Save to file
     with open(file, "w") as f:
         json.dump(via_data, f, indent=2)
 
