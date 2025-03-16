@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Bboxes:
     """Container for bounding box coordinates in various formats.
-    
+
     Parameters
     ----------
     coordinates : list or np.ndarray
@@ -32,14 +32,14 @@ class Bboxes:
 
     def convert(self, target_format: str, inplace: bool = False) -> "Bboxes":
         """Convert coordinates to target format.
-        
+
         Parameters
         ----------
         target_format : str
             Desired output format ('xyxy' or 'xywh')
         inplace : bool, optional
             Whether to modify the current instance
-            
+
         Returns
         -------
         Bboxes
@@ -48,32 +48,34 @@ class Bboxes:
         """
         if self.format == target_format:
             return self
-            
+
         if self.format == "xywh" and target_format == "xyxy":
             converted = []
             for box in self.coordinates:
                 x, y, w, h = box
                 converted.append([x, y, x + w, y + h])
             new_coords = np.array(converted)
-            
+
             if inplace:
                 self.coordinates = new_coords
                 self.format = target_format
                 return self
             return Bboxes(new_coords, target_format)
-            
+
         raise ValueError(
             f"Unsupported conversion: {self.format} -> {target_format}"
         )
 
 
 def _validate_file_path(
-    file_path: str | Path, 
-    expected_suffix: Sequence[str]  # Changed to Sequence for indexable type
+    file_path: str | Path,
+    expected_suffix: Sequence[str],  # Changed to Sequence for indexable type
 ) -> Path:
     """Validate and normalize file paths."""
     path = Path(file_path).resolve()
-    valid_suffixes = [s.lower() for s in expected_suffix]  # This is now indexable
+    valid_suffixes = [
+        s.lower() for s in expected_suffix
+    ]  # This is now indexable
     if path.suffix.lower() not in valid_suffixes:
         raise ValueError(
             f"Invalid file extension. Expected: {expected_suffix}"
@@ -88,7 +90,7 @@ def to_via_tracks_file(
     video_metadata: dict | None = None,
 ) -> None:
     """Save bounding boxes to VIA-tracks format.
-    
+
     Parameters
     ----------
     boxes : Bboxes or dict[int, Bboxes]
@@ -100,7 +102,7 @@ def to_via_tracks_file(
 
     """
     file = _validate_file_path(file_path, [".json"])
-    
+
     # Set default metadata
     video_metadata = video_metadata or {
         "filename": "unknown_video.mp4",
@@ -112,12 +114,12 @@ def to_via_tracks_file(
     via_data = {
         "_via_settings": {
             "ui": {"file_content_align": "center"},
-            "core": {"buffer_size": 18, "filepath": {}}
+            "core": {"buffer_size": 18, "filepath": {}},
         },
         "_via_data_format_version": "2.0.10",
         "_via_image_id_list": [],
         "_via_attributes": {"region": {}, "file": {}},
-        "_via_data": {"metadata": {}, "vid_list": {}, "cache": {}}
+        "_via_data": {"metadata": {}, "vid_list": {}, "cache": {}},
     }
 
     vid = str(uuid.uuid4())
@@ -140,7 +142,7 @@ def to_via_tracks_file(
         fid = str(frame_idx)
         via_data["_via_data"]["vid_list"][vid]["fid_list"].append(fid)
         mid = f"{vid}_{fid}"
-        
+
         via_data["_via_data"]["metadata"][mid] = {
             "vid": vid,
             "flg": 0,
@@ -157,9 +159,9 @@ def to_via_tracks_file(
                     "x": float(x1),
                     "y": float(y1),
                     "width": float(x2 - x1),
-                    "height": float(y2 - y1)
+                    "height": float(y2 - y1),
                 },
-                "region_attributes": {"id": i}
+                "region_attributes": {"id": i},
             }
             via_data["_via_data"]["metadata"][mid]["xy"].append(region)
 
