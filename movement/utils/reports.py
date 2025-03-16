@@ -42,25 +42,29 @@ def calculate_nan_stats(
     """
     selection_criteria = {}
     # Only select dimensions that exist in the DataArray
-     
+
     # Handle existing dimensions
     if individual is not None and "individuals" in data.dims:
         selection_criteria["individuals"] = individual
     if keypoint is not None and "keypoints" in data.dims:
         selection_criteria["keypoints"] = keypoint
-    
-    selected_data = data.sel(**selection_criteria) if selection_criteria else data
+
+    selected_data = (
+        data.sel(**selection_criteria) if selection_criteria else data
+    )
 
     # Calculate NaNs with dimension-agnostic approach
     if "space" in selected_data.dims:
         null_mask = selected_data.isnull().any("space")
     else:
         null_mask = selected_data.isnull()
-    
+
     # Sum all dimensions except time to get scalar
     n_nans = null_mask.sum().item()
     n_points = selected_data.time.size
-    percent_nans = round((n_nans / n_points) * 100, 1) if n_points != 0 else 0.0
+    percent_nans = (
+        round((n_nans / n_points) * 100, 1) if n_points != 0 else 0.0
+    )
 
     # Generate label
     label = "data"
@@ -96,26 +100,26 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     # Compile the report
     label = label or da.name or "dataset"
     nan_report = f"\nMissing points (marked as NaN) in {label}"
-    
+
     # Add space dimension note if present
     if "space" in da.dims:
         nan_report += " (any spatial coordinate)"
-    
+
     # Handle individuals dimension
     individuals = da.individuals.values if "individuals" in da.dims else [None]
-    
+
     # Handle keypoints dimension
     keypoints = da.keypoints.values if "keypoints" in da.dims else [None]
 
     for ind in individuals:
         if "individuals" in da.dims:
             nan_report += f"\n\tIndividual: {ind}"
-        
+
         for kp in keypoints:
             nan_report += calculate_nan_stats(
                 da,
                 keypoint=kp if "keypoints" in da.dims else None,
-                individual=ind if "individuals" in da.dims else None
+                individual=ind if "individuals" in da.dims else None,
             )
 
     logger.info(nan_report)
