@@ -1,3 +1,5 @@
+"""Unit tests for VIA-tracks export functionality."""
+
 import json
 import logging
 
@@ -10,11 +12,31 @@ from movement.io.save_boxes import to_via_tracks_file
 class Bboxes:
     """Mock Bboxes class for testing."""
 
-    def __init__(self, bboxes, format):
+    def __init__(self, bboxes, format: str):
+        """Initialize mock bounding boxes.
+        
+        Parameters
+        ----------
+        bboxes : list or np.ndarray
+            Array of bounding boxes
+        format : str
+            Format specification (e.g., 'xyxy', 'xywh')
+
+        """
         self.bboxes = np.array(bboxes)
         self.format = format
 
-    def convert(self, target_format, inplace=False):
+    def convert(self, target_format: str, inplace: bool = False) -> "Bboxes":
+        """Convert bounding boxes to target format.
+        
+        Parameters
+        ----------
+        target_format : str
+            Desired output format
+        inplace : bool
+            Whether to modify the current instance
+
+        """
         if self.format == target_format:
             return self
         if self.format == "xywh" and target_format == "xyxy":
@@ -32,16 +54,17 @@ class Bboxes:
             f"Unsupported conversion: {self.format}->{target_format}"
         )
 
-
 class TestVIATracksExport:
     """Test suite for VIA-tracks export functionality."""
-
+    
     @pytest.fixture
     def sample_bboxes(self):
+        """Fixture providing sample bounding boxes in xyxy format."""
         return Bboxes([[10, 20, 50, 60]], format="xyxy")
-
+    
     @pytest.fixture
     def video_metadata(self):
+        """Fixture providing sample video metadata."""
         return {
             "filename": "test_video.mp4",
             "width": 1280,
@@ -50,9 +73,10 @@ class TestVIATracksExport:
         }
 
     def test_basic_export(self, tmp_path, sample_bboxes, video_metadata):
+        """Test basic export functionality with valid inputs."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_bboxes, output_file, video_metadata)
-
+        
         assert output_file.exists()
         with open(output_file) as f:
             data = json.load(f)
@@ -60,38 +84,40 @@ class TestVIATracksExport:
             assert len(data["_via_data"]["vid_list"]) == 1
 
     def test_file_validation(self, tmp_path, sample_bboxes):
-        # Test valid JSON
+        """Test file path validation logic."""
         valid_path = tmp_path / "valid.json"
         to_via_tracks_file(sample_bboxes, valid_path)
-
-        # Test invalid extension
+        
         invalid_path = tmp_path / "invalid.txt"
         with pytest.raises(ValueError):
             to_via_tracks_file(sample_bboxes, invalid_path)
 
     def test_metadata_handling(self, tmp_path, sample_bboxes):
+        """Test handling of missing metadata."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_bboxes, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             vid = list(data["_via_data"]["vid_list"].keys())[0]
-            assert data["_via_data"]["vid_list"][vid]["width"] == 0  # Default
+            assert data["_via_data"]["vid_list"][vid]["width"] == 0
 
     def test_logging(self, caplog, tmp_path, sample_bboxes):
+        """Test logging of successful export."""
         output_file = tmp_path / "output.json"
         with caplog.at_level(logging.INFO):
             to_via_tracks_file(sample_bboxes, output_file)
             assert "Saved bounding boxes" in caplog.text
 
     def test_format_conversion(self, tmp_path):
+        """Test automatic xywh to xyxy conversion."""
         output_file = tmp_path / "output.json"
-        bboxes = Bboxes([[10, 20, 40, 40]], format="xywh")  # xywh input
+        bboxes = Bboxes([[10, 20, 40, 40]], format="xywh")
         to_via_tracks_file(bboxes, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             region = data["_via_data"]["metadata"][
                 list(data["_via_data"]["metadata"].keys())[0]
             ]["xy"][0]["shape_attributes"]
-            assert region["width"] == 40.0  # 50-10 after conversion
+            assert region["width"] == 40.0
