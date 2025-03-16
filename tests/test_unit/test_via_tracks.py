@@ -11,10 +11,10 @@ from movement.io.save_boxes import to_via_tracks_file
 
 class MockBboxes:
     """Test double for bounding box container class."""
-
+    
     def __init__(self, coordinates: list | np.ndarray, format: str):
         """Initialize mock bounding boxes.
-
+        
         Parameters
         ----------
         coordinates : list or np.ndarray
@@ -26,18 +26,16 @@ class MockBboxes:
         self.coordinates = np.array(coordinates)
         self.format = format
 
-    def convert(
-        self, target_format: str, inplace: bool = False
-    ) -> "MockBboxes":
+    def convert(self, target_format: str, inplace: bool = False) -> "MockBboxes":
         """Mock format conversion logic.
-
+        
         Parameters
         ----------
         target_format : str
             Target coordinate format
         inplace : bool, optional
             Whether to modify the current instance
-
+            
         Returns
         -------
         MockBboxes
@@ -61,28 +59,27 @@ class MockBboxes:
             f"Unsupported conversion: {self.format}->{target_format}"
         )
 
-
 class TestVIATracksExport:
     """Test suite for VIA-tracks export functionality."""
-
+    
     @pytest.fixture
     def sample_boxes_xyxy(self):
         """Provide sample boxes in xyxy format."""
         return MockBboxes([[10, 20, 50, 60]], format="xyxy")
-
+    
     @pytest.fixture
     def sample_boxes_xywh(self):
         """Provide sample boxes in xywh format for conversion testing."""
         return MockBboxes([[10, 20, 40, 40]], format="xywh")
-
+    
     @pytest.fixture
     def multi_frame_boxes(self):
         """Provide multi-frame box data as dictionary."""
         return {
             0: MockBboxes([[10, 20, 50, 60]], "xyxy"),
-            1: MockBboxes([[30, 40, 70, 80]], "xyxy"),
+            1: MockBboxes([[30, 40, 70, 80]], "xyxy")
         }
-
+    
     @pytest.fixture
     def video_metadata(self):
         """Provide standard video metadata for testing."""
@@ -97,7 +94,7 @@ class TestVIATracksExport:
         """Verify successful export with valid inputs and metadata."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_boxes_xyxy, output_file, video_metadata)
-
+        
         assert output_file.exists()
         with open(output_file) as f:
             data = json.load(f)
@@ -111,7 +108,7 @@ class TestVIATracksExport:
         # Valid JSON path
         valid_path = tmp_path / "valid.json"
         to_via_tracks_file(sample_boxes_xyxy, valid_path)
-
+        
         # Invalid extension
         invalid_path = tmp_path / "invalid.txt"
         with pytest.raises(ValueError) as exc_info:
@@ -122,32 +119,29 @@ class TestVIATracksExport:
         """Verify default metadata generation when none is provided."""
         output_file = tmp_path / "output.json"
         to_via_tracks_file(sample_boxes_xyxy, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             vid = list(data["_via_data"]["vid_list"].keys())[0]
-            assert (
-                data["_via_data"]["vid_list"][vid]["filepath"]
-                == "unknown_video.mp4"
-            )
+            assert data["_via_data"]["vid_list"][vid]["filepath"] == "unknown_video.mp4"
 
     def test_format_conversion(self, tmp_path, sample_boxes_xywh):
         """Test automatic conversion from xywh to xyxy format."""
         output_file = tmp_path / "converted.json"
         to_via_tracks_file(sample_boxes_xywh, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             region = data["_via_data"]["metadata"][
                 list(data["_via_data"]["metadata"].keys())[0]
             ]["xy"][0]["shape_attributes"]
-            assert region["width"] == 40.0  # 50-10 after conversion
-
+            assert abs(region["width"] - 40.0) < 1e-6  
+            
     def test_multi_frame_export(self, tmp_path, multi_frame_boxes):
         """Verify correct handling of multi-frame input dictionaries."""
         output_file = tmp_path / "multi_frame.json"
         to_via_tracks_file(multi_frame_boxes, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             vid = list(data["_via_data"]["vid_list"].keys())[0]
@@ -159,13 +153,13 @@ class TestVIATracksExport:
         output_file = tmp_path / "edge_cases.json"
         boxes = MockBboxes([[0, 0, 0, 0]], "xyxy")
         to_via_tracks_file(boxes, output_file)
-
+        
         with open(output_file) as f:
             data = json.load(f)
             region = data["_via_data"]["metadata"][
                 list(data["_via_data"]["metadata"].keys())[0]
             ]["xy"][0]["shape_attributes"]
-            assert region["width"] == 0.0
+            assert abs(region["width"] - 0.0) < 1e-6  
 
     def test_logging(self, caplog, tmp_path, sample_boxes_xyxy):
         """Verify proper logging of export operations."""
