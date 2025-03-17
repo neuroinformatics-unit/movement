@@ -2,9 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Literal
 
-import numpy as np
 import pandas as pd
 import xarray as xr
 
@@ -36,21 +34,22 @@ def _ds_to_via_tracks_df(ds: xr.Dataset) -> pd.DataFrame:
     - region_id: Unique identifier for each bounding box
     - region_shape_attributes: Dictionary containing x, y, width, height
     - region_attributes: Dictionary containing confidence score
+
     """
     # Get the number of frames and individuals
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
-    
+
     # Create frame filenames (assuming zero-padded frame numbers)
     frame_filenames = [f"frame_{i:06d}.jpg" for i in range(n_frames)]
-    
+
     # Initialize lists to store data
     data = []
-    
+
     # For each frame and individual, create a row in the DataFrame
     for frame_idx in range(n_frames):
         frame_filename = frame_filenames[frame_idx]
-        
+
         for individual_idx in range(n_individuals):
             # Get position and shape data
             x = ds.position[frame_idx, 0, individual_idx].item()
@@ -58,30 +57,28 @@ def _ds_to_via_tracks_df(ds: xr.Dataset) -> pd.DataFrame:
             width = ds.shape[frame_idx, 0, individual_idx].item()
             height = ds.shape[frame_idx, 1, individual_idx].item()
             confidence = ds.confidence[frame_idx, individual_idx].item()
-            
+
             # Create region shape attributes dictionary
             region_shape_attributes = {
                 "name": "rect",
-                "x": x - width/2,  # Convert from center to top-left
-                "y": y - height/2,
+                "x": x - width / 2,  # Convert from center to top-left
+                "y": y - height / 2,
                 "width": width,
-                "height": height
+                "height": height,
             }
-            
+
             # Create region attributes dictionary
-            region_attributes = {
-                "confidence": confidence
-            }
-            
+            region_attributes = {"confidence": confidence}
+
             # Create row data
             row = {
                 "frame_filename": frame_filename,
                 "region_id": individual_idx,
                 "region_shape_attributes": str(region_shape_attributes),
-                "region_attributes": str(region_attributes)
+                "region_attributes": str(region_attributes),
             }
             data.append(row)
-    
+
     # Create DataFrame
     df = pd.DataFrame(data)
     return df
@@ -117,16 +114,17 @@ def to_via_tracks_file(
     ...     individual_names=["id_0", "id_1"],
     ... )
     >>> save_bboxes.to_via_tracks_file(ds, "path/to/file.csv")
+
     """
     # Validate file path
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
-    
+
     # Validate dataset
     _validate_dataset(ds)
-    
+
     # Convert dataset to VIA-tracks DataFrame
     df = _ds_to_via_tracks_df(ds)
-    
+
     # Save DataFrame to CSV
     df.to_csv(file.path, index=False)
     logger.info(f"Saved bounding boxes dataset to {file.path}.")
@@ -153,6 +151,7 @@ def _validate_file_path(
     ------
     ValueError
         If the file path is invalid or has an unexpected extension.
+
     """
     file = ValidFile(file_path)
     if file.suffix not in expected_suffix:
@@ -176,6 +175,7 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     ------
     ValueError
         If the dataset is not a valid ``movement`` bounding boxes dataset.
+
     """
     try:
         ValidBboxesDataset(
@@ -188,4 +188,4 @@ def _validate_dataset(ds: xr.Dataset) -> None:
             source_software=ds.attrs.get("source_software"),
         )
     except ValueError as e:
-        raise log_error(ValueError, str(e)) 
+        raise log_error(ValueError, str(e))
