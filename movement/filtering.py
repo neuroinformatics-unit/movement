@@ -62,29 +62,29 @@ def filter_by_confidence(
     return data_filtered
 
 
-def filter_by_distance(
+def filter_by_displacement(
     position: xr.DataArray,
     threshold: float = 10.0,
-    print_report: bool = True,
+    print_report: bool = False,
 ) -> xr.DataArray:
     """Drop data points with a displacement above a certain distance threshold.
 
-    Frames in the ``position`` array that have a displacement above the
-    given ``threshold`` are set to NaN. In effect, if a point at time ``t``
-    has moved more than the ``threshold`` distance from the same point at time
-    ``t-1``, its value at time ``t`` is set to NaN.
+    Frames in the ``position`` array that have a displacement magnitude above
+    the given ``threshold`` are set to NaN. In effect, if a point at time ``t``
+    has moved more than the ``threshold`` euclidean distance from the same
+    point at time ``t-1``, its value at time ``t`` is set to NaN.
 
     Parameters
     ----------
     position : xr.DataArray
-        The position array to filter. It should have the dimensions
-        ``("individuals", "time", "keypoints", "space")``.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
     threshold : float, optional
-        The maximum distance allowed between 2 consecutive positions.
+        The maximum euclidean distance allowed between 2 consecutive positions.
         Defaults to 10.0.
     print_report : bool, optional
         Whether to print a report of the number of NaN values before and after
-        filtering. Defaults to True.
+        filtering. Defaults to False.
 
     Returns
     -------
