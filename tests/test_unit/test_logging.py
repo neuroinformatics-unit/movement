@@ -1,49 +1,32 @@
-import logging
-
 import pytest
 import xarray as xr
+from loguru import logger as loguru_logger
 
-from movement.utils.logging import log_error, log_to_attrs, log_warning
+from movement.utils.logging import MovementLogger, log_to_attrs, logger
 
-log_messages = {
-    "DEBUG": "This is a debug message",
-    "INFO": "This is an info message",
-    "WARNING": "This is a warning message",
-    "ERROR": "This is an error message",
-}
+log_methods = ["debug", "info", "warning", "error", "exception"]
 
 
-@pytest.mark.parametrize("level, message", log_messages.items())
-def test_logfile_contains_message(level, message):
-    """Check if the last line of the logfile contains
-    the expected message.
+@pytest.mark.parametrize("method", log_methods)
+def test_log_to_file(method):
+    """Ensure the correct logger method is called and
+    the expected message is in the logfile.
     """
-    logger = logging.getLogger("movement")
-    eval(f"logger.{level.lower()}('{message}')")
-    log_file = logger.handlers[0].baseFilename
-    with open(log_file) as f:
-        last_line = f.readlines()[-1]
+    log_method = getattr(logger, method)
+    log_message = f"{method} message"
+    log_method(log_message)
+    with open(pytest.LOG_FILE) as f:
+        all_lines = f.readlines()
+    # For exceptions, the last line is the traceback
+    last_line = all_lines[-1] if method != "exception" else all_lines[-2]
+    level = method.upper() if method != "exception" else "ERROR"
     assert level in last_line
-    assert message in last_line
+    assert log_message in last_line
 
 
-def test_log_error(caplog):
-    """Check if the log_error function
-    logs the error message and returns an Exception.
-    """
-    with pytest.raises(ValueError):
-        raise log_error(ValueError, "This is a test error")
-    assert caplog.records[0].message == "This is a test error"
-    assert caplog.records[0].levelname == "ERROR"
-
-
-def test_log_warning(caplog):
-    """Check if the log_warning function
-    logs the warning message.
-    """
-    log_warning("This is a test warning")
-    assert caplog.records[0].message == "This is a test warning"
-    assert caplog.records[0].levelname == "WARNING"
+def test_logger_repr():
+    """Ensure the custom logger's representation equals the loguru logger."""
+    assert repr(MovementLogger()) == repr(loguru_logger)
 
 
 @pytest.mark.parametrize(

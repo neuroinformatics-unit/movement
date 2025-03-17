@@ -5,7 +5,7 @@ from collections.abc import Hashable
 import numpy as np
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import logger
 
 
 def validate_dims_coords(
@@ -87,7 +87,7 @@ def validate_dims_coords(
                 )
 
     if error_message:
-        raise log_error(ValueError, error_message)
+        raise logger.error(ValueError(error_message))
 
 
 def validate_reference_vector(
@@ -125,10 +125,11 @@ def validate_reference_vector(
     if isinstance(reference_vector, np.ndarray):
         # Check shape: must be 1D or 2D
         if reference_vector.ndim > 2:
-            raise log_error(
-                ValueError,
-                "Reference vector must be 1D or 2D, but got "
-                f"{reference_vector.ndim}D array.",
+            raise logger.error(
+                ValueError(
+                    "Reference vector must be 1D or 2D, but got "
+                    f"{reference_vector.ndim}D array."
+                )
             )
         # Reshape 1D -> (1, -1) so axis 0 can be 'time'
         if reference_vector.ndim == 1:
@@ -139,10 +140,11 @@ def validate_reference_vector(
             reference_vector.shape[0] > 1
             and reference_vector.shape[0] != test_vector.sizes["time"]
         ):
-            raise log_error(
-                ValueError,
-                "Reference vector must have the same number of time "
-                "points as the test vector.",
+            raise logger.error(
+                ValueError(
+                    "Reference vector must have the same number of time "
+                    "points as the test vector."
+                )
             )
 
         # Decide whether we have (time, space) or just (space)
@@ -170,24 +172,27 @@ def validate_reference_vector(
             "time" in reference_vector.dims
             and reference_vector.sizes["time"] != test_vector.sizes["time"]
         ):
-            raise log_error(
-                ValueError,
-                "Reference vector must have the same number of time "
-                "points as the test vector.",
+            raise logger.error(
+                ValueError(
+                    "Reference vector must have the same number of time "
+                    "points as the test vector."
+                )
             )
 
         # Only 'time' and 'space' are allowed
         if any(d not in {"time", "space"} for d in reference_vector.dims):
-            raise log_error(
-                ValueError,
-                "Only 'time' and 'space' dimensions "
-                "are allowed in reference_vector.",
+            raise logger.error(
+                ValueError(
+                    "Only 'time' and 'space' dimensions "
+                    "are allowed in reference_vector."
+                )
             )
         return reference_vector
 
     # If it's neither a DataArray nor a NumPy array
-    raise log_error(
-        TypeError,
-        "Reference vector must be an xarray.DataArray or np.ndarray, "
-        f"but got {type(reference_vector)}.",
+    raise logger.error(
+        TypeError(
+            "Reference vector must be an xarray.DataArray or np.ndarray, "
+            f"but got {type(reference_vector)}."
+        )
     )

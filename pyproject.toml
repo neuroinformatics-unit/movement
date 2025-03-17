@@ -26,6 +26,7 @@ dependencies = [
   "napari-video",
   "pyvideoreader>=0.5.3",  # since switching to depend on openCV-headless
   "qt-niu",  # needed for collapsible widgets
+  "loguru",
 ]
 
 classifiers = [
