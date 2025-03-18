@@ -156,9 +156,6 @@ class DataLoader(QWidget):
         ds = loader.from_file(file_path, source_software, fps)
         self.data, self.properties = ds_to_napari_tracks(ds)
 
-        logger.info("Converted dataset to a napari Tracks array.")
-        logger.debug(f"Tracks array shape: {self.data.shape}")
-
         # Find rows that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
@@ -167,6 +164,9 @@ class DataLoader(QWidget):
         self.expected_frame_range = RangeTuple(
             start=0.0, stop=max(self.data[:, 1]), step=1.0
         )
+
+        logger.info("Converted dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
 
         # Set property to color points and tracks by
         self._set_common_color_property()
@@ -236,16 +236,10 @@ class DataLoader(QWidget):
         self.points_layer = self.viewer.add_points(
             self.data[
                 self.bool_not_nan, 1:
-            ],  # columns: (track_id), frame_idx, y, x
+            ],  # data columns: (track_id), frame_idx, y, x
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
         )
-
-        # Add metadata
-        self.points_layer.metadata = {
-            "original_data_no_nans": self.data[self.bool_not_nan, 1:],
-            # "original_properties": self.properties,
-        }
 
         # Set up callback to showing 5 previous points for a given frame
         # position
@@ -294,9 +288,9 @@ class DataLoader(QWidget):
             # Select points that are 5 frames before the current frame
             # Note: self.points_layer is the last loaded layer
             slc_prior_frames = np.logical_and(
-                self.points_layer.metadata["original_data_no_nans"][:, 0]
+                self.properties.loc[self.bool_not_nan, "frame_idx"]
                 > event.value[0] - 5,
-                self.points_layer.metadata["original_data_no_nans"][:, 0]
+                self.properties.loc[self.bool_not_nan, "frame_idx"]
                 <= event.value[0],
             )
 
