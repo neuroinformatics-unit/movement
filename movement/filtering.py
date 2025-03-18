@@ -82,7 +82,7 @@ def interpolate_over_time(
     method : str
         String indicating which method to use for interpolation.
         Methods are: `linear`, `nearest`, `zero`, `quadratic`, `cubic`, `krogh`
-        `polynomial`, `spline`, `barycentric`, `slinear`, `pchip`, `akima`, 
+        `polynomial`, `spline`, `barycentric`, `slinear`, `pchip`, `akima`,
         `bfill`, `ffill`, `constant`
         Default is ``linear``.
     max_gap : int, optional
@@ -119,8 +119,10 @@ def interpolate_over_time(
         data_interpolated = getattr(data, method)(dim="time", **kwargs)
     elif method == "constant":
         if fill_value is None:
-            raise ValueError("fill_value must be provided \
-            for method='constant'")
+            raise ValueError(
+                "fill_value must be provided \
+            for method='constant'"
+            )
         data_interpolated = data.fillna(fill_value, **kwargs)
     else:
         data_interpolated = data.interpolate_na(
