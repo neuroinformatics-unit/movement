@@ -328,8 +328,12 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     point_scores = ds.confidence.data.T
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
+
+    source_file = getattr(ds, "source_file", None)
     labels_path = (
-        ds.source_file if Path(ds.source_file).suffix == ".slp" else ""
+        source_file
+        if source_file is not None and Path(source_file).suffix == ".slp"
+        else ""
     )
     data_dict = dict(
         track_names=individual_names,
