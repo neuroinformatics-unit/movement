@@ -176,6 +176,7 @@ class DataLoader(QWidget):
         self._add_tracks_layer()
 
         # Ensure the frame slider reflects the total number of frames
+        # over all loaded layers
         self._set_frame_slider()
 
         # Set points layer as active
@@ -201,10 +202,18 @@ class DataLoader(QWidget):
         in the dataset. The slider position is also set to the first frame
         so that the first view is not cluttered with tracks.
         """
-        # Ensure the frame slider reflects the total number of frames
-        if self.viewer.dims.range[0] != self.expected_frame_range:
+        # Ensure the frame slider reflects the max number of frames
+        # over all loaded layers
+        max_frame_idx = max(
+            [
+                ly.metadata["max_frame_idx"]
+                for ly in self.viewer.layers
+                if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
+            ]
+        )
+        if self.viewer.dims.range[0].stop != max_frame_idx:
             self.viewer.dims.range = (
-                self.expected_frame_range,
+                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0)
             ) + self.viewer.dims.range[1:]
 
         # Set slider to first frame so that first view is not cluttered
@@ -240,6 +249,9 @@ class DataLoader(QWidget):
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
         )
+
+        # Add metadata to the layer
+        self.points_layer.metadata = {"max_frame_idx": max(self.data[:, 1])}
 
         # Set up callback to showing 5 previous points for a given frame
         # position
