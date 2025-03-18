@@ -158,6 +158,20 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
+        # Ensure the frame slider reflects the max number of frames
+        # over all loaded point layers
+        max_frame_idx = max(
+            [
+                ly.metadata["max_frame_idx"]
+                for ly in self.viewer.layers
+                if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
+            ]
+        )
+        if self.viewer.dims.range[0].stop != max_frame_idx:
+            self.viewer.dims.range = (
+                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0)
+            ) + self.viewer.dims.range[1:]
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
@@ -187,19 +201,13 @@ class DataLoader(QWidget):
         props_and_style.set_color_by(prop=color_prop)
 
         # Add data as a points layer
-        self.viewer.add_points(
+        self.points_layer = self.viewer.add_points(
             self.data[bool_not_nan, 1:],
             **props_and_style.as_kwargs(),
         )
 
-        # Ensure the frame slider reflects the total number of frames
-        expected_frame_range = RangeTuple(
-            start=0.0, stop=max(self.data[:, 1]), step=1.0
-        )
-        if self.viewer.dims.range[0] != expected_frame_range:
-            self.viewer.dims.range = (
-                expected_frame_range,
-            ) + self.viewer.dims.range[1:]
+        # Add metadata to the layer
+        self.points_layer.metadata = {"max_frame_idx": max(self.data[:, 1])}
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
