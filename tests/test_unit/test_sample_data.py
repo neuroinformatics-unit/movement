@@ -134,7 +134,7 @@ def test_fetch_dataset(valid_sample_datasets, with_video):
         ds = fetch_dataset(sample_name, with_video=with_video)
         assert isinstance(ds, Dataset)
 
-        assert ds.attrs["fps"] == sample["fps"]
+        assert getattr(ds, "fps", None) == sample["fps"]
 
         if sample["frame_file"]:
             assert ds.attrs["frame_path"].name == sample["frame_file"]
