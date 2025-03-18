@@ -27,8 +27,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # Run all supported Python versions on linux
         python-version: ["3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
+        # Include 1 MacOS Silicon (latest) and 1 Windows run
         include:
         - os: macos-latest
           python-version: "3.13"
@@ -36,38 +38,28 @@ jobs:
           python-version: "3.13"
 
     steps:
-      - uses: actions/checkout@v4
-
-      # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # these libraries enable testing on Qt on linux
+      - uses: pyvista/setup-headless-display-action@v3
+        with:
+          qt: true
+      - name: Cache Test Data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.movement/*
+          key: cached-test-data
+          enableCrossOsArchive: true
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
-
-      - name: Run tests and generate coverage report
-        run: pytest --cov=movement --cov-report=xml
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+          auto-update-conda: true
+          channels: conda-forge,defaults
+          activate-environment: movement-env
+      - uses: neuroinformatics-unit/actions/test@v2
         with:
-          name: coverage-report
-          path: coverage.xml
-
-      - name: SonarQube Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=neuroinformatics-unit_movement \
-            -Dsonar.organization=neuroinformatics-unit \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+          python-version: ${{ matrix.python-version }}
+          secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   build_sdist_wheels:
     name: Build source distribution
@@ -76,6 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+
 
   upload_all:
     name: Publish build distributions
