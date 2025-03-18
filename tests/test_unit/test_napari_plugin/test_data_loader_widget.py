@@ -1,27 +1,28 @@
 """Unit tests for loader widgets in the napari plugin.
 
-We instantiate the PosesLoader widget in each test instead of using a fixture.
+We instantiate the DataLoader widget in each test instead of using a fixture.
 This is because mocking widget methods would not work after the widget is
 instantiated (the methods would have already been connected to signals).
 """
 
 import pytest
 from napari.components.dims import RangeTuple
+from napari.layers.points.points import Points
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
-from movement.napari.loader_widgets import PosesLoader
+from movement.napari.loader_widgets import DataLoader
 
 
 # ------------------- tests for widget instantiation--------------------------#
-def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
+def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     """Test that the loader widget is properly instantiated."""
-    # Instantiate the poses loader widget
-    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
+    # Instantiate the data loader widget
+    data_loader_widget = DataLoader(make_napari_viewer_proxy)
 
     # Check that the widget has the expected number of rows
-    assert poses_loader_widget.layout().rowCount() == 4
+    assert data_loader_widget.layout().rowCount() == 4
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
@@ -32,7 +33,7 @@ def test_poses_loader_widget_instantiation(make_napari_viewer_proxy):
         (QPushButton, "browse_button"),
     ]
     assert all(
-        poses_loader_widget.findChild(widget_type, widget_name) is not None
+        data_loader_widget.findChild(widget_type, widget_name) is not None
         for widget_type, widget_name in expected_widgets
     ), "Some widgets are missing."
 
@@ -47,10 +48,10 @@ def test_button_connected_to_on_clicked(
 ):
     """Test that clicking a button calls the right function."""
     mock_method = mocker.patch(
-        f"movement.napari.loader_widgets.PosesLoader._on_{button}_clicked"
+        f"movement.napari.loader_widgets.DataLoader._on_{button}_clicked"
     )
-    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    button = poses_loader_widget.findChild(QPushButton, f"{button}_button")
+    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
 
@@ -62,10 +63,13 @@ def test_button_connected_to_on_clicked(
 @pytest.mark.parametrize(
     "file_path",
     [
-        # valid file path
-        str(DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent),
-        # empty string, simulate user canceling the dialog
-        "",
+        str(
+            DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent
+        ),  # valid file path poses
+        str(
+            DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv").parent
+        ),  # valid file path bboxes
+        "",  # empty string, simulate user canceling the dialog
     ],
 )
 def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
@@ -74,9 +78,9 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
     The file path is provided by mocking the return of the
     QFileDialog.getOpenFileName method.
     """
-    # Instantiate the napari viewer and the poses loader widget
+    # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
 
     # Mock the QFileDialog.getOpenFileName method to return the file path
     mocker.patch(
@@ -84,50 +88,62 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         return_value=(file_path, None),  # tuple(file_path, filter)
     )
     # Simulate the user clicking the 'Browse' button
-    poses_loader_widget._on_browse_clicked()
+    data_loader_widget._on_browse_clicked()
     # Check that the file path edit text has been updated
-    assert poses_loader_widget.file_path_edit.text() == file_path
+    assert data_loader_widget.file_path_edit.text() == file_path
 
 
 @pytest.mark.parametrize(
     "source_software, expected_file_filter",
     [
-        ("DeepLabCut", "Poses files (*.h5 *.csv)"),
-        ("SLEAP", "Poses files (*.h5 *.slp)"),
-        ("LightningPose", "Poses files (*.csv)"),
+        ("DeepLabCut", "*.h5 *.csv"),
+        ("SLEAP", "*.h5 *.slp"),
+        ("LightningPose", "*.csv"),
+        ("VIA-tracks", "*.csv"),
     ],
 )
 def test_file_filters_per_source_software(
     source_software, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
-    poses_loader_widget = PosesLoader(make_napari_viewer_proxy)
-    poses_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
         "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=("", None),
     )
-    poses_loader_widget._on_browse_clicked()
+    data_loader_widget._on_browse_clicked()
     mock_file_dialog.assert_called_once_with(
-        poses_loader_widget,
-        caption="Open file containing predicted poses",
-        filter=expected_file_filter,
+        data_loader_widget,
+        caption="Open file containing tracked data",
+        filter=f"Valid data files ({expected_file_filter})",
     )
 
 
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
-    # Instantiate the napari viewer and the poses loader widget
+    # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
     # Call the _on_load_clicked method (pretend the user clicked "Load")
-    poses_loader_widget._on_load_clicked()
+    data_loader_widget._on_load_clicked()
     captured = capsys.readouterr()
     assert "No file path specified." in captured.out
 
 
+@pytest.mark.parametrize(
+    "filename, source_software, tracks_array_shape",
+    [
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut", (2170, 4)),
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks", (35, 4)),
+    ],
+)
 def test_on_load_clicked_with_valid_file_path(
-    make_napari_viewer_proxy, caplog
+    filename,
+    source_software,
+    tracks_array_shape,
+    make_napari_viewer_proxy,
+    caplog,
 ):
     """Test clicking 'Load' with a valid file path.
 
@@ -137,36 +153,40 @@ def test_on_load_clicked_with_valid_file_path(
     - adds a Points layer to the viewer (with the expected name)
     - sets the playback fps to the specified value
     """
-    # Instantiate the napari viewer and the poses loader widget
+    # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
+
     # Set the file path to a valid file
-    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
+    file_path = pytest.DATA_PATHS.get(filename)
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+
+    # Set the source software
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
 
     # Set the fps to 60
-    poses_loader_widget.fps_spinbox.setValue(60)
+    data_loader_widget.fps_spinbox.setValue(60)
 
     # Call the _on_load_clicked method (pretend the user clicked "Load")
-    poses_loader_widget._on_load_clicked()
+    data_loader_widget._on_load_clicked()
 
     # Check that class attributes have been created
-    assert poses_loader_widget.file_name == file_path.name
-    assert poses_loader_widget.data is not None
-    assert poses_loader_widget.props is not None
+    assert data_loader_widget.file_name == file_path.name
+    assert data_loader_widget.data is not None
+    assert data_loader_widget.props is not None
 
     # Check that the expected log messages were emitted
     expected_log_messages = {
-        "Converted poses dataset to a napari Tracks array.",
-        "Tracks array shape: (2170, 4)",
-        "Added poses dataset as a napari Points layer.",
+        "Converted dataset to a napari Tracks array.",
+        f"Tracks array shape: {tracks_array_shape}",
+        "Added tracked dataset as a napari Points layer.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
 
     # Check that a Points layer was added to the viewer
-    points_layer = poses_loader_widget.viewer.layers[0]
-    assert points_layer.name == f"poses: {file_path.name}"
+    points_layer = data_loader_widget.viewer.layers[0]
+    assert points_layer.name == f"data: {file_path.name}"
 
 
 @pytest.mark.parametrize(
@@ -211,7 +231,7 @@ def test_dimension_slider_matches_frames(
 
     # Load the poses loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = PosesLoader(viewer)
+    poses_loader_widget = DataLoader(viewer)
 
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
@@ -237,3 +257,79 @@ def test_dimension_slider_matches_frames(
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=ds.position.shape[0] - 1, step=1.0
     )
+
+
+@pytest.mark.parametrize(
+    (
+        "filename, source_software, "
+        "expected_text_property, expected_color_property"
+    ),
+    [
+        (
+            "VIA_multiple-crabs_5-frames_labels.csv",
+            "VIA-tracks",
+            "individual",
+            "individual",
+        ),
+        (
+            "SLEAP_single-mouse_EPM.predictions.slp",
+            "SLEAP",
+            "keypoint",
+            "keypoint",
+        ),
+        (
+            "DLC_two-mice.predictions.csv",
+            "DeepLabCut",
+            "keypoint",
+            "individual",
+        ),
+        (
+            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            "SLEAP",
+            "individual",
+            "individual",
+        ),
+    ],
+    ids=[
+        "multiple individuals, no keypoints",
+        "single individual, multiple keypoints",
+        "multiple individuals, multiple keypoints",
+        "multiple individuals, one keypoint",
+    ],
+)
+def test_add_points_layer_style(
+    filename,
+    source_software,
+    make_napari_viewer_proxy,
+    expected_text_property,
+    expected_color_property,
+    caplog,
+):
+    """Test that the Points layer is added to the viewer with the markers
+    and text following the expected properties.
+    """
+    # Instantiate the napari viewer and the data loader widget
+    viewer = make_napari_viewer_proxy()
+    loader_widget = DataLoader(viewer)
+
+    # Load data as a points layer
+    file_path = pytest.DATA_PATHS.get(filename)
+    loader_widget.file_path_edit.setText(file_path.as_posix())
+    loader_widget.source_software_combo.setCurrentText(source_software)
+    loader_widget._on_load_clicked()
+
+    # Check no warnings were emitted
+    log_messages = {record.getMessage() for record in caplog.records}
+    assert not any("Warning" in message for message in log_messages)
+
+    # Get the points layer
+    points_layer = next(
+        layer for layer in viewer.layers if isinstance(layer, Points)
+    )
+
+    # Check the color of markers and text follows the expected property
+    assert points_layer._face.color_properties.name == expected_color_property
+    assert points_layer.text.color.feature == expected_color_property
+
+    # Check the text follows the expected property
+    assert points_layer.text.string.feature == expected_text_property

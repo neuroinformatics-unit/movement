@@ -19,33 +19,44 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_poses
-from movement.napari.convert import poses_to_napari_tracks
+from movement.io import load_bboxes, load_poses
+from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
 
 logger = logging.getLogger(__name__)
 
-# Allowed poses file suffixes for each supported source software
+# Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
-    "DeepLabCut": ["*.h5", "*.csv"],
-    "LightningPose": ["*.csv"],
-    "SLEAP": ["*.h5", "*.slp"],
+    "DeepLabCut": ["h5", "csv"],
+    "LightningPose": ["csv"],
+    "SLEAP": ["h5", "slp"],
+}
+
+SUPPORTED_BBOXES_FILES = {
+    "VIA-tracks": ["csv"],
+}
+
+SUPPORTED_DATA_FILES = {
+    **SUPPORTED_POSES_FILES,
+    **SUPPORTED_BBOXES_FILES,
 }
 
 
-class PosesLoader(QWidget):
-    """Widget for loading movement poses datasets from file."""
+class DataLoader(QWidget):
+    """Widget for loading movement datasets from file."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the loader widget."""
+        """Initialize the data loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
+
         # Create widgets
         self._create_source_software_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
@@ -53,7 +64,7 @@ class PosesLoader(QWidget):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
         self.source_software_combo.setObjectName("source_software_combo")
-        self.source_software_combo.addItems(SUPPORTED_POSES_FILES.keys())
+        self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
         self.layout().addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
@@ -86,6 +97,7 @@ class PosesLoader(QWidget):
         self.browse_button = QPushButton("Browse")
         self.browse_button.setObjectName("browse_button")
         self.browse_button.clicked.connect(self._on_browse_clicked)
+
         # Layout for line edit and button
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
@@ -101,14 +113,17 @@ class PosesLoader(QWidget):
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
-        file_suffixes = SUPPORTED_POSES_FILES[
-            self.source_software_combo.currentText()
-        ]
+        file_suffixes = (
+            "*." + suffix
+            for suffix in SUPPORTED_DATA_FILES[
+                self.source_software_combo.currentText()
+            ]
+        )
 
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            caption="Open file containing predicted poses",
-            filter=f"Poses files ({' '.join(file_suffixes)})",
+            caption="Open file containing tracked data",
+            filter=f"Valid data files ({' '.join(file_suffixes)})",
         )
 
         # A blank string is returned if the user cancels the dialog
@@ -120,43 +135,65 @@ class PosesLoader(QWidget):
 
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
+        # Get data from user input
         fps = self.fps_spinbox.value()
         source_software = self.source_software_combo.currentText()
         file_path = self.file_path_edit.text()
+
+        # Load data
         if file_path == "":
             show_warning("No file path specified.")
             return
-        ds = load_poses.from_file(file_path, source_software, fps)
 
-        self.data, self.props = poses_to_napari_tracks(ds)
-        logger.info("Converted poses dataset to a napari Tracks array.")
+        if source_software in SUPPORTED_POSES_FILES:
+            loader = load_poses
+        else:
+            loader = load_bboxes
+        ds = loader.from_file(file_path, source_software, fps)
+
+        # Convert to napari Tracks array
+        self.data, self.props = ds_to_napari_tracks(ds)
+        logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
+        # Add the data as a Points layer
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
     def _add_points_layer(self):
-        """Add the predicted poses to the viewer as a Points layer."""
+        """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
         bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
-        # Style properties for the napari Points layer
-        points_style = PointsStyle(
-            name=f"poses: {self.file_name}",
+        # Define style for points layer
+        props_and_style = PointsStyle(
+            name=f"data: {self.file_name}",
             properties=self.props.iloc[bool_not_nan, :],
         )
 
-        # Color the points by individual if there are multiple individuals
-        # Otherwise, color by keypoint
+        # Set markers' text
+        if (
+            "keypoint" in self.props
+            and len(self.props["keypoint"].unique()) > 1
+        ):
+            text_prop = "keypoint"
+        else:
+            text_prop = "individual"
+        props_and_style.set_text_by(prop=text_prop)
+
+        # Set color of markers and text
+        color_prop = "individual"
         n_individuals = len(self.props["individual"].unique())
-        points_style.set_color_by(
-            prop="individual" if n_individuals > 1 else "keypoint"
-        )
-        # Add the points layer to the viewer
+        if n_individuals == 1 and "keypoint" in self.props:
+            color_prop = "keypoint"
+        props_and_style.set_color_by(prop=color_prop)
+
+        # Add data as a points layer
         self.viewer.add_points(
-            self.data[bool_not_nan, 1:],  # columns:(track_id, frame_idx, y, x)
-            **points_style.as_kwargs(),
+            self.data[bool_not_nan, 1:],
+            **props_and_style.as_kwargs(),
         )
+
         # Ensure the frame slider reflects the total number of frames
         expected_frame_range = RangeTuple(
             start=0.0, stop=max(self.data[:, 1]), step=1.0
@@ -166,7 +203,7 @@ class PosesLoader(QWidget):
                 expected_frame_range,
             ) + self.viewer.dims.range[1:]
 
-        logger.info("Added poses dataset as a napari Points layer.")
+        logger.info("Added tracked dataset as a napari Points layer.")
 
     @staticmethod
     def _enable_layer_tooltips():
