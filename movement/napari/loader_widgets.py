@@ -61,26 +61,6 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
-        # # Set up callback
-        # def callback_func(event):
-        #     # Select points that are 5 frames before the current frame
-        #     slc_prior_frames = np.logical_and(
-        #         self.points_layer.metadata["original_data_no_nans"][:, 0]
-        #         > self.event.value[0] - 5,
-        #         self.points_layer.metadata["original_data_no_nans"][:, 0]
-        #         <= event.value[0],
-        #     )
-
-        #     # Set frame of all selected points to current frame
-        #     self.points_layer.data[slc_prior_frames, 0] = event.value[0]
-
-        #     # Force a refresh of the points layer
-        #     self.points_layer.refresh()
-
-        # self.viewer.dims.events.current_step.connect(
-        #     callback_func
-        # )
-
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
@@ -312,10 +292,11 @@ class DataLoader(QWidget):
 
         def callback_func(event):
             # Select points that are 5 frames before the current frame
+            # Note: self.points_layer is the last loaded layer
             slc_prior_frames = np.logical_and(
-                self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+                self.points_layer.metadata["original_data_no_nans"][:, 0]
                 > event.value[0] - 5,
-                self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+                self.points_layer.metadata["original_data_no_nans"][:, 0]
                 <= event.value[0],
             )
 
