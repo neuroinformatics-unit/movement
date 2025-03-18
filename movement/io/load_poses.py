@@ -684,7 +684,6 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
     dataset_attrs: dict[str, str | float | None] = {
         "source_software": data.source_software,
-        "source_file": None,
         "ds_type": "poses",
     }
     # Create the time coordinate, depending on the value of fps
