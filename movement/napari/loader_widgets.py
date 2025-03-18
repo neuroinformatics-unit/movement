@@ -61,6 +61,26 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
+        # # Set up callback
+        # def callback_func(event):
+        #     # Select points that are 5 frames before the current frame
+        #     slc_prior_frames = np.logical_and(
+        #         self.points_layer.metadata["original_data_no_nans"][:, 0]
+        #         > self.event.value[0] - 5,
+        #         self.points_layer.metadata["original_data_no_nans"][:, 0]
+        #         <= event.value[0],
+        #     )
+
+        #     # Set frame of all selected points to current frame
+        #     self.points_layer.data[slc_prior_frames, 0] = event.value[0]
+
+        #     # Force a refresh of the points layer
+        #     self.points_layer.refresh()
+
+        # self.viewer.dims.events.current_step.connect(
+        #     callback_func
+        # )
+
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
@@ -168,12 +188,14 @@ class DataLoader(QWidget):
             start=0.0, stop=max(self.data[:, 1]), step=1.0
         )
 
+        # ----------
         # Set property to color points and tracks by
         color_prop = "individual"
         n_individuals = len(self.properties["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.properties:
             color_prop = "keypoint"
         self.color_property = color_prop
+        # ----------
 
         # Add the data as layers
         self._add_points_layer()
@@ -186,9 +208,26 @@ class DataLoader(QWidget):
             ) + self.viewer.dims.range[1:]
 
         # Set slider to first frame
-        self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
-            2:
-        ]
+        default_current_step = self.viewer.dims.current_step
+        self.viewer.dims.current_step = (0,) + default_current_step[2:]
+
+        # Set up callback
+        def callback_func(event):
+            # Select points that are 5 frames before the current frame
+            slc_prior_frames = np.logical_and(
+                self.points_layer.metadata["original_data_no_nans"][:, 0]
+                > event.value[0] - 5,
+                self.points_layer.metadata["original_data_no_nans"][:, 0]
+                <= event.value[0],
+            )
+
+            # Set frame of all selected points to current frame
+            self.points_layer.data[slc_prior_frames, 0] = event.value[0]
+
+            # Force a refresh of the points layer
+            self.points_layer.refresh()
+
+        self.viewer.dims.events.current_step.connect(callback_func)
 
         # Select points layer
         self.viewer.layers.selection.active = self.points_layer
@@ -215,11 +254,18 @@ class DataLoader(QWidget):
 
         # Add data as a points layer
         self.points_layer = self.viewer.add_points(
-            self.data[self.bool_not_nan, 1:],
+            self.data[
+                self.bool_not_nan, 1:
+            ],  # columns: (track_id), frame_idx, y, x
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
         )
 
+        # Add metadata
+        self.points_layer.metadata = {
+            "original_data_no_nans": self.data[self.bool_not_nan, 1:],
+            # "original_properties": self.properties,
+        }
         logger.info("Added tracked dataset as a napari Points layer.")
 
     def _add_tracks_layer(self):
@@ -249,6 +295,30 @@ class DataLoader(QWidget):
             **tracks_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
+
+    # def _prior_points_callback(self, event):
+    #     """Define callback for showing prior markers.
+
+    #     The event is triggered when the user changes the frame in the
+    #     dimension slider.
+    #     """
+
+    #     def callback_func(event):
+    #         # Select points that are 5 frames before the current frame
+    #         slc_prior_frames = np.logical_and(
+    #             self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+    #             > self.event.value[0] - 5,
+    #             self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+    #             <= event.value[0],
+    #         )
+
+    #         # Set frame of all selected points to current frame
+    #         self.points_layer.data[slc_prior_frames, 0] = event.value[0]
+
+    #         # Force a refresh of the points layer
+    #         self.points_layer.refresh()
+
+    #     return callback_func
 
     @staticmethod
     def _enable_layer_tooltips():
