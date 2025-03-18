@@ -24,7 +24,6 @@ class TestComputeKinematics:
     def test_kinematics(self, valid_dataset, kinematic_variable, request):
         """Test kinematic computations with valid datasets."""
         position = request.getfixturevalue(valid_dataset).position
-        # Map kinematic_variable to the actual function
         kinematic_func = {
             "displacement": compute_displacement,
             "velocity": compute_velocity,
@@ -33,18 +32,24 @@ class TestComputeKinematics:
             "path_length": compute_path_length,
         }[kinematic_variable]
         kinematic_array = kinematic_func(position)
-        # Add assertions as needed (e.g., check output type, dims)
         assert isinstance(kinematic_array, xr.DataArray)
-        if kinematic_variable != "path_length":
-            assert (
-                "space" in kinematic_array.dims
-                or kinematic_array.dims == position.dims[:-1]
-            )  # speed has no space dim
+        if kinematic_variable == "speed":
+            # Speed removes 'space' dim
+            expected_dims = tuple(d for d in position.dims if d != "space")
+            assert kinematic_array.dims == expected_dims, (
+                f"Expected dims {expected_dims}, got {kinematic_array.dims}"
+            )
+        elif kinematic_variable != "path_length":
+            # Displacement, velocity, acceleration retain 'space'
+            assert "space" in kinematic_array.dims, (
+                f"Expected 'space' in dims, got {kinematic_array.dims}"
+            )
         else:
+            # Path length sums over 'time' and 'space'
             assert (
                 "time" not in kinematic_array.dims
                 and "space" not in kinematic_array.dims
-            )
+            ), f"Unexpected dims: {kinematic_array.dims}"
 
     @pytest.mark.parametrize(
         "valid_dataset_with_nan, expected_nans_per_individual",
@@ -56,10 +61,7 @@ class TestComputeKinematics:
                     "velocity": [36, 0],
                     "acceleration": [40, 0],
                     "speed": [18, 0],
-                    "path_length": [
-                        0,
-                        0,
-                    ],  # Depends on nan_policy; assuming ffill
+                    "path_length": [1, 0],  # Adjusted for NaN in id_0
                 },
             ),
             (
@@ -69,10 +71,7 @@ class TestComputeKinematics:
                     "velocity": [12, 0],
                     "acceleration": [14, 0],
                     "speed": [6, 0],
-                    "path_length": [
-                        0,
-                        0,
-                    ],  # Depends on nan_policy; assuming ffill
+                    "path_length": [0, 0],
                 },
             ),
         ],
@@ -101,13 +100,8 @@ class TestComputeKinematics:
         }[kinematic_variable]
         kinematic_array = kinematic_func(position)
         expected_nans = expected_nans_per_individual[kinematic_variable]
-        # Add NaN-checking logic
-        actual_nans = (
-            np.isnan(kinematic_array).sum().item()
-        )  # Total NaNs in array
-        expected_total_nans = sum(
-            expected_nans
-        )  # Sum of expected NaNs per individual
+        actual_nans = np.isnan(kinematic_array).sum().item()
+        expected_total_nans = sum(expected_nans)
         assert actual_nans == expected_total_nans, (
             f"{kinematic_variable}: Expected {expected_total_nans} NaNs, "
             f"got {actual_nans}"

@@ -74,6 +74,9 @@ def compute_forward_vector(
     is set to NaN.
 
     """
+    # Validate input type
+    if not isinstance(data, xr.DataArray):
+        raise TypeError("Input 'data' must be an xarray.DataArray")
     # Validate input data
     validate_dims_coords(
         data,
