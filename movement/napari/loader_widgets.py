@@ -188,49 +188,49 @@ class DataLoader(QWidget):
             start=0.0, stop=max(self.data[:, 1]), step=1.0
         )
 
-        # ----------
         # Set property to color points and tracks by
+        self._set_common_color_property()
+
+        # Add the data as a points and a tracks layers
+        self._add_points_layer()
+        self._add_tracks_layer()
+
+        # Ensure the frame slider reflects the total number of frames
+        self._set_frame_slider()
+
+        # Set points layer as active
+        self.viewer.layers.selection.active = self.points_layer
+
+    def _set_common_color_property(self):
+        """Set the color property for the Points and Tracks layers.
+
+        The color property is set to "individual" by default,
+        If the dataset contains only one individual and "keypoint"
+        is defined as a property, the color property is set to "keypoint".
+        """
         color_prop = "individual"
         n_individuals = len(self.properties["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.properties:
             color_prop = "keypoint"
         self.color_property = color_prop
-        # ----------
 
-        # Add the data as layers
-        self._add_points_layer()
-        self._add_tracks_layer()
+    def _set_frame_slider(self):
+        """Set the dimension slider to match the number of frames.
 
+        The maximum value of the slider is set to the number of frames
+        in the dataset. The slider position is also set to the first frame
+        so that the first view is not cluttered with tracks.
+        """
         # Ensure the frame slider reflects the total number of frames
         if self.viewer.dims.range[0] != self.expected_frame_range:
             self.viewer.dims.range = (
                 self.expected_frame_range,
             ) + self.viewer.dims.range[1:]
 
-        # Set slider to first frame
+        # Set slider to first frame so that first view is not cluttered
+        # with tracks
         default_current_step = self.viewer.dims.current_step
         self.viewer.dims.current_step = (0,) + default_current_step[2:]
-
-        # Set up callback
-        def callback_func(event):
-            # Select points that are 5 frames before the current frame
-            slc_prior_frames = np.logical_and(
-                self.points_layer.metadata["original_data_no_nans"][:, 0]
-                > event.value[0] - 5,
-                self.points_layer.metadata["original_data_no_nans"][:, 0]
-                <= event.value[0],
-            )
-
-            # Set frame of all selected points to current frame
-            self.points_layer.data[slc_prior_frames, 0] = event.value[0]
-
-            # Force a refresh of the points layer
-            self.points_layer.refresh()
-
-        self.viewer.dims.events.current_step.connect(callback_func)
-
-        # Select points layer
-        self.viewer.layers.selection.active = self.points_layer
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
@@ -246,7 +246,7 @@ class DataLoader(QWidget):
             text_prop = "keypoint"
         points_style.set_text_by(property=text_prop)
 
-        # Set color of markers and text
+        # Set color of markers and text by color property
         points_style.set_color_by(
             property=self.color_property,
             properties_df=self.properties,
@@ -266,6 +266,13 @@ class DataLoader(QWidget):
             "original_data_no_nans": self.data[self.bool_not_nan, 1:],
             # "original_properties": self.properties,
         }
+
+        # Set up callback to showing 5 previous points for a given frame
+        # position
+        self.viewer.dims.events.current_step.connect(
+            self._prior_points_callback()
+        )
+
         logger.info("Added tracked dataset as a napari Points layer.")
 
     def _add_tracks_layer(self):
@@ -296,29 +303,29 @@ class DataLoader(QWidget):
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
-    # def _prior_points_callback(self, event):
-    #     """Define callback for showing prior markers.
+    def _prior_points_callback(self):
+        """Return callback for showing N markers before current frame.
 
-    #     The event is triggered when the user changes the frame in the
-    #     dimension slider.
-    #     """
+        The event is triggered when the user changes the frame in the
+        dimension slider.
+        """
 
-    #     def callback_func(event):
-    #         # Select points that are 5 frames before the current frame
-    #         slc_prior_frames = np.logical_and(
-    #             self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
-    #             > self.event.value[0] - 5,
-    #             self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
-    #             <= event.value[0],
-    #         )
+        def callback_func(event):
+            # Select points that are 5 frames before the current frame
+            slc_prior_frames = np.logical_and(
+                self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+                > event.value[0] - 5,
+                self.viewer.layers[0].metadata["original_data_no_nans"][:, 0]
+                <= event.value[0],
+            )
 
-    #         # Set frame of all selected points to current frame
-    #         self.points_layer.data[slc_prior_frames, 0] = event.value[0]
+            # Set frame of all selected points to current frame
+            self.points_layer.data[slc_prior_frames, 0] = event.value[0]
 
-    #         # Force a refresh of the points layer
-    #         self.points_layer.refresh()
+            # Force a refresh of the points layer
+            self.points_layer.refresh()
 
-    #     return callback_func
+        return callback_func
 
     @staticmethod
     def _enable_layer_tooltips():
