@@ -314,7 +314,6 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     n_individuals = len(individual_names)
     keypoint_names = ds.keypoints.values.tolist()
     # Compute frame indices from fps, if set
-
     fps = getattr(ds, "fps", None)
     if fps is not None:
         frame_idxs = np.rint(ds.time.values * fps).astype(int).tolist()
