@@ -16,6 +16,7 @@ from qtpy.QtWidgets import (
 
 logger = logging.getLogger(__name__)
 
+
 class ROIDrawingWidget(QWidget):
     """Widget for drawing and managing regions of interest in napari."""
 
@@ -111,14 +112,14 @@ class ROIDrawingWidget(QWidget):
     @staticmethod
     def _point_in_rectangle(point: np.ndarray, rectangle: np.ndarray) -> bool:
         """Check if a point is inside a rectangle.
-        
+
         Parameters
         ----------
         point : np.ndarray
             The (x, y) coordinates to check
         rectangle : np.ndarray
             Array of rectangle vertices
-            
+
         Returns
         -------
         bool
@@ -146,7 +147,7 @@ class ROIDrawingWidget(QWidget):
 
     def get_rois(self) -> list[np.ndarray]:
         """Get the list of ROIs as numpy arrays.
-        
+
         Returns
         -------
         list[np.ndarray]
@@ -157,7 +158,7 @@ class ROIDrawingWidget(QWidget):
 
     def get_selected_roi(self) -> np.ndarray | None:
         """Get the currently selected ROI.
-        
+
         Returns
         -------
         np.ndarray | None
