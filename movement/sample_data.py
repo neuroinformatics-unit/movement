@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 
 import pooch
+import requests
 import xarray
 import yaml
 from requests.exceptions import RequestException
@@ -21,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
-DATA_URL = (
-    "https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master"
-)
+DATA_URL = "https://drive.google.com/uc?id=1d8ZD3pckboqV9ItCEgQhUZvkjMc1gmEp"
 
 # Save data in ~/.movement/data
 DATA_DIR = Path("~", ".movement", "data").expanduser()
@@ -35,39 +34,23 @@ METADATA_FILE = "metadata.yaml"
 
 
 def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
-    """Download the metadata yaml file.
-
-    This function downloads the yaml file containing sample metadata from
-    the ``movement`` data repository and saves it in the specified directory
-    with a temporary filename - temp_{file_name} - to avoid overwriting any
-    existing files.
-
-    Parameters
-    ----------
-    file_name : str
-        Name of the metadata file to fetch.
-    data_dir : pathlib.Path, optional
-        Directory to store the metadata file in. Defaults to the constant
-        ``DATA_DIR``. Can be overridden for testing purposes.
-
-    Returns
-    -------
-    path : pathlib.Path
-        Path to the downloaded file.
-
-    """
-    local_file_path = pooch.retrieve(
-        url=f"{DATA_URL}/{file_name}",
-        known_hash=None,
-        path=data_dir,
-        fname=f"temp_{file_name}",
-        progressbar=False,
+    """Download the metadata yaml file from Google Drive."""
+    drive_url = (
+        "https://drive.google.com/uc?id=1d8ZD3pckboqV9ItCEgQhUZvkjMc1gmEp"
     )
-    logger.debug(
-        f"Successfully downloaded sample metadata file {file_name} "
-        f"from {DATA_URL} to {data_dir}"
-    )
-    return Path(local_file_path)
+
+    response = requests.get(drive_url, stream=True)
+    if response.status_code == 200:
+        local_file_path = data_dir / f"temp_{file_name}"
+        with open(local_file_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        logger.debug("Successfully downloaded metadata file from Drive")
+        return local_file_path
+    else:
+        log_error(ValueError, "Failed to fetch metadata file from Drive")
+
+    return data_dir / file_name  # <- Ensure function always returns a Path
 
 
 def _fetch_metadata(
@@ -107,8 +90,9 @@ def _fetch_metadata(
             )
         else:
             raise log_error(RequestException, failed_msg) from exc_info
+    print(f"Metadata file saved at: {local_file_path}")
 
-    with open(local_file_path) as metadata_file:
+    with open(local_file_path, encoding="utf-8") as metadata_file:
         metadata = yaml.safe_load(metadata_file)
     return metadata
 
