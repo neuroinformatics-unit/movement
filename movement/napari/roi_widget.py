@@ -16,7 +16,6 @@ from qtpy.QtWidgets import (
 
 logger = logging.getLogger(__name__)
 
-
 class ROIDrawingWidget(QWidget):
     """Widget for drawing and managing regions of interest in napari."""
 
@@ -75,8 +74,8 @@ class ROIDrawingWidget(QWidget):
             )
             self.roi_layer.mode = "add_rectangle"
 
-            # Connect mouse event handlers
-            self.roi_layer.mouse_press_callbacks.append(self._on_mouse_press)
+            # Connect modern event handlers
+            self.roi_layer.mouse_drag_callbacks.append(self._on_mouse_press)
             self.roi_layer.events.data.connect(self._on_data_change)
 
             self.status_label.setText(
@@ -87,9 +86,7 @@ class ROIDrawingWidget(QWidget):
 
     def _on_mouse_press(self, layer: Shapes, event):
         """Handle mouse press events for selection and drawing."""
-        if (
-            event.button == 2 and self.roi_layer is not None
-        ):  # Right mouse button
+        if event.button == 2 and self.roi_layer is not None:  # Right click
             # Convert mouse position to data coordinates
             pos = np.array(event.position)
 
@@ -111,10 +108,23 @@ class ROIDrawingWidget(QWidget):
 
             event.handled = True
 
-    def _point_in_rectangle(
-        self, point: np.ndarray, rectangle: np.ndarray
-    ) -> bool:
-        """Check if a point is inside a rectangle."""
+    @staticmethod
+    def _point_in_rectangle(point: np.ndarray, rectangle: np.ndarray) -> bool:
+        """Check if a point is inside a rectangle.
+        
+        Parameters
+        ----------
+        point : np.ndarray
+            The (x, y) coordinates to check
+        rectangle : np.ndarray
+            Array of rectangle vertices
+            
+        Returns
+        -------
+        bool
+            True if point is inside the rectangle, False otherwise
+
+        """
         min_coords = np.min(rectangle, axis=0)
         max_coords = np.max(rectangle, axis=0)
         return bool(
@@ -135,11 +145,25 @@ class ROIDrawingWidget(QWidget):
             self.status_label.setText(f"Total ROIs: {n_rois}")
 
     def get_rois(self) -> list[np.ndarray]:
-        """Get the list of ROIs as numpy arrays."""
+        """Get the list of ROIs as numpy arrays.
+        
+        Returns
+        -------
+        list[np.ndarray]
+            List of ROI coordinates
+
+        """
         return list(self.roi_layer.data) if self.roi_layer else []
 
     def get_selected_roi(self) -> np.ndarray | None:
-        """Get the currently selected ROI."""
+        """Get the currently selected ROI.
+        
+        Returns
+        -------
+        np.ndarray | None
+            Coordinates of the selected ROI or None if none selected
+
+        """
         if self.roi_layer is not None and self._selected_roi is not None:
             return self.roi_layer.data[self._selected_roi]
         return None
