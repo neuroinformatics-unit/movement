@@ -1,3 +1,4 @@
+import numpy as np  # Add for NaN checks
 import pytest
 import xarray as xr
 
@@ -20,7 +21,6 @@ from movement.kinematics.navigation import (
         (
             "missing_dim_poses_dataset",
             ValueError,
-            # Matches actual output from your log, split for E501
             (
                 r"Input data must contain \['time'\] as dimensions\.\n"
                 r"Input data must contain \['left_ear', 'right_ear'\] in the "
@@ -31,7 +31,6 @@ from movement.kinematics.navigation import (
         (
             "missing_two_dims_bboxes_dataset",
             ValueError,
-            # Matches actual output from your log, split for E501
             (
                 r"Input data must contain \['time', 'keypoints', 'space'\] as "
                 r"dimensions\.\n"
@@ -43,7 +42,6 @@ from movement.kinematics.navigation import (
         (
             "valid_poses_dataset",
             ValueError,
-            # Updated to include the trailing newline, split for E501
             (
                 r"Input data must contain \['left_ear', 'left_ear'\] in the "
                 r"'keypoints' coordinates\."
@@ -70,7 +68,38 @@ def test_compute_forward_vector_identical_keypoints(
         compute_forward_vector(data, "left_ear", "left_ear")
 
 
-# Optional: Add basic tests for other navigation functions
+def test_compute_forward_vector(valid_data_array_for_forward_vector):
+    """Test forward vector computation with valid input."""
+    forward_vector = compute_forward_vector(
+        valid_data_array_for_forward_vector,
+        "left_ear",
+        "right_ear",
+        camera_view="bottom_up",
+    )
+    known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
+    assert isinstance(forward_vector, xr.DataArray)
+    assert np.equal(forward_vector.values, known_vectors).all()
+
+
+@pytest.mark.parametrize("nan_time", [1, 2])  # Expand to 2 tests
+def test_nan_behavior_forward_vector(
+    valid_data_array_for_forward_vector_with_nan, nan_time
+):
+    """Test forward vector computation with NaNs at different times."""
+    data = valid_data_array_for_forward_vector_with_nan.copy()
+    # Adjust NaN position dynamically based on nan_time
+    data = data.where((data.time != nan_time) | (data.keypoints != "left_ear"))
+    forward_vector = compute_forward_vector(data, "left_ear", "right_ear")
+    for preserved_coord in ["time", "space", "individuals"]:
+        assert np.all(forward_vector[preserved_coord] == data[preserved_coord])
+    assert set(forward_vector["space"].values) == {"x", "y"}
+    nan_values = forward_vector.sel(time=nan_time)
+    assert np.isnan(nan_values).all()
+    assert not np.isnan(
+        forward_vector.sel(time=[t for t in data.time if t != nan_time])
+    ).any()
+
+
 @pytest.mark.parametrize("camera_view", ["top_down", "bottom_up"])
 def test_compute_head_direction_vector(
     valid_data_array_for_forward_vector, camera_view

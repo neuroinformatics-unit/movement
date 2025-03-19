@@ -7,6 +7,7 @@ from movement.kinematics.kinematics import (
     compute_displacement,
     compute_path_length,
     compute_speed,
+    compute_time_derivative,
     compute_velocity,
 )
 
@@ -136,3 +137,19 @@ class TestComputeKinematics:
                 "path_length": compute_path_length,
             }[kinematic_variable]
             kinematic_func(position)
+
+
+@pytest.mark.parametrize(
+    "order, expected_exception",
+    [
+        (0, pytest.raises(ValueError)),
+        (-1, pytest.raises(ValueError)),
+        (1.0, pytest.raises(TypeError)),
+        ("1", pytest.raises(TypeError)),
+    ],
+)
+def test_time_derivative_with_invalid_order(order, expected_exception):
+    """Test that an error is raised when the order is non-positive."""
+    data = np.arange(10)
+    with expected_exception:
+        compute_time_derivative(data, order=order)
