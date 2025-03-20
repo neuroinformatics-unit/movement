@@ -10,6 +10,9 @@ from movement.kinematics.kinematics import (
     compute_time_derivative,
     compute_velocity,
 )
+from movement.kinematics.navigation import (
+    compute_forward_vector_angle,  # New import
+)
 
 
 class TestComputeKinematics:
@@ -35,18 +38,15 @@ class TestComputeKinematics:
         kinematic_array = kinematic_func(position)
         assert isinstance(kinematic_array, xr.DataArray)
         if kinematic_variable == "speed":
-            # Speed removes 'space' dim
             expected_dims = tuple(d for d in position.dims if d != "space")
             assert kinematic_array.dims == expected_dims, (
                 f"Expected dims {expected_dims}, got {kinematic_array.dims}"
             )
         elif kinematic_variable != "path_length":
-            # Displacement, velocity, acceleration retain 'space'
             assert "space" in kinematic_array.dims, (
                 f"Expected 'space' in dims, got {kinematic_array.dims}"
             )
         else:
-            # Path length sums over 'time' and 'space'
             assert (
                 "time" not in kinematic_array.dims
                 and "space" not in kinematic_array.dims
@@ -62,7 +62,7 @@ class TestComputeKinematics:
                     "velocity": [36, 0],
                     "acceleration": [40, 0],
                     "speed": [18, 0],
-                    "path_length": [1, 0],  # Adjusted for NaN in id_0
+                    "path_length": [1, 0],
                 },
             ),
             (
@@ -86,7 +86,7 @@ class TestComputeKinematics:
         valid_dataset_with_nan,
         expected_nans_per_individual,
         kinematic_variable,
-        helpers,  # Assuming this is needed; remove if unused
+        helpers,
         request,
     ):
         """Test kinematic computations with datasets containing NaNs."""
@@ -153,3 +153,57 @@ def test_time_derivative_with_invalid_order(order, expected_exception):
     data = np.arange(10)
     with expected_exception:
         compute_time_derivative(data, order=order)
+
+
+# Added fixture and test from main
+@pytest.fixture
+def spinning_on_the_spot():
+    """Simulate data for an individual's head spinning on the spot.
+
+    The left / right keypoints move in a circular motion counter-clockwise
+    around the unit circle centred on the origin, always opposite each
+    other.
+    The left keypoint starts on the negative x-axis, and the motion is
+    split into 8 time points of uniform rotation angles.
+    """
+    x_axis = np.array([1.0, 0.0])
+    y_axis = np.array([0.0, 1.0])
+    sqrt_2 = np.sqrt(2.0)
+    data = np.zeros(shape=(8, 2, 2), dtype=float)
+    data[:, :, 0] = np.array(
+        [
+            -x_axis,
+            (-x_axis - y_axis) / sqrt_2,
+            -y_axis,
+            (x_axis - y_axis) / sqrt_2,
+            x_axis,
+            (x_axis + y_axis) / sqrt_2,
+            y_axis,
+            (-x_axis + y_axis) / sqrt_2,
+        ]
+    )
+    data[:, :, 1] = -data[:, :, 0]
+    return xr.DataArray(
+        data=data,
+        dims=["time", "space", "keypoints"],
+        coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+    )
+
+
+def test_casts_from_tuple(spinning_on_the_spot):
+    """Test that tuples and lists are cast to numpy arrays,
+    when given as the reference vector.
+    """
+    x_axis_as_tuple = (1.0, 0.0)
+    x_axis_as_list = [1.0, 0.0]
+    pass_numpy = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", np.array([1.0, 0.0])
+    )
+    pass_tuple = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", x_axis_as_tuple
+    )
+    pass_list = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", x_axis_as_list
+    )
+    xr.testing.assert_allclose(pass_numpy, pass_tuple)
+    xr.testing.assert_allclose(pass_numpy, pass_list)
