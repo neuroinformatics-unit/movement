@@ -10,7 +10,6 @@ from numpy.typing import ArrayLike
 from movement.utils.logging import log_error
 from movement.utils.vector import (
     compute_signed_angle_2d,
-    convert_to_unit,
 )
 from movement.validators.arrays import validate_dims_coords
 
@@ -122,8 +121,17 @@ def compute_forward_vector(
     ).drop_sel(
         space="z"
     )  # keep only the first 2 spatial dimensions of the result
-    # Return unit vector
-    return convert_to_unit(forward_vector)
+    # Check for invalid inputs (NaN or zero vector)
+    invalid = (
+        data.sel(keypoints=left_keypoint).isnull().any(dim="space")
+        | data.sel(keypoints=right_keypoint).isnull().any(dim="space")
+        | (right_to_left_vector == 0).all(dim="space")
+    )
+    # Manual normalization
+    magnitude = np.sqrt((forward_vector**2).sum(dim="space"))
+    normalized_vector = forward_vector / magnitude
+    # Explicitly set NaN for invalid cases using xr.where
+    return xr.where(~invalid, normalized_vector, np.nan)
 
 
 def compute_head_direction_vector(
