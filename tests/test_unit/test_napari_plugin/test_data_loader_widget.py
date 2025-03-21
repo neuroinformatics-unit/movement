@@ -340,7 +340,7 @@ def test_dimension_slider_multiple_files_with_deletion(
     when loading two point layers, deleting one, and the remaining layer has
     all NaN values at the start.
     """
-    # Get the datasets to load (paths and ds)
+    # Get the input data to load (paths and ds)
     list_paths, list_datasets = [
         [
             request.getfixturevalue(file_name)[j]
@@ -364,7 +364,7 @@ def test_dimension_slider_multiple_files_with_deletion(
     # Get the maximum number of frames from all datasets
     max_frames = max(ds.sizes["time"] for ds in list_datasets)
 
-    # Load each dataset in order
+    # Load each dataset as a points layer in napari
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
     for file_path in list_paths:
@@ -372,10 +372,10 @@ def test_dimension_slider_multiple_files_with_deletion(
         data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
         data_loader_widget._on_load_clicked()
 
-    # Remove the first layer
+    # Remove the first loaded layer
     viewer.layers.remove(viewer.layers[0])
 
-    # Get maximum number of frames from the remaining data file
+    # Get maximum number of frames from the remaining layer / dataset
     max_frames = list_datasets[1].sizes["time"]
 
     # Check the frame slider is as expected
