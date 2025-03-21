@@ -173,7 +173,7 @@ def test_on_load_clicked_with_valid_file_path(
     # Check that class attributes have been created
     assert data_loader_widget.file_name == file_path.name
     assert data_loader_widget.data is not None
-    assert data_loader_widget.props is not None
+    assert data_loader_widget.properties is not None
 
     # Check that the expected log messages were emitted
     expected_log_messages = {
