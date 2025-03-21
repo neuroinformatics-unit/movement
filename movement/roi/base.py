@@ -450,7 +450,7 @@ class BaseRegionOfInterest:
         boundary_only: bool = False,
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
-    ) -> float:
+    ) -> xr.DataArray:
         """Compute the allocentric angle to the nearest point in the region.
 
         With the term "allocentric", we indicate that we are measuring angles
