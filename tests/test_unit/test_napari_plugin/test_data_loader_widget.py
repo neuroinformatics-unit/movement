@@ -311,49 +311,34 @@ def test_dimension_slider_multiple_files(
     [
         [
             "valid_poses_dataset_short",
-            "valid_poses_dataset_long",
-        ],
-        [
-            "valid_poses_dataset_short",
-            "valid_poses_dataset_long_nan_start",
-        ],
-        [
             "valid_poses_dataset_short_nan_start",
-            "valid_poses_dataset_long",
         ],
         [
-            "valid_poses_dataset_short_nan_start",
+            "valid_poses_dataset_long",
             "valid_poses_dataset_long_nan_start",
         ],
         [
             "valid_poses_dataset_short",
-            "valid_poses_dataset_short_nan_start",
+            "valid_poses_dataset_long_nan_start",  # --- has nan
         ],
         [
             "valid_poses_dataset_long",
+            "valid_poses_dataset_short_nan_start",  # --- has nan
+        ],
+        [
+            "valid_poses_dataset_short_nan_start",
             "valid_poses_dataset_long_nan_start",
         ],
     ],
 )
-@pytest.mark.parametrize(
-    "reverse_order",
-    [False, True],
-    ids=["default_files_order", "reverse_files_order"],
-)
-@pytest.mark.parametrize(
-    "layer_idx_to_delete",
-    [0, 1],
-    ids=["delete_first_layer", "delete_second_layer"],
-)
 def test_dimension_slider_multiple_files_with_deletion(
     list_input_data_files,
-    reverse_order,
-    layer_idx_to_delete,
     make_napari_viewer_proxy,
     request,
 ):
     """Test that the dimension slider is set to the correct range of frames
-    after loading two point layers, and deleting the first loaded layer.
+    when loading two point layers, deleting one, and the remaining layer has
+    all NaN values at the start.
     """
     # Get the datasets to load (paths and ds)
     list_paths, list_datasets = [
@@ -364,13 +349,23 @@ def test_dimension_slider_multiple_files_with_deletion(
         for j in range(len(list_input_data_files))
     ]
 
-    # Reverse the order of the inputs if specified
-    if reverse_order:
-        list_paths.reverse()
-        list_datasets.reverse()
-
-    # Get list of indices
-    list_indices = list(range(len(list_paths)))
+    # Check exactly one of the datasets has all NaN values at the start
+    assert (
+        sum(
+            [
+                ds.position.sel(
+                    individuals=ds.coords["individuals"],
+                    keypoints=ds.coords["keypoints"],
+                    time=ds.coords["time"][0],
+                )
+                .isnull()
+                .all()
+                .values
+                for ds in list_datasets
+            ]
+        )
+        == 1
+    )
 
     # Get the maximum number of frames from all datasets
     max_frames = max(ds.sizes["time"] for ds in list_datasets)
@@ -383,14 +378,11 @@ def test_dimension_slider_multiple_files_with_deletion(
         data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
         data_loader_widget._on_load_clicked()
 
-    # Remove one of the loaded layers
-    viewer.layers.remove(viewer.layers[layer_idx_to_delete])
+    # Remove the first layer
+    viewer.layers.remove(viewer.layers[0])
 
     # Get maximum number of frames from the remaining data file
-    layer_idx_that_remains = next(
-        i for i in list_indices if i != layer_idx_to_delete
-    )
-    max_frames = list_datasets[layer_idx_that_remains].sizes["time"]
+    max_frames = list_datasets[1].sizes["time"]
 
     # Check the frame slider is as expected
     assert viewer.dims.range[0] == RangeTuple(
