@@ -140,12 +140,12 @@ def test_fetch_dataset(valid_sample_datasets, with_video):
         video_path = getattr(ds, "video_path", None)
 
         if sample["frame_file"]:
-            assert frame_path.name == sample["frame_file"]
+            assert frame_path.split("/")[-1] == sample["frame_file"]
         else:
             assert frame_path is None
 
         if sample["video_file"] and with_video:
-            assert video_path.name == sample["video_file"]
+            assert video_path.split("/")[-1] == sample["video_file"]
         else:
             assert video_path is None
 
