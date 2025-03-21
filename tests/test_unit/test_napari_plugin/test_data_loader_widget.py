@@ -265,6 +265,7 @@ def test_dimension_slider_matches_frames(
         ["valid_poses_dataset_long", "valid_poses_dataset_short"],
         ["valid_poses_dataset_short", "valid_poses_dataset_long"],
     ],
+    ids=["long_first", "short_first"],
 )
 def test_dimension_slider_multiple_files(
     list_input_data_files, make_napari_viewer_proxy, request
@@ -273,20 +274,23 @@ def test_dimension_slider_multiple_files(
     when multiple files are loaded.
     """
     # Get the datasets to load (paths and ds)
-    list_paths_and_ds = [
-        request.getfixturevalue(file_name)
-        for file_name in list_input_data_files
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(len(list_input_data_files))
     ]
 
     # Get the maximum number of frames from all datasets
-    max_frames = max(ds.sizes["time"] for _, ds in list_paths_and_ds)
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
 
     # Load the data loader widget
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
     # Load each dataset in order
-    for file_path, _ in list_paths_and_ds:
+    for file_path in list_paths:
         data_loader_widget.file_path_edit.setText(file_path.as_posix())
         data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
         data_loader_widget._on_load_clicked()
