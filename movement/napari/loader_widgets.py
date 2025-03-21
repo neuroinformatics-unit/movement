@@ -220,6 +220,12 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
+        # If no layers are loaded or no Points layers are loaded, do nothing
+        if not self.viewer.layers or not any(
+            isinstance(ly, layers.Points) for ly in self.viewer.layers
+        ):
+            return
+
         # Get the maximum frame index from all loaded layers
         max_frame_idx = max(
             [
