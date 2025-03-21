@@ -267,8 +267,16 @@ def test_dimension_slider_with_nans(
     ],
     ids=["long_first", "short_first"],
 )
+@pytest.mark.parametrize(
+    "delete_first_layer",
+    [False, True],
+    ids=["no_layer_deletion", "layer_deletion"],
+)
 def test_dimension_slider_multiple_files(
-    list_input_data_files, make_napari_viewer_proxy, request
+    list_input_data_files,
+    delete_first_layer,
+    make_napari_viewer_proxy,
+    request,
 ):
     """Test that the dimension slider is set to the maximum number of frames
     when multiple files are loaded.
@@ -304,6 +312,20 @@ def test_dimension_slider_multiple_files(
     # in the longest dataset
     _, ds_long = request.getfixturevalue("valid_poses_dataset_long")
     assert max_frames == ds_long.sizes["time"]
+
+    # Simulate deleting the first layer and check the frame slider
+    # is set to the maximum number of frames
+    if delete_first_layer:
+        # Remove the first loaded layer
+        viewer.layers.remove(viewer.layers[0])
+
+        # Get maximum number of frames from the remaining dataset
+        max_frames = list_datasets[1].sizes["time"]
+
+        # Check the frame slider is as expected
+        assert viewer.dims.range[0] == RangeTuple(
+            start=0.0, stop=max_frames - 1, step=1.0
+        )
 
 
 @pytest.mark.parametrize(
