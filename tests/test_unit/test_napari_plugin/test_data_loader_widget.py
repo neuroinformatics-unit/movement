@@ -319,11 +319,11 @@ def test_dimension_slider_multiple_files(
         ],
         [
             "valid_poses_dataset_short",
-            "valid_poses_dataset_long_nan_start",  # --- has nan
+            "valid_poses_dataset_long_nan_start",
         ],
         [
             "valid_poses_dataset_long",
-            "valid_poses_dataset_short_nan_start",  # --- has nan
+            "valid_poses_dataset_short_nan_start",
         ],
         [
             "valid_poses_dataset_short_nan_start",
@@ -349,23 +349,17 @@ def test_dimension_slider_multiple_files_with_deletion(
         for j in range(len(list_input_data_files))
     ]
 
-    # Check exactly one of the datasets has all NaN values at the start
-    assert (
-        sum(
-            [
-                ds.position.sel(
-                    individuals=ds.coords["individuals"],
-                    keypoints=ds.coords["keypoints"],
-                    time=ds.coords["time"][0],
-                )
-                .isnull()
-                .all()
-                .values
-                for ds in list_datasets
-            ]
-        )
-        == 1
+    # Check the expected number of datasets have all NaN values at the start
+    expected_datasets_with_nans = sum(
+        ["nan" in file_name for file_name in list_input_data_files]
     )
+    actual_datasets_with_nans = sum(
+        [
+            ds.position.sel(time=ds.coords["time"][0]).isnull().all().values
+            for ds in list_datasets
+        ]
+    )
+    assert actual_datasets_with_nans == expected_datasets_with_nans
 
     # Get the maximum number of frames from all datasets
     max_frames = max(ds.sizes["time"] for ds in list_datasets)

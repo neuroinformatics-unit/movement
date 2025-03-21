@@ -23,6 +23,9 @@ def valid_poses_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
     """Return a factory of (path, dataset) pairs representing
     valid pose datasets with NaN values at specific locations.
     """
+    # Make a deep-copy of the valid dataset to avoid modifying the
+    # original fixture
+    ds = valid_poses_dataset.copy(deep=True)
 
     def _valid_poses_dataset_with_localised_nans(nan_location):
         """Return a valid poses dataset and corresponding file with NaN values
@@ -36,10 +39,6 @@ def valid_poses_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
         "left", "right") moving in uniform linear motion for 10 frames in 2D
         space.
         """
-        # Make a deep-copy of the valid dataset to avoid modifying the
-        # original fixture
-        ds = valid_poses_dataset.copy(deep=True)
-
         # Express NaN location in time in "time" coordinates
         if nan_location["time"] == "start":
             time_point = 0
