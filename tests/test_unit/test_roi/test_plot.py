@@ -28,7 +28,7 @@ def havarti() -> PolygonOfInterest:
 
 
 @pytest.fixture
-def octagonal_doughnut() -> PolygonOfInterest:
+def decaoctagonal_doughnut() -> PolygonOfInterest:
     """18-sided doughnut.
 
     This region matches (approximately) to the arena in the
@@ -76,9 +76,9 @@ def octagonal_doughnut() -> PolygonOfInterest:
             id="Cheese",
         ),
         pytest.param(
-            "octagonal_doughnut",
+            "decaoctagonal_doughnut",
             {"facecolor": ("black", 0.0)},  # Transparency hack
-            id="Octagonal doughnut",
+            id="Decaoctagonal doughnut",
         ),
         pytest.param(
             LineOfInterest([(0.0, 0.0), (1.0, 0.0)]), {}, id="Segment"
