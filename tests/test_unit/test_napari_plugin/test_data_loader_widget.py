@@ -307,6 +307,103 @@ def test_dimension_slider_multiple_files(
 
 
 @pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        [
+            "valid_poses_dataset_short",
+            "valid_poses_dataset_short_nan_start",
+        ],
+        [
+            "valid_poses_dataset_long",
+            "valid_poses_dataset_long_nan_start",
+        ],
+        [
+            "valid_poses_dataset_short",
+            "valid_poses_dataset_long_nan_start",
+        ],
+        [
+            "valid_poses_dataset_long",
+            "valid_poses_dataset_short_nan_start",
+        ],
+        [
+            "valid_poses_dataset_short_nan_start",
+            "valid_poses_dataset_long_nan_start",
+        ],
+    ],
+)
+def test_dimension_slider_multiple_files_with_deletion(
+    list_input_data_files,
+    make_napari_viewer_proxy,
+    request,
+):
+    """Test that the dimension slider is set to the correct range of frames
+    when loading two point layers, deleting one, and the remaining layer has
+    all NaN values at the start.
+    """
+    # Get the input data to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(len(list_input_data_files))
+    ]
+
+    # Check the expected number of datasets have all NaN values at the start
+    expected_datasets_with_nans = sum(
+        ["nan" in file_name for file_name in list_input_data_files]
+    )
+    actual_datasets_with_nans = sum(
+        [
+            ds.position.sel(time=ds.coords["time"][0]).isnull().all().values
+            for ds in list_datasets
+        ]
+    )
+    assert actual_datasets_with_nans == expected_datasets_with_nans
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load each dataset as a points layer in napari
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+        data_loader_widget._on_load_clicked()
+
+    # Remove the first loaded layer
+    viewer.layers.remove(viewer.layers[0])
+
+    # Get maximum number of frames from the remaining layer / dataset
+    max_frames = list_datasets[1].sizes["time"]
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+
+def test_deletion_all_layers(make_napari_viewer_proxy):
+    """Test there are no errors when all layers are deleted."""
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load a dataset
+    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget._on_load_clicked()
+
+    # Delete all layers
+    viewer.layers.clear()
+
+    # Check no errors are raised
+    assert len(viewer.layers) == 0
+
+
+@pytest.mark.parametrize(
     (
         "filename, source_software, "
         "expected_text_property, expected_color_property"
