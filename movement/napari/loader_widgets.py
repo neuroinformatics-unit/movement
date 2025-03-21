@@ -173,7 +173,7 @@ class DataLoader(QWidget):
         )
 
         if (self.viewer.dims.range[0].stop != max_frame_idx) or (
-            self.viewer.dims.range[0].start != 0.0
+            int(self.viewer.dims.range[0].start) != 0
             # the start frame may be different from 0 if all the data
             # at the first frame is NaN
         ):
