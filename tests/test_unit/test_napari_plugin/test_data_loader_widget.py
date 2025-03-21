@@ -268,9 +268,7 @@ def test_dimension_slider_with_nans(
     ids=["long_first", "short_first"],
 )
 def test_dimension_slider_multiple_files(
-    list_input_data_files,
-    make_napari_viewer_proxy,
-    request,
+    list_input_data_files, make_napari_viewer_proxy, request
 ):
     """Test that the dimension slider is set to the maximum number of frames
     when multiple files are loaded.
