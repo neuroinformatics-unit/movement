@@ -316,10 +316,11 @@ def test_dimension_slider_multiple_files(
         # ["valid_poses_dataset_long", "valid_poses_dataset_short"],
         #   # after deletion of the first, frame slider should match the
         #   "short" dataset
-        # ["valid_poses_dataset_short", "valid_poses_dataset_long"],
+        ["valid_poses_dataset_short", "valid_poses_dataset_long"],
         #   # after deletion of the first, frame slider should match the
         #   "long" dataset
         ["valid_poses_dataset_short", "valid_poses_dataset_long_nan_start"],
+        ["valid_poses_dataset_long_nan_start", "valid_poses_dataset_short"],
     ],
 )
 def test_dimension_slider_multiple_files_with_deletion(
@@ -328,7 +329,7 @@ def test_dimension_slider_multiple_files_with_deletion(
     request,
 ):
     """Test that the dimension slider is set to the correct range of frames
-    after deleting a layer.
+    after loading two point layers, and deleting the first loaded layer.
     """
     # Get the datasets to load (paths and ds)
     list_paths, list_datasets = [
@@ -355,7 +356,7 @@ def test_dimension_slider_multiple_files_with_deletion(
     # Remove the first loaded layer
     viewer.layers.remove(viewer.layers[0])
 
-    # Get maximum number of frames from the remaining dataset
+    # Get maximum number of frames from the 2nd data file
     max_frames = list_datasets[1].sizes["time"]
 
     # Check the frame slider is as expected
