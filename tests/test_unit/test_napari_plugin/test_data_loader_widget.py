@@ -203,7 +203,7 @@ def test_on_load_clicked_with_valid_file_path(
     [["centroid"], ["centroid", "left", "right"]],
     ids=["one_keypoint", "all_keypoints"],
 )
-def test_dimension_slider_matches_frames(
+def test_dimension_slider_with_nans(
     valid_poses_dataset_with_localised_nans,
     nan_time_location,
     nan_individuals,
