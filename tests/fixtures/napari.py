@@ -69,6 +69,34 @@ def valid_poses_dataset_long(valid_poses_dataset, tmp_path):
 
 
 @pytest.fixture
+def valid_poses_dataset_long_nan_start(
+    valid_poses_dataset_with_localised_nans,
+):
+    """Return a (path, dataset) pair representing a poses dataset
+    with 2 individuals ("id_0" and "id_1") and 3 keypoints
+    ("centroid", "left", "right") moving in uniform linear
+    motion for 10 frames in 2D space.
+    """
+    out_path, ds = valid_poses_dataset_with_localised_nans(
+        {
+            "time": "start",
+            "individuals": ["id_0", "id_1"],
+            "keypoints": ["centroid", "left", "right"],
+        }
+    )
+    # # Export as a DLC-csv file
+    # out_path = tmp_path / "ds_long_with_nan_start.csv"
+    # save_poses.to_dlc_file(
+    #     valid_poses_dataset_with_nan, out_path, split_individuals=False
+    # # )
+    # out_path = (
+    #     out_path.parent / "ds_long_with_nan_start.csv"
+    # )
+
+    return (out_path, ds)
+
+
+@pytest.fixture
 def valid_poses_dataset_short(valid_poses_dataset, tmp_path):
     """Return a (path, dataset) pair representing a poses dataset
     with data for 5 frames.
