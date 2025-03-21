@@ -144,7 +144,6 @@ class DataLoader(QWidget):
         if file_path == "":
             show_warning("No file path specified.")
             return
-
         if source_software in SUPPORTED_POSES_FILES:
             loader = load_poses
         else:
@@ -160,8 +159,8 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
-        # Ensure the frame slider reflects the max number of frames
-        # over all loaded point layers
+        # Ensure the frame slider goes from 0 to the max number of frames,
+        # considering all loaded point layers
         max_frame_idx = max(
             [
                 ly.metadata["max_frame_idx"]
@@ -169,9 +168,14 @@ class DataLoader(QWidget):
                 if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
             ]
         )
-        if self.viewer.dims.range[0].stop != max_frame_idx:
+
+        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+            self.viewer.dims.range[0].start != 0.0
+            # the start frame may be different from 0 if all the data
+            # at the first frame is NaN
+        ):
             self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0)
+                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
             ) + self.viewer.dims.range[1:]
 
     def _add_points_layer(self):
@@ -209,7 +213,10 @@ class DataLoader(QWidget):
         )
 
         # Add metadata to the layer
-        self.points_layer.metadata = {"max_frame_idx": max(self.data[:, 1])}
+        self.points_layer.metadata = {
+            "min_frame_idx": min(self.data[:, 1]),
+            "max_frame_idx": max(self.data[:, 1]),
+        }
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
