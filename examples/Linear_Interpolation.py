@@ -1,10 +1,6 @@
 # %%
-import math
-import os
-import csv
 import sleap_io as sio
 from matplotlib import pyplot as plt
-
 
 from movement import sample_data
 from movement.filtering import interpolate_over_time
@@ -22,7 +18,6 @@ print(file_path)
 ds = load_bboxes.from_via_tracks_file(
     file_path, use_frame_numbers_from_file=True
 )
-
 
 
 # %%
@@ -138,7 +133,7 @@ plot_position_and_shape_xy_coords(
 )
 
 # %%
-ds_interp.attrs['fps'] = 24.0  # Assign a meaningful value or another number
+ds_interp.attrs["fps"] = 24.0  # Assign a meaningful value or another number
 
 # %%
 import pandas as pd
@@ -151,27 +146,26 @@ df_interp.to_csv("upsampled_dataset.csv", index=False)
 
 
 # %%
-import pandas as pd
 
 # Convert ds_interp to a Pandas DataFrame
-df= ds.to_dataframe().reset_index()
+df = ds.to_dataframe().reset_index()
 
 # Save as CSV (similar to the original format)
 df.to_csv("nonupdataset.csv", index=False)
 
 # %%
-import pandas as pd
 import json
 
-def convert_to_via_format(df, filename):
-    """
-    Convert the given dataframe into VIA annotation format and save as CSV.
 
-    Parameters:
+def convert_to_via_format(df, filename):
+    """Convert the given dataframe into VIA annotation format and save as CSV.
+
+    Parameters
+    ----------
     - df: Pandas DataFrame containing movement dataset (original or interpolated)
     - filename: Output CSV file name
-    """
 
+    """
     # Construct filename from frame numbers
     df["filename"] = df["time"].apply(lambda t: f"/crab_1/{t:05d}.jpg")
 
@@ -183,7 +177,11 @@ def convert_to_via_format(df, filename):
     df["region_attributes"] = json.dumps({"track": 1})  # Assume one track
 
     # Pivot data to get 'x', 'y', 'width', and 'height' in the same row
-    df_pivot = df.pivot(index=["time", "filename"], columns="space", values=["position", "shape"])
+    df_pivot = df.pivot(
+        index=["time", "filename"],
+        columns="space",
+        values=["position", "shape"],
+    )
 
     # Rename columns for clarity
     df_pivot.columns = ["x", "y", "width", "height"]
@@ -191,13 +189,16 @@ def convert_to_via_format(df, filename):
 
     # Create a single bounding box JSON format
     df_pivot["region_shape_attributes"] = df_pivot.apply(
-        lambda row: json.dumps({
-            "name": "rect",
-            "x": row["x"],
-            "y": row["y"],
-            "width": row["width"],
-            "height": row["height"]
-        }), axis=1
+        lambda row: json.dumps(
+            {
+                "name": "rect",
+                "x": row["x"],
+                "y": row["y"],
+                "width": row["width"],
+                "height": row["height"],
+            }
+        ),
+        axis=1,
     )
 
     # Add static metadata
@@ -209,13 +210,21 @@ def convert_to_via_format(df, filename):
 
     # Keep only required columns
     df_final = df_pivot[
-        ["filename", "file_size", "file_attributes", "region_count", "region_id",
-         "region_shape_attributes", "region_attributes"]
+        [
+            "filename",
+            "file_size",
+            "file_attributes",
+            "region_count",
+            "region_id",
+            "region_shape_attributes",
+            "region_attributes",
+        ]
     ]
 
     # Save to CSV
     df_final.to_csv(filename, index=False)
     print(f"Saved: {filename}")
+
 
 # Convert xarray datasets to DataFrames
 df = ds.to_dataframe().reset_index()
@@ -223,7 +232,9 @@ df_interp = ds_interp.to_dataframe().reset_index()
 
 # Process both datasets
 convert_to_via_format(df, "nonupdataset.csv")  # Save original dataset
-convert_to_via_format(df_interp, "upsampled_dataset.csv")  # Save interpolated dataset
+convert_to_via_format(
+    df_interp, "upsampled_dataset.csv"
+)  # Save interpolated dataset
 
 
 # %%
@@ -236,6 +247,3 @@ print(df_new.head(10))  # Should match original format
 
 
 # %%
-
-
-
