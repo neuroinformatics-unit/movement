@@ -162,24 +162,7 @@ class DataLoader(QWidget):
 
         # Ensure the frame slider goes from 0 to the max number of frames,
         # considering all loaded point layers
-        max_frame_idx = max(
-            [
-                ly.metadata["max_frame_idx"]
-                for ly in self.viewer.layers
-                if isinstance(ly, layers.Points)
-                and hasattr(ly, "metadata")
-                and "max_frame_idx" in ly.metadata
-            ]
-        )
-
-        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
-            int(self.viewer.dims.range[0].start) != 0
-            # the start frame may be different from 0 if all the data
-            # at the first frame is NaN
-        ):
-            self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
-            ) + self.viewer.dims.range[1:]
+        self._check_frame_slider_range()
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
@@ -222,6 +205,35 @@ class DataLoader(QWidget):
         }
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _check_frame_slider_range(self):
+        """Check the frame slider range and update it if necessary.
+
+        This is required because if the data loaded starts or ends
+        with all NaN values, the frame slider range will not reflect
+        the full range of frames.
+        """
+        # Get the maximum frame index from all loaded layers
+        max_frame_idx = max(
+            [
+                ly.metadata["max_frame_idx"]
+                for ly in self.viewer.layers
+                if isinstance(ly, layers.Points)
+                and hasattr(ly, "metadata")
+                and "max_frame_idx" in ly.metadata
+            ]
+        )
+
+        # If the frame slider range is not set to the full range of frames,
+        # update it.
+        # Note: the start frame may be different from 0 if all the data
+        # at the first frame is NaN
+        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+            int(self.viewer.dims.range[0].start) != 0
+        ):
+            self.viewer.dims.range = (
+                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+            ) + self.viewer.dims.range[1:]
 
     @staticmethod
     def _enable_layer_tooltips():
