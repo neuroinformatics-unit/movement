@@ -260,6 +260,68 @@ def test_dimension_slider_matches_frames(
 
 
 @pytest.mark.parametrize(
+    "nan_time_location",
+    ["start", "middle", "end"],
+)
+@pytest.mark.parametrize(
+    "nan_individuals",
+    [["id_0"], ["id_0", "id_1"]],
+    ids=["one_individual", "all_individuals"],
+)
+def test_dimension_slider_matches_frames_bboxes(
+    valid_bboxes_dataset_with_localised_nans,
+    nan_time_location,
+    nan_individuals,
+    make_napari_viewer_proxy,
+):
+    """Test that the dimension slider is set to the total number of frames
+    when bounding box data with NaNs is loaded.
+    """
+    # Get data with nans at the expected locations
+    nan_location = {
+        "time": nan_time_location,
+        "individuals": nan_individuals,
+    }
+    file_path, ds = valid_bboxes_dataset_with_localised_nans(nan_location)
+
+    # Define the expected frame index with the NaN value
+    if nan_location["time"] == "start":
+        expected_frame = ds.coords["time"][0]
+    elif nan_location["time"] == "middle":
+        expected_frame = ds.coords["time"][ds.coords["time"].shape[0] // 2]
+    elif nan_location["time"] == "end":
+        expected_frame = ds.coords["time"][-1]
+
+    # Load the bboxes loader widget
+    viewer = make_napari_viewer_proxy()
+    bboxes_loader_widget = DataLoader(viewer)
+
+    # Read sample data with a NaN at the specified
+    # location (start, middle, or end)
+    bboxes_loader_widget.file_path_edit.setText(file_path.as_posix())
+    bboxes_loader_widget.source_software_combo.setCurrentText("VIA-tracks")
+
+    # Check the data contains nans where expected
+    assert (
+        ds.position.sel(
+            individuals=nan_location["individuals"],
+            time=expected_frame,
+        )
+        .isnull()
+        .all()
+    )
+
+    # Call the _on_load_clicked method
+    # (to pretend the user clicked "Load")
+    bboxes_loader_widget._on_load_clicked()
+
+    # Check the frame slider is set to the full range of frames
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
+    )
+
+
+@pytest.mark.parametrize(
     (
         "filename, source_software, "
         "expected_text_property, expected_color_property"
