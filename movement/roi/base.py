@@ -131,7 +131,6 @@ class BaseRegionOfInterest:
         how_to_compute_vector_to_region: Callable[
             [xr.DataArray], xr.DataArray
         ],
-        angle_rotates: Literal["vec to ref", "ref to vec"] = "vec to ref",
         in_degrees: bool = False,
     ) -> xr.DataArray:
         """Perform a boundary angle computation.
@@ -163,30 +162,14 @@ class BaseRegionOfInterest:
             "vector to the region".
         how_to_compute_vector_to_region : Callable
             How to compute the "vector to the region" from ``position``.
-        angle_rotates : Literal["vec to ref", "ref to vec"]
-            Convention for the returned signed angle. ``"vec to ref"`` returns
-            the signed angle between the "vector to the region" and the
-            ``reference_vector``. ``"ref to vec"`` returns the opposite.
-            Default is ``"vec to ref"``
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
 
         """
-        if angle_rotates == "vec to ref":
-            ref_is_left_operand = False
-        elif angle_rotates == "ref to vec":
-            ref_is_left_operand = True
-        else:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
-
         vec_to_segment = how_to_compute_vector_to_region(position)
 
-        angles = compute_signed_angle_2d(
-            vec_to_segment,
-            reference_vector,
-            v_as_left_operand=ref_is_left_operand,
-        )
+        angles = compute_signed_angle_2d(vec_to_segment, reference_vector)
         if in_degrees:
             angles = np.rad2deg(angles)
         return angles
@@ -464,9 +447,6 @@ class BaseRegionOfInterest:
     def compute_allocentric_angle_to_nearest_point(
         self,
         position: xr.DataArray,
-        angle_rotates: Literal[
-            "approach to ref", "ref to approach"
-        ] = "approach to ref",
         boundary_only: bool = False,
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
@@ -486,9 +466,6 @@ class BaseRegionOfInterest:
         ----------
         position : xarray.DataArray
             ``DataArray`` of spatial positions.
-        angle_rotates : Literal["approach to ref", "ref to approach"]
-            Direction of the signed angle returned. Default is
-            ``"approach to ref"``.
         boundary_only : bool
             If ``True``, the allocentric angle to the closest boundary point of
             the region is computed. Default ``False``.
@@ -524,7 +501,6 @@ class BaseRegionOfInterest:
                 ),
                 "vector to",
             ),
-            angle_rotates=angle_rotates.replace("approach", "vec"),  # type: ignore
             in_degrees=in_degrees,
         )
 
@@ -532,9 +508,6 @@ class BaseRegionOfInterest:
         self,
         direction: xr.DataArray,
         position: xr.DataArray,
-        angle_rotates: Literal[
-            "approach to direction", "direction to approach"
-        ] = "approach to direction",
         boundary_only: bool = False,
         in_degrees: bool = False,
     ) -> xr.DataArray:
@@ -556,9 +529,6 @@ class BaseRegionOfInterest:
         position : xarray.DataArray
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
-        angle_rotates : {"approach to direction", "direction to approach"}
-            Direction of the signed angle returned. Default is
-            ``"approach to direction"``.
         boundary_only : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
@@ -586,9 +556,6 @@ class BaseRegionOfInterest:
                     p, boundary_only=boundary_only, unit=False
                 ),
                 "vector to",
-            ),
-            angle_rotates=angle_rotates.replace("approach", "vec").replace(  # type: ignore
-                "direction", "ref"
             ),
             in_degrees=in_degrees,
         )
