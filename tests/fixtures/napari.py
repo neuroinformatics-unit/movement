@@ -4,6 +4,20 @@ import pytest
 from movement.io import save_poses
 
 
+def get_half_valid_poses_dataset(ds, out_file_path):
+    """Return a (path, dataset) pair containing the data of the first half
+    of the frames from the input dataset.
+    """
+    # Modify the dataset to have only half of the frames
+    ds = ds.sel(time=slice(0, ds.coords["time"].shape[0] // 2))
+
+    # Export as a DLC-csv file
+    # out_file_path = out_path / "ds_short.csv"
+    save_poses.to_dlc_file(ds, out_file_path, split_individuals=False)
+
+    return (out_file_path, ds)
+
+
 @pytest.fixture
 def valid_poses_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
     """Return a factory of (path, dataset) pairs representing
@@ -75,7 +89,8 @@ def valid_poses_dataset_long_nan_start(
     """Return a (path, dataset) pair representing a poses dataset
     with 2 individuals ("id_0" and "id_1") and 3 keypoints
     ("centroid", "left", "right") moving in uniform linear
-    motion for 10 frames in 2D space.
+    motion for 10 frames in 2D space, with all NaN values for the
+    first frame.
     """
     out_path, ds = valid_poses_dataset_with_localised_nans(
         {
@@ -84,15 +99,6 @@ def valid_poses_dataset_long_nan_start(
             "keypoints": ["centroid", "left", "right"],
         }
     )
-    # # Export as a DLC-csv file
-    # out_path = tmp_path / "ds_long_with_nan_start.csv"
-    # save_poses.to_dlc_file(
-    #     valid_poses_dataset_with_nan, out_path, split_individuals=False
-    # # )
-    # out_path = (
-    #     out_path.parent / "ds_long_with_nan_start.csv"
-    # )
-
     return (out_path, ds)
 
 
@@ -104,12 +110,28 @@ def valid_poses_dataset_short(valid_poses_dataset, tmp_path):
     The fixture is derived from the `valid_poses_dataset` fixture.
     """
     # Modify the dataset to have only 5 frames
-    valid_poses_dataset = valid_poses_dataset.sel(time=slice(0, 5))
-
-    # Export as a DLC-csv file
-    out_path = tmp_path / "ds_short.csv"
-    save_poses.to_dlc_file(
-        valid_poses_dataset, out_path, split_individuals=False
+    out_path, ds = get_half_valid_poses_dataset(
+        valid_poses_dataset, tmp_path / "ds_short.csv"
     )
 
-    return (out_path, valid_poses_dataset)
+    return out_path, ds
+
+
+@pytest.fixture
+def valid_poses_dataset_short_nan_start(
+    valid_poses_dataset_long_nan_start,
+    tmp_path,
+):
+    """Return a (path, dataset) pair representing a poses dataset
+    with 2 individuals ("id_0" and "id_1") and 3 keypoints
+    ("centroid", "left", "right") moving in uniform linear
+    motion for 10 frames in 2D space, with all NaN values for the
+    first frame.
+    """
+    # Get the dataset with all NaN values at the start
+    _, ds = valid_poses_dataset_long_nan_start
+
+    # Modify the dataset to have only 5 frames
+    return get_half_valid_poses_dataset(
+        ds, tmp_path / "ds_short_nan_start.csv"
+    )
