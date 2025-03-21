@@ -202,7 +202,7 @@ def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
     )
     assert ds.time_unit == expected_time_unit
     if expected_fps is None:
-        assert ds.fps is expected_fps
+        assert "fps" not in ds.attrs
     else:
         assert ds.fps == expected_fps
         np.testing.assert_allclose(
