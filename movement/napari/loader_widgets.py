@@ -58,6 +58,9 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
+        # Connect methods to napari events
+        self.viewer.layers.events.removed.connect(self._on_layer_deleted)
+
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
@@ -162,6 +165,10 @@ class DataLoader(QWidget):
 
         # Ensure the frame slider goes from 0 to the max number of frames,
         # considering all loaded point layers
+        self._check_frame_slider_range()
+
+    def _on_layer_deleted(self):
+        """Check the frame slider range when a layer is deleted."""
         self._check_frame_slider_range()
 
     def _add_points_layer(self):
