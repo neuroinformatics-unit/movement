@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from napari import layers
 from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
@@ -165,7 +166,9 @@ class DataLoader(QWidget):
             [
                 ly.metadata["max_frame_idx"]
                 for ly in self.viewer.layers
-                if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
+                if isinstance(ly, layers.Points)
+                and hasattr(ly, "metadata")
+                and "max_frame_idx" in ly.metadata
             ]
         )
 
@@ -207,13 +210,13 @@ class DataLoader(QWidget):
         props_and_style.set_color_by(prop=color_prop)
 
         # Add data as a points layer
-        self.points_layer = self.viewer.add_points(
+        points_layer = self.viewer.add_points(
             self.data[bool_not_nan, 1:],
             **props_and_style.as_kwargs(),
         )
 
         # Add metadata to the layer
-        self.points_layer.metadata = {
+        points_layer.metadata = {
             "min_frame_idx": min(self.data[:, 1]),
             "max_frame_idx": max(self.data[:, 1]),
         }
