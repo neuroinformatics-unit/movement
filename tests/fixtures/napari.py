@@ -36,18 +36,20 @@ def valid_poses_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
         "left", "right") moving in uniform linear motion for 10 frames in 2D
         space.
         """
+        # Make a deep-copy of the valid dataset to avoid modifying the
+        # original fixture
+        ds = valid_poses_dataset.copy(deep=True)
+
         # Express NaN location in time in "time" coordinates
         if nan_location["time"] == "start":
             time_point = 0
         elif nan_location["time"] == "middle":
-            time_point = valid_poses_dataset.coords["time"][
-                valid_poses_dataset.coords["time"].shape[0] // 2
-            ]
+            time_point = ds.coords["time"][ds.coords["time"].shape[0] // 2]
         elif nan_location["time"] == "end":
-            time_point = valid_poses_dataset.coords["time"][-1]
+            time_point = ds.coords["time"][-1]
 
         # Set the selected values to NaN
-        valid_poses_dataset.position.loc[
+        ds.position.loc[
             {
                 "individuals": nan_location["individuals"],
                 "keypoints": nan_location["keypoints"],
@@ -57,11 +59,9 @@ def valid_poses_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
 
         # Export as a DLC-csv file
         out_path = tmp_path / "ds_with_nans.csv"
-        save_poses.to_dlc_file(
-            valid_poses_dataset, out_path, split_individuals=False
-        )
+        save_poses.to_dlc_file(ds, out_path, split_individuals=False)
 
-        return (out_path, valid_poses_dataset)
+        return (out_path, ds)
 
     return _valid_poses_dataset_with_localised_nans
 
