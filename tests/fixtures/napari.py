@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from movement.io import save_poses, save_bboxes
+from movement.io import save_bboxes, save_poses
 
 
 @pytest.fixture
