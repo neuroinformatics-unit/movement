@@ -70,7 +70,8 @@ class Helpers:
 
         # Check the metadata attributes
         expected_file_path = expected_values.get("file_path")
-        assert dataset.source_file == (
+        source_file = getattr(dataset, "source_file", None)
+        assert source_file == (
             expected_file_path.as_posix()
             if expected_file_path is not None
             else None
@@ -78,7 +79,8 @@ class Helpers:
         assert dataset.source_software == expected_values.get(
             "source_software"
         )
-        assert dataset.fps == expected_values.get("fps")
+        fps = getattr(dataset, "fps", None)
+        assert fps == expected_values.get("fps")
 
     @staticmethod
     def count_nans(da):

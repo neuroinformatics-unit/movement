@@ -664,9 +664,15 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # Create the time coordinate
     time_coords = data.frame_array.squeeze()  # type: ignore
     time_unit = "frames"
+
+    dataset_attrs: dict[str, str | float | None] = {
+        "source_software": data.source_software,
+        "ds_type": "bboxes",
+    }
     # if fps is provided:
     # time_coords is expressed in seconds, with the time origin
     # set as frame 0 == time 0 seconds
+    # Store fps as a dataset attribute
     if data.fps:
         # Compute elapsed time from frame 0.
         # Ignoring type error because `data.frame_array` is not None after
@@ -675,7 +681,9 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
             [frame / data.fps for frame in data.frame_array.squeeze()]  # type: ignore
         )
         time_unit = "seconds"
+        dataset_attrs["fps"] = data.fps
 
+    dataset_attrs["time_unit"] = time_unit
     # Convert data to an xarray.Dataset
     # with dimensions ('time', 'space', 'individuals')
     DIM_NAMES = ValidBboxesDataset.DIM_NAMES
@@ -693,11 +701,5 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
             DIM_NAMES[1]: ["x", "y", "z"][:n_space],
             DIM_NAMES[2]: data.individual_names,
         },
-        attrs={
-            "fps": data.fps,
-            "time_unit": time_unit,
-            "source_software": data.source_software,
-            "source_file": None,
-            "ds_type": "bboxes",
-        },
+        attrs=dataset_attrs,
     )
