@@ -134,17 +134,20 @@ def test_fetch_dataset(valid_sample_datasets, with_video):
         ds = fetch_dataset(sample_name, with_video=with_video)
         assert isinstance(ds, Dataset)
 
-        assert ds.attrs["fps"] == sample["fps"]
+        assert getattr(ds, "fps", None) == sample["fps"]
+
+        frame_path = getattr(ds, "frame_path", None)
+        video_path = getattr(ds, "video_path", None)
 
         if sample["frame_file"]:
-            assert ds.attrs["frame_path"].name == sample["frame_file"]
+            assert frame_path.split("/")[-1] == sample["frame_file"]
         else:
-            assert ds.attrs["frame_path"] is None
+            assert frame_path is None
 
         if sample["video_file"] and with_video:
-            assert ds.attrs["video_path"].name == sample["video_file"]
+            assert video_path.split("/")[-1] == sample["video_file"]
         else:
-            assert ds.attrs["video_path"] is None
+            assert video_path is None
 
     # Test with an invalid file
     with pytest.raises(ValueError):

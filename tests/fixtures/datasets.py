@@ -105,7 +105,6 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
             dim_names[2]: [f"id_{id}" for id in range(n_individuals)],
         },
         attrs={
-            "fps": None,
             "time_unit": "frames",
             "source_software": "test",
             "source_file": "test_bboxes.csv",
@@ -263,7 +262,6 @@ def valid_poses_dataset(valid_poses_arrays, request):
             dim_names[3]: [f"id_{i}" for i in range(n_individuals)],
         },
         attrs={
-            "fps": None,
             "time_unit": "frames",
             "source_software": "test",
             "source_file": "test_poses.h5",
