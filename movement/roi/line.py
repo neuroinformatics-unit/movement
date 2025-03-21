@@ -1,5 +1,6 @@
 """1-dimensional lines of interest."""
 
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
@@ -64,6 +65,17 @@ class LineOfInterest(BaseRegionOfInterest):
 
         """
         super().__init__(points, dimensions=1, closed=loop, name=name)
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """LinesOfInterest can simply be plotted as lines."""
+        ax.plot(
+            [c[0] for c in self.coords],
+            [c[1] for c in self.coords],
+            **matplotlib_kwargs,
+        )
+        return fig, ax
 
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="normal"
