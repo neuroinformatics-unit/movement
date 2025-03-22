@@ -913,3 +913,69 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(pass_numpy, pass_tuple)
         xr.testing.assert_allclose(pass_numpy, pass_list)
+
+
+@pytest.fixture
+def valid_data_array_for_u_turn_detection():
+    """Return a position data array for an individual with 3 keypoints
+    (left ear, right ear, and nose), tracked for 4 frames, in x-y space.
+    """
+    time = [0, 1, 2, 3]
+    keypoints = ["left_ear", "right_ear", "nose"]
+    space = ["x", "y"]
+
+    ds = xr.DataArray(
+        [
+            [[-1, 0], [1, 0], [0, 1]],  # time 0
+            [[0, 2], [0, 0], [1, 1]],  # time 1
+            [[2, 1], [0, 1], [1, 0]],  # time 2
+            [[1, -1], [1, 1], [0, 0]],  # time 3
+        ],
+        dims=["time", "keypoints", "space"],
+        coords={
+            "time": time,
+            "keypoints": keypoints,
+            "space": space,
+        },
+    )
+    return ds
+
+
+def test_detect_u_turns(valid_data_array_for_u_turn_detection):
+    """Test that U-turn detection works correctly using a mock dataset."""
+    u_turn_forward_vector = kinematics.detect_u_turns(
+        valid_data_array_for_u_turn_detection, use_direction="forward_vector"
+    )
+    nose_data = valid_data_array_for_u_turn_detection.sel(
+        keypoints="nose"
+    ).drop("keypoints")
+    u_turn_displacement = kinematics.detect_u_turns(
+        nose_data, use_direction="displacement"
+    )
+
+    # Known expected U-turn detection results
+    known_u_turn_displacement = np.array(
+        [True]
+    )  # Example expected result for displacement
+    known_u_turn_forward_vector = np.array(
+        [True]
+    )  # Example expected result for forward_vector
+
+    assert np.all(u_turn_displacement.values == known_u_turn_displacement)
+    assert np.all(u_turn_forward_vector.values == known_u_turn_forward_vector)
+
+    u_turn_forward_vector = kinematics.detect_u_turns(
+        valid_data_array_for_u_turn_detection,
+        use_direction="forward_vector",
+        u_turn_threshold=np.pi * 7 / 6,
+    )
+    nose_data = valid_data_array_for_u_turn_detection.sel(
+        keypoints="nose"
+    ).drop("keypoints")
+    u_turn_displacement = kinematics.detect_u_turns(
+        nose_data, use_direction="displacement", u_turn_threshold=np.pi * 7 / 6
+    )
+    known_u_turn_displacement = np.array([False])
+    known_u_turn_forward_vector = np.array([True])
+    assert np.all(u_turn_displacement.values == known_u_turn_displacement)
+    assert np.all(u_turn_forward_vector.values == known_u_turn_forward_vector)
