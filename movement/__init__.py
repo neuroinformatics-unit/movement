@@ -15,3 +15,12 @@ xr.set_options(keep_attrs=True, display_expand_data=False)
 
 # initialize logger upon import
 configure_logging()
+
+# Import trajectory complexity functions to make them available at package level
+from movement.trajectory_complexity import (
+    compute_straightness_index,
+    compute_sinuosity,
+    compute_tortuosity,
+    compute_angular_velocity,
+    compute_directional_change,
+)
