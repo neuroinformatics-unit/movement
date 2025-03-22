@@ -1,9 +1,8 @@
-"""Save pose tracking data from ``movement`` to various file formats."""
+"""Save pose tracking data to various file formats."""
 
 import json
 import logging
 import uuid
-from collections.abc import Sequence
 from pathlib import Path
 
 import numpy as np
@@ -14,38 +13,15 @@ logger = logging.getLogger(__name__)
 
 
 class Bboxes:
-    """Container for bounding box coordinates in various formats.
+    """Container for bounding box coordinates in various formats."""
 
-    Parameters
-    ----------
-    coordinates : list or np.ndarray
-        Array of bounding box coordinates
-    format : str
-        Coordinate format specification (e.g., 'xyxy', 'xywh')
-
-    """
-
-    def __init__(self, coordinates: list | np.ndarray, format: str):
+    def __init__(self, coordinates, format: str):
         """Initialize with box coordinates and format."""
         self.coordinates = np.array(coordinates)
         self.format = format
 
-    def convert(self, target_format: str, inplace: bool = False) -> "Bboxes":
-        """Convert coordinates to target format.
-
-        Parameters
-        ----------
-        target_format : str
-            Desired output format ('xyxy' or 'xywh')
-        inplace : bool, optional
-            Whether to modify the current instance
-
-        Returns
-        -------
-        Bboxes
-            Converted bounding boxes
-
-        """
+    def convert(self, target_format: str, inplace: bool = False):
+        """Convert coordinates to target format."""
         if self.format == target_format:
             return self
 
@@ -67,41 +43,20 @@ class Bboxes:
         )
 
 
-def _validate_file_path(
-    file_path: str | Path,
-    expected_suffix: Sequence[str],  # Changed to Sequence for indexable type
-) -> Path:
-    """Validate and normalize file paths."""
+def validate_json_extension(file_path):  # type: ignore
+    """Validate file has .json extension."""
     path = Path(file_path).resolve()
-    valid_suffixes = [
-        s.lower() for s in expected_suffix
-    ]  # This is now indexable
-    if path.suffix.lower() not in valid_suffixes:
-        raise ValueError(
-            f"Invalid file extension. Expected: {expected_suffix}"
-        )
+
+    if path.suffix.lower() != ".json":
+        raise ValueError("Invalid file extension. Expected: .json")
+
     path.parent.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def to_via_tracks_file(
-    boxes: Bboxes | dict[int, Bboxes],
-    file_path: str | Path,
-    video_metadata: dict | None = None,
-) -> None:
-    """Save bounding boxes to VIA-tracks format.
-
-    Parameters
-    ----------
-    boxes : Bboxes or dict[int, Bboxes]
-        Bounding boxes to export
-    file_path : str or Path
-        Output JSON file path
-    video_metadata : dict, optional
-        Video metadata including filename, size, etc.
-
-    """
-    file = _validate_file_path(file_path, [".json"])
+def to_via_tracks_file(boxes, file_path, video_metadata=None):  # type: ignore
+    """Save bounding boxes to VIA-tracks format."""
+    file = validate_json_extension(file_path)
 
     # Set default metadata
     video_metadata = video_metadata or {
