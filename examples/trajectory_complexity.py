@@ -1,7 +1,7 @@
 """Trajectory complexity measures for animal movement paths.
 ==========================================================
 
-Compute and visualize various trajectory complexity measures 
+Compute and visualize various trajectory complexity measures
 including straightness index, sinuosity, tortuosity, and more.
 """
 
@@ -16,14 +16,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from movement import sample_data
+from movement.plots import plot_centroid_trajectory
 from movement.trajectory_complexity import (
-    compute_straightness_index,
-    compute_sinuosity,
-    compute_tortuosity,
     compute_angular_velocity,
     compute_directional_change,
+    compute_sinuosity,
+    compute_straightness_index,
+    compute_tortuosity,
 )
-from movement.plots import plot_centroid_trajectory
 
 # %%
 # Load sample dataset
@@ -40,7 +40,7 @@ print(ds)
 # We'll use the position data for our trajectory complexity analysis
 position = ds.position
 
-# %% 
+# %%
 # Plot trajectories
 # ----------------
 # First, let's visualize the trajectories of the mice in the XY plane,
@@ -58,7 +58,7 @@ ax.set_title("Mouse Trajectories")
 ax.invert_yaxis()  # Make y-axis match image coordinates (0 at top)
 plt.tight_layout()
 
-# %% 
+# %%
 # Straightness Index
 # ----------------
 # The straightness index is a simple measure of path complexity, defined as the
@@ -82,11 +82,7 @@ sinuosity = compute_sinuosity(position, window_size=20)
 # Plot sinuosity over time for each individual
 fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 for ind in sinuosity.individual.values:
-    ax.plot(
-        sinuosity.time, 
-        sinuosity.sel(individual=ind), 
-        label=ind
-    )
+    ax.plot(sinuosity.time, sinuosity.sel(individual=ind), label=ind)
 ax.set_xlabel("Time (s)")
 ax.set_ylabel("Sinuosity")
 ax.set_title("Sinuosity over time (window size = 20 frames)")
@@ -105,8 +101,8 @@ ang_vel = compute_angular_velocity(position, in_degrees=True)
 fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 for ind in ang_vel.individual.values:
     ax.plot(
-        ang_vel.time, 
-        ang_vel.sel(individual=ind), 
+        ang_vel.time,
+        ang_vel.sel(individual=ind),
         label=ind,
         alpha=0.7,
     )
@@ -140,14 +136,16 @@ for ind in tort_frac.individual.values:
 # Directional change measures the total amount of turning within a window.
 # Higher values indicate more meandering behavior.
 
-dir_change = compute_directional_change(position, window_size=20, in_degrees=True)
+dir_change = compute_directional_change(
+    position, window_size=20, in_degrees=True
+)
 
 # Plot directional change over time for each individual
 fig, ax = plt.subplots(1, 1, figsize=(12, 6))
 for ind in dir_change.individual.values:
     ax.plot(
-        dir_change.time, 
-        dir_change.sel(individual=ind), 
+        dir_change.time,
+        dir_change.sel(individual=ind),
         label=ind,
         alpha=0.7,
     )
@@ -180,10 +178,10 @@ multiplier = 0
 for measure_name, measure_data in measures.items():
     offset = width * multiplier
     rects = ax.bar(
-        x + offset, 
-        [measure_data.sel(individual=ind).item() for ind in individuals], 
-        width, 
-        label=measure_name
+        x + offset,
+        [measure_data.sel(individual=ind).item() for ind in individuals],
+        width,
+        label=measure_name,
     )
     multiplier += 1
 
@@ -207,4 +205,4 @@ plt.tight_layout()
 # - **Directional Change**: Quantifies turning behavior within a time window
 #
 # By combining these measures, researchers can gain insights into various aspects
-# of animal movement behavior. 
+# of animal movement behavior.

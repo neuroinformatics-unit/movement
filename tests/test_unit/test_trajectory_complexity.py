@@ -5,11 +5,11 @@ import pytest
 import xarray as xr
 
 from movement.trajectory_complexity import (
-    compute_straightness_index,
-    compute_sinuosity,
-    compute_tortuosity,
     compute_angular_velocity,
     compute_directional_change,
+    compute_sinuosity,
+    compute_straightness_index,
+    compute_tortuosity,
 )
 
 
@@ -80,21 +80,30 @@ def test_straightness_index_straight_line(straight_trajectory):
     """Test that a straight line has straightness index close to 1."""
     result = compute_straightness_index(straight_trajectory)
     # Should be very close to 1 for a straight line
-    assert result.sel(keypoints="centroid", individual="test_subject").item() > 0.99
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        > 0.99
+    )
 
 
 def test_straightness_index_zigzag(zigzag_trajectory):
     """Test that a zigzag path has straightness index less than 1."""
     result = compute_straightness_index(zigzag_trajectory)
     # Should be less than 1 for a zigzag path
-    assert result.sel(keypoints="centroid", individual="test_subject").item() < 0.9
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        < 0.9
+    )
 
 
 def test_straightness_index_circle(circular_trajectory):
     """Test that a circular path that returns to start has low straightness."""
     result = compute_straightness_index(circular_trajectory)
     # Should be very low for a circle that nearly returns to starting point
-    assert result.sel(keypoints="centroid", individual="test_subject").item() < 0.2
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        < 0.2
+    )
 
 
 def test_sinuosity_straight_line(straight_trajectory):
@@ -141,27 +150,27 @@ def test_angular_velocity_zigzag(zigzag_trajectory):
 
 def test_tortuosity_angular_variance_straight(straight_trajectory):
     """Test that a straight line has low angular variance tortuosity."""
-    result = compute_tortuosity(
-        straight_trajectory, method="angular_variance"
-    )
+    result = compute_tortuosity(straight_trajectory, method="angular_variance")
     # Angular variance should be very close to 0 for a straight line
-    assert result.sel(keypoints="centroid", individual="test_subject").item() < 0.1
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        < 0.1
+    )
 
 
 def test_tortuosity_angular_variance_zigzag(zigzag_trajectory):
     """Test that a zigzag path has higher angular variance tortuosity."""
-    result = compute_tortuosity(
-        zigzag_trajectory, method="angular_variance"
-    )
+    result = compute_tortuosity(zigzag_trajectory, method="angular_variance")
     # Angular variance should be higher for a zigzag path
-    assert result.sel(keypoints="centroid", individual="test_subject").item() > 0.1
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        > 0.1
+    )
 
 
 def test_tortuosity_fractal_straight(straight_trajectory):
     """Test that a straight line has fractal dimension close to 1."""
-    result = compute_tortuosity(
-        straight_trajectory, method="fractal"
-    )
+    result = compute_tortuosity(straight_trajectory, method="fractal")
     # Fractal dimension should be close to 1 for a straight line
     tort = result.sel(keypoints="centroid", individual="test_subject").item()
     assert 0.9 < tort < 1.1
@@ -169,9 +178,7 @@ def test_tortuosity_fractal_straight(straight_trajectory):
 
 def test_tortuosity_fractal_zigzag(zigzag_trajectory):
     """Test that a zigzag path has fractal dimension greater than 1."""
-    result = compute_tortuosity(
-        zigzag_trajectory, method="fractal"
-    )
+    result = compute_tortuosity(zigzag_trajectory, method="fractal")
     # Fractal dimension should be greater than 1 for a zigzag path
     tort = result.sel(keypoints="centroid", individual="test_subject").item()
     assert tort > 1.1
@@ -194,4 +201,4 @@ def test_directional_change_zigzag(zigzag_trajectory):
     mean_dir_change = result.sel(
         keypoints="centroid", individual="test_subject"
     ).mean(skipna=True)
-    assert mean_dir_change.item() > 0.1 
+    assert mean_dir_change.item() > 0.1
