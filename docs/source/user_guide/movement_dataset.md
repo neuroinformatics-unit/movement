@@ -59,7 +59,6 @@ Attributes:
     source_file:      /home/user/.movement/data/poses/SLEAP_three-mice_Aeon...
     ds_type:          poses
     frame_path:       /home/user/.movement/data/frames/three-mice_Aeon_fram...
-    video_path:       None
 ```
 
 :::
@@ -88,13 +87,10 @@ Data variables:
     shape        (time, space, individuals) float64 7kB 60.0 30.0 ... 72.0 36.0
     confidence   (time, individuals) float64 3kB nan nan nan nan ... nan nan nan
 Attributes:
-    fps:              None
     time_unit:        frames
     source_software:  VIA-tracks
     source_file:      /home/user/.movement/data/bboxes/VIA_multiple-crabs_5...
     ds_type:          bboxes
-    frame_path:       None
-    video_path:       None
 ```
 :::
 
@@ -177,10 +173,10 @@ share some common **dimensions**.
 Both poses and bounding boxes datasets in `movement` have associated metadata. These can be stored as dataset **attributes** (i.e. inside the specially designated `attrs` dictionary) in the form of key-value pairs.
 
 Right after loading a `movement` dataset, the following **attributes** are created:
-- `fps`: the number of frames per second in the video. If not provided, it is set to `None`.
+- `fps`: the number of frames per second in the video (absent if not provided by the user during loading).
 - `time_unit`: the unit of the `time` **coordinates** (either `frames` or `seconds`).
 - `source_software`: the software that produced the pose or bounding box tracks.
-- `source_file`: the path to the file from which the data were loaded.
+- `source_file`: the path to the file from which the data were loaded (absent if the dataset was not loaded from a file).
 - `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 
 Some of the [sample datasets](target-sample-data) provided with
