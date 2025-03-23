@@ -10,3 +10,7 @@ recursive-exclude * *.py[co]
 recursive-exclude docs *
 recursive-exclude examples *
 recursive-exclude tests *
+
+recursive-include calibration *.ipynb
+recursive-include calibration *.md
+recursive-include calibration *.py
