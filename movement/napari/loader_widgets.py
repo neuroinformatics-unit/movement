@@ -59,6 +59,12 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
+        # Connect methods to napari events
+        if hasattr(self.viewer, "layers"):
+            self.viewer.layers.events.removed.connect(
+                self._on_layer_deleted, ref=True
+            )
+
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
@@ -187,6 +193,10 @@ class DataLoader(QWidget):
         # considering all loaded point layers
         self._check_frame_slider_range()
 
+    def _on_layer_deleted(self):
+        """Check the frame slider range when a layer is deleted."""
+        self._check_frame_slider_range()
+
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
@@ -257,6 +267,12 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
+        # If no layers are loaded or no Points layers are loaded, do nothing
+        if not self.viewer.layers or not any(
+            isinstance(ly, layers.Points) for ly in self.viewer.layers
+        ):
+            return
+
         # Get the maximum frame index from all loaded layers
         max_frame_idx = max(
             [

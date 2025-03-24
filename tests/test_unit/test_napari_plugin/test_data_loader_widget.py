@@ -56,6 +56,21 @@ def test_button_connected_to_on_clicked(
     mock_method.assert_called_once()
 
 
+# --------test connection to napari events ------------------#
+def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
+    """Test that the widget is connected to napari events."""
+    # Create a mock napari viewer
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Check that the _on_layer_deleted is a callback linked to the
+    # napari layer removal event
+    assert (
+        data_loader_widget._on_layer_deleted.__name__
+        in data_loader_widget.viewer.layers.events.removed.callback_refs
+    )
+
+
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
 
@@ -204,7 +219,7 @@ def test_on_load_clicked_with_valid_file_path(
     ids=["one_keypoint", "all_keypoints"],
 )
 def test_dimension_slider_with_nans(
-    valid_poses_dataset_with_localised_nans,
+    valid_poses_path_and_ds_with_localised_nans,
     nan_time_location,
     nan_individuals,
     nan_keypoints,
@@ -219,7 +234,7 @@ def test_dimension_slider_with_nans(
         "individuals": nan_individuals,
         "keypoints": nan_keypoints,
     }
-    file_path, ds = valid_poses_dataset_with_localised_nans(nan_location)
+    file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
@@ -262,8 +277,8 @@ def test_dimension_slider_with_nans(
 @pytest.mark.parametrize(
     "list_input_data_files",
     [
-        ["valid_poses_dataset_long", "valid_poses_dataset_short"],
-        ["valid_poses_dataset_short", "valid_poses_dataset_long"],
+        ["valid_poses_path_and_ds", "valid_poses_path_and_ds_short"],
+        ["valid_poses_path_and_ds_short", "valid_poses_path_and_ds"],
     ],
     ids=["long_first", "short_first"],
 )
@@ -302,8 +317,120 @@ def test_dimension_slider_multiple_files(
 
     # Check the maximum number of frames is the number of frames
     # in the longest dataset
-    _, ds_long = request.getfixturevalue("valid_poses_dataset_long")
+    _, ds_long = request.getfixturevalue("valid_poses_path_and_ds")
     assert max_frames == ds_long.sizes["time"]
+
+
+@pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
+        ],  # one with NaNs at the start remains after deletion
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # one with NaNs at the end remains after deletion
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # two remain after deletion, with NaNs at the start and end
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_start",
+        ],  # two remain after deletion, the longest one with NaNs at the start
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # two remain after deletion, the longest one with NaNs at the end
+    ],
+)
+def test_dimension_slider_with_deletion(
+    list_input_data_files,
+    make_napari_viewer_proxy,
+    request,
+):
+    """Test that the dimension slider is set to the correct range of frames
+    when loading two point layers, deleting one, and the remaining layer(s)
+    have all NaN values at the start or end.
+    """
+    # Get the input data to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(2)
+    ]
+
+    # Check the expected number of datasets have NaN values
+    # at the start or end
+    expected_datasets_with_nans = sum(
+        ["nan" in file_name for file_name in list_input_data_files]
+    )
+    actual_datasets_with_nans = sum(
+        [
+            any(
+                [
+                    ds.position.sel(time=ds.coords["time"][0])
+                    .isnull()
+                    .all()
+                    .values,
+                    ds.position.sel(time=ds.coords["time"][-1])
+                    .isnull()
+                    .all()
+                    .values,
+                ]
+            )
+            for ds in list_datasets
+        ]
+    )
+    assert actual_datasets_with_nans == expected_datasets_with_nans
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load each dataset as a points layer in napari
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+        data_loader_widget._on_load_clicked()
+
+    # Remove the first loaded layer
+    viewer.layers.remove(viewer.layers[0])
+
+    # Get maximum number of frames from the remaining layer / dataset
+    max_frames = max(ds.sizes["time"] for ds in list_datasets[1:])
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+
+def test_deletion_all_layers(make_napari_viewer_proxy):
+    """Test there are no errors when all layers are deleted."""
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load a dataset
+    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget._on_load_clicked()
+
+    # Delete all layers
+    viewer.layers.clear()
+
+    # Check no errors are raised
+    assert len(viewer.layers) == 0
 
 
 @pytest.mark.parametrize(
