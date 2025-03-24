@@ -170,12 +170,6 @@ class DataLoader(QWidget):
         # Find rows that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
-        # Get the expected frame range
-        # (i.e. the number of frames in the dataset)
-        self.expected_frame_range = RangeTuple(
-            start=0.0, stop=max(self.data[:, 1]), step=1.0
-        )
-
         # Set property to color points and tracks by
         color_prop = "individual"
         n_individuals = len(self.properties["individual"].unique())
@@ -187,19 +181,16 @@ class DataLoader(QWidget):
         self._add_points_layer()
         self._add_tracks_layer()
 
-        # Ensure the frame slider reflects the total number of frames
-        if self.viewer.dims.range[0] != self.expected_frame_range:
-            self.viewer.dims.range = (
-                self.expected_frame_range,
-            ) + self.viewer.dims.range[1:]
+        # Ensure the frame slider goes from 0 to the max number of frames,
+        # considering all loaded point layers
+        self._check_frame_slider_range()
 
-        # Set slider to first frame
-        self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
-            2:
-        ]
-
-        # Select points layer
+        # Set loaded points layer as active
         self.viewer.layers.selection.active = self.points_layer
+
+    def _on_layer_deleted(self):
+        """Check the frame slider range when a layer is deleted."""
+        self._check_frame_slider_range()
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
@@ -246,8 +237,8 @@ class DataLoader(QWidget):
         # Define style for tracks layer
         tracks_style = TracksStyle(
             name=f"tracks: {self.file_name}",
-            tail_length=int(self.expected_frame_range[1]),
-            # Set the tail length to the number of frames.
+            tail_length=int(max(self.data[:, 1])),
+            # Set the tail length to the number of frames in the data.
             # If the value is over 300, it sets the maximum
             # tail_length in the slider to the value passed.
             # It also affects the head_length slider.
