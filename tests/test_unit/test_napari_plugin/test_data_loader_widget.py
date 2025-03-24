@@ -6,18 +6,10 @@ instantiated (the methods would have already been connected to signals).
 """
 
 from contextlib import nullcontext as does_not_raise
+from unittest.mock import MagicMock
 
 import pytest
 from napari.components.dims import RangeTuple
-from napari.layers import (
-    Image,
-    Labels,
-    Points,
-    Shapes,
-    Surface,
-    Tracks,
-    Vectors,
-)
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -242,6 +234,12 @@ def test_on_load_clicked_with_valid_file_path(
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
+    # Mock the _check_frame_slider_range method with
+    # side effect to monitor if it is called
+    data_loader_widget._check_frame_slider_range = MagicMock(
+        side_effect=data_loader_widget._check_frame_slider_range
+    )
+
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
@@ -260,22 +258,37 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
 
+    assert data_loader_widget.bool_not_nan is not None
+    assert data_loader_widget.color_property is not None
+
     # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted dataset to a napari Tracks array.",
         f"Tracks array shape: {tracks_array_shape}",
         "Added tracked dataset as a napari Points layer.",
+        "Added tracked dataset as a napari Tracks layer.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
 
     # Check that a Points layer was added to the viewer
-    points_layer = data_loader_widget.viewer.layers[0]
+    points_layer = viewer.layers[0]
     assert points_layer.name == f"data: {file_path.name}"
 
+    # Check that a Tracks layer was added to the viewer
+    tracks_layer = viewer.layers[1]
+    assert tracks_layer.name == f"tracks: {file_path.name}"
 
-# ------------------- tests for dimension slider ----------------------------#
-# These tests check that the frame slider is set to the expected range
+    # Check that the frame slider method was called
+    data_loader_widget._check_frame_slider_range.assert_called_once()
+
+    # Check that the points layer is the active one
+    assert viewer.layers.selection.active == points_layer
+
+    # Check that the frame slider is set to the first frame
+    assert viewer.dims.current_step[0] == 0
+
+
 @pytest.mark.parametrize(
     "nan_time_location",
     ["start", "middle", "end"],
@@ -589,7 +602,7 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
         "multiple individuals, one keypoint",
     ],
 )
-def test_add_points_layer_style(
+def test_add_points_and_tracks_layer_style(
     filename,
     source_software,
     make_napari_viewer_proxy,
@@ -597,14 +610,14 @@ def test_add_points_layer_style(
     expected_color_property,
     caplog,
 ):
-    """Test that the Points layer is added to the viewer with the markers
-    and text following the expected properties.
+    """Test that the data is loaded as a Points and a Tracks layer
+    with the markers and text following the expected properties.
     """
     # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
-    # Load data as a points layer
+    # Load data
     file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
     data_loader_widget.source_software_combo.setCurrentText(source_software)
@@ -614,14 +627,17 @@ def test_add_points_layer_style(
     log_messages = {record.getMessage() for record in caplog.records}
     assert not any("Warning" in message for message in log_messages)
 
-    # Get the points layer
-    points_layer = next(
-        layer for layer in viewer.layers if isinstance(layer, Points)
-    )
+    # Get the layers
+    points_layer = viewer.layers[0]
+    tracks_layer = viewer.layers[1]
 
     # Check the color of markers and text follows the expected property
     assert points_layer._face.color_properties.name == expected_color_property
     assert points_layer.text.color.feature == expected_color_property
+    assert tracks_layer.color_by == expected_color_property + "_factorized"
+
+    assert points_layer.text.color.colormap == points_layer._face.colormap
+    assert tracks_layer.colormap == points_layer._face.colormap
 
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property
