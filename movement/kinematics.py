@@ -995,7 +995,6 @@ def detect_u_turns(
             f" or `displacement`, but got {use_direction}."
         )
 
-
     angles = compute_signed_angle_2d(
         direction_vectors.shift(time=1), direction_vectors
     )
