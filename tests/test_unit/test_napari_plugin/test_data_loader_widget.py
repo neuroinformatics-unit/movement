@@ -675,3 +675,7 @@ def test_add_points_and_tracks_layer_style(
         == points_layer.text.color.colormap.colormap[ky]
         for ky in points_layer._face.categorical_colormap.colormap
     )
+
+    # Check the display checkboxes for the tracks layer
+    assert tracks_layer.display_tail is True
+    assert tracks_layer.display_graph is False
