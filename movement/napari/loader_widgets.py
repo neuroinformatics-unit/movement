@@ -219,8 +219,9 @@ class DataLoader(QWidget):
         )
 
         # Add frame range as metadata to the layer
+        # This would be the frame index after transforming to
+        # napari tracks array
         self.points_layer.metadata = {
-            "min_frame_idx": min(self.data[:, 1]),
             "max_frame_idx": max(self.data[:, 1]),
         }
 
