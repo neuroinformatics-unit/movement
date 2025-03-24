@@ -312,16 +312,26 @@ def test_dimension_slider_multiple_files(
         [
             "valid_poses_path_and_ds",
             "valid_poses_path_and_ds_nan_start",
-        ],
+        ],  # one with NaNs at the start remains after deletion
         [
             "valid_poses_path_and_ds",
             "valid_poses_path_and_ds_nan_end",
-        ],
+        ],  # one with NaNs at the end remains after deletion
         [
             "valid_poses_path_and_ds",
             "valid_poses_path_and_ds_nan_start",
             "valid_poses_path_and_ds_nan_end",
-        ],
+        ],  # two remain after deletion, with NaNs at the start and end
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_start",
+        ],  # two remain after deletion, the longest one with NaNs at the start
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # two remain after deletion, the longest one with NaNs at the end
     ],
 )
 def test_dimension_slider_with_deletion(
