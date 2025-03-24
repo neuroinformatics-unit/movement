@@ -188,6 +188,11 @@ class DataLoader(QWidget):
         # Set loaded points layer as active
         self.viewer.layers.selection.active = self.points_layer
 
+        # Set the viewer to the first frame
+        self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
+            1:
+        ]
+
     def _on_layer_deleted(self):
         """Check the frame slider range when a layer is deleted."""
         self._check_frame_slider_range()
