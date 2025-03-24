@@ -115,6 +115,8 @@ class TracksStyle(LayerStyle):
 
         """
         self.color_by = property
+
+        # Overwrite colormap if specified
         if cmap is not None:
             self.colormap = cmap
 
