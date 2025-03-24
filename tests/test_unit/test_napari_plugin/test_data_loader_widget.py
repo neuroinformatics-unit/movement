@@ -184,6 +184,27 @@ def test_file_filters_per_source_software(
     )
 
 
+def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
+    """Test that the frame slider check is called when a layer is removed."""
+    # Create a mock napari viewer
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Mock the frame slider check method
+    mock_frame_slider_check = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
+    )
+
+    # Add a sample layer to the viewer
+    mock_layer = Points(name="mock_layer")
+    data_loader_widget.viewer.add_layer(mock_layer)
+
+    # Delete the layer
+    data_loader_widget.viewer.layers.remove(mock_layer)
+
+    # Check that the slider check method was called
+    mock_frame_slider_check.assert_called_once()
+
+
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
     # Instantiate the napari viewer and the data loader widget
