@@ -991,8 +991,10 @@ def detect_u_turns(
         direction_vectors = compute_displacement(data)
     else:
         raise ValueError(
-            "The parameter `use_direction` must be one of `forward_vector` or `displacement`, but got {use_direction}."
+            "The parameter `use_direction` must be one of `forward_vector` "
+            f" or `displacement`, but got {use_direction}."
         )
+
 
     angles = compute_signed_angle_2d(
         direction_vectors.shift(time=1), direction_vectors
