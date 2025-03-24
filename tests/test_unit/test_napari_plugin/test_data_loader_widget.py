@@ -5,6 +5,8 @@ This is because mocking widget methods would not work after the widget is
 instantiated (the methods would have already been connected to signals).
 """
 
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers.points.points import Points
@@ -427,10 +429,8 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
     data_loader_widget._on_load_clicked()
 
     # Delete all layers
-    viewer.layers.clear()
-
-    # Check no errors are raised
-    assert len(viewer.layers) == 0
+    with does_not_raise():
+        viewer.layers.clear()
 
 
 @pytest.mark.parametrize(
