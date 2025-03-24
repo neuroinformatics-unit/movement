@@ -187,7 +187,7 @@ class DataLoader(QWidget):
         # Set loaded points layer as active
         self.viewer.layers.selection.active = self.points_layer
 
-        # Set the viewer to the first frame
+        # Set the frame slider to the first frame
         self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
             1:
         ]
