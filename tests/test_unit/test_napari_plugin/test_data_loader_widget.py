@@ -5,6 +5,8 @@ This is because mocking widget methods would not work after the widget is
 instantiated (the methods would have already been connected to signals).
 """
 
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers.points.points import Points
@@ -133,6 +135,27 @@ def test_file_filters_per_source_software(
         caption="Open file containing tracked data",
         filter=f"Valid data files ({expected_file_filter})",
     )
+
+
+def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
+    """Test that the frame slider check is called when a layer is removed."""
+    # Create a mock napari viewer
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Mock the frame slider check method
+    mock_frame_slider_check = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
+    )
+
+    # Add a sample layer to the viewer
+    mock_layer = Points(name="mock_layer")
+    data_loader_widget.viewer.add_layer(mock_layer)
+
+    # Delete the layer
+    data_loader_widget.viewer.layers.remove(mock_layer)
+
+    # Check that the slider check method was called
+    mock_frame_slider_check.assert_called_once()
 
 
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
@@ -427,10 +450,8 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
     data_loader_widget._on_load_clicked()
 
     # Delete all layers
-    viewer.layers.clear()
-
-    # Check no errors are raised
-    assert len(viewer.layers) == 0
+    with does_not_raise():
+        viewer.layers.clear()
 
 
 @pytest.mark.parametrize(
