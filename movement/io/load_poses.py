@@ -94,6 +94,11 @@ def from_numpy(
     return _ds_from_valid_data(valid_data)
 
 
+def from_trex():
+    """Create a ``movement`` poses dataset from a T-Rex file."""
+    pass
+
+
 def from_file(
     file_path: Path | str,
     source_software: Literal[
