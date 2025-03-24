@@ -258,6 +258,11 @@ class DataLoader(QWidget):
             properties=self.properties.iloc[self.bool_not_nan, :],
             **tracks_style.as_kwargs(),
         )
+
+        # Set display checkboxes
+        self.tracks_layer.display_tail = True
+        self.tracks_layer.display_graph = False
+
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
     def _check_frame_slider_range(self):
