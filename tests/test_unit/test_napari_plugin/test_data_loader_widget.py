@@ -173,8 +173,36 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 @pytest.mark.parametrize(
     "filename, source_software, tracks_array_shape",
     [
-        ("DLC_single-wasp.predictions.h5", "DeepLabCut", (2170, 4)),
-        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks", (35, 4)),
+        (
+            "VIA_single-crab_MOCA-crab-1.csv",
+            "VIA-tracks",
+            (35, 4),
+        ),  # single individual, no keypoints (bboxes)
+        (
+            "VIA_multiple-crabs_5-frames_labels.csv",
+            "VIA-tracks",
+            (430, 4),
+        ),  # multiple individuals, no keypoints (bboxes)
+        (
+            "SLEAP_single-mouse_EPM.predictions.slp",
+            "SLEAP",
+            (110910, 4),
+        ),  # single individual, multiple keypoints
+        (
+            "DLC_single-wasp.predictions.h5",
+            "DeepLabCut",
+            (2170, 4),
+        ),  # single individual, multiple keypoints
+        (
+            "DLC_two-mice.predictions.csv",
+            "DeepLabCut",
+            (1439976, 4),
+        ),  # two individuals, multiple keypoints
+        (
+            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            "SLEAP",
+            (1803, 4),
+        ),  # three individuals, one keypoint
     ],
 )
 def test_on_load_clicked_with_valid_file_path(
