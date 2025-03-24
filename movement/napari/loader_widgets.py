@@ -206,7 +206,7 @@ class DataLoader(QWidget):
         # Define style for points layer
         points_style = PointsStyle(name=f"data: {self.file_name}")
 
-        # Set markers' text
+        # Set property for markers' text
         text_prop = "individual"
         if (
             "keypoint" in self.properties
@@ -215,7 +215,7 @@ class DataLoader(QWidget):
             text_prop = "keypoint"
         points_style.set_text_by(property=text_prop)
 
-        # Set color of markers and text
+        # Set property for markers' and text color
         points_style.set_color_by(
             property=self.color_property,
             properties_df=self.properties,
@@ -227,6 +227,12 @@ class DataLoader(QWidget):
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
         )
+
+        # Add frame range as metadata to the layer
+        self.points_layer.metadata = {
+            "min_frame_idx": min(self.data[:, 1]),
+            "max_frame_idx": max(self.data[:, 1]),
+        }
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
