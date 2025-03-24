@@ -56,6 +56,21 @@ def test_button_connected_to_on_clicked(
     mock_method.assert_called_once()
 
 
+# --------test connection to napari events ------------------#
+def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
+    """Test that the widget is connected to napari events."""
+    # Create a mock napari viewer
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Check that the _on_layer_deleted is a callback linked to the
+    # napari layer removal event
+    assert (
+        data_loader_widget._on_layer_deleted.__name__
+        in data_loader_widget.viewer.layers.events.removed.callback_refs
+    )
+
+
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
 

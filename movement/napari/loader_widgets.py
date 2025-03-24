@@ -60,7 +60,9 @@ class DataLoader(QWidget):
 
         # Connect methods to napari events
         if hasattr(self.viewer, "layers"):
-            self.viewer.layers.events.removed.connect(self._on_layer_deleted)
+            self.viewer.layers.events.removed.connect(
+                self._on_layer_deleted, ref=True
+            )
 
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
