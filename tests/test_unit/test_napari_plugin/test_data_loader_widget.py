@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from napari.components.dims import RangeTuple
+from napari.layers.points.points import Points
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -544,13 +545,18 @@ def test_add_points_and_tracks_layer_style(
     points_layer = viewer.layers[0]
     tracks_layer = viewer.layers[1]
 
+    # Check the text follows the expected property
+    assert points_layer.text.string.feature == expected_text_property
+
     # Check the color of markers and text follows the expected property
     assert points_layer._face.color_properties.name == expected_color_property
     assert points_layer.text.color.feature == expected_color_property
     assert tracks_layer.color_by == expected_color_property + "_factorized"
 
-    assert points_layer.text.color.colormap == points_layer._face.colormap
-    assert tracks_layer.colormap == points_layer._face.colormap
-
-    # Check the text follows the expected property
-    assert points_layer.text.string.feature == expected_text_property
+    # Check the colormap for markers, text and tracks is the same
+    assert tracks_layer.colormap == points_layer.face_colormap.name
+    assert (
+        points_layer._face.categorical_colormap.colormap[ky]
+        == points_layer.text.color.colormap.colormap[ky]
+        for ky in points_layer._face.categorical_colormap.colormap
+    )
