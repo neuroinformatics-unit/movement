@@ -204,7 +204,7 @@ def test_on_load_clicked_with_valid_file_path(
     ids=["one_keypoint", "all_keypoints"],
 )
 def test_dimension_slider_with_nans(
-    valid_poses_dataset_with_localised_nans,
+    valid_poses_path_and_ds_with_localised_nans,
     nan_time_location,
     nan_individuals,
     nan_keypoints,
@@ -219,7 +219,7 @@ def test_dimension_slider_with_nans(
         "individuals": nan_individuals,
         "keypoints": nan_keypoints,
     }
-    file_path, ds = valid_poses_dataset_with_localised_nans(nan_location)
+    file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
@@ -262,8 +262,8 @@ def test_dimension_slider_with_nans(
 @pytest.mark.parametrize(
     "list_input_data_files",
     [
-        ["valid_poses_dataset_long", "valid_poses_dataset_short"],
-        ["valid_poses_dataset_short", "valid_poses_dataset_long"],
+        ["valid_poses_path_and_ds", "valid_poses_path_and_ds_short"],
+        ["valid_poses_path_and_ds_short", "valid_poses_path_and_ds"],
     ],
     ids=["long_first", "short_first"],
 )
@@ -302,7 +302,7 @@ def test_dimension_slider_multiple_files(
 
     # Check the maximum number of frames is the number of frames
     # in the longest dataset
-    _, ds_long = request.getfixturevalue("valid_poses_dataset_long")
+    _, ds_long = request.getfixturevalue("valid_poses_path_and_ds")
     assert max_frames == ds_long.sizes["time"]
 
 
@@ -310,35 +310,28 @@ def test_dimension_slider_multiple_files(
     "list_input_data_files",
     [
         [
-            "valid_poses_dataset_short",
-            "valid_poses_dataset_short_nan_start",
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
         ],
         [
-            "valid_poses_dataset_long",
-            "valid_poses_dataset_long_nan_start",
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_end",
         ],
         [
-            "valid_poses_dataset_short",
-            "valid_poses_dataset_long_nan_start",
-        ],
-        [
-            "valid_poses_dataset_long",
-            "valid_poses_dataset_short_nan_start",
-        ],
-        [
-            "valid_poses_dataset_short_nan_start",
-            "valid_poses_dataset_long_nan_start",
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
+            "valid_poses_path_and_ds_nan_end",
         ],
     ],
 )
-def test_dimension_slider_multiple_files_with_deletion(
+def test_dimension_slider_with_deletion(
     list_input_data_files,
     make_napari_viewer_proxy,
     request,
 ):
     """Test that the dimension slider is set to the correct range of frames
-    when loading two point layers, deleting one, and the remaining layer has
-    all NaN values at the start.
+    when loading two point layers, deleting one, and the remaining layer(s)
+    have all NaN values at the start or end.
     """
     # Get the input data to load (paths and ds)
     list_paths, list_datasets = [
@@ -346,16 +339,28 @@ def test_dimension_slider_multiple_files_with_deletion(
             request.getfixturevalue(file_name)[j]
             for file_name in list_input_data_files
         ]
-        for j in range(len(list_input_data_files))
+        for j in range(2)
     ]
 
-    # Check the expected number of datasets have all NaN values at the start
+    # Check the expected number of datasets have NaN values
+    # at the start or end
     expected_datasets_with_nans = sum(
         ["nan" in file_name for file_name in list_input_data_files]
     )
     actual_datasets_with_nans = sum(
         [
-            ds.position.sel(time=ds.coords["time"][0]).isnull().all().values
+            any(
+                [
+                    ds.position.sel(time=ds.coords["time"][0])
+                    .isnull()
+                    .all()
+                    .values,
+                    ds.position.sel(time=ds.coords["time"][-1])
+                    .isnull()
+                    .all()
+                    .values,
+                ]
+            )
             for ds in list_datasets
         ]
     )
@@ -376,7 +381,7 @@ def test_dimension_slider_multiple_files_with_deletion(
     viewer.layers.remove(viewer.layers[0])
 
     # Get maximum number of frames from the remaining layer / dataset
-    max_frames = list_datasets[1].sizes["time"]
+    max_frames = max(ds.sizes["time"] for ds in list_datasets[1:])
 
     # Check the frame slider is as expected
     assert viewer.dims.range[0] == RangeTuple(
