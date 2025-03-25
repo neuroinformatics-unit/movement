@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Sequence
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
+import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 import xarray as xr
@@ -63,6 +64,23 @@ class BaseRegionOfInterest:
     _shapely_geometry: SupportedGeometry
 
     @property
+    def _default_plot_args(self) -> dict[str, Any]:
+        """Define default plotting arguments used when drawing the region.
+
+        This argument is used inside ``self.plot``, which is implemented in the
+        base class.
+
+        This is implemented as a property for two reasons;
+        - To ensure that the defaults can be set in a single place within the
+        class definition,
+        - To allow for easy overwriting in subclasses, which will be necessary
+        given lines and polygons must be plotted differently,
+        - In future, allows us to customise the defaults on a per-region basis
+        (e.g., default labels can inherit ``self.name``).
+        """
+        return {}
+
+    @property
     def coords(self) -> CoordinateSequence:
         """Coordinates of the points that define the region.
 
@@ -113,7 +131,6 @@ class BaseRegionOfInterest:
         how_to_compute_vector_to_region: Callable[
             [xr.DataArray], xr.DataArray
         ],
-        angle_rotates: Literal["vec to ref", "ref to vec"] = "vec to ref",
         in_degrees: bool = False,
     ) -> xr.DataArray:
         """Perform a boundary angle computation.
@@ -145,30 +162,14 @@ class BaseRegionOfInterest:
             "vector to the region".
         how_to_compute_vector_to_region : Callable
             How to compute the "vector to the region" from ``position``.
-        angle_rotates : Literal["vec to ref", "ref to vec"]
-            Convention for the returned signed angle. ``"vec to ref"`` returns
-            the signed angle between the "vector to the region" and the
-            ``reference_vector``. ``"ref to vec"`` returns the opposite.
-            Default is ``"vec to ref"``
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
 
         """
-        if angle_rotates == "vec to ref":
-            ref_is_left_operand = False
-        elif angle_rotates == "ref to vec":
-            ref_is_left_operand = True
-        else:
-            raise ValueError(f"Unknown angle convention: {angle_rotates}")
-
         vec_to_segment = how_to_compute_vector_to_region(position)
 
-        angles = compute_signed_angle_2d(
-            vec_to_segment,
-            reference_vector,
-            v_as_left_operand=ref_is_left_operand,
-        )
+        angles = compute_signed_angle_2d(vec_to_segment, reference_vector)
         if in_degrees:
             angles = np.rad2deg(angles)
         return angles
@@ -262,6 +263,7 @@ class BaseRegionOfInterest:
                 if closed
                 else shapely.LineString(coordinates=points)
             )
+            self._shapely_geometry = shapely.normalize(self._shapely_geometry)
 
     def __repr__(self) -> str:  # noqa: D105
         return str(self)
@@ -273,6 +275,11 @@ class BaseRegionOfInterest:
             f"{self.__class__.__name__} {self.name} "
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        raise NotImplementedError("_plot must be implemented by subclass.")
 
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
@@ -440,9 +447,6 @@ class BaseRegionOfInterest:
     def compute_allocentric_angle_to_nearest_point(
         self,
         position: xr.DataArray,
-        angle_rotates: Literal[
-            "approach to ref", "ref to approach"
-        ] = "approach to ref",
         boundary_only: bool = False,
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
@@ -462,9 +466,6 @@ class BaseRegionOfInterest:
         ----------
         position : xarray.DataArray
             ``DataArray`` of spatial positions.
-        angle_rotates : Literal["approach to ref", "ref to approach"]
-            Direction of the signed angle returned. Default is
-            ``"approach to ref"``.
         boundary_only : bool
             If ``True``, the allocentric angle to the closest boundary point of
             the region is computed. Default ``False``.
@@ -500,7 +501,6 @@ class BaseRegionOfInterest:
                 ),
                 "vector to",
             ),
-            angle_rotates=angle_rotates.replace("approach", "vec"),  # type: ignore
             in_degrees=in_degrees,
         )
 
@@ -508,9 +508,6 @@ class BaseRegionOfInterest:
         self,
         direction: xr.DataArray,
         position: xr.DataArray,
-        angle_rotates: Literal[
-            "approach to direction", "direction to approach"
-        ] = "approach to direction",
         boundary_only: bool = False,
         in_degrees: bool = False,
     ) -> xr.DataArray:
@@ -532,9 +529,6 @@ class BaseRegionOfInterest:
         position : xarray.DataArray
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
-        angle_rotates : {"approach to direction", "direction to approach"}
-            Direction of the signed angle returned. Default is
-            ``"approach to direction"``.
         boundary_only : bool
             Passed to ``compute_approach_vector`` (see Notes). Default
             ``False``.
@@ -563,8 +557,31 @@ class BaseRegionOfInterest:
                 ),
                 "vector to",
             ),
-            angle_rotates=angle_rotates.replace("approach", "vec").replace(  # type: ignore
-                "direction", "ref"
-            ),
             in_degrees=in_degrees,
         )
+
+    def plot(
+        self, ax: plt.Axes | None = None, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """Plot the region of interest on a new or existing axis.
+
+        Parameters
+        ----------
+        ax : plt.Axes, optional
+            ``matplotlib.pyplot.Axes`` object to draw the region on. A new
+            ``Figure`` and ``Axes`` will be created if not provided.
+        matplotlib_kwargs : Any
+            Keyword arguments passed to the ``matplotlib.pyplot`` plotting
+            function.
+
+        """
+        for arg, default in self._default_plot_args.items():
+            if arg not in matplotlib_kwargs:
+                matplotlib_kwargs[arg] = default
+
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        else:
+            fig = ax.get_figure()
+
+        return self._plot(fig, ax, **matplotlib_kwargs)

@@ -362,19 +362,16 @@ def compute_forward_vector_angle(
     right_keypoint: Hashable,
     reference_vector: xr.DataArray | ArrayLike = (1, 0),
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-    in_radians: bool = False,
-    angle_rotates: Literal[
-        "ref to forward", "forward to ref"
-    ] = "ref to forward",
+    in_degrees: bool = False,
 ) -> xr.DataArray:
-    r"""Compute the signed angle between a forward and reference vector.
+    r"""Compute the signed angle between a reference and a forward vector.
 
     Forward vector angle is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>`
     between the reference vector and the animal's :func:`forward vector\
     <movement.kinematics.compute_forward_vector>`.
-    The returned angles are in degrees, spanning the range :math:`(-180, 180]`,
-    unless ``in_radians`` is set to ``True``.
+    The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,
+    unless ``in_degrees`` is set to ``True``.
 
     Parameters
     ----------
@@ -401,12 +398,9 @@ def compute_forward_vector_angle(
         upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
         upwards direction is [0, 0, 1]). If left unspecified, the camera
         view is assumed to be ``"top_down"``.
-    in_radians : bool, optional
-        If true, the returned heading array is given in radians.
-        If false, the array is given in degrees. False by default.
-    angle_rotates : Literal["ref to forward", "forward to ref"], optional
-        Determines the sign convention for the returned signed angle.
-        (See Notes).
+    in_degrees : bool
+        If ``True``, the returned heading array is given in degrees.
+        Otherwise, the array is given in radians. Default ``False``.
 
     Returns
     -------
@@ -415,36 +409,16 @@ def compute_forward_vector_angle(
         with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
 
-    Notes
-    -----
-    There are different conventions for the sign of the forward vector angle.
-    The ``angle_rotates`` argument can be used to select which behaviour the
-    function should use.
-
-    By default, ``angle_rotates`` is set to ``"ref to forward"``, which
-    results in the signed angle between the reference vector and the forward
-    vector being returned. That is, the angle which the reference vector would
-    need to be rotated by, to align with the forward vector.
-    Setting ``angle_rotates`` to ``"forward to ref"`` reverses this convention,
-    returning the signed angle between the forward vector and the reference
-    vector; that is, the rotation that would need to be applied to the forward
-    vector to return the reference vector.
-
     See Also
     --------
-    movement.utils.vector.compute_signed_angle_2d : The underlying
-        function used to compute the signed angle between two 2D vectors.
-    movement.kinematics.compute_forward_vector : The function used
-        to compute the forward vector.
+    movement.utils.vector.compute_signed_angle_2d :
+        The underlying function used to compute the signed angle between two
+        2D vectors. See this function for a definition of the signed
+        angle between two vectors.
+    movement.kinematics.compute_forward_vector :
+        The function used to compute the forward vector.
 
     """
-    if angle_rotates.lower() == "ref to forward":
-        ref_is_left_operand = True
-    elif angle_rotates.lower() == "forward to ref":
-        ref_is_left_operand = False
-    else:
-        raise ValueError(f"Unknown angle convention: '{angle_rotates}'")
-
     # Convert reference vector to np.array if not already a valid array
     if not isinstance(reference_vector, np.ndarray | xr.DataArray):
         reference_vector = np.array(reference_vector)
@@ -454,13 +428,13 @@ def compute_forward_vector_angle(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
 
-    # Compute signed angle between forward vector and reference vector
+    # Compute signed angle between reference vector and forward vector
     heading_array = compute_signed_angle_2d(
-        forward_vector, reference_vector, v_as_left_operand=ref_is_left_operand
+        forward_vector, reference_vector, v_as_left_operand=True
     )
 
     # Convert to degrees
-    if not in_radians:
+    if in_degrees:
         heading_array = np.rad2deg(heading_array)
 
     return heading_array

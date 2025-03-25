@@ -19,11 +19,12 @@ A Python toolbox for analysing animal body movements across space and time.
 
 ## Quick install
 
-Create and activate a conda environment with movement installed:
-```
-conda create -n movement-env -c conda-forge movement
+Create and activate a conda environment with movement installed (including the GUI):
+```bash
+conda create -n movement-env -c conda-forge movement napari pyqt
 conda activate movement-env
 ```
+
 
 > [!Note]
 > Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/user_guide/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).

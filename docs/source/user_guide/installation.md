@@ -15,21 +15,41 @@ We will use `movement-env` as the environment name, but you can choose any name 
 
 ::::{tab-set}
 :::{tab-item} Conda
-Create and activate an environment with movement installed:
+To create an environment with the core package only:
 ```sh
 conda create -n movement-env -c conda-forge movement
+```
+
+If you wish to use the GUI, which additionally requires [napari](napari:),
+you should instead run:
+```sh
+conda create -n movement-env -c conda-forge movement napari pyqt
+```
+You may exchange `pyqt` for `pyside2` if you prefer.
+See [napari's installation guide](napari:tutorials/fundamentals/installation.html)
+for more information on the backends.
+
+To activate the environment:
+```sh
 conda activate movement-env
 ```
 :::
+
 :::{tab-item} Pip
 Create and activate an environment with some prerequisites:
 ```sh
-conda create -n movement-env -c conda-forge python=3.11 pytables
+conda create -n movement-env -c conda-forge python=3.12 pytables
 conda activate movement-env
 ```
-Install the latest movement release from PyPI:
+Install the core package from the latest release on PyPI:
 ```sh
 pip install movement
+```
+If you wish to use the GUI, which additionally requires [napari](napari:),
+you should instead run:
+```sh
+pip install movement[napari]   # works on most shells
+pip install 'movement[napari]' # works on zsh (default shell on macOS)
 ```
 :::
 ::::
@@ -44,6 +64,15 @@ movement info
 ```
 You should see a printout including the version numbers of movement
 and some of its dependencies.
+
+To test the GUI installation, you can run:
+
+```sh
+movement launch
+```
+
+This is equivalent to running `napari -w movement` and should open the `napari`
+window with the `movement` widget docked on the right-hand side.
 
 ## Update the package
 To update movement to the latest version, we recommend installing it in a new environment,
