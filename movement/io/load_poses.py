@@ -4,8 +4,8 @@ This module is deprecated and will be removed in a future version.
 Please use `movement.io.load_dataset` instead.
 """
 
-import warnings
 import logging
+import warnings
 from pathlib import Path
 from typing import Any, Literal
 
@@ -15,20 +15,36 @@ import pandas as pd
 import xarray as xr
 from sleap_io import Labels
 
+from movement.io.load_dataset import (
+    from_anipose_file as _from_anipose_file_new,
+)
+from movement.io.load_dataset import (
+    from_anipose_style_df as _from_anipose_style_df_new,
+)
+from movement.io.load_dataset import (
+    from_dlc_file as _from_dlc_file_new,
+)
+from movement.io.load_dataset import (
+    from_dlc_style_df as _from_dlc_style_df_new,
+)
+from movement.io.load_dataset import (
+    from_file as _from_file_new,
+)
+from movement.io.load_dataset import (
+    from_lp_file as _from_lp_file_new,
+)
+from movement.io.load_dataset import (
+    from_multiview_files as _from_multiview_files_new,
+)
+from movement.io.load_dataset import (
+    from_numpy as _from_numpy_new,
+)
+from movement.io.load_dataset import (
+    from_sleap_file as _from_sleap_file_new,
+)
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile, ValidHDF5
-from movement.io.load_dataset import (
-    from_anipose_file as _from_anipose_file_new,
-    from_anipose_style_df as _from_anipose_style_df_new,
-    from_dlc_file as _from_dlc_file_new,
-    from_dlc_style_df as _from_dlc_style_df_new,
-    from_file as _from_file_new,
-    from_lp_file as _from_lp_file_new,
-    from_multiview_files as _from_multiview_files_new,
-    from_numpy as _from_numpy_new,
-    from_sleap_file as _from_sleap_file_new,
-)
 
 logger = logging.getLogger(__name__)
 

@@ -374,4 +374,4 @@ def _validate_file_path(
             f"Expected file extension to be one of {expected_suffix}, but got "
             f"{file.suffix}.",
         )
-    return ValidFile(file) 
+    return ValidFile(file)

@@ -4,8 +4,8 @@ This module is deprecated and will be removed in a future version.
 Please use `movement.io.save_dataset` instead.
 """
 
-import warnings
 import logging
+import warnings
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,18 +14,30 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.utils.logging import log_error, log_warning
-from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidFile, ValidHDF5
 from movement.io.save_dataset import (
     _auto_split_individuals as _auto_split_individuals_new,
+)
+from movement.io.save_dataset import (
     _ds_to_dlc_style_df as _ds_to_dlc_style_df_new,
+)
+from movement.io.save_dataset import (
     _save_dlc_df as _save_dlc_df_new,
+)
+from movement.io.save_dataset import (
     to_dlc_file as _to_dlc_file_new,
+)
+from movement.io.save_dataset import (
     to_dlc_style_df as _to_dlc_style_df_new,
+)
+from movement.io.save_dataset import (
     to_lp_file as _to_lp_file_new,
+)
+from movement.io.save_dataset import (
     to_sleap_analysis_file as _to_sleap_analysis_file_new,
 )
+from movement.utils.logging import log_error
+from movement.validators.datasets import ValidPosesDataset
+from movement.validators.files import ValidFile
 
 logger = logging.getLogger(__name__)
 

@@ -1,22 +1,13 @@
 """Test suite for the filtering module."""
 
-
-import os
-import tempfile
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
 import pytest
-import xarray as xr
 
-from movement.io import load_dataset
-from movement.filtering import filter_poses
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
     savgol_filter,
 )
+from movement.io import load_dataset
 from movement.sample_data import fetch_dataset_paths
 
 
