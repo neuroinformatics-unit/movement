@@ -1,4 +1,5 @@
 from contextlib import nullcontext as does_not_raise
+import re
 
 import pytest
 import xarray as xr
@@ -71,26 +72,43 @@ class TestFilteringValidDataset:
         )
 
     @pytest.mark.parametrize(
-        "override_kwargs, expected_exception",
+        "override_kwargs, expected_exception, expected_match",
         [
-            ({"mode": "nearest", "print_report": True}, does_not_raise()),
-            ({"axis": 1}, pytest.raises(ValueError)),
-            ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
+            ({"mode": "nearest", "print_report": True}, does_not_raise(), None),
+            (
+                {"axis": 1}, 
+                pytest.raises(ValueError), 
+                "keyword argument.*axis.*may not be overridden"
+            ),
+            (
+                {"mode": "nearest", "axis": 1},
+                pytest.raises(ValueError),
+                "keyword argument.*axis.*may not be overridden"
+            ),
         ],
     )
     def test_savgol_filter_kwargs_override(
-        self, valid_dataset, override_kwargs, expected_exception, request
+        self, valid_dataset, override_kwargs, expected_exception, expected_match, request
     ):
         """Test that overriding keyword arguments in the
         Savitzky-Golay filter works, except for the ``axis`` argument,
         which should raise a ValueError.
         """
-        with expected_exception:
-            savgol_filter(
-                request.getfixturevalue(valid_dataset).position,
-                window=3,
-                **override_kwargs,
-            )
+        if expected_match:
+            with expected_exception as excinfo:
+                savgol_filter(
+                    request.getfixturevalue(valid_dataset).position,
+                    window=3,
+                    **override_kwargs,
+                )
+            assert re.search(expected_match, str(excinfo.value)) is not None
+        else:
+            with expected_exception:
+                savgol_filter(
+                    request.getfixturevalue(valid_dataset).position,
+                    window=3,
+                    **override_kwargs,
+                )
 
     @pytest.mark.parametrize(
         "statistic, expected_exception",

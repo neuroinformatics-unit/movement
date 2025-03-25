@@ -2,6 +2,7 @@
 
 import logging
 from glob import glob
+import re
 
 import pytest
 
@@ -42,3 +43,27 @@ def setup_logging(tmp_path):
         logger_name="movement",
         log_directory=(tmp_path / ".movement"),
     )
+
+
+def check_error_message(exception_info, expected_pattern):
+    """Check that an exception's error message matches the expected pattern.
+    
+    Parameters
+    ----------
+    exception_info : ExceptionInfo
+        The ExceptionInfo object obtained from pytest.raises context manager.
+    expected_pattern : str
+        A regex pattern that should match the error message.
+        
+    Returns
+    -------
+    bool
+        True if the error message matches the pattern, False otherwise.
+    """
+    return re.search(expected_pattern, str(exception_info.value)) is not None
+
+
+@pytest.fixture
+def check_error():
+    """Fixture that provides the check_error_message function."""
+    return check_error_message
