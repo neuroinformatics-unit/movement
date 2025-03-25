@@ -1,11 +1,22 @@
-import pytest
+"""Test suite for the filtering module."""
 
+
+import os
+import tempfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+import xarray as xr
+
+from movement.io import load_dataset
+from movement.filtering import filter_poses
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
     savgol_filter,
 )
-from movement.io import load_poses
 from movement.sample_data import fetch_dataset_paths
 
 
@@ -15,7 +26,7 @@ def sample_dataset():
     ds_path = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")[
         "poses"
     ]
-    ds = load_poses.from_dlc_file(ds_path)
+    ds = load_dataset.from_dlc_file(ds_path)
     return ds
 
 

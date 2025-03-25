@@ -9,7 +9,7 @@ Load and explore an example dataset of pose tracks.
 # -------
 
 from movement import sample_data
-from movement.io import load_poses
+from movement.io import load_dataset
 from movement.plots import plot_centroid_trajectory
 
 # %%
@@ -35,7 +35,7 @@ print(file_path)
 # Load the data into movement
 # ---------------------------
 
-ds = load_poses.from_sleap_file(file_path, fps=50)
+ds = load_dataset.from_sleap_file(file_path, fps=50)
 print(ds)
 
 # %%

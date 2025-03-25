@@ -1,26 +1,127 @@
-"""Load pose tracking data from various frameworks into ``movement``."""
+"""Load pose tracking data from various frameworks into `movement`.
 
+This module is deprecated and will be removed in a future version.
+Please use `movement.io.load_dataset` instead.
+"""
+
+import warnings
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
-from sleap_io.io.slp import read_labels
-from sleap_io.model.labels import Labels
+from sleap_io import Labels
 
 from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import (
-    ValidAniposeCSV,
-    ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
+from movement.validators.files import ValidFile, ValidHDF5
+from movement.io.load_dataset import (
+    from_anipose_file as _from_anipose_file_new,
+    from_anipose_style_df as _from_anipose_style_df_new,
+    from_dlc_file as _from_dlc_file_new,
+    from_dlc_style_df as _from_dlc_style_df_new,
+    from_file as _from_file_new,
+    from_lp_file as _from_lp_file_new,
+    from_multiview_files as _from_multiview_files_new,
+    from_numpy as _from_numpy_new,
+    from_sleap_file as _from_sleap_file_new,
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _deprecation_warning(old_name: str, new_name: str) -> None:
+    """Emit a deprecation warning for old function names."""
+    warnings.warn(
+        f"The function `{old_name}` is deprecated and will be removed in a future "
+        f"version. Please use `{new_name}` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+
+def from_numpy(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_numpy instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_numpy",
+        "movement.io.load_dataset.from_numpy",
+    )
+    return _from_numpy_new(*args, **kwargs)
+
+
+def from_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_file instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_file",
+        "movement.io.load_dataset.from_file",
+    )
+    return _from_file_new(*args, **kwargs)
+
+
+def from_dlc_style_df(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_dlc_style_df instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_style_df",
+        "movement.io.load_dataset.from_dlc_style_df",
+    )
+    return _from_dlc_style_df_new(*args, **kwargs)
+
+
+def from_dlc_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_dlc_file instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_file",
+        "movement.io.load_dataset.from_dlc_file",
+    )
+    return _from_dlc_file_new(*args, **kwargs)
+
+
+def from_lp_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_lp_file instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_lp_file",
+        "movement.io.load_dataset.from_lp_file",
+    )
+    return _from_lp_file_new(*args, **kwargs)
+
+
+def from_sleap_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_sleap_file instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_sleap_file",
+        "movement.io.load_dataset.from_sleap_file",
+    )
+    return _from_sleap_file_new(*args, **kwargs)
+
+
+def from_anipose_style_df(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_anipose_style_df instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_anipose_style_df",
+        "movement.io.load_dataset.from_anipose_style_df",
+    )
+    return _from_anipose_style_df_new(*args, **kwargs)
+
+
+def from_anipose_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_anipose_file instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_anipose_file",
+        "movement.io.load_dataset.from_anipose_file",
+    )
+    return _from_anipose_file_new(*args, **kwargs)
+
+
+def from_multiview_files(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.load_dataset.from_multiview_files instead."""
+    _deprecation_warning(
+        "movement.io.load_poses.from_multiview_files",
+        "movement.io.load_dataset.from_multiview_files",
+    )
+    return _from_multiview_files_new(*args, **kwargs)
 
 
 def from_numpy(
@@ -31,7 +132,7 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from NumPy arrays.
+    """Create a `movement` poses dataset from NumPy arrays.
 
     Parameters
     ----------
@@ -62,7 +163,7 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Examples
@@ -73,8 +174,8 @@ def from_numpy(
     The confidence scores are set to 1 for all points.
 
     >>> import numpy as np
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_numpy(
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset.from_numpy(
     ...     position_array=np.random.rand(100, 2, 3, 2),
     ...     confidence_array=np.ones((100, 3, 2)),
     ...     individual_names=["Alice", "Bob"],
@@ -83,6 +184,10 @@ def from_numpy(
     ... )
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_numpy",
+        "movement.io.load_dataset.from_numpy",
+    )
     valid_data = ValidPosesDataset(
         position_array=position_array,
         confidence_array=confidence_array,
@@ -102,7 +207,7 @@ def from_file(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from any supported file.
+    """Create a `movement` poses dataset from any supported file.
 
     Parameters
     ----------
@@ -124,24 +229,28 @@ def from_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_file
-    movement.io.load_poses.from_sleap_file
-    movement.io.load_poses.from_lp_file
-    movement.io.load_poses.from_anipose_file
+    movement.io.load_dataset.from_dlc_file
+    movement.io.load_dataset.from_sleap_file
+    movement.io.load_dataset.from_lp_file
+    movement.io.load_dataset.from_anipose_file
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_file(
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset.from_file(
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_file",
+        "movement.io.load_dataset.from_file",
+    )
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)
     elif source_software == "SLEAP":
@@ -161,7 +270,7 @@ def from_dlc_style_df(
     fps: float | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
+    """Create a `movement` poses dataset from a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
@@ -179,7 +288,7 @@ def from_dlc_style_df(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -193,9 +302,13 @@ def from_dlc_style_df(
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_file
+    movement.io.load_dataset.from_dlc_file
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_style_df",
+        "movement.io.load_dataset.from_dlc_style_df",
+    )
     # read names of individuals and keypoints from the DataFrame
     if "individuals" in df.columns.names:
         individual_names = (
@@ -226,7 +339,7 @@ def from_dlc_style_df(
 def from_sleap_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP file.
+    """Create a `movement` poses dataset from a SLEAP file.
 
     Parameters
     ----------
@@ -241,7 +354,7 @@ def from_sleap_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -275,10 +388,14 @@ def from_sleap_file(
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset.from_sleap_file("path/to/file.analysis.h5", fps=30)
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_sleap_file",
+        "movement.io.load_dataset.from_sleap_file",
+    )
     file = ValidFile(
         file_path,
         expected_permission="r",
@@ -299,7 +416,7 @@ def from_sleap_file(
 def from_lp_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a LightningPose file.
+    """Create a `movement` poses dataset from a LightningPose file.
 
     Parameters
     ----------
@@ -312,15 +429,19 @@ def from_lp_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset.from_lp_file("path/to/file.csv", fps=30)
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_lp_file",
+        "movement.io.load_dataset.from_lp_file",
+    )
     return _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
@@ -329,7 +450,7 @@ def from_lp_file(
 def from_dlc_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a DeepLabCut file.
+    """Create a `movement` poses dataset from a DeepLabCut file.
 
     Parameters
     ----------
@@ -343,19 +464,23 @@ def from_dlc_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_style_df
+    movement.io.load_dataset.from_dlc_style_df
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset.from_dlc_file("path/to/file.h5", fps=30)
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_file",
+        "movement.io.load_dataset.from_dlc_file",
+    )
     return _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="DeepLabCut", fps=fps
     )
@@ -381,10 +506,14 @@ def from_multiview_files(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata, with an additional ``views`` dimension.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_multiview_files",
+        "movement.io.load_dataset.from_multiview_files",
+    )
     views_list = list(file_path_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [
@@ -399,7 +528,7 @@ def _ds_from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a LightningPose or DLC file.
+    """Create a `movement` poses dataset from a LightningPose or DLC file.
 
     Parameters
     ----------
@@ -415,7 +544,7 @@ def _ds_from_lp_or_dlc_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
@@ -444,7 +573,7 @@ def _ds_from_lp_or_dlc_file(
 def _ds_from_sleap_analysis_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.
+    """Create a `movement` poses dataset from a SLEAP analysis (.h5) file.
 
     Parameters
     ----------
@@ -457,10 +586,14 @@ def _ds_from_sleap_analysis_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_sleap_analysis_file",
+        "movement.io.load_dataset.from_sleap_analysis_file",
+    )
     file = ValidHDF5(file_path, expected_datasets=["tracks"])
     with h5py.File(file.path, "r") as f:
         # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
@@ -491,7 +624,7 @@ def _ds_from_sleap_analysis_file(
 def _ds_from_sleap_labels_file(
     file_path: Path, fps: float | None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.
+    """Create a `movement` poses dataset from a SLEAP labels (.slp) file.
 
     Parameters
     ----------
@@ -504,10 +637,14 @@ def _ds_from_sleap_labels_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_sleap_labels_file",
+        "movement.io.load_dataset.from_sleap_labels_file",
+    )
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
     labels = read_labels(file.path.as_posix())
     tracks_with_scores = _sleap_labels_to_numpy(labels)
@@ -616,6 +753,10 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
         DeepLabCut-style DataFrame with multi-index columns.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_csv",
+        "movement.io.load_dataset.from_dlc_csv",
+    )
     file = ValidDeepLabCutCSV(file_path)
     possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
     with open(file.path) as f:
@@ -657,6 +798,10 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
         DeepLabCut-style DataFrame with multi-index columns.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_dlc_h5",
+        "movement.io.load_dataset.from_dlc_h5",
+    )
     file = ValidHDF5(file_path, expected_datasets=["df_with_missing"])
     # pd.read_hdf does not always return a DataFrame but we assume it does
     # in this case (since we know what's in the "df_with_missing" dataset)
@@ -665,7 +810,7 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
 
 
 def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from validated pose tracking data.
+    """Create a `movement` poses dataset from validated pose tracking data.
 
     Parameters
     ----------
@@ -675,10 +820,14 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_valid_data",
+        "movement.io.load_dataset.from_valid_data",
+    )
     n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[1]
 
@@ -721,7 +870,7 @@ def from_anipose_style_df(
     fps: float | None = None,
     individual_name: str = "individual_0",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
+    """Create a `movement` poses dataset from an Anipose 3D dataframe.
 
     Parameters
     ----------
@@ -736,7 +885,7 @@ def from_anipose_style_df(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
 
@@ -749,6 +898,10 @@ def from_anipose_style_df(
     with dimensions time, keypoints, individuals.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_anipose_style_df",
+        "movement.io.load_dataset.from_anipose_style_df",
+    )
     keypoint_names = sorted(
         list(
             set(
@@ -791,7 +944,7 @@ def from_anipose_file(
     fps: float | None = None,
     individual_name: str = "individual_0",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
+    """Create a `movement` poses dataset from an Anipose 3D .csv file.
 
     Parameters
     ----------
@@ -806,7 +959,7 @@ def from_anipose_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        `movement` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -816,6 +969,10 @@ def from_anipose_file(
     and error.
 
     """
+    _deprecation_warning(
+        "movement.io.load_poses.from_anipose_file",
+        "movement.io.load_dataset.from_anipose_file",
+    )
     file = ValidFile(
         file_path,
         expected_permission="r",

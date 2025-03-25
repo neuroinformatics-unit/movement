@@ -1,30 +1,117 @@
-"""Save pose tracking data from ``movement`` to various file formats."""
+"""Save pose tracking data from `movement` to various file formats.
 
+This module is deprecated and will be removed in a future version.
+Please use `movement.io.save_dataset` instead.
+"""
+
+import warnings
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import h5py
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error, log_warning
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidFile
+from movement.validators.files import ValidFile, ValidHDF5
+from movement.io.save_dataset import (
+    _auto_split_individuals as _auto_split_individuals_new,
+    _ds_to_dlc_style_df as _ds_to_dlc_style_df_new,
+    _save_dlc_df as _save_dlc_df_new,
+    to_dlc_file as _to_dlc_file_new,
+    to_dlc_style_df as _to_dlc_style_df_new,
+    to_lp_file as _to_lp_file_new,
+    to_sleap_analysis_file as _to_sleap_analysis_file_new,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _deprecation_warning(old_name: str, new_name: str) -> None:
+    """Emit a deprecation warning for old function names."""
+    warnings.warn(
+        f"The function `{old_name}` is deprecated and will be removed in a future "
+        f"version. Please use `{new_name}` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+
+def _auto_split_individuals(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset._auto_split_individuals instead."""
+    _deprecation_warning(
+        "movement.io.save_poses._auto_split_individuals",
+        "movement.io.save_dataset._auto_split_individuals",
+    )
+    return _auto_split_individuals_new(*args, **kwargs)
+
+
+def _ds_to_dlc_style_df(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset._ds_to_dlc_style_df instead."""
+    _deprecation_warning(
+        "movement.io.save_poses._ds_to_dlc_style_df",
+        "movement.io.save_dataset._ds_to_dlc_style_df",
+    )
+    return _ds_to_dlc_style_df_new(*args, **kwargs)
+
+
+def _save_dlc_df(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset._save_dlc_df instead."""
+    _deprecation_warning(
+        "movement.io.save_poses._save_dlc_df",
+        "movement.io.save_dataset._save_dlc_df",
+    )
+    return _save_dlc_df_new(*args, **kwargs)
+
+
+def to_dlc_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset.to_dlc_file instead."""
+    _deprecation_warning(
+        "movement.io.save_poses.to_dlc_file",
+        "movement.io.save_dataset.to_dlc_file",
+    )
+    return _to_dlc_file_new(*args, **kwargs)
+
+
+def to_dlc_style_df(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset.to_dlc_style_df instead."""
+    _deprecation_warning(
+        "movement.io.save_poses.to_dlc_style_df",
+        "movement.io.save_dataset.to_dlc_style_df",
+    )
+    return _to_dlc_style_df_new(*args, **kwargs)
+
+
+def to_lp_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset.to_lp_file instead."""
+    _deprecation_warning(
+        "movement.io.save_poses.to_lp_file",
+        "movement.io.save_dataset.to_lp_file",
+    )
+    return _to_lp_file_new(*args, **kwargs)
+
+
+def to_sleap_analysis_file(*args: Any, **kwargs: Any) -> Any:
+    """Deprecated: Use movement.io.save_dataset.to_sleap_analysis_file instead."""
+    _deprecation_warning(
+        "movement.io.save_poses.to_sleap_analysis_file",
+        "movement.io.save_dataset.to_sleap_analysis_file",
+    )
+    return _to_sleap_analysis_file_new(*args, **kwargs)
 
 
 def _ds_to_dlc_style_df(
     ds: xr.Dataset, columns: pd.MultiIndex
 ) -> pd.DataFrame:
-    """Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.
+    """Convert a `movement` dataset to a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        `movement` dataset containing pose tracks, confidence scores,
         and associated metadata.
     columns : pandas.MultiIndex
         DeepLabCut-style multi-index columns
@@ -82,12 +169,12 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 def to_dlc_style_df(
     ds: xr.Dataset, split_individuals: bool = False
 ) -> pd.DataFrame | dict[str, pd.DataFrame]:
-    """Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).
+    """Convert a `movement` dataset to DeepLabCut-style DataFrame(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        `movement` dataset containing pose tracks, confidence scores,
         and associated metadata.
     split_individuals : bool, optional
         If True, return a dictionary of DataFrames per individual, with
@@ -157,12 +244,12 @@ def to_dlc_file(
     file_path: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
 ) -> None:
-    """Save a ``movement`` dataset to DeepLabCut file(s).
+    """Save a `movement` dataset to DeepLabCut file(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        `movement` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. The file extension
@@ -189,9 +276,9 @@ def to_dlc_file(
 
     Examples
     --------
-    >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
-    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
+    >>> from movement.io import save_dataset, load_dataset
+    >>> ds = load_dataset.from_sleap_file("/path/to/file_sleap.analysis.h5")
+    >>> save_dataset.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """  # noqa: D301
     file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
@@ -229,12 +316,12 @@ def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
 ) -> None:
-    """Save a ``movement`` dataset to a LightningPose file.
+    """Save a `movement` dataset to a LightningPose file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        `movement` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .csv.
@@ -260,12 +347,12 @@ def to_lp_file(
 
 
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
-    """Save a ``movement`` dataset to a SLEAP analysis file.
+    """Save a `movement` dataset to a SLEAP analysis file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        `movement` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .h5.
@@ -291,9 +378,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     Examples
     --------
-    >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5")
-    >>> save_poses.to_sleap_analysis_file(
+    >>> from movement.io import save_dataset, load_dataset
+    >>> ds = load_dataset.from_dlc_file("path/to/file.h5")
+    >>> save_dataset.to_sleap_analysis_file(
     ...     ds, "/path/to/file_sleap.analysis.h5"
     ... )
 

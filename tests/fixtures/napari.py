@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from movement.io import save_poses
+from movement.io import save_dataset
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def valid_dataset_with_localised_nans(valid_poses_dataset, tmp_path):
 
         # Export as a DLC-csv file
         out_path = tmp_path / "ds_with_nans.csv"
-        save_poses.to_dlc_file(
+        save_dataset.to_dlc_file(
             valid_poses_dataset, out_path, split_individuals=False
         )
 

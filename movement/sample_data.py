@@ -14,7 +14,7 @@ import xarray
 import yaml
 from requests.exceptions import RequestException
 
-from movement.io import load_bboxes, load_poses
+from movement.io import load_bboxes, load_dataset
 from movement.utils.logging import log_error, log_warning
 
 logger = logging.getLogger(__name__)
@@ -290,7 +290,7 @@ def fetch_dataset(
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     for key, load_module in zip(
-        ["poses", "bboxes"], [load_poses, load_bboxes], strict=False
+        ["poses", "bboxes"], [load_dataset, load_bboxes], strict=False
     ):
         if file_paths.get(key):
             ds = load_module.from_file(

@@ -19,7 +19,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_bboxes, load_poses
+from movement.io import load_bboxes, load_dataset
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle
 
@@ -146,7 +146,7 @@ class DataLoader(QWidget):
             return
 
         if source_software in SUPPORTED_POSES_FILES:
-            loader = load_poses
+            loader = load_dataset
         else:
             loader = load_bboxes
         ds = loader.from_file(file_path, source_software, fps)
