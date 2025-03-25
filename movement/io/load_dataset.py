@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Literal, Union, Optional
+from typing import Literal
 
 import h5py
 import numpy as np
@@ -694,9 +694,9 @@ def from_anipose_style_df(
 
 
 def from_anipose_file(
-    file_path: Union[str, Path],
-    fps: Optional[float] = None,
-    individual_name: Optional[str] = None,
+    file_path: str | Path,
+    fps: float | None = None,
+    individual_name: str | None = None,
 ) -> MovementDataset:
     """Load pose tracks from an Anipose CSV file.
 
@@ -717,6 +717,7 @@ def from_anipose_file(
     See Also
     --------
     from_anipose_style_df : Load pose tracks from an Anipose-style DataFrame.
+
     """
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     df = pd.read_csv(file.path)
