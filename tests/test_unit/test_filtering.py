@@ -1,5 +1,5 @@
-from contextlib import nullcontext as does_not_raise
 import re
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 import xarray as xr
@@ -74,21 +74,30 @@ class TestFilteringValidDataset:
     @pytest.mark.parametrize(
         "override_kwargs, expected_exception, expected_match",
         [
-            ({"mode": "nearest", "print_report": True}, does_not_raise(), None),
             (
-                {"axis": 1}, 
-                pytest.raises(ValueError), 
-                "keyword argument.*axis.*may not be overridden"
+                {"mode": "nearest", "print_report": True},
+                does_not_raise(),
+                None,
+            ),
+            (
+                {"axis": 1},
+                pytest.raises(ValueError),
+                "keyword argument.*axis.*may not be overridden",
             ),
             (
                 {"mode": "nearest", "axis": 1},
                 pytest.raises(ValueError),
-                "keyword argument.*axis.*may not be overridden"
+                "keyword argument.*axis.*may not be overridden",
             ),
         ],
     )
     def test_savgol_filter_kwargs_override(
-        self, valid_dataset, override_kwargs, expected_exception, expected_match, request
+        self,
+        valid_dataset,
+        override_kwargs,
+        expected_exception,
+        expected_match,
+        request,
     ):
         """Test that overriding keyword arguments in the
         Savitzky-Golay filter works, except for the ``axis`` argument,
