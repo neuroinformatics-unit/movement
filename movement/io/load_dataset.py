@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Union, Optional
 
 import h5py
 import numpy as np
@@ -690,44 +690,31 @@ def from_anipose_style_df(
 
 
 def from_anipose_file(
-    file_path: Path | str,
-    fps: float | None = None,
-    individual_name: str = "individual_0",
-) -> xr.Dataset:
-    """Create a ``movement`` dataset from an Anipose file.
+    file_path: Union[str, Path],
+    fps: Optional[float] = None,
+    individual_name: Optional[str] = None,
+) -> MovementDataset:
+    """Load pose tracks from an Anipose CSV file.
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
-        Path to the file containing the Anipose predictions in .csv
-        format.
+    file_path : str or Path
+        Path to the Anipose CSV file.
     fps : float, optional
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
+        Frames per second. If not provided, will be inferred from the data.
     individual_name : str, optional
-        Name of the individual in the video. Defaults to "individual_0".
+        Name of the individual. If not provided, will be inferred from the data.
 
     Returns
     -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
+    MovementDataset
+        A movement dataset containing the pose tracks.
 
     See Also
     --------
-    movement.io.load_dataset.from_file : Load data from any supported file format.
-
-    Examples
-    --------
-    >>> from movement.io import load_dataset
-    >>> ds = load_dataset.from_anipose_file(
-    ...     "path/to/file.csv",
-    ...     fps=30,
-    ...     individual_name="mouse1",
-    ... )
-
+    from_anipose_style_df : Load pose tracks from an Anipose-style DataFrame.
     """
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     df = pd.read_csv(file.path)
-    return ValidAniposeCSV(df)
+    
     return from_anipose_style_df(df, fps, individual_name) 
