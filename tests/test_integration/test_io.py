@@ -5,7 +5,9 @@ import xarray as xr
 from pytest import DATA_PATHS
 
 from movement.io import load_dataset, save_dataset
-from movement.io.save_dataset import to_dlc_style_df, to_dlc_file, to_sleap_analysis_file
+from movement.io.save_dataset import (
+    to_dlc_style_df,
+)
 
 
 class TestPosesIO:
@@ -107,11 +109,13 @@ class TestPosesIO:
             else:
                 assert f["labels_path"][()].decode() == ""
 
+
 def test_dlc_style_df_roundtrip(valid_dlc_poses_df):
     """Test roundtrip conversion between DeepLabCut-style DataFrame and Dataset."""
     ds = load_dataset.from_dlc_style_df(valid_dlc_poses_df)
     df = to_dlc_style_df(ds, split_individuals=False)
     pd.testing.assert_frame_equal(df, valid_dlc_poses_df)
+
 
 def test_dlc_file_roundtrip(valid_dlc_poses_df, tmp_path):
     """Test roundtrip conversion between DeepLabCut file and Dataset."""
@@ -125,6 +129,7 @@ def test_dlc_file_roundtrip(valid_dlc_poses_df, tmp_path):
     assert "time" in ds.dims
     assert "keypoint" in ds.dims
     assert "individual" in ds.dims
+
 
 def test_sleap_to_dlc_roundtrip(sleap_file, tmp_path):
     """Test roundtrip conversion between SLEAP file and DeepLabCut file."""
@@ -140,6 +145,7 @@ def test_sleap_to_dlc_roundtrip(sleap_file, tmp_path):
     assert "keypoint" in dlc_ds.dims
     assert "individual" in dlc_ds.dims
 
+
 def test_sleap_analysis_file_roundtrip(sleap_h5_file_path, tmp_path):
     """Test roundtrip conversion between SLEAP analysis file and Dataset."""
     fps = 30
@@ -147,6 +153,7 @@ def test_sleap_analysis_file_roundtrip(sleap_h5_file_path, tmp_path):
     new_h5_file = tmp_path / "test.h5"
     save_dataset.to_sleap_analysis_file(ds, new_h5_file)
     assert new_h5_file.exists()
+
 
 def test_file_roundtrip(file_path):
     """Test roundtrip conversion between different file formats."""

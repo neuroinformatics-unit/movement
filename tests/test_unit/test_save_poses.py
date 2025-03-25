@@ -7,9 +7,15 @@ import pytest
 import xarray as xr
 from pytest import DATA_PATHS
 
-from movement.io import load_dataset, save_dataset
-from movement.io.save_dataset import _auto_split_individuals, _remove_unoccupied_tracks
-from movement.io.save_dataset import to_dlc_style_df, to_dlc_file, to_lp_file, to_sleap_analysis_file
+from movement.io import load_dataset
+from movement.io.save_dataset import (
+    _auto_split_individuals,
+    _remove_unoccupied_tracks,
+    to_dlc_file,
+    to_dlc_style_df,
+    to_lp_file,
+    to_sleap_analysis_file,
+)
 
 
 class TestSavePoses:
@@ -222,9 +228,7 @@ class TestSavePoses:
         of the `to_dlc_file` function as expected.
         """
         with expected_exception:
-            to_dlc_file(
-                valid_poses_dataset, new_h5_file, split_individuals
-            )
+            to_dlc_file(valid_poses_dataset, new_h5_file, split_individuals)
             # Get the names of the individuals in the dataset
             ind_names = valid_poses_dataset.individuals.values
             # "auto" becomes False, default valid dataset is multi-individual

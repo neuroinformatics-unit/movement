@@ -11,13 +11,11 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import log_error
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
 )
 
 logger = logging.getLogger(__name__)
@@ -449,8 +447,12 @@ def _ds_from_sleap_analysis_file(
         keypoint_names = f["point_scores"].dtype.names
 
         # read pose tracks and confidence scores
-        tracks = f["tracks"][:]  # shape: (n_frames, n_individuals, n_keypoints, 2)
-        scores = f["point_scores"][:]  # shape: (n_frames, n_individuals, n_keypoints)
+        tracks = f["tracks"][
+            :
+        ]  # shape: (n_frames, n_individuals, n_keypoints, 2)
+        scores = f["point_scores"][
+            :
+        ]  # shape: (n_frames, n_individuals, n_keypoints)
 
         # reshape the data into (n_frames, 2, n_keypoints, n_individuals)
         tracks = tracks.transpose(0, 3, 2, 1)
@@ -521,7 +523,9 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     tracks = np.zeros(
         (len(labels), len(individual_names), len(keypoint_names), 2)
     )
-    scores = np.zeros((len(labels), len(individual_names), len(keypoint_names)))
+    scores = np.zeros(
+        (len(labels), len(individual_names), len(keypoint_names))
+    )
 
     for frame_idx, frame in enumerate(labels):
         for instance in frame.instances:
@@ -730,4 +734,4 @@ def from_anipose_file(
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     df = pd.read_csv(file.path)
     return ValidAniposeCSV(df)
-    return from_anipose_style_df(df, fps, individual_name) 
+    return from_anipose_style_df(df, fps, individual_name)

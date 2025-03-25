@@ -1,29 +1,13 @@
 """Test suite for the load_dataset module."""
 
-import os
-import tempfile
-from pathlib import Path
-
 import h5py
 import numpy as np
-import pandas as pd
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
-from movement.io import load_dataset
-from movement.io.load_dataset import (
-    from_anipose_file,
-    from_dlc_file,
-    from_dlc_style_df,
-    from_file,
-    from_lp_file,
-    from_multiview_files,
-    from_numpy,
-    from_sleap_file,
-)
 from movement.validators.datasets import ValidPosesDataset
 
 
@@ -176,9 +160,7 @@ def test_load_from_dlc_style_df(valid_dlc_poses_df, source_software, helpers):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
-    ds = load_dlc_style_df(
-        valid_dlc_poses_df, source_software=source_software
-    )
+    ds = load_dlc_style_df(valid_dlc_poses_df, source_software=source_software)
     expected_values = {
         **expected_values_poses,
         "source_software": source_software,
