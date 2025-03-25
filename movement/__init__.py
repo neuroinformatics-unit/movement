@@ -15,3 +15,6 @@ xr.set_options(keep_attrs=True, display_expand_data=False)
 
 # initialize logger upon import
 configure_logging()
+
+# Make track fusion functionality available at the top level
+from movement.track_fusion import fuse_tracks
