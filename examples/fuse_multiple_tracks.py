@@ -25,11 +25,15 @@ from movement.track_fusion import fuse_tracks
 # generated using a model trained on less data.
 
 # DeepLabCut data (considered more reliable)
-dlc_path = sample_data.fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")["poses"]
+dlc_path = sample_data.fetch_dataset_paths(
+    "DLC_single-mouse_EPM.predictions.h5"
+)["poses"]
 ds_dlc = load_poses.from_dlc_file(dlc_path, fps=30)
 
 # SLEAP data (considered less reliable)
-sleap_path = sample_data.fetch_dataset_paths("SLEAP_single-mouse_EPM.analysis.h5")["poses"]
+sleap_path = sample_data.fetch_dataset_paths(
+    "SLEAP_single-mouse_EPM.analysis.h5"
+)["poses"]
 ds_sleap = load_poses.from_sleap_file(sleap_path, fps=30)
 
 # %%
@@ -55,12 +59,12 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 # Plot DLC trajectory
 plot_centroid_trajectory(ds_dlc.position, ax=axes[0])
-axes[0].set_title('DeepLabCut Tracking')
+axes[0].set_title("DeepLabCut Tracking")
 axes[0].invert_yaxis()  # Invert y-axis to match image coordinates
 
 # Plot SLEAP trajectory
 plot_centroid_trajectory(ds_sleap.position, ax=axes[1])
-axes[1].set_title('SLEAP Tracking')
+axes[1].set_title("SLEAP Tracking")
 axes[1].invert_yaxis()
 
 fig.tight_layout()
@@ -79,11 +83,11 @@ axes = axes.flatten()
 
 # Plot the original tracks in the first two subplots
 plot_centroid_trajectory(ds_dlc.position, ax=axes[0])
-axes[0].set_title('Original: DeepLabCut')
+axes[0].set_title("Original: DeepLabCut")
 axes[0].invert_yaxis()
 
 plot_centroid_trajectory(ds_sleap.position, ax=axes[1])
-axes[1].set_title('Original: SLEAP')
+axes[1].set_title("Original: SLEAP")
 axes[1].invert_yaxis()
 
 # Fuse and plot the tracks with different methods
@@ -91,19 +95,19 @@ for i, method in enumerate(methods, 2):
     if i < len(axes):
         # Set weights for weighted method (example: 0.7 for DLC, 0.3 for SLEAP)
         weights = [0.7, 0.3] if method == "weighted" else None
-        
+
         # Fuse the tracks
         fused_track = fuse_tracks(
             datasets=[ds_dlc, ds_sleap],
             method=method,
             keypoint="centroid",
             weights=weights,
-            print_report=True
+            print_report=True,
         )
-        
+
         # Plot the fused track
         plot_centroid_trajectory(fused_track, ax=axes[i])
-        axes[i].set_title(f'Fused: {method.capitalize()}')
+        axes[i].set_title(f"Fused: {method.capitalize()}")
         axes[i].invert_yaxis()
 
 fig.tight_layout()
@@ -123,33 +127,42 @@ kalman_fused = fuse_tracks(
     method="kalman",
     keypoint="centroid",
     process_noise_scale=0.01,  # Controls smoothness of trajectory
-    measurement_noise_scales=[0.1, 0.3],  # Lower values for more reliable sources
-    print_report=True
+    measurement_noise_scales=[
+        0.1,
+        0.3,
+    ],  # Lower values for more reliable sources
+    print_report=True,
 )
 
 # Plot trajectories from both sources and the fused result
 plt.plot(
     ds_dlc.position.sel(keypoints="centroid", space="x"),
     ds_dlc.position.sel(keypoints="centroid", space="y"),
-    'b.', alpha=0.5, label='DeepLabCut'
+    "b.",
+    alpha=0.5,
+    label="DeepLabCut",
 )
 plt.plot(
     ds_sleap.position.sel(keypoints="centroid", space="x"),
     ds_sleap.position.sel(keypoints="centroid", space="y"),
-    'g.', alpha=0.5, label='SLEAP'
+    "g.",
+    alpha=0.5,
+    label="SLEAP",
 )
 plt.plot(
     kalman_fused.sel(space="x"),
     kalman_fused.sel(space="y"),
-    'r-', linewidth=2, label='Kalman Fused'
+    "r-",
+    linewidth=2,
+    label="Kalman Fused",
 )
 
 plt.gca().invert_yaxis()
 plt.grid(True, alpha=0.3)
 plt.legend()
-plt.title('Comparison of Original Tracks and Kalman-Fused Track')
-plt.xlabel('X Position')
-plt.ylabel('Y Position')
+plt.title("Comparison of Original Tracks and Kalman-Fused Track")
+plt.xlabel("X Position")
+plt.ylabel("Y Position")
 
 # %%
 # Temporal Analysis: Plotting Coordinate Values Over Time
@@ -165,24 +178,30 @@ time_values = kalman_fused.time.values
 plt.plot(
     time_values,
     ds_dlc.position.sel(keypoints="centroid", space="x"),
-    'b-', alpha=0.5, label='DeepLabCut'
+    "b-",
+    alpha=0.5,
+    label="DeepLabCut",
 )
 plt.plot(
     time_values,
     ds_sleap.position.sel(keypoints="centroid", space="x"),
-    'g-', alpha=0.5, label='SLEAP'
+    "g-",
+    alpha=0.5,
+    label="SLEAP",
 )
 plt.plot(
     time_values,
     kalman_fused.sel(space="x"),
-    'r-', linewidth=2, label='Kalman Fused'
+    "r-",
+    linewidth=2,
+    label="Kalman Fused",
 )
 
 plt.grid(True, alpha=0.3)
 plt.legend()
-plt.title('X-Coordinate Values Over Time')
-plt.xlabel('Time')
-plt.ylabel('X Position')
+plt.title("X-Coordinate Values Over Time")
+plt.xlabel("Time")
+plt.ylabel("X Position")
 
 # %%
 # Multiple-Animal Tracking Example with Potential ID Swaps
@@ -217,7 +236,7 @@ for i, individual in enumerate(ds_proofread.individuals.values):
         # Plot original trajectory from proofread dataset (more reliable)
         pos = ds_proofread.position.sel(individuals=individual)
         plot_centroid_trajectory(pos, ax=axes[i])
-        axes[i].set_title(f'Original: {individual}')
+        axes[i].set_title(f"Original: {individual}")
         axes[i].invert_yaxis()
 
 # Fuse and plot the tracks for each mouse in the second row
@@ -226,7 +245,7 @@ for i, individual in enumerate(ds_proofread.individuals.values):
         # Get the individual datasets
         individual_ds_proofread = ds_proofread.sel(individuals=individual)
         individual_ds_mixed = ds_mixed.sel(individuals=individual)
-        
+
         # Fuse the tracks with the Kalman filter (can be replaced with other methods)
         fused_track = fuse_tracks(
             datasets=[individual_ds_proofread, individual_ds_mixed],
@@ -234,13 +253,13 @@ for i, individual in enumerate(ds_proofread.individuals.values):
             keypoint="centroid",
             # More weight to the proofread dataset (considered more reliable)
             measurement_noise_scales=[0.1, 0.3],
-            print_report=False
+            print_report=False,
         )
-        
+
         # Plot the fused track
-        plot_centroid_trajectory(fused_track, ax=axes[i+3])
-        axes[i+3].set_title(f'Fused: {individual}')
-        axes[i+3].invert_yaxis()
+        plot_centroid_trajectory(fused_track, ax=axes[i + 3])
+        axes[i + 3].set_title(f"Fused: {individual}")
+        axes[i + 3].invert_yaxis()
 
 fig.tight_layout()
 
@@ -263,4 +282,4 @@ fig.tight_layout()
 #
 # For multi-animal tracking with potential ID swaps, track fusion can be particularly
 # valuable. By combining information from different tracking methods that may fail in
-# different situations, we can produce more accurate trajectories across time. 
+# different situations, we can produce more accurate trajectories across time.
