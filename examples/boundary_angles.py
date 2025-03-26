@@ -362,9 +362,10 @@ distances_exterior_fig.show()
 # %%
 # Boundary Angles
 # ---------------
-# Having observed the individuals' behaviour, we can begin to ask questions
-# about their orientation with respect to the boundary. ``movement`` currently
-# supports the computation of two such "boundary angle"s;
+# Having observed the individuals' behaviour as they pass one another in the
+# ``ring_region``, we can begin to ask questions about their orientation with
+# respect to the nest. ``movement`` currently supports the computation of two
+# such "boundary angle"s;
 #
 # - The allocentric boundary angle. Given a region of interest :math:`R`,
 #   reference vector :math:`\vec{r}` (such as global north), and a position
@@ -378,7 +379,6 @@ distances_exterior_fig.show()
 #   the signed angle between the approach vector from :math:`p` to :math:`R`,
 #   and :math:`\vec{f}`.
 #
-#
 # Note that egocentric angles are generally computed with changing frames of
 # reference in mind - the forward vector may be varying in time as the
 # individual moves around the arena. By contrast, allocentric angles are always
@@ -386,30 +386,22 @@ distances_exterior_fig.show()
 #
 # For the purposes of our example, we will define our "forward vector" as the
 # displacement vector between successive time-points, for each individual.
-# Furthermore, recall that as the individual moves through the arena, the
-# "nearest wall" may switch from the inside wall to the outside wall. This
-# causes abrupt changes in the approach vector (and hence, computed angle).
-# With this in mind, we will only consider the inner wall in the following
-# calculations.
+# We will also define our reference frame, or "global north" direction to be
+# the direction of the positive x-axis.
 
 forward_vector = positions.diff(dim="time", label="lower")
 global_north = np.array([1.0, 0.0])
 
-inner_wall = ring_region.interior_boundaries[0]
-allocentric_angles = inner_wall.compute_allocentric_angle_to_nearest_point(
+allocentric_angles = nest_region.compute_allocentric_angle_to_nearest_point(
     positions,
     reference_vector=global_north,
-    boundary_only=False,
     in_degrees=True,
 )
-egocentric_angles = inner_wall.compute_egocentric_angle_to_nearest_point(
+egocentric_angles = nest_region.compute_egocentric_angle_to_nearest_point(
     forward_vector,
     positions[:-1],
-    boundary_only=False,
     in_degrees=True,
 )
-# %%
-# Can can plot the evolution of these two angular quantities on the same axis.
 
 angle_plot, angle_ax = plt.subplots(2, 1, sharex=True)
 allo_ax, ego_ax = angle_ax
@@ -429,9 +421,7 @@ for mouse_name, col in mouse_names_and_colours:
 ego_ax.set_xlabel("Time (frames)")
 
 ego_ax.set_ylabel("Egocentric angle (degrees)")
-ego_ax.set_ylim(-180, 180)
 allo_ax.set_ylabel("Allocentric angle (degrees)")
-allo_ax.set_ylim(-180, 180)
 allo_ax.legend()
 
 angle_plot.tight_layout()
@@ -439,18 +429,27 @@ angle_plot.show()
 
 # %%
 # We observe that the allocentric angles display a step-like behaviour. This
-# is because the interior wall is a series of straight line segments, so the
-# approach vector to the wall is constant as the individual travels parallel
-# to that segment of wall. As the individual passes a corner in the wall, the
-# angle varies rapidly as the approach vector rotates with the individual's
-# position, before becoming constant again as the individual resumes motion
-# parallel to the next segment of the enclosure wall.
+# is because the allocentric angle is computed solely from an individual's
+# position relative to a RoI, and does not care about a forward vector. As
+# such, we see a similar shape for the graph of the allocentric angle as we did
+# for the distance to the nest (though inverted in the y-axis), with the same
+# "plateau" during the time window where the individuals are trying to pass one
+# another (hence their positions are largely constant until they find a way
+# passed one another).
 #
-# By contrast, the egocentric angles spend long periods of time fluctuating
-# near a particular angle, occasionally rapidly changing angle sign. This
-# indicates that, by-and-large, the "forward" direction of the individuals is
-# remaining constant relative to the interior wall, with the fluctuations
-# attributable to small deviations in the direction of travel. The "flipping"
-# of the angle sign indicates that the individual undertook a sudden U-turn.
-# That is, switched from travelling clockwise around the enclosure to
-# anticlockwise (or vice-versa).
+# By contrast, the egocentric angles display many large fluctuations, but
+# (excluding the time between frames 200-400 where the individuals are trying
+# to pass one another) display a slight increasing or decreasing trend. These
+# general trends are to be expected; individual ``AEON3B_TP2`` is moving
+# clockwise around the ``ring_region``, thus the angle between its forward
+# vector and the approach vector to the nest is getting shallower as it
+# continues on its path. Conversely, the other two individuals are moving
+# counter-clockwise around the ``ring_region``, so their egocentric angles are
+# gradually increasing.
+#
+# The time interval in which the individuals are attempting to pass each other
+# shows large fluctuations in egocentric angle, because the forward vectors of
+# the individuals are rapidly changing direction as they attempt to move out of
+# each other's way. The egocentric angle is sensitive to changes in the forward
+# vector, unlike the allocentric angle (which remains largely constant during
+# this time).
