@@ -113,7 +113,6 @@ central_region = PolygonOfInterest(core_boundary, name="Central region")
 # Likewise, the nest is also just a solid shape without any holes.
 # Note that we are only registering the "floor" of the nest here.
 nest_region = PolygonOfInterest(nest_corners, name="Nest region")
-
 # %%
 # To create an RoI representing the ring region, we need to provide an interior
 # boundary so that ``movement`` knows our ring region has a "hole".
@@ -286,7 +285,7 @@ distances_fig.show()
 # we have here - then the closest point within the RoI is ``p`` itself!
 #
 # In cases such as this, what we really want is the distance to the closest
-# point _on the boundary_ of ``ring_region``. In anticipation of this
+# point *on the boundary* of ``ring_region``. In anticipation of this
 # requirement, most RoI methods accept the ``boundary_only`` keyword argument.
 # In each case, the effect of passing ``boundary_only`` is the same; it toggles
 # whether interior points of an RoI should be considered part of the region
