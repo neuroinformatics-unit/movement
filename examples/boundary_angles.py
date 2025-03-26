@@ -55,8 +55,8 @@ arena_fig.show()
 # (comparatively thin) "ring", whose interior wall has gaps at regular
 # intervals to allow individuals to move from the ring to the centre of the
 # region. The nest is also accessible from the ring.
-# In this example, we will look at how we can use ``movement``s regions of
-# interest (RoIs) to analyse our sample dataset.
+# In this example, we will look at how we can use the functionality for regions
+# of interest (RoIs) provided by ``movement`` to analyse our sample dataset.
 
 # %%
 # Define Regions of Interest
@@ -64,7 +64,8 @@ arena_fig.show()
 # In order to ask questions about the behaviour of our individuals with respect
 # to the arena, we first need to define the RoIs to represent the separate
 # pieces of our arena arena programmatically. Since each part of our arena is
-# two-dimensional, we will use ``PolygonOfInterest``s to describe them.
+# two-dimensional, we will use a ``PolygonOfInterest`` to describe each of
+# them.
 #
 # The future `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
 # will support creating regions of interest by clicking points and drawing
