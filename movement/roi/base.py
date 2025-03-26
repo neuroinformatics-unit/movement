@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Sequence
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
+import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 import xarray as xr
@@ -17,7 +18,7 @@ from movement.utils.vector import compute_signed_angle_2d
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 PointLike: TypeAlias = list[float] | tuple[float, ...]
-PointLikeList: TypeAlias = Sequence[PointLike]
+PointLikeList: TypeAlias = Sequence[PointLike] | np.ndarray
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 
@@ -61,6 +62,23 @@ class BaseRegionOfInterest:
 
     _name: str | None
     _shapely_geometry: SupportedGeometry
+
+    @property
+    def _default_plot_args(self) -> dict[str, Any]:
+        """Define default plotting arguments used when drawing the region.
+
+        This argument is used inside ``self.plot``, which is implemented in the
+        base class.
+
+        This is implemented as a property for two reasons;
+        - To ensure that the defaults can be set in a single place within the
+        class definition,
+        - To allow for easy overwriting in subclasses, which will be necessary
+        given lines and polygons must be plotted differently,
+        - In future, allows us to customise the defaults on a per-region basis
+        (e.g., default labels can inherit ``self.name``).
+        """
+        return {}
 
     @property
     def coords(self) -> CoordinateSequence:
@@ -245,6 +263,7 @@ class BaseRegionOfInterest:
                 if closed
                 else shapely.LineString(coordinates=points)
             )
+            self._shapely_geometry = shapely.normalize(self._shapely_geometry)
 
     def __repr__(self) -> str:  # noqa: D105
         return str(self)
@@ -256,6 +275,11 @@ class BaseRegionOfInterest:
             f"{self.__class__.__name__} {self.name} "
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
+
+    def _plot(
+        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        raise NotImplementedError("_plot must be implemented by subclass.")
 
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
@@ -535,3 +559,29 @@ class BaseRegionOfInterest:
             ),
             in_degrees=in_degrees,
         )
+
+    def plot(
+        self, ax: plt.Axes | None = None, **matplotlib_kwargs
+    ) -> tuple[plt.Figure, plt.Axes]:
+        """Plot the region of interest on a new or existing axis.
+
+        Parameters
+        ----------
+        ax : plt.Axes, optional
+            ``matplotlib.pyplot.Axes`` object to draw the region on. A new
+            ``Figure`` and ``Axes`` will be created if not provided.
+        matplotlib_kwargs : Any
+            Keyword arguments passed to the ``matplotlib.pyplot`` plotting
+            function.
+
+        """
+        for arg, default in self._default_plot_args.items():
+            if arg not in matplotlib_kwargs:
+                matplotlib_kwargs[arg] = default
+
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
+        else:
+            fig = ax.get_figure()
+
+        return self._plot(fig, ax, **matplotlib_kwargs)

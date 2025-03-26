@@ -607,9 +607,9 @@ def test_fps_and_time_coords(
     assert ds.time_unit == expected_time_unit
     # check fps is as expected
     if bool(expected_fps):
-        assert ds.fps == expected_fps
+        assert getattr(ds, "fps", None) == expected_fps
     else:
-        assert ds.fps is None
+        assert not hasattr(ds, "fps")
     # check loading frame numbers from file
     if use_frame_numbers_from_file:
         assert_time_coordinates(
