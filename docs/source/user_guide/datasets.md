@@ -108,4 +108,4 @@ When using these public datasets in your research, please cite the original pape
 
 - CalMS21: Sun et al. (2022). "Multi-animal pose estimation, identification and tracking with DeepLabCut". Nature Methods, 19(4), 496-504. https://doi.org/10.1038/s41592-022-01426-1
 
-- Rat7M: Dunn et al. (2021). "Geometric deep learning enables 3D kinematic profiling across species and environments". Nature Methods, 18(5), 564-573. https://doi.org/10.1038/s41592-021-01106-6 
+- Rat7M: Dunn et al. (2021). "Geometric deep learning enables 3D kinematic profiling across species and environments". Nature Methods, 18(5), 564-573. https://doi.org/10.1038/s41592-021-01106-6

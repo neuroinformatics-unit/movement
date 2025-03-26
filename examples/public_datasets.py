@@ -10,7 +10,6 @@ datasets of animal poses and trajectories.
 # -------
 
 from movement import public_data
-import matplotlib.pyplot as plt
 
 # %%
 # Listing available datasets
@@ -96,4 +95,4 @@ for key, value in rat_data.attrs.items():
 # - Visualizing trajectories
 # - Computing kinematic measures
 # - Analyzing behavioral patterns
-# - Comparing across datasets 
+# - Comparing across datasets
