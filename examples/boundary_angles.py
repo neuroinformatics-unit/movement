@@ -200,45 +200,136 @@ else:
     print("At least one position was recorded outside the ring_region.")
 
 # %%
-# Compute Distance to Arena Boundary
-# ----------------------------------
-# Having defined our region of interest, we can begin to ask questions about
-# the individual's behaviour during the experiment.
-# One thing of particular interest to us might be the distance between an
-# individual and the arena walls (boundary). We can query the
-# ``PolygonOfInterest`` that we created for this information.
+# Compute Distance to the Nest
+# ----------------------------
+# Defining RoIs means that we can efficiently extract information from our data
+# that depends on the location or relative position of an individual to an RoI.
+# For example, we might be interested in how the distance between an
+# individual and the nest region changes over the course of the experiment. We
+# can query the ``nest_region`` that we created for this information.
 
-distances_to_boundary = ring_region.compute_distance_to(
-    positions, boundary_only=True
-)
+# Compute all distances to the nest; for all times, keypoints, and
+# individuals.
+distances_to_nest = nest_region.compute_distance_to(positions)
 distances_fig, distances_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_ax.plot(
-        distances_to_boundary.sel(individuals=mouse_name),
+        distances_to_nest.sel(individuals=mouse_name),
         c=col,
         label=mouse_name,
     )
 distances_ax.legend()
 distances_ax.set_xlabel("Time (frames)")
-distances_ax.set_ylabel("Distance to closest arena wall (pixels)")
+distances_ax.set_ylabel("Distance to nest_region (pixels)")
 distances_fig.show()
-# %%
-# Note that we can also obtain the approach vector for each individual, at each
-# time-point as well, using the ``compute_approach_vector`` method.
-# The distances that we computed above are just the magnitudes of the approach
-# vectors that are computed by the following command.
 
-approach_vectors = ring_region.compute_approach_vector(
-    positions, boundary_only=True
+# %%
+# We can see that the ``AEON38_TP2`` individual appears to be moving away from
+# the nest during the experiment, whilst the other two individuals are
+# approaching the nest. The "plateau" in the figure between frames 200-400 is
+# when the individuals meet in the ring_region, and remain largely stationary
+# in a group until they can pass each other.
+#
+# One other thing to note is that ``compute_distance_to`` is returning the
+# distance "as the crow flies" to the ``nest_region``. This means that
+# structures potentially in the way (such as the ``ring_region`` walls) are not
+# accounted for in this distance calculation. Further to this, the "distance to
+# a RoI" should always be understood as "the distance from a point to the
+# closest point within an RoI".
+#
+# If we wanted to check the direction of closest approach to a region, referred
+# to as the **approach vector**, we can use the ``compute_approach_vector``
+# method.
+# The distances that we computed via ``compute_distance_to`` are just the
+# magnitudes of the approach vectors.
+
+approach_vectors = nest_region.compute_approach_vector(positions)
+
+# %%
+# The ``boundary_only`` Keyword
+# -----------------------------
+# We know that our individuals spend the duration of the experiment within the
+# ``ring_region`. From our plot of the distances to the nest, we saw that there
+# appears to be a time-window in which the individuals are grouped up, possibly
+# trying to pass each other as they approach from different directions.
+# We might want to see if this is the case by examining the distance between
+# each individual and the boundary of the ``ring_region`` - if we expect the
+# individuals to move to opposite sides of the ``ring_region`` in order to pass
+# each other.
+# However, if we try the same commands as before, we will get something
+# slightly unexpected:
+
+distances_to_ring_wall = ring_region.compute_distance_to(positions)
+distances_fig, distances_ax = plt.subplots(1, 1)
+for mouse_name, col in mouse_names_and_colours:
+    distances_ax.plot(
+        distances_to_ring_wall.sel(individuals=mouse_name),
+        c=col,
+        label=mouse_name,
+    )
+distances_ax.legend()
+distances_ax.set_xlabel("Time (frames)")
+distances_ax.set_ylabel("Distance to closest ring_region wall (pixels)")
+
+print(
+    "distances_to_ring_wall are all zero:",
+    np.allclose(distances_to_ring_wall, 0.0),
 )
 
-# %%
-# That ``compute_distance_to`` is returning the distance to the closest
-# point on the arena's boundary, which could be either the interior or exterior
-# wall. If we wanted to explicitly know the distance to the exterior wall, for
-# example, we can call this on the corresponding attribute of our
-# ``PolygonOfInterest``.
+distances_fig.show()
 
+# %%
+# So why is every distance returning zero? This is because of the convention
+# for finding the nearest point in a region, that was mentioned earlier. The
+# distance of a point ``p`` to an RoI is defined as the distance from ``p`` to
+# the closest point within the RoI. However, if ``p`` is inside the RoI - like
+# we have here - then the closest point within the RoI is ``p`` itself!
+#
+# In cases such as this, what we really want is the distance to the closest
+# point _on the boundary_ of ``ring_region``. In anticipation of this
+# requirement, most RoI methods accept the ``boundary_only`` keyword argument.
+# In each case, the effect of passing ``boundary_only`` is the same; it toggles
+# whether interior points of an RoI should be considered part of the region
+# (``boundary_only = False``) or not (``boundary_only = True``). Care should be
+# taken when dealing with 1D regions of interest like segments or dividing
+# walls, since the "boundary" of a 1D object is considered to be just the
+# endpoints!
+#
+# Armed with this knowledge, we can fix the analysis we just tried to run.
+
+distances_to_ring_wall = ring_region.compute_distance_to(
+    positions, boundary_only=True
+)
+distances_fig, distances_ax = plt.subplots(1, 1)
+for mouse_name, col in mouse_names_and_colours:
+    distances_ax.plot(
+        distances_to_ring_wall.sel(individuals=mouse_name),
+        c=col,
+        label=mouse_name,
+    )
+distances_ax.legend()
+distances_ax.set_xlabel("Time (frames)")
+distances_ax.set_ylabel("Distance to closest ring_region wall (pixels)")
+
+print(
+    "distances_to_ring_wall are all zero:",
+    np.allclose(distances_to_ring_wall, 0.0),
+)
+
+distances_fig.show()
+
+# %%
+# The resulting plot looks much more like what we expect, in that we see some
+# variation in the distance to the ``ring_region`` walls now.
+# However, this again is not very helpful; ``compute_distance_to`` is returning
+# the distance to the closest point on ``ring_region``'s boundary, which could
+# be _either_ the interior or exterior wall. This means that we won't be able
+# to tell if the individuals do move to opposite walls to pass one another.
+# Instead, let's ask for the distance to the exterior wall, rather than just
+# the closest wall.
+
+# Note that the exterior_boundary of the ring_region is a 1D RoI (a series of
+# connected line segments). As such, boundary_only needs to be False.
 distances_to_exterior = ring_region.exterior_boundary.compute_distance_to(
     positions
 )
@@ -254,33 +345,19 @@ distances_exterior_ax.set_xlabel("Time (frames)")
 distances_exterior_ax.set_ylabel("Distance to exterior wall (pixels)")
 distances_exterior_fig.show()
 
-
 # %%
-# The ``boundary_only`` Keyword
-# -----------------------------
-# The ``boundary_only`` argument that is passed to ``compute_distance_to``
-# should be noted. By passing this argument as ``True``, we force ``movement``
-# to compute the distance to the boundary of our region of interest. If we
-# passed this value as ``False``, then ``movement`` would treat points inside
-# the region as being a distance 0 from the region - and so the resulting
-# distances would all be 0!
-
-distances_to_region = ring_region.compute_distance_to(
-    positions, boundary_only=False
-)
-
-print(
-    "distances_to_region are all zero:", np.allclose(distances_to_region, 0.0)
-)
-
-# %%
-# The ``boundary_only`` keyword argument can be provided to a number of methods
-# of the ``PolygonOfInterest`` and ``LineOfInterest`` classes. In each case,
-# the effect is the same; to toggle whether interior points of the region are
-# considered part of the region (``boundary_only = False``) or not
-# (``boundary_only = True``). Care should be taken when dealing with 1D regions
-# of interest like segments or dividing walls, since the "boundary" of a 1D
-# object is considered to be just the endpoints!
+# This output is much more helpful. We see that the individuals are largely the
+# same distance from the exterior wall during frames 250-350, and then notice
+# that;
+#
+# - Individual ``AEON_TP1`` moves far away from the exterior wall,
+# - ``AEON3B_NTP`` moves almost up to the exterior wall,
+# - and ``AEON3B_TP2`` seems to remain between the other two individuals.
+#
+# After frame 400, the individuals appear to go back to chaotic distances from
+# the exterior wall again, which is consistent with them having passed each
+# other in the ``ring_region`` and once again having the entire width of the
+# ring to explore.
 
 # %%
 # Boundary Angles
