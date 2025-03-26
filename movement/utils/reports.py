@@ -41,9 +41,6 @@ def calculate_nan_stats(
 
     """
     selection_criteria = {}
-    # Only select dimensions that exist in the DataArray
-
-    # Handle existing dimensions
     if individual is not None and "individuals" in data.dims:
         selection_criteria["individuals"] = individual
     if keypoint is not None and "keypoints" in data.dims:
@@ -59,7 +56,6 @@ def calculate_nan_stats(
     else:
         null_mask = selected_data.isnull()
 
-    # Sum all dimensions except time to get scalar
     n_nans = null_mask.sum().item()
     n_points = selected_data.time.size
     percent_nans = (
@@ -100,15 +96,16 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     # Compile the report
     label = label or da.name or "dataset"
     nan_report = f"\nMissing points (marked as NaN) in {label}"
-
-    # Add space dimension note if present
     if "space" in da.dims:
         nan_report += " (any spatial coordinate)"
+    null_mask = da.isnull().any("space") if "space" in da.dims else da.isnull()
 
-    # Handle individuals dimension
+    total_time = da.sizes["time"]
+    nan_counts = null_mask.sum("time")
+    nan_percent = (nan_counts / total_time * 100).round(1)
+
+    # Handle dimensions
     individuals = da.individuals.values if "individuals" in da.dims else [None]
-
-    # Handle keypoints dimension
     keypoints = da.keypoints.values if "keypoints" in da.dims else [None]
 
     for ind in individuals:
@@ -116,10 +113,19 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
             nan_report += f"\n\tIndividual: {ind}"
 
         for kp in keypoints:
-            nan_report += calculate_nan_stats(
-                da,
-                keypoint=kp if "keypoints" in da.dims else None,
-                individual=ind if "individuals" in da.dims else None,
+            selection = {}
+            if "individuals" in da.dims:
+                selection["individuals"] = ind
+            if "keypoints" in da.dims:
+                selection["keypoints"] = kp
+
+            count = nan_counts.sel(selection).item()
+            percent = nan_percent.sel(selection).item()
+
+            label_line = kp if "keypoints" in da.dims else "data"
+
+            nan_report += (
+                f"\n\t\t{label_line}: {int(count)}/{total_time} ({percent}%)"
             )
 
     logger.info(nan_report)
