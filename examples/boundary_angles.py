@@ -18,7 +18,7 @@ import numpy as np
 import xarray as xr
 
 from movement import sample_data
-from movement.plots import plot_trajectory
+from movement.plots import plot_centroid_trajectory
 from movement.roi import PolygonOfInterest
 
 # %%
@@ -32,11 +32,7 @@ ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
 
 # %%
-# The individuals in this dataset follow very similar, arc-like trajectories.
-# This is because they are actually confined to an arena in the shape of an
-# "octadecagonal doughnut"; an 18-sided regular polygon, with a smaller
-# 18-sided regular polygon "cut out" of it.
-# We can visualise the arena by loading and plotting its sample frame.
+# The data we have loaded used an arena setup that we have plotted below.
 
 arena_fig, arena_ax = plt.subplots(1, 1)
 # Overlay an image of the experimental arena
@@ -51,25 +47,38 @@ arena_ax.set_ylabel("y (pixels)")
 arena_fig.show()
 
 # %%
+# The arena is divided up into three main sub-regions. The cuboidal structure
+# on the right-hand-side of the arena is the nest of the three individuals
+# taking part in the experiment. The majority of the arena is an open
+# octadecagonal (18-sided) shape, which is the bright central region that
+# encompasses most of the image. This central region is surrounded by a
+# (comparatively thin) "ring", whose interior wall has gaps at regular
+# intervals to allow individuals to move from the ring to the centre of the
+# region. The nest is also accessible from the ring.
+# In this example, we will look at how we can use ``movement``s regions of
+# interest (RoIs) to analyse our sample dataset.
+
+# %%
 # Define Regions of Interest
 # --------------------------
 # In order to ask questions about the behaviour of our individuals with respect
-# to the arena, we first need to define a region of interest to represent our
-# arena programmatically. Since our arena is two-dimensional, we use a
-# ``PolygonOfInterest`` to describe it..
+# to the arena, we first need to define the RoIs to represent the separate
+# pieces of our arena arena programmatically. Since each part of our arena is
+# two-dimensional, we will use ``PolygonOfInterest``s to describe them.
 #
 # The future `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
 # will support creating regions of interest by clicking points and drawing
 # shapes in the napari GUI. For the time being, we can still define our arena
 # by specifying the points that make up the interior and exterior boundaries.
+# So first, let's define the boundary vertices of our various regions.
 
 # The centre of the arena is located roughly here
 centre = np.array([712.5, 541])
 # The "width" (distance between the inner and outer octadecagonal rings) is 40
 # pixels wide
-width = 40.0
+ring_width = 40.0
 # The distance between opposite vertices of the outer ring is 1090 pixels
-extent = 1090.0
+ring_extent = 1090.0
 
 # Create the vertices of a "unit" octadecagon, centred on (0,0)
 n_pts = 18
@@ -81,52 +90,82 @@ unit_shape = np.array(
     dtype=complex,
 )
 # Then stretch and translate the reference to match our arena
-outer_boundary = extent / 2.0 * unit_shape.copy()
-outer_boundary = (
-    np.array([outer_boundary.real, outer_boundary.imag]).transpose() + centre
+ring_outer_boundary = ring_extent / 2.0 * unit_shape.copy()
+ring_outer_boundary = (
+    np.array([ring_outer_boundary.real, ring_outer_boundary.imag]).transpose()
+    + centre
 )
-inner_boundary = (extent - width) / 2.0 * unit_shape.copy()
-inner_boundary = (
-    np.array([inner_boundary.real, inner_boundary.imag]).transpose() + centre
+core_boundary = (ring_extent - ring_width) / 2.0 * unit_shape.copy()
+core_boundary = (
+    np.array([core_boundary.real, core_boundary.imag]).transpose() + centre
 )
 
-# Create our Region of Interest from the outer boundary points, and include a
-# hole defined by the inner boundary points.
-arena = PolygonOfInterest(outer_boundary, holes=[inner_boundary], name="Arena")
+nest_corners = ((1245, 585), (1245, 475), (1330, 480), (1330, 580))
+
+# %%
+# Our central region is a solid shape without any interior holes.
+# To create the appropriate RoI, we just pass the coordinates in either
+# clockwise or counter-clockwise order.
+
+central_region = PolygonOfInterest(core_boundary, name="Central region")
+
+# %%
+# Likewise, the nest is also just a solid shape without any holes.
+# Note that we are only registering the "floor" of the nest here.
+nest_region = PolygonOfInterest(nest_corners, name="Nest region")
+
+# %%
+# To create an RoI representing the ring region, we need to provide an interior
+# boundary so that ``movement`` knows our ring region has a "hole".
+# ``movement``s ``PolygonsOfInterest`` can actually support multiple
+# (non-overlapping) holes, which is why the ``holes`` argument takes a
+# ``list``.
+ring_region = PolygonOfInterest(
+    ring_outer_boundary, holes=[core_boundary], name="Ring region"
+)
+
+arena_fig, arena_ax = plt.subplots(1, 1)
+# Overlay an image of the experimental arena
+arena_image = sample_data.fetch_dataset_paths(
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+)["frame"]
+arena_ax.imshow(plt.imread(arena_image))
+
+central_region.plot(
+    arena_ax, color="lightblue", alpha=0.25, label=central_region.name
+)
+nest_region.plot(arena_ax, color="green", alpha=0.25, label=nest_region.name)
+ring_region.plot(arena_ax, color="blue", alpha=0.25, label=ring_region.name)
+arena_ax.legend()
+arena_fig.show()
 
 # %%
 # View Individual Paths inside the Arena
 # --------------------------------------
-# We can now overlay both our region of interest and the paths that the
-# individuals followed on top of our image of the arena.
-arena_fig, arena_ax = plt.subplots(1, 1)
-arena_ax.imshow(plt.imread(arena_image))
-arena_ax.set_xlabel("x (pixels)")
-arena_ax.set_ylabel("y (pixels)")
+# We can now overlay the paths that the individuals followed on top of our
+# image of the arena and the RoIs that we have defined.
 
-# Plot the arena
-arena_ax.plot(
-    [c[0] for c in arena.exterior_boundary.coords],
-    [c[1] for c in arena.exterior_boundary.coords],
-    "black",
-    lw=0.5,
+arena_fig, arena_ax = plt.subplots(1, 1)
+# Overlay an image of the experimental arena
+arena_image = sample_data.fetch_dataset_paths(
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+)["frame"]
+arena_ax.imshow(plt.imread(arena_image))
+
+central_region.plot(
+    arena_ax, color="lightblue", alpha=0.25, label=central_region.name
 )
-arena_ax.plot(
-    [c[0] for c in arena.interior_boundaries[0].coords],
-    [c[1] for c in arena.interior_boundaries[0].coords],
-    "black",
-    lw=0.5,
-)
+nest_region.plot(arena_ax, color="green", alpha=0.25, label=nest_region.name)
+ring_region.plot(arena_ax, color="blue", alpha=0.25, label=ring_region.name)
 
 # Plot trajectories of the individuals
 mouse_names_and_colours = list(
     zip(positions.individuals.values, ["r", "g", "b"], strict=False)
 )
 for mouse_name, col in mouse_names_and_colours:
-    plot_trajectory(
+    plot_centroid_trajectory(
         positions,
         individual=mouse_name,
-        keypoints="centroid",
         ax=arena_ax,
         linestyle="-",
         marker=".",
@@ -140,17 +179,25 @@ arena_ax.legend()
 arena_fig.show()
 
 # %%
-# And we can confirm that all individuals, at all time-points, are indeed
-# contained within our arena.
-were_inside = arena.contains_point(positions).all()
+# At a glance, it looks like all the individuals remained inside the
+# ring-region for the duration of the experiment. We can ask that ``movement``
+# check whether this was actually the case, by asking the ``ring_region`` to
+# check if the individuals' locations were inside it, at all recorded
+# time-points.
 
-if were_inside:
+# This is a DataArray with dimensions: time, keypoint, and individual.
+# The values of the DataArray are True/False values, indicating if at the given
+# time, the keypoint of individual was inside ring_region.
+individual_was_inside = ring_region.contains_point(positions)
+all_individuals_in_ring_at_all_times = individual_was_inside.all()
+
+if all_individuals_in_ring_at_all_times:
     print(
         "All recorded positions, at all times,\n"
-        "and for all individuals, were inside the arena."
+        "and for all individuals, were inside ring_region."
     )
 else:
-    print("At least one position was recorded outside the arena.")
+    print("At least one position was recorded outside the ring_region.")
 
 # %%
 # Compute Distance to Arena Boundary
@@ -161,7 +208,7 @@ else:
 # individual and the arena walls (boundary). We can query the
 # ``PolygonOfInterest`` that we created for this information.
 
-distances_to_boundary = arena.compute_distance_to(
+distances_to_boundary = ring_region.compute_distance_to(
     positions, boundary_only=True
 )
 distances_fig, distances_ax = plt.subplots(1, 1)
@@ -181,7 +228,9 @@ distances_fig.show()
 # The distances that we computed above are just the magnitudes of the approach
 # vectors that are computed by the following command.
 
-approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
+approach_vectors = ring_region.compute_approach_vector(
+    positions, boundary_only=True
+)
 
 # %%
 # That ``compute_distance_to`` is returning the distance to the closest
@@ -190,7 +239,9 @@ approach_vectors = arena.compute_approach_vector(positions, boundary_only=True)
 # example, we can call this on the corresponding attribute of our
 # ``PolygonOfInterest``.
 
-distances_to_exterior = arena.exterior_boundary.compute_distance_to(positions)
+distances_to_exterior = ring_region.exterior_boundary.compute_distance_to(
+    positions
+)
 distances_exterior_fig, distances_exterior_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_exterior_ax.plot(
@@ -214,7 +265,9 @@ distances_exterior_fig.show()
 # the region as being a distance 0 from the region - and so the resulting
 # distances would all be 0!
 
-distances_to_region = arena.compute_distance_to(positions, boundary_only=False)
+distances_to_region = ring_region.compute_distance_to(
+    positions, boundary_only=False
+)
 
 print(
     "distances_to_region are all zero:", np.allclose(distances_to_region, 0.0)
@@ -265,7 +318,7 @@ print(
 forward_vector = positions.diff(dim="time", label="lower")
 global_north = np.array([1.0, 0.0])
 
-inner_wall = arena.interior_boundaries[0]
+inner_wall = ring_region.interior_boundaries[0]
 allocentric_angles = inner_wall.compute_allocentric_angle_to_nearest_point(
     positions,
     reference_vector=global_north,
