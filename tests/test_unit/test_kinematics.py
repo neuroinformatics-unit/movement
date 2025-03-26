@@ -987,5 +987,6 @@ def test_detect_u_turns(valid_data_array_for_u_turn_detection):
         ),
     ):
         kinematics.detect_u_turns(
-            valid_data_array_for_u_turn_detection, use_direction="invalid_direction"
+            valid_data_array_for_u_turn_detection,
+            use_direction="invalid_direction",
         )
