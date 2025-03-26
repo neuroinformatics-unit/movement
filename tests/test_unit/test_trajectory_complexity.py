@@ -74,21 +74,30 @@ def test_straightness_index_straight_line(straight_trajectory):
     """Test that a straight line has straightness index close to 1."""
     result = compute_straightness_index(straight_trajectory)
     # Should be very close to 1 for a straight line
-    assert result.sel(keypoints="centroid", individual="test_subject").item() > 0.99
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        > 0.99
+    )
 
 
 def test_straightness_index_zigzag(zigzag_trajectory):
     """Test that a zigzag path has straightness index less than 1."""
     result = compute_straightness_index(zigzag_trajectory)
     # Should be less than 1 for a zigzag path
-    assert result.sel(keypoints="centroid", individual="test_subject").item() < 0.9
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        < 0.9
+    )
 
 
 def test_straightness_index_circle(circular_trajectory):
     """Test that a circular path that returns to start has low straightness."""
     result = compute_straightness_index(circular_trajectory)
     # Should be very low for a circle that nearly returns to starting point
-    assert result.sel(keypoints="centroid", individual="test_subject").item() < 0.2
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        < 0.2
+    )
 
 
 def test_straightness_index_with_time_range(straight_trajectory):
@@ -98,4 +107,7 @@ def test_straightness_index_with_time_range(straight_trajectory):
         straight_trajectory, start=0.0, stop=1.0
     )
     # Should still be very close to 1 for partial straight line
-    assert result.sel(keypoints="centroid", individual="test_subject").item() > 0.99 
+    assert (
+        result.sel(keypoints="centroid", individual="test_subject").item()
+        > 0.99
+    )

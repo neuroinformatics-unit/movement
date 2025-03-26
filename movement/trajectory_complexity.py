@@ -1,15 +1,14 @@
 """Compute trajectory complexity measures.
 
-This module provides functions to compute various measures of trajectory 
-complexity, which quantify how straight or tortuous a path is. These metrics 
+This module provides functions to compute various measures of trajectory
+complexity, which quantify how straight or tortuous a path is. These metrics
 are useful for analyzing animal movement patterns across space.
 """
 
-import numpy as np
 import xarray as xr
 
-from movement.kinematics import compute_displacement, compute_path_length
-from movement.utils.logging import log_error, log_to_attrs, log_warning
+from movement.kinematics import compute_path_length
+from movement.utils.logging import log_to_attrs
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
@@ -21,12 +20,12 @@ def compute_straightness_index(
     stop: float | None = None,
 ) -> xr.DataArray:
     """Compute the straightness index of a trajectory.
-    
-    The straightness index is defined as the ratio of the Euclidean distance 
-    between the start and end points of a trajectory to the total path length. 
+
+    The straightness index is defined as the ratio of the Euclidean distance
+    between the start and end points of a trajectory to the total path length.
     Values range from 0 to 1, where 1 indicates a perfectly straight path,
     and values closer to 0 indicate more tortuous paths.
-    
+
     Parameters
     ----------
     data : xarray.DataArray
@@ -38,28 +37,29 @@ def compute_straightness_index(
     stop : float, optional
         The end time of the trajectory. If None (default),
         the maximum time coordinate in the data is used.
-        
+
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the computed straightness index,
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
-        
+
     Notes
     -----
     The straightness index (SI) is calculated as:
-    
+
     SI = Euclidean distance / Path length
-    
+
     where the Euclidean distance is the straight-line distance between the
     start and end points, and the path length is the total distance traveled
     along the trajectory.
-    
+
     References
     ----------
     .. [1] Batschelet, E. (1981). Circular statistics in biology.
            London: Academic Press.
+
     """
     validate_dims_coords(data, {"time": [], "space": []})
 
@@ -82,4 +82,4 @@ def compute_straightness_index(
     # Compute straightness index
     straightness_index = euclidean_distance / path_length
 
-    return straightness_index 
+    return straightness_index
