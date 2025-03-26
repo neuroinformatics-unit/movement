@@ -979,3 +979,13 @@ def test_detect_u_turns(valid_data_array_for_u_turn_detection):
     known_u_turn_forward_vector = np.array([True])
     assert np.all(u_turn_displacement.values == known_u_turn_displacement)
     assert np.all(u_turn_forward_vector.values == known_u_turn_forward_vector)
+    with pytest.raises(
+        ValueError,
+        match=(
+            "The parameter `use_direction` must be one of `forward_vector` "
+            " or `displacement`, but got invalid_direction."
+        ),
+    ):
+        kinematics.detect_u_turns(
+            valid_data_array_for_u_turn_detection, use_direction="invalid_direction"
+        )
