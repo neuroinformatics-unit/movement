@@ -22,7 +22,7 @@ pytest_plugins = [
 
 
 def pytest_sessionstart(session):
-    """Set up logging to file and fetch pose data file paths."""
+    """Set up logging to file and fetch test dataset file paths."""
     # Set up log file in a temporary directory
     tmp_path_factory = session.config._tmp_path_factory
     pytest.LOG_FILE = logger.configure(
@@ -30,7 +30,7 @@ def pytest_sessionstart(session):
         log_directory=tmp_path_factory.mktemp(".movement"),
         console=False,
     )
-    # Fetch pose data file paths as a dictionary
+    # Fetch test dataset file paths as a dictionary
     pytest.DATA_PATHS = {}
     for file_name in list_datasets():
         paths_dict = fetch_dataset_paths(file_name)
