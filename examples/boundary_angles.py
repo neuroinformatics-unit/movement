@@ -61,14 +61,14 @@ arena_fig.show()
 # --------------------------
 # In order to ask questions about the behaviour of our individuals with respect
 # to the arena, we first need to define the RoIs to represent the separate
-# pieces of our arena arena programmatically. Since each part of our arena is
+# pieces of our arena programmatically. Since each part of our arena is
 # two-dimensional, we will use a ``PolygonOfInterest`` to describe each of
 # them.
 #
 # In the future, the
-# `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
+# `movement plugin for napari <../user_guide/gui.md>`_
 # will support creating regions of interest by clicking points and drawing
-# shapes in the napari GUI. For the time being, we can still define our arena
+# shapes in the napari GUI. For the time being, we can still define our RoIs
 # by specifying the points that make up the interior and exterior boundaries.
 # So first, let's define the boundary vertices of our various regions.
 
@@ -127,9 +127,9 @@ arena_fig, arena_ax = plt.subplots(1, 1)
 # Overlay an image of the experimental arena
 arena_ax.imshow(plt.imread(arena_image))
 
-central_region.plot(arena_ax, color="lightblue", alpha=0.25)
-nest_region.plot(arena_ax, color="green", alpha=0.25)
-ring_region.plot(arena_ax, color="blue", alpha=0.25)
+central_region.plot(arena_ax, facecolor="lightblue", alpha=0.25)
+nest_region.plot(arena_ax, facecolor="green", alpha=0.25)
+ring_region.plot(arena_ax, facecolor="blue", alpha=0.25)
 arena_ax.legend()
 # sphinx_gallery_thumbnail_number = 2
 arena_fig.show()
@@ -145,10 +145,14 @@ arena_fig, arena_ax = plt.subplots(1, 1)
 arena_ax.imshow(plt.imread(arena_image))
 
 central_region.plot(
-    arena_ax, color="lightblue", alpha=0.25, label=central_region.name
+    arena_ax, facecolor="lightblue", alpha=0.25, label=central_region.name
 )
-nest_region.plot(arena_ax, color="green", alpha=0.25, label=nest_region.name)
-ring_region.plot(arena_ax, color="blue", alpha=0.25, label=ring_region.name)
+nest_region.plot(
+    arena_ax, facecolor="green", alpha=0.25, label=nest_region.name
+)
+ring_region.plot(
+    arena_ax, facecolor="blue", alpha=0.25, label=ring_region.name
+)
 
 # Plot trajectories of the individuals
 mouse_names_and_colours = list(
@@ -173,7 +177,7 @@ arena_fig.show()
 # %%
 # At a glance, it looks like all the individuals remained inside the
 # ring-region for the duration of the experiment. We can verify this
-# programmatically, by asking whether the``ring_region``
+# programmatically, by asking whether the ``ring_region``
 # contained the individuals' locations, at all recorded time-points.
 
 # This is a DataArray with dimensions: time, keypoint, and individual.
@@ -191,8 +195,8 @@ else:
     print("At least one position was recorded outside the ring_region.")
 
 # %%
-# Compute distance to the nest
-# ----------------------------
+# Compute the distance to the nest
+# --------------------------------
 # Defining RoIs means that we can efficiently extract information from our data
 # that depends on the location or relative position of an individual to an RoI.
 # For example, we might be interested in how the distance between an
@@ -215,8 +219,8 @@ distances_ax.set_ylabel("Distance to nest_region (pixels)")
 distances_fig.show()
 
 # %%
-# We can see that the ``AEON38_TP2`` individual appears to be towards the nest
-# during the experiment, whilst the other two individuals are
+# We can see that the ``AEON38_TP2`` individual appears to be moving towards
+# the nest during the experiment, whilst the other two individuals are
 # moving away from the nest. The "plateau" in the figure between frames 200-400
 # is when the individuals meet in the ``ring_region``, and remain largely
 # stationary in a group until they can pass each other.
@@ -429,4 +433,5 @@ angle_plot.show()
 #
 # During frames 200-400, rapid changes in direction cause large fluctuations in
 # the egocentric angles of all the individuals, reflecting the individuals'
-# attempts to avoid each other.
+# attempts to avoid colliding with (and to make space to move passed) each
+# other.
