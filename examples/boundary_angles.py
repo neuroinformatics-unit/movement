@@ -44,14 +44,14 @@ arena_ax.set_ylabel("y (pixels)")
 arena_fig.show()
 
 # %%
-# The arena is divided up into three main sub-regions. The cuboidal structure
+# The
+# `arena <https://sainsburywellcomecentre.github.io/aeon_docs/reference/hardware/habitat.html>`_
+# is divided up into three main sub-regions. The cuboidal structure
 # on the right-hand-side of the arena is the nest of the three individuals
 # taking part in the experiment. The majority of the arena is an open
 # octadecagonal (18-sided) shape, which is the bright central region that
 # encompasses most of the image. This central region is surrounded by a
-# (comparatively thin) "ring", whose interior wall has gaps at regular
-# intervals to allow individuals to move from the ring to the centre of the
-# region. The nest is also accessible from the ring.
+# (comparatively thin) "ring", which links the central region to the nest.
 # In this example, we will look at how we can use the functionality for regions
 # of interest (RoIs) provided by ``movement`` to analyse our sample dataset.
 
@@ -64,7 +64,8 @@ arena_fig.show()
 # two-dimensional, we will use a ``PolygonOfInterest`` to describe each of
 # them.
 #
-# The future `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
+# In the future, the
+# `movement plugin for napari <https://github.com/neuroinformatics-unit/movement/pull/393>`_
 # will support creating regions of interest by clicking points and drawing
 # shapes in the napari GUI. For the time being, we can still define our arena
 # by specifying the points that make up the interior and exterior boundaries.
@@ -131,6 +132,7 @@ central_region.plot(
 nest_region.plot(arena_ax, color="green", alpha=0.25, label=nest_region.name)
 ring_region.plot(arena_ax, color="blue", alpha=0.25, label=ring_region.name)
 arena_ax.legend()
+# sphinx_gallery_thumbnail_number = 2
 arena_fig.show()
 
 # %%
@@ -214,10 +216,10 @@ distances_ax.set_ylabel("Distance to nest_region (pixels)")
 distances_fig.show()
 
 # %%
-# We can see that the ``AEON38_TP2`` individual appears to be moving away from
-# the nest during the experiment, whilst the other two individuals are
-# approaching the nest. The "plateau" in the figure between frames 200-400 is
-# when the individuals meet in the ``ring_region``, and remain largely
+# We can see that the ``AEON38_TP2`` individual appears to be towards the nest
+# during the experiment, whilst the other two individuals are
+# moving away from the nest. The "plateau" in the figure between frames 200-400
+# is when the individuals meet in the ``ring_region``, and remain largely
 # stationary in a group until they can pass each other.
 #
 # One other thing to note is that ``compute_distance_to`` is returning the
@@ -406,7 +408,7 @@ angle_plot.tight_layout()
 angle_plot.show()
 
 # %%
-# Allocentric angles show step-like behavior because they only depend on an
+# Allocentric angles show step-like behaviour because they only depend on an
 # individual's position relative to the RoI, not their forward vector. This
 # makes the allocentric angle graph resemble the distance-to-nest graph
 # (inverted on the y-axis), with a "plateau" during frames 200-400 when the
@@ -415,10 +417,10 @@ angle_plot.show()
 # Egocentric angles, on the other hand, fluctuate more due to their sensitivity
 # to changes in the forward vector. Outside frames 200-400, we see trends:
 #
-# - ``AEON3B_TP2`` moves counter-clockwise around the ring, so its egocentric
+# - ``AEON3B_TP2`` moves clockwise around the ring, so its egocentric
 #   angle decreases ever so slightly with time.
-# - The other two individuals move clockwise, so their angles show a gradual
-#   increase with time.
+# - The other two individuals move counter-clockwise, so their angles show a
+#   gradual increase with time.
 #
 # During frames 200-400, rapid changes in direction cause large fluctuations in
 # egocentric angles, reflecting the individuals' attempts to avoid each other.
