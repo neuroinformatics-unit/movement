@@ -78,7 +78,11 @@ class BaseRegionOfInterest:
         - In future, allows us to customise the defaults on a per-region basis
         (e.g., default labels can inherit ``self.name``).
         """
-        return {}
+        kwargs = {}
+        if self.name:
+            kwargs["label"] = self.name
+
+        return kwargs
 
     @property
     def coords(self) -> CoordinateSequence:

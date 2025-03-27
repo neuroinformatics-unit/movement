@@ -127,11 +127,9 @@ arena_fig, arena_ax = plt.subplots(1, 1)
 # Overlay an image of the experimental arena
 arena_ax.imshow(plt.imread(arena_image))
 
-central_region.plot(
-    arena_ax, color="lightblue", alpha=0.25, label=central_region.name
-)
-nest_region.plot(arena_ax, color="green", alpha=0.25, label=nest_region.name)
-ring_region.plot(arena_ax, color="blue", alpha=0.25, label=ring_region.name)
+central_region.plot(arena_ax, color="lightblue", alpha=0.25)
+nest_region.plot(arena_ax, color="green", alpha=0.25)
+ring_region.plot(arena_ax, color="blue", alpha=0.25)
 arena_ax.legend()
 # sphinx_gallery_thumbnail_number = 2
 arena_fig.show()
