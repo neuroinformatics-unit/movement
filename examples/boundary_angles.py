@@ -17,6 +17,7 @@ import numpy as np
 import xarray as xr
 
 from movement import sample_data
+from movement.kinematics import compute_velocity
 from movement.plots import plot_centroid_trajectory
 from movement.roi import PolygonOfInterest
 
@@ -365,11 +366,13 @@ distances_exterior_fig.show()
 # computed with respect to some fixed reference frame.
 #
 # For the purposes of our example, we will define our "forward vector" as the
-# displacement vector between successive time-points, for each individual.
-# We will also define our reference frame, or "global north" direction to be
+# velocity vector between successive time-points, for each individual - we can
+# compute this from ``positions`` using the ``compute_velocity`` function in
+# ``movement.kinematics``.
+# We will also define our reference frame, or "global north" direction, to be
 # the direction of the positive x-axis.
 
-forward_vector = positions.diff(dim="time", label="lower")
+forward_vector = compute_velocity(positions)
 global_north = np.array([1.0, 0.0])
 
 allocentric_angles = nest_region.compute_allocentric_angle_to_nearest_point(
@@ -412,15 +415,20 @@ angle_plot.show()
 # individual's position relative to the RoI, not their forward vector. This
 # makes the allocentric angle graph resemble the distance-to-nest graph
 # (inverted on the y-axis), with a "plateau" during frames 200-400 when the
-# individuals are stationary while passing each other.
+# individuals are (largely) stationary while passing each other.
 #
 # Egocentric angles, on the other hand, fluctuate more due to their sensitivity
 # to changes in the forward vector. Outside frames 200-400, we see trends:
 #
 # - ``AEON3B_TP2`` moves clockwise around the ring, so its egocentric
-#   angle decreases ever so slightly with time.
+#   angle decreases ever so slightly with time - almost hitting an angle of 0
+#   degrees as it moves along the direction of closest approach after passing
+#   the other individuals.
 # - The other two individuals move counter-clockwise, so their angles show a
-#   gradual increase with time.
+#   gradual increase with time. Because the two individuals occasionally get in
+#   each others' way, we see frequent "spikes" in their egocentric angles as
+#   their forward vectors rapidly change.
 #
 # During frames 200-400, rapid changes in direction cause large fluctuations in
-# egocentric angles, reflecting the individuals' attempts to avoid each other.
+# the egocentric angles of all the individuals, reflecting the individuals'
+# attempts to avoid each other.
