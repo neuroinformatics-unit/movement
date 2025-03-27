@@ -1,4 +1,6 @@
 from kalmenfilter import KalmanFilter
+import numpy as np
+
 F = np.array([[1, 1], [0, 1]]) 
 B = np.array([[0.5], [1]])     
 H = np.array([[1, 0]])         
