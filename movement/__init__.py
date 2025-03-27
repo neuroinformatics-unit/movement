@@ -16,8 +16,5 @@ xr.set_options(keep_attrs=True, display_expand_data=False)
 # initialize logger upon import
 configure_logging()
 
-# Import trajectory complexity functions to make them available at package level
-from movement.trajectory_complexity import compute_straightness_index
-
 # Import public datasets module functions to make them available at package level
 from movement.public_data import list_public_datasets, get_dataset_info
