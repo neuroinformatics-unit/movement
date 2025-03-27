@@ -27,7 +27,7 @@ class MovementLogger:
 
         This method configures a rotating log file that
         logs at the DEBUG level with a maximum size of 5 MB
-        and retains the last 5 log files.
+        and retains the last log file.
         It also optionally adds a console (``sys.stderr``) handler
         that logs at the WARNING level.
 
@@ -48,7 +48,9 @@ class MovementLogger:
         self.remove()
         if console:
             self.add(sys.stderr, level="WARNING")
-        self.add(log_file, level="DEBUG", rotation="5 MB", retention=5)
+        self.add(
+            log_file, level="DEBUG", rotation="5 MB", retention=1, enqueue=True
+        )
         return log_file
 
     def _log_and_return_exception(self, log_method, message, *args, **kwargs):
