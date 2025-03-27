@@ -19,6 +19,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
         "time": ds.coords["time"].values,
         "confidence": ds["confidence"].values.flatten(),
         "frame_idx": (ds.coords["time"] * ds.attrs["fps"]).astype(int),
+        # frame idx for napari
     }
 
     # Order the columns in the dataframe ---- why?
@@ -74,6 +75,7 @@ def ds_to_napari_tracks(
     axes_reordering: tuple[int, ...] = (2, 0, 1)
     if "keypoints" in ds.coords:
         axes_reordering = (3,) + axes_reordering
+
     yx_cols = np.transpose(
         ds.position.values,  # from: frames, xy, keypoints, individuals
         axes_reordering,  # to: individuals, keypoints, frames, xy

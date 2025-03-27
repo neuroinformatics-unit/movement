@@ -71,6 +71,11 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
     n_keypoints = ds.sizes.get("keypoints", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
+    # Ensure the dataset has an fps attribute
+    # (if loaded via napari, it will always have it)
+    if "fps" not in ds.attrs:
+        ds.attrs["fps"] = 1
+
     # Convert the dataset to a napari Tracks array and properties DataFrame
     data, props = ds_to_napari_tracks(ds)
 
@@ -116,6 +121,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
         ),
         "time": expected_frame_ids,
         "confidence": confidence,
+        "frame_idx": expected_frame_ids,
     }
     expected_props = pd.DataFrame(expected_props_dict)
 

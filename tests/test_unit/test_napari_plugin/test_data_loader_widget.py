@@ -5,6 +5,9 @@ This is because mocking widget methods would not work after the widget is
 instantiated (the methods would have already been connected to signals).
 """
 
+from contextlib import nullcontext as does_not_raise
+from unittest.mock import MagicMock
+
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers.points.points import Points
@@ -54,6 +57,21 @@ def test_button_connected_to_on_clicked(
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
+
+
+# --------test connection to napari events ------------------#
+def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
+    """Test that the widget is connected to napari events."""
+    # Create a mock napari viewer
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Check that the _on_layer_deleted is a callback linked to the
+    # napari layer removal event
+    assert (
+        data_loader_widget._on_layer_deleted.__name__
+        in data_loader_widget.viewer.layers.events.removed.callback_refs
+    )
 
 
 # ------------------- tests for widget methods--------------------------------#
@@ -120,6 +138,27 @@ def test_file_filters_per_source_software(
     )
 
 
+def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
+    """Test that the frame slider check is called when a layer is removed."""
+    # Create a mock napari viewer
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Mock the frame slider check method
+    mock_frame_slider_check = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
+    )
+
+    # Add a sample layer to the viewer
+    mock_layer = Points(name="mock_layer")
+    data_loader_widget.viewer.add_layer(mock_layer)
+
+    # Delete the layer
+    data_loader_widget.viewer.layers.remove(mock_layer)
+
+    # Check that the slider check method was called
+    mock_frame_slider_check.assert_called_once()
+
+
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
     """Test that clicking 'Load' without a file path shows a warning."""
     # Instantiate the napari viewer and the data loader widget
@@ -134,8 +173,36 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 @pytest.mark.parametrize(
     "filename, source_software, tracks_array_shape",
     [
-        ("DLC_single-wasp.predictions.h5", "DeepLabCut", (2170, 4)),
-        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks", (35, 4)),
+        (
+            "VIA_single-crab_MOCA-crab-1.csv",
+            "VIA-tracks",
+            (35, 4),
+        ),  # single individual, no keypoints (bboxes)
+        (
+            "VIA_multiple-crabs_5-frames_labels.csv",
+            "VIA-tracks",
+            (430, 4),
+        ),  # multiple individuals, no keypoints (bboxes)
+        (
+            "SLEAP_single-mouse_EPM.predictions.slp",
+            "SLEAP",
+            (110910, 4),
+        ),  # single individual, multiple keypoints
+        (
+            "DLC_single-wasp.predictions.h5",
+            "DeepLabCut",
+            (2170, 4),
+        ),  # single individual, multiple keypoints
+        (
+            "DLC_two-mice.predictions.csv",
+            "DeepLabCut",
+            (1439976, 4),
+        ),  # two individuals, multiple keypoints
+        (
+            "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
+            "SLEAP",
+            (1803, 4),
+        ),  # three individuals, one keypoint
     ],
 )
 def test_on_load_clicked_with_valid_file_path(
@@ -157,6 +224,12 @@ def test_on_load_clicked_with_valid_file_path(
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
+    # Mock the _check_frame_slider_range method with
+    # side effect to monitor if it is called
+    data_loader_widget._check_frame_slider_range = MagicMock(
+        side_effect=data_loader_widget._check_frame_slider_range
+    )
+
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
@@ -175,18 +248,35 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
 
+    assert data_loader_widget.bool_not_nan is not None
+    assert data_loader_widget.color_property is not None
+
     # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted dataset to a napari Tracks array.",
         f"Tracks array shape: {tracks_array_shape}",
         "Added tracked dataset as a napari Points layer.",
+        "Added tracked dataset as a napari Tracks layer.",
     }
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
 
     # Check that a Points layer was added to the viewer
-    points_layer = data_loader_widget.viewer.layers[0]
+    points_layer = viewer.layers[0]
     assert points_layer.name == f"data: {file_path.name}"
+
+    # Check that a Tracks layer was added to the viewer
+    tracks_layer = viewer.layers[1]
+    assert tracks_layer.name == f"tracks: {file_path.name}"
+
+    # Check that the frame slider method was called
+    data_loader_widget._check_frame_slider_range.assert_called_once()
+
+    # Check that the points layer is the active one
+    assert viewer.layers.selection.active == points_layer
+
+    # Check that the frame slider is set to the first frame
+    assert viewer.dims.current_step[0] == 0
 
 
 @pytest.mark.parametrize(
@@ -203,8 +293,8 @@ def test_on_load_clicked_with_valid_file_path(
     [["centroid"], ["centroid", "left", "right"]],
     ids=["one_keypoint", "all_keypoints"],
 )
-def test_dimension_slider_matches_frames(
-    valid_dataset_with_localised_nans,
+def test_dimension_slider_with_nans(
+    valid_poses_path_and_ds_with_localised_nans,
     nan_time_location,
     nan_individuals,
     nan_keypoints,
@@ -219,7 +309,7 @@ def test_dimension_slider_matches_frames(
         "individuals": nan_individuals,
         "keypoints": nan_keypoints,
     }
-    file_path, ds = valid_dataset_with_localised_nans(nan_location)
+    file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
@@ -229,14 +319,14 @@ def test_dimension_slider_matches_frames(
     elif nan_location["time"] == "end":
         expected_frame = ds.coords["time"][-1]
 
-    # Load the poses loader widget
+    # Load the data loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = DataLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
 
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
-    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
-    poses_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
 
     # Check the data contains nans where expected
     assert (
@@ -251,12 +341,169 @@ def test_dimension_slider_matches_frames(
 
     # Call the _on_load_clicked method
     # (to pretend the user clicked "Load")
-    poses_loader_widget._on_load_clicked()
+    data_loader_widget._on_load_clicked()
 
     # Check the frame slider is set to the full range of frames
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=ds.position.shape[0] - 1, step=1.0
     )
+
+
+@pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        ["valid_poses_path_and_ds", "valid_poses_path_and_ds_short"],
+        ["valid_poses_path_and_ds_short", "valid_poses_path_and_ds"],
+    ],
+    ids=["long_first", "short_first"],
+)
+def test_dimension_slider_multiple_files(
+    list_input_data_files, make_napari_viewer_proxy, request
+):
+    """Test that the dimension slider is set to the maximum number of frames
+    when multiple files are loaded.
+    """
+    # Get the datasets to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(len(list_input_data_files))
+    ]
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load each dataset in order
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+        data_loader_widget._on_load_clicked()
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+    # Check the maximum number of frames is the number of frames
+    # in the longest dataset
+    _, ds_long = request.getfixturevalue("valid_poses_path_and_ds")
+    assert max_frames == ds_long.sizes["time"]
+
+
+@pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
+        ],  # one with NaNs at the start remains after deletion
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # one with NaNs at the end remains after deletion
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_nan_start",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # two remain after deletion, with NaNs at the start and end
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_start",
+        ],  # two remain after deletion, the longest one with NaNs at the start
+        [
+            "valid_poses_path_and_ds",
+            "valid_poses_path_and_ds_short",
+            "valid_poses_path_and_ds_nan_end",
+        ],  # two remain after deletion, the longest one with NaNs at the end
+    ],
+)
+def test_dimension_slider_with_deletion(
+    list_input_data_files,
+    make_napari_viewer_proxy,
+    request,
+):
+    """Test that the dimension slider is set to the correct range of frames
+    when loading two point layers, deleting one, and the remaining layer(s)
+    have all NaN values at the start or end.
+    """
+    # Get the input data to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(2)
+    ]
+
+    # Check the expected number of datasets have NaN values
+    # at the start or end
+    expected_datasets_with_nans = sum(
+        ["nan" in file_name for file_name in list_input_data_files]
+    )
+    actual_datasets_with_nans = sum(
+        [
+            any(
+                [
+                    ds.position.sel(time=ds.coords["time"][0])
+                    .isnull()
+                    .all()
+                    .values,
+                    ds.position.sel(time=ds.coords["time"][-1])
+                    .isnull()
+                    .all()
+                    .values,
+                ]
+            )
+            for ds in list_datasets
+        ]
+    )
+    assert actual_datasets_with_nans == expected_datasets_with_nans
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load each dataset as a points layer in napari
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+        data_loader_widget._on_load_clicked()
+
+    # Remove the first loaded layer
+    viewer.layers.remove(viewer.layers[0])
+
+    # Get maximum number of frames from the remaining layer / dataset
+    max_frames = max(ds.sizes["time"] for ds in list_datasets[1:])
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+
+def test_deletion_all_layers(make_napari_viewer_proxy):
+    """Test there are no errors when all layers are deleted."""
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load a dataset
+    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget._on_load_clicked()
+
+    # Delete all layers
+    with does_not_raise():
+        viewer.layers.clear()
 
 
 @pytest.mark.parametrize(
@@ -297,7 +544,7 @@ def test_dimension_slider_matches_frames(
         "multiple individuals, one keypoint",
     ],
 )
-def test_add_points_layer_style(
+def test_add_points_and_tracks_layer_style(
     filename,
     source_software,
     make_napari_viewer_proxy,
@@ -305,31 +552,39 @@ def test_add_points_layer_style(
     expected_color_property,
     caplog,
 ):
-    """Test that the Points layer is added to the viewer with the markers
-    and text following the expected properties.
+    """Test that the data is loaded as a Points and a Tracks layer
+    with the markers and text following the expected properties.
     """
     # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
-    loader_widget = DataLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
 
-    # Load data as a points layer
+    # Load data
     file_path = pytest.DATA_PATHS.get(filename)
-    loader_widget.file_path_edit.setText(file_path.as_posix())
-    loader_widget.source_software_combo.setCurrentText(source_software)
-    loader_widget._on_load_clicked()
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget._on_load_clicked()
 
     # Check no warnings were emitted
     log_messages = {record.getMessage() for record in caplog.records}
     assert not any("Warning" in message for message in log_messages)
 
-    # Get the points layer
-    points_layer = next(
-        layer for layer in viewer.layers if isinstance(layer, Points)
-    )
+    # Get the layers
+    points_layer = viewer.layers[0]
+    tracks_layer = viewer.layers[1]
+
+    # Check the text follows the expected property
+    assert points_layer.text.string.feature == expected_text_property
 
     # Check the color of markers and text follows the expected property
     assert points_layer._face.color_properties.name == expected_color_property
     assert points_layer.text.color.feature == expected_color_property
+    assert tracks_layer.color_by == expected_color_property + "_factorized"
 
-    # Check the text follows the expected property
-    assert points_layer.text.string.feature == expected_text_property
+    # Check the colormap for markers, text and tracks is the same
+    assert tracks_layer.colormap == points_layer.face_colormap.name
+    assert (
+        points_layer._face.categorical_colormap.colormap[ky]
+        == points_layer.text.color.colormap.colormap[ky]
+        for ky in points_layer._face.categorical_colormap.colormap
+    )

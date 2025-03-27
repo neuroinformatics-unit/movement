@@ -299,7 +299,10 @@ def fetch_dataset(
                 fps=metadata[filename]["fps"],
             )
 
-    ds.attrs["frame_path"] = file_paths["frame"]
-    ds.attrs["video_path"] = file_paths["video"]
+    if file_paths["frame"]:
+        ds.attrs["frame_path"] = file_paths["frame"].as_posix()
+
+    if file_paths["video"]:
+        ds.attrs["video_path"] = file_paths["video"].as_posix()
 
     return ds

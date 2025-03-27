@@ -111,7 +111,7 @@ import numpy as np
 
 ds = load_poses.from_numpy(
     position_array=np.random.rand(100, 2, 3, 2),
-    confidence_array=np.ones((100, 2, 3)),
+    confidence_array=np.ones((100, 3, 2)),
     individual_names=["Alice", "Bob"],
     keypoint_names=["snout", "centre", "tail_base"],
     fps=30,
@@ -313,7 +313,7 @@ ds = sample_data.fetch_dataset(filename, with_video=True)
 
 If available, the video file is downloaded and its path is stored
 in the `video_path` attribute of the dataset (i.e., `ds.video_path`).
-The value of this attribute is `None` if no video file is
+This attribute will not be set if no video is
 available for this dataset, or if you did not request it.
 
 Some datasets also include a sample frame file, which is a single
@@ -322,7 +322,7 @@ still frame extracted from the video. This can be useful for visualisation
 this file is always downloaded when fetching the dataset,
 and its path is stored in the `frame_path` attribute
 (i.e., `ds.frame_path`). If no frame file is available for the dataset,
- `ds.frame_path=None`.
+the `frame_path` attribute will not be set.
 
 :::{dropdown} Under the hood
 :color: info

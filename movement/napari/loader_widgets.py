@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from napari import layers
 from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
@@ -57,6 +58,12 @@ class DataLoader(QWidget):
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+
+        # Connect methods to napari events
+        if hasattr(self.viewer, "layers"):
+            self.viewer.layers.events.removed.connect(
+                self._on_layer_deleted, ref=True
+            )
 
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
@@ -134,6 +141,10 @@ class DataLoader(QWidget):
         # Add the file path to the line edit (text field)
         self.file_path_edit.setText(file_path)
 
+    def _on_layer_deleted(self):
+        """Check the frame slider range when a layer is deleted."""
+        self._check_frame_slider_range()
+
     def _on_load_clicked(self):
         """Load the file and add as a Points layer to the viewer."""
         # Get data from user input
@@ -156,17 +167,17 @@ class DataLoader(QWidget):
         ds = loader.from_file(file_path, source_software, fps)
         self.data, self.properties = ds_to_napari_tracks(ds)
 
+        logger.info("Converted dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
+
         # Find rows that do not contain NaN values
         self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
 
-        # Get the expected frame range
+        # Get the expected frame range for napari
         # (i.e. the number of frames in the dataset)
         self.expected_frame_range = RangeTuple(
             start=0.0, stop=max(self.data[:, 1]), step=1.0
         )
-
-        logger.info("Converted dataset to a napari Tracks array.")
-        logger.debug(f"Tracks array shape: {self.data.shape}")
 
         # Set property to color points and tracks by
         self._set_common_color_property()
@@ -177,7 +188,10 @@ class DataLoader(QWidget):
 
         # Ensure the frame slider reflects the total number of frames
         # over all loaded layers
-        self._set_frame_slider()
+        self._check_frame_slider_range()
+
+        # Set the frame slider position
+        self._set_frame_slider_position()
 
         # Set points layer as active
         self.viewer.layers.selection.active = self.points_layer
@@ -195,27 +209,48 @@ class DataLoader(QWidget):
             color_prop = "keypoint"
         self.color_property = color_prop
 
-    def _set_frame_slider(self):
+    def _check_frame_slider_range(self):
+        """Check the frame slider range and update it if necessary.
+
+        This is required because if the data loaded starts or ends
+        with all NaN values, the frame slider range will not reflect
+        the full range of frames.
+        """
+        # If no layers are loaded or no Points layers are loaded, do nothing
+        if not self.viewer.layers or not any(
+            isinstance(ly, layers.Points) for ly in self.viewer.layers
+        ):
+            return
+
+        # Get the maximum frame index from all loaded layers
+        max_frame_idx = max(
+            [
+                ly.metadata["max_frame_idx"]
+                for ly in self.viewer.layers
+                if isinstance(ly, layers.Points)
+                and hasattr(ly, "metadata")
+                and "max_frame_idx" in ly.metadata
+            ]
+        )
+
+        # If the frame slider range is not set to the full range of frames,
+        # update it.
+        # Note: the start frame may be different from 0 if all the data
+        # at the first frame is NaN
+        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+            int(self.viewer.dims.range[0].start) != 0
+        ):
+            self.viewer.dims.range = (
+                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+            ) + self.viewer.dims.range[1:]
+
+    def _set_frame_slider_position(self):
         """Set the dimension slider to match the number of frames.
 
         The maximum value of the slider is set to the number of frames
         in the dataset. The slider position is also set to the first frame
         so that the first view is not cluttered with tracks.
         """
-        # Ensure the frame slider reflects the max number of frames
-        # over all loaded layers
-        max_frame_idx = max(
-            [
-                ly.metadata["max_frame_idx"]
-                for ly in self.viewer.layers
-                if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
-            ]
-        )
-        if self.viewer.dims.range[0].stop != max_frame_idx:
-            self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0)
-            ) + self.viewer.dims.range[1:]
-
         # Set slider to first frame so that first view is not cluttered
         # with tracks
         default_current_step = self.viewer.dims.current_step
@@ -243,9 +278,7 @@ class DataLoader(QWidget):
 
         # Add data as a points layer
         self.points_layer = self.viewer.add_points(
-            self.data[
-                self.bool_not_nan, 1:
-            ],  # data columns: (track_id), frame_idx, y, x
+            self.data[self.bool_not_nan, 1:],  # (track_id), frame_idx, y, x
             properties=self.properties.iloc[self.bool_not_nan, :],
             **points_style.as_kwargs(),
         )
@@ -253,8 +286,9 @@ class DataLoader(QWidget):
         # Add metadata to the layer
         self.points_layer.metadata = {"max_frame_idx": max(self.data[:, 1])}
 
-        # Set up callback to showing 5 previous points for a given frame
-        # position
+        # Set up callback for this layer to show 5 previous points
+        # for a given frame position
+        # Should this go here?
         self.viewer.dims.events.current_step.connect(
             self._prior_points_callback()
         )
@@ -297,6 +331,8 @@ class DataLoader(QWidget):
         """
 
         def callback_func(event):
+            # TODO: Should be called for all layers, not just the last one!
+
             # Select points that are 5 frames before the current frame
             # Note: self.points_layer is the last loaded layer
             slc_prior_frames = np.logical_and(
