@@ -73,6 +73,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
     @property
     def _default_plot_args(self) -> dict[str, Any]:
         return {
+            **super()._default_plot_args,
             "facecolor": "lightblue",
             "edgecolor": "black",
         }
