@@ -21,7 +21,7 @@ from movement.plots import plot_centroid_trajectory
 from movement.roi import PolygonOfInterest
 
 # %%
-# Load Sample Dataset
+# Load sample dataset
 # -------------------
 # In this example, we will use the ``SLEAP_three-mice_Aeon_proofread`` example
 # dataset. We only need the ``position`` data array, so we store it in a
@@ -56,7 +56,7 @@ arena_fig.show()
 # of interest (RoIs) provided by ``movement`` to analyse our sample dataset.
 
 # %%
-# Define Regions of Interest
+# Define regions of interest
 # --------------------------
 # In order to ask questions about the behaviour of our individuals with respect
 # to the arena, we first need to define the RoIs to represent the separate
@@ -134,7 +134,7 @@ arena_ax.legend()
 arena_fig.show()
 
 # %%
-# View Individual Paths inside the Arena
+# View individual paths inside the arena
 # --------------------------------------
 # We can now overlay the paths that the individuals followed on top of our
 # image of the arena and the RoIs that we have defined.
@@ -190,7 +190,7 @@ else:
     print("At least one position was recorded outside the ring_region.")
 
 # %%
-# Compute Distance to the Nest
+# Compute distance to the nest
 # ----------------------------
 # Defining RoIs means that we can efficiently extract information from our data
 # that depends on the location or relative position of an individual to an RoI.
@@ -236,12 +236,12 @@ distances_fig.show()
 approach_vectors = nest_region.compute_approach_vector(positions)
 
 # %%
-# The ``boundary_only`` Keyword
+# The ``boundary_only`` keyword
 # -----------------------------
 # From our plot of the distances to the nest, we saw a time-window
 # in which the individuals are grouped up, possibly trying to pass each other
 # as they approach from different directions.
-# We might be intereseted in whether they move to opposite walls of the ring
+# We might be interested in whether they move to opposite walls of the ring
 # while doing so. To examine this, we can plot the distance between each
 # individual and the ``ring_region``, using the same commands as above.
 #
@@ -338,7 +338,7 @@ distances_exterior_fig.show()
 # ring to explore.
 
 # %%
-# Boundary Angles
+# Boundary angles
 # ---------------
 # Having observed the individuals' behaviour as they pass one another in the
 # ``ring_region``, we can begin to ask questions about their orientation with
