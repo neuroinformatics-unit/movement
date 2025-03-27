@@ -416,11 +416,11 @@ angle_plot.show()
 # Egocentric angles, on the other hand, fluctuate more due to their sensitivity
 # to changes in the forward vector. Outside frames 200-400, we see trends:
 #
-# - ``AEON3B_TP2`` moves clockwise around the ring, so its egocentric
+# - ``AEON3B_TP2`` moves counter-clockwise around the ring, so its egocentric
 #   angle decreases ever so slightly with time - almost hitting an angle of 0
 #   degrees as it moves along the direction of closest approach after passing
 #   the other individuals.
-# - The other two individuals move counter-clockwise, so their angles show a
+# - The other two individuals move clockwise, so their angles show a
 #   gradual increase with time. Because the two individuals occasionally get in
 #   each others' way, we see frequent "spikes" in their egocentric angles as
 #   their forward vectors rapidly change.
