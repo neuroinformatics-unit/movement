@@ -1,3 +1,4 @@
+import re
 from collections.abc import Iterable
 from contextlib import nullcontext as does_not_raise
 
@@ -251,13 +252,34 @@ class TestComputeSignedAngle:
                 [np.pi, np.pi],
                 id="Rotation by '-pi' should map to pi.",
             ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                np.zeros(shape=(3, 3, 3)),
+                ValueError("v must be 1D or 2D, but got 3D"),
+                id="Error: v is not 1 or 2 dimensional",
+            ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                "this is not an array",
+                TypeError(
+                    "v must be an xarray.DataArray or np.ndarray, "
+                    "but got <class 'str'>"
+                ),
+                id="Error: v is not an array or DataArray",
+            ),
+            pytest.param(
+                np.array([-x_axis, x_axis]),
+                np.zeros((3, 2)),
+                ValueError("conflicting sizes for dimension 'time'"),
+                id="Error: v has incompatible shape",
+            ),
         ],
     )
     def test_compute_signed_angle_2d(
         self,
         left_vector: xr.DataArray | np.ndarray,
         right_vector: xr.DataArray | np.ndarray,
-        expected_angles: xr.DataArray,
+        expected_angles: xr.DataArray | Exception,
     ) -> None:
         """Test computed angles are what we expect.
 
@@ -275,29 +297,35 @@ class TestComputeSignedAngle:
                     "space": ["x", "y"],
                 },
             )
-        if not isinstance(expected_angles, xr.DataArray):
-            expected_angles = xr.DataArray(
-                data=np.array(expected_angles),
-                dims=["time"],
-                coords={"time": left_vector["time"]}
-                if "time" in left_vector.dims
-                else None,
+        if isinstance(expected_angles, Exception):
+            with pytest.raises(
+                type(expected_angles), match=re.escape(str(expected_angles))
+            ):
+                vector.compute_signed_angle_2d(left_vector, right_vector)
+        else:
+            if not isinstance(expected_angles, xr.DataArray):
+                expected_angles = xr.DataArray(
+                    data=np.array(expected_angles),
+                    dims=["time"],
+                    coords={"time": left_vector["time"]}
+                    if "time" in left_vector.dims
+                    else None,
+                )
+            # pi and -pi should map to the same angle, regardless!
+            expected_angles_reversed = expected_angles.copy(deep=True)
+            expected_angles_reversed[expected_angles < np.pi] *= -1.0
+
+            computed_angles = vector.compute_signed_angle_2d(
+                left_vector, right_vector
             )
-        # pi and -pi should map to the same angle, regardless!
-        expected_angles_reversed = expected_angles.copy(deep=True)
-        expected_angles_reversed[expected_angles < np.pi] *= -1.0
+            computed_angles_reversed = vector.compute_signed_angle_2d(
+                left_vector, right_vector, v_as_left_operand=True
+            )
 
-        computed_angles = vector.compute_signed_angle_2d(
-            left_vector, right_vector
-        )
-        computed_angles_reversed = vector.compute_signed_angle_2d(
-            left_vector, right_vector, v_as_left_operand=True
-        )
-
-        xr.testing.assert_allclose(computed_angles, expected_angles)
-        xr.testing.assert_allclose(
-            computed_angles_reversed, expected_angles_reversed
-        )
+            xr.testing.assert_allclose(computed_angles, expected_angles)
+            xr.testing.assert_allclose(
+                computed_angles_reversed, expected_angles_reversed
+            )
 
     @pytest.mark.parametrize(
         ["extra_dim_sizes"],
