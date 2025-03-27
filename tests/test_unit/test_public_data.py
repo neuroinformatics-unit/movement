@@ -1,7 +1,8 @@
 """Test suite for the public_data module."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from movement import public_data
 
@@ -24,7 +25,7 @@ def test_get_dataset_info():
     assert "url" in info
     assert "paper" in info
     assert "license" in info
-    
+
     # Test invalid dataset
     with pytest.raises(ValueError, match="Unknown dataset"):
         public_data.get_dataset_info("nonexistent_dataset")
@@ -85,4 +86,4 @@ def test_fetch_rat7m_valid_inputs(subset):
 def test_fetch_rat7m_invalid_inputs():
     """Test fetching Rat7M dataset with invalid inputs."""
     with pytest.raises(ValueError, match="Invalid subset"):
-        public_data.fetch_rat7m(subset="invalid") 
+        public_data.fetch_rat7m(subset="invalid")
