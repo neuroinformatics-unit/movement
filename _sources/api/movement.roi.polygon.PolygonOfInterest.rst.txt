@@ -33,6 +33,9 @@ PolygonOfInterest
    
    
    
+   
+   
+   
 
    
    .. rubric:: Methods
@@ -57,6 +60,9 @@ PolygonOfInterest
    
    
       ~PolygonOfInterest.contains_point
+   
+   
+      ~PolygonOfInterest.plot
    
    
    

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -407,7 +407,6 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span>
@@ -495,112 +494,6 @@
 
     <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">error_message</span><span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="validate_reference_vector">
-<a class="viewcode-back" href="../../../api/movement.validators.arrays.validate_reference_vector.html#movement.validators.arrays.validate_reference_vector">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">validate_reference_vector</span><span class="p">(</span>
-    <span class="n">reference_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">test_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate a reference vector being used in a calculation.</span>
-
-<span class="sd">    Reference vectors must contain the same number of time points as the</span>
-<span class="sd">    ``test_vector``, in order to be used in computations with them.</span>
-<span class="sd">    Vector-like objects that are passed in are converted into ``xr.DataArray``s</span>
-<span class="sd">    and inherit the ``test_vector``s ``&quot;time&quot;`` axis.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    reference_vector : xarray.DataArray | numpy.ndarray</span>
-<span class="sd">        The reference vector to validate, and convert if necessary.</span>
-<span class="sd">    test_vector : xarray.DataArray</span>
-<span class="sd">        The test vector to compare against. The reference vector must have</span>
-<span class="sd">        the same number of time points as the test vector.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.DataArray</span>
-<span class="sd">        A validated xarray DataArray.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If shape or dimensions do not match the expected form.</span>
-<span class="sd">    TypeError</span>
-<span class="sd">        If reference_vector is neither a NumPy array nor an xarray DataArray.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="c1"># Check shape: must be 1D or 2D</span>
-        <span class="k">if</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">,</span>
-                <span class="s2">&quot;Reference vector must be 1D or 2D, but got &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">reference_vector</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D array.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="c1"># Reshape 1D -&gt; (1, -1) so axis 0 can be &#39;time&#39;</span>
-        <span class="k">if</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">reference_vector</span> <span class="o">=</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="c1"># If multiple time points, must match test_vector time length</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">reference_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
-            <span class="ow">and</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">test_vector</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">,</span>
-                <span class="s2">&quot;Reference vector must have the same number of time &quot;</span>
-                <span class="s2">&quot;points as the test vector.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Decide whether we have (time, space) or just (space)</span>
-        <span class="k">if</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]}</span>
-            <span class="n">reference_vector</span> <span class="o">=</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">test_vector</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
-            <span class="p">}</span>
-
-        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">reference_vector</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">coords</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="n">coords</span><span class="o">=</span><span class="n">coords</span>
-        <span class="p">)</span>
-
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-        <span class="c1"># Must contain exactly &#39;x&#39; and &#39;y&#39; in the space dimension</span>
-        <span class="n">validate_dims_coords</span><span class="p">(</span>
-            <span class="n">reference_vector</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
-
-        <span class="c1"># If it has a time dimension, time size must match</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="s2">&quot;time&quot;</span> <span class="ow">in</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">dims</span>
-            <span class="ow">and</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">test_vector</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">,</span>
-                <span class="s2">&quot;Reference vector must have the same number of time &quot;</span>
-                <span class="s2">&quot;points as the test vector.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Only &#39;time&#39; and &#39;space&#39; are allowed</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">reference_vector</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">,</span>
-                <span class="s2">&quot;Only &#39;time&#39; and &#39;space&#39; dimensions &quot;</span>
-                <span class="s2">&quot;are allowed in reference_vector.&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">reference_vector</span>
-
-    <span class="c1"># If it&#39;s neither a DataArray nor a NumPy array</span>
-    <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-        <span class="ne">TypeError</span><span class="p">,</span>
-        <span class="s2">&quot;Reference vector must be an xarray.DataArray or np.ndarray, &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
-    <span class="p">)</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

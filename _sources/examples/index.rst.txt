@@ -136,6 +136,23 @@ Below is a gallery of examples using ``movement``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Compute distances, approach vectors, and both egocentric and allocentric boundary angles relative to regions of interest (RoIs).">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_boundary_angles_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_boundary_angles.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Compute distances and angles to regions of interest</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Load bounding box tracks and upsample them to match the video frame rate.">
 
 .. only:: html
@@ -185,6 +202,7 @@ Below is a gallery of examples using ``movement``.
    /examples/mouse_eye_movements
    /examples/compute_head_direction
    /examples/compute_kinematics
+   /examples/boundary_angles
    /examples/load_and_upsample_bboxes
    /examples/broadcasting_your_own_methods
 

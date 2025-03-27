@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -477,7 +477,6 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html">validate_reference_vector</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -566,8 +565,8 @@ converted to NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – The input data to be filtered.</p></li>
-<li><p><strong>confidence</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – The data array containing confidence scores to filter by.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – The input data to be filtered.</p></li>
+<li><p><strong>confidence</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – The data array containing confidence scores to filter by.</p></li>
 <li><p><strong>threshold</strong> (<em>float</em>) – The confidence threshold below which datapoints are filtered.
 A default value of <code class="docutils literal notranslate"><span class="pre">0.6</span></code> is used. See notes for more information.</p></li>
 <li><p><strong>print_report</strong> (<em>bool</em>) – Whether to print a report on the number of NaNs in the dataset
@@ -579,7 +578,7 @@ before and after filtering. Default is <code class="docutils literal notranslate
 user-defined threshold have been converted to NaNs.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)">xarray.DataArray</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>

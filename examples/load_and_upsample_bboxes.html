@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -55,7 +55,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Extend your analysis methods along data dimensions" href="broadcasting_your_own_methods.html" />
-    <link rel="prev" title="Compute and visualise kinematics." href="compute_kinematics.html" /> 
+    <link rel="prev" title="Compute distances and angles to regions of interest" href="boundary_angles.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -366,6 +366,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Load and upsample bounding box tracks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
 </ul>
@@ -491,11 +492,10 @@ Data variables:
     shape        (time, space, individuals) float64 560B 320.1 153.2 ... 120.1
     confidence   (time, individuals) float64 280B nan nan nan ... nan nan nan
 Attributes:
-    fps:              None
-    time_unit:        frames
     source_software:  VIA-tracks
-    source_file:      /home/runner/.movement/data/bboxes/VIA_single-crab_MOCA...
     ds_type:          bboxes
+    time_unit:        frames
+    source_file:      /home/runner/.movement/data/bboxes/VIA_single-crab_MOCA...
 </pre></div>
 </div>
 <p>We can see that the coordinates in the time dimension are expressed in
@@ -862,7 +862,7 @@ code.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.371 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.366 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-upsample-bboxes-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/load_and_upsample_bboxes.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
@@ -896,12 +896,12 @@ code.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="compute_kinematics.html"
+       href="boundary_angles.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Compute and visualise kinematics.</p>
+        <p class="prev-next-title">Compute distances and angles to regions of interest</p>
       </div>
     </a>
     <a class="right-next"

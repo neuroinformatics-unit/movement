@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -366,6 +366,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Pupil tracking</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
 </ul>
@@ -484,11 +485,11 @@ Data variables:
     position     (time, space, keypoints, individuals) float64 448kB 258.8 .....
     confidence   (time, keypoints, individuals) float64 224kB 1.0 1.0 ... 1.0
 Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
     fps:              40.0
     time_unit:        seconds
-    source_software:  DeepLabCut
     source_file:      /home/runner/.movement/data/poses/DLC_rotating-mouse_ey...
-    ds_type:          poses
     frame_path:       /home/runner/.movement/data/frames/rotating-mouse_eye-t...
     video_path:       /home/runner/.movement/data/videos/rotating-mouse_eye-t...
 </pre></div>
@@ -744,7 +745,7 @@ option for the <code class="docutils literal notranslate"><span class="pre">stat
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="smooth.html#sphx-glr-examples-smooth-py"><span class="std std-ref">Smooth pose tracks</span></a> example.</p>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.782 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.760 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-mouse-eye-movements-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/mouse_eye_movements.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />

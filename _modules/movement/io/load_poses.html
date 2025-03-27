@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -1107,13 +1107,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+        <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
     <span class="c1"># Create the time coordinate, depending on the value of fps</span>
     <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
         <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
+
+    <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
 
     <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidPosesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
     <span class="c1"># Convert data to an xarray.Dataset</span>
@@ -1130,13 +1138,7 @@
             <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">keypoint_names</span><span class="p">,</span>
             <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;fps&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span>
-            <span class="s2">&quot;time_unit&quot;</span><span class="p">:</span> <span class="n">time_unit</span><span class="p">,</span>
-            <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-            <span class="s2">&quot;source_file&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">dataset_attrs</span><span class="p">,</span>
     <span class="p">)</span>
 
 

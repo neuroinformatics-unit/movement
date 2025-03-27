@@ -110,11 +110,11 @@ Print the content of one of the datasets.
         position     (time, space, keypoints, individuals) float64 448kB 258.8 .....
         confidence   (time, keypoints, individuals) float64 224kB 1.0 1.0 ... 1.0
     Attributes:
+        source_software:  DeepLabCut
+        ds_type:          poses
         fps:              40.0
         time_unit:        seconds
-        source_software:  DeepLabCut
         source_file:      /home/runner/.movement/data/poses/DLC_rotating-mouse_ey...
-        ds_type:          poses
         frame_path:       /home/runner/.movement/data/frames/rotating-mouse_eye-t...
         video_path:       /home/runner/.movement/data/videos/rotating-mouse_eye-t...
 
@@ -674,7 +674,7 @@ option for the ``statistic`` argument, and should be more robust to outliers.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.782 seconds)
+   **Total running time of the script:** (0 minutes 3.760 seconds)
 
 
 .. _sphx_glr_download_examples_mouse_eye_movements.py:

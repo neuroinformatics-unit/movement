@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.4.0</p>
+    <p class="title logo__title">movement v0.5.0</p>
   
 </a></div>
     
@@ -477,7 +477,6 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_reference_vector.html">validate_reference_vector</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -600,6 +599,9 @@ pairs of points, to form the LoI that is to be studied.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.normal" title="movement.roi.line.LineOfInterest.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a>([on_same_side_as])</p></td>
 <td><p>Compute the unit normal to this line.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.line.LineOfInterest.plot" title="movement.roi.line.LineOfInterest.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([ax])</p></td>
+<td><p>Plot the region of interest on a new or existing axis.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -616,7 +618,7 @@ vector and a given reference vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> of spatial positions.</p></li>
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> of spatial positions.</p></li>
 <li><p><strong>boundary_only</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the allocentric angle to the closest boundary point of
 the region is computed. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>in_degrees</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
@@ -627,7 +629,7 @@ the argument of the same name that is passed to
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -652,7 +654,7 @@ segment and the <code class="docutils literal notranslate"><span class="pre">dir
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
 e.g., the forward vector(s).</p></li>
 <li><p><strong>position</strong> (<em>xr.DataArray</em>) – Spatial positions, considered the origin of the <code class="docutils literal notranslate"><span class="pre">direction</span></code>.</p></li>
 <li><p><strong>in_degrees</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
@@ -660,7 +662,7 @@ returned in radians. Default <code class="docutils literal notranslate"><span cl
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -744,9 +746,9 @@ a given individual, or the velocity vector of a given point).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
 e.g., the forward vector(s).</p></li>
-<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – <cite>DataArray</cite> of spatial positions, considered the origin of the
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – <cite>DataArray</cite> of spatial positions, considered the origin of the
 <code class="docutils literal notranslate"><span class="pre">direction</span></code> vector.</p></li>
 <li><p><strong>boundary_only</strong> (<em>bool</em>) – Passed to <code class="docutils literal notranslate"><span class="pre">compute_approach_vector</span></code> (see Notes). Default
 <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -755,7 +757,7 @@ returned in radians. Default <code class="docutils literal notranslate"><span cl
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -875,6 +877,25 @@ given. By default, the origin is used.</p>
 <p>:raises ValueError : When the normal is requested for a multi-segment geometry.:</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">matplotlib_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.line.LineOfInterest.plot" title="Link to this definition">#</a></dt>
+<dd><p>Plot the region of interest on a new or existing axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>plt.Axes</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.Axes</span></code> object to draw the region on. A new
+<code class="docutils literal notranslate"><span class="pre">Figure</span></code> and <code class="docutils literal notranslate"><span class="pre">Axes</span></code> will be created if not provided.</p></li>
+<li><p><strong>matplotlib_kwargs</strong> (<em>Any</em>) – Keyword arguments passed to the <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code> plotting
+function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.line.LineOfInterest.region">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">region</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinearRing</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">LineString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Polygon</span></em><a class="headerlink" href="#movement.roi.line.LineOfInterest.region" title="Link to this definition">#</a></dt>
@@ -948,6 +969,7 @@ given. By default, the origin is used.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.is_closed"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.name"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.name</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.normal"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.normal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.plot"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.line.LineOfInterest.region"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.region</span></code></a></li>
 </ul>
 </li>

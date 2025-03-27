@@ -39,6 +39,9 @@ LineOfInterest
    
    
    
+   
+   
+   
 
    
    .. rubric:: Methods
@@ -69,6 +72,9 @@ LineOfInterest
    
    
       ~LineOfInterest.normal
+   
+   
+      ~LineOfInterest.plot
    
    
    
