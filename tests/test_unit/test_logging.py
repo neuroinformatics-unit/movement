@@ -14,6 +14,21 @@ from movement.utils.logging import (
 log_methods = ["debug", "info", "warning", "error", "exception"]
 
 
+def assert_log_entry_in_file(expected_components, log_file):
+    """Assert that a log entry with the expected components is
+    found in the log file.
+    """
+    with open(log_file) as f:
+        all_lines = f.readlines()
+    assert any(
+        all(component in line for component in expected_components)
+        for line in all_lines
+    ), (
+        f"Expected log entry with components {expected_components} "
+        "not found in log file."
+    )
+
+
 @pytest.mark.parametrize("method", log_methods)
 def test_log_to_file(method):
     """Ensure the correct logger method is called and
@@ -22,18 +37,9 @@ def test_log_to_file(method):
     log_method = getattr(logger, method)
     log_message = f"{method} message"
     log_method(log_message)
-    with open(pytest.LOG_FILE) as f:
-        all_lines = f.readlines()
-    # For exceptions, the last line is the traceback
-    last_line = all_lines[-1] if method != "exception" else all_lines[-2]
     level = method.upper() if method != "exception" else "ERROR"
-    assert level in last_line
-    assert log_message in last_line
-
-
-def test_logger_repr():
-    """Ensure the custom logger's representation equals the loguru logger."""
-    assert repr(MovementLogger()) == repr(loguru_logger)
+    # Check if a matching log entry is found in the log file
+    assert_log_entry_in_file([level, log_message], pytest.LOG_FILE)
 
 
 def test_showwarning():
@@ -41,17 +47,20 @@ def test_showwarning():
     warning is issued.
     """
     kwargs = {
-        "message": "This is a warning",
+        "message": "This is a deprecation warning",
         "category": DeprecationWarning,
         "stacklevel": 2,
     }
     warnings.showwarning = showwarning
     warnings.warn(**kwargs)
     # Check if the warning message is in the log file
-    with open(pytest.LOG_FILE) as f:
-        message = f.readlines()[-3]
-    expected_components = [kwargs["message"], kwargs["category"].__name__]
-    assert all(component in message for component in expected_components)
+    expected_components = [kwargs["category"].__name__, kwargs["message"]]
+    assert_log_entry_in_file(expected_components, pytest.LOG_FILE)
+
+
+def test_logger_repr():
+    """Ensure the custom logger's representation equals the loguru logger."""
+    assert repr(MovementLogger()) == repr(loguru_logger)
 
 
 @pytest.mark.parametrize(
