@@ -81,7 +81,7 @@ def test_load_from_sleap_file(sleap_file, helpers):
     ds = load_poses.from_sleap_file(sleap_file)
     expected_values = {
         **expected_values_poses,
-        "source_software": "SLEAP",
+        "source_format": "SLEAP",
         "file_path": sleap_file,
     }
     helpers.assert_valid_dataset(ds, expected_values)
@@ -150,25 +150,25 @@ def test_load_from_dlc_file(file_name, helpers):
     ds = load_poses.from_dlc_file(file_path)
     expected_values = {
         **expected_values_poses,
-        "source_software": "DeepLabCut",
+        "source_format": "DeepLabCut",
         "file_path": file_path,
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
 
 @pytest.mark.parametrize(
-    "source_software", ["DeepLabCut", "LightningPose", None]
+    "source_format", ["DeepLabCut", "LightningPose", None]
 )
-def test_load_from_dlc_style_df(valid_dlc_poses_df, source_software, helpers):
+def test_load_from_dlc_style_df(valid_dlc_poses_df, source_format, helpers):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
     ds = load_poses.from_dlc_style_df(
-        valid_dlc_poses_df, source_software=source_software
+        valid_dlc_poses_df, source_format=source_format
     )
     expected_values = {
         **expected_values_poses,
-        "source_software": source_software,
+        "source_format": source_format,
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
@@ -226,7 +226,7 @@ def test_load_from_lp_file(file_name, helpers):
     ds = load_poses.from_lp_file(file_path)
     expected_values = {
         **expected_values_poses,
-        "source_software": "LightningPose",
+        "source_format": "LightningPose",
         "file_path": file_path,
     }
     helpers.assert_valid_dataset(ds, expected_values)
@@ -235,14 +235,14 @@ def test_load_from_lp_file(file_name, helpers):
 def test_load_from_lp_or_dlc_file_returns_same():
     """Test that loading a single-animal DeepLabCut-style .csv file
     using either the `from_lp_file` or `from_dlc_file` function
-    returns the same Dataset (except for the source_software).
+    returns the same Dataset (except for the source_format).
     """
     file_path = DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
     ds_drom_lp = load_poses.from_lp_file(file_path)
     ds_from_dlc = load_poses.from_dlc_file(file_path)
     xr.testing.assert_allclose(ds_from_dlc, ds_drom_lp)
-    assert ds_drom_lp.source_software == "LightningPose"
-    assert ds_from_dlc.source_software == "DeepLabCut"
+    assert ds_drom_lp.source_format == "LightningPose"
+    assert ds_from_dlc.source_format == "DeepLabCut"
 
 
 def test_load_multi_individual_from_lp_file_raises():
@@ -255,13 +255,13 @@ def test_load_multi_individual_from_lp_file_raises():
 
 
 @pytest.mark.parametrize(
-    "source_software",
+    "source_format",
     ["SLEAP", "DeepLabCut", "LightningPose", "Anipose", "Unknown"],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(source_software, fps):
+def test_from_file_delegates_correctly(source_format, fps):
     """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
+    loader function according to the source_format.
     """
     software_to_loader = {
         "SLEAP": "movement.io.load_poses.from_sleap_file",
@@ -269,17 +269,17 @@ def test_from_file_delegates_correctly(source_software, fps):
         "LightningPose": "movement.io.load_poses.from_lp_file",
         "Anipose": "movement.io.load_poses.from_anipose_file",
     }
-    if source_software == "Unknown":
+    if source_format == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
-            load_poses.from_file("some_file", source_software)
+            load_poses.from_file("some_file", source_format)
     else:
-        with patch(software_to_loader[source_software]) as mock_loader:
-            load_poses.from_file("some_file", source_software, fps)
+        with patch(software_to_loader[source_format]) as mock_loader:
+            load_poses.from_file("some_file", source_format, fps)
             mock_loader.assert_called_with("some_file", fps)
 
 
-@pytest.mark.parametrize("source_software", [None, "SLEAP"])
-def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
+@pytest.mark.parametrize("source_format", [None, "SLEAP"])
+def test_from_numpy_valid(valid_poses_arrays, source_format, helpers):
     """Test that loading pose tracks from a multi-animal numpy array
     with valid parameters returns a proper Dataset.
     """
@@ -290,18 +290,18 @@ def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
         individual_names=["id_0", "id_1"],
         keypoint_names=["centroid", "left", "right"],
         fps=None,
-        source_software=source_software,
+        source_format=source_format,
     )
     expected_values = {
         **expected_values_poses,
-        "source_software": source_software,
+        "source_format": source_format,
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
 
 def test_from_multiview_files():
     """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
+    loader function according to the source_format.
     """
     view_names = ["view_0", "view_1"]
     file_path_dict = {
@@ -309,7 +309,7 @@ def test_from_multiview_files():
         for view in view_names
     }
     multi_view_ds = load_poses.from_multiview_files(
-        file_path_dict, source_software="DeepLabCut"
+        file_path_dict, source_format="DeepLabCut"
     )
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
