@@ -1,6 +1,7 @@
 """Logging utilities for the movement package."""
 
 import sys
+import warnings
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
@@ -11,10 +12,10 @@ DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
 
 
 class MovementLogger:
-    """A custom logger extending the loguru logger."""
+    """A custom logger extending the :mod:`loguru logger <loguru._logger>`."""
 
     def __init__(self):
-        """Initialize the logger with the loguru logger."""
+        """Initialize the logger with the :mod:`loguru._logger`."""
         self.logger = loguru_logger
 
     def configure(
@@ -28,8 +29,10 @@ class MovementLogger:
         This method configures a rotating log file that
         logs at the DEBUG level with a maximum size of 5 MB
         and retains the last log file.
-        It also optionally adds a console (``sys.stderr``) handler
+        It also optionally adds a console (:obj:`sys.stderr`) handler
         that logs at the WARNING level.
+        Finally, it redirects warnings from the :mod:`warnings` module
+        to the logger.
 
         Parameters
         ----------
@@ -51,6 +54,8 @@ class MovementLogger:
         self.add(
             log_file, level="DEBUG", rotation="5 MB", retention=1, enqueue=True
         )
+        # Redirect warnings to the logger
+        warnings.showwarning = showwarning
         return log_file
 
     def _log_and_return_exception(self, log_method, message, *args, **kwargs):
@@ -60,13 +65,23 @@ class MovementLogger:
             return message
 
     def error(self, message, *args, **kwargs):
-        """Override the error method to optionally return an Exception."""
+        """Log error message and optionally return an Exception.
+
+        This method overrides loguru's
+        :meth:`logger.error() <loguru._logger.Logger.error>` to optionally
+        return an Exception if the message is an Exception.
+        """
         return self._log_and_return_exception(
             self.logger.error, message, *args, **kwargs
         )
 
     def exception(self, message, *args, **kwargs):
-        """Override the exception method to optionally return an exception."""
+        """Log error message with traceback and optionally return an Exception.
+
+        This method overrides loguru's
+        :meth:`logger.exception() <loguru._logger.Logger.exception>` to
+        optionally return an Exception if the message is an Exception.
+        """
         return self._log_and_return_exception(
             self.logger.exception, message, *args, **kwargs
         )
@@ -81,6 +96,18 @@ class MovementLogger:
 
 
 logger = MovementLogger()
+
+
+def showwarning(message, category, filename, lineno, file=None, line=None):
+    """Redirect alerts from the :mod:`warnings` module to the logger.
+
+    This function replaces :func:`logging.captureWarnings` which redirects
+    warnings issued by the :mod:`warnings` module to the logging system.
+    """
+    formatted_message = warnings.formatwarning(
+        message, category, filename, lineno, line
+    )
+    logger.opt(depth=2).warning(formatted_message)
 
 
 def log_to_attrs(func):

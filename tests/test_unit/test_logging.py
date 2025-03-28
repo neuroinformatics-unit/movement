@@ -1,8 +1,15 @@
+import warnings
+
 import pytest
 import xarray as xr
 from loguru import logger as loguru_logger
 
-from movement.utils.logging import MovementLogger, log_to_attrs, logger
+from movement.utils.logging import (
+    MovementLogger,
+    log_to_attrs,
+    logger,
+    showwarning,
+)
 
 log_methods = ["debug", "info", "warning", "error", "exception"]
 
@@ -27,6 +34,24 @@ def test_log_to_file(method):
 def test_logger_repr():
     """Ensure the custom logger's representation equals the loguru logger."""
     assert repr(MovementLogger()) == repr(loguru_logger)
+
+
+def test_showwarning():
+    """Ensure the custom ``showwarning`` function is called when a
+    warning is issued.
+    """
+    kwargs = {
+        "message": "This is a warning",
+        "category": DeprecationWarning,
+        "stacklevel": 2,
+    }
+    warnings.showwarning = showwarning
+    warnings.warn(**kwargs)
+    # Check if the warning message is in the log file
+    with open(pytest.LOG_FILE) as f:
+        message = f.readlines()[-3]
+    expected_components = [kwargs["message"], kwargs["category"].__name__]
+    assert all(component in message for component in expected_components)
 
 
 @pytest.mark.parametrize(
