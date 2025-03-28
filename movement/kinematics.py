@@ -59,6 +59,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
+    result.name = "displacement"
     return result
 
 
@@ -98,7 +99,9 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     # validate only presence of Cartesian space dimension
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
-    return compute_time_derivative(data, order=1)
+    result = compute_time_derivative(data, order=1)
+    result.name = "velocity"
+    return result
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
@@ -138,7 +141,9 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     # validate only presence of Cartesian space dimension
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
-    return compute_time_derivative(data, order=2)
+    result = compute_time_derivative(data, order=2)
+    result.name = "acceleration"
+    return result
 
 
 def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
@@ -201,7 +206,9 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         except ``space`` is removed.
 
     """
-    return compute_norm(compute_velocity(data))
+    result = compute_norm(compute_velocity(data))
+    result.name = "speed"
+    return result
 
 
 def compute_forward_vector(
@@ -351,9 +358,11 @@ def compute_head_direction_vector(
         ``keypoints`` dimension.
 
     """
-    return compute_forward_vector(
+    result = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
+    result.name = "head_direction"
+    return result
 
 
 def compute_forward_vector_angle(
@@ -864,19 +873,22 @@ def compute_path_length(
     _warn_about_nan_proportion(data, nan_warn_threshold)
 
     if nan_policy == "ffill":
-        return compute_norm(
+        result = compute_norm(
             compute_displacement(data.ffill(dim="time")).isel(
                 time=slice(1, None)
             )  # skip first displacement (always 0)
         ).sum(dim="time", min_count=1)  # return NaN if no valid segment
     elif nan_policy == "scale":
-        return _compute_scaled_path_length(data)
+        result = _compute_scaled_path_length(data)
     else:
         raise log_error(
             ValueError,
             f"Invalid value for nan_policy: {nan_policy}. "
             "Must be one of 'ffill' or 'scale'.",
         )
+
+    result.name = "path_length"
+    return result
 
 
 def _warn_about_nan_proportion(
