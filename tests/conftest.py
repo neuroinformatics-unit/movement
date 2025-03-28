@@ -40,7 +40,9 @@ def pytest_sessionstart(session):
 
 @pytest.fixture
 def caplog(caplog: LogCaptureFixture):
-    """Override the caplog fixture."""
+    """Override the caplog fixture by adding a sink
+    that propagates loguru to the caplog handler.
+    """
     handler_id = logger.add(
         caplog.handler,
         format="{message}",
