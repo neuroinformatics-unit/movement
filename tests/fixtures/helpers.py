@@ -76,9 +76,7 @@ class Helpers:
             if expected_file_path is not None
             else None
         )
-        assert dataset.source_format == expected_values.get(
-            "source_format"
-        )
+        assert dataset.source_format == expected_values.get("source_format")
         fps = getattr(dataset, "fps", None)
         assert fps == expected_values.get("fps")
 
