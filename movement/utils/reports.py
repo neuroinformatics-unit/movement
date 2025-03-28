@@ -41,17 +41,35 @@ def calculate_nan_stats(
 
     """
     selection_criteria = {}
-    if individual is not None:
+    if individual is not None and "individuals" in data.dims:
         selection_criteria["individuals"] = individual
-    if keypoint is not None:
+    if keypoint is not None and "keypoints" in data.dims:
         selection_criteria["keypoints"] = keypoint
+
     selected_data = (
         data.sel(**selection_criteria) if selection_criteria else data
     )
-    n_nans = selected_data.isnull().any(["space"]).sum(["time"]).item()
+
+    # Calculate NaNs with dimension-agnostic approach
+    if "space" in selected_data.dims:
+        null_mask = selected_data.isnull().any("space")
+    else:
+        null_mask = selected_data.isnull()
+
+    n_nans = null_mask.sum().item()
     n_points = selected_data.time.size
-    percent_nans = round((n_nans / n_points) * 100, 1)
-    return f"\n\t\t{keypoint}: {n_nans}/{n_points} ({percent_nans}%)"
+    percent_nans = (
+        round((n_nans / n_points) * 100, 1) if n_points != 0 else 0.0
+    )
+
+    # Generate label
+    label = "data"
+    if "keypoints" in data.dims and keypoint:
+        label = keypoint
+    elif "keypoints" in data.dims and not keypoint:
+        label = "all_keypoints"
+
+    return f"\n\t\t{label}: {n_nans}/{n_points} ({percent_nans}%)"
 
 
 def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
@@ -76,20 +94,39 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
 
     """
     # Compile the report
-    label = label or da.name
+    label = label or da.name or "dataset"
     nan_report = f"\nMissing points (marked as NaN) in {label}"
-    # Check if the data has individuals and keypoints dimensions
-    has_individuals_dim = "individuals" in da.dims
-    has_keypoints_dim = "keypoints" in da.dims
-    # Default values for individuals and keypoints
-    individuals = da.individuals.values if has_individuals_dim else [None]
-    keypoints = da.keypoints.values if has_keypoints_dim else [None]
+    if "space" in da.dims:
+        nan_report += " (any spatial coordinate)"
+    null_mask = da.isnull().any("space") if "space" in da.dims else da.isnull()
+
+    total_time = da.sizes["time"]
+    nan_counts = null_mask.sum("time")
+    nan_percent = (nan_counts / total_time * 100).round(1)
+
+    # Handle dimensions
+    individuals = da.individuals.values if "individuals" in da.dims else [None]
+    keypoints = da.keypoints.values if "keypoints" in da.dims else [None]
 
     for ind in individuals:
-        ind_name = ind if ind is not None else da.individuals.item()
-        nan_report += f"\n\tIndividual: {ind_name}"
+        if "individuals" in da.dims:
+            nan_report += f"\n\tIndividual: {ind}"
+
         for kp in keypoints:
-            nan_report += calculate_nan_stats(da, keypoint=kp, individual=ind)
-    # Write nan report to logger
+            selection = {}
+            if "individuals" in da.dims:
+                selection["individuals"] = ind
+            if "keypoints" in da.dims:
+                selection["keypoints"] = kp
+
+            count = nan_counts.sel(selection).item()
+            percent = nan_percent.sel(selection).item()
+
+            label_line = kp if "keypoints" in da.dims else "data"
+
+            nan_report += (
+                f"\n\t\t{label_line}: {int(count)}/{total_time} ({percent}%)"
+            )
+
     logger.info(nan_report)
     return nan_report
