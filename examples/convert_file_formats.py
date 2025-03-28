@@ -28,7 +28,7 @@ import tempfile
 from pathlib import Path
 
 from movement import sample_data
-from movement.io import load_poses, save_poses
+from movement.io import load_dataset, save_dataset
 
 # %%
 # Load the dataset
@@ -54,7 +54,7 @@ print(file_path)
 # :ref:`movement poses dataset<target-poses-and-bboxes-dataset>`,
 # which we can then modify to our liking.
 
-ds = load_poses.from_sleap_file(file_path, fps=30)
+ds = load_dataset.from_sleap_file(file_path, fps=30)
 print(ds, "\n")
 print("Individuals:", ds.coords["individuals"].values)
 print("Keypoints:", ds.coords["keypoints"].values)
@@ -166,7 +166,7 @@ print(
 target_dir = tempfile.mkdtemp()
 dest_path = Path(target_dir) / f"{file_path.stem}_dlc.csv"
 
-save_poses.to_dlc_file(ds_reordered, dest_path, split_individuals=False)
+save_dataset.to_dlc_file(ds_reordered, dest_path, split_individuals=False)
 print(f"Saved modified dataset to {dest_path}.")
 
 # %%
@@ -215,13 +215,13 @@ def convert_all(data_dir, target_dir, suffix=".slp"):
         if file_path.exists():
             print(f"Processing: {file_path}")
             # load the data from SLEAP file
-            ds = load_poses.from_sleap_file(file_path)
+            ds = load_dataset.from_sleap_file(file_path)
             # modify the data
             ds_renamed = rename_keypoints(ds, rename_dict)
             ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
             ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
             # save modified data to a DeepLabCut file
-            save_poses.to_dlc_file(
+            save_dataset.to_dlc_file(
                 ds_reordered, dest_path, split_individuals=False
             )
         else:

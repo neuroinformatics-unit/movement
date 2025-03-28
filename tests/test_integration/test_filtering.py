@@ -1,3 +1,5 @@
+"""Test suite for the filtering module."""
+
 import pytest
 
 from movement.filtering import (
@@ -5,7 +7,7 @@ from movement.filtering import (
     interpolate_over_time,
     savgol_filter,
 )
-from movement.io import load_poses
+from movement.io import load_dataset
 from movement.sample_data import fetch_dataset_paths
 
 
@@ -15,7 +17,7 @@ def sample_dataset():
     ds_path = fetch_dataset_paths("DLC_single-mouse_EPM.predictions.h5")[
         "poses"
     ]
-    ds = load_poses.from_dlc_file(ds_path)
+    ds = load_dataset.from_dlc_file(ds_path)
     return ds
 
 

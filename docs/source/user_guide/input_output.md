@@ -26,11 +26,15 @@ included with the package.
 ## Loading pose tracks
 
 The pose tracks loading functionalities are provided by the
-{mod}`movement.io.load_poses` module, which can be imported as follows:
+{mod}`movement.io.load_dataset` module, which can be imported as follows:
 
 ```python
-from movement.io import load_poses
+from movement.io import load_dataset
 ```
+
+:::{warning}
+The old module names `movement.io.load_poses` and `movement.io.save_poses` are deprecated and will be removed in a future version. Please use `movement.io.load_dataset` and `movement.io.save_dataset` instead.
+:::
 
 To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general `from_numpy()` method, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
@@ -40,17 +44,17 @@ To read a pose tracks file into a [movement poses dataset](target-poses-and-bbox
 
 To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
 ```python
-ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
+ds = load_dataset.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
 # or equivalently
-ds = load_poses.from_file(
+ds = load_dataset.from_file(
     "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
 )
 ```
-To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_poses.from_sleap_file`):
+To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_dataset.from_sleap_file`):
 
 ```python
-ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
+ds = load_dataset.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 ```
 :::
 
@@ -58,17 +62,17 @@ ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 
 To load DeepLabCut files in .h5 format:
 ```python
-ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
+ds = load_dataset.from_dlc_file("/path/to/file.h5", fps=30)
 
 # or equivalently
-ds = load_poses.from_file(
+ds = load_dataset.from_file(
     "/path/to/file.h5", source_software="DeepLabCut", fps=30
 )
 ```
 
 To load DeepLabCut files in .csv format:
 ```python
-ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
+ds = load_dataset.from_dlc_file("/path/to/file.csv", fps=30)
 ```
 :::
 
@@ -76,10 +80,10 @@ ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
 
 To load LightningPose files in .csv format:
 ```python
-ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
+ds = load_dataset.from_lp_file("/path/to/file.analysis.csv", fps=30)
 
 # or equivalently
-ds = load_poses.from_file(
+ds = load_dataset.from_file(
     "/path/to/file.analysis.csv", source_software="LightningPose", fps=30
 )
 ```
@@ -89,15 +93,14 @@ ds = load_poses.from_file(
 
 To load Anipose files in .csv format:
 ```python
-ds = load_poses.from_anipose_file(
+ds = load_dataset.from_anipose_file(
     "/path/to/file.analysis.csv", fps=30, individual_name="individual_0"
 )  # We can optionally specify the individual name, by default it is "individual_0"
 
 # or equivalently
-ds = load_poses.from_file(
+ds = load_dataset.from_file(
     "/path/to/file.analysis.csv", source_software="Anipose", fps=30, individual_name="individual_0"
 )
-
 ```
 :::
 
@@ -109,7 +112,7 @@ with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypo
 ```python
 import numpy as np
 
-ds = load_poses.from_numpy(
+ds = load_dataset.from_numpy(
     position_array=np.random.rand(100, 2, 3, 2),
     confidence_array=np.ones((100, 3, 2)),
     individual_names=["Alice", "Bob"],
@@ -185,10 +188,10 @@ For more information on the bounding boxes data structure, see the [movement bou
 formats, including DeepLabCut-style files (.h5 or .csv) and
 [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
 
-To export pose tracks from `movement`, first import the {mod}`movement.io.save_poses` module:
+To export pose tracks from `movement`, first import the {mod}`movement.io.save_dataset` module:
 
 ```python
-from movement.io import save_poses
+from movement.io import save_dataset
 ```
 
 Then, depending on the desired format, use one of the following functions:
@@ -199,7 +202,7 @@ Then, depending on the desired format, use one of the following functions:
 
 To save as a SLEAP analysis file in .h5 format:
 ```python
-save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
+save_dataset.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
 
 :::{note}
@@ -218,11 +221,11 @@ each attribute and data variable represents, see the
 
 To save as a DeepLabCut file, in .h5 or .csv format:
 ```python
-save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
-save_poses.to_dlc_file(ds, "/path/to/file.csv")
+save_dataset.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
+save_dataset.to_dlc_file(ds, "/path/to/file.csv")
 ```
 
-The {func}`movement.io.save_poses.to_dlc_file` function also accepts
+The {func}`movement.io.save_dataset.to_dlc_file` function also accepts
 a `split_individuals` boolean argument. If set to `True`, the function will
 save the data as separate single-animal DeepLabCut-style files.
 
@@ -232,13 +235,13 @@ save the data as separate single-animal DeepLabCut-style files.
 
 To save as a LightningPose file in .csv format:
 ```python
-save_poses.to_lp_file(ds, "/path/to/file.csv")
+save_dataset.to_lp_file(ds, "/path/to/file.csv")
 ```
 :::{note}
 Because LightningPose follows the single-animal
 DeepLabCut .csv format, the above command is equivalent to:
 ```python
-save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+save_dataset.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ```
 :::
 
