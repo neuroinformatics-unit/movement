@@ -26,3 +26,17 @@ def load_keypoints(file_path, fps=None, timestamps=None):
         raise ValueError("Either 'fps' or 'timestamps' must be provided.")
 
     return keypoints, times
+
+import pandas as pd
+
+def load_keypoints(file_path):
+    """Load keypoints with time coordinates if available."""
+    df = pd.read_csv(file_path)  # Assuming a CSV-based dataset
+    if 'time' in df.columns:
+        time_coords = df['time'].values
+    else:
+        time_coords = None  # Fallback if time is missing
+
+    keypoints = df[['x', 'y']].values  # Adjust based on the dataset structure
+    return keypoints, time_coords
+
