@@ -186,10 +186,11 @@ def rolling_filter(
     # Compute the statistic over each window
     allowed_statistics = ["mean", "median", "max", "min"]
     if statistic not in allowed_statistics:
-        raise log_error(
-            ValueError,
-            f"Invalid statistic '{statistic}'. "
-            f"Must be one of {allowed_statistics}.",
+        raise logger.error(
+            ValueError(
+                f"Invalid statistic '{statistic}'. "
+                f"Must be one of {allowed_statistics}."
+            )
         )
 
     data_rolled = getattr(data_windows, statistic)(skipna=True)

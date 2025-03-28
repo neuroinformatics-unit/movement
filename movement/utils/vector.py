@@ -240,9 +240,8 @@ def compute_signed_angle_2d(
         elif v.ndim == 2:
             v_dims = ["time", "space"]
         else:
-            raise log_error(
-                ValueError,
-                f"v must be 1D or 2D, but got {v.ndim}D.",
+            raise logger.error(
+                ValueError(f"v must be 1D or 2D, but got {v.ndim}D.")
             )
         v = xr.DataArray(
             v,
@@ -250,9 +249,11 @@ def compute_signed_angle_2d(
             coords={d: u.coords[d] for d in v_dims},
         )
     elif not isinstance(v, xr.DataArray):
-        raise log_error(
-            TypeError,
-            f"v must be an xarray.DataArray or np.ndarray, but got {type(v)}.",
+        raise logger.error(
+            TypeError(
+                "v must be an xarray.DataArray or np.ndarray, "
+                f"but got {type(v)}."
+            )
         )
     validate_dims_coords(v, {"space": ["x", "y"]}, exact_coords=True)
 
