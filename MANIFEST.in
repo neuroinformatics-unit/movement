@@ -1,7 +1,4 @@
 include LICENSE
-include coverage.xml
-recursive-include movement/images *.png
-
 
 include *.md
 include CITATION.CFF
