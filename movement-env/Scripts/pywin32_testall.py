@@ -81,7 +81,9 @@ def main():
         "Pythonwin/pywin/test/all.py",
     ]
     for script in scripts:
-        maybes = [os.path.join(directory, script) for directory in code_directories]
+        maybes = [
+            os.path.join(directory, script) for directory in code_directories
+        ]
         find_and_run(maybes, extras)
 
     # win32com
@@ -103,7 +105,9 @@ def main():
         # doesn't have a different server to test on) but there is now supposed to be a server out there on the Internet
         # just to run these tests, so try it...
         maybes = [
-            os.path.join(directory, "adodbapi", "test", "test_adodbapi_dbapi20.py")
+            os.path.join(
+                directory, "adodbapi", "test", "test_adodbapi_dbapi20.py"
+            )
             for directory in code_directories
         ]
         find_and_run(maybes, remains)

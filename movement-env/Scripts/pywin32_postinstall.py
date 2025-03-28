@@ -64,7 +64,10 @@ root_key_name = "Software\\Python\\PythonCore\\" + sys.winver
 def get_root_hkey():
     try:
         winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE, root_key_name, 0, winreg.KEY_CREATE_SUB_KEY
+            winreg.HKEY_LOCAL_MACHINE,
+            root_key_name,
+            0,
+            winreg.KEY_CREATE_SUB_KEY,
         )
         return winreg.HKEY_LOCAL_MACHINE
     except OSError:
@@ -76,7 +79,13 @@ def get_root_hkey():
 # Create a function with the same signature as create_shortcut
 # previously provided by bdist_wininst
 def create_shortcut(
-    path, description, filename, arguments="", workdir="", iconpath="", iconindex=0
+    path,
+    description,
+    filename,
+    arguments="",
+    workdir="",
+    iconpath="",
+    iconindex=0,
 ):
     import pythoncom
     from win32com.shell import shell
@@ -136,7 +145,10 @@ def CopyTo(desc, src, dest):
                 f"please close them now\nand select 'Retry'\n\n{details.strerror}"
             )
             rc = win32api.MessageBox(
-                0, full_desc, "Installation Error", win32con.MB_ABORTRETRYIGNORE
+                0,
+                full_desc,
+                "Installation Error",
+                win32con.MB_ABORTRETRYIGNORE,
             )
             if rc == win32con.IDABORT:
                 raise
@@ -165,7 +177,9 @@ def LoadSystemModule(lib_dir, modname):
     )
     filename = os.path.join(lib_dir, "pywin32_system32", filename)
     loader = importlib.machinery.ExtensionFileLoader(modname, filename)
-    spec = importlib.machinery.ModuleSpec(name=modname, loader=loader, origin=filename)
+    spec = importlib.machinery.ModuleSpec(
+        name=modname, loader=loader, origin=filename
+    )
     mod = importlib.util.module_from_spec(spec)
     loader.exec_module(mod)
 
@@ -178,7 +192,9 @@ def SetPyKeyVal(key_name, value_name, value):
         try:
             winreg.SetValueEx(my_key, value_name, 0, winreg.REG_SZ, value)
             if verbose:
-                print(f"-> {root_key_name}\\{key_name}[{value_name}]={value!r}")
+                print(
+                    f"-> {root_key_name}\\{key_name}[{value_name}]={value!r}"
+                )
         finally:
             my_key.Close()
     finally:
@@ -222,7 +238,9 @@ def RegisterCOMObjects(register=True):
         __import__(module)
         mod = sys.modules[module]
         flags["finalize_register"] = getattr(mod, "DllRegisterServer", None)
-        flags["finalize_unregister"] = getattr(mod, "DllUnregisterServer", None)
+        flags["finalize_unregister"] = getattr(
+            mod, "DllUnregisterServer", None
+        )
         klass = getattr(mod, klass_name)
         func(klass, **flags)
 
@@ -239,7 +257,9 @@ def RegisterHelpFile(register=True, lib_dir=None):
             SetPyKeyVal("Help\\Pythonwin Reference", None, chm_file)
             return chm_file
         else:
-            print("NOTE: PyWin32.chm can not be located, so has not been registered")
+            print(
+                "NOTE: PyWin32.chm can not be located, so has not been registered"
+            )
     else:
         UnsetPyKeyVal("Help\\Pythonwin Reference", None, delete_key=True)
     return None
@@ -344,7 +364,9 @@ def get_system_dir():
 
         try:
             if win32process.IsWow64Process():
-                return shell.SHGetSpecialFolderPath(0, shellcon.CSIDL_SYSTEMX86)
+                return shell.SHGetSpecialFolderPath(
+                    0, shellcon.CSIDL_SYSTEMX86
+                )
             return shell.SHGetSpecialFolderPath(0, shellcon.CSIDL_SYSTEM)
         except (pythoncom.com_error, win32process.error):
             return win32api.GetSystemDirectory()
@@ -394,7 +416,12 @@ def install(lib_dir):
     # pywintypes and pythoncom registered.  We no longer need this, and stale
     # entries hurt us.
     for name in "pythoncom pywintypes".split():
-        keyname = "Software\\Python\\PythonCore\\" + sys.winver + "\\Modules\\" + name
+        keyname = (
+            "Software\\Python\\PythonCore\\"
+            + sys.winver
+            + "\\Modules\\"
+            + name
+        )
         for root in winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER:
             try:
                 winreg.DeleteKey(root, keyname + "\\Debug")
@@ -527,7 +554,9 @@ def install(lib_dir):
                 print("Shortcut for Pythonwin created")
             # And the docs.
             if chm_file:
-                dst = os.path.join(fldr, "Python for Windows Documentation.lnk")
+                dst = os.path.join(
+                    fldr, "Python for Windows Documentation.lnk"
+                )
                 doc = "Documentation for the PyWin32 extensions"
                 create_shortcut(chm_file, doc, dst)
                 if verbose:
