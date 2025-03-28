@@ -56,6 +56,19 @@ jobs:
           auto-update-conda: true
           channels: conda-forge,defaults
           activate-environment: movement-env
+      - name: "Ensure D: Drive on Windows"
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo Current directory: %CD%
+          if not "%CD:~0,2%"=="D:" (
+            echo Switching to D: drive
+            D:
+            cd D:\test_dir
+            mkdir D:\test_dir 2>nul
+            echo Now on: %CD%
+          ) else (
+            echo Already on D: drive
+          )
       - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
