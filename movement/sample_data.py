@@ -295,7 +295,7 @@ def fetch_dataset(
         if file_paths.get(key):
             ds = load_module.from_file(
                 file_paths[key],
-                source_software=metadata[filename]["source_software"],
+                source_format=metadata[filename]["source_format"],
                 fps=metadata[filename]["fps"],
             )
 

@@ -52,7 +52,7 @@ class DataLoader(QWidget):
         self.setLayout(QFormLayout())
 
         # Create widgets
-        self._create_source_software_widget()
+        self._create_source_format_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
@@ -60,12 +60,12 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
-    def _create_source_software_widget(self):
+    def _create_source_format_widget(self):
         """Create a combo box for selecting the source software."""
-        self.source_software_combo = QComboBox()
-        self.source_software_combo.setObjectName("source_software_combo")
-        self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
-        self.layout().addRow("source software:", self.source_software_combo)
+        self.source_format_combo = QComboBox()
+        self.source_format_combo.setObjectName("source_format_combo")
+        self.source_format_combo.addItems(SUPPORTED_DATA_FILES.keys())
+        self.layout().addRow("source software:", self.source_format_combo)
 
     def _create_fps_widget(self):
         """Create a spinbox for selecting the frames per second (fps)."""
@@ -116,7 +116,7 @@ class DataLoader(QWidget):
         file_suffixes = (
             "*." + suffix
             for suffix in SUPPORTED_DATA_FILES[
-                self.source_software_combo.currentText()
+                self.source_format_combo.currentText()
             ]
         )
 
@@ -137,7 +137,7 @@ class DataLoader(QWidget):
         """Load the file and add as a Points layer to the viewer."""
         # Get data from user input
         fps = self.fps_spinbox.value()
-        source_software = self.source_software_combo.currentText()
+        source_format = self.source_format_combo.currentText()
         file_path = self.file_path_edit.text()
 
         # Load data
@@ -145,11 +145,11 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        if source_software in SUPPORTED_POSES_FILES:
+        if source_format in SUPPORTED_POSES_FILES:
             loader = load_poses
         else:
             loader = load_bboxes
-        ds = loader.from_file(file_path, source_software, fps)
+        ds = loader.from_file(file_path, source_format, fps)
 
         # Convert to napari Tracks array
         self.data, self.props = ds_to_napari_tracks(ds)

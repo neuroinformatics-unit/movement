@@ -55,7 +55,7 @@ Data variables:
 Attributes:
     fps:              50.0
     time_unit:        seconds
-    source_software:  SLEAP
+    source_format:  SLEAP
     source_file:      /home/user/.movement/data/poses/SLEAP_three-mice_Aeon...
     ds_type:          poses
     frame_path:       /home/user/.movement/data/frames/three-mice_Aeon_fram...
@@ -88,7 +88,7 @@ Data variables:
     confidence   (time, individuals) float64 3kB nan nan nan nan ... nan nan nan
 Attributes:
     time_unit:        frames
-    source_software:  VIA-tracks
+    source_format:  VIA-tracks
     source_file:      /home/user/.movement/data/bboxes/VIA_multiple-crabs_5...
     ds_type:          bboxes
 ```
@@ -175,7 +175,7 @@ Both poses and bounding boxes datasets in `movement` have associated metadata. T
 Right after loading a `movement` dataset, the following **attributes** are created:
 - `fps`: the number of frames per second in the video (absent if not provided by the user during loading).
 - `time_unit`: the unit of the `time` **coordinates** (either `frames` or `seconds`).
-- `source_software`: the software that produced the pose or bounding box tracks.
+- `source_format`: the software that produced the pose or bounding box tracks.
 - `source_file`: the path to the file from which the data were loaded (absent if the dataset was not loaded from a file).
 - `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 

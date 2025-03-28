@@ -106,7 +106,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
         },
         attrs={
             "time_unit": "frames",
-            "source_software": "test",
+            "source_format": "test",
             "source_file": "test_bboxes.csv",
             "ds_type": "bboxes",
         },
@@ -263,7 +263,7 @@ def valid_poses_dataset(valid_poses_arrays, request):
         },
         attrs={
             "time_unit": "frames",
-            "source_software": "test",
+            "source_format": "test",
             "source_file": "test_poses.h5",
             "ds_type": "poses",
         },

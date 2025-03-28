@@ -29,7 +29,7 @@ def from_numpy(
     individual_names: list[str] | None = None,
     frame_array: np.ndarray | None = None,
     fps: float | None = None,
-    source_software: str | None = None,
+    source_format: str | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from NumPy arrays.
 
@@ -70,7 +70,7 @@ def from_numpy(
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    source_software : str, optional
+    source_format : str, optional
         Name of the software that generated the data. Defaults to None.
 
     Returns
@@ -145,14 +145,14 @@ def from_numpy(
         individual_names=individual_names,
         frame_array=frame_array,
         fps=fps,
-        source_software=source_software,
+        source_format=source_format,
     )
     return _ds_from_valid_data(valid_bboxes_data)
 
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal["VIA-tracks"],
+    source_format: Literal["VIA-tracks"],
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -166,7 +166,7 @@ def from_file(
     file_path : pathlib.Path or str
         Path to the file containing the tracked bounding boxes. Currently
         only VIA-tracks .csv files are supported.
-    source_software : "VIA-tracks".
+    source_format : "VIA-tracks".
         The source software of the file. Currently only files from the
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
         See .
@@ -216,12 +216,12 @@ def from_file(
     >>> from movement.io import load_bboxes
     >>> ds = load_bboxes.from_file(
     >>>     "path/to/file.csv",
-    >>>     source_software="VIA-tracks",
+    >>>     source_format="VIA-tracks",
     >>>     fps=30,
     >>> )
 
     """
-    if source_software == "VIA-tracks":
+    if source_format == "VIA-tracks":
         return from_via_tracks_file(
             file_path,
             fps,
@@ -230,7 +230,7 @@ def from_file(
         )
     else:
         raise log_error(
-            ValueError, f"Unsupported source software: {source_software}"
+            ValueError, f"Unsupported source software: {source_format}"
         )
 
 
@@ -356,11 +356,11 @@ def from_via_tracks_file(
             else None
         ),
         fps=fps,
-        source_software="VIA-tracks",
+        source_format="VIA-tracks",
     )  # it validates the dataset via ValidBboxesDataset
 
     # Add metadata as attributes
-    ds.attrs["source_software"] = "VIA-tracks"
+    ds.attrs["source_format"] = "VIA-tracks"
     ds.attrs["source_file"] = file.path.as_posix()
 
     logger.info(f"Loaded tracks of the bounding boxes from {via_file.path}:")
@@ -666,7 +666,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     time_unit = "frames"
 
     dataset_attrs: dict[str, str | float | None] = {
-        "source_software": data.source_software,
+        "source_format": data.source_format,
         "ds_type": "bboxes",
     }
     # if fps is provided:

@@ -85,7 +85,7 @@ class ValidPosesDataset:
       if provided, match the number of individuals and keypoints
       in the dataset, respectively; otherwise, default names are assigned.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
-    - The optional ``source_software`` is a string; otherwise,
+    - The optional ``source_format`` is a string; otherwise,
       it defaults to None.
 
     Attributes
@@ -107,7 +107,7 @@ class ValidPosesDataset:
         etc.
     fps : float, optional
         Frames per second of the video. Defaults to None.
-    source_software : str, optional
+    source_format : str, optional
         Name of the software from which the poses were loaded.
         Defaults to None.
 
@@ -138,7 +138,7 @@ class ValidPosesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
-    source_software: str | None = field(
+    source_format: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
@@ -181,7 +181,7 @@ class ValidPosesDataset:
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
-        if self.source_software == "LightningPose":
+        if self.source_format == "LightningPose":
             # LightningPose only supports a single individual
             _validate_list_length(attribute, value, 1)
         else:
@@ -243,7 +243,7 @@ class ValidBboxesDataset:
       with the frame numbers; otherwise, it defaults to an array of
       0-based integers.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
-    - The optional ``source_software`` is a string; otherwise, it defaults to
+    - The optional ``source_format`` is a string; otherwise, it defaults to
       None.
 
     Attributes
@@ -274,7 +274,7 @@ class ValidBboxesDataset:
     fps : float, optional
         Frames per second defining the sampling rate of the data.
         Defaults to None.
-    source_software : str, optional
+    source_format : str, optional
         Name of the software that generated the data. Defaults to None.
 
     Raises
@@ -304,7 +304,7 @@ class ValidBboxesDataset:
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
-    source_software: str | None = field(
+    source_format: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )

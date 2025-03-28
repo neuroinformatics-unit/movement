@@ -37,7 +37,7 @@ class Helpers:
 
             - file_path: Path to the source file
             - fps: int, frames per second
-            - source_software: str, name of the software used to generate
+            - source_format: str, name of the software used to generate
               the dataset
 
         """
@@ -76,8 +76,8 @@ class Helpers:
             if expected_file_path is not None
             else None
         )
-        assert dataset.source_software == expected_values.get(
-            "source_software"
+        assert dataset.source_format == expected_values.get(
+            "source_format"
         )
         fps = getattr(dataset, "fps", None)
         assert fps == expected_values.get("fps")

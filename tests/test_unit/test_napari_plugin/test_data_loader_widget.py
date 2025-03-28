@@ -26,7 +26,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
-        (QComboBox, "source_software_combo"),
+        (QComboBox, "source_format_combo"),
         (QDoubleSpinBox, "fps_spinbox"),
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
@@ -94,7 +94,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
 
 
 @pytest.mark.parametrize(
-    "source_software, expected_file_filter",
+    "source_format, expected_file_filter",
     [
         ("DeepLabCut", "*.h5 *.csv"),
         ("SLEAP", "*.h5 *.slp"),
@@ -102,12 +102,12 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("VIA-tracks", "*.csv"),
     ],
 )
-def test_file_filters_per_source_software(
-    source_software, expected_file_filter, make_napari_viewer_proxy, mocker
+def test_file_filters_per_source_format(
+    source_format, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
     data_loader_widget = DataLoader(make_napari_viewer_proxy)
-    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget.source_format_combo.setCurrentText(source_format)
     mock_file_dialog = mocker.patch(
         "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
         return_value=("", None),
@@ -132,7 +132,7 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 
 
 @pytest.mark.parametrize(
-    "filename, source_software, tracks_array_shape",
+    "filename, source_format, tracks_array_shape",
     [
         ("DLC_single-wasp.predictions.h5", "DeepLabCut", (2170, 4)),
         ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks", (35, 4)),
@@ -140,7 +140,7 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 )
 def test_on_load_clicked_with_valid_file_path(
     filename,
-    source_software,
+    source_format,
     tracks_array_shape,
     make_napari_viewer_proxy,
     caplog,
@@ -162,7 +162,7 @@ def test_on_load_clicked_with_valid_file_path(
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
 
     # Set the source software
-    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget.source_format_combo.setCurrentText(source_format)
 
     # Set the fps to 60
     data_loader_widget.fps_spinbox.setValue(60)
@@ -236,7 +236,7 @@ def test_dimension_slider_matches_frames(
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
     poses_loader_widget.file_path_edit.setText(file_path.as_posix())
-    poses_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    poses_loader_widget.source_format_combo.setCurrentText("DeepLabCut")
 
     # Check the data contains nans where expected
     assert (
@@ -261,7 +261,7 @@ def test_dimension_slider_matches_frames(
 
 @pytest.mark.parametrize(
     (
-        "filename, source_software, "
+        "filename, source_format, "
         "expected_text_property, expected_color_property"
     ),
     [
@@ -299,7 +299,7 @@ def test_dimension_slider_matches_frames(
 )
 def test_add_points_layer_style(
     filename,
-    source_software,
+    source_format,
     make_napari_viewer_proxy,
     expected_text_property,
     expected_color_property,
@@ -315,7 +315,7 @@ def test_add_points_layer_style(
     # Load data as a points layer
     file_path = pytest.DATA_PATHS.get(filename)
     loader_widget.file_path_edit.setText(file_path.as_posix())
-    loader_widget.source_software_combo.setCurrentText(source_software)
+    loader_widget.source_format_combo.setCurrentText(source_format)
     loader_widget._on_load_clicked()
 
     # Check no warnings were emitted

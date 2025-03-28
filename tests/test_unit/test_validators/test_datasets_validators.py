@@ -177,7 +177,7 @@ def test_poses_dataset_validator_individual_names(
 
 
 @pytest.mark.parametrize(
-    "source_software, expected_exception",
+    "source_format, expected_exception",
     [
         (None, does_not_raise()),
         ("SLEAP", does_not_raise()),
@@ -187,10 +187,10 @@ def test_poses_dataset_validator_individual_names(
         (5, pytest.raises(TypeError)),  # not a string
     ],
 )
-def test_poses_dataset_validator_source_software(
-    valid_poses_arrays, source_software, expected_exception
+def test_poses_dataset_validator_source_format(
+    valid_poses_arrays, source_format, expected_exception
 ):
-    """Test that the source_software attribute is validated properly.
+    """Test that the source_format attribute is validated properly.
     LightnigPose is incompatible with multi-individual arrays.
     """
     with expected_exception:
@@ -198,13 +198,13 @@ def test_poses_dataset_validator_source_software(
             position_array=valid_poses_arrays("multi_individual_array")[
                 "position"
             ],
-            source_software=source_software,
+            source_format=source_format,
         )
 
-        if source_software is not None:
-            assert ds.source_software == source_software
+        if source_format is not None:
+            assert ds.source_format == source_format
         else:
-            assert ds.source_software is None
+            assert ds.source_format is None
 
 
 # Tests bboxes dataset

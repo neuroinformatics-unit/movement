@@ -44,7 +44,7 @@ ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
 
 # or equivalently
 ds = load_poses.from_file(
-    "/path/to/file.analysis.h5", source_software="SLEAP", fps=30
+    "/path/to/file.analysis.h5", source_format="SLEAP", fps=30
 )
 ```
 To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_poses.from_sleap_file`):
@@ -62,7 +62,7 @@ ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 
 # or equivalently
 ds = load_poses.from_file(
-    "/path/to/file.h5", source_software="DeepLabCut", fps=30
+    "/path/to/file.h5", source_format="DeepLabCut", fps=30
 )
 ```
 
@@ -80,7 +80,7 @@ ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
 
 # or equivalently
 ds = load_poses.from_file(
-    "/path/to/file.analysis.csv", source_software="LightningPose", fps=30
+    "/path/to/file.analysis.csv", source_format="LightningPose", fps=30
 )
 ```
 :::
@@ -95,7 +95,7 @@ ds = load_poses.from_anipose_file(
 
 # or equivalently
 ds = load_poses.from_file(
-    "/path/to/file.analysis.csv", source_software="Anipose", fps=30, individual_name="individual_0"
+    "/path/to/file.analysis.csv", source_format="Anipose", fps=30, individual_name="individual_0"
 )
 
 ```
@@ -149,7 +149,7 @@ ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
 # or equivalently
 ds = load_bboxes.from_file(
     "path/to/file.csv",
-    source_software="VIA-tracks",
+    source_format="VIA-tracks",
     fps=30,
 )
 ```

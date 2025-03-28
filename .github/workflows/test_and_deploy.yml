@@ -58,13 +58,17 @@ jobs:
           activate-environment: movement-env
       - name: "Ensure D: Drive on Windows"
         if: matrix.os == 'windows-latest'
+        shell: cmd
         run: |
           echo Current directory: %CD%
           if not "%CD:~0,2%"=="D:" (
             echo Switching to D: drive
             D:
-            cd D:\test_dir
-            mkdir D:\test_dir 2>nul
+            cd "%GITHUB_WORKSPACE%"
+            if not "%CD:~0,2%"=="D:" (
+              echo ERROR: Failed to switch to D: drive
+              exit 1
+            )
             echo Now on: %CD%
           ) else (
             echo Already on D: drive

@@ -29,7 +29,7 @@ def from_numpy(
     individual_names: list[str] | None = None,
     keypoint_names: list[str] | None = None,
     fps: float | None = None,
-    source_software: str | None = None,
+    source_format: str | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from NumPy arrays.
 
@@ -55,7 +55,7 @@ def from_numpy(
     fps : float, optional
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
-    source_software : str, optional
+    source_format : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to None.
 
@@ -89,14 +89,14 @@ def from_numpy(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
-        source_software=source_software,
+        source_format=source_format,
     )
     return _ds_from_valid_data(valid_data)
 
 
 def from_file(
     file_path: Path | str,
-    source_software: Literal[
+    source_format: Literal[
         "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
     ],
     fps: float | None = None,
@@ -111,8 +111,8 @@ def from_file(
         be among those supported by the ``from_dlc_file()``,
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
-        the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
+        the value of ``source_format``.
+    source_format : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -138,28 +138,28 @@ def from_file(
     --------
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_file(
-    ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
+    ...     "path/to/file.h5", source_format="DeepLabCut", fps=30
     ... )
 
     """
-    if source_software == "DeepLabCut":
+    if source_format == "DeepLabCut":
         return from_dlc_file(file_path, fps)
-    elif source_software == "SLEAP":
+    elif source_format == "SLEAP":
         return from_sleap_file(file_path, fps)
-    elif source_software == "LightningPose":
+    elif source_format == "LightningPose":
         return from_lp_file(file_path, fps)
-    elif source_software == "Anipose":
+    elif source_format == "Anipose":
         return from_anipose_file(file_path, fps, **kwargs)
     else:
         raise log_error(
-            ValueError, f"Unsupported source software: {source_software}"
+            ValueError, f"Unsupported source software: {source_format}"
         )
 
 
 def from_dlc_style_df(
     df: pd.DataFrame,
     fps: float | None = None,
-    source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
+    source_format: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
 
@@ -171,7 +171,7 @@ def from_dlc_style_df(
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-    source_software : str, optional
+    source_format : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
         (because they the same DataFrame format).
@@ -219,7 +219,7 @@ def from_dlc_style_df(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
-        source_software=source_software,
+        source_format=source_format,
     )
 
 
@@ -322,7 +322,7 @@ def from_lp_file(
 
     """
     return _ds_from_lp_or_dlc_file(
-        file_path=file_path, source_software="LightningPose", fps=fps
+        file_path=file_path, source_format="LightningPose", fps=fps
     )
 
 
@@ -357,13 +357,13 @@ def from_dlc_file(
 
     """
     return _ds_from_lp_or_dlc_file(
-        file_path=file_path, source_software="DeepLabCut", fps=fps
+        file_path=file_path, source_format="DeepLabCut", fps=fps
     )
 
 
 def from_multiview_files(
     file_path_dict: dict[str, Path | str],
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_format: Literal["DeepLabCut", "SLEAP", "LightningPose"],
     fps: float | None = None,
 ) -> xr.Dataset:
     """Load and merge pose tracking data from multiple views (cameras).
@@ -372,7 +372,7 @@ def from_multiview_files(
     ----------
     file_path_dict : dict[str, Union[Path, str]]
         A dict whose keys are the view names and values are the paths to load.
-    source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
+    source_format : {'LightningPose', 'SLEAP', 'DeepLabCut'}
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -388,7 +388,7 @@ def from_multiview_files(
     views_list = list(file_path_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [
-        from_file(f, source_software=source_software, fps=fps)
+        from_file(f, source_format=source_format, fps=fps)
         for f in file_path_dict.values()
     ]
     return xr.concat(dataset_list, dim=new_coord_views)
@@ -396,7 +396,7 @@ def from_multiview_files(
 
 def _ds_from_lp_or_dlc_file(
     file_path: Path | str,
-    source_software: Literal["LightningPose", "DeepLabCut"],
+    source_format: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a LightningPose or DLC file.
@@ -406,7 +406,7 @@ def _ds_from_lp_or_dlc_file(
     file_path : pathlib.Path or str
         Path to the file containing the predicted poses, either in .h5
         or .csv format.
-    source_software : {'LightningPose', 'DeepLabCut'}
+    source_format : {'LightningPose', 'DeepLabCut'}
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -420,7 +420,7 @@ def _ds_from_lp_or_dlc_file(
 
     """
     expected_suffix = [".csv"]
-    if source_software == "DeepLabCut":
+    if source_format == "DeepLabCut":
         expected_suffix.append(".h5")
     file = ValidFile(
         file_path, expected_permission="r", expected_suffix=expected_suffix
@@ -433,7 +433,7 @@ def _ds_from_lp_or_dlc_file(
     )
     logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
-    ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
+    ds = from_dlc_style_df(df=df, fps=fps, source_format=source_format)
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
     logger.info(f"Loaded pose tracks from {file.path}:")
@@ -484,7 +484,7 @@ def _ds_from_sleap_analysis_file(
             individual_names=individual_names,
             keypoint_names=[n.decode() for n in f["node_names"][:]],
             fps=fps,
-            source_software="SLEAP",
+            source_format="SLEAP",
         )
 
 
@@ -524,7 +524,7 @@ def _ds_from_sleap_labels_file(
         individual_names=individual_names,
         keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
         fps=fps,
-        source_software="SLEAP",
+        source_format="SLEAP",
     )
 
 
@@ -683,7 +683,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     n_space = data.position_array.shape[1]
 
     dataset_attrs: dict[str, str | float | None] = {
-        "source_software": data.source_software,
+        "source_format": data.source_format,
         "ds_type": "poses",
     }
     # Create the time coordinate, depending on the value of fps
@@ -781,7 +781,7 @@ def from_anipose_style_df(
         confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
-        source_software="Anipose",
+        source_format="Anipose",
         fps=fps,
     )
 

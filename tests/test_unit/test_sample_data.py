@@ -44,7 +44,7 @@ def validate_metadata(metadata: dict[str, dict]) -> None:
     metadata_fields = [
         "sha256sum",
         "type",
-        "source_software",
+        "source_format",
         "type",
         "fps",
         "species",
