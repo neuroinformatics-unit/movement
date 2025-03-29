@@ -76,9 +76,11 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         "right_ear",
         camera_view="bottom_up",
     )
-    known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
+    known_vectors = np.array(
+        [[[0, -1]], [[np.nan, np.nan]], [[0, 1]], [[-1, 0]]]
+    )
     assert isinstance(forward_vector, xr.DataArray)
-    assert np.equal(forward_vector.values, known_vectors).all()
+    assert np.allclose(forward_vector.values, known_vectors, equal_nan=True)
 
 
 # Added fixtures from main

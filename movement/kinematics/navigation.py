@@ -118,7 +118,10 @@ def compute_forward_vector(
     up = xr.DataArray(
         [0, 0, up_dir], dims=["space"], coords={"space": ["x", "y", "z"]}
     ).expand_dims(
-        {"time": len(data.time), "individuals": len(data.individuals)}
+        {
+            "time": len(data.time),
+            "individuals": len(data.coords.get("individuals", [1])),
+        }
     )
 
     # Compute forward direction
