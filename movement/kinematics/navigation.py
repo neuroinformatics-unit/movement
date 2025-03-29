@@ -74,8 +74,8 @@ def compute_forward_vector(
 
     """
     # Validate input type
-    if not isinstance(data, xr.DataArray):
-        raise TypeError("Input 'data' must be an xarray.DataArray")
+    _validate_type_data_array(data)
+
     # Validate input data
     validate_dims_coords(
         data,
@@ -285,3 +285,24 @@ def compute_forward_vector_angle(
         heading_array = np.rad2deg(heading_array)
 
     return heading_array
+
+
+def _validate_type_data_array(data: xr.DataArray) -> None:
+    """Validate the input data is an xarray DataArray.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+
+    Raises
+    ------
+    ValueError
+        If the input data is not an xarray DataArray.
+
+    """
+    if not isinstance(data, xr.DataArray):
+        raise log_error(
+            TypeError,
+            f"Input data must be an xarray.DataArray, but got {type(data)}.",
+        )

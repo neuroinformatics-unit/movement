@@ -13,7 +13,8 @@ from typing import Literal  # Added this import
 
 import xarray as xr
 
-from movement.utils.logging import log_error
+from movement.utils.logging import log_error, log_warning  # Added log_warning
+from movement.utils.reports import report_nan_values  # Added report_nan_values
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
@@ -268,8 +269,6 @@ def compute_path_length(
             f"but {n_time} were found. Double-check the start and stop times.",
         )
 
-    from .utils import _compute_scaled_path_length, _warn_about_nan_proportion
-
     _warn_about_nan_proportion(data, nan_warn_threshold)
 
     if nan_policy == "ffill":
@@ -286,3 +285,68 @@ def compute_path_length(
             f"Invalid value for nan_policy: {nan_policy}. "
             "Must be one of 'ffill' or 'scale'.",
         )
+
+
+def _compute_scaled_path_length(data: xr.DataArray) -> xr.DataArray:
+    """Compute scaled path length based on proportion of valid segments.
+
+    Path length is first computed based on valid segments (non-NaN values
+    on both ends of the segment) and then scaled based on the proportion of
+    valid segments per point track - i.e. the result is divided by the
+    proportion of valid segments.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    """
+    displacement = compute_displacement(data).isel(time=slice(1, None))
+    valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
+    valid_proportion = valid_segments / (data.sizes["time"] - 1)
+    return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def _warn_about_nan_proportion(
+    data: xr.DataArray, nan_warn_threshold: float
+) -> None:
+    """Print a warning if the proportion of NaN values exceeds a threshold.
+
+    The NaN proportion is evaluated per point track, and a given point is
+    considered NaN if any of its ``space`` coordinates are NaN. The warning
+    specifically lists the point tracks that exceed the threshold.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data array.
+    nan_warn_threshold : float
+        The threshold for the proportion of NaN values. Must be a number
+        between 0 and 1.
+
+    """
+    nan_warn_threshold = float(nan_warn_threshold)
+    if not 0 <= nan_warn_threshold <= 1:
+        raise log_error(
+            ValueError,
+            "nan_warn_threshold must be between 0 and 1.",
+        )
+    n_nans = data.isnull().any(dim="space").sum(dim="time")
+    data_to_warn_about = data.where(
+        n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
+    )
+    if len(data_to_warn_about) > 0:
+        log_warning(
+            "The result may be unreliable for point tracks with many "
+            "missing values. The following tracks have more than "
+            f"{nan_warn_threshold * 100:.3} % NaN values:"
+        )
+        print(report_nan_values(data_to_warn_about))

@@ -9,8 +9,6 @@ from scipy.spatial.distance import cdist
 from movement.utils.logging import log_error
 from movement.validators.arrays import validate_dims_coords
 
-from .utils import _validate_labels_dimension
-
 
 def _cdist(
     a: xr.DataArray,
@@ -311,3 +309,31 @@ def compute_pairwise_distances(
     if len(pairwise_distances) == 1:
         return next(iter(pairwise_distances.values()))
     return pairwise_distances
+
+
+def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
+    """Validate the input data contains the ``dim`` for labelling dimensions.
+
+    This function ensures the input data contains the ``dim``
+    used as labels (coordinates) when applying
+    :func:`scipy.spatial.distance.cdist` to
+    the input data, by adding a temporary dimension if necessary.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to validate.
+    dim : str
+        The dimension to validate.
+
+    Returns
+    -------
+    xarray.DataArray
+        The input data with the labels dimension validated.
+
+    """
+    if data.coords.get(dim) is None:
+        data = data.assign_coords({dim: "temp_dim"})
+    if data.coords[dim].ndim == 0:
+        data = data.expand_dims(dim).transpose("time", "space", dim)
+    return data
