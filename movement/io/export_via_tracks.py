@@ -1,8 +1,8 @@
 import json
 
+
 def export_via_tracks(bboxes, output_file):
-    """
-    Exports movement bounding boxes dataset to VIA-tracks format.
+    """Exports movement bounding boxes dataset to VIA-tracks format.
 
     Args:
         bboxes (dict): Dictionary containing bbox data (frame, object_id, x, y, width, height).
@@ -10,6 +10,7 @@ def export_via_tracks(bboxes, output_file):
 
     Returns:
         None
+
     """
     via_tracks_data = {}
 
@@ -22,7 +23,7 @@ def export_via_tracks(bboxes, output_file):
                 "x": bbox["x"],
                 "y": bbox["y"],
                 "width": bbox["width"],
-                "height": bbox["height"]
+                "height": bbox["height"],
             }
 
     # Save to file

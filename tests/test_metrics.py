@@ -1,6 +1,8 @@
-import pytest
 import numpy as np
+import pytest
+
 from movement.metrics import trajectory_complexity
+
 
 def test_trajectory_complexity():
     # Simple straight-line trajectory
@@ -17,8 +19,10 @@ def test_trajectory_complexity():
     with pytest.raises(ValueError):
         trajectory_complexity([0], [0])
 
+
 def test_time_coordinate_loading():
     keypoints, times = load_keypoints("sample_data.csv")
     assert times is not None, "Time coordinates should be loaded"
-    assert len(times) == len(keypoints), "Time and keypoints should have the same length"
-
+    assert len(times) == len(keypoints), (
+        "Time and keypoints should have the same length"
+    )
