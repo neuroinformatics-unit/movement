@@ -204,6 +204,19 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
     return compute_norm(compute_velocity(data))
 
 
+def compute_velocity(positions, times):
+    """Compute velocity using time differences."""
+    if times is None:
+        raise ValueError("Time data is required to compute velocity.")
+
+    dt = np.diff(times)  # Time intervals
+    dx = np.diff(positions[:, 0])  # X displacement
+    dy = np.diff(positions[:, 1])  # Y displacement
+
+    velocities = np.sqrt(dx**2 + dy**2) / dt
+    return velocities
+
+
 def compute_forward_vector(
     data: xr.DataArray,
     left_keypoint: Hashable,
