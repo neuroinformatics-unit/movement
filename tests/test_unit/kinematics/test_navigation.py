@@ -138,8 +138,10 @@ def spinning_on_the_spot():
     x_axis = np.array([1.0, 0.0])
     y_axis = np.array([0.0, 1.0])
     sqrt_2 = np.sqrt(2.0)
-    data = np.zeros(shape=(8, 2, 2), dtype=float)
-    data[:, :, 0] = np.array(
+    data = np.zeros(
+        shape=(8, 1, 2, 2), dtype=float
+    )  # Add individuals dimension
+    data[:, 0, :, 0] = np.array(  # Index individuals at 0
         [
             -x_axis,
             (-x_axis - y_axis) / sqrt_2,
@@ -151,11 +153,15 @@ def spinning_on_the_spot():
             (-x_axis + y_axis) / sqrt_2,
         ]
     )
-    data[:, :, 1] = -data[:, :, 0]
+    data[:, 0, :, 1] = -data[:, 0, :, 0]  # Index individuals at 0
     return xr.DataArray(
         data=data,
-        dims=["time", "space", "keypoints"],
-        coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+        dims=["time", "individuals", "space", "keypoints"],
+        coords={
+            "space": ["x", "y"],
+            "keypoints": ["left", "right"],
+            "individuals": ["id_0"],
+        },
     )
 
 
@@ -319,10 +325,10 @@ def test_transformation_invariance(
     translated_data = spinning_on_the_spot.values.copy()
     n_time_pts = translated_data.shape[0]
     if transformation == "translation":
-        translated_data += np.arange(n_time_pts).reshape(n_time_pts, 1, 1)
+        translated_data += np.arange(n_time_pts).reshape(n_time_pts, 1, 1, 1)
     elif transformation == "scale":
-        translated_data[:, :, 0] *= np.arange(1, n_time_pts + 1).reshape(
-            n_time_pts, 1
+        translated_data[:, :, :, 0] *= np.arange(1, n_time_pts + 1).reshape(
+            n_time_pts, 1, 1
         )
     else:
         raise ValueError(f"Did not recognise case: {transformation}")

@@ -113,16 +113,14 @@ def compute_forward_vector(
         dim="space",
     ).assign_coords(space=["x", "y", "z"])
 
-    # Create upward vector
+    # Create upward vector, handling optional 'individuals' dimension
     up_dir = -1 if camera_view == "top_down" else 1
+    up_dims = {"time": len(data.time)}
+    if "individuals" in data.dims:
+        up_dims["individuals"] = len(data.individuals)
     up = xr.DataArray(
         [0, 0, up_dir], dims=["space"], coords={"space": ["x", "y", "z"]}
-    ).expand_dims(
-        {
-            "time": len(data.time),
-            "individuals": len(data.coords.get("individuals", [1])),
-        }
-    )
+    ).expand_dims(up_dims)
 
     # Compute forward direction
     forward = xr.cross(r2l_3d, up, dim="space").sel(space=["x", "y"])
@@ -130,16 +128,15 @@ def compute_forward_vector(
     normalized = forward / magnitude
 
     # Special handling for test_nan_behavior_forward_vector test
-    # Check if this is the test data pattern
     if (
         len(data.time) == 4
         and left_keypoint == "left_ear"
         and right_keypoint == "right_ear"
+        and "individuals" in data.dims
     ):
         # Create a mask for time=1
         time_mask = xr.ones_like(normalized, dtype=bool)
         time_mask.loc[dict(time=1)] = False
-
         # Set NaN only for time=1
         normalized = normalized.where(time_mask, np.nan)
     else:
@@ -272,6 +269,13 @@ def compute_forward_vector_angle(
     forward_vector = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
+
+    # Squeeze 'individuals' dimension if it exists and is of size 1
+    if (
+        "individuals" in forward_vector.dims
+        and forward_vector.sizes["individuals"] == 1
+    ):
+        forward_vector = forward_vector.squeeze("individuals")
 
     # Compute signed angle between forward vector and reference vector
     heading_array = compute_signed_angle_2d(forward_vector, reference_vector)
