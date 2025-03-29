@@ -1,6 +1,6 @@
 % MATLAB Script to Load and Analyze Movement Dataset
 clc;
-clear all; 
+clear all;
 close all;
 
 filename = 'movement_data.csv';
@@ -31,14 +31,14 @@ fprintf('Standard Deviation of X Position: %.2f\n', stdX);
 fprintf('Standard Deviation of Y Position: %.2f\n', stdY);
 
 timeDiff = diff(data.Time);
-distanceDiff = sqrt(diff(data.X_Position).^2 + diff(data.Y_Position).^2); 
-speed = distanceDiff ./ (timeDiff + eps); 
+distanceDiff = sqrt(diff(data.X_Position).^2 + diff(data.Y_Position).^2);
+speed = distanceDiff ./ (timeDiff + eps);
 
 meanSpeed = mean(speed);
 fprintf('Mean Speed: %.2f units/time\n', meanSpeed);
 
 subplot(2,1,2);
-plot(data.Time(2:end), speed, '-o'); 
+plot(data.Time(2:end), speed, '-o');
 title('Speed Over Time');
 xlabel('Time'); ylabel('Speed (units/time)');
 grid on;
