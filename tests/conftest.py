@@ -5,7 +5,6 @@ from glob import glob
 
 import numpy as np
 import pytest
-import xarray as xr
 
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
@@ -41,17 +40,4 @@ def setup_logging(tmp_path):
         log_level=logging.DEBUG,
         logger_name="movement",
         log_directory=(tmp_path / ".movement"),
-    )
-
-
-@pytest.fixture
-def valid_data_array_for_forward_vector():
-    return xr.DataArray(
-        rng.random((10, 3, 2)),  # time, keypoints, space
-        dims=["time", "keypoints", "space"],
-        coords={
-            "time": range(10),
-            "keypoints": ["left_ear", "right_ear", "nose"],
-            "space": ["x", "y"],
-        },
     )
