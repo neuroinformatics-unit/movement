@@ -14,9 +14,6 @@ from movement.kinematics.kinematics import (
     compute_time_derivative,
     compute_velocity,
 )
-from movement.kinematics.navigation import (
-    compute_forward_vector_angle,  # New import
-)
 
 
 class TestComputeKinematics:
@@ -192,25 +189,6 @@ def spinning_on_the_spot():
         dims=["time", "space", "keypoints"],
         coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
     )
-
-
-def test_casts_from_tuple(spinning_on_the_spot):
-    """Test that tuples and lists are cast to numpy arrays,
-    when given as the reference vector.
-    """
-    x_axis_as_tuple = (1.0, 0.0)
-    x_axis_as_list = [1.0, 0.0]
-    pass_numpy = compute_forward_vector_angle(
-        spinning_on_the_spot, "left", "right", np.array([1.0, 0.0])
-    )
-    pass_tuple = compute_forward_vector_angle(
-        spinning_on_the_spot, "left", "right", x_axis_as_tuple
-    )
-    pass_list = compute_forward_vector_angle(
-        spinning_on_the_spot, "left", "right", x_axis_as_list
-    )
-    xr.testing.assert_allclose(pass_numpy, pass_tuple)
-    xr.testing.assert_allclose(pass_numpy, pass_list)
 
 
 # Define time_points_value_error for reuse

@@ -104,6 +104,25 @@ def spinning_on_the_spot():
     )
 
 
+def test_casts_from_tuple(spinning_on_the_spot):
+    """Test that tuples and lists are cast to numpy arrays,
+    when given as the reference vector.
+    """
+    x_axis_as_tuple = (1.0, 0.0)
+    x_axis_as_list = [1.0, 0.0]
+    pass_numpy = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", np.array([1.0, 0.0])
+    )
+    pass_tuple = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", x_axis_as_tuple
+    )
+    pass_list = compute_forward_vector_angle(
+        spinning_on_the_spot, "left", "right", x_axis_as_list
+    )
+    xr.testing.assert_allclose(pass_numpy, pass_tuple)
+    xr.testing.assert_allclose(pass_numpy, pass_list)
+
+
 @pytest.mark.parametrize(
     "input_data, expected_error, expected_match_str, keypoints",
     [
