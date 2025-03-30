@@ -3,13 +3,10 @@
 import logging
 from glob import glob
 
-import numpy as np
 import pytest
 
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import configure_logging
-
-rng = np.random.default_rng(42)
 
 
 def _to_module_string(path: str) -> str:
@@ -25,7 +22,9 @@ pytest_plugins = [
 
 
 def pytest_configure():
-    """Perform initial configuration for pytest."""
+    """Perform initial configuration for pytest.
+    Fetches pose data file paths as a dictionary for tests.
+    """
     pytest.DATA_PATHS = {}
     for file_name in list_datasets():
         paths_dict = fetch_dataset_paths(file_name)
@@ -35,7 +34,9 @@ def pytest_configure():
 
 @pytest.fixture(autouse=True)
 def setup_logging(tmp_path):
-    """Set up logging for the test module."""
+    """Set up logging for the test module.
+    Redirects all logging to a temporary directory.
+    """
     configure_logging(
         log_level=logging.DEBUG,
         logger_name="movement",
