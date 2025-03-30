@@ -156,41 +156,6 @@ def test_time_derivative_with_invalid_order(order, expected_exception):
         compute_time_derivative(data, order=order)
 
 
-# Added fixture and test from main
-@pytest.fixture
-def spinning_on_the_spot():
-    """Simulate data for an individual's head spinning on the spot.
-
-    The left / right keypoints move in a circular motion counter-clockwise
-    around the unit circle centred on the origin, always opposite each
-    other.
-    The left keypoint starts on the negative x-axis, and the motion is
-    split into 8 time points of uniform rotation angles.
-    """
-    x_axis = np.array([1.0, 0.0])
-    y_axis = np.array([0.0, 1.0])
-    sqrt_2 = np.sqrt(2.0)
-    data = np.zeros(shape=(8, 2, 2), dtype=float)
-    data[:, :, 0] = np.array(
-        [
-            -x_axis,
-            (-x_axis - y_axis) / sqrt_2,
-            -y_axis,
-            (x_axis - y_axis) / sqrt_2,
-            x_axis,
-            (x_axis + y_axis) / sqrt_2,
-            y_axis,
-            (-x_axis + y_axis) / sqrt_2,
-        ]
-    )
-    data[:, :, 1] = -data[:, :, 0]
-    return xr.DataArray(
-        data=data,
-        dims=["time", "space", "keypoints"],
-        coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
-    )
-
-
 # Define time_points_value_error for reuse
 time_points_value_error = pytest.raises(
     ValueError,
