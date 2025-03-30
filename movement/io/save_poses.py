@@ -19,22 +19,14 @@ logger = logging.getLogger(__name__)
 def _ds_to_dlc_style_df(
     ds: xr.Dataset, columns: pd.MultiIndex
 ) -> pd.DataFrame:
-    """Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.
+    """Convert a ``movement`` dataset to a DLC-style DataFrame."""
+    # Check shapes of position and confidence data
+    position_shape = ds.position.data.shape
+    confidence_shape = ds.confidence.data.shape
+    print("Position shape:", position_shape)
+    print("Confidence shape:", confidence_shape)
 
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
-        and associated metadata.
-    columns : pandas.MultiIndex
-        DeepLabCut-style multi-index columns
-
-    Returns
-    -------
-    pandas.DataFrame
-
-    """
-    # Concatenate the pose tracks and confidence scores into one array
+    # Concatenate the pose tracks and confi scores into one array
     tracks_with_scores = np.concatenate(
         (
             ds.position.data,
@@ -42,9 +34,22 @@ def _ds_to_dlc_style_df(
         ),
         axis=1,
     )
+
+    # Check the shape after concatenation
+    print("Tracks with scores shape:", tracks_with_scores.shape)
+
     # Reverse the order of the dimensions except for the time dimension
     transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
     tracks_with_scores = tracks_with_scores.transpose(transpose_order)
+
+    # Check the shape of the data
+    expected_columns = columns.shape[0]
+    actual_shape = tracks_with_scores.reshape(ds.sizes["time"], -1).shape[1]
+
+    if actual_shape != expected_columns:
+        raise ValueError(f"""Shape of passed values is {actual_shape},
+                        but indices imply {expected_columns}.""")
+
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
         data=tracks_with_scores.reshape(ds.sizes["time"], -1),
@@ -52,6 +57,7 @@ def _ds_to_dlc_style_df(
         columns=columns,
         dtype=float,
     )
+
     return df
 
 
