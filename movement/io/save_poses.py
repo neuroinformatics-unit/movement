@@ -80,7 +80,9 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
 
 def to_dlc_style_df(
-    ds: xr.Dataset, split_individuals: bool = False
+    ds: xr.Dataset,
+    split_individuals: bool = False,
+    dlc_df_format: Literal["single-animal", "multi-animal"] = "multi-animal",
 ) -> pd.DataFrame | dict[str, pd.DataFrame]:
     """Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).
 
@@ -92,27 +94,17 @@ def to_dlc_style_df(
     split_individuals : bool, optional
         If True, return a dictionary of DataFrames per individual, with
         individual names as keys. If False (default), return a single
-        DataFrame for all individuals (see Notes).
+        DataFrame for all individuals.
+    dlc_df_format : {"single-animal", "multi-animal"}, optional
+        Specifies the DLC dataframe format. "single-animal" produces the
+        older format (<DLC 2.0) without the "individuals" column level,
+        while "multi-animal" includes it (DLC >=2.0).
+        Defaults to "multi-animal".
 
     Returns
     -------
     pandas.DataFrame or dict
         DeepLabCut-style pandas DataFrame or dictionary of DataFrames.
-
-    Notes
-    -----
-    The DataFrame(s) will have a multi-index column with the following levels:
-    "scorer", "bodyparts", "coords" (if split_individuals is True),
-    or "scorer", "individuals", "bodyparts", "coords"
-    (if split_individuals is False).
-
-    Regardless of the provenance of the points-wise confidence scores,
-    they will be referred to as "likelihood", and stored in
-    the "coords" level (as DeepLabCut expects).
-
-    See Also
-    --------
-    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.
 
     """
     _validate_dataset(ds)
@@ -128,27 +120,44 @@ def to_dlc_style_df(
             individual_data = ds.sel(individuals=individual)
 
             index_levels = ["scorer", "bodyparts", "coords"]
+            if dlc_df_format == "multi-animal":
+                index_levels.insert(1, "individuals")
+
             columns = pd.MultiIndex.from_product(
-                [scorer, bodyparts, coords], names=index_levels
+                [scorer]
+                + ([individuals] if dlc_df_format == "multi-animal" else [])
+                + [bodyparts, coords],
+                names=index_levels,
             )
 
             df = _ds_to_dlc_style_df(individual_data, columns)
             df_dict[individual] = df
 
         logger.info(
-            "Converted poses dataset to DeepLabCut-style DataFrames "
-            "per individual."
+            f"""Converted poses dataset to DeepLabCut-style DataFrames
+            per individual using '{dlc_df_format}' format."""
         )
         return df_dict
     else:
-        index_levels = ["scorer", "individuals", "bodyparts", "coords"]
+        index_levels = (
+            ["scorer", "individuals", "bodyparts", "coords"]
+            if dlc_df_format == "multi-animal"
+            else ["scorer", "bodyparts", "coords"]
+        )
+
         columns = pd.MultiIndex.from_product(
-            [scorer, individuals, bodyparts, coords], names=index_levels
+            [scorer]
+            + ([individuals] if dlc_df_format == "multi-animal" else [])
+            + [bodyparts, coords],
+            names=index_levels,
         )
 
         df_all = _ds_to_dlc_style_df(ds, columns)
 
-        logger.info("Converted poses dataset to DeepLabCut-style DataFrame.")
+        logger.info(
+            f"""Converted poses dataset to DeepLabCut-style
+            DataFrame using '{dlc_df_format}' format."""
+        )
         return df_all
 
 
@@ -156,6 +165,7 @@ def to_dlc_file(
     ds: xr.Dataset,
     file_path: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
+    dlc_df_format: Literal["single-animal", "multi-animal"] = "multi-animal",
 ) -> None:
     """Save a ``movement`` dataset to DeepLabCut file(s).
 
@@ -168,38 +178,27 @@ def to_dlc_file(
         Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
     split_individuals : bool or "auto", optional
-        Whether to save individuals to separate files or to the same file
-        (see Notes). Defaults to "auto".
+        Whether to save individuals to separate files or to the same file.
+        Defaults to "auto" (determined based on dataset individuals).
+    dlc_df_format : {"single-animal", "multi-animal"}, optional
+        Specifies the DLC dataframe format. "single-animal" produces the
+        older format (<DLC 2.0) without the "individuals" column level,
+        while "multi-animal" includes it (DLC >=2.0).
+        Defaults to "multi-animal".
 
     Notes
     -----
     If ``split_individuals`` is True, each individual will be saved to a
-    separate file, formatted as in a single-animal DeepLabCut project
-    (without the "individuals" column level). The individual's name will be
-    appended to the file path, just before the file extension, e.g.
-    "/path/to/filename_individual1.h5". If False, all individuals will be
-    saved to the same file, formatted as in a multi-animal DeepLabCut project
-    (with the "individuals" column level). The file path will not be modified.
-    If "auto", the argument's value is determined based on the number of
-    individuals in the dataset: True if there is only one, False otherwise.
-
-    See Also
-    --------
-    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).
-
-    Examples
-    --------
-    >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
-    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
+    separate file, but the DLC format is determined by ``dlc_df_format``.
+    If False, all individuals will be saved to the same file, also formatted
+    according to ``dlc_df_format``.
 
     """  # noqa: D301
     file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
 
-    # Sets default behaviour for the function
+    # Determine splitting behavior
     if split_individuals == "auto":
         split_individuals = _auto_split_individuals(ds)
-
     elif not isinstance(split_individuals, bool):
         raise log_error(
             ValueError,
@@ -207,19 +206,30 @@ def to_dlc_file(
             f"{type(split_individuals)}.",
         )
 
+    # Validate DLC format
+    if dlc_df_format not in ["single-animal", "multi-animal"]:
+        raise log_error(
+            ValueError,
+            f"""Invalid value for 'dlc_df_format': {dlc_df_format}.
+            Expected 'single-animal' or 'multi-animal'.""",
+        )
+
     if split_individuals:
-        # split the dataset into a dictionary of dataframes per individual
-        df_dict = to_dlc_style_df(ds, split_individuals=True)
+        # Split dataset into multiple files while maintaining DLC format
+        df_dict = to_dlc_style_df(
+            ds, split_individuals=True, dlc_df_format=dlc_df_format
+        )
 
         for key, df in df_dict.items():
-            # the key is the individual's name
             filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
     else:
-        # convert the dataset to a single dataframe for all individuals
-        df_all = to_dlc_style_df(ds, split_individuals=False)
+        # Convert dataset to a single dataframe using the chosen DLC format
+        df_all = to_dlc_style_df(
+            ds, split_individuals=False, dlc_df_format=dlc_df_format
+        )
         if isinstance(df_all, pd.DataFrame):
             _save_dlc_df(file.path, df_all)
         logger.info(f"Saved poses dataset to {file.path}.")
