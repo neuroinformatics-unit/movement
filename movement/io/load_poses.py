@@ -936,8 +936,8 @@ def _ds_from_nwb_object(
 
     """
     pose_estimation = nwb_file.processing["behavior"][key_name]
-    source_software = pose_estimation.fields["source_software"]
-    pose_estimation_series = pose_estimation.fields["pose_estimation_series"]
+    source_software = pose_estimation.source_software
+    pose_estimation_series = pose_estimation.pose_estimation_series
     single_keypoint_datasets = []
     for keypoint, pse in pose_estimation_series.items():
         # Extract position and confidence data for each keypoint
