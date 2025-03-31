@@ -8,6 +8,7 @@ exclude_modules = [
     "cli_entrypoint",
     "loader_widgets",
     "meta_widget",
+    "mwb",
 ]
 
 # Set the current working directory to the directory of this script

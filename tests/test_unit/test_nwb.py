@@ -8,8 +8,8 @@ from pynwb import NWBHDF5IO, NWBFile
 from pynwb.file import Subject
 
 from movement import sample_data
-from movement.io._nwb import _ds_to_pose_and_skeleton_objects
 from movement.io.load_poses import from_nwb_file
+from movement.io.nwb import _ds_to_pose_and_skeleton_objects
 from movement.io.save_poses import to_nwb_file
 
 
