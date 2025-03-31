@@ -877,13 +877,13 @@ def from_nwb_file(
     Open an NWB file and load pose tracks from the file object:
 
     >>> import pynwb
+    >>> from movement.io import load_poses
     >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     ...     nwb_file = io.read()
     ...     ds = load_poses.from_nwb_file(nwb_file)
 
-    Directly load pose tracks from an NWB file on disk:
+    Or, directly load pose tracks from an NWB file on disk:
 
-    >>> from movement.io import load_poses
     >>> ds = load_poses.from_nwb_file("path/to/file.nwb")
 
     Load two single-individual datasets from two NWB files and merge them
