@@ -67,7 +67,7 @@ def create_test_pose_estimation_series(
 
 def test_save_poses_to_single_nwb_file():
     ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
-    session_start_time = datetime.datetime.now(datetime.timezone.utc)
+    session_start_time = datetime.datetime.now(datetime.UTC)
     nwbfile_individual1 = NWBFile(
         session_description="session_description",
         identifier="individual1",
@@ -86,7 +86,7 @@ def test_save_poses_to_single_nwb_file():
 
 def test_save_poses_to_multiple_nwb_files():
     ds = sample_data.fetch_dataset("DLC_two-mice.predictions.csv")
-    session_start_time = datetime.datetime.now(datetime.timezone.utc)
+    session_start_time = datetime.datetime.now(datetime.UTC)
     nwbfile_individual1 = NWBFile(
         session_description="session_description",
         identifier="individual1",
@@ -107,7 +107,7 @@ def create_test_pose_nwb(identifier="subject1") -> NWBFile:
     nwb_file = NWBFile(
         session_description="session_description",
         identifier=identifier,
-        session_start_time=datetime.datetime.now(datetime.timezone.utc),
+        session_start_time=datetime.datetime.now(datetime.UTC),
     )
 
     # add a subject to the NWB file
