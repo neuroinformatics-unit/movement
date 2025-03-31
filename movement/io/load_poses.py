@@ -948,8 +948,11 @@ def _ds_from_nwb_object(
             else np.full(position_data.shape[0], np.nan)
         )
 
-        # Compute fps from the time differences between timestamps
-        fps = np.nanmedian(1 / np.diff(pse.timestamps))
+        if pse.rate:  # in Hz
+            fps = pse.rate
+        else:
+            # Compute fps from the time differences between timestamps
+            fps = np.nanmedian(1 / np.diff(pse.timestamps))
 
         single_keypoint_datasets.append(
             # create movement dataset with 1 keypoint and 1 individual
