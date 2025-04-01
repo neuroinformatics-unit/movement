@@ -148,6 +148,9 @@ def test_poses_dataset_validator_confidence_array(
             assert np.all(np.isnan(poses.confidence_array))
 
 
+@pytest.mark.filterwarnings(
+    "ignore:.*Converting to a list of length 1.:UserWarning"
+)
 def test_poses_dataset_validator_keypoint_names(
     position_array_params, valid_poses_arrays
 ):
@@ -162,6 +165,9 @@ def test_poses_dataset_validator_keypoint_names(
         assert poses.keypoint_names == e
 
 
+@pytest.mark.filterwarnings(
+    "ignore:.*Converting to a list of length 1.:UserWarning"
+)
 def test_poses_dataset_validator_individual_names(
     position_array_params, valid_poses_arrays
 ):

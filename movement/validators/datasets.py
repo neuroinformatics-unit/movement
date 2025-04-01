@@ -1,5 +1,6 @@
 """``attrs`` classes for validating data structures."""
 
+import warnings
 from collections.abc import Iterable
 from typing import Any, ClassVar
 
@@ -13,9 +14,11 @@ from movement.utils.logging import logger
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
-        logger.warning(
+        warnings.warn(
             f"Invalid value ({value}). Expected a list of strings. "
-            "Converting to a list of length 1."
+            "Converting to a list of length 1.",
+            UserWarning,
+            stacklevel=2,
         )
         return [value]
     elif isinstance(value, Iterable):
