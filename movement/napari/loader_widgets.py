@@ -142,30 +142,30 @@ class DataLoader(QWidget):
         # Connect method to layer deletion event
         if hasattr(self.viewer, "layers"):
             self.viewer.layers.events.removed.connect(
-                self._on_layer_deleted, ref=True
+                self._check_frame_slider_range, ref=True
             )
 
         # Connect method to frame slider change event
         self.viewer.dims.events.current_step.connect(
-            self._on_frame_slider_changed, ref=True
+            self._show_N_prior_markers_with_slider_change, ref=True
         )
 
         # Connect method to prior markers spinbox change event
         self.prior_markers_spinbox.valueChanged.connect(
-            self._on_prior_markers_spinbox_changed
+            self._show_N_prior_markers_with_spinbox_change
         )
 
-    def _on_layer_deleted(self):
-        """Check the frame slider range when a layer is deleted."""
-        self._check_frame_slider_range()
+    # def _on_layer_deleted(self):
+    #     """Check the frame slider range when a layer is deleted."""
+    #     self._check_frame_slider_range()
 
-    def _on_frame_slider_changed(self, event):
-        """Show previous N points when the frame slider position changes."""
-        self._show_N_prior_markers_with_slider_change(event)
+    # def _on_frame_slider_changed(self, event):
+    #     """Show previous N points when the frame slider position changes."""
+    #     self._show_N_prior_markers_with_slider_change(event)
 
-    def _on_prior_markers_spinbox_changed(self):
-        """Show previous N points when the spinbox value changes."""
-        self._show_N_prior_markers_with_spinbox_change()
+    # def _on_prior_markers_spinbox_changed(self):
+    #     """Show previous N points when the spinbox value changes."""
+    #     self._show_N_prior_markers_with_spinbox_change()
 
     def _check_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
@@ -370,14 +370,7 @@ class DataLoader(QWidget):
         dimension slider.
         """
         n_prior_markers = int(self.prior_markers_spinbox.value())
-        list_points_layers = [
-            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
-        ]
-        self._show_N_prior_markers(
-            event.value[0],
-            n_prior_markers,
-            list_points_layers,
-        )
+        self._show_N_prior_markers(event.value[0], n_prior_markers)
 
     def _show_N_prior_markers_with_spinbox_change(self):
         """Return callback for showing N markers before the current frame.
@@ -386,23 +379,19 @@ class DataLoader(QWidget):
         spinbox.
         """
         n_prior_markers = int(self.prior_markers_spinbox.value())
-        list_points_layers = [
-            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
-        ]
         self._show_N_prior_markers(
-            self.viewer.dims.current_step[0],
-            n_prior_markers,
-            list_points_layers,
+            self.viewer.dims.current_step[0], n_prior_markers
         )
 
-    def _show_N_prior_markers(
-        self, frame_slider_value, n_prior_markers, list_points_layers
-    ):
+    def _show_N_prior_markers(self, frame_slider_value, n_prior_markers):
         """Update points layer data to show N markers before the current frame.
 
         Modify the data in all points layers to show N markers before the
         dimension slider frame.
         """
+        list_points_layers = [
+            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
+        ]
         for layer in list_points_layers:
             # Get columns 1 to n from original input data
             input_data_no_nans = layer.metadata["data_no_nans"].copy()[:, 1:]
