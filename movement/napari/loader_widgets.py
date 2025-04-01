@@ -150,10 +150,10 @@ class DataLoader(QWidget):
             self._on_frame_slider_changed, ref=True
         )
 
-        # # Connect method to prior markers spinbox change event
-        # self.prior_markers_spinbox.valueChanged.connect(
-        #     self._on_prior_markers_spinbox_changed
-        # )
+        # Connect method to prior markers spinbox change event
+        self.prior_markers_spinbox.valueChanged.connect(
+            self._on_prior_markers_spinbox_changed
+        )
 
     def _on_layer_deleted(self):
         """Check the frame slider range when a layer is deleted."""
@@ -163,9 +163,9 @@ class DataLoader(QWidget):
         """Show previous N points when the frame slider position changes."""
         self._show_N_prior_markers_with_slider_change(event)
 
-    # def _on_prior_markers_spinbox_changed(self):
-    #     """Show previous N points when the spinbox value changes."""
-    #     self._show_N_prior_markers_with_spinbox_change()
+    def _on_prior_markers_spinbox_changed(self):
+        """Show previous N points when the spinbox value changes."""
+        self._show_N_prior_markers_with_spinbox_change()
 
     def _check_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
@@ -370,40 +370,30 @@ class DataLoader(QWidget):
         dimension slider.
         """
         n_prior_markers = int(self.prior_markers_spinbox.value())
-        if n_prior_markers != 0:
-            self._show_N_prior_markers(
-                event.value[0],
-                n_prior_markers,
-                [
-                    ly
-                    for ly in self.viewer.layers
-                    if isinstance(ly, layers.Points)
-                ],
-            )
-        else:
-            return
+        list_points_layers = [
+            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
+        ]
+        self._show_N_prior_markers(
+            event.value[0],
+            n_prior_markers,
+            list_points_layers,
+        )
 
-    # def _show_N_prior_markers_with_spinbox_change(self):
-    #     """Return callback for showing N markers before the current frame.
+    def _show_N_prior_markers_with_spinbox_change(self):
+        """Return callback for showing N markers before the current frame.
 
-    #     This function is called when the user changes the value in the
-    #     spinbox.
-    #     """
-    #     n_prior_markers = int(self.prior_markers_spinbox.value())
-    #     if n_prior_markers != 0:
-    #         list_points_layers = [
-    #             ly
-    #             for ly in self.viewer.layers
-    #             if isinstance(ly, layers.Points)
-    #         ]
-
-    #         self._show_N_prior_markers(
-    #             self.viewer.dims.current_step[0], #----
-    #             n_prior_markers,
-    #             list_points_layers,
-    #         )
-    #     else:
-    #         return
+        This function is called when the user changes the value in the
+        spinbox.
+        """
+        n_prior_markers = int(self.prior_markers_spinbox.value())
+        list_points_layers = [
+            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
+        ]
+        self._show_N_prior_markers(
+            self.viewer.dims.current_step[0],
+            n_prior_markers,
+            list_points_layers,
+        )
 
     def _show_N_prior_markers(
         self, frame_slider_value, n_prior_markers, list_points_layers
