@@ -59,6 +59,9 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
+        # Create N prior markers widget
+        self._create_N_prior_markers_widget()
+
         # Connect widget methods to events
         self._connect_methods_to_events()
 
@@ -109,6 +112,24 @@ class DataLoader(QWidget):
         self.file_path_layout.addWidget(self.browse_button)
         self.layout().addRow("file path:", self.file_path_layout)
 
+    def _create_N_prior_markers_widget(self):
+        """Create spinbox to select the number of prior markers to show."""
+        self.prior_markers_spinbox = QDoubleSpinBox()
+        self.prior_markers_spinbox.setObjectName("prior_markers_spinbox")
+        self.prior_markers_spinbox.setMinimum(0.0)
+        # self.prior_markers_spinbox.setMaximum(1000.0)
+        self.prior_markers_spinbox.setValue(0.0)
+        self.prior_markers_spinbox.setDecimals(0)
+
+        # How much we increment/decrement when the user clicks the arrows
+        self.prior_markers_spinbox.setSingleStep(1)
+
+        # Add a tooltip
+        self.prior_markers_spinbox.setToolTip(
+            "Set the number of prior markers to show in the current view."
+        )
+        self.layout().addRow("N of prior markers:", self.prior_markers_spinbox)
+
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
@@ -129,13 +150,22 @@ class DataLoader(QWidget):
             self._on_frame_slider_changed, ref=True
         )
 
+        # # Connect method to prior markers spinbox change event
+        # self.prior_markers_spinbox.valueChanged.connect(
+        #     self._on_prior_markers_spinbox_changed
+        # )
+
     def _on_layer_deleted(self):
         """Check the frame slider range when a layer is deleted."""
         self._check_frame_slider_range()
 
     def _on_frame_slider_changed(self, event):
         """Show previous N points when the frame slider position changes."""
-        self._show_N_prior_markers(event)
+        self._show_N_prior_markers_with_slider_change(event)
+
+    # def _on_prior_markers_spinbox_changed(self):
+    #     """Show previous N points when the spinbox value changes."""
+    #     self._show_N_prior_markers_with_spinbox_change()
 
     def _check_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
@@ -149,7 +179,7 @@ class DataLoader(QWidget):
             return
 
         # Get the maximum frame index from all loaded layers
-        max_frame_idx = max(
+        max_of_max_frame_idx = max(
             [
                 ly.metadata["max_frame_idx"]
                 for ly in self.viewer.layers
@@ -161,11 +191,11 @@ class DataLoader(QWidget):
 
         # If the frame slider range is not set to the full range of frames,
         # update it.
-        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+        if (self.viewer.dims.range[0].stop != max_of_max_frame_idx) or (
             int(self.viewer.dims.range[0].start) != 0
         ):
             self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+                RangeTuple(start=0.0, stop=max_of_max_frame_idx, step=1.0),
             ) + self.viewer.dims.range[1:]
 
     def _on_browse_clicked(self):
@@ -294,9 +324,7 @@ class DataLoader(QWidget):
             metadata={
                 "max_frame_idx": max(self.data[:, 1]),
                 "data_no_nans": self.data[self.data_not_nan, :],
-                "properties_no_nans": self.properties.iloc[
-                    self.data_not_nan, :
-                ],  # add original input data as metadata
+                # add napari tracks array without nans as metadata
             },
             **points_style.as_kwargs(),
         )
@@ -335,28 +363,70 @@ class DataLoader(QWidget):
 
         return tracks_layer
 
-    def _show_N_prior_markers(self, event):
+    def _show_N_prior_markers_with_slider_change(self, event):
         """Return callback for showing N markers before the current frame.
 
         This function is called when the user changes the frame in the
         dimension slider.
         """
-        list_points_layers = [
-            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
-        ]
-        for layer in list_points_layers:
-            # Get original input data
-            properties_no_nans = layer.metadata["properties_no_nans"]
+        n_prior_markers = int(self.prior_markers_spinbox.value())
+        if n_prior_markers != 0:
+            self._show_N_prior_markers(
+                event.value[0],
+                n_prior_markers,
+                [
+                    ly
+                    for ly in self.viewer.layers
+                    if isinstance(ly, layers.Points)
+                ],
+            )
+        else:
+            return
 
-            # Select points that are 5 frames before the current frame
+    # def _show_N_prior_markers_with_spinbox_change(self):
+    #     """Return callback for showing N markers before the current frame.
+
+    #     This function is called when the user changes the value in the
+    #     spinbox.
+    #     """
+    #     n_prior_markers = int(self.prior_markers_spinbox.value())
+    #     if n_prior_markers != 0:
+    #         list_points_layers = [
+    #             ly
+    #             for ly in self.viewer.layers
+    #             if isinstance(ly, layers.Points)
+    #         ]
+
+    #         self._show_N_prior_markers(
+    #             self.viewer.dims.current_step[0], #----
+    #             n_prior_markers,
+    #             list_points_layers,
+    #         )
+    #     else:
+    #         return
+
+    def _show_N_prior_markers(
+        self, frame_slider_value, n_prior_markers, list_points_layers
+    ):
+        """Update points layer data to show N markers before the current frame.
+
+        Modify the data in all points layers to show N markers before the
+        dimension slider frame.
+        """
+        for layer in list_points_layers:
+            # Get columns 1 to n from original input data
+            input_data_no_nans = layer.metadata["data_no_nans"].copy()[:, 1:]
+
+            # Select points that are N frames before the current frame
             slc_prior_frames = np.logical_and(
-                properties_no_nans["frame_idx"] > event.value[0] - 5,
-                properties_no_nans["frame_idx"] <= event.value[0],
+                input_data_no_nans[:, 0]  # properties_no_nans["frame_idx"]
+                >= frame_slider_value - n_prior_markers,
+                input_data_no_nans[:, 0] <= frame_slider_value,
             )
 
-            # In the data for this layer, set the "frame" column of all
-            # selected points to current frame
-            layer.data[slc_prior_frames, 0] = event.value[0]
+            # Reset any previous modifications to the original data
+            input_data_no_nans[slc_prior_frames, 0] = frame_slider_value
+            layer.data = input_data_no_nans
 
             # Force a refresh of the points layer
             # (otherwise the update is not visible in the current frame)
