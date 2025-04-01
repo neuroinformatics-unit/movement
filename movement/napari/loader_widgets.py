@@ -117,7 +117,7 @@ class DataLoader(QWidget):
         self.prior_markers_spinbox = QDoubleSpinBox()
         self.prior_markers_spinbox.setObjectName("prior_markers_spinbox")
         self.prior_markers_spinbox.setMinimum(0.0)
-        # self.prior_markers_spinbox.setMaximum(1000.0)
+        self.prior_markers_spinbox.setMaximum(1e6)
         self.prior_markers_spinbox.setValue(0.0)
         self.prior_markers_spinbox.setDecimals(0)
 
