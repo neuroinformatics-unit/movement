@@ -1,6 +1,7 @@
 """Compute kinematic variables like velocity and acceleration."""
 
 import itertools
+import warnings
 from collections.abc import Hashable
 from typing import Literal
 
@@ -890,7 +891,7 @@ def compute_path_length(
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float
 ) -> None:
-    """Print a warning if the proportion of NaN values exceeds a threshold.
+    """Issue warning if the proportion of NaN values exceeds a threshold.
 
     The NaN proportion is evaluated per point track, and a given point is
     considered NaN if any of its ``space`` coordinates are NaN. The warning
@@ -915,12 +916,14 @@ def _warn_about_nan_proportion(
         n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
     )
     if len(data_to_warn_about) > 0:
-        logger.warning(
+        warnings.warn(
             "The result may be unreliable for point tracks with many "
             "missing values. The following tracks have more than "
-            f"{nan_warn_threshold * 100:.3} % NaN values:",
+            f"{nan_warn_threshold * 100:.3} % NaN values:\n"
+            f"{report_nan_values(data_to_warn_about)}",
+            UserWarning,
+            stacklevel=2,
         )
-        print(report_nan_values(data_to_warn_about))
 
 
 def _compute_scaled_path_length(
