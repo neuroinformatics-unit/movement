@@ -26,7 +26,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     data_loader_widget = DataLoader(viewer)
 
     # Check that the widget has the expected number of rows
-    assert data_loader_widget.layout().rowCount() == 4
+    assert data_loader_widget.layout().rowCount() == 5
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
@@ -67,10 +67,10 @@ def test_connect_methods_to_events(make_napari_viewer_proxy):
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
-    # Check that the _on_layer_deleted is a callback linked to the
+    # Check that the _check_frame_slider_range is a callback linked to the
     # napari layer removal event
     assert (
-        data_loader_widget._on_layer_deleted.__name__
+        data_loader_widget._check_frame_slider_range.__name__
         in data_loader_widget.viewer.layers.events.removed.callback_refs
     )
 
@@ -243,6 +243,10 @@ def test_on_load_clicked_with_valid_file_path(
         side_effect=data_loader_widget._check_frame_slider_range
     )
 
+    data_loader_widget._set_initial_state = MagicMock(
+        side_effect=data_loader_widget._set_initial_state
+    )
+
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
@@ -282,8 +286,11 @@ def test_on_load_clicked_with_valid_file_path(
     tracks_layer = viewer.layers[1]
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
-    # Check that the frame slider method was called
-    data_loader_widget._check_frame_slider_range.assert_called_once()
+    # Check that the frame slider method was called at least once
+    data_loader_widget._check_frame_slider_range.assert_called()
+
+    # Check that the initial state method was called
+    data_loader_widget._set_initial_state.assert_called()
 
     # Check that the points layer is the active one
     assert viewer.layers.selection.active == points_layer

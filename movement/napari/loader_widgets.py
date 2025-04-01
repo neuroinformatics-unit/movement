@@ -139,6 +139,9 @@ class DataLoader(QWidget):
 
     def _connect_methods_to_events(self):
         """Connect widget methods to napari events."""
+        # TODO: check if this would look better with decorators
+        # https://forum.image.sc/t/event-handling-in-napari/46539/7
+
         # Connect method to layer deletion event
         if hasattr(self.viewer, "layers"):
             self.viewer.layers.events.removed.connect(
@@ -166,6 +169,9 @@ class DataLoader(QWidget):
         # markers starts or ends with nans, the frame slider range will not
         # reflect the full range of frames.
         self._check_frame_slider_range()
+
+        # default_current_step = self.viewer.dims.current_step
+        # self.viewer.dims.current_step = (0,) + default_current_step[2:]
 
     def _check_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
