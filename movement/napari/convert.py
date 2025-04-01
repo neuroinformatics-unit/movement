@@ -12,18 +12,25 @@ logger = logging.getLogger(__name__)
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
-    data = {
+    # fps is fetched from combobox and it is 1 by default, so we
+    # interpret ds.coords["time"] as if always expressed in seconds
+    properties = {
         "individual": ds.coords["individuals"].values,
         "time": ds.coords["time"].values,
         "confidence": ds["confidence"].values.flatten(),
+        "frame_idx": (ds.coords["time"] * ds.attrs["fps"]).astype(int),
+        # frame idx for napari
     }
-    desired_order = list(data.keys())
-    if "keypoints" in ds.coords:
-        data["keypoint"] = ds.coords["keypoints"].values
-        desired_order.insert(1, "keypoint")
 
-    # sort
-    return pd.DataFrame(data).reindex(columns=desired_order)
+    # Order the columns in the dataframe ---- why?
+    # (if keypoints are present, add them to the beginning)
+    desired_order = list(properties.keys())
+    if "keypoints" in ds.coords:
+        properties["keypoint"] = ds.coords["keypoints"].values
+        desired_order.insert(1, "keypoint")
+    properties_sorted = pd.DataFrame(properties).reindex(columns=desired_order)
+
+    return properties_sorted
 
 
 def ds_to_napari_tracks(
@@ -68,6 +75,7 @@ def ds_to_napari_tracks(
     axes_reordering: tuple[int, ...] = (2, 0, 1)
     if "keypoints" in ds.coords:
         axes_reordering = (3,) + axes_reordering
+
     yx_cols = np.transpose(
         ds.position.values,  # from: frames, xy, keypoints, individuals
         axes_reordering,  # to: individuals, keypoints, frames, xy

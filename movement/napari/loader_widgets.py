@@ -59,11 +59,11 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
-        # Connect methods to napari events
-        if hasattr(self.viewer, "layers"):
-            self.viewer.layers.events.removed.connect(
-                self._on_layer_deleted, ref=True
-            )
+        # Create N prior markers widget
+        self._create_N_prior_markers_widget()
+
+        # Connect widget methods to events
+        self._connect_methods_to_events()
 
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
@@ -112,12 +112,91 @@ class DataLoader(QWidget):
         self.file_path_layout.addWidget(self.browse_button)
         self.layout().addRow("file path:", self.file_path_layout)
 
+    def _create_N_prior_markers_widget(self):
+        """Create spinbox to select the number of prior markers to show."""
+        self.prior_markers_spinbox = QDoubleSpinBox()
+        self.prior_markers_spinbox.setObjectName("prior_markers_spinbox")
+        self.prior_markers_spinbox.setMinimum(0.0)
+        self.prior_markers_spinbox.setMaximum(1e6)
+        self.prior_markers_spinbox.setValue(0.0)
+        self.prior_markers_spinbox.setDecimals(0)
+
+        # How much we increment/decrement when the user clicks the arrows
+        self.prior_markers_spinbox.setSingleStep(1)
+
+        # Add a tooltip
+        self.prior_markers_spinbox.setToolTip(
+            "Set the number of prior markers to show in the current view."
+        )
+        self.layout().addRow("N of prior markers:", self.prior_markers_spinbox)
+
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
         self.load_button.setObjectName("load_button")
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
+
+    def _connect_methods_to_events(self):
+        """Connect widget methods to napari events."""
+        # Connect method to layer deletion event
+        if hasattr(self.viewer, "layers"):
+            self.viewer.layers.events.removed.connect(
+                self._check_frame_slider_range, ref=True
+            )
+
+        # Connect method to frame slider change event
+        self.viewer.dims.events.current_step.connect(
+            self._show_N_prior_markers_with_slider_change, ref=True
+        )
+
+        # Connect method to prior markers spinbox change event
+        self.prior_markers_spinbox.valueChanged.connect(
+            self._show_N_prior_markers_with_spinbox_change
+        )
+
+    # def _on_layer_deleted(self):
+    #     """Check the frame slider range when a layer is deleted."""
+    #     self._check_frame_slider_range()
+
+    # def _on_frame_slider_changed(self, event):
+    #     """Show previous N points when the frame slider position changes."""
+    #     self._show_N_prior_markers_with_slider_change(event)
+
+    # def _on_prior_markers_spinbox_changed(self):
+    #     """Show previous N points when the spinbox value changes."""
+    #     self._show_N_prior_markers_with_spinbox_change()
+
+    def _check_frame_slider_range(self):
+        """Check the frame slider range and update it if necessary.
+
+        This is required because if the data loaded starts or ends
+        with all NaN values, the frame slider range will not reflect
+        the full range of frames.
+        """
+        # If no points layers are loaded, do nothing
+        if not any(isinstance(ly, layers.Points) for ly in self.viewer.layers):
+            return
+
+        # Get the maximum frame index from all loaded layers
+        max_of_max_frame_idx = max(
+            [
+                ly.metadata["max_frame_idx"]
+                for ly in self.viewer.layers
+                if isinstance(ly, layers.Points)
+                and hasattr(ly, "metadata")
+                and "max_frame_idx" in ly.metadata
+            ]
+        )
+
+        # If the frame slider range is not set to the full range of frames,
+        # update it.
+        if (self.viewer.dims.range[0].stop != max_of_max_frame_idx) or (
+            int(self.viewer.dims.range[0].start) != 0
+        ):
+            self.viewer.dims.range = (
+                RangeTuple(start=0.0, stop=max_of_max_frame_idx, step=1.0),
+            ) + self.viewer.dims.range[1:]
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
@@ -154,47 +233,69 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        # Load data as a movement dataset and convert to napari Tracks array
+        # Format data for napari layers
+        self.data, self.properties, self.data_not_nan = (
+            self._get_data_for_layers(fps, source_software, file_path)
+        )
+        logger.info("Converted dataset to a napari Tracks array.")
+        logger.debug(f"Tracks array shape: {self.data.shape}")
+
+        # Set property to color points and tracks by
+        self._set_common_color_property()
+
+        # Add the data as a points and a tracks layers
+        self._add_points_layer()
+        self._add_tracks_layer()
+
+        # Ensure the frame slider reflects the total number of frames
+        # over all loaded layers
+        self._check_frame_slider_range()
+
+        # Set the frame slider position
+        self._set_initial_state()
+
+    def _get_data_for_layers(self, fps, source_software, file_path):
+        """Load the data and convert it to a napari Tracks array."""
+        # Load data as a movement dataset
         loader = (
             load_poses
             if source_software in SUPPORTED_POSES_FILES
             else load_bboxes
         )
         ds = loader.from_file(file_path, source_software, fps)
-        self.data, self.properties = ds_to_napari_tracks(ds)
 
-        logger.info("Converted dataset to a napari Tracks array.")
-        logger.debug(f"Tracks array shape: {self.data.shape}")
+        # Convert to napari Tracks array
+        data, properties = ds_to_napari_tracks(ds)
 
         # Find rows that do not contain NaN values
-        self.bool_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        data_not_nan = ~np.any(np.isnan(data), axis=1)
 
-        # Set property to color points and tracks by
+        return (data, properties, data_not_nan)
+
+    def _set_common_color_property(self):
+        """Set the color property for the Points and Tracks layers.
+
+        The color property is set to "individual" by default,
+        If the dataset contains only one individual and "keypoint"
+        is defined as a property, the color property is set to "keypoint".
+        """
         color_prop = "individual"
         n_individuals = len(self.properties["individual"].unique())
         if n_individuals == 1 and "keypoint" in self.properties:
             color_prop = "keypoint"
         self.color_property = color_prop
 
-        # Add the data as layers
-        self._add_points_layer()
-        self._add_tracks_layer()
+    def _set_initial_state(self):
+        """Set slider at first frame and last points layer as active."""
+        # Set slider to first frame so that first view is not cluttered
+        # with tracks
+        default_current_step = self.viewer.dims.current_step
+        self.viewer.dims.current_step = (0,) + default_current_step[2:]
 
-        # Ensure the frame slider goes from 0 to the max number of frames,
-        # considering all loaded point layers
-        self._check_frame_slider_range()
-
-        # Set loaded points layer as active
-        self.viewer.layers.selection.active = self.points_layer
-
-        # Set the frame slider to the first frame
-        self.viewer.dims.current_step = (0,) + self.viewer.dims.current_step[
-            1:
-        ]
-
-    def _on_layer_deleted(self):
-        """Check the frame slider range when a layer is deleted."""
-        self._check_frame_slider_range()
+        # Set last loaded points layer as active
+        self.viewer.layers.selection.active = [
+            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
+        ][-1]
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
@@ -210,27 +311,27 @@ class DataLoader(QWidget):
             text_prop = "keypoint"
         points_style.set_text_by(property=text_prop)
 
-        # Set property for markers' and text color
+        # Set color of markers and text
         points_style.set_color_by(
             property=self.color_property,
             properties_df=self.properties,
         )
 
         # Add data as a points layer
-        self.points_layer = self.viewer.add_points(
-            self.data[self.bool_not_nan, 1:],
-            properties=self.properties.iloc[self.bool_not_nan, :],
+        points_layer = self.viewer.add_points(
+            self.data[self.data_not_nan, 1:],  # (track_id), frame_idx, y, x
+            properties=self.properties.iloc[self.data_not_nan, :],
+            metadata={
+                "max_frame_idx": max(self.data[:, 1]),
+                "data_no_nans": self.data[self.data_not_nan, :],
+                # add napari tracks array without nans as metadata
+            },
             **points_style.as_kwargs(),
         )
 
-        # Add frame range as metadata to the layer
-        # This would be the frame index after transforming to
-        # napari tracks array
-        self.points_layer.metadata = {
-            "max_frame_idx": max(self.data[:, 1]),
-        }
-
         logger.info("Added tracked dataset as a napari Points layer.")
+
+        return points_layer
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
@@ -243,7 +344,7 @@ class DataLoader(QWidget):
         tracks_style = TracksStyle(
             name=f"tracks: {self.file_name}",
             tail_length=int(max(self.data[:, 1])),
-            # Set the tail length to the number of frames in the data.
+            # Set the tail length to the number of frames.
             # If the value is over 300, it sets the maximum
             # tail_length in the slider to the value passed.
             # It also affects the head_length slider.
@@ -253,52 +354,62 @@ class DataLoader(QWidget):
         tracks_style.set_color_by(property=color_property_factorized)
 
         # Add data as a tracks layer
-        self.tracks_layer = self.viewer.add_tracks(
-            self.data[self.bool_not_nan, :],
-            properties=self.properties.iloc[self.bool_not_nan, :],
+        tracks_layer = self.viewer.add_tracks(
+            self.data[self.data_not_nan, :],
+            properties=self.properties.iloc[self.data_not_nan, :],
             **tracks_style.as_kwargs(),
         )
-
-        # Set display checkboxes
-        self.tracks_layer.display_tail = True
-        self.tracks_layer.display_graph = False
-
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
-    def _check_frame_slider_range(self):
-        """Check the frame slider range and update it if necessary.
+        return tracks_layer
 
-        This is required because if the data loaded starts or ends
-        with all NaN values, the frame slider range will not reflect
-        the full range of frames.
+    def _show_N_prior_markers_with_slider_change(self, event):
+        """Return callback for showing N markers before the current frame.
+
+        This function is called when the user changes the frame in the
+        dimension slider.
         """
-        # If no layers are loaded or no Points layers are loaded, do nothing
-        if not self.viewer.layers or not any(
-            isinstance(ly, layers.Points) for ly in self.viewer.layers
-        ):
-            return
+        n_prior_markers = int(self.prior_markers_spinbox.value())
+        self._show_N_prior_markers(event.value[0], n_prior_markers)
 
-        # Get the maximum frame index from all loaded layers
-        max_frame_idx = max(
-            [
-                ly.metadata["max_frame_idx"]
-                for ly in self.viewer.layers
-                if isinstance(ly, layers.Points)
-                and hasattr(ly, "metadata")
-                and "max_frame_idx" in ly.metadata
-            ]
+    def _show_N_prior_markers_with_spinbox_change(self):
+        """Return callback for showing N markers before the current frame.
+
+        This function is called when the user changes the value in the
+        spinbox.
+        """
+        n_prior_markers = int(self.prior_markers_spinbox.value())
+        self._show_N_prior_markers(
+            self.viewer.dims.current_step[0], n_prior_markers
         )
 
-        # If the frame slider range is not set to the full range of frames,
-        # update it.
-        # Note: the start frame may be different from 0 if all the data
-        # at the first frame is NaN
-        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
-            int(self.viewer.dims.range[0].start) != 0
-        ):
-            self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
-            ) + self.viewer.dims.range[1:]
+    def _show_N_prior_markers(self, frame_slider_value, n_prior_markers):
+        """Update points layer data to show N markers before the current frame.
+
+        Modify the data in all points layers to show N markers before the
+        dimension slider frame.
+        """
+        list_points_layers = [
+            ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
+        ]
+        for layer in list_points_layers:
+            # Get columns 1 to n from original input data
+            input_data_no_nans = layer.metadata["data_no_nans"].copy()[:, 1:]
+
+            # Select points that are N frames before the current frame
+            slc_prior_frames = np.logical_and(
+                input_data_no_nans[:, 0]  # properties_no_nans["frame_idx"]
+                >= frame_slider_value - n_prior_markers,
+                input_data_no_nans[:, 0] <= frame_slider_value,
+            )
+
+            # Reset any previous modifications to the original data
+            input_data_no_nans[slc_prior_frames, 0] = frame_slider_value
+            layer.data = input_data_no_nans
+
+            # Force a refresh of the points layer
+            # (otherwise the update is not visible in the current frame)
+            layer.refresh()
 
     @staticmethod
     def _enable_layer_tooltips():
