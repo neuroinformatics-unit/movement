@@ -51,9 +51,7 @@ class MovementLogger:
         self.remove()
         if console:
             self.add(sys.stderr, level="WARNING")
-        self.add(
-            log_file, level="DEBUG", rotation="5 MB", retention=1, enqueue=True
-        )
+        self.add(log_file, level="DEBUG", rotation="5 MB", retention=1)
         # Redirect warnings to the logger
         warnings.showwarning = showwarning
         return log_file
