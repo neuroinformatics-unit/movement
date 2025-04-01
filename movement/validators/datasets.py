@@ -32,9 +32,11 @@ def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
 def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     """Set fps to None if a non-positive float is passed."""
     if fps is not None and fps <= 0:
-        logger.warning(
+        warnings.warn(
             f"Invalid fps value ({fps}). Expected a positive number. "
-            "Setting fps to None."
+            "Setting fps to None.",
+            UserWarning,
+            stacklevel=2,
         )
         return None
     return fps
