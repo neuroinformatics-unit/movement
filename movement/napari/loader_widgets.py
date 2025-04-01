@@ -136,7 +136,6 @@ class DataLoader(QWidget):
     def _on_frame_slider_changed(self, event):
         """Show previous N points when the frame slider position changes."""
         self._show_N_prior_markers(event)
-        # pass
 
     def _check_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
@@ -208,8 +207,8 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        # Get napari tracks array
-        self.data, self.properties, self.data_not_nan, ds = (
+        # Get napari tracks array data
+        self.data, self.properties, self.data_not_nan = (
             self._get_data_for_layers(fps, source_software, file_path)
         )
 
@@ -244,7 +243,7 @@ class DataLoader(QWidget):
         # Find rows that do not contain NaN values
         data_not_nan = ~np.any(np.isnan(data), axis=1)
 
-        return (data, properties, data_not_nan, ds)
+        return (data, properties, data_not_nan)
 
     def _set_common_color_property(self):
         """Set the color property for the Points and Tracks layers.
@@ -297,9 +296,10 @@ class DataLoader(QWidget):
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={
                 "max_frame_idx": max(self.data[:, 1]),
-                "data": self.data,  # original data with nans
-                "properties": self.properties,  # original properties with nans
-                "data_not_nan": self.data_not_nan,
+                "data_no_nans": self.data[self.data_not_nan, :],
+                "properties_no_nans": self.properties.iloc[
+                    self.data_not_nan, :
+                ],
             },
             **points_style.as_kwargs(),
         )
@@ -334,10 +334,6 @@ class DataLoader(QWidget):
             properties=self.properties.iloc[self.data_not_nan, :],
             **tracks_style.as_kwargs(),
         )
-
-        # Add metadata?
-        # Link to points layer?
-
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
         return tracks_layer
@@ -352,23 +348,21 @@ class DataLoader(QWidget):
             ly for ly in self.viewer.layers if isinstance(ly, layers.Points)
         ]
         for layer in list_points_layers:
-            # Get original properties dataframe with NaN values
-            properties_with_nans = layer.metadata["properties"]
-            data_not_nan = layer.metadata["data_not_nan"]
+            # Get original input data
+            properties_no_nans = layer.metadata["properties_no_nans"]
 
             # Select points that are 5 frames before the current frame
             slc_prior_frames = np.logical_and(
-                properties_with_nans.loc[data_not_nan, "frame_idx"]
-                > event.value[0] - 5,
-                properties_with_nans.loc[data_not_nan, "frame_idx"]
-                <= event.value[0],
+                properties_no_nans["frame_idx"] > event.value[0] - 5,
+                properties_no_nans["frame_idx"] <= event.value[0],
             )
 
-            # In the data for this layer, set the frame of all
+            # In the data for this layer, set the "frame" column of all
             # selected points to current frame
             layer.data[slc_prior_frames, 0] = event.value[0]
 
             # Force a refresh of the points layer
+            # (otherwise the update is not visible in the current frame)
             layer.refresh()
 
     @staticmethod
