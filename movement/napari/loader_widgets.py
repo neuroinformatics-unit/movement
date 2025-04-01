@@ -144,10 +144,8 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
-        # If no layers are loaded or no Points layers are loaded, do nothing
-        if not self.viewer.layers or not any(
-            isinstance(ly, layers.Points) for ly in self.viewer.layers
-        ):
+        # If no points layers are loaded, do nothing
+        if not any(isinstance(ly, layers.Points) for ly in self.viewer.layers):
             return
 
         # Get the maximum frame index from all loaded layers
@@ -163,8 +161,6 @@ class DataLoader(QWidget):
 
         # If the frame slider range is not set to the full range of frames,
         # update it.
-        # Note: the start frame may be different from 0 if all the data
-        # at the first frame is NaN
         if (self.viewer.dims.range[0].stop != max_frame_idx) or (
             int(self.viewer.dims.range[0].start) != 0
         ):
@@ -207,11 +203,10 @@ class DataLoader(QWidget):
             show_warning("No file path specified.")
             return
 
-        # Get napari tracks array data
+        # Format data for napari layers
         self.data, self.properties, self.data_not_nan = (
             self._get_data_for_layers(fps, source_software, file_path)
         )
-
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
 
@@ -231,13 +226,15 @@ class DataLoader(QWidget):
 
     def _get_data_for_layers(self, fps, source_software, file_path):
         """Load the data and convert it to a napari Tracks array."""
-        # Load data as a movement dataset and convert to napari Tracks array
+        # Load data as a movement dataset
         loader = (
             load_poses
             if source_software in SUPPORTED_POSES_FILES
             else load_bboxes
         )
         ds = loader.from_file(file_path, source_software, fps)
+
+        # Convert to napari Tracks array
         data, properties = ds_to_napari_tracks(ds)
 
         # Find rows that do not contain NaN values
@@ -259,7 +256,7 @@ class DataLoader(QWidget):
         self.color_property = color_prop
 
     def _set_initial_state(self):
-        """Set dimension slider at first frame and points layer active."""
+        """Set slider at first frame and last points layer as active."""
         # Set slider to first frame so that first view is not cluttered
         # with tracks
         default_current_step = self.viewer.dims.current_step
@@ -299,7 +296,7 @@ class DataLoader(QWidget):
                 "data_no_nans": self.data[self.data_not_nan, :],
                 "properties_no_nans": self.properties.iloc[
                     self.data_not_nan, :
-                ],
+                ],  # add original input data as metadata
             },
             **points_style.as_kwargs(),
         )
@@ -339,9 +336,9 @@ class DataLoader(QWidget):
         return tracks_layer
 
     def _show_N_prior_markers(self, event):
-        """Return callback for showing N markers before current frame.
+        """Return callback for showing N markers before the current frame.
 
-        The event is triggered when the user changes the frame in the
+        This function is called when the user changes the frame in the
         dimension slider.
         """
         list_points_layers = [
