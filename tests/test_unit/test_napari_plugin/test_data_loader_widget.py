@@ -22,7 +22,8 @@ from movement.napari.loader_widgets import DataLoader
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     """Test that the loader widget is properly instantiated."""
     # Instantiate the data loader widget
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
 
     # Check that the widget has the expected number of rows
     assert data_loader_widget.layout().rowCount() == 4
@@ -53,15 +54,15 @@ def test_button_connected_to_on_clicked(
     mock_method = mocker.patch(
         f"movement.napari.loader_widgets.DataLoader._on_{button}_clicked"
     )
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
 
 
 # --------test connection to napari events ------------------#
-def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
-    """Test that the widget is connected to napari events."""
+def test_connect_methods_to_events(make_napari_viewer_proxy):
+    """Test that the widget is connected to the relevant napari events."""
     # Create a mock napari viewer
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
@@ -71,6 +72,13 @@ def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
     assert (
         data_loader_widget._on_layer_deleted.__name__
         in data_loader_widget.viewer.layers.events.removed.callback_refs
+    )
+
+    # Check that the _on_frame_slider_changed is a callback linked to the
+    # napari frame slider change event
+    assert (
+        data_loader_widget._on_frame_slider_changed.__name__
+        in data_loader_widget.viewer.dims.events.current_step.callback_refs
     )
 
 
@@ -124,7 +132,7 @@ def test_file_filters_per_source_software(
     source_software, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     data_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
         "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
@@ -143,17 +151,22 @@ def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
     # Create a mock napari viewer
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
+    # Simulate some data loading
+    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget._on_load_clicked()
+
     # Mock the frame slider check method
     mock_frame_slider_check = mocker.patch(
         "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
     )
 
-    # Add a sample layer to the viewer
-    mock_layer = Points(name="mock_layer")
-    data_loader_widget.viewer.add_layer(mock_layer)
-
-    # Delete the layer
-    data_loader_widget.viewer.layers.remove(mock_layer)
+    # Delete the points layer
+    points_layer = [
+        ly for ly in data_loader_widget.viewer.layers if isinstance(ly, Points)
+    ][0]
+    data_loader_widget.viewer.layers.remove(points_layer)
 
     # Check that the slider check method was called
     mock_frame_slider_check.assert_called_once()
@@ -248,7 +261,7 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
 
-    assert data_loader_widget.bool_not_nan is not None
+    assert data_loader_widget.data_not_nan is not None
     assert data_loader_widget.color_property is not None
 
     # Check that the expected log messages were emitted
