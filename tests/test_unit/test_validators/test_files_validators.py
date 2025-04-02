@@ -124,7 +124,7 @@ def test_deeplabcut_csv_validator_with_invalid_input(
             "via_region_shape_attribute_missing_x",
             ValueError,
             "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "at least one bounding box shape parameter is missing. "
+            "missing bounding box shape parameter(s). "
             "Expected 'x', 'y', 'width', 'height' to exist as "
             "'region_shape_attributes', but got "
             "'['name', 'y', 'width', 'height']'.",

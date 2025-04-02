@@ -1,6 +1,7 @@
 """Compute kinematic variables like velocity and acceleration."""
 
 import itertools
+import warnings
 from collections.abc import Hashable
 from typing import Literal
 
@@ -9,7 +10,7 @@ import xarray as xr
 from numpy.typing import ArrayLike
 from scipy.spatial.distance import cdist
 
-from movement.utils.logging import log_error, log_warning
+from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import (
     compute_norm,
@@ -168,11 +169,11 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 
     """
     if not isinstance(order, int):
-        raise log_error(
-            TypeError, f"Order must be an integer, but got {type(order)}."
+        raise logger.error(
+            TypeError(f"Order must be an integer, but got {type(order)}.")
         )
     if order <= 0:
-        raise log_error(ValueError, "Order must be a positive integer.")
+        raise logger.error(ValueError("Order must be a positive integer."))
     validate_dims_coords(data, {"time": []})
     result = data
     for _ in range(order):
@@ -274,15 +275,16 @@ def compute_forward_vector(
         },
     )
     if len(data.space) != 2:
-        raise log_error(
-            ValueError,
-            "Input data must have exactly 2 spatial dimensions, but "
-            f"currently has {len(data.space)}.",
+        raise logger.error(
+            ValueError(
+                "Input data must have exactly 2 spatial dimensions, but "
+                f"currently has {len(data.space)}."
+            )
         )
     # Validate input keypoints
     if left_keypoint == right_keypoint:
-        raise log_error(
-            ValueError, "The left and right keypoints may not be identical."
+        raise logger.error(
+            ValueError("The left and right keypoints may not be identical.")
         )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
@@ -697,15 +699,17 @@ def compute_pairwise_distances(
 
     """
     if dim not in ["individuals", "keypoints"]:
-        raise log_error(
-            ValueError,
-            "'dim' must be either 'individuals' or 'keypoints', "
-            f"but got {dim}.",
+        raise logger.error(
+            ValueError(
+                "'dim' must be either 'individuals' or 'keypoints', "
+                f"but got {dim}."
+            )
         )
     if isinstance(pairs, str) and pairs != "all":
-        raise log_error(
-            ValueError,
-            f"'pairs' must be a dictionary or 'all', but got {pairs}.",
+        raise logger.error(
+            ValueError(
+                f"'pairs' must be a dictionary or 'all', but got {pairs}."
+            )
         )
     validate_dims_coords(data, {"time": [], "space": ["x", "y"], dim: []})
     # Find all possible pair combinations if 'all' is specified
@@ -723,8 +727,8 @@ def compute_pairwise_distances(
             )
         ]
     if not paired_elements:
-        raise log_error(
-            ValueError, "Could not find any pairs to compute distances for."
+        raise logger.error(
+            ValueError("Could not find any pairs to compute distances for.")
         )
     pairwise_distances = {
         f"dist_{elem1}_{elem2}": _cdist(
@@ -785,9 +789,11 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     """
     if not isinstance(data, xr.DataArray):
-        raise log_error(
-            TypeError,
-            f"Input data must be an xarray.DataArray, but got {type(data)}.",
+        raise logger.error(
+            TypeError(
+                "Input data must be an xarray.DataArray, "
+                f"but got {type(data)}."
+            )
         )
 
 
@@ -855,10 +861,12 @@ def compute_path_length(
     # Check that the data is not empty or too short
     n_time = data.sizes["time"]
     if n_time < 2:
-        raise log_error(
-            ValueError,
-            f"At least 2 time points are required to compute path length, "
-            f"but {n_time} were found. Double-check the start and stop times.",
+        raise logger.error(
+            ValueError(
+                "At least 2 time points are required to compute path length, "
+                f"but {n_time} were found. "
+                "Double-check the start and stop times."
+            )
         )
 
     _warn_about_nan_proportion(data, nan_warn_threshold)
@@ -872,17 +880,18 @@ def compute_path_length(
     elif nan_policy == "scale":
         return _compute_scaled_path_length(data)
     else:
-        raise log_error(
-            ValueError,
-            f"Invalid value for nan_policy: {nan_policy}. "
-            "Must be one of 'ffill' or 'scale'.",
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy}. "
+                "Must be one of 'ffill' or 'scale'."
+            )
         )
 
 
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float
 ) -> None:
-    """Print a warning if the proportion of NaN values exceeds a threshold.
+    """Issue warning if the proportion of NaN values exceeds a threshold.
 
     The NaN proportion is evaluated per point track, and a given point is
     considered NaN if any of its ``space`` coordinates are NaN. The warning
@@ -899,21 +908,22 @@ def _warn_about_nan_proportion(
     """
     nan_warn_threshold = float(nan_warn_threshold)
     if not 0 <= nan_warn_threshold <= 1:
-        raise log_error(
-            ValueError,
-            "nan_warn_threshold must be between 0 and 1.",
+        raise logger.error(
+            ValueError("nan_warn_threshold must be between 0 and 1.")
         )
     n_nans = data.isnull().any(dim="space").sum(dim="time")
     data_to_warn_about = data.where(
         n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
     )
     if len(data_to_warn_about) > 0:
-        log_warning(
+        warnings.warn(
             "The result may be unreliable for point tracks with many "
             "missing values. The following tracks have more than "
-            f"{nan_warn_threshold * 100:.3} % NaN values:",
+            f"{nan_warn_threshold * 100:.3} % NaN values:\n"
+            f"{report_nan_values(data_to_warn_about)}",
+            UserWarning,
+            stacklevel=2,
         )
-        print(report_nan_values(data_to_warn_about))
 
 
 def _compute_scaled_path_length(
