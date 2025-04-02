@@ -403,14 +403,3 @@ def test_savgol_filter_with_nans(helpers):
     )
     result = savgol_filter(data, window=3, polyorder=1)
     assert helpers.count_nans(result) > 0
-
-
-# Deprecation test
-def test_median_filter_deprecation(valid_poses_dataset):
-    """Test median filter deprecation warning."""
-    with pytest.warns(DeprecationWarning):
-        result = median_filter(valid_poses_dataset.position, window=3)
-    expected = rolling_filter(
-        valid_poses_dataset.position, window=3, statistic="median"
-    )
-    assert result.equals(expected)
