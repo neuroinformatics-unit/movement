@@ -1,49 +1,66 @@
-import logging
+import warnings
 
 import pytest
 import xarray as xr
+from loguru import logger as loguru_logger
 
-from movement.utils.logging import log_error, log_to_attrs, log_warning
+from movement.utils.logging import (
+    MovementLogger,
+    log_to_attrs,
+    logger,
+    showwarning,
+)
 
-log_messages = {
-    "DEBUG": "This is a debug message",
-    "INFO": "This is an info message",
-    "WARNING": "This is a warning message",
-    "ERROR": "This is an error message",
-}
+log_methods = ["debug", "info", "warning", "error", "exception"]
 
 
-@pytest.mark.parametrize("level, message", log_messages.items())
-def test_logfile_contains_message(level, message):
-    """Check if the last line of the logfile contains
-    the expected message.
+def assert_log_entry_in_file(expected_components, log_file):
+    """Assert that a log entry with the expected components is
+    found in the log file.
     """
-    logger = logging.getLogger("movement")
-    eval(f"logger.{level.lower()}('{message}')")
-    log_file = logger.handlers[0].baseFilename
     with open(log_file) as f:
-        last_line = f.readlines()[-1]
-    assert level in last_line
-    assert message in last_line
+        all_lines = f.readlines()
+    assert any(
+        all(component in line for component in expected_components)
+        for line in all_lines
+    ), (
+        f"Expected log entry with components {expected_components} "
+        "not found in log file."
+    )
 
 
-def test_log_error(caplog):
-    """Check if the log_error function
-    logs the error message and returns an Exception.
+@pytest.mark.parametrize("method", log_methods)
+def test_log_to_file(method):
+    """Ensure the correct logger method is called and
+    the expected message is in the logfile.
     """
-    with pytest.raises(ValueError):
-        raise log_error(ValueError, "This is a test error")
-    assert caplog.records[0].message == "This is a test error"
-    assert caplog.records[0].levelname == "ERROR"
+    log_method = getattr(logger, method)
+    log_message = f"{method} message"
+    log_method(log_message)
+    level = method.upper() if method != "exception" else "ERROR"
+    # Check if a matching log entry is found in the log file
+    assert_log_entry_in_file([level, log_message], pytest.LOG_FILE)
 
 
-def test_log_warning(caplog):
-    """Check if the log_warning function
-    logs the warning message.
+def test_showwarning():
+    """Ensure the custom ``showwarning`` function is called when a
+    warning is issued.
     """
-    log_warning("This is a test warning")
-    assert caplog.records[0].message == "This is a test warning"
-    assert caplog.records[0].levelname == "WARNING"
+    kwargs = {
+        "message": "This is a deprecation warning",
+        "category": DeprecationWarning,
+        "stacklevel": 2,
+    }
+    warnings.showwarning = showwarning
+    warnings.warn(**kwargs)
+    # Check if the warning message is in the log file
+    expected_components = [kwargs["category"].__name__, kwargs["message"]]
+    assert_log_entry_in_file(expected_components, pytest.LOG_FILE)
+
+
+def test_logger_repr():
+    """Ensure the custom logger's representation equals the loguru logger."""
+    assert repr(MovementLogger()) == repr(loguru_logger)
 
 
 @pytest.mark.parametrize(

@@ -6,7 +6,7 @@ from typing import Literal
 import xarray as xr
 from scipy import signal
 
-from movement.utils.logging import log_error, log_to_attrs
+from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
 
 
@@ -211,10 +211,11 @@ def rolling_filter(
     # Compute the statistic over each window
     allowed_statistics = ["mean", "median", "max", "min"]
     if statistic not in allowed_statistics:
-        raise log_error(
-            ValueError,
-            f"Invalid statistic '{statistic}'. "
-            f"Must be one of {allowed_statistics}.",
+        raise logger.error(
+            ValueError(
+                f"Invalid statistic '{statistic}'. "
+                f"Must be one of {allowed_statistics}."
+            )
         )
 
     data_rolled = getattr(data_windows, statistic)(skipna=True)
@@ -281,8 +282,8 @@ def savgol_filter(
 
     """
     if "axis" in kwargs:
-        raise log_error(
-            ValueError, "The 'axis' argument may not be overridden."
+        raise logger.error(
+            ValueError("The 'axis' argument may not be overridden.")
         )
     data_smoothed = data.copy()
     data_smoothed.values = signal.savgol_filter(

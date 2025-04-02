@@ -1,13 +1,10 @@
 """Conversion functions from ``movement`` datasets to napari layers."""
 
-import logging
-
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 # get logger
-logger = logging.getLogger(__name__)
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:

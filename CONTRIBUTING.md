@@ -3,7 +3,6 @@
 ## Contributing code
 
 ### Creating a development environment
-
 It is recommended to use [conda](conda:)
 or [mamba](mamba:) to create a
 development environment for movement. In the following we assume you have
@@ -34,7 +33,6 @@ pre-commit install
 ```
 
 ### Pull requests
-
 In all cases, please submit code to the main repository via a pull request (PR).
 We recommend, and adhere, to the following conventions:
 
@@ -62,7 +60,6 @@ A typical PR workflow would be:
 ## Development guidelines
 
 ### Formatting and pre-commit hooks
-
 Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.com/) to ensure a consistent formatting style. Currently, these include:
 * [ruff](https://github.com/astral-sh/ruff) does a number of jobs, including code linting and auto-formatting.
 * [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker.
@@ -109,7 +106,6 @@ Make sure to provide docstrings for all public functions, classes, and methods.
 This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
-
 We use [pytest](https://docs.pytest.org/en/latest/) for testing and aim for
 ~100% test coverage (as far as is reasonable).
 All new features should be tested.
@@ -120,6 +116,31 @@ Do not include these data in the repository, especially if they are large.
 We store several sample datasets in an external data repository.
 See [sample data](#sample-data) for more information.
 
+### Logging
+We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
+The logger is configured to write logs to a rotating log file at the `DEBUG` level and to {obj}`sys.stderr` at the `WARNING` level.
+
+To import the logger:
+```python
+from movement.utils.logging import logger
+```
+
+Once the logger is imported, you can log messages with the appropriate [severity levels](inv:loguru#levels) using the same syntax as {mod}`loguru<loguru._logger>` (e.g. `logger.debug("Debug message")`, `logger.warning("Warning message")`).
+
+#### Logging and raising exceptions
+Both {meth}`logger.error()<movement.utils.logging.MovementLogger.error>` and {meth}`logger.exception()<movement.utils.logging.MovementLogger.exception>` can be used to log [](inv:python#tut-errors), with the difference that the latter will include the traceback in the log message.
+As these methods will return the logged Exception, you can log and raise the Exception in a single line:
+```python
+raise logger.error(ValueError("message"))
+raise logger.exception(ValueError("message")) # with traceback
+```
+
+#### When to use `print`, `warnings.warn`, and `logger.warning`
+We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
+In general:
+* Use {func}`print` for simple, non-critical messages that do not need to be logged.
+* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`.
 
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
@@ -155,7 +176,6 @@ The addition of a GitHub tag triggers the package's deployment to PyPI.
 The version number is automatically determined from the latest tag on the _main_ branch.
 
 ## Contributing documentation
-
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
 [movement.neuroinformatics.dev](target-movement).
 Its source files are located in the `docs` folder of this repository.
@@ -173,7 +193,6 @@ ensuring that the documentation is published in sync with each PyPI release.
 
 
 ### Editing the documentation
-
 To edit the documentation, first clone the repository, and install `movement` in a
 [development environment](#creating-a-development-environment).
 
@@ -279,7 +298,6 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 :::
 ::::
 
-
 ### Building the documentation locally
 We recommend that you build and view the documentation website locally, before you push your proposed changes.
 
@@ -338,7 +356,6 @@ make clean html linkcheck
 :::
 
 ## Sample data
-
 We maintain some sample datasets to be used for testing, examples and tutorials on an
 [external data repository](gin:neuroinformatics/movement-test-data).
 Our hosting platform of choice is called [GIN](gin:) and is maintained
@@ -408,8 +425,6 @@ To add a new file, you will need to:
 8. Commit a specific file with `gin commit -m <message> <filename>`, or `gin commit -m <message> .` to commit all changes.
 
 9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
-
-
 
 ### `metadata.yaml` example entry
 ```yaml
