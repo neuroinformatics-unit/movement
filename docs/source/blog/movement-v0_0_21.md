@@ -20,7 +20,7 @@ install the latest version or upgrade from an existing installation.
 
 __Input/Output__
 
-- We have added the {func}`movement.io.load_poses.from_multiview_files` function to support loading pose tracking data from multiple camera views.
+- We have added the {func}`movement.io.load_dataset.from_multiview_files` function to support loading pose tracking data from multiple camera views.
 - We have made several small improvements to reading bounding box tracks. See our new {ref}`example <sphx_glr_examples_load_and_upsample_bboxes.py>` to learn more about working with bounding boxes.
 - We have added a new {ref}`example <sphx_glr_examples_convert_file_formats.py>` on using `movement` to convert pose tracking data between different file formats.
 

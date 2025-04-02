@@ -1,6 +1,4 @@
-"""Test suite for the load_poses module."""
-
-from unittest.mock import patch
+"""Test suite for the load_dataset module."""
 
 import h5py
 import numpy as np
@@ -10,7 +8,6 @@ from pytest import DATA_PATHS
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
-from movement.io import load_poses
 from movement.validators.datasets import ValidPosesDataset
 
 
@@ -78,7 +75,7 @@ def test_load_from_sleap_file(sleap_file, helpers):
     """Test that loading pose tracks from valid SLEAP files
     returns a proper Dataset.
     """
-    ds = load_poses.from_sleap_file(sleap_file)
+    ds = load_sleap_file(sleap_file)
     expected_values = {
         **expected_values_poses,
         "source_software": "SLEAP",
@@ -93,8 +90,8 @@ def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
     original file, except for the individual names which are
     set to default.
     """
-    ds_from_trackless = load_poses.from_sleap_file(sleap_file_without_tracks)
-    ds_from_tracked = load_poses.from_sleap_file(
+    ds_from_trackless = load_sleap_file(sleap_file_without_tracks)
+    ds_from_tracked = load_sleap_file(
         DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
     )
     # Check if the "individuals" coordinate matches
@@ -129,8 +126,8 @@ def test_load_from_sleap_slp_file_or_h5_file_returns_same(slp_file, h5_file):
     """
     slp_file_path = DATA_PATHS.get(slp_file)
     h5_file_path = DATA_PATHS.get(h5_file)
-    ds_from_slp = load_poses.from_sleap_file(slp_file_path)
-    ds_from_h5 = load_poses.from_sleap_file(h5_file_path)
+    ds_from_slp = load_sleap_file(slp_file_path)
+    ds_from_h5 = load_sleap_file(h5_file_path)
     xr.testing.assert_allclose(ds_from_h5, ds_from_slp)
 
 
@@ -147,7 +144,7 @@ def test_load_from_dlc_file(file_name, helpers):
     returns a proper Dataset.
     """
     file_path = DATA_PATHS.get(file_name)
-    ds = load_poses.from_dlc_file(file_path)
+    ds = load_dlc_file(file_path)
     expected_values = {
         **expected_values_poses,
         "source_software": "DeepLabCut",
@@ -163,9 +160,7 @@ def test_load_from_dlc_style_df(valid_dlc_poses_df, source_software, helpers):
     """Test that loading pose tracks from a valid DLC-style DataFrame
     returns a proper Dataset.
     """
-    ds = load_poses.from_dlc_style_df(
-        valid_dlc_poses_df, source_software=source_software
-    )
+    ds = load_dlc_style_df(valid_dlc_poses_df, source_software=source_software)
     expected_values = {
         **expected_values_poses,
         "source_software": source_software,
@@ -179,8 +174,8 @@ def test_load_from_dlc_file_csv_or_h5_file_returns_same():
     """
     csv_file_path = DATA_PATHS.get("DLC_single-wasp.predictions.csv")
     h5_file_path = DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    ds_from_csv = load_poses.from_dlc_file(csv_file_path)
-    ds_from_h5 = load_poses.from_dlc_file(h5_file_path)
+    ds_from_csv = load_dlc_file(csv_file_path)
+    ds_from_h5 = load_dlc_file(h5_file_path)
     xr.testing.assert_allclose(ds_from_h5, ds_from_csv)
 
 
@@ -196,7 +191,7 @@ def test_load_from_dlc_file_csv_or_h5_file_returns_same():
 )
 def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
     """Test that time coordinates are set according to the provided fps."""
-    ds = load_poses.from_sleap_file(
+    ds = load_sleap_file(
         DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5"),
         fps=fps,
     )
@@ -223,7 +218,7 @@ def test_load_from_lp_file(file_name, helpers):
     returns a proper Dataset.
     """
     file_path = DATA_PATHS.get(file_name)
-    ds = load_poses.from_lp_file(file_path)
+    ds = load_lp_file(file_path)
     expected_values = {
         **expected_values_poses,
         "source_software": "LightningPose",
@@ -238,8 +233,8 @@ def test_load_from_lp_or_dlc_file_returns_same():
     returns the same Dataset (except for the source_software).
     """
     file_path = DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
-    ds_drom_lp = load_poses.from_lp_file(file_path)
-    ds_from_dlc = load_poses.from_dlc_file(file_path)
+    ds_drom_lp = load_lp_file(file_path)
+    ds_from_dlc = load_dlc_file(file_path)
     xr.testing.assert_allclose(ds_from_dlc, ds_drom_lp)
     assert ds_drom_lp.source_software == "LightningPose"
     assert ds_from_dlc.source_software == "DeepLabCut"
@@ -251,7 +246,7 @@ def test_load_multi_individual_from_lp_file_raises():
     """
     file_path = DATA_PATHS.get("DLC_two-mice.predictions.csv")
     with pytest.raises(ValueError):
-        load_poses.from_lp_file(file_path)
+        load_lp_file(file_path)
 
 
 @pytest.mark.parametrize(
@@ -264,17 +259,17 @@ def test_from_file_delegates_correctly(source_software, fps):
     loader function according to the source_software.
     """
     software_to_loader = {
-        "SLEAP": "movement.io.load_poses.from_sleap_file",
-        "DeepLabCut": "movement.io.load_poses.from_dlc_file",
-        "LightningPose": "movement.io.load_poses.from_lp_file",
-        "Anipose": "movement.io.load_poses.from_anipose_file",
+        "SLEAP": "movement.io.load_dataset.from_sleap_file",
+        "DeepLabCut": "movement.io.load_dataset.from_dlc_file",
+        "LightningPose": "movement.io.load_dataset.from_lp_file",
+        "Anipose": "movement.io.load_dataset.from_anipose_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
-            load_poses.from_file("some_file", source_software)
+            load_file("some_file", source_software)
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
-            load_poses.from_file("some_file", source_software, fps)
+            load_file("some_file", source_software, fps)
             mock_loader.assert_called_with("some_file", fps)
 
 
@@ -284,7 +279,7 @@ def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
     with valid parameters returns a proper Dataset.
     """
     poses_arrays = valid_poses_arrays("multi_individual_array")
-    ds = load_poses.from_numpy(
+    ds = load_numpy(
         poses_arrays["position"],
         poses_arrays["confidence"],
         individual_names=["id_0", "id_1"],
@@ -308,7 +303,7 @@ def test_from_multiview_files():
         view: DATA_PATHS.get("DLC_single-wasp.predictions.h5")
         for view in view_names
     }
-    multi_view_ds = load_poses.from_multiview_files(
+    multi_view_ds = load_multiview_files(
         file_path_dict, source_software="DeepLabCut"
     )
     assert isinstance(multi_view_ds, xr.Dataset)
@@ -323,7 +318,7 @@ def test_load_from_anipose_file():
     file_path = DATA_PATHS.get(
         "anipose_mouse-paw_anipose-paper.triangulation.csv"
     )
-    ds = load_poses.from_anipose_file(file_path)
+    ds = load_anipose_file(file_path)
     assert ds.position.shape == (246, 3, 6, 1)
     assert ds.confidence.shape == (246, 6, 1)
     assert ds.coords["keypoints"].values.tolist() == [
