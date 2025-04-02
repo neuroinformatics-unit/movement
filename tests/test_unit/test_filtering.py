@@ -269,9 +269,8 @@ def test_median_filter_deprecation(valid_poses_dataset):
         "rolling_filter with statistic='median'"
     )
 
-
 def test_interpolate_ffill():
-    # Forward fill should propagate last valid value forward
+    """Test forward fill interpolation."""
     data = xr.DataArray(
         [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
     )
@@ -281,7 +280,7 @@ def test_interpolate_ffill():
 
 
 def test_interpolate_bfill():
-    # Backward fill should propagate next valid value backward
+    """Test backward fill interpolation."""
     data = xr.DataArray(
         [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
     )
@@ -291,7 +290,7 @@ def test_interpolate_bfill():
 
 
 def test_interpolate_nearest():
-    # Nearest neighbor interpolation
+    """Test nearest neighbor interpolation."""
     data = xr.DataArray(
         [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
     )
@@ -300,43 +299,119 @@ def test_interpolate_nearest():
     np.testing.assert_allclose(result.values, expected)
 
 
+def test_interpolate_nearest_with_max_gap():
+    """Test max_gap adjustment for nearest neighbor interpolation."""
+    data = xr.DataArray(
+        [1.0, np.nan, np.nan, 4.0],
+        dims=["time"],
+        coords={"time": [0, 1, 2, 3]},
+    )
+    result = filtering.interpolate_over_time(data, method="nearest", max_gap=2)
+    expected = np.array([1.0, 1.0, 4.0, 4.0])
+    np.testing.assert_allclose(result.values, expected)
+
+
 def test_interpolate_constant():
-    # Constant fill should fill nans with the given constant
+    """Test constant value interpolation."""
     data = xr.DataArray(
         [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
     )
-    fill_value = 99
     result = filtering.interpolate_over_time(
-        data, method="constant", fill_value=fill_value
+        data, method="constant", fill_value=99
     )
     expected = np.array([1, 99, 99, 4])
     np.testing.assert_allclose(result.values, expected)
 
 
+def test_interpolate_constant_missing_fill_value():
+    """Test constant interpolation without fill_value raises error."""
+    data = xr.DataArray(
+        [1, np.nan, 4], 
+        dims=["time"], 
+        coords={"time": np.arange(3)}
+    )
+    with pytest.raises(ValueError, match="fill_value must be specified"):
+        filtering.interpolate_over_time(data, method="constant")
+
+
 def test_interpolate_edge_cases():
-    """Test interpolation with edge cases."""
-    # Test with empty array
+    """Test interpolation edge cases."""
+    # Empty array
     data = xr.DataArray([], dims=["time"], coords={"time": []})
     result = filtering.interpolate_over_time(data)
     assert len(result) == 0
 
-    # Test with all NaN array
+    # All NaN array
     data = xr.DataArray(
         [np.nan, np.nan, np.nan], dims=["time"], coords={"time": np.arange(3)}
     )
     result = filtering.interpolate_over_time(data)
     assert np.all(np.isnan(result.values))
 
-    # Test with single value
+    # Single value
     data = xr.DataArray([1.0], dims=["time"], coords={"time": [0]})
     result = filtering.interpolate_over_time(data)
-    assert (result.values[0] - 1.0) < 1e-5
+    assert np.isclose(result.values[0], 1.0)
 
 
 def test_interpolate_invalid_method():
-    """Test interpolation with invalid method."""
+    """Test invalid interpolation method handling."""
     data = xr.DataArray(
         [1, np.nan, 4], dims=["time"], coords={"time": np.arange(3)}
     )
     with pytest.raises(ValueError):
         filtering.interpolate_over_time(data, method="invalid_method")
+
+
+# Confidence filtering tests
+@pytest.mark.parametrize(
+    "valid_dataset_no_nans",
+    list_valid_datasets_without_nans,
+)
+def test_filter_by_confidence(valid_dataset_no_nans, helpers, request):
+    """Test confidence-based filtering."""
+    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
+    position_filtered = filter_by_confidence(
+        valid_input_dataset.position,
+        confidence=valid_input_dataset.confidence,
+        threshold=0.6,
+        print_report=True,
+    )
+    n_nans = helpers.count_nans(position_filtered)
+    expected_nans = valid_input_dataset.sizes["space"] * 5  # 5 low-confidence
+    assert n_nans == expected_nans
+
+
+# Rolling filter tests
+def test_rolling_filter_min_periods(helpers):
+    """Test rolling filter with custom min_periods."""
+    data = xr.DataArray(
+        [1, 2, np.nan, 4, 5],
+        dims=["time"],
+        coords={"time": np.arange(5)},
+    )
+    result = rolling_filter(data, window=3, min_periods=1)
+    assert helpers.count_nans(result) < helpers.count_nans(data)
+
+
+# Savitzky-Golay tests
+def test_savgol_filter_with_nans(helpers):
+    """Test Savitzky-Golay filter NaN handling."""
+    data = xr.DataArray(
+        [1, 2, np.nan, 4, 5],
+        dims=["time"],
+        coords={"time": np.arange(5)},
+    )
+    result = savgol_filter(data, window=3, polyorder=1)
+    assert helpers.count_nans(result) > 0
+
+
+# Deprecation test
+def test_median_filter_deprecation(valid_poses_dataset):
+    """Test median filter deprecation warning."""
+    with pytest.warns(DeprecationWarning):
+        result = median_filter(valid_poses_dataset.position, window=3)
+    expected = rolling_filter(
+        valid_poses_dataset.position, window=3, statistic="median"
+    )
+    assert result.equals(expected)
