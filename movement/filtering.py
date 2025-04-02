@@ -70,9 +70,12 @@ def interpolate_over_time(
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
-    This function calls :meth:`xarray.DataArray.interpolate_na` and can pass
-    additional keyword arguments to it, depending on the chosen ``method``.
-    See the xarray documentation for more details.
+    This function supports various methods for filling NaN values:
+    - Linear interpolation (default)
+    - Backward fill (bfill): propagate values backward
+    - Forward fill (ffill): propagate values forward
+    - Nearest neighbor (nearest): use nearest valid value
+    - Constant value (constant): fill with a specified constant
 
     Parameters
     ----------
@@ -80,7 +83,8 @@ def interpolate_over_time(
         The input data to be interpolated.
     method : str
         String indicating which method to use for interpolation.
-        Default is ``linear``.
+        Options are: "linear" (default), "bfill", "ffill",
+        "nearest", "constant".
     max_gap : int, optional
         Maximum size of gap, a continuous sequence of missing observations
         (represented as NaNs), to fill.
@@ -91,15 +95,14 @@ def interpolate_over_time(
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``False``.
     **kwargs : dict
-        Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
-        which in turn passes them verbatim to the underlying
-        interpolation methods.
+        Additional keyword arguments:
+        - For "constant" method: "fill_value" (required)
+        - For other methods: any kwargs accepted
 
     Returns
     -------
     xarray.DataArray
-        The data where NaN values have been interpolated over
-        using the parameters provided.
+        The data where NaN values have been filled using the specified method.
 
     Notes
     -----
@@ -109,15 +112,37 @@ def interpolate_over_time(
     at the first data point after a gap and the last value before a gap.
 
     """
-    data_interpolated = data.interpolate_na(
-        dim="time",
-        method=method,
-        use_coordinate=False,
-        max_gap=max_gap + 1 if max_gap is not None else None,
-        **kwargs,
-    )
     if print_report:
         print(report_nan_values(data, "input"))
+
+    if method == "bfill":
+        data_interpolated = data.bfill(dim="time", **kwargs)
+    elif method == "ffill":
+        data_interpolated = data.ffill(dim="time", **kwargs)
+    elif method == "nearest":
+        data_interpolated = data.interpolate_na(
+            dim="time",
+            method="nearest",
+            use_coordinate=False,
+            max_gap=max_gap + 1 if max_gap is not None else None,
+            **kwargs,
+        )
+    elif method == "constant":
+        if "fill_value" not in kwargs:
+            raise ValueError(
+                "fill_value must be specified when using 'constant' method"
+            )
+        data_interpolated = data.fillna(kwargs["fill_value"])
+    else:  # linear interpolation (default)
+        data_interpolated = data.interpolate_na(
+            dim="time",
+            method=method,
+            use_coordinate=False,
+            max_gap=max_gap + 1 if max_gap is not None else None,
+            **kwargs,
+        )
+
+    if print_report:
         print(report_nan_values(data_interpolated, "output"))
     return data_interpolated
 
