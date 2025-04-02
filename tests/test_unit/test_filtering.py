@@ -268,7 +268,8 @@ def test_median_filter_deprecation(valid_poses_dataset):
         "median_filter should produce the same output as "
         "rolling_filter with statistic='median'"
     )
-    
+
+
 def test_interpolate_ffill():
     # Forward fill should propagate last valid value forward
     data = xr.DataArray(
