@@ -29,7 +29,7 @@ class MovementLogger:
         This method configures a rotating log file that
         logs at the DEBUG level with a maximum size of 5 MB
         and retains the last log file.
-        It also optionally adds a console (:obj:`sys.stderr`) handler
+        It also optionally adds a console (:data:`sys.stderr`) handler
         that logs at the WARNING level.
         Finally, it redirects warnings from the :mod:`warnings` module
         to the logger.
