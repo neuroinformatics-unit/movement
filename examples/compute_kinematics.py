@@ -126,7 +126,7 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
-# The :mod:`movement.kinematics` module provides functions to compute
+# The ``movement.kinematics`` subpackage provides functions to compute
 # various kinematic quantities,
 # such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
@@ -135,7 +135,7 @@ plt.gcf().show()
 displacement = kin.compute_displacement(position)
 
 # %%
-# The :func:`movement.kinematics.compute_displacement`
+# The :func:`movement.kinematics.kinematics.compute_displacement`
 # function will return a data array equivalent to the ``position`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
@@ -276,7 +276,7 @@ print(
 velocity = kin.compute_velocity(position)
 
 # %%
-# The :func:`movement.kinematics.compute_velocity`
+# The :func:`movement.kinematics.kinematics.compute_velocity`
 # function will return a data array equivalent to
 # the ``position`` one, but holding velocity data along the ``space`` axis,
 # rather than position data. Notice how ``xarray`` nicely deals with the
