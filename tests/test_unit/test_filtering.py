@@ -330,7 +330,7 @@ def test_interpolate_edge_cases():
     # Test with single value
     data = xr.DataArray([1.0], dims=["time"], coords={"time": [0]})
     result = filtering.interpolate_over_time(data)
-    assert (result.values[0]-1.0)<1e-5
+    assert (result.values[0] - 1.0) < 1e-5
 
 
 def test_interpolate_invalid_method():
