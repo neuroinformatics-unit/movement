@@ -269,6 +269,7 @@ def test_median_filter_deprecation(valid_poses_dataset):
         "rolling_filter with statistic='median'"
     )
 
+
 def test_interpolate_ffill():
     """Test forward fill interpolation."""
     data = xr.DataArray(
@@ -326,9 +327,7 @@ def test_interpolate_constant():
 def test_interpolate_constant_missing_fill_value():
     """Test constant interpolation without fill_value raises error."""
     data = xr.DataArray(
-        [1, np.nan, 4], 
-        dims=["time"], 
-        coords={"time": np.arange(3)}
+        [1, np.nan, 4], dims=["time"], coords={"time": np.arange(3)}
     )
     with pytest.raises(ValueError, match="fill_value must be specified"):
         filtering.interpolate_over_time(data, method="constant")
