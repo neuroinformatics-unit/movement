@@ -415,7 +415,7 @@ To add a new file, you will need to:
 ```yaml
 "SLEAP_three-mice_Aeon_proofread.analysis.h5":
   sha256sum: "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a"
-  source_software: "SLEAP"
+  source_format: "SLEAP"
   type: "poses"  # "poses" or "bboxes" depending on the type of tracked data
   fps: 50
   species: "mouse"

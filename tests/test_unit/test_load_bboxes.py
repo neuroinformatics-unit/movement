@@ -205,33 +205,33 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     )
 
 
-@pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
+@pytest.mark.parametrize("source_format", ["Unknown", "VIA-tracks"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 @pytest.mark.parametrize("frame_regexp", [None, r"frame_(\d+)"])
 def test_from_file(
-    source_software, fps, use_frame_numbers_from_file, frame_regexp
+    source_format, fps, use_frame_numbers_from_file, frame_regexp
 ):
     """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
+    loader function according to the source_format.
     """
     software_to_loader = {
         "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
     }
-    if source_software == "Unknown":
+    if source_format == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
             load_bboxes.from_file(
                 "some_file",
-                source_software,
+                source_format,
                 fps,
                 use_frame_numbers_from_file=use_frame_numbers_from_file,
                 frame_regexp=frame_regexp,
             )
     else:
-        with patch(software_to_loader[source_software]) as mock_loader:
+        with patch(software_to_loader[source_format]) as mock_loader:
             load_bboxes.from_file(
                 "some_file",
-                source_software,
+                source_format,
                 fps,
                 use_frame_numbers_from_file=use_frame_numbers_from_file,
                 frame_regexp=frame_regexp,
@@ -275,7 +275,7 @@ def test_from_via_tracks_file(
     ds = load_bboxes.from_via_tracks_file(**kwargs)
     expected_values = {
         **expected_values_bboxes,
-        "source_software": "VIA-tracks",
+        "source_format": "VIA-tracks",
         "fps": fps,
         "file_path": via_file_path,
     }
@@ -332,12 +332,12 @@ def test_from_via_tracks_file_invalid_frame_regexp(
     [True, False],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-@pytest.mark.parametrize("source_software", [None, "VIA-tracks"])
+@pytest.mark.parametrize("source_format", [None, "VIA-tracks"])
 def test_from_numpy(
     create_valid_from_numpy_inputs,
     with_frame_array,
     fps,
-    source_software,
+    source_format,
     helpers,
 ):
     """Test that loading bounding boxes trajectories from the input
@@ -349,11 +349,11 @@ def test_from_numpy(
     ds = load_bboxes.from_numpy(
         **from_numpy_inputs,
         fps=fps,
-        source_software=source_software,
+        source_format=source_format,
     )
     expected_values = {
         **expected_values_bboxes,
-        "source_software": source_software,
+        "source_format": source_format,
         "fps": fps,
     }
     helpers.assert_valid_dataset(ds, expected_values)
