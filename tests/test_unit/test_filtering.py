@@ -1,8 +1,10 @@
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 import xarray as xr
 
+from movement import filtering
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
@@ -266,3 +268,45 @@ def test_median_filter_deprecation(valid_poses_dataset):
         "median_filter should produce the same output as "
         "rolling_filter with statistic='median'"
     )
+    
+def test_interpolate_ffill():
+    # Forward fill should propagate last valid value forward
+    data = xr.DataArray(
+        [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
+    )
+    result = filtering.interpolate_over_time(data, method="ffill")
+    expected = np.array([1, 1, 1, 4])
+    np.testing.assert_allclose(result.values, expected)
+
+
+def test_interpolate_bfill():
+    # Backward fill should propagate next valid value backward
+    data = xr.DataArray(
+        [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
+    )
+    result = filtering.interpolate_over_time(data, method="bfill")
+    expected = np.array([1, 4, 4, 4])
+    np.testing.assert_allclose(result.values, expected)
+
+
+def test_interpolate_nearest():
+    # Nearest neighbor interpolation
+    data = xr.DataArray(
+        [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
+    )
+    result = filtering.interpolate_over_time(data, method="nearest")
+    expected = np.array([1, 1, 4, 4])
+    np.testing.assert_allclose(result.values, expected)
+
+
+def test_interpolate_constant():
+    # Constant fill should fill nans with the given constant
+    data = xr.DataArray(
+        [1, np.nan, np.nan, 4], dims=["time"], coords={"time": np.arange(4)}
+    )
+    fill_value = 99
+    result = filtering.interpolate_over_time(
+        data, method="constant", fill_value=fill_value
+    )
+    expected = np.array([1, 99, 99, 4])
+    np.testing.assert_allclose(result.values, expected)
