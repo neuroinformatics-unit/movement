@@ -311,3 +311,32 @@ def test_interpolate_constant():
     )
     expected = np.array([1, 99, 99, 4])
     np.testing.assert_allclose(result.values, expected)
+
+
+def test_interpolate_edge_cases():
+    """Test interpolation with edge cases."""
+    # Test with empty array
+    data = xr.DataArray([], dims=["time"], coords={"time": []})
+    result = filtering.interpolate_over_time(data)
+    assert len(result) == 0
+
+    # Test with all NaN array
+    data = xr.DataArray(
+        [np.nan, np.nan, np.nan], dims=["time"], coords={"time": np.arange(3)}
+    )
+    result = filtering.interpolate_over_time(data)
+    assert np.all(np.isnan(result.values))
+
+    # Test with single value
+    data = xr.DataArray([1.0], dims=["time"], coords={"time": [0]})
+    result = filtering.interpolate_over_time(data)
+    assert result.values[0] == 1.0
+
+
+def test_interpolate_invalid_method():
+    """Test interpolation with invalid method."""
+    data = xr.DataArray(
+        [1, np.nan, 4], dims=["time"], coords={"time": np.arange(3)}
+    )
+    with pytest.raises(ValueError):
+        filtering.interpolate_over_time(data, method="invalid_method")
