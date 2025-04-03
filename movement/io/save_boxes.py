@@ -2,17 +2,14 @@
 
 import csv
 import json
-import logging
 from pathlib import Path
 
 import numpy as np
 import xarray as xr
+from loguru import logger
 
-from movement.utils.logging import log_error
 from movement.validators.datasets import ValidBboxesDataset
 from movement.validators.files import ValidFile
-
-logger = logging.getLogger(__name__)
 
 
 def _validate_dataset(ds: xr.Dataset) -> None:
@@ -32,21 +29,21 @@ def _validate_dataset(ds: xr.Dataset) -> None:
 
     """
     if not isinstance(ds, xr.Dataset):
-        raise log_error(
-            TypeError, f"Expected an xarray Dataset, but got {type(ds)}."
-        )
+        error_msg = f"Expected an xarray Dataset, but got {type(ds)}."
+        logger.error(error_msg)
+        raise TypeError(error_msg)
 
     missing_vars = set(ValidBboxesDataset.VAR_NAMES) - set(ds.data_vars)
     if missing_vars:
-        raise ValueError(
-            f"Missing required data variables: {sorted(missing_vars)}"
-        )
+        error_msg = f"Missing required data variables: {sorted(missing_vars)}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
     missing_dims = set(ValidBboxesDataset.DIM_NAMES) - set(ds.dims)
     if missing_dims:
-        raise ValueError(
-            f"Missing required dimensions: {sorted(missing_dims)}"
-        )
+        error_msg = f"Missing required dimensions: {sorted(missing_dims)}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
 
 
 def _validate_file_path(
