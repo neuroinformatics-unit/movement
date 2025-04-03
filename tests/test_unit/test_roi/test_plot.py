@@ -108,7 +108,7 @@ def test_plot(
         # Simulate creation of a new axis and figure
         kwargs["ax"] = None
         _, ax = region_to_plot.plot(**kwargs)
-
+    plt.close()
     if region_to_plot.dimensions == 2:
         assert len(ax.patches) == 1 and len(ax.lines) == 0
         assert type(ax.patches[0]) is PathPatch

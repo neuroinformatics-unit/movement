@@ -211,6 +211,8 @@ intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "python": ("https://docs.python.org/3", None),
+    "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
 }
 
 
