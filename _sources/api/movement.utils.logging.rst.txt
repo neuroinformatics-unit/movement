@@ -8,6 +8,16 @@
 .. currentmodule:: movement.utils.logging
 
 
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    MovementLogger
+    
+
+
 
 
 .. rubric:: Functions
@@ -16,12 +26,8 @@
     :toctree: .
     :nosignatures:
     
-    configure_logging
-    
-    log_error
-    
     log_to_attrs
     
-    log_warning
+    showwarning
     
 

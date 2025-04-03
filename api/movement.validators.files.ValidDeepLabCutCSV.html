@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.configure_logging.html">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_warning.html">log_warning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -559,7 +558,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.validators.files.ValidDeepLabCutCSV">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidDeepLabCutCSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidDeepLabCutCSV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for validating DeepLabCut-style .csv files.</p>
 <p>The validator ensures that the file contains the
 expected index column levels.</p>
@@ -569,14 +568,14 @@ expected index column levels.</p>
 <dd><p>Path to the .csv file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)">pathlib.Path</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If the .csv file does not contain the expected DeepLabCut index column
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the .csv file does not contain the expected DeepLabCut index column
     levels among its top rows.</p>
 </dd>
 </dl>

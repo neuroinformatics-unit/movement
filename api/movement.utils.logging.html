@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -54,7 +54,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="configure_logging" href="movement.utils.logging.configure_logging.html" />
+    <link rel="next" title="MovementLogger" href="movement.utils.logging.MovementLogger.html" />
     <link rel="prev" title="space_broadcastable" href="movement.utils.broadcasting.space_broadcastable.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.configure_logging.html">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_warning.html">log_warning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -555,20 +554,23 @@
 <h1>movement.utils.logging<a class="headerlink" href="#movement-utils-logging" title="Link to this heading">#</a></h1>
 <p class="rubric">Description</p>
 <p id="module-movement.utils.logging">Logging utilities for the movement package.</p>
+<p class="rubric">Classes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger" title="movement.utils.logging.MovementLogger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MovementLogger</span></code></a></p></td>
+<td><p>A custom logger extending the <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span> <span class="pre">logger</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.utils.logging.configure_logging.html#movement.utils.logging.configure_logging" title="movement.utils.logging.configure_logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_logging</span></code></a></p></td>
-<td><p>Configure the logging module.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.utils.logging.log_error.html#movement.utils.logging.log_error" title="movement.utils.logging.log_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_error</span></code></a></p></td>
-<td><p>Log an error message and return the Exception.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.utils.logging.log_to_attrs.html#movement.utils.logging.log_to_attrs" title="movement.utils.logging.log_to_attrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_attrs</span></code></a></p></td>
 <td><p>Log the operation performed by the wrapped function.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.utils.logging.log_warning.html#movement.utils.logging.log_warning" title="movement.utils.logging.log_warning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_warning</span></code></a></p></td>
-<td><p>Log a warning message.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.utils.logging.showwarning.html#movement.utils.logging.showwarning" title="movement.utils.logging.showwarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">showwarning</span></code></a></p></td>
+<td><p>Redirect alerts from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.13)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logger.</p></td>
 </tr>
 </tbody>
 </table>
@@ -598,11 +600,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.logging.configure_logging.html"
+       href="movement.utils.logging.MovementLogger.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">configure_logging</p>
+        <p class="prev-next-title">MovementLogger</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -54,8 +54,8 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="log_warning" href="movement.utils.logging.log_warning.html" />
-    <link rel="prev" title="log_error" href="movement.utils.logging.log_error.html" /> 
+    <link rel="next" title="showwarning" href="movement.utils.logging.showwarning.html" />
+    <link rel="prev" title="MovementLogger" href="movement.utils.logging.MovementLogger.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.configure_logging.html">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">log_to_attrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_warning.html">log_warning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -561,8 +560,8 @@
 <span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">log_to_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#log_to_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.log_to_attrs" title="Link to this definition">#</a></dt>
 <dd><p>Log the operation performed by the wrapped function.</p>
 <p>This decorator appends log entries to the data’s <code class="docutils literal notranslate"><span class="pre">log</span></code>
-attribute. The wrapped function must accept an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>
-or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> as its first argument and return an
+attribute. The wrapped function must accept an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>
+or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> as its first argument and return an
 object of the same type.</p>
 </dd></dl>
 
@@ -582,20 +581,20 @@ object of the same type.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.utils.logging.log_error.html"
+       href="movement.utils.logging.MovementLogger.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">log_error</p>
+        <p class="prev-next-title">MovementLogger</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.logging.log_warning.html"
+       href="movement.utils.logging.showwarning.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">log_warning</p>
+        <p class="prev-next-title">showwarning</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

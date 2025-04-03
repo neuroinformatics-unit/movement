@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -532,6 +532,35 @@ Do not include these data in the repository, especially if they are large.
 We store several sample datasets in an external data repository.
 See <a class="reference internal" href="#sample-data">sample data</a> for more information.</p>
 </section>
+<section id="logging">
+<h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h3>
+<p>We use the <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span></code></a>-based <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger" title="movement.utils.logging.MovementLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">MovementLogger</span></code></a> for logging.
+The logger is configured to write logs to a rotating log file at the <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level and to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.stderr" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sys.stderr</span></code></a> at the <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> level.</p>
+<p>To import the logger:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+</pre></div>
+</div>
+<p>Once the logger is imported, you can log messages with the appropriate <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#levels" title="loguru">severity levels</a> using the same syntax as <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span></code></a> (e.g. <code class="docutils literal notranslate"><span class="pre">logger.debug(&quot;Debug</span> <span class="pre">message&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning(&quot;Warning</span> <span class="pre">message&quot;)</span></code>).</p>
+<section id="logging-and-raising-exceptions">
+<h4>Logging and raising exceptions<a class="headerlink" href="#logging-and-raising-exceptions" title="Link to this heading">#</a></h4>
+<p>Both <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> and <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> can be used to log <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#tut-errors" title="Python 3.13">Errors and Exceptions</a>, with the difference that the latter will include the traceback in the log message.
+As these methods will return the logged Exception, you can log and raise the Exception in a single line:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">))</span>
+<span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">))</span> <span class="c1"># with traceback</span>
+</pre></div>
+</div>
+</section>
+<section id="when-to-use-print-warnings-warn-and-logger-warning">
+<h4>When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, and <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code><a class="headerlink" href="#when-to-use-print-warnings-warn-and-logger-warning" title="Link to this heading">#</a></h4>
+<p>We aim to adhere to the <a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-basic-tutorial" title="Python 3.13">When to use logging guide</a> to ensure consistency in our logging practices.
+In general:</p>
+<ul class="simple">
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> number in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset" title="movement.validators.datasets.ValidPosesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a> that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. <a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a></p></li>
+<li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.warning" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.warning()</span></code></a> for non-critical issues where default values are assigned to optional parameters, e.g. <code class="docutils literal notranslate"><span class="pre">individual_names</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint_names</span></code> in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset" title="movement.validators.datasets.ValidPosesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a>.</p></li>
+</ul>
+</section>
+</section>
 <section id="continuous-integration">
 <h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">#</a></h3>
 <p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions#">GitHub actions</a>.
@@ -679,7 +708,7 @@ Once the module is included in the mapping, use the same syntax as for <a class=
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 Markdown</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
 </pre></div>
 </div>
@@ -687,7 +716,7 @@ Markdown</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
 RestructuredText</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
 </pre></div>
 </div>
@@ -902,6 +931,11 @@ Windows</label><div class="sd-tab-content docutils">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logging">Logging</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-raising-exceptions">Logging and raising exceptions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-print-warnings-warn-and-logger-warning">When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, and <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
 </ul>

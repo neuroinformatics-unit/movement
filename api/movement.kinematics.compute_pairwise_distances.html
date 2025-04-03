@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.configure_logging.html">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_warning.html">log_warning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -569,13 +568,13 @@ using the specified <code class="docutils literal notranslate"><span class="pre"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>,
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>,
 <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates), and
 <code class="docutils literal notranslate"><span class="pre">individuals</span></code> or <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> (as specified by <code class="docutils literal notranslate"><span class="pre">dim</span></code>)
 as required dimensions.</p></li>
 <li><p><strong>dim</strong> (<em>Literal</em><em>[</em><em>&quot;individuals&quot;</em><em>, </em><em>&quot;keypoints&quot;</em><em>]</em>) – The dimension to compute the distances for. Must be either
 <code class="docutils literal notranslate"><span class="pre">'individuals'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>.</p></li>
-<li><p><strong>pairs</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em><em>] or </em><em>'all'</em>) – <p>Specifies the pairs of elements (either individuals or keypoints)
+<li><p><strong>pairs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>] or </em><em>'all'</em>) – <p>Specifies the pairs of elements (either individuals or keypoints)
 for which to compute distances, depending on the value of <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p>
 <ul>
 <li><p>If <code class="docutils literal notranslate"><span class="pre">dim='individuals'</span></code>, <code class="docutils literal notranslate"><span class="pre">pairs</span></code> should be a dictionary where
@@ -589,27 +588,27 @@ for all possible pairs of individuals or keypoints
 (depending on <code class="docutils literal notranslate"><span class="pre">dim</span></code>).</p></li>
 </ul>
 </p></li>
-<li><p><strong>metric</strong> (<em>str</em><em>, </em><em>optional</em>) – The distance metric to use. Must be one of the options supported
+<li><p><strong>metric</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The distance metric to use. Must be one of the options supported
 by <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html#scipy.spatial.distance.cdist" title="(in SciPy v1.15.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.spatial.distance.cdist()</span></code></a>, e.g. <code class="docutils literal notranslate"><span class="pre">'cityblock'</span></code>,
 <code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code>, etc.
 Defaults to <code class="docutils literal notranslate"><span class="pre">'euclidean'</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> (<em>dict</em>) – Additional keyword arguments to pass to
+<li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Additional keyword arguments to pass to
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html#scipy.spatial.distance.cdist" title="(in SciPy v1.15.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.spatial.distance.cdist()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The computed pairwise distances. If a single pair is specified in
-<code class="docutils literal notranslate"><span class="pre">pairs</span></code>, returns an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a>. If multiple pairs
+<code class="docutils literal notranslate"><span class="pre">pairs</span></code>, returns an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a>. If multiple pairs
 are specified, returns a dictionary where each key is a string
 representing the pair  (e.g., <code class="docutils literal notranslate"><span class="pre">'dist_ind1_ind2'</span></code> or
-<code class="docutils literal notranslate"><span class="pre">'dist_key1_key2'</span></code>) and each value is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a>
+<code class="docutils literal notranslate"><span class="pre">'dist_key1_key2'</span></code>) and each value is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a>
 containing the computed distances for that pair.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)">xarray.DataArray</a> or dict[str, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)">xarray.DataArray</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)">xarray.DataArray</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)">xarray.DataArray</a>]</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">dim</span></code> is not one of <code class="docutils literal notranslate"><span class="pre">'individuals'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>;
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dim</span></code> is not one of <code class="docutils literal notranslate"><span class="pre">'individuals'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>;
     if <code class="docutils literal notranslate"><span class="pre">pairs</span></code> is not a dictionary or <code class="docutils literal notranslate"><span class="pre">'all'</span></code>; or
     if there are no pairs in <code class="docutils literal notranslate"><span class="pre">data</span></code> to compute distances for.</p>
 </dd>

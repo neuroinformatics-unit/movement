@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="_static/documentation_options.js?v=b9afe91b"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -510,7 +510,7 @@
         <li><a href="api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset.confidence_array">(movement.validators.datasets.ValidPosesDataset attribute)</a>
 </li>
       </ul></li>
-      <li><a href="api/movement.utils.logging.configure_logging.html#movement.utils.logging.configure_logging">configure_logging() (in module movement.utils.logging)</a>
+      <li><a href="api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.configure">configure() (movement.utils.logging.MovementLogger method)</a>
 </li>
       <li><a href="api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.contains_point">contains_point() (movement.roi.base.BaseRegionOfInterest method)</a>
 
@@ -554,12 +554,16 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5.expected_datasets">expected_datasets (movement.validators.files.ValidHDF5 attribute)</a>
+      <li><a href="api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error">error() (movement.utils.logging.MovementLogger method)</a>
 </li>
-      <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile.expected_permission">expected_permission (movement.validators.files.ValidFile attribute)</a>
+      <li><a href="api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception">exception() (movement.utils.logging.MovementLogger method)</a>
+</li>
+      <li><a href="api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5.expected_datasets">expected_datasets (movement.validators.files.ValidHDF5 attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile.expected_permission">expected_permission (movement.validators.files.ValidFile attribute)</a>
+</li>
       <li><a href="api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile.expected_suffix">expected_suffix (movement.validators.files.ValidFile attribute)</a>
 </li>
       <li><a href="api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest.exterior_boundary">exterior_boundary (movement.roi.polygon.PolygonOfInterest property)</a>
@@ -668,15 +672,11 @@
 </li>
       <li><a href="api/movement.roi.line.LineOfInterest.html#movement.roi.line.LineOfInterest">LineOfInterest (class in movement.roi.line)</a>
 </li>
-      <li><a href="api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">list_datasets() (in module movement.sample_data)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/movement.utils.logging.log_error.html#movement.utils.logging.log_error">log_error() (in module movement.utils.logging)</a>
+      <li><a href="api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">list_datasets() (in module movement.sample_data)</a>
 </li>
       <li><a href="api/movement.utils.logging.log_to_attrs.html#movement.utils.logging.log_to_attrs">log_to_attrs() (in module movement.utils.logging)</a>
-</li>
-      <li><a href="api/movement.utils.logging.log_warning.html#movement.utils.logging.log_warning">log_warning() (in module movement.utils.logging)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -893,6 +893,8 @@
         <li><a href="api/movement.validators.files.html#module-movement.validators.files">module</a>
 </li>
       </ul></li>
+      <li><a href="api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger">MovementLogger (class in movement.utils.logging)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -992,6 +994,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.shape_array">shape_array (movement.validators.datasets.ValidBboxesDataset attribute)</a>
+</li>
+      <li><a href="api/movement.utils.logging.showwarning.html#movement.utils.logging.showwarning">showwarning() (in module movement.utils.logging)</a>
 </li>
       <li><a href="api/movement.validators.datasets.ValidBboxesDataset.html#movement.validators.datasets.ValidBboxesDataset.source_software">source_software (movement.validators.datasets.ValidBboxesDataset attribute)</a>
 

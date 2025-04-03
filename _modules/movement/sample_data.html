@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,7 +117,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -411,7 +411,6 @@
 <span class="sd">are used.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
@@ -420,9 +419,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">requests.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RequestException</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span><span class="p">,</span> <span class="n">load_poses</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_error</span><span class="p">,</span> <span class="n">log_warning</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
 <span class="c1"># URL to the remote data repository on GIN</span>
 <span class="c1"># noinspection PyInterpreter</span>
@@ -507,11 +504,11 @@
     <span class="c1"># otherwise raise an error</span>
     <span class="k">except</span> <span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">local_file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
-            <span class="n">log_warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">failed_msg</span><span class="si">}</span><span class="s2"> Will use the existing local version instead.&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span><span class="n">RequestException</span><span class="p">,</span> <span class="n">failed_msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc_info</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">RequestException</span><span class="p">(</span><span class="n">failed_msg</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc_info</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_file</span><span class="p">:</span>
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">metadata_file</span><span class="p">)</span>
@@ -625,10 +622,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">available_data_files</span> <span class="o">=</span> <span class="n">list_datasets</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_data_files</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">log_error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; is not in the registry. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Valid filenames are: </span><span class="si">{</span><span class="n">available_data_files</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; is not in the registry. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Valid filenames are: </span><span class="si">{</span><span class="n">available_data_files</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="n">frame_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>

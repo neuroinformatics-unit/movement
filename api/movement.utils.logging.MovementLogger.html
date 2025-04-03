@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>configure_logging &#8212; movement</title>
+    <title>MovementLogger &#8212; movement</title>
   
   
   
@@ -44,17 +44,17 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.configure_logging';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.configure_logging.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.MovementLogger';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.MovementLogger.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="log_error" href="movement.utils.logging.log_error.html" />
+    <link rel="next" title="log_to_attrs" href="movement.utils.logging.log_to_attrs.html" />
     <link rel="prev" title="movement.utils.logging" href="movement.utils.logging.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_warning.html">log_warning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -538,7 +537,7 @@
     
     <li class="breadcrumb-item"><a href="movement.utils.logging.html" class="nav-link">movement.utils.logging</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">configure_logging</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MovementLogger</span></li>
   </ul>
 </nav>
 </div>
@@ -554,25 +553,70 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="configure-logging">
-<h1>configure_logging<a class="headerlink" href="#configure-logging" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="movement.utils.logging.configure_logging">
-<span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">configure_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/.movement')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#configure_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.configure_logging" title="Link to this definition">#</a></dt>
-<dd><p>Configure the logging module.</p>
-<p>This function sets up a circular log file with a rotating file handler.</p>
+                   <section id="movementlogger">
+<h1>MovementLogger<a class="headerlink" href="#movementlogger" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">MovementLogger</span></span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A custom logger extending the <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span> <span class="pre">logger</span></code></a>.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.configure" title="movement.utils.logging.MovementLogger.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([log_file_name, log_directory, ...])</p></td>
+<td><p>Configure a rotating file logger and optionally a console logger.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error</span></code></a>(message, *args, **kwargs)</p></td>
+<td><p>Log error message and optionally return an Exception.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exception</span></code></a>(message, *args, **kwargs)</p></td>
+<td><p>Log error message with traceback and optionally return an Exception.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/.movement')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.configure" title="Link to this definition">#</a></dt>
+<dd><p>Configure a rotating file logger and optionally a console logger.</p>
+<p>This method configures a rotating log file that
+logs at the DEBUG level with a maximum size of 5 MB
+and retains the last log file.
+It also optionally adds a console (<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.stderr" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>) handler
+that logs at the WARNING level.
+Finally, it redirects warnings from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.13)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module
+to the logger.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_level</strong> (<em>int</em><em>, </em><em>optional</em>) – The logging level to use. Defaults to logging.DEBUG.</p></li>
-<li><p><strong>logger_name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the logger to configure.
-Defaults to “movement”.</p></li>
-<li><p><strong>log_directory</strong> (<em>pathlib.Path</em><em>, </em><em>optional</em>) – The directory to store the log file in. Defaults to
-~/.movement. A different directory can be specified,
-for example for testing purposes.</p></li>
+<li><p><strong>log_file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the log file. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;movement&quot;</span></code>.</p></li>
+<li><p><strong>log_directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><em>pathlib.Path</em></a><em>, </em><em>optional</em>) – The directory to store the log file in. Defaults to
+<code class="docutils literal notranslate"><span class="pre">&quot;~/.movement&quot;</span></code>. A different directory can be specified,
+for example, for testing purposes.</p></li>
+<li><p><strong>console</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to add a console logger. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.error" title="Link to this definition">#</a></dt>
+<dd><p>Log error message and optionally return an Exception.</p>
+<p>This method overrides loguru’s
+<a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.error" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> to optionally
+return an Exception if the message is an Exception.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.exception">
+<span class="sig-name descname"><span class="pre">exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.exception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.exception" title="Link to this definition">#</a></dt>
+<dd><p>Log error message with traceback and optionally return an Exception.</p>
+<p>This method overrides loguru’s
+<a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.exception" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> to
+optionally return an Exception if the message is an Exception.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -600,11 +644,11 @@ for example for testing purposes.</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.logging.log_error.html"
+       href="movement.utils.logging.log_to_attrs.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">log_error</p>
+        <p class="prev-next-title">log_to_attrs</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -627,7 +671,12 @@ for example for testing purposes.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger"><code class="docutils literal notranslate"><span class="pre">MovementLogger</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.configure"><code class="docutils literal notranslate"><span class="pre">MovementLogger.configure()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.error"><code class="docutils literal notranslate"><span class="pre">MovementLogger.error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.exception"><code class="docutils literal notranslate"><span class="pre">MovementLogger.exception()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -635,7 +684,7 @@ for example for testing purposes.</p></li>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.utils.logging.configure_logging.rst.txt"
+      <li><a href="../_sources/api/movement.utils.logging.MovementLogger.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

@@ -260,7 +260,7 @@ View individual paths inside the arena
 We can now overlay the paths that the individuals followed on top of our
 image of the arena and the RoIs that we have defined.
 
-.. GENERATED FROM PYTHON SOURCE LINES 142-177
+.. GENERATED FROM PYTHON SOURCE LINES 142-171
 
 .. code-block:: Python
 
@@ -269,15 +269,9 @@ image of the arena and the RoIs that we have defined.
     # Overlay an image of the experimental arena
     arena_ax.imshow(plt.imread(arena_image))
 
-    central_region.plot(
-        arena_ax, facecolor="lightblue", alpha=0.25, label=central_region.name
-    )
-    nest_region.plot(
-        arena_ax, facecolor="green", alpha=0.25, label=nest_region.name
-    )
-    ring_region.plot(
-        arena_ax, facecolor="blue", alpha=0.25, label=ring_region.name
-    )
+    central_region.plot(arena_ax, facecolor="lightblue", alpha=0.25)
+    nest_region.plot(arena_ax, facecolor="green", alpha=0.25)
+    ring_region.plot(arena_ax, facecolor="blue", alpha=0.25)
 
     # Plot trajectories of the individuals
     mouse_names_and_colours = list(
@@ -311,14 +305,14 @@ image of the arena and the RoIs that we have defined.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 178-182
+.. GENERATED FROM PYTHON SOURCE LINES 172-176
 
 At a glance, it looks like all the individuals remained inside the
 ring-region for the duration of the experiment. We can verify this
 programmatically, by asking whether the ``ring_region``
 contained the individuals' locations, at all recorded time-points.
 
-.. GENERATED FROM PYTHON SOURCE LINES 182-197
+.. GENERATED FROM PYTHON SOURCE LINES 176-191
 
 .. code-block:: Python
 
@@ -351,7 +345,7 @@ contained the individuals' locations, at all recorded time-points.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 198-205
+.. GENERATED FROM PYTHON SOURCE LINES 192-199
 
 Compute the distance to the nest
 --------------------------------
@@ -361,7 +355,7 @@ For example, we might be interested in how the distance between an
 individual and the nest region changes over the course of the experiment. We
 can query the ``nest_region`` that we created for this information.
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-221
+.. GENERATED FROM PYTHON SOURCE LINES 199-215
 
 .. code-block:: Python
 
@@ -393,7 +387,7 @@ can query the ``nest_region`` that we created for this information.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-240
+.. GENERATED FROM PYTHON SOURCE LINES 216-234
 
 We can see that the ``AEON38_TP2`` individual appears to be moving towards
 the nest during the experiment, whilst the other two individuals are
@@ -414,7 +408,7 @@ method.
 The distances that we computed via ``compute_distance_to`` are just the
 magnitudes of the approach vectors.
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-243
+.. GENERATED FROM PYTHON SOURCE LINES 234-237
 
 .. code-block:: Python
 
@@ -428,7 +422,7 @@ magnitudes of the approach vectors.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 244-254
+.. GENERATED FROM PYTHON SOURCE LINES 238-248
 
 The ``boundary_only`` keyword
 -----------------------------
@@ -441,7 +435,7 @@ individual and the ``ring_region``, using the same commands as above.
 
 However, we get something slightly unexpected:
 
-.. GENERATED FROM PYTHON SOURCE LINES 254-274
+.. GENERATED FROM PYTHON SOURCE LINES 248-268
 
 .. code-block:: Python
 
@@ -483,7 +477,7 @@ However, we get something slightly unexpected:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 275-285
+.. GENERATED FROM PYTHON SOURCE LINES 269-279
 
 The distances are all zero because when a point is inside a region, the
 closest point to it is itself.
@@ -496,7 +490,7 @@ endpoints of the line.
 
 Let's try again with ``boundary_only=True``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 285-307
+.. GENERATED FROM PYTHON SOURCE LINES 279-301
 
 .. code-block:: Python
 
@@ -540,7 +534,7 @@ Let's try again with ``boundary_only=True``:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 308-313
+.. GENERATED FROM PYTHON SOURCE LINES 302-307
 
 The resulting plot looks much more like what we expect, but is again
 not very helpful; we get the distance to the closest point on *either*
@@ -548,7 +542,7 @@ the interior or exterior wall of the ``ring_region``. This means that we
 can't tell if the individuals do move to opposite walls when passing each
 other. Instead, let's ask for the distance  to just the exterior wall.
 
-.. GENERATED FROM PYTHON SOURCE LINES 313-331
+.. GENERATED FROM PYTHON SOURCE LINES 307-325
 
 .. code-block:: Python
 
@@ -582,7 +576,7 @@ other. Instead, let's ask for the distance  to just the exterior wall.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 332-344
+.. GENERATED FROM PYTHON SOURCE LINES 326-338
 
 This output is much more helpful. We see that the individuals are largely the
 same distance from the exterior wall during frames 250-350, and then notice
@@ -597,7 +591,7 @@ the exterior wall again, which is consistent with them having passed each
 other in the ``ring_region`` and once again having the entire width of the
 ring to explore.
 
-.. GENERATED FROM PYTHON SOURCE LINES 346-376
+.. GENERATED FROM PYTHON SOURCE LINES 340-370
 
 Boundary angles
 ---------------
@@ -630,7 +624,7 @@ compute this from ``positions`` using the ``compute_velocity`` function in
 We will also define our reference frame, or "global north" direction, to be
 the direction of the positive x-axis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 376-415
+.. GENERATED FROM PYTHON SOURCE LINES 370-409
 
 .. code-block:: Python
 
@@ -685,7 +679,7 @@ the direction of the positive x-axis.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 416-438
+.. GENERATED FROM PYTHON SOURCE LINES 410-432
 
 Allocentric angles show step-like behaviour because they only depend on an
 individual's position relative to the RoI, not their forward vector. This
@@ -696,11 +690,11 @@ individuals are (largely) stationary while passing each other.
 Egocentric angles, on the other hand, fluctuate more due to their sensitivity
 to changes in the forward vector. Outside frames 200-400, we see trends:
 
-- ``AEON3B_TP2`` moves clockwise around the ring, so its egocentric
+- ``AEON3B_TP2`` moves counter-clockwise around the ring, so its egocentric
   angle decreases ever so slightly with time - almost hitting an angle of 0
   degrees as it moves along the direction of closest approach after passing
   the other individuals.
-- The other two individuals move counter-clockwise, so their angles show a
+- The other two individuals move clockwise, so their angles show a
   gradual increase with time. Because the two individuals occasionally get in
   each others' way, we see frequent "spikes" in their egocentric angles as
   their forward vectors rapidly change.
@@ -713,7 +707,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.488 seconds)
+   **Total running time of the script:** (0 minutes 2.479 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:

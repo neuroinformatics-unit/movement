@@ -1,6 +1,0 @@
-configure\_logging
-==================
-
-.. currentmodule:: movement.utils.logging
-
-.. autofunction:: configure_logging

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>log_warning &#8212; movement</title>
+    <title>showwarning &#8212; movement</title>
   
   
   
@@ -44,13 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1dd76d02"></script>
+    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.log_warning';</script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.log_warning.html" />
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.showwarning';</script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.showwarning.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -120,7 +120,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.0</p>
+    <p class="title logo__title">movement v0.5.1</p>
   
 </a></div>
     
@@ -456,10 +456,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.configure_logging.html">configure_logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_error.html">log_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">log_warning</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -538,7 +537,7 @@
     
     <li class="breadcrumb-item"><a href="movement.utils.logging.html" class="nav-link">movement.utils.logging</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">log_warning</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">showwarning</span></li>
   </ul>
 </nav>
 </div>
@@ -554,20 +553,14 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="log-warning">
-<h1>log_warning<a class="headerlink" href="#log-warning" title="Link to this heading">#</a></h1>
+                   <section id="showwarning">
+<h1>showwarning<a class="headerlink" href="#showwarning" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.utils.logging.log_warning">
-<span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">log_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movement'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#log_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.log_warning" title="Link to this definition">#</a></dt>
-<dd><p>Log a warning message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<em>str</em>) – The warning message.</p></li>
-<li><p><strong>logger_name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the logger to use. Defaults to “movement”.</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="movement.utils.logging.showwarning">
+<span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">showwarning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#showwarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.showwarning" title="Link to this definition">#</a></dt>
+<dd><p>Redirect alerts from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.13)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logger.</p>
+<p>This function replaces <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.captureWarnings" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.captureWarnings()</span></code></a> which redirects
+warnings issued by the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.13)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logging system.</p>
 </dd></dl>
 
 </section>
@@ -622,7 +615,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.log_warning"><code class="docutils literal notranslate"><span class="pre">log_warning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.showwarning"><code class="docutils literal notranslate"><span class="pre">showwarning()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -630,7 +623,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.utils.logging.log_warning.rst.txt"
+      <li><a href="../_sources/api/movement.utils.logging.showwarning.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
