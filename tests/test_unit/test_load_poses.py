@@ -184,6 +184,9 @@ def test_load_from_dlc_file_csv_or_h5_file_returns_same():
     xr.testing.assert_allclose(ds_from_h5, ds_from_csv)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:.*Setting fps to None.:UserWarning",
+)
 @pytest.mark.parametrize(
     "fps, expected_fps, expected_time_unit",
     [

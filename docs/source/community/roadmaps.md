@@ -19,7 +19,16 @@ The following features are being considered for the first stable version `v1.0`.
 navigation, social interactions, etc.
 - __Integrate with neurophysiological data analysis tools__. We eventually aim to facilitate combined analysis of motion and neural data.
 
-## Short-term milestone - `v0.1`
+## Focus areas for 2025
+
+- Annotate space by defining regions of interest programmatically and via our [GUI](target-gui).
+- Annotate time by defining events of interest programmatically and via our [GUI](target-gui).
+- Enable workflows for aligning motion tracks with concurrently recorded neurophysiological signals.
+- Enrich the interactive visualisation of motion tracks in `napari`, providing more customisation options.
+- Enable the saving of filtered tracks and derived kinematic variables to disk.
+- Implement metrics useful for analysing spatial navigation, social interactions, and collective behaviour.
+
+## Version 0.1
 We've released version `v0.1` of `movement` in March 2025, providing a basic set of features to demonstrate the project's potential and to gather feedback from users. Our minimum requirements for this milestone were:
 
 - [x] Ability to import pose tracks from [DeepLabCut](dlc:), [SLEAP](sleap:) and [LightningPose](lp:) into a common `xarray.Dataset` structure.

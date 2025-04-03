@@ -68,6 +68,9 @@ class TestComputeKinematics:
             kinematic_array.values, expected_array.values
         )
 
+    @pytest.mark.filterwarnings(
+        "ignore:The result may be unreliable.*:UserWarning"
+    )
     @pytest.mark.parametrize(
         "valid_dataset_with_nan, expected_nans_per_individual",
         [
@@ -162,6 +165,9 @@ time_points_value_error = pytest.raises(
 )
 
 
+@pytest.mark.filterwarnings(
+    "ignore:The result may be unreliable.*:UserWarning"
+)
 @pytest.mark.parametrize(
     "start, stop, expected_exception",
     [
@@ -222,6 +228,9 @@ def test_path_length_across_time_ranges(
         xr.testing.assert_allclose(path_length, expected_path_length)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:The result may be unreliable.*:UserWarning"
+)
 @pytest.mark.parametrize(
     "nan_policy, expected_path_lengths_id_0, expected_exception",
     [
@@ -258,8 +267,7 @@ def test_path_length_with_nan(
     position = valid_poses_dataset_with_nan.position
     with expected_exception:
         path_length = kinematics.compute_path_length(
-            position,
-            nan_policy=nan_policy,
+            position, nan_policy=nan_policy
         )
         # Get path_length for individual "id_0" as a numpy array
         path_length_id_0 = path_length.sel(individuals="id_0").values
@@ -272,19 +280,20 @@ def test_path_length_with_nan(
 @pytest.mark.parametrize(
     "nan_warn_threshold, expected_exception",
     [
-        (1, does_not_raise()),
-        (0.2, does_not_raise()),
+        (1, pytest.warns(UserWarning, match="The result may be unreliable")),
+        (0.2, pytest.warns(UserWarning, match="The result may be unreliable")),
         (-1, pytest.raises(ValueError, match="between 0 and 1")),
     ],
 )
-def test_path_length_warns_about_nans(
+def test_path_length_nan_warn_threshold(
     valid_poses_dataset_with_nan,
     nan_warn_threshold,
     expected_exception,
     caplog,
 ):
     """Test that a warning is raised when the number of missing values
-    exceeds a given threshold.
+    exceeds a given threshold or that an error is raised when the threshold
+    is invalid.
     """
     position = valid_poses_dataset_with_nan.position
     with expected_exception:
@@ -292,13 +301,10 @@ def test_path_length_warns_about_nans(
             position, nan_warn_threshold=nan_warn_threshold
         )
         if 0.1 < nan_warn_threshold < 0.5:
-            # Make sure that a warning was emitted
-            assert caplog.records[0].levelname == "WARNING"
-            assert "The result may be unreliable" in caplog.records[0].message
             # Make sure that the NaN report only mentions
             # the individual and keypoint that violate the threshold
-            info_msg = caplog.records[1].message
-            assert caplog.records[1].levelname == "INFO"
+            info_msg = caplog.records[0].message
+            assert caplog.records[0].levelname == "INFO"
             assert "Individual: id_0" in info_msg
             assert "Individual: id_1" not in info_msg
             assert "centroid: 3/10 (30.0%)" in info_msg
