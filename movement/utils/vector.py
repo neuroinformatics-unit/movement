@@ -3,11 +3,8 @@
 import numpy as np
 import xarray as xr
 
-from movement.utils.logging import log_error
-from movement.validators.arrays import (
-    validate_dims_coords,
-    validate_reference_vector,
-)
+from movement.utils.logging import logger
+from movement.validators.arrays import validate_dims_coords
 
 
 def compute_norm(data: xr.DataArray) -> xr.DataArray:
@@ -215,9 +212,9 @@ def compute_signed_angle_2d(
     which corresponds to the rotation that needs to be applied to ``u`` for it
     to point in the direction of ``v``.
 
-    If ``v`` is passed as an ``xarray.DataArray``, ``v`` must have the spatial
-    coordinates ``"x"`` and ``"y"`` only, and must have a ``time`` dimension
-    matching that of ``u``.
+    If ``v`` is passed as an ``xarray.DataArray``, ``v`` must have spatial
+    coordinates that match those of ``u``. Furthermore, any dimensions that are
+    present in both ``u`` and ``v`` must match in length.
 
     If passed as a numpy array, ``v`` must have one of three shapes:
 
@@ -235,16 +232,38 @@ def compute_signed_angle_2d(
 
     """
     validate_dims_coords(u, {"space": ["x", "y"]}, exact_coords=True)
-    # ensure v can be broadcast over u
-    v_with_matching_dims = validate_reference_vector(v, u)
+    # Ensure v can be broadcast over u
+    if isinstance(v, np.ndarray):
+        v = v.squeeze()
+        if v.ndim == 1:
+            v_dims = ["space"]
+        elif v.ndim == 2:
+            v_dims = ["time", "space"]
+        else:
+            raise logger.error(
+                ValueError(f"v must be 1D or 2D, but got {v.ndim}D.")
+            )
+        v = xr.DataArray(
+            v,
+            dims=v_dims,
+            coords={d: u.coords[d] for d in v_dims},
+        )
+    elif not isinstance(v, xr.DataArray):
+        raise logger.error(
+            TypeError(
+                "v must be an xarray.DataArray or np.ndarray, "
+                f"but got {type(v)}."
+            )
+        )
+    validate_dims_coords(v, {"space": ["x", "y"]}, exact_coords=True)
 
-    u_unit = convert_to_unit(u)
-    u_x = u_unit.sel(space="x")
-    u_y = u_unit.sel(space="y")
+    u = convert_to_unit(u)
+    u_x = u.sel(space="x")
+    u_y = u.sel(space="y")
 
-    v_unit = convert_to_unit(v_with_matching_dims)
-    v_x = v_unit.sel(space="x")
-    v_y = v_unit.sel(space="y")
+    v = convert_to_unit(v)
+    v_x = v.sel(space="x")
+    v_y = v.sel(space="y")
 
     cross = u_x * v_y - u_y * v_x
     if v_as_left_operand:
@@ -259,8 +278,9 @@ def compute_signed_angle_2d(
 
 
 def _raise_error_for_missing_spatial_dim() -> None:
-    raise log_error(
-        ValueError,
-        "Input data array must contain either 'space' or 'space_pol' "
-        "as dimensions.",
+    raise logger.error(
+        ValueError(
+            "Input data array must contain either 'space' or 'space_pol' "
+            "as dimensions."
+        )
     )
