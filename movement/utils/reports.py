@@ -1,8 +1,11 @@
 """Utility functions for reporting missing data."""
 
+import itertools
+import logging
+
 import xarray as xr
 
-from movement.utils.logging import logger
+logger = logging.getLogger(__name__)
 
 
 def calculate_nan_stats(
@@ -96,35 +99,23 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     nan_report = f"\nMissing points (marked as NaN) in {label}"
     if "space" in da.dims:
         nan_report += " (any spatial coordinate)"
-    null_mask = da.isnull().any("space") if "space" in da.dims else da.isnull()
-
-    total_time = da.sizes["time"]
-    nan_counts = null_mask.sum("time")
-    nan_percent = (nan_counts / total_time * 100).round(1)
 
     # Handle dimensions
     individuals = da.individuals.values if "individuals" in da.dims else [None]
     keypoints = da.keypoints.values if "keypoints" in da.dims else [None]
 
-    for ind in individuals:
-        if "individuals" in da.dims:
+    prev_ind = None
+    for ind, kp in itertools.product(individuals, keypoints):
+        # Add individual header when individual changes
+        if "individuals" in da.dims and ind != prev_ind:
             nan_report += f"\n\tIndividual: {ind}"
+            prev_ind = ind
 
-        for kp in keypoints:
-            selection = {}
-            if "individuals" in da.dims:
-                selection["individuals"] = ind
-            if "keypoints" in da.dims:
-                selection["keypoints"] = kp
+        # Use calculate_nan_stats to get the stats for this combination
+        stats = calculate_nan_stats(da, keypoint=kp, individual=ind)
 
-            count = nan_counts.sel(selection).item()
-            percent = nan_percent.sel(selection).item()
-
-            label_line = kp if "keypoints" in da.dims else "data"
-
-            nan_report += (
-                f"\n\t\t{label_line}: {int(count)}/{total_time} ({percent}%)"
-            )
+        # The stats come with a newline and tabs, so we can append directly
+        nan_report += stats
 
     logger.info(nan_report)
     return nan_report
