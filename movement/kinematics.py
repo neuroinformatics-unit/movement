@@ -804,7 +804,7 @@ def compute_path_length(
     nan_policy: Literal["ffill", "scale"] = "ffill",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
-    """Compute the length of a path travelled between two time points.
+    r"""Compute the length of a path travelled between two time points.
 
     The path length is defined as the sum of the norms (magnitudes) of the
     displacement vectors between two time points ``start`` and ``stop``,
@@ -828,8 +828,9 @@ def compute_path_length(
         or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
         See Notes for more details on the two policies.
     nan_warn_threshold : float, optional
-        If more than this proportion of values are missing in any point track,
-        a warning will be emitted. Defaults to 0.2 (20%).
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
 
     Returns
     -------
@@ -895,7 +896,8 @@ def _warn_about_nan_proportion(
 
     The NaN proportion is evaluated per point track, and a given point is
     considered NaN if any of its ``space`` coordinates are NaN. The warning
-    specifically lists the point tracks that exceed the threshold.
+    specifically lists the point tracks with at least (>=)
+    ``nan_warn_threshold`` proportion of NaN values.
 
     Parameters
     ----------
@@ -913,12 +915,12 @@ def _warn_about_nan_proportion(
         )
     n_nans = data.isnull().any(dim="space").sum(dim="time")
     data_to_warn_about = data.where(
-        n_nans > data.sizes["time"] * nan_warn_threshold, drop=True
+        n_nans >= data.sizes["time"] * nan_warn_threshold, drop=True
     )
-    if len(data_to_warn_about) > 0:
+    if data_to_warn_about.size > 0:
         warnings.warn(
             "The result may be unreliable for point tracks with many "
-            "missing values. The following tracks have more than "
+            "missing values. The following tracks have at least "
             f"{nan_warn_threshold * 100:.3} % NaN values:\n"
             f"{report_nan_values(data_to_warn_about)}",
             UserWarning,
