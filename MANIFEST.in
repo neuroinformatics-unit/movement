@@ -1,5 +1,6 @@
 include LICENSE
 include *.md
+include *.ipynb
 include CITATION.CFF
 include movement/napari/napari.yaml
 exclude .pre-commit-config.yaml
