@@ -1,32 +1,36 @@
-"""Widgets for exporting shapes from napari layers."""
+"""Widget for converting shapes to ROI objects."""
 
 import numpy as np
-import pandas as pd
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
-    QFileDialog,
     QFormLayout,
     QPushButton,
     QWidget,
+    QLabel,
+    QMessageBox,
+    QLineEdit,
 )
 from qtpy.QtCore import QTimer
 
 from movement.utils.logging import logger
+from movement.roi import LineOfInterest, PolygonOfInterest  # Update imports to use correct ROI classes
 
 
-class ShapesExporter(QWidget):
-    """Widget for exporting shapes from napari layers to files."""
+class ShapesExporter(QWidget):  # Change back to ShapesExporter to match meta_widget.py
+    """Widget for converting shapes from napari layers to ROI objects."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the shapes exporter widget."""
+        """Initialize the shapes converter widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
 
         # Create UI elements
         self._create_layer_selector()
-        self._create_export_button()
+        self._create_convert_button()
+        self._create_status_label()
+        self._create_roi_name_input()
         
         # Connect to viewer events to update layer list when layers change
         self.viewer.layers.events.inserted.connect(self._update_layer_list)
@@ -36,7 +40,7 @@ class ShapesExporter(QWidget):
         QTimer.singleShot(100, self._update_layer_list)
 
     def _create_layer_selector(self):
-        """Create a combo box for selecting the shapes layer to export."""
+        """Create a combo box for selecting the shapes layer to convert."""
         self.layer_combo = QComboBox()
         self.layer_combo.setObjectName("layer_combo")
         self.layout().addRow("shapes layer:", self.layer_combo)
@@ -62,55 +66,72 @@ class ShapesExporter(QWidget):
             # If no shapes layers exist, add a placeholder
             self.layer_combo.addItem("No shapes layers available")
 
-    def _create_export_button(self):
-        """Create a button to export the shapes data."""
-        self.export_button = QPushButton("Export Shapes")
-        self.export_button.setObjectName("export_button")
-        self.export_button.clicked.connect(self._on_export_clicked)
-        self.layout().addRow(self.export_button)
+    def _create_convert_button(self):
+        """Create a button to convert the shapes data."""
+        self.convert_button = QPushButton("Convert to ROI")
+        self.convert_button.setObjectName("convert_button")
+        self.convert_button.clicked.connect(self._on_convert_clicked)
+        self.layout().addRow(self.convert_button)
 
-    def _on_export_clicked(self):
-        """Export the shapes data to a file when the button is clicked."""
-        # Get the selected layer name
+    def _create_status_label(self):
+        """Create a label to show conversion status."""
+        self.status_label = QLabel("")
+        self.layout().addRow(self.status_label)
+
+    def _create_roi_name_input(self):
+        """Create an input field for ROI layer name."""
+        self.roi_name_input = QLineEdit("ROI Layer")
+        self.roi_name_input.setObjectName("roi_name_input")
+        self.layout().addRow("ROI layer name:", self.roi_name_input)
+        
+    def _show_message(self, title, text):
+        """Show a message box with the given title and text."""
+        QMessageBox.information(self, title, text)
+        
+    def _update_status(self, text, is_error=False):
+        """Update the status label with text and color based on status."""
+        self.status_label.setText(text)
+        self.status_label.setStyleSheet(
+            "color: red;" if is_error else "color: green;"
+        )
+
+    def _on_convert_clicked(self):
+        """Convert the shapes data to ROI objects and display them."""
         layer_name = self.layer_combo.currentText()
         
-        # Check if there are any shapes layers
         if layer_name == "No shapes layers available":
-            logger.warning("No shapes layers available to export")
+            self._update_status("No shapes layers available", is_error=True)
             return
             
-        # Get the shapes layer by name
         shapes_layer = self._get_shapes_layer(layer_name)
         if shapes_layer is None:
+            self._update_status("Invalid shapes layer", is_error=True)
             return
             
-        # Validate shapes data
         if not shapes_layer.data or len(shapes_layer.data) == 0:
-            logger.warning("Selected shapes layer contains no data")
+            self._update_status("Selected shapes layer contains no data", is_error=True)
             return
             
-        # Get a file path for saving
-        file_path, selected_filter = QFileDialog.getSaveFileName(
-            self,
-            "Save shapes data",
-            "",
-            "CSV Files (*.csv);;JSON Files (*.json)",
-        )
-        
-        if not file_path:
-            return  # User cancelled
-            
-        # Ensure proper file extension
-        if selected_filter == "CSV Files (*.csv)" and not file_path.endswith('.csv'):
-            file_path += '.csv'
-        elif selected_filter == "JSON Files (*.json)" and not file_path.endswith('.json'):
-            file_path += '.json'
-            
-        # Export the shapes data
         try:
-            self._export_shapes(shapes_layer, file_path)
+            # Convert shapes to ROI objects
+            roi_objects = self._convert_shapes_to_roi(shapes_layer)
+            
+            # Create new layer for ROIs
+            roi_layer = self._create_roi_layer(roi_objects)
+            
+            # Update status and show message
+            success_msg = (
+                f"Successfully converted {len(roi_objects)} shapes to ROI objects\n"
+                f"Created new layer: {roi_layer.name}"
+            )
+            self._update_status(success_msg)
+            self._show_message("Conversion Complete", success_msg)
+            
+            return roi_objects
         except Exception as e:
-            logger.error(f"Error exporting shapes: {str(e)}")
+            error_msg = f"Error converting shapes: {str(e)}"
+            self._update_status(error_msg, is_error=True)
+            logger.error(error_msg)
 
     def _get_shapes_layer(self, layer_name):
         """Get shapes layer by name with validation."""
@@ -124,58 +145,92 @@ class ShapesExporter(QWidget):
             logger.warning(f"Could not find layer: {layer_name}")
             return None
             
-    def _export_shapes(self, shapes_layer, file_path):
-        """Export the shapes data to the specified file path."""
-        shape_data = []
+    def _convert_shapes_to_roi(self, shapes_layer):
+        """Convert shapes to ROI objects."""
+        roi_objects = []
         
         try:
-            # Get all properties from the layer
-            properties = shapes_layer.properties or {}
-            
-            # Process each shape
             for i, shape in enumerate(shapes_layer.data):
                 if not isinstance(shape, np.ndarray):
                     logger.warning(f"Skipping invalid shape at index {i}")
                     continue
-                    
-                # Get shape properties
+                
                 shape_type = shapes_layer.shape_type[i] if i < len(shapes_layer.shape_type) else "unknown"
+                coords = shape.astype(float)  # Convert to float for ROI objects
                 
-                # For each shape, create a row for each vertex
-                for j, vertex in enumerate(shape):
-                    row_data = {
-                        'shape_id': i,
-                        'shape_type': shape_type,
-                        'vertex_id': j,
-                    }
-                    
-                    # Add coordinates
-                    vertex_array = np.asarray(vertex).flatten()
-                    coordinates = ['y', 'x', 'z']
-                    for k, coord in enumerate(coordinates):
-                        row_data[coord] = vertex_array[k] if k < len(vertex_array) else 0
-                    
-                    # Add any additional properties
-                    for prop_name, prop_values in properties.items():
+                # Convert based on shape type using proper ROI classes
+                try:
+                    if shape_type == 'line':
+                        roi = LineOfInterest(
+                            coords,  # Pass coordinates directly
+                            loop=False,
+                            name=f"{shape_type}_{i}"
+                        )
+                    elif shape_type in ['polygon', 'rectangle', 'ellipse']:
+                        roi = PolygonOfInterest(
+                            exterior_boundary=coords,
+                            name=f"{shape_type}_{i}"
+                        )
+                    else:
+                        logger.warning(f"Unsupported shape type: {shape_type}")
+                        continue
+                except Exception as e:
+                    logger.warning(f"Failed to create ROI for shape {i}: {str(e)}")
+                    continue
+                
+                # Copy properties if they exist
+                if hasattr(shapes_layer, 'properties') and shapes_layer.properties:
+                    metadata = {}
+                    for prop_name, prop_values in shapes_layer.properties.items():
                         if i < len(prop_values):
-                            row_data[prop_name] = prop_values[i]
-                    
-                    shape_data.append(row_data)
-                    
-            if not shape_data:
-                raise ValueError("No valid shapes data to export")
+                            metadata[prop_name] = prop_values[i]
+                    roi.metadata = metadata
                 
-            # Convert to dataframe
-            df = pd.DataFrame(shape_data)
-            
-            # Save to file based on extension
-            if file_path.endswith('.csv'):
-                df.to_csv(file_path, index=False)
-            elif file_path.endswith('.json'):
-                df.to_json(file_path, orient='records')
-            
-            logger.info(f"Successfully exported {len(shape_data)} shape vertices to {file_path}")
+                roi_objects.append(roi)
+                
+            if not roi_objects:
+                raise ValueError("No valid shapes to convert")
+                
+            return roi_objects
             
         except Exception as e:
-            logger.error(f"Error processing shapes: {str(e)}")
+            logger.error(f"Error converting shapes: {str(e)}")
             raise
+
+    def _create_roi_layer(self, roi_objects):
+        """Create a new shapes layer for ROI objects."""
+        roi_data = []
+        roi_types = []
+        properties = {}
+        
+        # Convert ROI objects back to shape data
+        for roi in roi_objects:
+            if isinstance(roi, LineOfInterest):
+                # Access coordinates through region.coords for LineOfInterest
+                coords = np.array(roi.region.coords)
+                roi_type = 'line'
+            else:  # PolygonOfInterest
+                coords = np.array(roi.exterior_boundary.region.coords)
+                roi_type = 'polygon'
+                
+            roi_data.append(coords)
+            roi_types.append(roi_type)
+            
+            # Copy metadata if it exists
+            if hasattr(roi, 'metadata'):
+                for key, value in roi.metadata.items():
+                    if key not in properties:
+                        properties[key] = []
+                    properties[key].append(value)
+        
+        # Create new shapes layer for ROIs
+        layer_name = self.roi_name_input.text() or "ROI Layer"
+        roi_layer = self.viewer.add_shapes(
+            roi_data,
+            shape_type=roi_types,
+            properties=properties,
+            name=layer_name,
+            edge_color='blue',
+            face_color='transparent',
+        )
+        return roi_layer
