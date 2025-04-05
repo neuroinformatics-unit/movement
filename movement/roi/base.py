@@ -13,7 +13,7 @@ from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
 from movement.utils.broadcasting import broadcastable_method
-from movement.utils.logging import log_error
+from movement.utils.logging import logger
 from movement.utils.vector import compute_signed_angle_2d
 
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
@@ -78,7 +78,11 @@ class BaseRegionOfInterest:
         - In future, allows us to customise the defaults on a per-region basis
         (e.g., default labels can inherit ``self.name``).
         """
-        return {}
+        kwargs = {}
+        if self.name:
+            kwargs["label"] = self.name
+
+        return kwargs
 
     @property
     def coords(self) -> CoordinateSequence:
@@ -239,21 +243,22 @@ class BaseRegionOfInterest:
         """
         self._name = name
         if len(points) < dimensions + 1:
-            raise log_error(
-                ValueError,
-                f"Need at least {dimensions + 1} points to define a "
-                f"{dimensions}D region (got {len(points)}).",
+            raise logger.error(
+                ValueError(
+                    f"Need at least {dimensions + 1} points to define a "
+                    f"{dimensions}D region (got {len(points)})."
+                )
             )
         elif dimensions < 1 or dimensions > 2:
-            raise log_error(
-                ValueError,
-                "Only regions of interest of dimension 1 or 2 are supported "
-                f"(requested {dimensions})",
+            raise logger.error(
+                ValueError(
+                    "Only regions of interest of dimension 1 or 2 "
+                    f"are supported (requested {dimensions})"
+                )
             )
         elif dimensions == 1 and len(points) < 3 and closed:
-            raise log_error(
-                ValueError,
-                "Cannot create a loop from a single line segment.",
+            raise logger.error(
+                ValueError("Cannot create a loop from a single line segment.")
             )
         if dimensions == 2:
             self._shapely_geometry = shapely.Polygon(shell=points, holes=holes)
@@ -450,7 +455,7 @@ class BaseRegionOfInterest:
         boundary_only: bool = False,
         in_degrees: bool = False,
         reference_vector: np.ndarray | xr.DataArray = None,
-    ) -> float:
+    ) -> xr.DataArray:
         """Compute the allocentric angle to the nearest point in the region.
 
         With the term "allocentric", we indicate that we are measuring angles
