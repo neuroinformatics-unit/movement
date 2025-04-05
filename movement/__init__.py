@@ -15,7 +15,7 @@ xr.set_options(keep_attrs=True, display_expand_data=False)
 
 
 # initialize logger upon import
-configure_logging()
+# configure_logging() # This call is incorrect and removed
 
 # Import public datasets module functions to make them available at package level
 from movement.public_data import list_public_datasets, get_dataset_info

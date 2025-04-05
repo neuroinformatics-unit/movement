@@ -10,8 +10,6 @@ from pathlib import Path
 
 import xarray as xr
 
-from movement.utils.logging import log_error
-
 logger = logging.getLogger(__name__)
 
 # Save data in ~/.movement/public_data
@@ -71,11 +69,12 @@ def get_dataset_info(dataset_name: str) -> dict:
     """
     if dataset_name not in PUBLIC_DATASETS:
         available_datasets = ", ".join(list_public_datasets())
-        raise log_error(
-            ValueError,
+        message = (
             f"Unknown dataset: {dataset_name}. "
-            f"Available datasets are: {available_datasets}",
+            f"Available datasets are: {available_datasets}"
         )
+        logger.error(message)
+        raise ValueError(message)
 
     return PUBLIC_DATASETS[dataset_name]
 
@@ -125,26 +124,27 @@ def fetch_calms21(
     # Validate inputs
     valid_subsets = ["train", "val", "test"]
     if subset not in valid_subsets:
-        raise log_error(
-            ValueError,
-            f"Invalid subset: {subset}. Must be one of {valid_subsets}",
-        )
+        message = f"Invalid subset: {subset}. Must be one of {valid_subsets}"
+        logger.error(message)
+        raise ValueError(message)
 
     valid_animal_types = ["mouse"]
     if animal_type not in valid_animal_types:
-        raise log_error(
-            ValueError,
+        message = (
             f"Invalid animal type: {animal_type}. "
-            f"Must be one of {valid_animal_types}",
+            f"Must be one of {valid_animal_types}"
         )
+        logger.error(message)
+        raise ValueError(message)
 
     valid_tasks = ["social_interaction", "resident_intruder"]
     if task not in valid_tasks:
-        raise log_error(
-            ValueError,
+        message = (
             f"Invalid task for {animal_type}: {task}. "
-            f"Must be one of {valid_tasks}",
+            f"Must be one of {valid_tasks}"
         )
+        logger.error(message)
+        raise ValueError(message)
 
     # Construction of URL and file paths will go here
     # For now, this is a placeholder implementation
@@ -208,10 +208,9 @@ def fetch_rat7m(
     # Validate inputs
     valid_subsets = ["open_field", "shelter", "maze"]
     if subset not in valid_subsets:
-        raise log_error(
-            ValueError,
-            f"Invalid subset: {subset}. Must be one of {valid_subsets}",
-        )
+        message = f"Invalid subset: {subset}. Must be one of {valid_subsets}"
+        logger.error(message)
+        raise ValueError(message)
 
     # Construction of URL and file paths will go here
     # For now, this is a placeholder implementation
