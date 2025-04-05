@@ -22,18 +22,19 @@ PUBLIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
 # Dictionary of available datasets and their metadata
 PUBLIC_DATASETS = {
     "calms21": {
-        "description": "Multi-animal behavior dataset for unsupervised "
-        "behavior classification",
-        "url": "https://data.caltech.edu/records/g6fjs-ceqwp",
-        "paper": "https://doi.org/10.1038/s41592-022-01426-1",
+        "description": "Caltech Mouse Social Interactions (CalMS21) Dataset: "
+        "trajectory data of social interactions from videos of freely "
+        "behaving mice in a standard resident-intruder assay.",
+        "url": "https://data.caltech.edu/records/s0vdx-0k302",
+        "paper": "https://arxiv.org/abs/2104.02710",  # SLEAP paper
         "license": "CC-BY-4.0",
     },
     "rat7m": {
-        "description": "Multi-animal tracking dataset of rats in complex "
-        "environments",
-        "url": "https://data.caltech.edu/records/bpkf7-jae29",
-        "paper": "https://doi.org/10.1038/s41592-021-01106-6",
-        "license": "CC-BY-4.0",
+        "description": "Rat7M: a 7M frame ground-truth dataset of rodent 3D "
+        "landmarks and synchronised colour video.",
+        "url": "https://figshare.com/collections/Rat_7M/5295370/3",
+        "paper": "https://doi.org/10.1038/s41592-021-01106-6",  # DANNCE paper
+        "license": "MIT",  # Assuming MIT based on DANNCE; verification needed
     },
 }
 
@@ -87,9 +88,9 @@ def fetch_calms21(
 ) -> xr.Dataset:
     """Fetch a subset of the CalMS21 dataset.
 
-    The CalMS21 dataset contains multi-animal pose tracking data for various
-    animal types and tasks. This function fetches a specific subset of the
-    data.
+    The CalMS21 dataset consists of trajectory data of social interactions,
+    recorded from videos of freely behaving mice in a standard
+    resident-intruder assay. [1]_
 
     Parameters
     ----------
@@ -97,14 +98,13 @@ def fetch_calms21(
         Data subset to fetch. One of 'train', 'val', or 'test'.
         Default is 'train'.
     animal_type : str, optional
-        Type of animal. One of 'mouse', 'fly', or 'ciona'.
+        Type of animal (currently only 'mouse' is relevant for data fetching).
         Default is 'mouse'.
     task : str, optional
-        Behavioral task. Available tasks depend on the animal type.
-        For mouse: 'open_field', 'social_interaction', 'resident_intruder'.
-        For fly: 'courtship', 'egg_laying', 'aggression'.
-        For ciona: 'social_investigation'.
-        Default is 'open_field'.
+        Behavioral task (currently only 'social_interaction'/
+        'resident-intruder' assays are relevant for data fetching).
+        Default is 'open_field' (placeholder, specific tasks should
+        be fetched).
     frame_rate : float, optional
         Frame rate in frames per second. If None, the original frame rate
         will be used. Default is None.
@@ -116,9 +116,10 @@ def fetch_calms21(
 
     References
     ----------
-    .. [1] Sun et al. (2022). "Multi-animal pose estimation, identification and
-       tracking with DeepLabCut". Nature Methods, 19(4), 496-504.
-       https://doi.org/10.1038/s41592-022-01426-1
+    .. [1] Pereira, T. D., Tabris, N., Matsliah, A., Turner, D. M., Li, J.,
+       Ravindranath, S., ... & Murthy, M. (2022). SLEAP: A deep learning system
+       for multi-animal pose tracking. Nature Methods, 19(4), 486-495.
+       https://arxiv.org/abs/2104.02710
 
     """
     # Validate inputs
@@ -129,7 +130,7 @@ def fetch_calms21(
             f"Invalid subset: {subset}. Must be one of {valid_subsets}",
         )
 
-    valid_animal_types = ["mouse", "fly", "ciona"]
+    valid_animal_types = ["mouse"]
     if animal_type not in valid_animal_types:
         raise log_error(
             ValueError,
@@ -137,17 +138,12 @@ def fetch_calms21(
             f"Must be one of {valid_animal_types}",
         )
 
-    valid_tasks = {
-        "mouse": ["open_field", "social_interaction", "resident_intruder"],
-        "fly": ["courtship", "egg_laying", "aggression"],
-        "ciona": ["social_investigation"],
-    }
-
-    if task not in valid_tasks[animal_type]:
+    valid_tasks = ["social_interaction", "resident_intruder"]
+    if task not in valid_tasks:
         raise log_error(
             ValueError,
             f"Invalid task for {animal_type}: {task}. "
-            f"Must be one of {valid_tasks[animal_type]}",
+            f"Must be one of {valid_tasks}",
         )
 
     # Construction of URL and file paths will go here

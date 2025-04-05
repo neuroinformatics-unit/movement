@@ -61,6 +61,7 @@ Find out more on our [mission and scope](target-mission) statement and our [road
 :hidden:
 
 user_guide/index
+user_guide/datasets
 examples/index
 community/index
 api_index
