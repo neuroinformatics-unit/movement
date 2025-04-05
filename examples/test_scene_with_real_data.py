@@ -1,15 +1,16 @@
-"""
-Test: Create Scene using real pose data
-========================================
+"""Test: Create Scene using real pose data
 
-This script loads sample pose data using `load_poses`, constructs Individual objects,
-and tests the Scene logic for handling heterogeneous keypoints.
+This script loads sample pose data using `load_poses`,
+constructs Individual objects,
+and tests the Scene logic for handling
+heterogeneous keypoints.
 """
+
+import numpy as np
 
 from movement import sample_data
-from movement.io import load_poses
 from movement.data.heterogeneous_keypoints import Individual, Scene
-import numpy as np
+from movement.io import load_poses
 
 # Load sample dataset (SLEAP - 3 mice)
 file_path = sample_data.fetch_dataset_paths(
@@ -26,8 +27,10 @@ scene = Scene()
 # Loop through all individuals
 for ind_name in position.individuals.values:
     kp_names = list(position.keypoints.values)
-    data = position.sel(individuals=ind_name).values  # shape: (frames, space, keypoints)
-    
+    data = position.sel(
+        individuals=ind_name
+    ).values  # shape: (frames, space, keypoints)
+
     # Transpose to match our format: (frames, keypoints, space)
     data = np.transpose(data, (0, 2, 1))
 
