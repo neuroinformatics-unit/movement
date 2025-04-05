@@ -22,4 +22,3 @@ from movement.public_data import list_public_datasets, get_dataset_info
 
 # Configure logging to stderr and a file
 logger.configure()
-
