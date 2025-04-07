@@ -58,6 +58,14 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
+        # Connect to layer events
+        self.viewer.layers.events.inserted.connect(
+            self._update_frame_slider_range
+        )
+        self.viewer.layers.events.removed.connect(
+            self._update_frame_slider_range
+        )
+
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
@@ -142,7 +150,6 @@ class DataLoader(QWidget):
         if file_path == "":
             show_warning("No file path specified.")
             return
-
         if source_software in SUPPORTED_POSES_FILES:
             loader = load_poses
         else:
@@ -186,22 +193,49 @@ class DataLoader(QWidget):
             color_prop = "keypoint"
         props_and_style.set_color_by(prop=color_prop)
 
-        # Add data as a points layer
+        # Add data as a points layer with metadata
+        # (max_frame_idx is used to set the frame slider range)
         self.viewer.add_points(
             self.data[bool_not_nan, 1:],
+            metadata={"max_frame_idx": max(self.data[:, 1])},
             **props_and_style.as_kwargs(),
         )
 
-        # Ensure the frame slider reflects the total number of frames
-        expected_frame_range = RangeTuple(
-            start=0.0, stop=max(self.data[:, 1]), step=1.0
-        )
-        if self.viewer.dims.range[0] != expected_frame_range:
-            self.viewer.dims.range = (
-                expected_frame_range,
-            ) + self.viewer.dims.range[1:]
-
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _update_frame_slider_range(self):
+        """Check the frame slider range and update it if necessary.
+
+        This is required because if the data loaded starts or ends
+        with all NaN values, the frame slider range will not reflect
+        the full range of frames.
+        """
+        # Get the maximum frame index from all visible layers with metadata
+        layers_to_check_frame_range = [
+            ly
+            for ly in self.viewer.layers
+            if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
+        ]
+
+        # If there are no layers to check, do nothing
+        if len(layers_to_check_frame_range) > 0:
+            max_frame_idx = max(
+                [
+                    ly.metadata["max_frame_idx"]
+                    for ly in layers_to_check_frame_range
+                ]
+            )
+
+            # If the frame slider range is not set to the full range of frames,
+            # update it.
+            # Note: the start frame may be different from 0 if all the data
+            # at the first frame is NaN
+            if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+                int(self.viewer.dims.range[0].start) != 0
+            ):
+                self.viewer.dims.range = (
+                    RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+                ) + self.viewer.dims.range[1:]
 
     @staticmethod
     def _enable_layer_tooltips():

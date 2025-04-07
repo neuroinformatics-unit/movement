@@ -19,7 +19,7 @@ from movement.napari.loader_widgets import DataLoader
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     """Test that the loader widget is properly instantiated."""
     # Instantiate the data loader widget
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Check that the widget has the expected number of rows
     assert data_loader_widget.layout().rowCount() == 4
@@ -50,7 +50,7 @@ def test_button_connected_to_on_clicked(
     mock_method = mocker.patch(
         f"movement.napari.loader_widgets.DataLoader._on_{button}_clicked"
     )
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
@@ -106,7 +106,7 @@ def test_file_filters_per_source_software(
     source_software, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     data_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
         "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
@@ -203,8 +203,8 @@ def test_on_load_clicked_with_valid_file_path(
     [["centroid"], ["centroid", "left", "right"]],
     ids=["one_keypoint", "all_keypoints"],
 )
-def test_dimension_slider_matches_frames(
-    valid_dataset_with_localised_nans,
+def test_dimension_slider_with_nans(
+    valid_poses_dataset_with_localised_nans,
     nan_time_location,
     nan_individuals,
     nan_keypoints,
@@ -219,7 +219,7 @@ def test_dimension_slider_matches_frames(
         "individuals": nan_individuals,
         "keypoints": nan_keypoints,
     }
-    file_path, ds = valid_dataset_with_localised_nans(nan_location)
+    file_path, ds = valid_poses_dataset_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
@@ -229,14 +229,14 @@ def test_dimension_slider_matches_frames(
     elif nan_location["time"] == "end":
         expected_frame = ds.coords["time"][-1]
 
-    # Load the poses loader widget
+    # Load the data loader widget
     viewer = make_napari_viewer_proxy()
-    poses_loader_widget = DataLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
 
     # Read sample data with a NaN at the specified
     # location (start, middle, or end)
-    poses_loader_widget.file_path_edit.setText(file_path.as_posix())
-    poses_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
 
     # Check the data contains nans where expected
     assert (
@@ -251,12 +251,59 @@ def test_dimension_slider_matches_frames(
 
     # Call the _on_load_clicked method
     # (to pretend the user clicked "Load")
-    poses_loader_widget._on_load_clicked()
+    data_loader_widget._on_load_clicked()
 
     # Check the frame slider is set to the full range of frames
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=ds.position.shape[0] - 1, step=1.0
     )
+
+
+@pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        ["valid_poses_dataset_long", "valid_poses_dataset_short"],
+        ["valid_poses_dataset_short", "valid_poses_dataset_long"],
+    ],
+    ids=["long_first", "short_first"],
+)
+def test_dimension_slider_multiple_files(
+    list_input_data_files, make_napari_viewer_proxy, request
+):
+    """Test that the dimension slider is set to the maximum number of frames
+    when multiple files are loaded.
+    """
+    # Get the datasets to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(len(list_input_data_files))
+    ]
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load each dataset in order
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+        data_loader_widget._on_load_clicked()
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+    # Check the maximum number of frames is the number of frames
+    # in the longest dataset
+    _, ds_long = request.getfixturevalue("valid_poses_dataset_long")
+    assert max_frames == ds_long.sizes["time"]
 
 
 @pytest.mark.parametrize(
@@ -310,13 +357,13 @@ def test_add_points_layer_style(
     """
     # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
-    loader_widget = DataLoader(viewer)
+    data_loader_widget = DataLoader(viewer)
 
     # Load data as a points layer
     file_path = pytest.DATA_PATHS.get(filename)
-    loader_widget.file_path_edit.setText(file_path.as_posix())
-    loader_widget.source_software_combo.setCurrentText(source_software)
-    loader_widget._on_load_clicked()
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget._on_load_clicked()
 
     # Check no warnings were emitted
     log_messages = {record.getMessage() for record in caplog.records}
