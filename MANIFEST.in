@@ -2,6 +2,7 @@ include LICENSE
 include *.md
 include CITATION.CFF
 include movement/napari/napari.yaml
+include .all-contributorsrc
 exclude .pre-commit-config.yaml
 exclude .cruft.json
 

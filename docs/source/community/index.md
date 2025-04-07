@@ -16,6 +16,7 @@ a [roadmap](target-roadmaps) outlining our current priorities, and a detailed [c
 mission-scope
 roadmaps
 contributing
+people
 related-projects
 license
 ```
