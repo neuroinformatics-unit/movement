@@ -7,6 +7,7 @@ instantiated (the methods would have already been connected to signals).
 
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers.points.points import Points
@@ -255,7 +256,7 @@ def test_dimension_slider_with_nans(
     make_napari_viewer_proxy,
 ):
     """Test that the dimension slider is set to the total number of frames
-    when data with NaNs is loaded.
+    when data layers with NaNs are loaded.
     """
     # Get data with nans at the expected locations
     nan_location = {
@@ -315,7 +316,7 @@ def test_dimension_slider_multiple_files(
     list_input_data_files, make_napari_viewer_proxy, request
 ):
     """Test that the dimension slider is set to the maximum number of frames
-    when multiple files are loaded.
+    when multiple data layers are loaded.
     """
     # Get the datasets to load (paths and ds)
     list_paths, list_datasets = [
@@ -445,6 +446,50 @@ def test_dimension_slider_with_deletion(
     # Check the frame slider is as expected
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+
+@pytest.mark.parametrize(
+    "layer_method, data_array_shape",
+    [
+        ("add_image", (200, 200)),
+        ("add_points", (3,)),
+        ("add_tracks", (4,)),
+    ],
+)
+def test_dimension_slider_with_layer_types(
+    layer_method, data_array_shape, make_napari_viewer_proxy
+):
+    """Test the slider update attends to the specified layer types."""
+    # Create mock data for the specified layer type
+    n_frames = 2000
+    layer_array = np.random.rand(n_frames, *data_array_shape)
+    if layer_method == "add_tracks":
+        layer_array[:, 0] = np.tile([1, 2, 3, 4], (1, n_frames // 4))
+
+    # Create a mock napari viewer
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load a sample dataset as a points layer
+    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget._on_load_clicked()
+
+    # Get number of frames in pose data
+    n_frames_data = viewer.layers[0].metadata["max_frame_idx"]
+
+    # Load mock data as the relevant layer type
+    getattr(viewer, layer_method)(layer_array)
+
+    # Check array is "longer" than data
+    assert n_frames > n_frames_data
+
+    # Check the frame slider is set to the max number of frames of the
+    # specified layer type
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=n_frames - 1, step=1.0
     )
 
 
