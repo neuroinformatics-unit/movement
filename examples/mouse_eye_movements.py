@@ -7,6 +7,7 @@ Look at eye movements and pupil diameter.
 # %%
 # Imports
 # -------
+import seaborn as sns
 import sleap_io as sio
 import xarray as xr
 from matplotlib import pyplot as plt
@@ -15,6 +16,10 @@ import movement.kinematics as kin
 from movement import sample_data
 from movement.filtering import rolling_filter
 from movement.plots import plot_centroid_trajectory
+
+# Set the style for the plots
+sns.set_context("talk")
+sns.set_style("ticks")
 
 # %%
 # Load the data
@@ -53,6 +58,7 @@ for ds_name, ds in ds_dict.items():
     print(f"Number of frames: {n_frames}")
     print(f"Frame size: {width}x{height}")
     print(f"Number of channels: {channels}\n")
+
 # %%
 # Plot first frame with keypoints
 # -------------------------------
@@ -68,6 +74,22 @@ for i, (da_name, ds) in enumerate(ds_dict.items()):
     ax[i].invert_yaxis()  # because the dataset was collected flipped
 plt.tight_layout()
 plt.show()
+
+# %%
+# Plot just the "black" dataset
+fig, ax = plt.subplots(figsize=(6, 5))
+ax.imshow(ds_dict["black"].video[0], cmap="gray")  # plot first video frame
+for keypoint in ds_black.keypoints.values:
+    x = ds_black.position.sel(time=0, space="x", keypoints=keypoint)
+    y = ds_black.position.sel(time=0, space="y", keypoints=keypoint)
+    ax.scatter(x, y, label=keypoint, s=90)  # plot keypoints
+ax.legend()
+ax.invert_yaxis()  # because the dataset was collected flipped
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.set_title("Keypoints")
+plt.tight_layout()
+plt.savefig("pupil_keypoints.png", dpi=300)
 
 # %%
 # Pupil trajectory
@@ -120,11 +142,13 @@ plot_params = {
     "size": 2.5,
 }
 sel = {"time": slice(8, 25)}
+
 # %%
 # Plot the keypoint positions over time.
 positions.sel(**sel).squeeze().plot.line(**plot_params)
 plt.subplots_adjust(right=0.85)  # Make space on the right for the legend
 plt.show()
+
 # %%
 # Normalised keypoint positions over time
 # ---------------------------------------
@@ -140,6 +164,7 @@ positions_norm = positions - eye_midpoint
 positions_norm.sel(**sel).squeeze().plot.line(**plot_params)
 plt.subplots_adjust(right=0.85)
 plt.show()
+
 # %%
 # Pupil position over time
 # ------------------------
@@ -188,6 +213,30 @@ plt.show()
 # %%
 # The positive peaks correspond to rapid eye movements to the right, the
 # negative peaks correspond to rapid eye movements to the left.
+
+# %%
+# Pupil velocity of just the ds_black dataset
+pupil_velocity_black = pupil_velocity.sel(
+    lighting="black", individuals="individual_0", time=slice(10, 25)
+)
+# Let's plot the raw vs the filtered data.
+pupil_velocity_black.plot.line(
+    x="time",
+    hue="space",
+    lw=2,
+    aspect=2.5,
+    size=4,
+)
+plt.ylabel("velocity (pixels/s)")
+plt.xlabel("time (s)")
+plt.title("Pupil Centroid Velocity")
+plt.xlim(pupil_velocity_black.time.min(), pupil_velocity_black.time.max())
+legend = plt.gca().get_legend()
+legend.set_title("")
+
+plt.tight_layout()
+plt.savefig("pupil_velocity_black.png", dpi=300)
+
 
 # %%
 # Pupil diameter
