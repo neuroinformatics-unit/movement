@@ -59,17 +59,19 @@ def test_button_connected_to_on_clicked(
 
 
 # --------test connection to napari events ------------------#
-def test_layer_removed_connected_to_method(make_napari_viewer_proxy):
-    """Test that the widget is connected to napari events."""
-    # Create a mock napari viewer
+def test_layer_events_connected_to_methods(make_napari_viewer_proxy):
+    """Test the layer added/removed event is connected to the right method."""
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
-    # Check that the _on_layer_deleted is a callback linked to the
-    # napari layer removal event
     assert (
-        data_loader_widget._on_layer_deleted.__name__
+        data_loader_widget._update_frame_slider_range.__name__
         in data_loader_widget.viewer.layers.events.removed.callback_refs
+    )
+
+    assert (
+        data_loader_widget._update_frame_slider_range.__name__
+        in data_loader_widget.viewer.layers.events.inserted.callback_refs
     )
 
 
@@ -137,24 +139,28 @@ def test_file_filters_per_source_software(
     )
 
 
-def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
-    """Test that the frame slider check is called when a layer is removed."""
+def test_on_layer_added_and_deleted(make_napari_viewer_proxy, mocker):
+    """Test the frame slider update is called when a layer is added/removed."""
     # Create a mock napari viewer
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Mock the frame slider check method
     mock_frame_slider_check = mocker.patch(
-        "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
+        "movement.napari.loader_widgets.DataLoader._update_frame_slider_range"
     )
 
     # Add a sample layer to the viewer
     mock_layer = Points(name="mock_layer")
     data_loader_widget.viewer.add_layer(mock_layer)
 
+    # Check that the slider check method was called once
+    mock_frame_slider_check.assert_called_once()
+    mock_frame_slider_check.reset_mock()
+
     # Delete the layer
     data_loader_widget.viewer.layers.remove(mock_layer)
 
-    # Check that the slider check method was called
+    # Check that the slider check method was called once
     mock_frame_slider_check.assert_called_once()
 
 
