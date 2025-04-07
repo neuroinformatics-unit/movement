@@ -58,13 +58,13 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
-        # # Connect to layer events
-        # self.viewer.layers.events.inserted.connect(
-        #     self._update_frame_slider_range
-        # )
-        # self.viewer.layers.events.removed.connect(
-        #     self._update_frame_slider_range
-        # )
+        # Connect to layer events
+        self.viewer.layers.events.inserted.connect(
+            self._update_frame_slider_range
+        )
+        self.viewer.layers.events.removed.connect(
+            self._update_frame_slider_range
+        )
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -197,17 +197,13 @@ class DataLoader(QWidget):
             color_prop = "keypoint"
         props_and_style.set_color_by(prop=color_prop)
 
-        # Add data as a points layer
-        points_layer = self.viewer.add_points(
+        # Add data as a points layer with metadata
+        # (max_frame_idx is used to set the frame slider range)
+        self.viewer.add_points(
             self.data[bool_not_nan, 1:],
+            metadata={"max_frame_idx": max(self.data[:, 1])},  # add metadata
             **props_and_style.as_kwargs(),
         )
-
-        # Add metadata to the layer
-        points_layer.metadata = {
-            "min_frame_idx": min(self.data[:, 1]),
-            "max_frame_idx": max(self.data[:, 1]),
-        }
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
