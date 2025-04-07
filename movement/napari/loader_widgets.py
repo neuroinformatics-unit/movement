@@ -165,10 +165,6 @@ class DataLoader(QWidget):
         self.file_name = Path(file_path).name
         self._add_points_layer()
 
-        # Ensure the frame slider goes from 0 to the max number of frames,
-        # considering all loaded point layers
-        self._update_frame_slider_range()
-
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Find rows in data array that do not contain NaN values
