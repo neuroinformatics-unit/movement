@@ -58,8 +58,13 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
-        # Connect to napari events
-        self.viewer.layers.events.connect(self._on_visibility_changed)
+        # # Connect to layer events
+        # self.viewer.layers.events.inserted.connect(
+        #     self._update_frame_slider_range
+        # )
+        # self.viewer.layers.events.removed.connect(
+        #     self._update_frame_slider_range
+        # )
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -111,11 +116,6 @@ class DataLoader(QWidget):
         self.load_button.setObjectName("load_button")
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
-
-    def _on_visibility_changed(self, event):
-        """Link to callbacks for when a layer's visibility changes."""
-        if event.type == "visible":
-            self._update_frame_slider_range()
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
@@ -222,9 +222,7 @@ class DataLoader(QWidget):
         layers_to_check_frame_range = [
             ly
             for ly in self.viewer.layers
-            if ly.visible
-            and hasattr(ly, "metadata")
-            and "max_frame_idx" in ly.metadata
+            if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
         ]
 
         # If there are no layers to check, do nothing
