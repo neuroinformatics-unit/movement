@@ -19,7 +19,7 @@ from movement.napari.loader_widgets import DataLoader
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     """Test that the loader widget is properly instantiated."""
     # Instantiate the data loader widget
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Check that the widget has the expected number of rows
     assert data_loader_widget.layout().rowCount() == 4
@@ -50,7 +50,7 @@ def test_button_connected_to_on_clicked(
     mock_method = mocker.patch(
         f"movement.napari.loader_widgets.DataLoader._on_{button}_clicked"
     )
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
@@ -106,7 +106,7 @@ def test_file_filters_per_source_software(
     source_software, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
-    data_loader_widget = DataLoader(make_napari_viewer_proxy)
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
     data_loader_widget.source_software_combo.setCurrentText(source_software)
     mock_file_dialog = mocker.patch(
         "movement.napari.loader_widgets.QFileDialog.getOpenFileName",
