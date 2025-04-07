@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import numpy as np
-from napari import layers
 from napari.components.dims import RangeTuple
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
@@ -59,6 +58,9 @@ class DataLoader(QWidget):
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
+        # Connect to napari events
+        self.viewer.layers.events.connect(self._on_visibility_changed)
+
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
@@ -109,6 +111,11 @@ class DataLoader(QWidget):
         self.load_button.setObjectName("load_button")
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
+
+    def _on_visibility_changed(self, event):
+        """Link to callbacks for when a layer's visibility changes."""
+        if event.type == "visible":
+            self._update_frame_slider_range()
 
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
@@ -211,27 +218,34 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
-        # Get the maximum frame index from all loaded layers
-        max_frame_idx = max(
-            [
-                ly.metadata["max_frame_idx"]
-                for ly in self.viewer.layers
-                if isinstance(ly, layers.Points)
-                and hasattr(ly, "metadata")
-                and "max_frame_idx" in ly.metadata
-            ]
-        )
+        # Get the maximum frame index from all visible layers with metadata
+        layers_to_check_frame_range = [
+            ly
+            for ly in self.viewer.layers
+            if ly.visible
+            and hasattr(ly, "metadata")
+            and "max_frame_idx" in ly.metadata
+        ]
 
-        # If the frame slider range is not set to the full range of frames,
-        # update it.
-        # Note: the start frame may be different from 0 if all the data
-        # at the first frame is NaN
-        if (self.viewer.dims.range[0].stop != max_frame_idx) or (
-            int(self.viewer.dims.range[0].start) != 0
-        ):
-            self.viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
-            ) + self.viewer.dims.range[1:]
+        # If there are no layers to check, do nothing
+        if len(layers_to_check_frame_range) > 0:
+            max_frame_idx = max(
+                [
+                    ly.metadata["max_frame_idx"]
+                    for ly in layers_to_check_frame_range
+                ]
+            )
+
+            # If the frame slider range is not set to the full range of frames,
+            # update it.
+            # Note: the start frame may be different from 0 if all the data
+            # at the first frame is NaN
+            if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+                int(self.viewer.dims.range[0].start) != 0
+            ):
+                self.viewer.dims.range = (
+                    RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+                ) + self.viewer.dims.range[1:]
 
     @staticmethod
     def _enable_layer_tooltips():
