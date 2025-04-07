@@ -431,10 +431,15 @@ def test_dimension_slider_with_deletion(
         data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
         data_loader_widget._on_load_clicked()
 
+    # Check the frame slider
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
     # Remove the first loaded layer
     viewer.layers.remove(viewer.layers[0])
 
-    # Get maximum number of frames from the remaining layer / dataset
+    # Update maximum number of frames from the remaining layers
     max_frames = max(ds.sizes["time"] for ds in list_datasets[1:])
 
     # Check the frame slider is as expected
