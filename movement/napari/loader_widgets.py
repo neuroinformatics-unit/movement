@@ -160,7 +160,7 @@ class DataLoader(QWidget):
 
         # Ensure the frame slider goes from 0 to the max number of frames,
         # considering all loaded point layers
-        self._check_frame_slider_range()
+        self._update_frame_slider_range()
 
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
@@ -204,7 +204,7 @@ class DataLoader(QWidget):
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
-    def _check_frame_slider_range(self):
+    def _update_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
 
         This is required because if the data loaded starts or ends
