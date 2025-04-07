@@ -55,21 +55,15 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
-        # Connect methods to napari events
-        if hasattr(self.viewer, "layers"):
-            self.viewer.layers.events.removed.connect(
-                self._on_layer_deleted, ref=True
-            )
-
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
         # Connect to layer events
         self.viewer.layers.events.inserted.connect(
-            self._update_frame_slider_range
+            self._update_frame_slider_range, ref=True
         )
         self.viewer.layers.events.removed.connect(
-            self._update_frame_slider_range
+            self._update_frame_slider_range, ref=True
         )
 
     def _create_source_software_widget(self):
