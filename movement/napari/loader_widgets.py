@@ -197,7 +197,7 @@ class DataLoader(QWidget):
         # (max_frame_idx is used to set the frame slider range)
         self.viewer.add_points(
             self.data[bool_not_nan, 1:],
-            metadata={"max_frame_idx": max(self.data[:, 1])},  # add metadata
+            metadata={"max_frame_idx": max(self.data[:, 1])},
             **props_and_style.as_kwargs(),
         )
 
