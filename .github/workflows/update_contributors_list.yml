@@ -1,19 +1,16 @@
+# Update the contributors list in the documentation monthly
+# or manually using the contributors-readme-action GitHub Action
+# on the default branch main.
+# As the branch is protected, the action will create a pull request.
 on:
-  push:
-    branches:
-      - main
-      - add-contributors
-    tags:
-      - '*'
-  pull_request:
-  merge_group:
+  schedule:
+    - cron: '0 0 1 * *' # Runs at midnight on the first day of every month
   workflow_dispatch:
-  
+
 jobs:
   update_contributors_list:
     name: Update Contributors List
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     permissions:
       contents: write
       pull-requests: write
