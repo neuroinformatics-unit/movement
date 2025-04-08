@@ -23,8 +23,7 @@ from qtpy.QtWidgets import (
 from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle, TracksStyle
-
-logger = logging.getLogger(__name__)
+from movement.utils.logging import logger
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -66,14 +65,6 @@ class DataLoader(QWidget):
 
         # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
-
-        # Connect to layer events
-        self.viewer.layers.events.inserted.connect(
-            self._update_frame_slider_range, ref=True
-        )
-        self.viewer.layers.events.removed.connect(
-            self._update_frame_slider_range, ref=True
-        )
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -236,10 +227,6 @@ class DataLoader(QWidget):
             ly for ly in self.viewer.layers if isinstance(ly, Points)
         ][-1]
 
-    def _on_layer_deleted(self):
-        """Check the frame slider range when a layer is deleted."""
-        self._check_frame_slider_range()
-
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
@@ -250,20 +237,14 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Add data as a points layer
+        # Add data as a points layer with metadata
+        # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **points_style.as_kwargs(),
         )
-
-        # Add frame range as metadata to the layer
-        # This would be the frame index after transforming to
-        # napari tracks array
-        self.points_layer.metadata = {
-            "max_frame_idx": max(self.data[:, 1]),
-        }
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
@@ -288,6 +269,42 @@ class DataLoader(QWidget):
             **tracks_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
+
+    def _update_frame_slider_range(self):
+        """Check the frame slider range and update it if necessary.
+
+        This is required because if the data loaded starts or ends
+        with all NaN values, the frame slider range will not reflect
+        the full range of frames.
+        """
+        # Only update the frame slider range if there are layers
+        # that are Points, Tracks or Image
+        list_layers = [
+            ly
+            for ly in self.viewer.layers
+            if isinstance(ly, Points | Tracks | Image)
+        ]
+        if len(list_layers) > 0:
+            # Get the maximum frame index from all candidate layers
+            max_frame_idx = max(
+                # For every layer, get max_frame_idx metadata if it exists,
+                # else deduce it from the data shape
+                [
+                    getattr(ly, "metadata", {}).get(
+                        "max_frame_idx", ly.data.shape[0] - 1
+                    )
+                    for ly in list_layers
+                ]
+            )
+
+            # If the frame slider range is not set to the full range of frames,
+            # update it.
+            if (self.viewer.dims.range[0].stop != max_frame_idx) or (
+                int(self.viewer.dims.range[0].start) != 0
+            ):
+                self.viewer.dims.range = (
+                    RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
+                ) + self.viewer.dims.range[1:]
 
     @staticmethod
     def _enable_layer_tooltips():

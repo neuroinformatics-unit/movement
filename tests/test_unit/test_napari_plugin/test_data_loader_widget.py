@@ -6,11 +6,18 @@ instantiated (the methods would have already been connected to signals).
 """
 
 from contextlib import nullcontext as does_not_raise
-from unittest.mock import MagicMock
 
 import pytest
 from napari.components.dims import RangeTuple
-from napari.layers.points.points import Points
+from napari.layers import (
+    Image,
+    Labels,
+    Points,
+    Shapes,
+    Surface,
+    Tracks,
+    Vectors,
+)
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -73,15 +80,7 @@ def test_button_connected_to_on_clicked(
 
 @pytest.mark.parametrize(
     "layer_type",
-    [
-        Points,
-        Image,
-        Tracks,
-        Labels,
-        Shapes,
-        Surface,
-        Vectors,
-    ],
+    [Points, Image, Tracks, Labels, Shapes, Surface, Vectors],
 )
 def test_on_layer_added_and_deleted(
     layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
@@ -115,8 +114,6 @@ def test_on_layer_added_and_deleted(
 
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
-
-
 @pytest.mark.parametrize(
     "file_path",
     [
@@ -175,27 +172,6 @@ def test_on_browse_clicked_file_filters(
         caption="Open file containing tracked data",
         filter=f"Valid data files ({expected_file_filter})",
     )
-
-
-def test_on_layer_deleted(make_napari_viewer_proxy, mocker):
-    """Test that the frame slider check is called when a layer is removed."""
-    # Create a mock napari viewer
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    # Mock the frame slider check method
-    mock_frame_slider_check = mocker.patch(
-        "movement.napari.loader_widgets.DataLoader._check_frame_slider_range"
-    )
-
-    # Add a sample layer to the viewer
-    mock_layer = Points(name="mock_layer")
-    data_loader_widget.viewer.add_layer(mock_layer)
-
-    # Delete the layer
-    data_loader_widget.viewer.layers.remove(mock_layer)
-
-    # Check that the slider check method was called
-    mock_frame_slider_check.assert_called_once()
 
 
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
@@ -263,12 +239,6 @@ def test_on_load_clicked_with_valid_file_path(
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
-    # Mock the _check_frame_slider_range method with
-    # side effect to monitor if it is called
-    data_loader_widget._check_frame_slider_range = MagicMock(
-        side_effect=data_loader_widget._check_frame_slider_range
-    )
-
     # Set the file path to a valid file
     file_path = pytest.DATA_PATHS.get(filename)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
@@ -285,7 +255,7 @@ def test_on_load_clicked_with_valid_file_path(
     # Check the class attributes from the input data
     assert data_loader_widget.fps == 60
     assert data_loader_widget.source_software == source_software
-    assert data_loader_widget.file_path == file_path
+    assert data_loader_widget.file_path == str(file_path)
     assert data_loader_widget.file_name == file_path.name
 
     # Check the attributes for loading data as layers are set
