@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd  # Add this import
-import h5py  # Add this import
 from napari.viewer import Viewer
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import (
@@ -205,35 +204,37 @@ class ShapesExporter(QWidget):
         x_coords = []
         y_coords = []
         likelihood = []
-        
+
         # Collect coordinates from ROIs
         for roi in roi_objects:
             if isinstance(roi, LineOfInterest):
                 coords = np.array(roi.region.coords)
             else:  # Polygon
                 coords = np.array(roi.exterior_boundary.region.coords)
-            
+
             for j, point in enumerate(coords):
                 bodyparts.append(f"{roi.name}_point_{j}")
                 x_coords.append(point[0])
                 y_coords.append(point[1])
                 likelihood.append(1.0)
-        
+
         # Create multi-index columns
         columns = pd.MultiIndex.from_product(
-            [[scorer], bodyparts, ['x', 'y', 'likelihood']], 
-            names=['scorer', 'bodyparts', 'coords']
+            [[scorer], bodyparts, ["x", "y", "likelihood"]],
+            names=["scorer", "bodyparts", "coords"],
         )
-        
+
         # Create DataFrame with proper shape
         values = np.vstack([x_coords, y_coords, likelihood]).T
         values = values.reshape(1, -1)  # Reshape to (1, n_bodyparts * 3)
         df = pd.DataFrame(values, columns=columns)
-        
+
         # Save to H5 file
-        df.to_hdf(file_path, 'df_with_missing', format='table', mode='w')
-        
-        logger.info(f"Exported {len(roi_objects)} ROIs to DLC H5 format at {file_path}")
+        df.to_hdf(file_path, "df_with_missing", format="table", mode="w")
+
+        logger.info(
+            f"Exported {len(roi_objects)} ROIs to DLC H5 format at {file_path}"
+        )
 
     def _on_load_clicked(self):
         """Load ROI objects from a JSON file."""
