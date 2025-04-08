@@ -7,6 +7,7 @@ instantiated (the methods would have already been connected to signals).
 
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers import (
@@ -646,9 +647,17 @@ def test_add_points_and_tracks_layer_style(
     assert tracks_layer.color_by == expected_color_property + "_factorized"
 
     # Check the colormap for markers, text and tracks is the same
+    # name
     assert tracks_layer.colormap == points_layer.face_colormap.name
-    assert (
-        points_layer._face.categorical_colormap.colormap[ky]
-        == points_layer.text.color.colormap.colormap[ky]
-        for ky in points_layer._face.categorical_colormap.colormap
+    # values
+    list_colormap_keys = points_layer._face.categorical_colormap.colormap
+    np.testing.assert_array_equal(
+        [
+            points_layer._face.categorical_colormap.colormap[ky]
+            for ky in list_colormap_keys
+        ],
+        [
+            points_layer.text.color.colormap.colormap[ky]
+            for ky in list_colormap_keys
+        ],
     )
