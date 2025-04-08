@@ -1,7 +1,7 @@
 html[data-theme=dark] {
-    --pst-color-primary: #04B46D;
-    --pst-color-link: var(--pst-color-primary);
-  }
+  --pst-color-primary: #04B46D;
+  --pst-color-link: var(--pst-color-primary);
+}
 
 html[data-theme=light] {
   --pst-color-primary: #03A062;
@@ -9,26 +9,28 @@ html[data-theme=light] {
 }
 
 body .bd-article-container {
-max-width: 100em !important;
+  max-width: 100em !important;
 }
 
 .col {
-flex: 0 0 50%;
-max-width: 50%;
+  flex: 0 0 50%;
+  max-width: 50%;
 }
 
 .img-sponsor {
-height: 50px;
-padding-top: 5px;
-padding-right: 5px;
-padding-bottom: 5px;
-padding-left: 5px;
+  height: 50px;
+  padding: 5px;
+}
+
+.img-sponsor-large {
+  height: 10vh;
+  padding: 5px;
 }
 
 .things-in-a-row {
-display: flex;
-flex-wrap: wrap;
-justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 /* Disable decoration for all but movement backrefs */
@@ -36,6 +38,7 @@ a[class^="sphx-glr-backref-module-"],
 a[class^="sphx-glr-backref-type-"] {
   text-decoration: none;
 }
+
 a[class^="sphx-glr-backref-module-movement"] {
   text-decoration: underline;
 }
