@@ -10,7 +10,17 @@ from contextlib import nullcontext as does_not_raise
 import numpy as np
 import pytest
 from napari.components.dims import RangeTuple
-from napari.layers.points.points import Points
+from napari.layers import (
+    Image,
+    Labels,
+    Points,
+    Shapes,
+    Surface,
+    Tracks,
+    Vectors,
+)
+
+# from napari.layers.points.points import Points
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -43,6 +53,18 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Make sure that layer tooltips are enabled
     assert get_settings().appearance.layer_tooltip_visibility is True
 
+    # Test methods are connected to layer events
+    assert all(
+        [
+            data_loader_widget._update_frame_slider_range.__name__
+            in event.callback_refs
+            for event in [
+                data_loader_widget.viewer.layers.events.inserted,
+                data_loader_widget.viewer.layers.events.removed,
+            ]
+        ]
+    )
+
 
 # --------test connection between widget buttons and methods------------------#
 @pytest.mark.parametrize("button", ["browse", "load"])
@@ -57,23 +79,6 @@ def test_button_connected_to_on_clicked(
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
-
-
-# --------test connection to napari events ------------------#
-def test_layer_events_connected_to_methods(make_napari_viewer_proxy):
-    """Test the layer added/removed event is connected to the right method."""
-    viewer = make_napari_viewer_proxy()
-    data_loader_widget = DataLoader(viewer)
-
-    assert (
-        data_loader_widget._update_frame_slider_range.__name__
-        in data_loader_widget.viewer.layers.events.removed.callback_refs
-    )
-
-    assert (
-        data_loader_widget._update_frame_slider_range.__name__
-        in data_loader_widget.viewer.layers.events.inserted.callback_refs
-    )
 
 
 # ------------------- tests for widget methods--------------------------------#
@@ -140,7 +145,33 @@ def test_file_filters_per_source_software(
     )
 
 
-def test_on_layer_added_and_deleted(make_napari_viewer_proxy, mocker):
+@pytest.mark.parametrize(
+    "layer_type, data_array",
+    [
+        (Points, np.random.rand(3, 2)),
+        (
+            Tracks,
+            np.hstack(
+                (np.tile([1, 2], (1, 100 // 2)).T, np.random.rand(100, 3))
+            ),
+        ),
+        (Image, np.random.rand(100, 200, 200)),
+        (Labels, np.random.randint(0, 2, (200, 200))),
+        (Shapes, np.random.rand(4, 2)),
+        (
+            Surface,
+            (
+                np.random.rand(4, 2),  # vertices
+                np.array([[0, 1, 2], [1, 2, 3]]),  # faces
+                np.linspace(0, 1, 4),  # values
+            ),
+        ),
+        (Vectors, np.random.rand(250, 2, 2)),
+    ],
+)
+def test_on_layer_added_and_deleted(
+    layer_type, data_array, make_napari_viewer_proxy, mocker
+):
     """Test the frame slider update is called when a layer is added/removed."""
     # Create a mock napari viewer
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
@@ -151,7 +182,7 @@ def test_on_layer_added_and_deleted(make_napari_viewer_proxy, mocker):
     )
 
     # Add a sample layer to the viewer
-    mock_layer = Points(name="mock_layer")
+    mock_layer = layer_type(data=data_array, name="mock_layer")
     data_loader_widget.viewer.add_layer(mock_layer)
 
     # Check that the slider check method was called once
