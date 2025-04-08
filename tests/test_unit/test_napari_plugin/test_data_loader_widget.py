@@ -18,8 +18,6 @@ from napari.layers import (
     Tracks,
     Vectors,
 )
-
-# from napari.layers.points.points import Points
 from napari.settings import get_settings
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
@@ -455,7 +453,7 @@ def test_dimension_slider_with_deletion(
         data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
         data_loader_widget._on_load_clicked()
 
-    # Check the frame slider
+    # Check the frame slider after loading all data
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=max_frames - 1, step=1.0
     )
@@ -466,7 +464,7 @@ def test_dimension_slider_with_deletion(
     # Update maximum number of frames from the remaining layers
     max_frames = max(ds.sizes["time"] for ds in list_datasets[1:])
 
-    # Check the frame slider is as expected
+    # Check the frame slider after deletion
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=max_frames - 1, step=1.0
     )
