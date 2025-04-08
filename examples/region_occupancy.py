@@ -37,7 +37,7 @@ from movement.plots import plot_centroid_trajectory, plot_occupancy
 from movement.roi import PolygonOfInterest, compute_region_occupancy
 
 # Set the style for the plots
-sns.set_context("talk")
+sns.set_context("poster")
 sns.set_style("ticks")
 
 # %%
@@ -94,7 +94,7 @@ selection = dict(
     keypoints="snout",
     individuals="individual_0",
     space="y",
-    time=slice(100, 200),
+    time=slice(100, 300),
 )
 
 # Let's plot the raw vs the filtered data.
@@ -102,8 +102,7 @@ positions_sel = positions.sel(**selection)
 positions_sel.plot.line(
     x="time",
     hue="data",
-    lw=2,
-    aspect=2.5,
+    aspect=4,
     size=4,
 )
 plt.xlim(positions_sel.time.min(), positions_sel.time.max())
@@ -140,7 +139,7 @@ bins = [
 ]
 
 
-fig, ax = plt.subplots(figsize=(7, 5))
+fig, ax = plt.subplots(figsize=(8, 5.5))
 ax.imshow(image.mean(axis=2), cmap="gray")  # Show the image in grayscale
 
 # Plot the occupancy 2D histogram for the centroid of all keypoints
@@ -158,8 +157,10 @@ ax.set_title("Occupancy heatmap")
 # Set the axis limits to match the image
 ax.set_xlim(0, width)
 ax.set_ylim(height, 0)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_xticks([])
+ax.set_yticks([])
 ax.collections[0].colorbar.set_label("# frames")
 
 plt.tight_layout()
@@ -179,7 +180,7 @@ time_window = slice(240, 250)
 last_frame_idx = int(250 * ds.fps)
 last_frame = video[last_frame_idx]
 
-fig, ax = plt.subplots(figsize=(7, 5))
+fig, ax = plt.subplots(figsize=(8, 5.5))
 ax.imshow(last_frame.mean(axis=2), cmap="gray")  # Show the image in grayscale
 # Plot the trajectory of the centroid of selected keypoints
 plot_centroid_trajectory(
@@ -191,8 +192,10 @@ plot_centroid_trajectory(
     cmap="viridis",
 )
 plt.title("Centroid trajectory")
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_xticks([])
+ax.set_yticks([])
 # Change the cbar label
 cbar = ax.collections[0].colorbar
 cbar.set_label("time (s)")
@@ -245,7 +248,7 @@ pct_time_in_roi = frames_in_roi / mouse_in_roi.sizes["time"] * 100
 
 # Let's plot the ROIs on top of the EPM maze.
 
-fig, ax = plt.subplots(figsize=(6, 5))
+fig, ax = plt.subplots(figsize=(6.3, 5.5))
 
 # Convert the image to grayscale
 image_gray = np.mean(image, axis=2)
@@ -272,10 +275,12 @@ for i, roi in enumerate(rois):
         ha="center",
         va="center",
     )
-ax.set_xlim(0, width)
-ax.set_ylim(height, 0)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
+# ax.set_xlim(0, width)
+# ax.set_ylim(height, 0)
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_xticks([])
+ax.set_yticks([])
 ax.set_title("Time spent in ROIs")
 
 plt.tight_layout()
@@ -357,13 +362,14 @@ ax.set_ylim(0, 0.25)  # force same y-scale (density) for both plots
 ax.set_yticks([0, 0.1, 0.2])
 ax.set_yticklabels(["", "", ""])
 ax.set_title(" ")
-ax.set_title("Head direction angle", pad=35)
+ax.set_title("Head direction angle", pad=45)
 fig.subplots_adjust(
     left=0.2,
     right=0.8,
     top=0.8,
     bottom=0.2,
 )
+plt.tight_layout()
 plt.savefig("head_direction_angle.png", dpi=300)
 
 

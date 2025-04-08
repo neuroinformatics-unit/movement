@@ -18,7 +18,7 @@ from movement.filtering import rolling_filter
 from movement.plots import plot_centroid_trajectory
 
 # Set the style for the plots
-sns.set_context("talk")
+sns.set_context("poster")
 sns.set_style("ticks")
 
 # %%
@@ -77,18 +77,18 @@ plt.show()
 
 # %%
 # Plot just the "black" dataset
-fig, ax = plt.subplots(figsize=(6, 5))
+fig, ax = plt.subplots(figsize=(4, 3))
 ax.imshow(ds_dict["black"].video[0], cmap="gray")  # plot first video frame
 for keypoint in ds_black.keypoints.values:
     x = ds_black.position.sel(time=0, space="x", keypoints=keypoint)
     y = ds_black.position.sel(time=0, space="y", keypoints=keypoint)
     ax.scatter(x, y, label=keypoint, s=90)  # plot keypoints
-ax.legend()
 ax.invert_yaxis()  # because the dataset was collected flipped
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title("Keypoints")
-plt.tight_layout()
+# remove all axes (just keep the shown image)
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_xlabel("x")
+ax.set_ylabel("y")
 plt.savefig("pupil_keypoints.png", dpi=300)
 
 # %%
@@ -223,8 +223,7 @@ pupil_velocity_black = pupil_velocity.sel(
 pupil_velocity_black.plot.line(
     x="time",
     hue="space",
-    lw=2,
-    aspect=2.5,
+    aspect=3,
     size=4,
 )
 plt.ylabel("velocity (pixels/s)")
@@ -233,9 +232,9 @@ plt.title("Pupil Centroid Velocity")
 plt.xlim(pupil_velocity_black.time.min(), pupil_velocity_black.time.max())
 legend = plt.gca().get_legend()
 legend.set_title("")
-
+legend.set_loc("upper right")
 plt.tight_layout()
-plt.savefig("pupil_velocity_black.png", dpi=300)
+plt.savefig("pupil_velocity.png", dpi=300)
 
 
 # %%
