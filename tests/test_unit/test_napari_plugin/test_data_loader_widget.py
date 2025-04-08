@@ -7,7 +7,6 @@ instantiated (the methods would have already been connected to signals).
 
 from contextlib import nullcontext as does_not_raise
 
-import numpy as np
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers import (
@@ -66,7 +65,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     )
 
 
-# --------test connection between widget buttons and methods------------------#
+# --------test connection between widget methods and buttons/events----------#
 @pytest.mark.parametrize("button", ["browse", "load"])
 def test_button_connected_to_on_clicked(
     make_napari_viewer_proxy, mocker, button
@@ -79,6 +78,48 @@ def test_button_connected_to_on_clicked(
     button = data_loader_widget.findChild(QPushButton, f"{button}_button")
     button.click()
     mock_method.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "layer_type",
+    [
+        Points,
+        Image,
+        Tracks,
+        Labels,
+        Shapes,
+        Surface,
+        Vectors,
+    ],
+)
+def test_on_layer_added_and_deleted(
+    layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
+):
+    """Test the frame slider update is called when a layer is added/removed."""
+    # Create a mock napari viewer
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Mock the frame slider check method
+    mock_frame_slider_check = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._update_frame_slider_range"
+    )
+
+    # Add a sample layer to the viewer
+    mock_layer = layer_type(
+        data=sample_layer_data[layer_type.__name__],
+        name="mock_layer",
+    )
+    data_loader_widget.viewer.add_layer(mock_layer)
+
+    # Check that the slider check method was called once
+    mock_frame_slider_check.assert_called_once()
+    mock_frame_slider_check.reset_mock()
+
+    # Delete the layer
+    data_loader_widget.viewer.layers.remove(mock_layer)
+
+    # Check that the slider check method was called once
+    mock_frame_slider_check.assert_called_once()
 
 
 # ------------------- tests for widget methods--------------------------------#
@@ -143,57 +184,6 @@ def test_file_filters_per_source_software(
         caption="Open file containing tracked data",
         filter=f"Valid data files ({expected_file_filter})",
     )
-
-
-@pytest.mark.parametrize(
-    "layer_type, data_array",
-    [
-        (Points, np.random.rand(3, 2)),
-        (
-            Tracks,
-            np.hstack(
-                (np.tile([1, 2], (1, 100 // 2)).T, np.random.rand(100, 3))
-            ),
-        ),
-        (Image, np.random.rand(100, 200, 200)),
-        (Labels, np.random.randint(0, 2, (200, 200))),
-        (Shapes, np.random.rand(4, 2)),
-        (
-            Surface,
-            (
-                np.random.rand(4, 2),  # vertices
-                np.array([[0, 1, 2], [1, 2, 3]]),  # faces
-                np.linspace(0, 1, 4),  # values
-            ),
-        ),
-        (Vectors, np.random.rand(250, 2, 2)),
-    ],
-)
-def test_on_layer_added_and_deleted(
-    layer_type, data_array, make_napari_viewer_proxy, mocker
-):
-    """Test the frame slider update is called when a layer is added/removed."""
-    # Create a mock napari viewer
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    # Mock the frame slider check method
-    mock_frame_slider_check = mocker.patch(
-        "movement.napari.loader_widgets.DataLoader._update_frame_slider_range"
-    )
-
-    # Add a sample layer to the viewer
-    mock_layer = layer_type(data=data_array, name="mock_layer")
-    data_loader_widget.viewer.add_layer(mock_layer)
-
-    # Check that the slider check method was called once
-    mock_frame_slider_check.assert_called_once()
-    mock_frame_slider_check.reset_mock()
-
-    # Delete the layer
-    data_loader_widget.viewer.layers.remove(mock_layer)
-
-    # Check that the slider check method was called once
-    mock_frame_slider_check.assert_called_once()
 
 
 def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
@@ -265,6 +255,8 @@ def test_on_load_clicked_with_valid_file_path(
     assert points_layer.name == f"data: {file_path.name}"
 
 
+# ------------------- tests for dimension slider ----------------------------#
+# These tests check that the frame slider is set to the expected range
 @pytest.mark.parametrize(
     "nan_time_location",
     ["start", "middle", "end"],
@@ -481,23 +473,17 @@ def test_dimension_slider_with_deletion(
 
 
 @pytest.mark.parametrize(
-    "layer_method, data_array_shape",
+    "layer_type",
     [
-        ("add_image", (200, 200)),
-        ("add_points", (3,)),
-        ("add_tracks", (4,)),
+        Points,
+        Image,
+        Tracks,
     ],
 )
 def test_dimension_slider_with_layer_types(
-    layer_method, data_array_shape, make_napari_viewer_proxy
+    layer_type, sample_layer_data, make_napari_viewer_proxy
 ):
-    """Test the slider update attends to the specified layer types."""
-    # Create mock data for the specified layer type
-    n_frames = 2000
-    layer_array = np.random.rand(n_frames, *data_array_shape)
-    if layer_method == "add_tracks":
-        layer_array[:, 0] = np.tile([1, 2, 3, 4], (1, n_frames // 4))
-
+    """Test the slider update attends to all the expected layer types."""
     # Create a mock napari viewer
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
@@ -512,15 +498,19 @@ def test_dimension_slider_with_layer_types(
     n_frames_data = viewer.layers[0].metadata["max_frame_idx"]
 
     # Load mock data as the relevant layer type
-    getattr(viewer, layer_method)(layer_array)
+    mock_layer = layer_type(
+        data=sample_layer_data[layer_type.__name__],
+        name="mock_layer",
+    )
+    viewer.add_layer(mock_layer)
 
-    # Check array is "longer" than data
-    assert n_frames > n_frames_data
+    # Check mock data is defined for more frames than the pose data
+    assert sample_layer_data["n_frames"] > n_frames_data
 
     # Check the frame slider is set to the max number of frames of the
-    # specified layer type
+    # mock data
     assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=n_frames - 1, step=1.0
+        start=0.0, stop=sample_layer_data["n_frames"] - 1, step=1.0
     )
 
 
@@ -541,6 +531,7 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
         viewer.layers.clear()
 
 
+# ------------------- tests for layers style ----------------------------#
 @pytest.mark.parametrize(
     (
         "filename, source_software, "
