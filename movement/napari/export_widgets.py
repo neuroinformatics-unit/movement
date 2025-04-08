@@ -1,11 +1,18 @@
 """Widget for converting shapes to ROI objects."""
 
+import json
+from pathlib import Path
+
 import numpy as np
+import pandas as pd  # Add this import
+import h5py  # Add this import
 from napari.viewer import Viewer
 from qtpy.QtCore import QTimer
 from qtpy.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QFormLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -13,16 +20,11 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.roi import (  # Update imports to use correct ROI classes
-    LineOfInterest,
-    PolygonOfInterest,
-)
+from movement.roi import LineOfInterest, PolygonOfInterest
 from movement.utils.logging import logger
 
 
-class ShapesExporter(
-    QWidget
-):  # Change back to ShapesExporter to match meta_widget.py
+class ShapesExporter(QWidget):
     """Widget for converting shapes from napari layers to ROI objects."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -36,6 +38,8 @@ class ShapesExporter(
         self._create_convert_button()
         self._create_status_label()
         self._create_roi_name_input()
+        self._create_export_button()
+        self._create_load_button()
 
         # Connect to viewer events to update layer list when layers change
         self.viewer.layers.events.inserted.connect(self._update_layer_list)
@@ -89,6 +93,22 @@ class ShapesExporter(
         self.roi_name_input.setObjectName("roi_name_input")
         self.layout().addRow("ROI layer name:", self.roi_name_input)
 
+    def _create_export_button(self):
+        """Create a button to export ROI objects."""
+        self.export_button = QPushButton("Export ROIs")
+        self.export_button.setObjectName("export_button")
+        self.export_button.clicked.connect(self._on_export_clicked)
+        self.layout().addRow(self.export_button)
+        self.export_button.setEnabled(False)  # Disabled until ROIs are created
+        self.roi_objects = None  # Store ROI objects for export
+
+    def _create_load_button(self):
+        """Create a button to load ROI objects from file."""
+        self.load_button = QPushButton("Load ROIs")
+        self.load_button.setObjectName("load_button")
+        self.load_button.clicked.connect(self._on_load_clicked)
+        self.layout().addRow(self.load_button)
+
     def _show_message(self, title, text):
         """Show a message box with the given title and text."""
         QMessageBox.information(self, title, text)
@@ -126,9 +146,14 @@ class ShapesExporter(
             # Create new layer for ROIs
             roi_layer = self._create_roi_layer(roi_objects)
 
+            # Store ROI objects and enable export button
+            self.roi_objects = roi_objects
+            self.export_button.setEnabled(True)
+
             # Update status and show message
             success_msg = (
-                f"Successfully converted {len(roi_objects)} shapes to ROI objects\n"
+                f"""Successfully converted {len(roi_objects)}
+                shapes to ROI objects\n"""
                 f"Created new layer: {roi_layer.name}"
             )
             self._update_status(success_msg)
@@ -139,6 +164,188 @@ class ShapesExporter(
             error_msg = f"Error converting shapes: {str(e)}"
             self._update_status(error_msg, is_error=True)
             logger.error(error_msg)
+
+    def _on_export_clicked(self):
+        """Export ROI objects to a file."""
+        if not self.roi_objects:
+            self._update_status("No ROI objects to export", is_error=True)
+            return
+
+        try:
+            file_filter = "JSON Files (*.json);;DeepLabCut H5 (*.h5)"
+            file_path, selected_filter = QFileDialog.getSaveFileName(
+                self, "Export ROI objects", "", file_filter
+            )
+
+            if not file_path:
+                return
+
+            if selected_filter == "JSON Files (*.json)":
+                if not file_path.endswith(".json"):
+                    file_path += ".json"
+                self._export_roi_objects(self.roi_objects, file_path)
+            else:
+                if not file_path.endswith(".h5"):
+                    file_path += ".h5"
+                self._export_roi_objects_dlc_h5(self.roi_objects, file_path)
+
+            success_msg = f"Successfully exported ROI objects to {file_path}"
+            self._update_status(success_msg)
+            self._show_message("Export Complete", success_msg)
+
+        except Exception as e:
+            error_msg = f"Error exporting ROI objects: {str(e)}"
+            self._update_status(error_msg, is_error=True)
+            logger.error(error_msg)
+
+    def _export_roi_objects_dlc_h5(self, roi_objects, file_path):
+        """Export ROI objects to a DeepLabCut H5 file format."""
+        scorer = "ROI_Export"
+        bodyparts = []
+        x_coords = []
+        y_coords = []
+        likelihood = []
+        
+        # Collect coordinates from ROIs
+        for roi in roi_objects:
+            if isinstance(roi, LineOfInterest):
+                coords = np.array(roi.region.coords)
+            else:  # Polygon
+                coords = np.array(roi.exterior_boundary.region.coords)
+            
+            for j, point in enumerate(coords):
+                bodyparts.append(f"{roi.name}_point_{j}")
+                x_coords.append(point[0])
+                y_coords.append(point[1])
+                likelihood.append(1.0)
+        
+        # Create multi-index columns
+        columns = pd.MultiIndex.from_product(
+            [[scorer], bodyparts, ['x', 'y', 'likelihood']], 
+            names=['scorer', 'bodyparts', 'coords']
+        )
+        
+        # Create DataFrame with proper shape
+        values = np.vstack([x_coords, y_coords, likelihood]).T
+        values = values.reshape(1, -1)  # Reshape to (1, n_bodyparts * 3)
+        df = pd.DataFrame(values, columns=columns)
+        
+        # Save to H5 file
+        df.to_hdf(file_path, 'df_with_missing', format='table', mode='w')
+        
+        logger.info(f"Exported {len(roi_objects)} ROIs to DLC H5 format at {file_path}")
+
+    def _on_load_clicked(self):
+        """Load ROI objects from a JSON file."""
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self, "Load ROI objects", "", "JSON Files (*.json)"
+            )
+
+            if not file_path:
+                return  # User cancelled
+
+            roi_objects = self._load_roi_objects(file_path)
+            if roi_objects:
+                self.roi_objects = roi_objects
+                self.export_button.setEnabled(True)
+
+                _ = self._create_roi_layer(roi_objects)
+
+                success_msg = (
+                    f"Successfully loaded {len(roi_objects)} ROI objects"
+                )
+                self._update_status(success_msg)
+                self._show_message("Load Complete", success_msg)
+
+        except Exception as e:
+            error_msg = f"Error loading ROI objects: {str(e)}"
+            self._update_status(error_msg, is_error=True)
+            logger.error(error_msg)
+
+    def _export_roi_objects(self, roi_objects, file_path):
+        """Export ROI objects to a JSON file."""
+        export_data = []
+
+        for i, roi in enumerate(roi_objects):
+            roi_data = {
+                "id": i,
+                "type": "line"
+                if isinstance(roi, LineOfInterest)
+                else "polygon",
+                "name": getattr(roi, "name", f"roi_{i}"),
+            }
+
+            if isinstance(roi, LineOfInterest):
+                roi_data["coordinates"] = roi.region.coords[:]
+            else:
+                roi_data["exterior_boundary"] = (
+                    roi.exterior_boundary.region.coords[:]
+                )
+                if hasattr(roi, "holes") and roi.holes:
+                    roi_data["holes"] = [
+                        hole.region.coords[:] for hole in roi.holes
+                    ]
+
+            if hasattr(roi, "metadata"):
+                roi_data["metadata"] = roi.metadata
+
+            export_data.append(roi_data)
+
+        export_data = json.loads(
+            json.dumps(
+                export_data,
+                default=lambda x: x.tolist()
+                if isinstance(x, np.ndarray)
+                else x,
+            )
+        )
+
+        Path(file_path).write_text(json.dumps(export_data, indent=2))
+
+    def _load_roi_objects(self, file_path):
+        """Load ROI objects from a JSON file."""
+        with open(file_path) as f:
+            data = json.load(f)
+
+        roi_objects = []
+        for item in data:
+            try:
+                if item["type"] == "line":
+                    coords = np.array(item["coordinates"])
+                    roi = LineOfInterest(
+                        coords,
+                        loop=False,
+                        name=item.get(
+                            "name", f"loaded_line_{len(roi_objects)}"
+                        ),
+                    )
+                else:  # polygon
+                    coords = np.array(item["exterior_boundary"])
+                    holes = [np.array(h) for h in item.get("holes", [])]
+                    roi = PolygonOfInterest(
+                        exterior_boundary=coords,
+                        holes=holes if holes else None,
+                        name=item.get(
+                            "name", f"loaded_polygon_{len(roi_objects)}"
+                        ),
+                    )
+
+                # Restore metadata if it exists
+                if "metadata" in item:
+                    roi.metadata = item["metadata"]
+
+                roi_objects.append(roi)
+                logger.info(f"Loaded ROI: {roi.name}")
+
+            except Exception as e:
+                logger.warning(
+                    f"""Failed to load ROI
+                    {item.get("name", "unknown")}: {str(e)}"""
+                )
+                continue
+
+        return roi_objects
 
     def _get_shapes_layer(self, layer_name):
         """Get shapes layer by name with validation."""
@@ -151,6 +358,16 @@ class ShapesExporter(
         except KeyError:
             logger.warning(f"Could not find layer: {layer_name}")
             return None
+
+    def _get_roi_name(self, shape_type, index, default_name):
+        """Get custom name for ROI object with optional default."""
+        name, ok = QInputDialog.getText(
+            self,
+            "Name ROI Object",
+            f"""Enter name for {shape_type} {index}:""",
+            text=default_name,
+        )
+        return name if ok and name else default_name
 
     def _convert_shapes_to_roi(self, shapes_layer):
         """Convert shapes to ROI objects."""
@@ -167,25 +384,31 @@ class ShapesExporter(
                     if i < len(shapes_layer.shape_type)
                     else "unknown"
                 )
-                coords = shape.astype(
-                    float
-                )  # Convert to float for ROI objects
+                coords = shape.astype(float)
 
-                # Convert based on shape type using proper ROI classes
                 try:
                     if shape_type == "line":
+                        default_name = f"line_{i}"
+                        custom_name = self._get_roi_name(
+                            "line", i, default_name
+                        )
                         roi = LineOfInterest(
-                            coords,  # Pass coordinates directly
-                            loop=False,
-                            name=f"{shape_type}_{i}",
+                            coords, loop=False, name=custom_name
                         )
                     elif shape_type in ["polygon", "rectangle", "ellipse"]:
+                        default_name = f"{shape_type}_{i}"
+                        custom_name = self._get_roi_name(
+                            shape_type, i, default_name
+                        )
                         roi = PolygonOfInterest(
-                            exterior_boundary=coords, name=f"{shape_type}_{i}"
+                            exterior_boundary=coords, name=custom_name
                         )
                     else:
                         logger.warning(f"Unsupported shape type: {shape_type}")
                         continue
+
+                    logger.info(f"Created ROI: {roi.name}")
+
                 except Exception as e:
                     logger.warning(
                         f"Failed to create ROI for shape {i}: {str(e)}"
@@ -221,31 +444,29 @@ class ShapesExporter(
         """Create a new shapes layer for ROI objects."""
         roi_data = []
         roi_types = []
-        properties = {}
-        # Added these 2 lines to check if all the shapes are converted to ROI objects
-        # logger.warning(f"Converted {len(roi_objects)} shapes to ROI objects")
-        # logger.warning(f"ROI objects: {roi_objects}")
-        # Convert ROI objects back to shape data
+        properties = {"name": []}
+
         for roi in roi_objects:
             if isinstance(roi, LineOfInterest):
-                # Access coordinates through region.coords for LineOfInterest
                 coords = np.array(roi.region.coords)
                 roi_type = "line"
-            else:  # PolygonOfInterest
+            else:
                 coords = np.array(roi.exterior_boundary.region.coords)
                 roi_type = "polygon"
 
             roi_data.append(coords)
             roi_types.append(roi_type)
 
-            # Copy metadata if it exists
+            properties["name"].append(
+                getattr(roi, "name", f"roi_{len(roi_data) - 1}")
+            )
+
             if hasattr(roi, "metadata"):
                 for key, value in roi.metadata.items():
                     if key not in properties:
                         properties[key] = []
                     properties[key].append(value)
 
-        # Create new shapes layer for ROIs
         layer_name = self.roi_name_input.text() or "ROI Layer"
         roi_layer = self.viewer.add_shapes(
             roi_data,
@@ -254,5 +475,7 @@ class ShapesExporter(
             name=layer_name,
             edge_color="blue",
             face_color="transparent",
+            text="{name}",
         )
+        logger.info(f"Creating ROI layer with {len(roi_objects)} objects")
         return roi_layer
