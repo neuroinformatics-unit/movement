@@ -286,8 +286,7 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.file_name == file_path.name
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
-
-    assert data_loader_widget.bool_not_nan is not None
+    assert data_loader_widget.data_not_nan is not None
     assert data_loader_widget.color_property is not None
 
     # Check that the expected log messages were emitted
@@ -308,16 +307,15 @@ def test_on_load_clicked_with_valid_file_path(
     tracks_layer = viewer.layers[1]
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
-    # Check that the frame slider method was called
-    data_loader_widget._check_frame_slider_range.assert_called_once()
-
-    # Check that the points layer is the active one
+    # Check that the points layer is set as active
     assert viewer.layers.selection.active == points_layer
 
-    # Check that the frame slider is set to the first frame
+    # Check the frame slider is set to the first frame
     assert viewer.dims.current_step[0] == 0
 
 
+# ------------------- tests for dimension slider ----------------------------#
+# These tests check that the frame slider is set to the expected range
 @pytest.mark.parametrize(
     "nan_time_location",
     ["start", "middle", "end"],
