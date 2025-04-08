@@ -5,6 +5,37 @@ from movement.io import save_poses
 
 
 @pytest.fixture
+def valid_poses_path_and_ds(valid_poses_dataset, tmp_path):
+    """Return a (path, dataset) pair representing a poses dataset
+    with data for 10 frames.
+
+    The fixture is derived from the `valid_poses_dataset` fixture.
+    """
+    out_path = tmp_path / "ds.csv"
+    save_poses.to_dlc_file(valid_poses_dataset, out_path)
+    return (out_path, valid_poses_dataset)
+
+
+@pytest.fixture
+def valid_poses_path_and_ds_short(valid_poses_dataset, tmp_path):
+    """Return a (path, dataset) pair representing a poses dataset
+    with data for 5 frames.
+
+    The fixture is derived from the `valid_poses_dataset` fixture.
+    """
+    # Modify the dataset to have only 5 frames
+    valid_poses_dataset = valid_poses_dataset.sel(time=slice(0, 5))
+
+    # Export as a DLC-csv file
+    out_path = tmp_path / "ds_short.csv"
+    save_poses.to_dlc_file(
+        valid_poses_dataset, out_path, split_individuals=False
+    )
+
+    return (out_path, valid_poses_dataset)
+
+
+@pytest.fixture
 def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
     """Return a factory of (path, dataset) pairs representing
     valid pose datasets with NaN values at specific locations.
@@ -54,18 +85,6 @@ def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
 
 
 @pytest.fixture
-def valid_poses_path_and_ds(valid_poses_dataset, tmp_path):
-    """Return a (path, dataset) pair representing a poses dataset
-    with data for 10 frames.
-
-    The fixture is derived from the `valid_poses_dataset` fixture.
-    """
-    out_path = tmp_path / "ds.csv"
-    save_poses.to_dlc_file(valid_poses_dataset, out_path)
-    return (out_path, valid_poses_dataset)
-
-
-@pytest.fixture
 def valid_poses_path_and_ds_nan_start(
     valid_poses_path_and_ds_with_localised_nans,
 ):
@@ -105,22 +124,3 @@ def valid_poses_path_and_ds_nan_end(
         filename="ds_with_nan_end.csv",
     )
     return (out_path, ds)
-
-
-@pytest.fixture
-def valid_poses_dataset_short(valid_poses_dataset, tmp_path):
-    """Return a (path, dataset) pair representing a poses dataset
-    with data for 5 frames.
-
-    The fixture is derived from the `valid_poses_dataset` fixture.
-    """
-    # Modify the dataset to have only 5 frames
-    valid_poses_dataset = valid_poses_dataset.sel(time=slice(0, 5))
-
-    # Export as a DLC-csv file
-    out_path = tmp_path / "ds_short.csv"
-    save_poses.to_dlc_file(
-        valid_poses_dataset, out_path, split_individuals=False
-    )
-
-    return (out_path, valid_poses_dataset)
