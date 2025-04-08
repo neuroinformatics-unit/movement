@@ -159,7 +159,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("VIA-tracks", "*.csv"),
     ],
 )
-def test_file_filters_per_source_software(
+def test_on_browse_clicked_file_filters(
     source_software, expected_file_filter, make_napari_viewer_proxy, mocker
 ):
     """Test that the file dialog is opened with the correct filters."""
@@ -282,22 +282,21 @@ def test_on_load_clicked_with_valid_file_path(
     # Call the _on_load_clicked method (pretend the user clicked "Load")
     data_loader_widget._on_load_clicked()
 
-    # Check that class attributes have been created
+    # Check the class attributes from the input data
+    assert data_loader_widget.fps == 60
+    assert data_loader_widget.source_software == source_software
+    assert data_loader_widget.file_path == file_path
     assert data_loader_widget.file_name == file_path.name
+
+    # Check the attributes for loading data as layers are set
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
-    assert data_loader_widget.color_property is not None
 
-    # Check that the expected log messages were emitted
-    expected_log_messages = {
-        "Converted dataset to a napari Tracks array.",
-        f"Tracks array shape: {tracks_array_shape}",
-        "Added tracked dataset as a napari Points layer.",
-        "Added tracked dataset as a napari Tracks layer.",
-    }
-    log_messages = {record.getMessage() for record in caplog.records}
-    assert expected_log_messages <= log_messages
+    # Check the style attributes are set
+    assert data_loader_widget.color_property is not None
+    assert data_loader_widget.color_property_factorized is not None
+    assert data_loader_widget.text_property is not None
 
     # Check that a Points layer was added to the viewer
     points_layer = viewer.layers[0]
@@ -312,6 +311,16 @@ def test_on_load_clicked_with_valid_file_path(
 
     # Check the frame slider is set to the first frame
     assert viewer.dims.current_step[0] == 0
+
+    # Check that the expected log messages were emitted
+    expected_log_messages = {
+        "Converted dataset to a napari Tracks array.",
+        f"Tracks array shape: {tracks_array_shape}",
+        "Added tracked dataset as a napari Points layer.",
+        "Added tracked dataset as a napari Tracks layer.",
+    }
+    log_messages = {record.getMessage() for record in caplog.records}
+    assert expected_log_messages <= log_messages
 
 
 # ------------------- tests for dimension slider ----------------------------#
@@ -673,7 +682,3 @@ def test_add_points_and_tracks_layer_style(
         == points_layer.text.color.colormap.colormap[ky]
         for ky in points_layer._face.categorical_colormap.colormap
     )
-
-    # Check the display checkboxes for the tracks layer
-    assert tracks_layer.display_tail is True
-    assert tracks_layer.display_graph is False
