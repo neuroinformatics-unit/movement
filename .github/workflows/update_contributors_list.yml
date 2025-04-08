@@ -1,7 +1,7 @@
 name: Contributors
 
 # Update the contributors list in the documentation monthly
-# or manually using the contributors-readme-action GitHub Action
+# or manually using the Contributors-Readme-Action GitHub Action
 # on the default branch main.
 # As the branch is protected, the action will create a pull request.
 on:
@@ -21,6 +21,7 @@ jobs:
         uses: akhilmhdh/contributors-readme-action@v2.3.10
         with:
           readme_path: docs/source/community/people.md
+          commit_message: 'Update contributors list'
           pr_title_on_protected: 'Contributors-Readme-Action: Update contributors list'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
