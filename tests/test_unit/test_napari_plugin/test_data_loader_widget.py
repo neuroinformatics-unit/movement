@@ -6,6 +6,7 @@ instantiated (the methods would have already been connected to signals).
 """
 
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -256,7 +257,7 @@ def test_on_load_clicked_with_valid_file_path(
     # Check the class attributes from the input data
     assert data_loader_widget.fps == 60
     assert data_loader_widget.source_software == source_software
-    assert data_loader_widget.file_path == str(file_path)
+    assert Path(data_loader_widget.file_path) == file_path
     assert data_loader_widget.file_name == file_path.name
 
     # Check the attributes for loading data as layers are set
