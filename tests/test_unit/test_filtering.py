@@ -264,7 +264,10 @@ class TestInterpolateMethods:
     def test_constant_method_with_fill_value(
         self, valid_dataset_with_nan, request
     ):
-        """Ensure constant method does not increase number of NaNs."""
+        """Test if 'constant' interpolation method fills NaNs using fill_value.
+        Ensures that all NaNs in the input data are replaced with the
+        specified fill_value..
+        """
         dataset = request.getfixturevalue(valid_dataset_with_nan)
         fill_value = 999.0
         result = interpolate_over_time(
@@ -276,7 +279,9 @@ class TestInterpolateMethods:
     def test_constant_method_raises_without_fill_value(
         self, valid_dataset_with_nan, request
     ):
-        """Ensure interpolation method does not increase number of NaNs."""
+        """Test that 'constant' interpolation raises an error
+        if fill_value is not provided.
+        """
         dataset = request.getfixturevalue(valid_dataset_with_nan)
         with pytest.raises(ValueError, match="fill_value must be provided"):
             interpolate_over_time(dataset.position, method="constant")
