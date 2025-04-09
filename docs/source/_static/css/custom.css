@@ -33,6 +33,12 @@ body .bd-article-container {
   justify-content: space-between;
 }
 
+.contributors-table td{
+  padding: 2px;
+  min-width: 90px;
+  vertical-align: top;
+}
+
 /* Disable decoration for all but movement backrefs */
 a[class^="sphx-glr-backref-module-"],
 a[class^="sphx-glr-backref-type-"] {

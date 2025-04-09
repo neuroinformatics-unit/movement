@@ -12,8 +12,10 @@ The current active core development team is composed of:
 - [Sofía Miñano](https://github.com/sfmig)
 
 ## Contributors
+:::contributors-table
 <!-- readme: contributors -start -->
 <!-- readme: contributors -end -->
+:::
 
 ## Funders
 `movement` is made possible thanks to grant funding and the generous support of our host institutions:
