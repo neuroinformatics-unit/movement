@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.11.0"
 dynamic = ["version"]
 
-license = { text = "BSD-3-Clause" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 
 dependencies = [
   "numpy",
@@ -24,8 +25,8 @@ dependencies = [
   "xarray[accel,viz]",
   "PyYAML",
   "napari-video",
-  "pyvideoreader>=0.5.3",  # since switching to depend on openCV-headless
-  "qt-niu",  # needed for collapsible widgets
+  "pyvideoreader>=0.5.3", # since switching to depend on openCV-headless
+  "qt-niu",               # needed for collapsible widgets
   "loguru",
 ]
 
@@ -37,7 +38,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent",
-  "License :: OSI Approved :: BSD License",
   "Framework :: napari",
 ]
 
@@ -52,9 +52,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-napari = [
-  "napari[all]>=0.5.0",
-]
+napari = ["napari[all]>=0.5.0"]
 dev = [
   "pytest",
   "pytest-cov",
