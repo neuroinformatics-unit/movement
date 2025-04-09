@@ -216,6 +216,73 @@ class TestFilteringValidDatasetWithNaNs:
 
 
 @pytest.mark.parametrize(
+    "valid_dataset_with_nan",
+    list_valid_datasets_with_nans,
+)
+class TestInterpolateMethods:
+    """Test interpolate_over_time with various interpolation methods."""
+
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "linear",
+            "nearest",
+            "zero",
+            "quadratic",
+            "cubic",
+            "krogh",
+            "polynomial",
+            "spline",
+            "barycentric",
+            "slinear",
+            "pchip",
+            "akima",
+            "bfill",
+            "ffill",
+        ],
+    )
+    def test_interpolation_methods_decrease_nans(
+        self, valid_dataset_with_nan, method, helpers, request
+    ):
+        """Ensure interpolation methods does not increase number of NaNs."""
+        dataset = request.getfixturevalue(valid_dataset_with_nan)
+        before = helpers.count_nans(dataset.position)
+
+        try:
+            result = interpolate_over_time(
+                dataset.position, method=method, print_report=True
+            )
+        except Exception as e:
+            pytest.fail(f"'{method}' raised an error: {e}")
+
+        after = helpers.count_nans(result)
+        assert after <= before, (
+            f"{method} interpolation should not increase number of NaNs "
+            f"(before={before}, after={after})"
+        )
+
+    def test_constant_method_with_fill_value(
+        self, valid_dataset_with_nan, request
+    ):
+        """Ensure constant method does not increase number of NaNs."""
+        dataset = request.getfixturevalue(valid_dataset_with_nan)
+        fill_value = 999.0
+        result = interpolate_over_time(
+            dataset.position, method="constant", fill_value=fill_value
+        )
+        assert not result.isnull().any()
+        assert (result.values == fill_value).any()
+
+    def test_constant_method_raises_without_fill_value(
+        self, valid_dataset_with_nan, request
+    ):
+        """Ensure interpolation method does not increase number of NaNs."""
+        dataset = request.getfixturevalue(valid_dataset_with_nan)
+        with pytest.raises(ValueError, match="fill_value must be provided"):
+            interpolate_over_time(dataset.position, method="constant")
+
+
+@pytest.mark.parametrize(
     "valid_dataset_no_nans",
     list_valid_datasets_without_nans,
 )

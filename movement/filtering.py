@@ -66,6 +66,7 @@ def interpolate_over_time(
     method: str = "linear",
     max_gap: int | None = None,
     print_report: bool = False,
+    fill_value: float | None = None,
     **kwargs: dict | None,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
@@ -82,7 +83,7 @@ def interpolate_over_time(
         String indicating which method to use for interpolation.
         Methods are: `linear`, `nearest`, `zero`, `quadratic`, `cubic`, `krogh`
         `polynomial`, `spline`, `barycentric`, `slinear`, `pchip`, `akima`,
-        `bfill`, `ffill`,
+        `bfill`, `ffill`, `constant`.
         Default is ``linear``.
     max_gap : int, optional
         Maximum size of gap, a continuous sequence of missing observations
@@ -116,6 +117,12 @@ def interpolate_over_time(
     """
     if method in ["bfill", "ffill"]:
         data_interpolated = getattr(data, method)(dim="time", **kwargs)
+    elif method == "constant":
+        if fill_value is None:
+            raise ValueError(
+                "fill_value must be provided when method='contant'."
+            )
+        data_interpolated = data.fillna(fill_value)
     else:
         data_interpolated = data.interpolate_na(
             dim="time",
