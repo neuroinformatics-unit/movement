@@ -14,7 +14,6 @@ class LayerStyle:
     """Base class for napari layer styles."""
 
     name: str
-    properties: pd.DataFrame
     visible: bool = True
     blending: str = "translucent"
 
@@ -43,44 +42,83 @@ class PointsStyle(LayerStyle):
         }
     )
 
-    def set_color_by(self, prop: str, cmap: str | None = None) -> None:
+    def set_color_by(
+        self,
+        property: str,
+        properties_df: pd.DataFrame,
+        cmap: str | None = None,
+    ) -> None:
         """Color markers and text by a column in the properties DataFrame.
 
         Parameters
         ----------
-        prop : str
+        property : str
             The column name in the properties DataFrame to color by.
+        properties_df : pd.DataFrame
+            The properties DataFrame containing the data to color by.
+            It should contain the column specified in `property`.
         cmap : str, optional
             The name of the colormap to use, otherwise use the face_colormap.
 
         """
         # Set points and text to be colored by selected property
-        self.face_color = prop
+        self.face_color = property
         if "color" in self.text:
-            self.text["color"].update({"feature": prop})
+            self.text["color"].update({"feature": property})
         else:
-            self.text["color"] = {"feature": prop}
+            self.text["color"] = {"feature": property}
 
         # Get color cycle
         if cmap is None:
             cmap = self.face_colormap
-        n_colors = len(self.properties[prop].unique())
+        n_colors = len(properties_df[property].unique())
         color_cycle = _sample_colormap(n_colors, cmap)
 
         # Set color cycle for points and text
         self.face_color_cycle = color_cycle
         self.text["color"].update({"colormap": color_cycle})
 
-    def set_text_by(self, prop: str) -> None:
+    def set_text_by(self, property: str) -> None:
         """Set the text property for the points layer.
 
         Parameters
         ----------
-        prop : str
+        property : str
             The column name in the properties DataFrame to use for text.
 
         """
-        self.text["string"] = prop
+        self.text["string"] = property
+
+
+@dataclass
+class TracksStyle(LayerStyle):
+    """Style properties for a napari Tracks layer."""
+
+    blending: str = "opaque"
+    colormap: str = DEFAULT_COLORMAP
+    color_by: str | None = "track_id"
+    head_length: int = 0  # frames
+    tail_length: int = 30  # frames
+    tail_width: int = 2
+
+    def set_color_by(self, property: str, cmap: str | None = None) -> None:
+        """Color tracks by a column in the properties DataFrame.
+
+        Parameters
+        ----------
+        property : str
+            The column name in the properties DataFrame to color by.
+
+        cmap : str, optional
+            The name of the colormap to use. If not specified,
+            DEFAULT_COLORMAP is used.
+
+        """
+        self.color_by = property
+
+        # Overwrite colormap if specified
+        if cmap is not None:
+            self.colormap = cmap
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
