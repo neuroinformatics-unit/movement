@@ -15,6 +15,21 @@ The current active core development team is composed of:
 :::contributors-table
 <!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -start -->
 <!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -end -->
+<!-- Manually added contributors (not on GitHub) -->
+<table>
+	<tbody>
+		<tr>
+            <td align="center">
+                <a href="https://www.sainsburywellcome.org/web/people/dammy-onih">
+                    <img src="https://www.sainsburywellcome.org/web/sites/default/files/styles/thumbnail_scale_and_crop/public/2018-12/dammy.jpg" width="100;" alt="dammyonih"/>
+                    <br />
+                    <sub><b>Dammy Onih</b></sub>
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!-- Manually added contributors (not on GitHub) -->
 :::
 
 ## Funders
