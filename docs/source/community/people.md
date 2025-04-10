@@ -13,8 +13,8 @@ The current active core development team is composed of:
 
 ## Contributors
 :::contributors-table
-<!-- readme: contributors -start -->
-<!-- readme: contributors -end -->
+<!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -start -->
+<!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -end -->
 :::
 
 ## Funders
