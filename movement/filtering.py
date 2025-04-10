@@ -117,12 +117,12 @@ def interpolate_over_time(
     """
     if method in ["bfill", "ffill"]:
         data_interpolated = getattr(data, method)(dim="time", **kwargs)
-    elif method == "constant":
-        if fill_value is None:
-            raise ValueError(
-                "fill_value must be provided when method='contant'."
-            )
-        data_interpolated = data.fillna(fill_value)
+    # elif method == "constant":
+    #     if fill_value is None:
+    #         raise ValueError(
+    #             "fill_value must be provided when method='constant'."
+    #         )
+    #     data_interpolated = data.fillna(fill_value)
     else:
         data_interpolated = data.interpolate_na(
             dim="time",
