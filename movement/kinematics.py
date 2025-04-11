@@ -546,8 +546,8 @@ def _cdist(
             elem2: getattr(a, labels_dim).values,
         }
     )
-    # Drop any squeezed coordinates
     result.name = "distance"
+    # Drop any squeezed coordinates
     return result.squeeze(drop=True)
 
 
