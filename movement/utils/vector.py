@@ -273,6 +273,7 @@ def compute_signed_angle_2d(
     # arctan2 returns values in [-pi, pi].
     # We need to map -pi angles to pi, to stay in the (-pi, pi] range
     angles.values[angles <= -np.pi] = np.pi
+    angles.name = "signed_angle"
     return angles
 
 

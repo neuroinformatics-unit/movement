@@ -317,7 +317,9 @@ def compute_forward_vector(
         space="z"
     )  # keep only the first 2 spatal dimensions of the result
     # Return unit vector
-    return convert_to_unit(forward_vector)
+    result = convert_to_unit(forward_vector)
+    result.name = "forward_vector"
+    return result
 
 
 def compute_head_direction_vector(
@@ -446,6 +448,7 @@ def compute_forward_vector_angle(
     if in_degrees:
         heading_array = np.rad2deg(heading_array)
 
+    heading_array.name = "forward_vector_angle"
     return heading_array
 
 
@@ -542,6 +545,7 @@ def _cdist(
         }
     )
     # Drop any squeezed coordinates
+    result.name = "distance"
     return result.squeeze(drop=True)
 
 
