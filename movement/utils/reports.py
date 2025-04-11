@@ -76,18 +76,27 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     # Compile the report
     label = label or da.name
     nan_report = f"\nMissing points (marked as NaN) in {label}"
-    # Check if the data has individuals and keypoints dimensions
-    has_individuals_dim = "individuals" in da.dims
-    has_keypoints_dim = "keypoints" in da.dims
-    # Default values for individuals and keypoints
-    individuals = da.individuals.values if has_individuals_dim else [None]
-    keypoints = da.keypoints.values if has_keypoints_dim else [None]
-
-    for ind in individuals:
-        ind_name = ind if ind is not None else da.individuals.item()
-        nan_report += f"\n\tIndividual: {ind_name}"
-        for kp in keypoints:
-            nan_report += calculate_nan_stats(da, keypoint=kp, individual=ind)
+    nan_count = (
+        da.isnull().any(["space"]).sum(dim="time")
+        if "space" in da.dims
+        else da.isnull().sum(dim="time")
+    )
+    # Drop points without NaNs
+    nan_count = nan_count.where(nan_count > 0, drop=True)
+    if nan_count.size == 0:
+        return ""
+    total_count = da.time.size
+    nan_stats_str = (
+        nan_count.astype(int).astype(str)
+        + f"/{total_count} ("
+        + (nan_count / total_count * 100).round(2).astype(str)
+        + "%)"
+    )
+    # Stack all dimensions except for the last
+    nan_stats_df = nan_stats_str.stack(
+        new_dim=nan_stats_str.dims[:-1]
+    ).to_pandas()
+    nan_report += f"\n\n{nan_stats_df.to_string()}"
     # Write nan report to logger
     logger.info(nan_report)
     return nan_report

@@ -108,3 +108,35 @@ def test_report_nan_values_in_position_selecting_keypoint(
     assert all(ind in report_str for ind in expected_individuals) and all(
         ind not in report_str for ind in not_expected_individuals
     ), "Report contains incorrect individuals."
+
+
+@pytest.mark.parametrize(
+    "valid_dataset, expected_components",
+    [
+        ("valid_poses_dataset", set()),
+        ("valid_bboxes_dataset", set()),
+        (
+            "valid_poses_dataset_with_nan",
+            {"position", "other", "x", "y", "id_0", "3/10", "10/10"},
+        ),
+        (
+            "valid_bboxes_dataset_with_nan",
+            {"position", "other", "x", "y", "id_0", "3/10"},
+        ),
+    ],
+)
+def test_report_nan_values_arbitrary_dims(
+    valid_dataset, expected_components, request
+):
+    """Test that the nan-value reporting function handles data with
+    arbitrary dimensions, and that the data array name (position) is
+    included in the report.
+    """
+    # extract relevant position data
+    input_dataset = request.getfixturevalue(valid_dataset)
+    output_data_array = input_dataset.rename({"space": "other"}).position
+    # produce report
+    report_str = report_nan_values(output_data_array)
+    assert all(component in report_str for component in expected_components), (
+        "Expected components not found in report."
+    )
