@@ -61,6 +61,7 @@ def test_cart2pol_transform_on_kinematics(
     kinematic_array_cart = getattr(kin, f"compute_{kinematic_variable}")(
         ds.position
     )
+    assert kinematic_array_cart.name == kinematic_variable
     kinematic_array_pol = vector.cart2pol(kinematic_array_cart)
 
     # Build expected data array

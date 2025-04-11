@@ -472,10 +472,9 @@ def test_compute_forward_vector_with_invalid_input(
 
     # Catch error
     with pytest.raises(expected_error, match=re.escape(expected_match_str)):
-        forward_vector = kinematics.compute_forward_vector(
+        kinematics.compute_forward_vector(
             input_data, keypoints[0], keypoints[1]
         )
-        assert forward_vector.name == "forward_vector"
 
 
 def test_nan_behavior_forward_vector(
@@ -716,10 +715,9 @@ def test_compute_pairwise_distances_with_invalid_input(
 ):
     """Test that an error is raised for invalid inputs."""
     with pytest.raises(ValueError):
-        result = kinematics.compute_pairwise_distances(
+        kinematics.compute_pairwise_distances(
             request.getfixturevalue(ds).position, dim, pairs
         )
-        assert result.name == "distance"
 
 
 class TestForwardVectorAngle:
