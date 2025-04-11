@@ -11,6 +11,7 @@ The current active core development team is composed of:
 - [Chang Huan Lo](https://github.com/lochhh)
 - [Sofía Miñano](https://github.com/sfmig)
 
+(target-contributors)=
 ## Contributors
 :::contributors-table
 <!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -start -->

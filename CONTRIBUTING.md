@@ -298,6 +298,46 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 :::
 ::::
 
+### Updating the contributors list
+The [contributors list](target-contributors) is automatically updated on the first day of each month by a GitHub actions workflow (`.github/workflows/update_contributors_list.yml`).
+It uses the [Contributors-Readme-Action](https://github.com/marketplace/actions/contribute-list) to generate the list of contributors based on the commits to the repository.
+
+It is also possible to manually add other contributors who have not contributed code to the repository, but have contributed in other ways (e.g. by providing sample data, or by actively participating in discussions).
+The way to add them differs depending on whether they are GitHub users or not.
+
+::::{tab-set}
+:::{tab-item} GitHub users
+To add a contributor who has a GitHub account, add their GitHub username (e.g. `newcontributor`) to both `<!-- readme: contributors, -->` sections in `docs/source/community/people.md` as follows:
+```html
+<!-- readme: contributors,existingcontributor,newcontributor -start -->
+existing content...
+<!-- readme: contributors,existingcontributor,newcontributor -end -->
+```
+:::
+
+:::{tab-item} Non-GitHub users
+To add a contributor who does not have a GitHub account, add the data cell `<td>` containing their name, website, and image to the row `<tr>` in the section marked with `<!-- Manually added contributors (not on GitHub) -->` in `docs/source/community/people.md` as follows:
+```html
+<!-- Manually added contributors (not on GitHub) -->
+<table>
+  <tbody>
+    <tr>
+      existing content...
+      <td align="center">
+        <a href="https://newcontributor.website.com">
+          <img src="https://newcontributor.image.jpg" width="100;" alt="newcontributor"/>
+          <br />
+          <sub><b>New Contributor</b></sub>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!-- Manually added contributors (not on GitHub) -->
+```
+:::
+::::
+
 ### Building the documentation locally
 We recommend that you build and view the documentation website locally, before you push your proposed changes.
 
