@@ -1,5 +1,6 @@
 -e .[napari]
 ablog
+kineticstoolkit
 linkify-it-py
 myst-parser
 nbsphinx
