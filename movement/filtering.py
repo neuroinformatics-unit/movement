@@ -1,7 +1,7 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
 import warnings
-from typing import Literal
+from typing import Any, Literal
 
 import xarray as xr
 from scipy import signal
@@ -67,7 +67,7 @@ def interpolate_over_time(
     max_gap: int | None = None,
     print_report: bool = False,
     fill_value: float | str | None = None,
-    **kwargs: dict | None,
+    **kwargs: Any,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
@@ -120,7 +120,7 @@ def interpolate_over_time(
     elif method == "constant":
         if fill_value is None:
             raise ValueError(
-                "fill_value must be provided when method='constant'."
+                "fill_value must be provided when method='constant'"
             )
         data_interpolated = data.fillna(fill_value)
     else:
