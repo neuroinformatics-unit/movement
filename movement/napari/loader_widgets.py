@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 from napari.components.dims import RangeTuple
+from napari.layers import Image, Points, Tracks
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -62,10 +63,10 @@ class DataLoader(QWidget):
 
         # Connect to layer events
         self.viewer.layers.events.inserted.connect(
-            self._update_frame_slider_range
+            self._update_frame_slider_range, ref=True
         )
         self.viewer.layers.events.removed.connect(
-            self._update_frame_slider_range
+            self._update_frame_slider_range, ref=True
         )
 
     def _create_source_software_widget(self):
@@ -212,26 +213,28 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
-        # Get the maximum frame index from all visible layers with metadata
-        layers_to_check_frame_range = [
+        # Only update the frame slider range if there are layers
+        # that are Points, Tracks or Image
+        list_layers = [
             ly
             for ly in self.viewer.layers
-            if hasattr(ly, "metadata") and "max_frame_idx" in ly.metadata
+            if isinstance(ly, Points | Tracks | Image)
         ]
-
-        # If there are no layers to check, do nothing
-        if len(layers_to_check_frame_range) > 0:
+        if len(list_layers) > 0:
+            # Get the maximum frame index from all candidate layers
             max_frame_idx = max(
+                # For every layer, get max_frame_idx metadata if it exists,
+                # else deduce it from the data shape
                 [
-                    ly.metadata["max_frame_idx"]
-                    for ly in layers_to_check_frame_range
+                    getattr(ly, "metadata", {}).get(
+                        "max_frame_idx", ly.data.shape[0] - 1
+                    )
+                    for ly in list_layers
                 ]
             )
 
             # If the frame slider range is not set to the full range of frames,
             # update it.
-            # Note: the start frame may be different from 0 if all the data
-            # at the first frame is NaN
             if (self.viewer.dims.range[0].stop != max_frame_idx) or (
                 int(self.viewer.dims.range[0].start) != 0
             ):
