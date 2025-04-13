@@ -75,17 +75,37 @@ This is equivalent to running `napari -w movement` and should open the `napari`
 window with the `movement` widget docked on the right-hand side.
 
 ## Update the package
-To update movement to the latest version, we recommend installing it in a new environment,
-as this prevents potential compatibility issues caused by changes in dependency versions.
+To update `movement` to the latest version, you need to use the same package manager you used to install it (either `conda` or `pip`). If you are not sure which one you used, you can run from your active environment:
+```sh
+conda list movement
+```
+If the output shows `conda-forge` as the channel, you used `conda` to install it. If it shows `pypi`, you used `pip`.
 
-To uninstall an existing environment named `movement-env`:
+Once this is clear, you can update `movement` by running the relevant command from below:
+::::{tab-set}
+:::{tab-item} Conda
+```sh
+conda update movement -y
+```
+:::
+
+:::{tab-item} Pip
+```sh
+pip install movement -U
+```
+:::
+::::
+
+
+If the above fails, try installing it in a fresh new environment instead. This should prevent potential compatibility issues caused by changes in dependency versions. You can first uninstall the existing environment named `movement-env`:
 ```sh
 conda env remove -n movement-env
 ```
+Once the environment has been removed, you can create a new one following the [installation instructions](#install-the-package) above.
+
 :::{tip}
 If you are unsure about the environment name, you can get a list of the environments on your system with:
 ```sh
 conda env list
 ```
 :::
-Once the environment has been removed, you can create a new one following the [installation instructions](#install-the-package) above.
