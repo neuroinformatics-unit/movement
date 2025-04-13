@@ -9,11 +9,12 @@ isolate 'true' kinematics for clarity. In a future release, the public API may
 be revised to reflect this distinction more explicitly.
 """
 
+import warnings
 from typing import Literal  # Added this import
 
 import xarray as xr
 
-from movement.utils.logging import log_error, log_warning  # Added log_warning
+from movement.utils.logging import log_error  # Added log_warning
 from movement.utils.reports import report_nan_values  # Added report_nan_values
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
@@ -319,7 +320,7 @@ def _compute_scaled_path_length(data: xr.DataArray) -> xr.DataArray:
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float
 ) -> None:
-    """Print a warning if the proportion of NaN values exceeds a threshold.
+    """Issue a warning if the proportion of NaN values exceeds a threshold.
 
     The NaN proportion is evaluated per point track, and a given point is
     considered NaN if any of its ``space`` coordinates are NaN. The warning
@@ -346,10 +347,11 @@ def _warn_about_nan_proportion(
         n_nans >= data.sizes["time"] * nan_warn_threshold, drop=True
     )
     if data_to_warn_about.size > 0:
-        log_warning(
+        warnings.warn(
             "The result may be unreliable for point tracks with many "
             "missing values. The following tracks have at least "
-            f"{nan_warn_threshold * 100:.3} % NaN values:"
+            f"{nan_warn_threshold * 100:.3} % NaN values:\n"
+            f"{report_nan_values(data_to_warn_about)}",
+            UserWarning,
+            stacklevel=2,
         )
-        print(report_nan_values(data_to_warn_about))
-        
