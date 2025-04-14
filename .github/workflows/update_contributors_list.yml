@@ -1,9 +1,9 @@
 name: Contributors
 
 # Update the contributors list in the documentation monthly
-# or manually using the Contributors-Readme-Action GitHub Action
-# on the default branch main.
+# on the default branch main using the Contributors-Readme-Action GitHub Action.
 # As the branch is protected, the action will create a pull request.
+# Alternatively, the action can be triggered manually using the workflow_dispatch event.
 on:
   schedule:
     - cron: '0 0 1 * *' # Runs at midnight on the first day of every month
