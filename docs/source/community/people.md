@@ -6,10 +6,15 @@
 [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/) by [Niko Sirmpilatze](https://github.com/niksirbi) and
 [Adam Tyson](https://github.com/adamltyson).
 The current active core development team is composed of:
-- [Adam Tyson](https://github.com/adamltyson)
 - [Niko Sirmpilatze](https://github.com/niksirbi)
 - [Chang Huan Lo](https://github.com/lochhh)
 - [Sofía Miñano](https://github.com/sfmig)
+
+## Collaborations
+We are eager to explore new collaboration opportunities with research labs and research software engineering teams.
+Our current and past collaborations include:
+- [Keshavarzi Laboratory](https://www.keshavarzilab.com/) at the University of Cambridge
+- [UCL Advanced Research Computing Centre](https://www.ucl.ac.uk/advanced-research-computing/advanced-research-computing-centre)
 
 (target-contributors)=
 ## Contributors
