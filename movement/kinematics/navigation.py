@@ -7,7 +7,7 @@ import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
-from movement.utils.logging import log_error
+from movement.utils.logging import logger
 from movement.utils.vector import (
     compute_signed_angle_2d,
 )
@@ -86,15 +86,17 @@ def compute_forward_vector(
         },
     )
     if len(data.space) != 2:
-        raise log_error(
-            ValueError,
-            "Input data must have exactly 2 spatial dimensions, but "
-            f"currently has {len(data.space)}.",
+        raise logger.error(
+            ValueError(
+                "Input data must have exactly 2 spatial dimensions, "
+                "but currently has {len(data.space)}."
+            )
         )
+
     # Validate input keypoints
     if left_keypoint == right_keypoint:
-        raise log_error(
-            ValueError, "The left and right keypoints may not be identical."
+        raise logger.error(
+            ValueError("The left and right keypoints may not be identical.")
         )
 
     # Get the data arrays and drop keypoints
@@ -302,7 +304,9 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     """
     if not isinstance(data, xr.DataArray):
-        raise log_error(
-            TypeError,
-            f"Input data must be an xarray.DataArray, but got {type(data)}.",
+        raise logger.error(
+            TypeError(
+                "Input data must be an xarray.DataArray, "
+                f"but got {type(data)}."
+            )
         )

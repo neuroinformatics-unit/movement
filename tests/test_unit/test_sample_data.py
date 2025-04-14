@@ -113,7 +113,11 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
                     )
                 else:
                     with pytest.raises(
-                        RequestException, match="Failed to download"
+                        RequestException,
+                        match=(
+                            "Failed to download the newest sample metadata "
+                            "file"
+                        ),
                     ):
                         _fetch_metadata(metadata_file_name, data_dir=tmp_path)
         else:

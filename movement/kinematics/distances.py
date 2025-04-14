@@ -6,7 +6,7 @@ from typing import Literal
 import xarray as xr
 from scipy.spatial.distance import cdist
 
-from movement.utils.logging import log_error
+from movement.utils.logging import logger
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -266,16 +266,18 @@ def compute_pairwise_distances(
 
     """
     if dim not in ["individuals", "keypoints"]:
-        raise log_error(
-            ValueError,
-            "'dim' must be either 'individuals' or 'keypoints', "
-            f"but got {dim}.",
+        raise logger.error(
+            ValueError(
+                "'dim' must be either 'individuals' or 'keypoints', "
+                f"but got {dim}."
+            )
         )
+
     if isinstance(pairs, str) and pairs != "all":
-        raise log_error(
-            ValueError,
-            f"'pairs' must be a dictionary or 'all', but got {pairs}.",
+        raise logger.error(
+            ValueError("'pairs' must be 'all' or a list of index tuples.")
         )
+
     validate_dims_coords(data, {"time": [], "space": ["x", "y"], dim: []})
     # Find all possible pair combinations if 'all' is specified
     if pairs == "all":
@@ -292,9 +294,10 @@ def compute_pairwise_distances(
             )
         ]
     if not paired_elements:
-        raise log_error(
-            ValueError, "Could not find any pairs to compute distances for."
+        raise logger.error(
+            ValueError("Could not find any pairs to compute distances for.")
         )
+
     pairwise_distances = {
         f"dist_{elem1}_{elem2}": _cdist(
             data.sel({dim: elem1}),

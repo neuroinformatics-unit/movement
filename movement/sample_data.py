@@ -6,7 +6,6 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
-import logging
 from pathlib import Path
 
 import pooch
@@ -15,9 +14,7 @@ import yaml
 from requests.exceptions import RequestException
 
 from movement.io import load_bboxes, load_poses
-from movement.utils.logging import log_error, log_warning
-
-logger = logging.getLogger(__name__)
+from movement.utils.logging import logger
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -93,23 +90,38 @@ def _fetch_metadata(
     local_file_path = Path(data_dir / file_name)
     failed_msg = "Failed to download the newest sample metadata file."
 
-    # try downloading the newest metadata file
     try:
         downloaded_file_path = _download_metadata_file(file_name, data_dir)
-        # if download succeeds, replace any existing local metadata file
-        downloaded_file_path.replace(local_file_path)
-    # if download fails, try loading an existing local metadata file,
-    # otherwise raise an error
-    except RequestException as exc_info:
-        if local_file_path.is_file():
-            log_warning(
-                f"{failed_msg} Will use the existing local version instead."
+        try:
+            downloaded_file_path.replace(local_file_path)
+            downloaded_file_path = (
+                local_file_path  # Update to point to moved file
             )
+        except OSError as e:
+            logger.warning(
+                f"Failed to replace metadata file: {e}. Using temporary file."
+            )
+    except RequestException as exc:
+        if local_file_path.is_file():
+            logger.warning(
+                "Will use the existing local version instead: {}",
+                local_file_path,
+            )
+            downloaded_file_path = local_file_path
         else:
-            raise log_error(RequestException, failed_msg) from exc_info
+            logger.error(failed_msg)
+            raise RequestException(failed_msg) from exc
 
-    with open(local_file_path) as metadata_file:
-        metadata = yaml.safe_load(metadata_file)
+    try:
+        with open(downloaded_file_path) as metadata_file:
+            metadata = yaml.safe_load(metadata_file)
+    except FileNotFoundError as err:
+        logger.error(f"Metadata file not found: {downloaded_file_path}")
+        raise FileNotFoundError(
+            f"Could not locate metadata file: {downloaded_file_path}. "
+            "Download may have failed or file was moved."
+        ) from err
+
     return metadata
 
 
@@ -215,10 +227,11 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """
     available_data_files = list_datasets()
     if filename not in available_data_files:
-        raise log_error(
-            ValueError,
-            f"File '{filename}' is not in the registry. "
-            f"Valid filenames are: {available_data_files}",
+        raise logger.error(
+            ValueError(
+                f"File '{filename}' is not in the registry. "
+                f"Valid filenames are: {available_data_files}"
+            )
         )
 
     frame_file_name = metadata[filename]["frame"]["file_name"]

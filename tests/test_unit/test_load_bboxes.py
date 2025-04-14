@@ -561,6 +561,9 @@ def test_extract_frame_number_from_via_tracks_df_file_attributes(
     assert np.array_equal(frame_array, expected_frame_array)
 
 
+@pytest.mark.filterwarnings(
+    "ignore:.*Setting fps to None.:UserWarning",
+)
 @pytest.mark.parametrize(
     "via_file_path, frame_array_from_file",
     [
