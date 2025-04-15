@@ -12,7 +12,7 @@ The current active core development team is composed of:
 
 ## Collaborations
 We are eager to explore collaboration opportunities with research labs and research software engineering teams.
-Our current and past collaborations include:
+Our current and past collaborators include:
 - [Keshavarzi Laboratory](https://www.keshavarzilab.com/) at the University of Cambridge
 - [UCL Advanced Research Computing Centre](https://www.ucl.ac.uk/advanced-research-computing/advanced-research-computing-centre)
 
