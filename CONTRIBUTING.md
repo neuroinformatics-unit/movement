@@ -307,18 +307,21 @@ The way to add them differs depending on whether they are GitHub users or not.
 
 ::::{tab-set}
 :::{tab-item} GitHub users
-To add a contributor who has a GitHub account, add their GitHub username (e.g. `newcontributor`) to both `<!-- readme: contributors, -->` sections in `docs/source/community/people.md` as follows:
+To add a contributor who has a GitHub account, locate the section marked with `<!-- MANUAL: OTHER GITHUB CONTRIBUTORS -->`
+
+Next, add their GitHub username (e.g. `newcontributor`) to the `<!-- readme: -start -->` and `<!-- readme: -end -->` lines as follows:
 ```html
-<!-- readme: contributors,existingcontributor,newcontributor -start -->
+<!-- readme: githubUser1,githubUser2,newcontributor -start -->
 existing content...
-<!-- readme: contributors,existingcontributor,newcontributor -end -->
+<!-- readme: githubUser1,githubUser2,newcontributor -end -->
 ```
 :::
 
 :::{tab-item} Non-GitHub users
-To add a contributor who does not have a GitHub account, add the data cell `<td>` containing their name, website, and image to the row `<tr>` in the section marked with `<!-- Manually added contributors (not on GitHub) -->` in `docs/source/community/people.md` as follows:
+To add a contributor who does not have a GitHub account, locate the section marked with `<!-- MANUAL: OTHER NON-GITHUB CONTRIBUTORS -->` in `docs/source/community/people.md`.
+
+Next, add the data cell `<td>` containing their name, website, and image to the row `<tr>` in the section marked with  in `docs/source/community/people.md` as follows:
 ```html
-<!-- Manually added contributors (not on GitHub) -->
 <table>
   <tbody>
     <tr>
@@ -333,7 +336,6 @@ To add a contributor who does not have a GitHub account, add the data cell `<td>
     </tr>
   </tbody>
 </table>
-<!-- Manually added contributors (not on GitHub) -->
 ```
 :::
 ::::

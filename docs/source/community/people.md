@@ -18,10 +18,27 @@ Our current and past collaborations include:
 
 (target-contributors)=
 ## Contributors
-:::contributors-table
-<!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -start -->
-<!-- readme: contributors,Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -end -->
-<!-- Manually added contributors (not on GitHub) -->
+:::::contributors-table
+<!-- ======================= AUTO: REPOSITORY CONTRIBUTORS =======================
+This section contains contributors who have committed to the movement repository.
+This is automatically updated via GitHub Actions and should not be modified.
+=============================================================================== -->
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
+<!-- ===================== MANUAL: OTHER GITHUB CONTRIBUTORS =====================
+This section contains other manually added contributors (on GitHub) who have not
+contributed to the movement repository, but have contributed in other ways (e.g. by
+providing sample data, or by actively participating in discussions).
+=============================================================================== -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -start -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol -end -->
+
+<!-- =================== MANUAL: OTHER NON-GITHUB CONTRIBUTORS ===================
+This section contains other manually added contributors (not on GitHub) who have not
+contributed to the movement repository, but have contributed in other ways (e.g. by
+providing sample data, or by actively participating in discussions).
+=============================================================================== -->
 <table>
 	<tbody>
 		<tr>
@@ -35,8 +52,7 @@ Our current and past collaborations include:
         </tr>
     </tbody>
 </table>
-<!-- Manually added contributors (not on GitHub) -->
-:::
+:::::
 
 ## Funders
 `movement` is made possible thanks to grant funding and the generous support of our host institutions:
