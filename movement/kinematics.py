@@ -60,6 +60,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
+    result.name = "displacement"
     return result
 
 
@@ -99,7 +100,9 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     # validate only presence of Cartesian space dimension
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
-    return compute_time_derivative(data, order=1)
+    result = compute_time_derivative(data, order=1)
+    result.name = "velocity"
+    return result
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
@@ -139,7 +142,9 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     # validate only presence of Cartesian space dimension
     # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
-    return compute_time_derivative(data, order=2)
+    result = compute_time_derivative(data, order=2)
+    result.name = "acceleration"
+    return result
 
 
 def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
@@ -202,7 +207,9 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
         except ``space`` is removed.
 
     """
-    return compute_norm(compute_velocity(data))
+    result = compute_norm(compute_velocity(data))
+    result.name = "speed"
+    return result
 
 
 def compute_forward_vector(
@@ -312,7 +319,9 @@ def compute_forward_vector(
         space="z"
     )  # keep only the first 2 spatal dimensions of the result
     # Return unit vector
-    return convert_to_unit(forward_vector)
+    result = convert_to_unit(forward_vector)
+    result.name = "forward_vector"
+    return result
 
 
 def compute_head_direction_vector(
@@ -353,9 +362,11 @@ def compute_head_direction_vector(
         ``keypoints`` dimension.
 
     """
-    return compute_forward_vector(
+    result = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
+    result.name = "head_direction_vector"
+    return result
 
 
 def compute_forward_vector_angle(
@@ -439,6 +450,7 @@ def compute_forward_vector_angle(
     if in_degrees:
         heading_array = np.rad2deg(heading_array)
 
+    heading_array.name = "forward_vector_angle"
     return heading_array
 
 
@@ -534,6 +546,7 @@ def _cdist(
             elem2: getattr(a, labels_dim).values,
         }
     )
+    result.name = "distance"
     # Drop any squeezed coordinates
     return result.squeeze(drop=True)
 
@@ -873,13 +886,13 @@ def compute_path_length(
     _warn_about_nan_proportion(data, nan_warn_threshold)
 
     if nan_policy == "ffill":
-        return compute_norm(
+        result = compute_norm(
             compute_displacement(data.ffill(dim="time")).isel(
                 time=slice(1, None)
             )  # skip first displacement (always 0)
         ).sum(dim="time", min_count=1)  # return NaN if no valid segment
     elif nan_policy == "scale":
-        return _compute_scaled_path_length(data)
+        result = _compute_scaled_path_length(data)
     else:
         raise logger.error(
             ValueError(
@@ -887,6 +900,9 @@ def compute_path_length(
                 "Must be one of 'ffill' or 'scale'."
             )
         )
+
+    result.name = "path_length"
+    return result
 
 
 def _warn_about_nan_proportion(

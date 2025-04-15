@@ -44,6 +44,7 @@ class TestComputeKinematics:
         kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
             position
         )
+        assert kinematic_array.name == kinematic_variable
         # Figure out which dimensions to expect in kinematic_array
         # and in the final xarray.DataArray
         expected_dims = ["time", "individuals"]
@@ -112,6 +113,7 @@ class TestComputeKinematics:
         kinematic_array = getattr(kinematics, f"compute_{kinematic_variable}")(
             position
         )
+        assert kinematic_array.name == kinematic_variable
         # compute n nans in kinematic array per individual
         n_nans_kinematics_per_indiv = [
             helpers.count_nans(kinematic_array.isel(individuals=i))
@@ -203,6 +205,7 @@ def test_path_length_across_time_ranges(
         path_length = kinematics.compute_path_length(
             position, start=start, stop=stop
         )
+        assert path_length.name == "path_length"
 
         # Expected number of segments (displacements) in selected time range
         num_segments = 9  # full time range: 10 frames - 1
@@ -266,6 +269,7 @@ def test_path_length_with_nan(
         path_length = kinematics.compute_path_length(
             position, nan_policy=nan_policy
         )
+        assert path_length.name == "path_length"
         # Get path_length for individual "id_0" as a numpy array
         path_length_id_0 = path_length.sel(individuals="id_0").values
         # Check them against the expected values
@@ -312,9 +316,10 @@ def test_path_length_nan_warn_threshold(
     """
     position = valid_poses_dataset_with_nan.position
     with expected_exception:
-        kinematics.compute_path_length(
+        result = kinematics.compute_path_length(
             position, nan_warn_threshold=nan_warn_threshold
         )
+        assert result.name == "path_length"
 
 
 @pytest.fixture
@@ -408,6 +413,10 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         "right_ear",
         camera_view="bottom_up",
     )
+    assert forward_vector.name == "forward_vector"
+    assert forward_vector_flipped.name == "forward_vector"
+    assert head_vector.name == "head_direction_vector"
+
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
     for output_array in [forward_vector, forward_vector_flipped, head_vector]:
@@ -480,6 +489,7 @@ def test_nan_behavior_forward_vector(
     forward_vector = kinematics.compute_forward_vector(
         valid_data_array_for_forward_vector_with_nan, "left_ear", "right_ear"
     )
+    assert forward_vector.name == "forward_vector"
     # Check coord preservation
     for preserved_coord in ["time", "space", "individuals"]:
         assert np.all(
@@ -552,6 +562,7 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
     a = input_dataarray.sel({dim: pairs[0]})
     b = input_dataarray.sel({dim: pairs[1]})
     result = kinematics._cdist(a, b, dim)
+    assert result.name == "distance"
     xr.testing.assert_equal(
         result,
         expected,
@@ -624,7 +635,9 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
         valid_dataset = request.getfixturevalue(valid_dataset)
         position = valid_dataset.position
         a, b = selection_fn(position)
-        assert isinstance(kinematics._cdist(a, b, "individuals"), xr.DataArray)
+        result = kinematics._cdist(a, b, "individuals")
+        assert result.name == "distance"
+        assert isinstance(result, xr.DataArray)
 
 
 @pytest.mark.parametrize(
@@ -662,12 +675,16 @@ def test_compute_pairwise_distances_with_valid_pairs(
         valid_poses_dataset.position, dim, pairs
     )
     if isinstance(result, dict):
+        for _, value in result.items():
+            assert isinstance(value, xr.DataArray)
+            assert value.name == "distance"
         expected_data_vars = [
             f"dist_{pair[0]}_{pair[1]}" for pair in expected_data_vars
         ]
         assert set(result.keys()) == set(expected_data_vars)
     else:  # expect single DataArray
         assert isinstance(result, xr.DataArray)
+        assert result.name == "distance"
 
 
 @pytest.mark.parametrize(
@@ -803,6 +820,8 @@ class TestForwardVectorAngle:
             right_keypoint=right_keypoint,
             reference_vector=reference_vector,
         )
+        assert without_orientations_swapped.name == "forward_vector_angle"
+        assert with_orientations_swapped.name == "forward_vector_angle"
 
         expected_orientations = without_orientations_swapped.copy(deep=True)
         if swap_left_right:
@@ -841,6 +860,8 @@ class TestForwardVectorAngle:
             reference_vector=reference_vector,
             in_degrees=True,
         )
+        assert in_radians.name == "forward_vector_angle"
+        assert in_degrees.name == "forward_vector_angle"
 
         xr.testing.assert_allclose(in_degrees, np.rad2deg(in_radians))
 
@@ -900,6 +921,9 @@ class TestForwardVectorAngle:
             right_keypoint=right_keypoint,
             reference_vector=reference_vector,
         )
+
+        assert untranslated_output.name == "forward_vector_angle"
+        assert translated_output.name == "forward_vector_angle"
 
         xr.testing.assert_allclose(untranslated_output, translated_output)
 
