@@ -315,27 +315,17 @@ Next, add their GitHub username (e.g. `newcontributor`) to the `<!-- readme: -st
 existing content...
 <!-- readme: githubUser1,githubUser2,newcontributor -end -->
 ```
+
+The aforementioned GitHub actions workflow will then automatically update the contributors list with `newcontributor`'s GitHub profile picture, name, and link to their GitHub profile.
 :::
 
 :::{tab-item} Non-GitHub users
 To add a contributor who does not have a GitHub account, locate the section marked with `<!-- MANUAL: OTHER NON-GITHUB CONTRIBUTORS -->` in `docs/source/community/people.md`.
 
-Next, add the data cell `<td>` containing their name, website, and image to the row `<tr>` in the section marked with  in `docs/source/community/people.md` as follows:
-```html
-<table>
-  <tbody>
-    <tr>
-      existing content...
-      <td align="center">
-        <a href="https://newcontributor.website.com">
-          <img src="https://newcontributor.image.jpg" width="100;" alt="newcontributor"/>
-          <br />
-          <sub><b>New Contributor</b></sub>
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
+Next, add a row containing the contributor's image, name, and link to their website to the existing `list-table` as follows:
+```markdown
+*   - existing content...
+*   - [![newcontributor](https://newcontributor.image.jpg) <br /> <sub><b>New Contributor</b></sub>](https://newcontributor.website.com)
 ```
 :::
 ::::
