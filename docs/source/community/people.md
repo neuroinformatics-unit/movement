@@ -39,19 +39,13 @@ This section contains other manually added contributors (not on GitHub) who have
 contributed to the movement repository, but have contributed in other ways (e.g. by
 providing sample data, or by actively participating in discussions).
 =============================================================================== -->
-<table>
-	<tbody>
-		<tr>
-            <td align="center">
-                <a href="https://www.sainsburywellcome.org/web/people/dammy-onih">
-                    <img src="https://www.sainsburywellcome.org/web/sites/default/files/styles/thumbnail_scale_and_crop/public/2018-12/dammy.jpg" width="100;" alt="dammyonih"/>
-                    <br />
-                    <sub><b>Dammy Onih</b></sub>
-                </a>
-            </td>
-        </tr>
-    </tbody>
-</table>
+::::{list-table}
+:align: center
+:header-rows: 0
+
+*   - [![dammyonih](https://www.sainsburywellcome.org/web/sites/default/files/styles/thumbnail_scale_and_crop/public/2018-12/dammy.jpg) <br /> <sub><b>Dammy Onih</b></sub>](https://www.sainsburywellcome.org/web/people/dammy-onih)
+
+::::
 :::::
 
 ## Funders
