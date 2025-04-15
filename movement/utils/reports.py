@@ -4,22 +4,27 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
+from movement.validators.arrays import validate_dims_coords
 
 
 def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
-    """Report the number and percentage of keypoints that are NaN.
+    """Report the number and percentage of data points that are NaN.
 
-    Numbers are reported for each individual and keypoint in the data.
+    The number of NaNs are counted for each element along the required
+    ``time`` dimension.
+    If the DataArray has the ``space`` dimension, the ``space`` dimension
+    is reduced by checking if any values in the ``space`` coordinates
+    are NaN, e.g. a 2D point is considered as NaN if any of its x or y
+    coordinates are NaN.
 
     Parameters
     ----------
     da : xarray.DataArray
-        The input data containing ``keypoints`` and ``individuals``
-        dimensions.
+        The input data with ``time`` as a required dimension.
     label : str, optional
         Label to identify the data in the report. If not provided,
-        the name of the DataArray is used as the label.
-        Default is ``None``.
+        the name of the DataArray is used. If the DataArray has no
+        name, "input" is used as the label.
 
     Returns
     -------
@@ -27,17 +32,18 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
         A string containing the report.
 
     """
-    label = label or da.name
+    validate_dims_coords(da, {"time": []})
+    label = label or da.name or "input"
     nan_report = f"\nMissing points (marked as NaN) in {label}"
     nan_count = (
         da.isnull().any("space").sum("time")
         if "space" in da.dims
         else da.isnull().sum("time")
     )
-    # # Drop points without NaNs
-    # nan_count = nan_count.where(nan_count > 0, drop=True)
-    # if nan_count.size == 0 or nan_count.isnull().all():
-    #     return ""
+    # Drop points without NaNs
+    nan_count = nan_count.where(nan_count > 0, drop=True)
+    if nan_count.size == 0 or nan_count.isnull().all():
+        return f"No missing points (marked as NaN) in {label}."
     total_count = da.time.size
     nan_count_str = (
         nan_count.astype(int).astype(str)
@@ -51,12 +57,11 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
         if len(nan_count_str.dims) > 1
         else nan_count_str
     ).to_pandas()
-    nan_report += f"\n\n{
-        (
-            nan_count_df.to_string()
-            if not isinstance(nan_count_df, np.ndarray)
-            else nan_count_df
-        )
-    }"
+    nan_count_df = (
+        nan_count_df.to_string()
+        if not isinstance(nan_count_df, np.ndarray)
+        else nan_count_df
+    )
+    nan_report += f"\n\n{nan_count_df}"
     logger.info(nan_report)
     return nan_report

@@ -1,113 +1,124 @@
-from collections import deque
-
+import numpy as np
 import pytest
+import xarray as xr
 
 from movement.utils.reports import report_nan_values
 
-
-@pytest.mark.parametrize(
-    "valid_dataset",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-        "valid_poses_dataset_with_nan",
-        "valid_bboxes_dataset_with_nan",
-    ],
-)
-def test_report_nan_values_valid_dataset(
-    valid_dataset,
-    request,
-):
-    """Test that the nan-value reporting function handles valid
-    poses and bboxes datasets.
-    """
-    ds = request.getfixturevalue(valid_dataset)
-    da = ds.position
-    report_str = report_nan_values(da)
-    assert_components_in_report(
-        {"expected": ["position", "individuals", "id_0", "id_1"]}, report_str
-    )
-
-
-@pytest.mark.parametrize(
-    "valid_dataset",
-    [
-        "valid_poses_dataset",
-        "valid_bboxes_dataset",
-        "valid_poses_dataset_with_nan",
-        "valid_bboxes_dataset_with_nan",
-    ],
-)
-def test_report_nan_values_arbitrary_dims(valid_dataset, request):
-    """Test that the nan-value reporting function handles data with
-    arbitrary dimensions by checking the report contains NaN counts for
-    x and y separately.
-    """
-    ds = request.getfixturevalue(valid_dataset)
-    da = ds.rename({"space": "other"}).position
-    report_str = report_nan_values(da)
-    assert_components_in_report(
-        {"expected": ["position", "other", "x", "y"]}, report_str
-    )
-
-
 expectations = {
-    "ind_dim_with_ndim_0-valid_poses_dataset_with_nan": {
-        "expected": ["centroid", "3/10", "left", "1/10", "right", "10/10"],
-        "not_expected": ["id_0", "id_1"],
-    },  # if only 1 ind exists, its name is not explicitly reported
-    "ind_dim_with_ndim_0-valid_bboxes_dataset_with_nan": {
-        "expected": ["3/10"],
-        "not_expected": ["id_0", "id_1", "centroid"],
+    "full_dataset-poses": {"expected": ["No missing points"]},
+    "full_dataset-bboxes": {"expected": ["No missing points"]},
+    "full_dataset-poses_with_nan": {
+        "expected": [
+            "position",
+            "keypoints",
+            "centroid",
+            "left",
+            "right",
+            "individuals",
+            "id_0",
+            "3/10",
+            "1/10",
+            "10/10",
+        ],
+        "not_expected": ["id_1"],
     },
-    "kp_dim_with_ndim_0-valid_poses_dataset_with_nan": {
-        "expected": ["id_0", "3/10", "id_1", "0/10"],
+    "full_dataset-bboxes_with_nan": {
+        "expected": ["position", "individuals", "id_0", "3/10"],
+        "not_expected": ["id_1"],
+    },
+    "ind_dim_with_ndim_0-poses_with_nan": {
+        "expected": ["centroid", "left", "right", "3/10", "1/10", "10/10"],
+        "not_expected": ["id_0"],
+    },
+    "ind_dim_with_ndim_0-bboxes_with_nan": {
+        "expected": ["3/10"],
+        "not_expected": ["id_0"],
+    },
+    "kp_dim_with_ndim_0-poses_with_nan": {
+        "expected": ["id_0", "3/10"],
         "not_expected": ["centroid"],
     },
-    "both_dims_with_ndim_0-valid_poses_dataset_with_nan": {
+    "both_dims_with_ndim_0-poses_with_nan": {
         "expected": ["3/10"],
         "not_expected": ["centroid", "id_0"],
     },
-}
+    "arbitrary_dims-poses_with_nan": {
+        "expected": ["position", "other", "x", "y"]
+    },
+    "arbitrary_dims-simple_array_with_nan": {
+        "expected": ["input", "1/3"],
+    },
+}  # If ndim=0, the coords are not explicitly reported
 
 
 @pytest.mark.parametrize(
-    "valid_dataset",
-    ["valid_poses_dataset_with_nan", "valid_bboxes_dataset_with_nan"],
-)
-@pytest.mark.parametrize(
-    "selection_fn",
+    "data, modifying_fn",
     [
-        # individuals dim is scalar
-        lambda position: position.isel(individuals=0),
-        # keypoints dim is scalar (poses only)
-        lambda position: position.isel(keypoints=0),
-        # both individuals and keypoints dims are scalar (poses only)
-        lambda position: position.isel(individuals=0, keypoints=0),
-    ],
-    ids=[
-        "ind_dim_with_ndim_0",
-        "kp_dim_with_ndim_0",
-        "both_dims_with_ndim_0",
+        pytest.param(
+            "valid_poses_dataset", lambda ds: ds, id="full_dataset-poses"
+        ),
+        pytest.param(
+            "valid_bboxes_dataset", lambda ds: ds, id="full_dataset-bboxes"
+        ),
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            lambda ds: ds,
+            id="full_dataset-poses_with_nan",
+        ),
+        pytest.param(
+            "valid_bboxes_dataset_with_nan",
+            lambda ds: ds,
+            id="full_dataset-bboxes_with_nan",
+        ),
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            lambda ds: ds.isel(individuals=0),
+            id="ind_dim_with_ndim_0-poses_with_nan",
+        ),  # individuals dim is scalar
+        pytest.param(
+            "valid_bboxes_dataset_with_nan",
+            lambda ds: ds.isel(individuals=0),
+            id="ind_dim_with_ndim_0-bboxes_with_nan",
+        ),  # individuals dim is scalar
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            lambda ds: ds.isel(keypoints=0),
+            id="kp_dim_with_ndim_0-poses_with_nan",
+        ),  # keypoints dim is scalar (poses only)
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            lambda ds: ds.isel(individuals=0, keypoints=0),
+            id="both_dims_with_ndim_0-poses_with_nan",
+        ),  # both dims are scalar (poses only)
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            lambda ds: ds.rename({"space": "other"}),
+            id="arbitrary_dims-poses_with_nan",
+        ),  # count NaNs separately for x and y
+        pytest.param(
+            "simple_data_array_with_nan",
+            lambda: xr.DataArray([1, np.nan, 3], dims="time"),
+            id="arbitrary_dims-simple_array_with_nan",
+        ),  # generic data array with required `time` dim
     ],
 )
-def test_report_nan_values_scalar_dims(valid_dataset, selection_fn, request):
+def test_report_nan_values(data, modifying_fn, request):
     """Test that the nan-value reporting function handles data with
-    scalar ``individuals`` and/or ``keypoints`` dimensions (i.e.
-    ``ndim=0``; e.g. when data is selected using ``isel`` or ``sel``).
+    NaN values and that the report contains the correct NaN counts,
+    keypoints, and individuals.
     """
+    da = (
+        modifying_fn()
+        if data == "simple_data_array_with_nan"
+        else modifying_fn(request.getfixturevalue(data).position)
+    )
+    report_str = report_nan_values(da)
     components = expectations.get(request.node.callspec.id)
-    if components:  # Skip tests with keypoints dim for bboxes
-        ds = request.getfixturevalue(valid_dataset)
-        da = selection_fn(ds.position)
-        report_str = report_nan_values(da)
-        assert_components_in_report(components, report_str)
+    assert_components_in_report(components, report_str)
 
 
 def assert_components_in_report(components, report_str):
     """Assert the expected components are in the report string."""
-    # tokenize report string
-    report_str = deque(report_str.split())
     assert all(
         component in report_str for component in components.get("expected", [])
     ) and all(
