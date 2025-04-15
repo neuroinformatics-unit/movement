@@ -415,7 +415,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
     )
     assert forward_vector.name == "forward_vector"
     assert forward_vector_flipped.name == "forward_vector"
-    assert head_vector.name == "head_direction"
+    assert head_vector.name == "head_direction_vector"
 
     known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
@@ -681,7 +681,6 @@ def test_compute_pairwise_distances_with_valid_pairs(
         expected_data_vars = [
             f"dist_{pair[0]}_{pair[1]}" for pair in expected_data_vars
         ]
-        print(result)
         assert set(result.keys()) == set(expected_data_vars)
     else:  # expect single DataArray
         assert isinstance(result, xr.DataArray)

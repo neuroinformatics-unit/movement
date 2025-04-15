@@ -365,7 +365,7 @@ def compute_head_direction_vector(
     result = compute_forward_vector(
         data, left_keypoint, right_keypoint, camera_view=camera_view
     )
-    result.name = "head_direction"
+    result.name = "head_direction_vector"
     return result
 
 
