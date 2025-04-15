@@ -1,5 +1,6 @@
 """Utility functions for reporting missing data."""
 
+import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -38,18 +39,24 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     # if nan_count.size == 0 or nan_count.isnull().all():
     #     return ""
     total_count = da.time.size
-    nan_stats_str = (
+    nan_count_str = (
         nan_count.astype(int).astype(str)
         + f"/{total_count} ("
         + (nan_count / total_count * 100).round(2).astype(str)
         + "%)"
     )
     # Stack all dimensions except for the last
-    nan_stats_df = (
-        nan_stats_str.stack(new_dim=nan_stats_str.dims[:-1])
-        if len(nan_stats_str.dims) > 1
-        else nan_stats_str
+    nan_count_df = (
+        nan_count_str.stack(new_dim=nan_count_str.dims[:-1])
+        if len(nan_count_str.dims) > 1
+        else nan_count_str
     ).to_pandas()
-    nan_report += f"\n\n{nan_stats_df}"
+    nan_report += f"\n\n{
+        (
+            nan_count_df.to_string()
+            if not isinstance(nan_count_df, np.ndarray)
+            else nan_count_df
+        )
+    }"
     logger.info(nan_report)
     return nan_report
