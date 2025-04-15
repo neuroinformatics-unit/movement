@@ -14,9 +14,9 @@ a [roadmap](target-roadmaps) outlining our current priorities, and a detailed [c
 :maxdepth: 2
 :hidden:
 
+people
 mission-scope
 roadmaps
-people
 contributing
 related-projects
 license
