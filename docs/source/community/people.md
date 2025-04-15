@@ -11,7 +11,7 @@ The current active core development team is composed of:
 - [Sofía Miñano](https://github.com/sfmig)
 
 ## Collaborations
-We are eager to explore new collaboration opportunities with research labs and research software engineering teams.
+We are eager to explore collaboration opportunities with research labs and research software engineering teams.
 Our current and past collaborations include:
 - [Keshavarzi Laboratory](https://www.keshavarzilab.com/) at the University of Cambridge
 - [UCL Advanced Research Computing Centre](https://www.ucl.ac.uk/advanced-research-computing/advanced-research-computing-centre)
