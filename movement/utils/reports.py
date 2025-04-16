@@ -24,7 +24,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     label : str, optional
         Label to identify the data in the report. If not provided,
         the name of the DataArray is used. If the DataArray has no
-        name, "input" is used as the label.
+        name, "data" is used as the label.
 
     Returns
     -------
@@ -33,15 +33,15 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
 
     """
     validate_dims_coords(da, {"time": []})
-    label = label or da.name or "input"
+    label = label or da.name or "data"
     nan_report = f"\nMissing points (marked as NaN) in {label}"
     nan_count = (
         da.isnull().any("space").sum("time")
         if "space" in da.dims
         else da.isnull().sum("time")
     )
-    # Drop points without NaNs
-    nan_count = nan_count.where(nan_count > 0, drop=True)
+    # Drop coord labels without NaNs
+    nan_count = nan_count.where(nan_count > 0, other=0, drop=True)
     if nan_count.size == 0 or nan_count.isnull().all():
         return f"No missing points (marked as NaN) in {label}."
     total_count = da.time.size
