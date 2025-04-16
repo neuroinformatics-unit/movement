@@ -81,9 +81,7 @@ def interpolate_over_time(
         The input data to be interpolated.
     method : str
         String indicating which method to use for interpolation.
-        Methods are: `linear`, `nearest`, `zero`, `quadratic`, `cubic`, `krogh`
-        `polynomial`, `spline`, `barycentric`, `slinear`, `pchip`, `akima`,
-        `bfill`, `ffill`, `constant`.
+        Methods are: `linear`, `nearest`, `bfill`, `ffill`, `constant`.
         Default is ``linear``.
     max_gap : int, optional
         Maximum size of gap, a continuous sequence of missing observations
