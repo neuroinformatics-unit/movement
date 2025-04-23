@@ -446,7 +446,7 @@ def to_nwb_file(
         raise logger.error(
             ValueError(
                 "Number of NWBFile objects must be equal to the number of "
-                "individuals, as NWB requires one file per individual (subject)."
+                "individuals, as NWB requires one file per individual/subject."
             )
         )
 
