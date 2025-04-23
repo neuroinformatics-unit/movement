@@ -307,7 +307,7 @@ The way to add them differs depending on whether they are GitHub users or not.
 
 ::::{tab-set}
 :::{tab-item} GitHub users
-To add a contributor who has a GitHub account, locate the section marked with `<!-- MANUAL: OTHER GITHUB CONTRIBUTORS -->`
+To add a contributor who has a GitHub account, locate the section marked with `<!-- MANUAL: OTHER GITHUB CONTRIBUTORS -->` in `docs/source/community/people.md`.
 
 Next, add their GitHub username (e.g. `newcontributor`) to the `<!-- readme: -start -->` and `<!-- readme: -end -->` lines as follows:
 ```html
