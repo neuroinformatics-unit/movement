@@ -149,12 +149,6 @@ def from_file(
     ... )
 
     """
-    if source_software == "NWB" and fps is not None:
-        logger.warning(
-            "The fps argument is ignored when loading from an NWB file. "
-            "The frame rate will be estimated from timestamps in the file."
-        )
-
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)
     elif source_software == "SLEAP":
@@ -164,6 +158,11 @@ def from_file(
     elif source_software == "Anipose":
         return from_anipose_file(file_path, fps, **kwargs)
     elif source_software == "NWB":
+        if fps is not None:
+            logger.warning(
+                "The fps argument is ignored when loading from an NWB file. "
+                "The frame rate will be estimated from timestamps in the file."
+            )
         return from_nwb_file(file_path, **kwargs)
     else:
         raise logger.error(
