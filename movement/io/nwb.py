@@ -4,15 +4,11 @@ The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.
 """
 
-import logging
-
 import ndx_pose
 import pynwb
 import xarray as xr
 
-from movement.utils.logging import log_warning
-
-logger = logging.getLogger(__name__)
+from movement.utils.logging import logger
 
 # Default keyword arguments for Skeletons,
 # PoseEstimation and PoseEstimationSeries objects
@@ -165,10 +161,10 @@ def _write_behavior_processing_module(
         behavior_pm.add(skeletons)
         logger.info("Added Skeletons object to NWB file.")
     except ValueError:
-        log_warning("Skeletons object already exists. Skipping...")
+        logger.warning("Skeletons object already exists. Skipping...")
 
     try:
         behavior_pm.add(pose_estimation)
         logger.info("Added PoseEstimation object to NWB file.")
     except ValueError:
-        log_warning("PoseEstimation object already exists. Skipping...")
+        logger.warning("PoseEstimation object already exists. Skipping...")
