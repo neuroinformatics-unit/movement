@@ -150,7 +150,7 @@ def from_file(
 
     """
     if source_software == "NWB" and fps is not None:
-        log_warning(
+        logger.warning(
             "The fps argument is ignored when loading from an NWB file. "
             "The frame rate will be estimated from timestamps in the file."
         )
@@ -907,10 +907,11 @@ def from_nwb_file(
         ds = _ds_from_nwb_object(file, key_name=key_name)
         ds.attrs["source_file"] = None
     else:
-        raise log_error(
-            TypeError,
-            "Expected file to be one of following types: str, Path, "
-            f"pynwb.NWBFile. Got {type(file)} instead.",
+        raise logger.error(
+            TypeError(
+                "Expected file to be one of following types: str, Path, "
+                f"pynwb.NWBFile. Got {type(file)} instead."
+            )
         )
     return ds
 
