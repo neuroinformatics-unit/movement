@@ -259,18 +259,19 @@ def test_load_multi_individual_from_lp_file_raises():
 
 @pytest.mark.parametrize(
     "source_software",
-    ["SLEAP", "DeepLabCut", "LightningPose", "Anipose", "Unknown"],
+    ["DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "Unknown"],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(source_software, fps):
+def test_from_file_delegates_correctly(source_software, fps, caplog):
     """Test that the from_file() function delegates to the correct
     loader function according to the source_software.
     """
     software_to_loader = {
-        "SLEAP": "movement.io.load_poses.from_sleap_file",
         "DeepLabCut": "movement.io.load_poses.from_dlc_file",
+        "SLEAP": "movement.io.load_poses.from_sleap_file",
         "LightningPose": "movement.io.load_poses.from_lp_file",
         "Anipose": "movement.io.load_poses.from_anipose_file",
+        "NWB": "movement.io.load_poses.from_nwb_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
@@ -278,7 +279,14 @@ def test_from_file_delegates_correctly(source_software, fps):
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
             load_poses.from_file("some_file", source_software, fps)
-            mock_loader.assert_called_with("some_file", fps)
+            expected_call_args = (
+                ("some_file", fps)
+                if source_software != "NWB"
+                else ("some_file",)
+            )
+            mock_loader.assert_called_with(*expected_call_args)
+            if source_software == "NWB" and fps is not None:
+                assert "fps argument is ignored" in caplog.messages[0]
 
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
