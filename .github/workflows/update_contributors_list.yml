@@ -1,0 +1,27 @@
+name: Contributors
+
+# Update the contributors list in the documentation monthly
+# on the default branch main using the Contributors-Readme-Action GitHub Action.
+# As the branch is protected, the action will create a pull request.
+# Alternatively, the action can be triggered manually using the workflow_dispatch event.
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Runs at midnight on the first day of every month
+  workflow_dispatch:
+
+jobs:
+  update_contributors_list:
+    name: Update Contributors List
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Contribute List
+        uses: akhilmhdh/contributors-readme-action@v2.3.10
+        with:
+          readme_path: docs/source/community/people.md
+          commit_message: 'Update contributors list'
+          pr_title_on_protected: 'Contributors-Readme-Action: Update contributors list'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
