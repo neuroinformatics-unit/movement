@@ -49,9 +49,6 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 
 <!-- Start Admonitions -->
 
-> [!Warning]
-> 🏗️ The package is currently in early development and the interface is subject to change. Feel free to play around and provide feedback.
-
 > [!Tip]
 > If you prefer analysing your data in R, we recommend checking out the
 > [animovement](https://www.roald-arboel.com/animovement/) toolbox, which is similar in scope.
