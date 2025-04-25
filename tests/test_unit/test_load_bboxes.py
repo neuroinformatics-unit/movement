@@ -117,6 +117,21 @@ def create_df_input_via_tracks():
     return _create_df_input_via_tracks
 
 
+@pytest.fixture()
+def via_file_with_nans(tmp_path):
+    filepath = pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv")
+
+    # Delete second row of the file
+    df = pd.read_csv(filepath)
+    df.drop(1)
+
+    # Save the modified dataframe to a new file
+    filepath = tmp_path / "VIA_multiple-crabs_5-frames_labels_with_nans.csv"
+    df.to_csv(filepath, index=False)
+
+    return filepath
+
+
 def update_attribute_column(
     df_input: pd.DataFrame,
     attribute_column_additions: dict[str, list[dict]],
@@ -635,21 +650,34 @@ def test_fps_and_time_coords(
             35,
             1,
         ),
+        (
+            "via_file_with_nans",
+            5,
+            86,
+        ),
     ],
 )
 def test_df_from_via_tracks_file(
-    via_file_path, expected_n_frames, expected_n_individuals
+    via_file_path, expected_n_frames, expected_n_individuals, request
 ):
     """Test that the `_df_from_via_tracks_file` helper function correctly
     reads the VIA tracks .csv file as a dataframe.
     """
+    if via_file_path == "via_file_with_nans":
+        via_file_path = request.getfixturevalue(via_file_path)
+
+    # Read the VIA tracks .csv file as a dataframe
     df = load_bboxes._df_from_via_tracks_file(via_file_path)
+
+    # Check dataframe
     assert isinstance(df, pd.DataFrame)
     assert len(df.frame_number.unique()) == expected_n_frames
     assert len(df.ID.unique()) == expected_n_individuals
-    assert (
-        df.shape[0] == len(df.ID.unique()) * expected_n_frames
-    )  # all individuals are present in all frames (even if nan)
+
+    # Check all individuals are present in all frames (even if nan)
+    assert df.shape[0] == len(df.ID.unique()) * expected_n_frames
+
+    # Check that the dataframe has the expected columns
     assert list(df.columns) == [
         "ID",
         "frame_number",
@@ -659,6 +687,7 @@ def test_df_from_via_tracks_file(
         "h",
         "confidence",
     ]
+
     # Check that the dataframe is sorted by frame_number and ID
     assert df.sort_values(["ID", "frame_number"]).equals(df)
 

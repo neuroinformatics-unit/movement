@@ -496,19 +496,18 @@ def _df_from_via_tracks_file(
     # Define desired index: all combinations of ID and frame number
     multi_index = pd.MultiIndex.from_product(
         [df["ID"].unique(), df["frame_number"].unique()],
+        # these unique lists may not be sorted!
         names=["ID", "frame_number"],
     )
 
-    # Assign desired index (ID, frame number) and
-    # reindex to fill in empty values with nans.
-    # Then reset index
+    # Set index to (ID, frame number), fill in values with nans,
+    # sort by ID and frame_number and reset to new index
     df = (
-        df.set_index(["ID", "frame_number"])  # assign desired index
-        .reindex(multi_index)  # add empty values
-        .sort_values(by=["ID", "frame_number"], axis=0)  # sort
-        .reset_index()  # reset index keeping the previous one as a column
+        df.set_index(["ID", "frame_number"])
+        .reindex(multi_index)  # fill in empty frame-ID pairs with nans
+        .sort_values(by=["ID", "frame_number"], axis=0)  # sort by ID and frame
+        .reset_index()
     )
-
     return df
 
 
