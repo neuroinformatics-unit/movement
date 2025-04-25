@@ -655,6 +655,10 @@ def test_df_from_via_tracks_file(
         "h",
         "confidence",
     ]
+    # Check that the dataframe is sorted by frame_number and ID
+    assert df.sort_values(["ID", "frame_number"]).equals(df)
+    # assert df["frame_number"].is_monotonic_increasing
+    # assert df["ID"].is_monotonic_increasing
 
 
 @pytest.mark.parametrize(
