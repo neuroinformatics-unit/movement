@@ -65,6 +65,8 @@ def scale(
             factor = factor.reshape(factor_dims)
     scaled_data = data * factor
 
+    scaled_data.attrs["scale_factor"] = factor
+
     if space_unit is not None:
         scaled_data.attrs["space_unit"] = space_unit
     elif space_unit is None:
