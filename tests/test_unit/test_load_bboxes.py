@@ -622,10 +622,6 @@ def test_fps_and_time_coords(
         assert_time_coordinates(ds, expected_fps, start_frame=0)
 
 
-# @pytest.mark.parametrize(
-#     "with_nans",
-#     [True, False],
-# )
 @pytest.mark.parametrize(
     "via_file_path, expected_n_frames, expected_n_individuals",
     [
