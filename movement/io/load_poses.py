@@ -18,6 +18,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidFile,
     ValidHDF5,
+    ValidNWBFile,
 )
 
 
@@ -863,7 +864,7 @@ def from_nwb_file(
 
     Returns
     -------
-    movement_ds : xr.Dataset
+    xarray.Dataset
         A single-individual ``movement`` dataset containing the pose tracks,
         confidence scores, and associated metadata.
 
@@ -876,6 +877,7 @@ def from_nwb_file(
     Open an NWB file and load pose tracks from the file object:
 
     >>> import pynwb
+    >>> import xarray as xr
     >>> from movement.io import load_poses
     >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     ...     nwb_file = io.read()
@@ -894,24 +896,15 @@ def from_nwb_file(
     >>> ds_multi = xr.merge(datasets)
 
     """
-    if isinstance(file, str | Path):
-        valid_file = ValidFile(
-            file, expected_permission="r", expected_suffix=[".nwb"]
-        )
-        with pynwb.NWBHDF5IO(valid_file.path, mode="r") as io:
-            nwb_file = io.read()
-            ds = _ds_from_nwb_object(nwb_file, key_name=key_name)
-            ds.attrs["source_file"] = valid_file.path
-    elif isinstance(file, pynwb.NWBFile):
+    file = ValidNWBFile(file).file
+    if isinstance(file, Path):
+        with pynwb.NWBHDF5IO(file, mode="r") as io:
+            nwb_file_object = io.read()
+            ds = _ds_from_nwb_object(nwb_file_object, key_name=key_name)
+            ds.attrs["source_file"] = file
+    else:  # file is an open NWBFile object
         ds = _ds_from_nwb_object(file, key_name=key_name)
         ds.attrs["source_file"] = None
-    else:
-        raise logger.error(
-            TypeError(
-                "Expected file to be one of following types: str, Path, "
-                f"pynwb.NWBFile. Got {type(file)} instead."
-            )
-        )
     return ds
 
 
@@ -939,20 +932,19 @@ def _ds_from_nwb_object(
     source_software = pose_estimation.source_software
     pose_estimation_series = pose_estimation.pose_estimation_series
     single_keypoint_datasets = []
-    for keypoint, pse in pose_estimation_series.items():
+    for keypoint, pes in pose_estimation_series.items():
         # Extract position and confidence data for each keypoint
-        position_data = np.asarray(pse.data)  # shape: (n_time, n_space)
-        confidence_data = (  # shape: (n_time,)
-            np.asarray(pse.confidence)
-            if getattr(pse, "confidence", None) is not None
+        position_data = np.asarray(pes.data)  # shape: (n_frames, n_space)
+        confidence_data = (  # shape: (n_frames,)
+            np.asarray(pes.confidence)
+            if getattr(pes, "confidence", None) is not None
             else np.full(position_data.shape[0], np.nan)
         )
-
-        if pse.rate:  # in Hz
-            fps = pse.rate
+        if pes.rate:  # in Hz
+            fps = pes.rate
         else:
             # Compute fps from the time differences between timestamps
-            fps = np.nanmedian(1 / np.diff(pse.timestamps))
+            fps = np.nanmedian(1 / np.diff(pes.timestamps))
 
         single_keypoint_datasets.append(
             # create movement dataset with 1 keypoint and 1 individual
