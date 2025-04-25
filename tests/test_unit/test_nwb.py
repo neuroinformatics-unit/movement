@@ -1,11 +1,9 @@
 import datetime
 
 import ndx_pose
-import xarray as xr
 from pynwb import NWBFile
 
 from movement import sample_data
-from movement.io.load_poses import from_nwb_file
 from movement.io.nwb import _ds_to_pose_and_skeleton_objects
 from movement.io.save_poses import to_nwb_file
 
@@ -66,28 +64,3 @@ def test_save_poses_to_multiple_nwb_files():
 
     nwbfiles = [nwbfile_individual1, nwbfile_individual2]
     to_nwb_file(ds, nwbfiles)
-
-
-def test_load_poses_from_nwb_file(nwb_file, nwb_file_object):
-    # Read the dataset from the file path
-    ds_from_file_path = from_nwb_file(nwb_file)
-    # Assert the dimensions and attributes of the dataset
-    assert ds_from_file_path.sizes == {
-        "time": 100,
-        "individuals": 1,
-        "keypoints": 3,
-        "space": 2,
-    }
-    assert ds_from_file_path.attrs == {
-        "ds_type": "poses",
-        "fps": 10.0,
-        "time_unit": "seconds",
-        "source_software": "DeepLabCut",
-        "source_file": nwb_file,
-    }
-    # Read the same dataset from an NWBFile object
-    ds_from_open_file = from_nwb_file(nwb_file_object)
-    # Check that it's identical to the dataset read from the file path
-    # except for the "source_file" attribute
-    ds_from_file_path.attrs["source_file"] = None
-    xr.testing.assert_identical(ds_from_file_path, ds_from_open_file)

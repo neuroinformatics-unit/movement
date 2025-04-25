@@ -253,8 +253,8 @@ def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
 
 
 def test_from_multiview_files():
-    """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
+    """Test loading pose tracks from multiple files (representing
+    different views).
     """
     view_names = ["view_0", "view_1"]
     file_path_dict = {
@@ -287,3 +287,28 @@ def test_load_from_anipose_file():
         "r-edge",
         "r-middle",
     ]
+
+
+@pytest.mark.parametrize("kwargs", [{}, {"rate": 10.0, "starting_time": 0.0}])
+@pytest.mark.parametrize("input_type", ["nwb_file", "nwb_file_object"])
+def test_load_from_nwb_file(input_type, kwargs, request):
+    """Test loading poses from an NWB file path or NWB file object.
+    ``kwargs`` determine whether the PoseEstimationSeries in the NWB file
+    are created with default ``timestamps`` (empty kwargs) or without
+    timestamps, by providing ``rate`` and ``starting_time``.
+    """
+    nwb_file = request.getfixturevalue(input_type)(**kwargs)
+    ds_from_file_path = load_poses.from_nwb_file(nwb_file)
+    assert ds_from_file_path.sizes == {
+        "time": 100,
+        "individuals": 1,
+        "keypoints": 3,
+        "space": 2,
+    }
+    assert ds_from_file_path.attrs == {
+        "ds_type": "poses",
+        "fps": 10.0,
+        "time_unit": "seconds",
+        "source_software": "DeepLabCut",
+        "source_file": nwb_file if input_type == "nwb_file" else None,
+    }
