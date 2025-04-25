@@ -1,11 +1,18 @@
 """Valid and invalid file fixtures."""
 
+import datetime
 import os
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import h5py
+import numpy as np
 import pytest
+from ndx_pose import PoseEstimation, PoseEstimationSeries, Skeleton, Skeletons
+from pynwb import NWBHDF5IO, NWBFile
+from pynwb.file import Subject
+from sleap_io.io.slp import read_labels, write_labels
+from sleap_io.model.labels import LabeledFrame, Labels
 
 
 # ------------------ Generic file fixtures ----------------------
@@ -239,6 +246,62 @@ def sleap_file(request):
     return pytest.DATA_PATHS.get(request.param)
 
 
+@pytest.fixture
+def sleap_slp_file_without_tracks(tmp_path):
+    """Mock and return the path to a SLEAP .slp file without tracks."""
+    sleap_file = pytest.DATA_PATHS.get(
+        "SLEAP_single-mouse_EPM.predictions.slp"
+    )
+    labels = read_labels(sleap_file)
+    file_path = tmp_path / "track_is_none.slp"
+    lfs = []
+    for lf in labels.labeled_frames:
+        instances = []
+        for inst in lf.instances:
+            inst.track = None
+            inst.tracking_score = 0
+            instances.append(inst)
+        lfs.append(
+            LabeledFrame(
+                video=lf.video, frame_idx=lf.frame_idx, instances=instances
+            )
+        )
+    write_labels(
+        file_path,
+        Labels(
+            labeled_frames=lfs,
+            videos=labels.videos,
+            skeletons=labels.skeletons,
+        ),
+    )
+    return file_path
+
+
+@pytest.fixture
+def sleap_h5_file_without_tracks(tmp_path):
+    """Mock and return the path to a SLEAP .h5 file without tracks."""
+    sleap_file = pytest.DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
+    file_path = tmp_path / "track_is_none.h5"
+    with h5py.File(sleap_file, "r") as f1, h5py.File(file_path, "w") as f2:
+        for key in list(f1.keys()):
+            if key == "track_names":
+                f2.create_dataset(key, data=[])
+            else:
+                f1.copy(key, f2, name=key)
+    return file_path
+
+
+@pytest.fixture(
+    params=[
+        "sleap_h5_file_without_tracks",
+        "sleap_slp_file_without_tracks",
+    ]
+)
+def sleap_file_without_tracks(request):
+    """Fixture to parametrize the SLEAP files without tracks."""
+    return request.getfixturevalue(request.param)
+
+
 # ---------------- VIA tracks CSV file fixtures ----------------------------
 via_tracks_csv_file_valid_header = (
     "filename,file_size,file_attributes,region_count,"
@@ -438,3 +501,84 @@ def via_track_ids_not_unique_per_frame():
         '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
         '"{""track"":""71""}"'  # same track ID as the previous row
     )
+
+
+# ---------------- NWB file fixtures ----------------------------
+@pytest.fixture
+def nwb_file(nwb_file_object, tmp_path):
+    """Return a dictionary containing the file path and
+    expected permission for a .nwb file.
+    """
+    file_path = tmp_path / "test_pose.nwb"
+    with NWBHDF5IO(file_path, mode="w") as io:
+        io.write(nwb_file_object)
+    return file_path
+
+
+@pytest.fixture
+def nwb_file_object():
+    """Return an NWBFile object containing poses for
+    a single individual with three keypoints and the associated
+    skeleton object, as well as a camera device.
+    """
+    identifier = "subject1"
+    nwb_file_obj = NWBFile(
+        session_description="session_description",
+        identifier=identifier,
+        session_start_time=datetime.datetime.now(datetime.UTC),
+    )
+    subject = Subject(subject_id=identifier, species="Mus musculus")
+    nwb_file_obj.subject = subject
+    keypoints = ["front_left_paw", "body", "front_right_paw"]
+    skeleton = Skeleton(
+        name="subject1_skeleton",
+        nodes=keypoints,
+        edges=np.array([[0, 1], [1, 2]], dtype="uint8"),
+        subject=subject,
+    )
+    skeletons = Skeletons(skeletons=[skeleton])
+    camera1 = nwb_file_obj.create_device(
+        name="camera1",
+        description="camera for recording behavior",
+        manufacturer="my manufacturer",
+    )
+    pose_estimation_series = []
+    n_frames = 100
+    n_dims = 2  # 2D data (can also be 3D)
+    for keypoint in keypoints:
+        pose_estimation_series.append(
+            PoseEstimationSeries(
+                name=keypoint,
+                description="Marker placed around fingers of front left paw.",
+                data=np.random.rand(n_frames, n_dims),
+                unit="pixels",
+                reference_frame="(0,0,0) corresponds to ...",
+                timestamps=np.arange(n_frames) / 10.0,  # assuming fps=10.0
+                confidence=np.ones((n_frames,)),  # confidence in each frame
+                confidence_definition="Softmax output of the DNN.",
+            )
+        )
+    pose_estimation = PoseEstimation(
+        name="PoseEstimation",
+        pose_estimation_series=pose_estimation_series,
+        description=(
+            "Estimated positions of front paws of subject1 using DeepLabCut."
+        ),
+        original_videos=["path/to/camera1.mp4"],
+        labeled_videos=["path/to/camera1_labeled.mp4"],
+        dimensions=np.array(
+            [[640, 480]], dtype="uint16"
+        ),  # pixel dimensions of the video
+        devices=[camera1],
+        scorer="DLC_resnet50_openfieldOct30shuffle1_1600",
+        source_software="DeepLabCut",
+        source_software_version="2.3.8",
+        skeleton=skeleton,  # link to the skeleton object
+    )
+    behavior_pm = nwb_file_obj.create_processing_module(
+        name="behavior",
+        description="processed behavioral data",
+    )
+    behavior_pm.add(skeletons)
+    behavior_pm.add(pose_estimation)
+    return nwb_file_obj
