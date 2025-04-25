@@ -75,34 +75,29 @@ def _ds_to_pose_and_skeleton_objects(
         POSE_ESTIMATION_KWARGS, pose_estimation_kwargs
     )
     skeleton_kwargs = _merge_kwargs(SKELETON_KWARGS, skeleton_kwargs)
-
-    # Extract individual name
     individual = ds.individuals.values.item()
-
-    # Create a PoseEstimationSeries object for each keypoint
+    keypoints = ds.keypoints.values
     pose_estimation_series = []
-    for keypoint in ds.keypoints.to_numpy():
+    for keypoint in keypoints:
         pose_estimation_series.append(
             ndx_pose.PoseEstimationSeries(
                 name=keypoint,
-                data=ds.sel(keypoints=keypoint).position.to_numpy(),
-                confidence=ds.sel(keypoints=keypoint).confidence.to_numpy(),
+                data=ds.sel(keypoints=keypoint).position.values,
+                confidence=ds.sel(keypoints=keypoint).confidence.values,
                 unit="pixels",
-                timestamps=ds.sel(keypoints=keypoint).time.to_numpy(),
+                timestamps=ds.sel(keypoints=keypoint).time.values,
                 **pose_estimation_series_kwargs,
             )
         )
-    # Create a Skeleton object for the chosen individual
     skeleton_list = [
         ndx_pose.Skeleton(
             name=f"{individual}_skeleton",
-            nodes=ds.keypoints.to_numpy().tolist(),
+            nodes=keypoints,
             **skeleton_kwargs,
         )
     ]
-
     # Group all PoseEstimationSeries into a PoseEstimation object
-    bodyparts_str = ", ".join(ds.keypoints.to_numpy().tolist())
+    bodyparts_str = ", ".join(keypoints)
     description = (
         f"Estimated positions of {bodyparts_str} for "
         f"{individual} using {ds.source_software}."
@@ -117,9 +112,7 @@ def _ds_to_pose_and_skeleton_objects(
             **pose_estimation_kwargs,
         )
     ]
-    # Create a Skeletons object
     skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
-
     return pose_estimation, skeletons
 
 

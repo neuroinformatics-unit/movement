@@ -441,15 +441,13 @@ def to_nwb_file(
     """
     if isinstance(nwb_files, pynwb.NWBFile):
         nwb_files = [nwb_files]
-
-    if len(nwb_files) != len(ds.individuals):
+    if len(nwb_files) != ds.individuals.size:
         raise logger.error(
             ValueError(
                 "Number of NWBFile objects must be equal to the number of "
                 "individuals, as NWB requires one file per individual/subject."
             )
         )
-
     for nwb_file, individual in zip(
         nwb_files, ds.individuals.values, strict=False
     ):
