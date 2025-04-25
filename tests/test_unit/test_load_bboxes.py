@@ -647,11 +647,6 @@ def test_df_from_via_tracks_file(
     """Test that the `_df_from_via_tracks_file` helper function correctly
     reads the VIA tracks .csv file as a dataframe.
     """
-    # if with_nans:
-    #     via_file_path = (
-    #         "/Users/sofia/swc/tracked_detections_20250425_163726.csv"
-    #     )
-
     df = load_bboxes._df_from_via_tracks_file(via_file_path)
     assert isinstance(df, pd.DataFrame)
     assert len(df.frame_number.unique()) == expected_n_frames
@@ -669,12 +664,7 @@ def test_df_from_via_tracks_file(
         "confidence",
     ]
     # Check that the dataframe is sorted by frame_number and ID
-    # assert df.sort_values(["ID", "frame_number"]).equals(df)
-    assert df["ID"].is_monotonic_increasing
-    assert all(
-        df.loc[df["ID"] == id, "frame_number"].is_monotonic_increasing
-        for id in df["ID"].unique()
-    )
+    assert df.sort_values(["ID", "frame_number"]).equals(df)
 
 
 @pytest.mark.parametrize(
