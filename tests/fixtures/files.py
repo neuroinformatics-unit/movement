@@ -506,13 +506,18 @@ def via_track_ids_not_unique_per_frame():
 # ---------------- NWB file fixtures ----------------------------
 @pytest.fixture
 def nwb_file(nwb_file_object, tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for a .nwb file.
-    """
-    file_path = tmp_path / "test_pose.nwb"
-    with NWBHDF5IO(file_path, mode="w") as io:
-        io.write(nwb_file_object)
-    return file_path
+    """Return the file path for a valid NWB poses file."""
+
+    def _nwb_file(**kwargs):
+        """Create a valid NWB file with poses.
+        ``kwargs`` are passed to ``create_pose_estimation_series``.
+        """
+        file_path = tmp_path / "test_pose.nwb"
+        with NWBHDF5IO(file_path, mode="w") as io:
+            io.write(nwb_file_object(**kwargs))
+        return file_path
+
+    return _nwb_file
 
 
 @pytest.fixture
@@ -521,64 +526,87 @@ def nwb_file_object():
     a single individual with three keypoints and the associated
     skeleton object, as well as a camera device.
     """
-    identifier = "subject1"
-    nwb_file_obj = NWBFile(
-        session_description="session_description",
-        identifier=identifier,
-        session_start_time=datetime.datetime.now(datetime.UTC),
-    )
-    subject = Subject(subject_id=identifier, species="Mus musculus")
-    nwb_file_obj.subject = subject
-    keypoints = ["front_left_paw", "body", "front_right_paw"]
-    skeleton = Skeleton(
-        name="subject1_skeleton",
-        nodes=keypoints,
-        edges=np.array([[0, 1], [1, 2]], dtype="uint8"),
-        subject=subject,
-    )
-    skeletons = Skeletons(skeletons=[skeleton])
-    camera1 = nwb_file_obj.create_device(
-        name="camera1",
-        description="camera for recording behavior",
-        manufacturer="my manufacturer",
-    )
-    pose_estimation_series = []
-    n_frames = 100
-    n_dims = 2  # 2D data (can also be 3D)
-    for keypoint in keypoints:
-        pose_estimation_series.append(
-            PoseEstimationSeries(
-                name=keypoint,
-                description="Marker placed around fingers of front left paw.",
-                data=np.random.rand(n_frames, n_dims),
-                unit="pixels",
-                reference_frame="(0,0,0) corresponds to ...",
-                timestamps=np.arange(n_frames) / 10.0,  # assuming fps=10.0
-                confidence=np.ones((n_frames,)),  # confidence in each frame
-                confidence_definition="Softmax output of the DNN.",
-            )
+
+    def _nwb_file_object(**kwargs):
+        """Create an NWBFile object with poses.
+        ``kwargs`` are passed to ``create_pose_estimation_series``.
+        """
+        identifier = "subj1"
+        nwb_file_obj = NWBFile(
+            session_description="session_description",
+            identifier=identifier,
+            session_start_time=datetime.datetime.now(datetime.UTC),
         )
-    pose_estimation = PoseEstimation(
-        name="PoseEstimation",
-        pose_estimation_series=pose_estimation_series,
-        description=(
-            "Estimated positions of front paws of subject1 using DeepLabCut."
-        ),
-        original_videos=["path/to/camera1.mp4"],
-        labeled_videos=["path/to/camera1_labeled.mp4"],
-        dimensions=np.array(
-            [[640, 480]], dtype="uint16"
-        ),  # pixel dimensions of the video
-        devices=[camera1],
-        scorer="DLC_resnet50_openfieldOct30shuffle1_1600",
-        source_software="DeepLabCut",
-        source_software_version="2.3.8",
-        skeleton=skeleton,  # link to the skeleton object
+        subject = Subject(subject_id=identifier, species="Mus musculus")
+        nwb_file_obj.subject = subject
+        keypoints = ["front_left_paw", "body", "front_right_paw"]
+        skeleton = Skeleton(
+            name="subj1_skeleton",
+            nodes=keypoints,
+            edges=np.array([[0, 1], [1, 2]], dtype="uint8"),
+            subject=subject,
+        )
+        skeletons = Skeletons(skeletons=[skeleton])
+        camera1 = nwb_file_obj.create_device(
+            name="camera1",
+            description="camera for recording behavior",
+            manufacturer="my manufacturer",
+        )
+        pose_estimation_series = []
+        for keypoint in keypoints:
+            pose_estimation_series.append(
+                create_pose_estimation_series(keypoint, **kwargs)
+            )
+        pose_estimation = PoseEstimation(
+            name="PoseEstimation",
+            pose_estimation_series=pose_estimation_series,
+            description=(
+                "Estimated positions of front paws of subj1 using DeepLabCut."
+            ),
+            original_videos=["path/to/camera1.mp4"],
+            labeled_videos=["path/to/camera1_labeled.mp4"],
+            dimensions=np.array(
+                [[640, 480]], dtype="uint16"
+            ),  # pixel dimensions of the video
+            devices=[camera1],
+            scorer="DLC_resnet50_openfieldOct30shuffle1_1600",
+            source_software="DeepLabCut",
+            source_software_version="2.3.8",
+            skeleton=skeleton,  # link to the skeleton object
+        )
+        behavior_pm = nwb_file_obj.create_processing_module(
+            name="behavior",
+            description="processed behavioral data",
+        )
+        behavior_pm.add(skeletons)
+        behavior_pm.add(pose_estimation)
+        return nwb_file_obj
+
+    return _nwb_file_object
+
+
+def create_pose_estimation_series(
+    keypoint, starting_time=None, rate=None, timestamps=None
+):
+    """Create a PoseEstimationSeries object for a keypoint,
+    providing either ``rate`` and ``starting_time`` or just ``timestamps``.
+    If none of these are provided, default `timestamps` are generated.
+    """
+    n_frames = 100
+    n_dims = 2  # 2D (can also be 3D)
+    if timestamps is not None:
+        rate = None
+    if timestamps is None and rate is None:
+        timestamps = np.arange(n_frames) / 10.0  # assuming fps=10.0
+    return PoseEstimationSeries(
+        name=keypoint,
+        description="Marker placed around fingers of front left paw.",
+        data=np.random.rand(n_frames, n_dims),
+        unit="pixels",
+        reference_frame="(0,0,0) corresponds to ...",
+        timestamps=timestamps,
+        starting_time=starting_time,
+        rate=rate,
+        confidence=np.ones((n_frames,)),  # confidence in each frame
+        confidence_definition="Softmax output of the DNN.",
     )
-    behavior_pm = nwb_file_obj.create_processing_module(
-        name="behavior",
-        description="processed behavioral data",
-    )
-    behavior_pm.add(skeletons)
-    behavior_pm.add(pose_estimation)
-    return nwb_file_obj
