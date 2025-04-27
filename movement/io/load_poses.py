@@ -1,7 +1,7 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal, cast
 
 import h5py
 import numpy as np
@@ -525,7 +525,7 @@ def _ds_from_sleap_labels_file(
     individual_names: list[str] = (
         [track.name for track in labels.tracks]
         if labels.tracks
-        else ["individual_0"]  # Fixed: Ensure list[str]
+        else ["individual_0"]
     )
     if not labels.tracks:
         logger.warning(
@@ -536,11 +536,15 @@ def _ds_from_sleap_labels_file(
 
     keypoint_names: list[str] = [kp.name for kp in labels.skeletons[0].nodes]
 
+    # Explicit type assertions for mypy
+    individual_names = cast(list[str], individual_names)
+    keypoint_names = cast(list[str], keypoint_names)
+
     return from_numpy(
         position_array=tracks_with_scores[:, :-1, :, :],
         confidence_array=tracks_with_scores[:, -1, :, :],
-        individual_names=individual_names,  # Already a list[str]
-        keypoint_names=keypoint_names,  # Already a list[str]
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
         fps=fps,
         source_software="SLEAP",
     )
@@ -591,7 +595,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
 
-    # Explicitly type the tracks array
+    # Initialize tracks array with explicit type
     tracks: np.ndarray = np.full(
         (n_frames, 3, n_nodes, n_tracks), np.nan, dtype=np.float32
     )
@@ -610,12 +614,18 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
             # Use user-labelled instance if available
             if user_track_instances:
                 inst = user_track_instances[-1]
-                tracks[i, 0:3, :, j] = np.hstack(
-                    (inst.numpy(), np.full((n_nodes, 1), np.nan))
-                ).T
+                points = inst.numpy()
+                for k in range(n_nodes):
+                    tracks[i, 0, k, j] = points[k, 0]  # x-coordinate
+                    tracks[i, 1, k, j] = points[k, 1]  # y-coordinate
+                    tracks[i, 2, k, j] = np.nan  # No scores for user instances
             elif predicted_track_instances:
                 inst = predicted_track_instances[-1]
-                tracks[i, 0:3, :, j] = inst.numpy(scores=True).T
+                points = inst.numpy(scores=True)
+                for k in range(n_nodes):
+                    tracks[i, 0, k, j] = points[k, 0]  # x-coordinate
+                    tracks[i, 1, k, j] = points[k, 1]  # y-coordinate
+                    tracks[i, 2, k, j] = points[k, 2]  # confidence score
     return tracks
 
 
@@ -747,41 +757,13 @@ def from_anipose_style_df(
     fps: float | None = None,
     individual_name: str = "individual_0",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Anipose triangulation dataframe
-    fps : float, optional
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame units.
-    individual_name : str, optional
-        Name of the individual, by default "individual_0"
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
-
-    Notes
-    -----
-    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
-    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,
-    keypoint2_score...to array of positions with dimensions
-    time, space, keypoints, individuals, and array of confidence (from scores)
-    with dimensions time, keypoints, individuals.
-
-    """
+    """Create a ``movement`` poses dataset from an Anipose 3D dataframe."""
     keypoint_names: list[str] = sorted(
         list(
             set(
-                [
-                    col.rsplit("_", 1)[0]
-                    for col in df.columns
-                    if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
-                ]
+                col.rsplit("_", 1)[0]
+                for col in df.columns
+                if any(col.endswith(f"_{s}") for s in ["x", "y", "z"])
             )
         )
     )
@@ -925,9 +907,9 @@ def from_tidy_df(
     )
 
     # Get unique values for coordinates
-    time = np.sort(df["frame"].unique())
-    individuals = df["track_id"].unique()
-    keypoints = df["keypoint"].unique()
+    time: np.ndarray[Any, np.dtype[np.int_]] = np.sort(df["frame"].unique())
+    individuals: np.ndarray[Any, np.dtype[np.str_]] = df["track_id"].unique()
+    keypoints: np.ndarray[Any, np.dtype[np.str_]] = df["keypoint"].unique()
     n_frames = len(time)
     n_individuals = len(individuals)
     n_keypoints = len(keypoints)
@@ -949,14 +931,18 @@ def from_tidy_df(
         k_idx = np.where(keypoints == row["keypoint"])[0][0]
         position_array[t_idx, 0, k_idx, i_idx] = row["x"]
         position_array[t_idx, 1, k_idx, i_idx] = row["y"]
-        if "confidence" in df.columns:
+        if confidence_array is not None and "confidence" in row:
             confidence_array[t_idx, k_idx, i_idx] = row["confidence"]
+
+    # Explicitly convert to lists to ensure mypy recognizes list[str]
+    individual_names: list[str] = list(individuals)
+    keypoint_names: list[str] = list(keypoints)
 
     return from_numpy(
         position_array=position_array,
         confidence_array=confidence_array,
-        individual_names=individuals.tolist(),
-        keypoint_names=keypoints.tolist(),
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
         fps=fps,
         source_software=source_software,
     )
