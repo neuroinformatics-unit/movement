@@ -926,9 +926,9 @@ def from_tidy_df(
 
     # Pivot data to fill arrays
     for _idx, row in df.iterrows():
-        t_idx = np.where(time == row["frame"])[0][0]
-        i_idx = np.where(individuals == row["track_id"])[0][0]
-        k_idx = np.where(keypoints == row["keypoint"])[0][0]
+        t_idx = np.nonzero(time == row["frame"])[0][0]
+        i_idx = np.nonzero(individuals == row["track_id"])[0][0]
+        k_idx = np.nonzero(keypoints == row["keypoint"])[0][0]
         position_array[t_idx, 0, k_idx, i_idx] = row["x"]
         position_array[t_idx, 1, k_idx, i_idx] = row["y"]
         if confidence_array is not None and "confidence" in row:
