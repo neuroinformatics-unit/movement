@@ -16,6 +16,7 @@ dependencies = [
   "numpy",
   "pandas",
   "h5py",
+  "pyarrow",
   "attrs",
   "pooch",
   "tqdm",

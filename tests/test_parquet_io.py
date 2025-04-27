@@ -11,8 +11,9 @@ from movement.io import load_poses, save_poses
 @pytest.fixture
 def sample_dataset():
     """Create a sample xarray Dataset for testing."""
-    position_array = np.random.default_rng(
-        10, 2, 3, 2
+    rng = np.random.default_rng(seed=10)
+    position_array = rng.random(
+        (10, 2, 3, 2)
     )  # 10 frames, 2D, 3 keypoints, 2 individuals
     confidence_array = np.ones((10, 3, 2)) * 0.9
     return load_poses.from_numpy(
@@ -28,12 +29,13 @@ def sample_dataset():
 @pytest.fixture
 def sample_tidy_df():
     """Create a sample tidy DataFrame for testing."""
+    rng = np.random.default_rng(seed=12)
     data = {
         "frame": [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
         "track_id": ["ind1", "ind1", "ind1", "ind2", "ind2", "ind2"] * 2,
         "keypoint": ["nose", "tail", "spine"] * 4,
-        "x": np.random.default_rng(12),
-        "y": np.random.default_rng(12),
+        "x": rng.random(12),
+        "y": rng.random(12),
         "confidence": np.ones(12) * 0.9,
     }
     return pd.DataFrame(data)
@@ -152,7 +154,8 @@ def test_round_trip_parquet(sample_dataset, tmp_path):
 
 def test_to_tidy_df_no_confidence():
     """Test to_tidy_df with a dataset lacking confidence scores."""
-    position_array = np.random.default_rng(5, 2, 2, 1)
+    rng = np.random.default_rng(seed=5)
+    position_array = rng.random((5, 2, 2, 1))
     ds = load_poses.from_numpy(
         position_array=position_array,
         individual_names=["ind1"],
