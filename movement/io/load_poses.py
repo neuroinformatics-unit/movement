@@ -40,7 +40,7 @@ def from_numpy(
         Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
-        If None (default), the scores will be set to an array of NaNs.
+        If None (default), no confidence data variable is included.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
         (default), the individuals will be named "individual_0",
@@ -59,8 +59,8 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores
+        (if provided), and associated metadata.
 
     Examples
     --------
@@ -94,7 +94,11 @@ def from_numpy(
 def from_file(
     file_path: Path | str,
     source_software: Literal[
-        "DeepLabCut", "SLEAP", "LightningPose", "Anipose"
+        "DeepLabCut",
+        "SLEAP",
+        "LightningPose",
+        "Anipose",
+        "animovement",
     ],
     fps: float | None = None,
     **kwargs,
@@ -106,10 +110,17 @@ def from_file(
     file_path : pathlib.Path or str
         Path to the file containing predicted poses. The file format must
         be among those supported by the ``from_dlc_file()``,
-        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
-        these functions will be called internally, based on
+        ``from_slp_file()``, ``from_lp_file()``, ``from_anipose_file()``,
+        or ``from_animovement_file()`` functions. One of these
+        functions will be called internally, based on
         the value of ``source_software``.
-    source_software : "DeepLabCut", "SLEAP", "LightningPose", or "Anipose"
+    source_software : Literal[
+        "DeepLabCut",
+        "SLEAP",
+        "LightningPose",
+        "Anipose",
+        "animovement",
+    ]
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -130,6 +141,7 @@ def from_file(
     movement.io.load_poses.from_sleap_file
     movement.io.load_poses.from_lp_file
     movement.io.load_poses.from_anipose_file
+    movement.io.load_poses.from_animovement_file
 
     Examples
     --------
@@ -147,6 +159,8 @@ def from_file(
         return from_lp_file(file_path, fps)
     elif source_software == "Anipose":
         return from_anipose_file(file_path, fps, **kwargs)
+    elif source_software == "animovement":
+        return from_animovement_file(file_path, fps)
     else:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
@@ -289,6 +303,7 @@ def from_sleap_file(
     # Add metadata as attrs
     ds.attrs["source_file"] = file.path.as_posix()
     logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
+    logger.info(ds)
     return ds
 
 
@@ -506,18 +521,26 @@ def _ds_from_sleap_labels_file(
     file = ValidHDF5(file_path, expected_datasets=["pred_points", "metadata"])
     labels = read_labels(file.path.as_posix())
     tracks_with_scores = _sleap_labels_to_numpy(labels)
-    individual_names = [track.name for track in labels.tracks] or None
-    if individual_names is None:
+
+    individual_names: list[str] = (
+        [track.name for track in labels.tracks]
+        if labels.tracks
+        else ["individual_0"]  # Fixed: Ensure list[str]
+    )
+    if not labels.tracks:
         logger.warning(
             f"Could not find SLEAP Track in {file.path}. "
             "Assuming single-individual dataset and assigning "
             "default individual name."
         )
+
+    keypoint_names: list[str] = [kp.name for kp in labels.skeletons[0].nodes]
+
     return from_numpy(
         position_array=tracks_with_scores[:, :-1, :, :],
         confidence_array=tracks_with_scores[:, -1, :, :],
-        individual_names=individual_names,
-        keypoint_names=[kp.name for kp in labels.skeletons[0].nodes],
+        individual_names=individual_names,  # Already a list[str]
+        keypoint_names=keypoint_names,  # Already a list[str]
         fps=fps,
         source_software="SLEAP",
     )
@@ -559,15 +582,19 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     lfs = [lf for lf in labels.labeled_frames if lf.video == labels.videos[0]]
     # Figure out frame index range
     frame_idxs = [lf.frame_idx for lf in lfs]
-    first_frame = min(0, min(frame_idxs))
-    last_frame = max(0, max(frame_idxs))
+    first_frame = min(0, min(frame_idxs)) if frame_idxs else 0
+    last_frame = max(0, max(frame_idxs)) if frame_idxs else 0
 
     n_tracks = len(labels.tracks) or 1  # If no tracks, assume 1 individual
     individuals = labels.tracks or [None]
     skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
-    tracks = np.full((n_frames, 3, n_nodes, n_tracks), np.nan, dtype="float32")
+
+    # Explicitly type the tracks array
+    tracks: np.ndarray = np.full(
+        (n_frames, 3, n_nodes, n_tracks), np.nan, dtype=np.float32
+    )
 
     for lf in lfs:
         i = int(lf.frame_idx - first_frame)
@@ -583,12 +610,12 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
             # Use user-labelled instance if available
             if user_track_instances:
                 inst = user_track_instances[-1]
-                tracks[i, ..., j] = np.hstack(
+                tracks[i, 0:3, :, j] = np.hstack(
                     (inst.numpy(), np.full((n_nodes, 1), np.nan))
                 ).T
             elif predicted_track_instances:
                 inst = predicted_track_instances[-1]
-                tracks[i, ..., j] = inst.numpy(scores=True).T
+                tracks[i, 0:3, :, j] = inst.numpy(scores=True).T
     return tracks
 
 
@@ -670,8 +697,8 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
+        ``movement`` dataset containing the pose tracks, confidence scores
+        (if provided), and associated metadata.
 
     """
     n_frames = data.position_array.shape[0]
@@ -693,14 +720,18 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     dataset_attrs["time_unit"] = time_unit
 
     DIM_NAMES = ValidPosesDataset.DIM_NAMES
+    # Initialize data_vars dictionary with position
+    data_vars = {
+        "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
+    }
+    # Add confidence only if confidence_array is provided
+    if data.confidence_array is not None:
+        data_vars["confidence"] = xr.DataArray(
+            data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+        )
     # Convert data to an xarray.Dataset
     return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
-            ),
-        },
+        data_vars=data_vars,
         coords={
             DIM_NAMES[0]: time_coords,
             DIM_NAMES[1]: ["x", "y", "z"][:n_space],
@@ -734,7 +765,6 @@ def from_anipose_style_df(
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
-
     Notes
     -----
     Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
@@ -744,7 +774,7 @@ def from_anipose_style_df(
     with dimensions time, keypoints, individuals.
 
     """
-    keypoint_names = sorted(
+    keypoint_names: list[str] = sorted(
         list(
             set(
                 [
@@ -769,7 +799,7 @@ def from_anipose_style_df(
             position_array[:, j, i, 0] = df[f"{kp}_{coord}"]
         confidence_array[:, i, 0] = df[f"{kp}_score"]
 
-    individual_names = [individual_name]
+    individual_names: list[str] = [individual_name]
 
     return from_numpy(
         position_array=position_array,
@@ -822,3 +852,152 @@ def from_anipose_file(
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
+
+
+def from_tidy_df(
+    df: pd.DataFrame,
+    fps: float | None = None,
+    source_software: str = "animovement",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a tidy DataFrame.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Tidy DataFrame containing pose tracks and confidence scores.
+        Expected columns: 'frame', 'track_id', 'keypoint', 'x', 'y',
+        and optionally 'confidence'.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+    source_software : str, optional
+        Name of the pose estimation software or package from which the
+        data originate. Defaults to "animovement".
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Notes
+    -----
+    The DataFrame must have at least the following columns:
+    - 'frame': integer, the frame number (time index)
+    - 'track_id': string or integer, the individual ID
+    - 'keypoint': string, the keypoint name
+    - 'x': float, x-coordinate
+    - 'y': float, y-coordinate
+    - 'confidence': float, optional, point-wise confidence scores
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from movement.io import load_poses
+    >>> df = pd.DataFrame(
+    ...     {
+    ...         "frame": [0, 0, 1, 1],
+    ...         "track_id": ["ind1", "ind1", "ind1", "ind1"],
+    ...         "keypoint": ["nose", "tail", "nose", "tail"],
+    ...         "x": [100.0, 150.0, 101.0, 151.0],
+    ...         "y": [200.0, 250.0, 201.0, 251.0],
+    ...         "confidence": [0.9, 0.8, 0.85, 0.75],
+    ...     }
+    ... )
+    >>> ds = load_poses.from_tidy_df(df, fps=30)
+
+    """
+    # Validate DataFrame columns
+    required_columns = {"frame", "track_id", "keypoint", "x", "y"}
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        raise ValueError(f"DataFrame missing required columns: {missing}")
+
+    # Ensure correct data types
+    df = df.astype(
+        {
+            "frame": int,
+            "track_id": str,
+            "keypoint": str,
+            "x": float,
+            "y": float,
+        }
+    )
+
+    # Get unique values for coordinates
+    time = np.sort(df["frame"].unique())
+    individuals = df["track_id"].unique()
+    keypoints = df["keypoint"].unique()
+    n_frames = len(time)
+    n_individuals = len(individuals)
+    n_keypoints = len(keypoints)
+
+    # Initialize position and confidence arrays
+    position_array = np.full(
+        (n_frames, 2, n_keypoints, n_individuals), np.nan, dtype=float
+    )
+    confidence_array = (
+        np.full((n_frames, n_keypoints, n_individuals), np.nan, dtype=float)
+        if "confidence" in df.columns
+        else None
+    )
+
+    # Pivot data to fill arrays
+    for _idx, row in df.iterrows():
+        t_idx = np.where(time == row["frame"])[0][0]
+        i_idx = np.where(individuals == row["track_id"])[0][0]
+        k_idx = np.where(keypoints == row["keypoint"])[0][0]
+        position_array[t_idx, 0, k_idx, i_idx] = row["x"]
+        position_array[t_idx, 1, k_idx, i_idx] = row["y"]
+        if "confidence" in df.columns:
+            confidence_array[t_idx, k_idx, i_idx] = row["confidence"]
+
+    return from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individuals.tolist(),
+        keypoint_names=keypoints.tolist(),
+        fps=fps,
+        source_software=source_software,
+    )
+
+
+def from_animovement_file(
+    file_path: Path | str,
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an animovement Parquet file.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the Parquet file containing pose tracks in tidy format.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_animovement_file("path/to/file.parquet", fps=30)
+
+    """
+    file = ValidFile(
+        file_path,
+        expected_permission="r",
+        expected_suffix=[".parquet"],
+    )
+    # Load Parquet file into DataFrame
+    df = pd.read_parquet(file.path)
+    # Convert to xarray Dataset
+    ds = from_tidy_df(df, fps=fps, source_software="animovement")
+    # Add metadata
+    ds.attrs["source_file"] = file.path.as_posix()
+    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
+    return ds
