@@ -80,6 +80,16 @@ def test_to_tidy_df(sample_dataset):
         f"Expected {expected_rows} rows, got {len(df)}"
     )
 
+    # Verify frame indices are integers starting from 0
+    expected_frames = np.repeat(
+        np.arange(sample_dataset.sizes["time"]),
+        sample_dataset.sizes["individuals"]
+        * sample_dataset.sizes["keypoints"],
+    )
+    assert np.array_equal(df["frame"].values, expected_frames), (
+        "Frame indices should be integers starting from 0"
+    )
+
 
 def test_from_tidy_df(sample_tidy_df):
     """Test conversion of tidy DataFrame to xarray Dataset."""
@@ -219,4 +229,106 @@ def test_empty_dataset():
     ds_roundtrip = load_poses.from_tidy_df(df, fps=30)
     assert ds_roundtrip.sizes["time"] == 0, (
         "Round-trip dataset should have zero frames"
+    )
+
+
+def test_from_file_animovement(sample_dataset, tmp_path):
+    """Test from_file with source_software='animovement'."""
+    file_path = tmp_path / "test.parquet"
+    save_poses.to_animovement_file(sample_dataset, file_path)
+    ds = load_poses.from_file(
+        file_path,
+        source_software="animovement",
+        fps=sample_dataset.attrs.get("fps"),
+    )
+
+    # Verify the loaded dataset
+    xr.testing.assert_allclose(ds["position"], sample_dataset["position"])
+    xr.testing.assert_allclose(ds["confidence"], sample_dataset["confidence"])
+    assert ds.attrs["fps"] == sample_dataset.attrs["fps"], (
+        "FPS metadata mismatch"
+    )
+    assert set(ds.coords["individuals"].values) == set(
+        sample_dataset.coords["individuals"].values
+    )
+    assert set(ds.coords["keypoints"].values) == set(
+        sample_dataset.coords["keypoints"].values
+    )
+
+
+def test_to_tidy_df_float_time():
+    """Test to_tidy_df with non-integer float time coordinates."""
+    rng = np.random.default_rng(seed=15)
+    position_array = rng.random(
+        (5, 2, 2, 1)
+    )  # 5 frames, 2D, 2 keypoints, 1 individual
+    ds = load_poses.from_numpy(
+        position_array=position_array,
+        confidence_array=np.ones((5, 2, 1)) * 0.8,
+        individual_names=["ind1"],
+        keypoint_names=["nose", "tail"],
+        fps=10,
+        source_software="test",
+    )
+    # Explicitly set time coordinates to non-integer floats
+    ds = ds.assign_coords(time=np.array([1.5, 2.5, 3.5, 4.5, 5.5]))
+    df = save_poses.to_tidy_df(ds)
+
+    # Check columns
+    expected_columns = {
+        "frame",
+        "track_id",
+        "keypoint",
+        "x",
+        "y",
+        "confidence",
+    }
+    assert set(df.columns) == expected_columns, (
+        "Unexpected columns in tidy DataFrame"
+    )
+    assert df["frame"].dtype == int, "Frame column should be integer"
+    assert len(df) == 5 * 1 * 2, "Incorrect number of rows"
+    # Verify frame indices match scaled time values
+    expected_frames = np.repeat(np.array([15, 25, 35, 45, 55]), 2)
+    assert np.array_equal(df["frame"].values, expected_frames), (
+        "Frame indices should match scaled time values"
+    )
+
+
+def test_to_tidy_df_no_fps():
+    """Test to_tidy_df with fps=None and integer time coordinates."""
+    rng = np.random.default_rng(seed=15)
+    position_array = rng.random(
+        (5, 2, 2, 1)
+    )  # 5 frames, 2D, 2 keypoints, 1 individual
+    ds = load_poses.from_numpy(
+        position_array=position_array,
+        confidence_array=np.ones((5, 2, 1)) * 0.8,
+        individual_names=["ind1"],
+        keypoint_names=["nose", "tail"],
+        fps=None,
+        source_software="test",
+    )
+    # Explicitly set time coordinates to integers
+    ds = ds.assign_coords(time=np.array([0, 1, 2, 3, 4]))
+    df = save_poses.to_tidy_df(ds)
+
+    # Check columns
+    expected_columns = {
+        "frame",
+        "track_id",
+        "keypoint",
+        "x",
+        "y",
+        "confidence",
+    }
+    assert set(df.columns) == expected_columns, (
+        "Unexpected columns in tidy DataFrame"
+    )
+    assert df["frame"].dtype == int, "Frame column should be integer"
+    assert len(df) == 5 * 1 * 2, "Incorrect number of rows"
+    # Verify frame indices match time values
+    expected_frames = np.repeat(np.array([0, 1, 2, 3, 4]), 2)
+    assert np.array_equal(df["frame"].values, expected_frames), (
+        "Frame indices should match time values"
     )
