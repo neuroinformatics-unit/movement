@@ -10,28 +10,8 @@ import xarray as xr
 
 from movement.utils.logging import logger
 
-# Default keyword arguments for Skeletons,
-# PoseEstimation and PoseEstimationSeries objects
-SKELETON_KWARGS = dict(edges=None)
-POSE_ESTIMATION_SERIES_KWARGS = dict(
+DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
     reference_frame="(0,0,0) corresponds to ...",
-    confidence_definition=None,
-    conversion=1.0,
-    resolution=-1.0,
-    offset=0.0,
-    starting_time=None,
-    comments="no comments",
-    description="no description",
-    control=None,
-    control_description=None,
-)
-POSE_ESTIMATION_KWARGS = dict(
-    original_videos=None,
-    labeled_videos=None,
-    dimensions=None,
-    devices=None,
-    scorer=None,
-    source_software_version=None,
 )
 
 
@@ -69,12 +49,8 @@ def _ds_to_pose_and_skeleton_objects(
     """
     # Use default kwargs, but updated with any user-provided kwargs
     pose_estimation_series_kwargs = _merge_kwargs(
-        POSE_ESTIMATION_SERIES_KWARGS, pose_estimation_series_kwargs
+        DEFAULT_POSE_ESTIMATION_SERIES_KWARGS, pose_estimation_series_kwargs
     )
-    pose_estimation_kwargs = _merge_kwargs(
-        POSE_ESTIMATION_KWARGS, pose_estimation_kwargs
-    )
-    skeleton_kwargs = _merge_kwargs(SKELETON_KWARGS, skeleton_kwargs)
     individual = ds.individuals.values.item()
     keypoints = ds.keypoints.values
     pose_estimation_series = []
@@ -93,7 +69,7 @@ def _ds_to_pose_and_skeleton_objects(
         ndx_pose.Skeleton(
             name=f"{individual}_skeleton",
             nodes=keypoints,
-            **skeleton_kwargs,
+            **(skeleton_kwargs or {}),
         )
     ]
     # Group all PoseEstimationSeries into a PoseEstimation object
@@ -109,7 +85,7 @@ def _ds_to_pose_and_skeleton_objects(
             description=description,
             source_software=ds.source_software,
             skeleton=skeleton_list[-1],
-            **pose_estimation_kwargs,
+            **(pose_estimation_kwargs or {}),
         )
     ]
     skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
