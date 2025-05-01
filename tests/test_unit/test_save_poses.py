@@ -311,13 +311,13 @@ def test_to_sleap_analysis_file_invalid_dataset(
     ids=["single_nwb_file", "multiple_nwb_files"],
 )
 def test_to_nwb_file_valid_input(
-    selection_fn, valid_poses_dataset, empty_nwb_file_object
+    selection_fn, valid_poses_dataset, initialised_nwb_file_object
 ):
     ds = selection_fn(valid_poses_dataset)
     nwbfiles = (
-        [empty_nwb_file_object(ind) for ind in ds.individuals.values]
+        [initialised_nwb_file_object(ind) for ind in ds.individuals.values]
         if ds.individuals.size > 1
-        else empty_nwb_file_object()
+        else initialised_nwb_file_object()
     )
     save_poses.to_nwb_file(ds, nwbfiles)
     if not isinstance(nwbfiles, list):
@@ -336,9 +336,13 @@ def test_to_nwb_file_valid_input(
     )
 
 
-def test_to_nwb_file_invalid_input(valid_poses_dataset, empty_nwb_file_object):
+def test_to_nwb_file_invalid_input(
+    valid_poses_dataset, initialised_nwb_file_object
+):
     with pytest.raises(ValueError):
-        save_poses.to_nwb_file(valid_poses_dataset, empty_nwb_file_object())
+        save_poses.to_nwb_file(
+            valid_poses_dataset, initialised_nwb_file_object()
+        )
 
 
 def test_remove_unoccupied_tracks(valid_poses_dataset):
