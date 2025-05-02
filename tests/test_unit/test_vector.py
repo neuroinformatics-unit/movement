@@ -322,6 +322,9 @@ class TestComputeSignedAngle:
                 left_vector, right_vector, v_as_left_operand=True
             )
 
+            assert computed_angles.name == "signed_angle"
+            assert computed_angles_reversed.name == "signed_angle"
+
             xr.testing.assert_allclose(computed_angles, expected_angles)
             xr.testing.assert_allclose(
                 computed_angles_reversed, expected_angles_reversed
@@ -390,4 +393,5 @@ class TestComputeSignedAngle:
         )
 
         computed_angles = vector.compute_signed_angle_2d(v_left, v_right)
+        assert computed_angles.name == "signed_angle"
         xr.testing.assert_allclose(computed_angles, expected_angles)

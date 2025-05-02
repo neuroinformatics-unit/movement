@@ -16,6 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
+
   linting:
     # scheduled workflows should not run on forks
     if: (${{ github.event_name == 'schedule' }} && ${{ github.repository_owner == 'neuroinformatics-unit' }} && ${{ github.ref == 'refs/heads/main' }}) || (${{ github.event_name != 'schedule' }})
@@ -27,6 +28,12 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.movement/*
+          key: cached-test-data-${{ runner.os }}
+          restore-keys: cached-test-data
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
         with:
           python-version: 3.12

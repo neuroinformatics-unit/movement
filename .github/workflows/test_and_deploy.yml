@@ -1,4 +1,4 @@
-name: tests
+name: Tests
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
 
     steps:
       # these libraries enable testing on Qt on linux
-      - uses: pyvista/setup-headless-display-action@v3
+      - uses: pyvista/setup-headless-display-action@v4
         with:
           qt: true
       - name: Cache Test Data
@@ -47,8 +47,8 @@ jobs:
         with:
           path: |
             ~/.movement/*
-          key: cached-test-data
-          enableCrossOsArchive: true
+          key: cached-test-data-${{ runner.os }}
+          restore-keys: cached-test-data
       - name: Set up Conda
         uses: conda-incubator/setup-miniconda@v3
         with:

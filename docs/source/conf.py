@@ -166,6 +166,9 @@ html_static_path = ["_static"]
 html_css_files = [
     ("css/custom.css", {"priority": 100}),
 ]
+html_js_files = [
+    "js/contributors.js", # javascript for contributors table
+]
 html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
