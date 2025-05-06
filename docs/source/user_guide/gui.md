@@ -244,6 +244,6 @@ working on a workaround, stay tuned!
   ```
   This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.
 
-- Also note that currently the `show ID` checkbox shown in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
+- Also note that currently the `show ID` checkbox in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.
 :::
