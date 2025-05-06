@@ -976,3 +976,59 @@ def _compute_scaled_path_length(
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def detect_u_turns(
+    data: xr.DataArray,
+    use_direction: Literal["forward_vector", "displacement"] = "displacement",
+    u_turn_threshold: float = np.pi * 5 / 6,  # 150 degrees in radians
+    camera_view: Literal["top_down", "bottom_up"] = "bottom_up",
+) -> xr.DataArray:
+    """Detect U-turn behavior in a trajectory.
+
+    This function computes the directional change between consecutive time
+    frames and accumulates the rotation angles. If the accumulated angle
+    exceeds a specified threshold, a U-turn is detected.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The trajectory data, which must contain the 'time' and 'space' (x, y).
+    use_direction : Literal["forward_vector", "displacement"], optional
+        Method to compute direction vectors, default is `"displacement"`:
+        - `"forward_vector"`: Computes the forward direction vector.
+        - `"displacement"`: Computes displacement vectors.
+    u_turn_threshold : float, optional
+        The angle threshold (in radians) to detect U-turn. Default is (`5π/6`).
+
+    camera_view : Literal["top_down", "bottom_up"], optional
+        Specifies the camera perspective used for computing direction vectors.
+
+    Returns
+    -------
+    xarray.DataArray
+        Indicating whether a U-turn has occurred (`True` for a U-turn).
+
+    """
+    # Compute direction vectors based on the chosen method
+    if use_direction == "forward_vector":
+        direction_vectors = compute_forward_vector(
+            data, "left_ear", "right_ear", camera_view=camera_view
+        )
+    elif use_direction == "displacement":
+        direction_vectors = compute_displacement(data)
+    else:
+        raise ValueError(
+            "The parameter `use_direction` must be one of `forward_vector` "
+            f" or `displacement`, but got {use_direction}."
+        )
+
+    angles = compute_signed_angle_2d(
+        direction_vectors.shift(time=1), direction_vectors
+    )
+    cumulative_rotation = angles.cumsum(dim="time")
+    rotation_range = cumulative_rotation.max(
+        dim="time"
+    ) - cumulative_rotation.min(dim="time")
+    u_turn_detected = rotation_range >= u_turn_threshold
+    return u_turn_detected
