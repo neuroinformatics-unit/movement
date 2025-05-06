@@ -56,7 +56,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     assert all(
         [
             data_loader_widget._update_frame_slider_range.__name__
-            in [el[1] for el in event.callbacks[1:]]
+            in [cb[1] for cb in event.callbacks[1:]]
             for event in [
                 data_loader_widget.viewer.layers.events.inserted,
                 data_loader_widget.viewer.layers.events.removed,
