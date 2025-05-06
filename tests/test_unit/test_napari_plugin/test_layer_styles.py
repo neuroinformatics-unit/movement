@@ -219,7 +219,7 @@ def test_tracks_style_color_by(
     assert tracks_style.colormap == default_tracks_style["colormap"]
     assert tracks_style.color_by == default_tracks_style["color_by"]
 
-    # Set color by the property "category"
+    # Set color by the property
     tracks_style.set_color_by(**set_color_by_kwargs)
 
     # Check that the color_by property is set correctly
