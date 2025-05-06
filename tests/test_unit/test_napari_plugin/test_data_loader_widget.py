@@ -21,6 +21,7 @@ from napari.layers import (
     Vectors,
 )
 from napari.settings import get_settings
+from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
@@ -56,7 +57,11 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     assert all(
         [
             data_loader_widget._update_frame_slider_range.__name__
-            in [cb[1] for cb in event.callbacks[1:]]
+            in [
+                cb[1]
+                for cb in event.callbacks
+                if not isinstance(cb, EmitterGroup)
+            ]
             for event in [
                 data_loader_widget.viewer.layers.events.inserted,
                 data_loader_widget.viewer.layers.events.removed,
