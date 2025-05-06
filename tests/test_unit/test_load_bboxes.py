@@ -118,15 +118,25 @@ def create_df_input_via_tracks():
 
 
 @pytest.fixture()
-def via_file_with_nans(tmp_path):
+def via_multiple_crabs_gap_id_1(tmp_path):
+    """Return a filepath to a modified VIA tracks .csv file with
+    the annotations for id=1 removed for frames 1, 2 and 3.
+    """
     filepath = pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv")
 
-    # Delete second row of the file
+    # Drop annotations for id=1 in frames 1, 2 and 3
     df = pd.read_csv(filepath)
-    df.drop(1)
+    filename_prefix = "04.09.2023-04-Right_RE_testframe_0000000"
+    for frame_number in range(1, 4):
+        df = df[
+            ~(
+                (df["region_attributes"] == '{"track":"1"}')
+                & (df["filename"] == f"{filename_prefix}{frame_number}.png")
+            )
+        ]
 
     # Save the modified dataframe to a new file
-    filepath = tmp_path / "VIA_multiple-crabs_5-frames_labels_with_nans.csv"
+    filepath = tmp_path / "VIA_multiple-crabs_5-frames_labels_with_gap.csv"
     df.to_csv(filepath, index=False)
 
     return filepath
@@ -644,17 +654,17 @@ def test_fps_and_time_coords(
             pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
             5,
             86,
-        ),
+        ),  # multiple crabs present in all 5 frames
         (
             pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
             35,
             1,
-        ),
+        ),  # single crab present in 35 non-consecutive frames
         (
-            "via_file_with_nans",
+            "via_multiple_crabs_gap_id_1",
             5,
             86,
-        ),
+        ),  # multiple crabs, all but id=1 are present in all 5 frames
     ],
 )
 def test_df_from_via_tracks_file(
@@ -663,7 +673,7 @@ def test_df_from_via_tracks_file(
     """Test that the `_df_from_via_tracks_file` helper function correctly
     reads the VIA tracks .csv file as a dataframe.
     """
-    if via_file_path == "via_file_with_nans":
+    if via_file_path == "via_multiple_crabs_gap_id_1":
         via_file_path = request.getfixturevalue(via_file_path)
 
     # Read the VIA tracks .csv file as a dataframe
