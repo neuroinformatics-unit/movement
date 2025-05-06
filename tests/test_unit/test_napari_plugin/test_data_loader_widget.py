@@ -642,9 +642,18 @@ def test_add_points_and_tracks_layer_style(
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property
 
-    # Check the color of markers and text follows the expected property
-    assert points_layer._face.color_properties.name == expected_color_property
+    # Check the color of the markers follows the expected property
+    # (we check there are as many unique colors as there are unique
+    # values in the expected property)
+    assert (
+        np.unique(points_layer.face_color, axis=0).shape[0]
+        == np.unique(points_layer.properties[expected_color_property]).shape[0]
+    )
+
+    # Check the color of the text follows the expected property
     assert points_layer.text.color.feature == expected_color_property
+
+    # Check the color of the tracks follows the expected property
     assert tracks_layer.color_by == expected_color_property + "_factorized"
 
     # Check the colormap for markers, text and tracks is the same
