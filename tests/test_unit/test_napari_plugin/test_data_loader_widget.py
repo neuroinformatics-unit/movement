@@ -272,7 +272,7 @@ def test_on_load_clicked_with_valid_file_path(
 
     # Check that a Points layer was added to the viewer
     points_layer = viewer.layers[0]
-    assert points_layer.name == f"data: {file_path.name}"
+    assert points_layer.name == f"points: {file_path.name}"
 
     # Check that a Tracks layer was added to the viewer
     tracks_layer = viewer.layers[1]

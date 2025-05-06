@@ -230,7 +230,7 @@ class DataLoader(QWidget):
     def _add_points_layer(self):
         """Add the tracked data to the viewer as a Points layer."""
         # Define style for points layer
-        points_style = PointsStyle(name=f"data: {self.file_name}")
+        points_style = PointsStyle(name=f"points: {self.file_name}")
         points_style.set_text_by(property=self.text_property)
         points_style.set_color_by(
             property=self.color_property,
