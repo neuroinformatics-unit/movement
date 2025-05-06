@@ -60,7 +60,6 @@ Choose the `video` reader—corresponding to the
 plugin—and click `OK`. You can optionally select to remember this reader
 for all files with the same extension.
 
-(target-widget-video-reader)=
 
 ![napari widget video reader](../_static/napari_plugin_video_reader.png)
 
@@ -70,7 +69,6 @@ at the bottom that you can use to navigate through frames.
 You may also use the left and right arrow keys to navigate
 frame-by-frame.
 
-(target-widget-video-slider)=
 
 ![napari widget video slider](../_static/napari_plugin_video_slider.png)
 
@@ -173,7 +171,6 @@ the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
 the `fps` value you provided).
 
-(target-points-layer-tooltip)=
 
 ![napari points layer tooltip](../_static/napari_points_layer_tooltip.png)
 
@@ -221,7 +218,6 @@ For example, in the screenshot below, we can see from the tracks layer control p
 selected layer shows the trajectories of the keypoints from the current frame until the
 end of the video.
 
-(target-tracks-layer-head-length)=
 
 ![napari tracks layer head length](../_static/napari_tracks_layer_head_length.png)
 
