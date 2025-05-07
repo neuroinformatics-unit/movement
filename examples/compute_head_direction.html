@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -52,6 +52,7 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/compute_head_direction';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/compute_head_direction.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -122,7 +123,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -624,7 +625,7 @@ We will do this for a small time window to make the plot more readable.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f1fb49a6480&gt;
+<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fd59c59f680&gt;
 </pre></div>
 </div>
 </section>
@@ -704,7 +705,7 @@ unreliable (e.g., because it’s often occluded in a top-down camera view).</p>
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, space: 2)&gt; Size: 296kB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector&#39; (time: 18485, space: 2)&gt; Size: 296kB
 -0.01196 0.9999 -0.01182 0.9999 -0.0153 ... 0.9058 0.4111 0.9116 0.3797 0.9251
 Coordinates:
   * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
@@ -753,7 +754,7 @@ by default would return the same <code class="docutils literal notranslate"><spa
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray (time: 18485)&gt; Size: 148kB
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector_angle&#39; (time: 18485)&gt; Size: 148kB
 1.583 1.583 1.586 1.588 1.585 1.585 ... 1.088 1.171 1.258 1.133 1.147 1.181
 Coordinates:
   * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
@@ -848,7 +849,7 @@ We could check that by plotting a histogram of the differences.</p>
 </div>
 <p>For the majority of the time, the two methods
 differ less than 20 degrees (2 histogram bins).</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.811 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.805 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-head-direction-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_head_direction.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />

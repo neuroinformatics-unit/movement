@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,17 +44,18 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.layer_styles.PointsStyle';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.layer_styles.PointsStyle.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.plots.occupancy" href="movement.plots.occupancy.html" />
+    <link rel="next" title="TracksStyle" href="movement.napari.layer_styles.TracksStyle.html" />
     <link rel="prev" title="LayerStyle" href="movement.napari.layer_styles.LayerStyle.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -120,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -412,6 +413,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">PointsStyle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.plots.occupancy.html">movement.plots.occupancy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -557,7 +559,7 @@
 <h1>PointsStyle<a class="headerlink" href="#pointsstyle" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.napari.layer_styles.PointsStyle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.napari.layer_styles.</span></span><span class="sig-name descname"><span class="pre">PointsStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blending='translucent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol='disc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_width=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_color=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_color_cycle=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_colormap='turbo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.napari.layer_styles.</span></span><span class="sig-name descname"><span class="pre">PointsStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blending='translucent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol='disc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_width=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_color=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_color_cycle=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_colormap='turbo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle" title="movement.napari.layer_styles.LayerStyle"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerStyle</span></code></a></p>
 <p>Style properties for a napari Points layer.</p>
 <p class="rubric">Methods</p>
@@ -566,10 +568,10 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.as_kwargs" title="movement.napari.layer_styles.PointsStyle.as_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_kwargs</span></code></a>()</p></td>
 <td><p>Return the style properties as a dictionary of kwargs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="movement.napari.layer_styles.PointsStyle.set_color_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_color_by</span></code></a>(prop[, cmap])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="movement.napari.layer_styles.PointsStyle.set_color_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_color_by</span></code></a>(property, properties_df[, cmap])</p></td>
 <td><p>Color markers and text by a column in the properties DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="movement.napari.layer_styles.PointsStyle.set_text_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_text_by</span></code></a>(prop)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="movement.napari.layer_styles.PointsStyle.set_text_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_text_by</span></code></a>(property)</p></td>
 <td><p>Set the text property for the points layer.</p></td>
 </tr>
 </tbody>
@@ -588,12 +590,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.napari.layer_styles.PointsStyle.set_color_by">
-<span class="sig-name descname"><span class="pre">set_color_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_color_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_color_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_color_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_color_by" title="Link to this definition">#</a></dt>
 <dd><p>Color markers and text by a column in the properties DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prop</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to color by.</p></li>
+<li><p><strong>property</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to color by.</p></li>
+<li><p><strong>properties_df</strong> (<em>pd.DataFrame</em>) – The properties DataFrame containing the data to color by.
+It should contain the column specified in <cite>property</cite>.</p></li>
 <li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the colormap to use, otherwise use the face_colormap.</p></li>
 </ul>
 </dd>
@@ -605,11 +609,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.napari.layer_styles.PointsStyle.set_text_by">
-<span class="sig-name descname"><span class="pre">set_text_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_text_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_text_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#PointsStyle.set_text_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.PointsStyle.set_text_by" title="Link to this definition">#</a></dt>
 <dd><p>Set the text property for the points layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>prop</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to use for text.</p>
+<dd class="field-odd"><p><strong>property</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to use for text.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
@@ -644,11 +648,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="movement.plots.occupancy.html"
+       href="movement.napari.layer_styles.TracksStyle.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.plots.occupancy</p>
+        <p class="prev-next-title">TracksStyle</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

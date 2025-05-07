@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7f1fb49a6480>
+    <matplotlib.legend.Legend object at 0x7fd59c59f680>
 
 
 
@@ -452,7 +452,7 @@ unreliable (e.g., because it's often occluded in a top-down camera view).
 
  .. code-block:: none
 
-    <xarray.DataArray 'position' (time: 18485, space: 2)> Size: 296kB
+    <xarray.DataArray 'forward_vector' (time: 18485, space: 2)> Size: 296kB
     -0.01196 0.9999 -0.01182 0.9999 -0.0153 ... 0.9058 0.4111 0.9116 0.3797 0.9251
     Coordinates:
       * space        (space) <U1 8B 'x' 'y'
@@ -528,7 +528,7 @@ by default would return the same ``phi`` angle.
 
  .. code-block:: none
 
-    <xarray.DataArray (time: 18485)> Size: 148kB
+    <xarray.DataArray 'forward_vector_angle' (time: 18485)> Size: 148kB
     1.583 1.583 1.586 1.588 1.585 1.585 ... 1.088 1.171 1.258 1.133 1.147 1.181
     Coordinates:
       * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
@@ -691,7 +691,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.811 seconds)
+   **Total running time of the script:** (0 minutes 0.805 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:

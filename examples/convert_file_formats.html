@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,12 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/convert_file_formats';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/convert_file_formats.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -120,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -522,7 +523,7 @@ to explore the dataset interactively.</p>
 <p>We start with a dictionary that maps old keypoint names to new ones.
 Next, we define a function that takes that dictionary and a dataset
 as inputs, and returns a modified dataset. Notice that under the hood
-this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
+this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rename_dict</span></a> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;snout&quot;</span><span class="p">:</span> <span class="s2">&quot;nose&quot;</span><span class="p">,</span>
     <span class="s2">&quot;left_ear&quot;</span><span class="p">:</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span>
@@ -561,7 +562,7 @@ this function calls <a class="reference external" href="https://docs.xarray.dev/
 <p>Let’s create a list of keypoints to delete.
 In this case, we choose to get rid of the <code class="docutils literal notranslate"><span class="pre">tailend</span></code> keypoint,
 which is often hard to reliably track.
-We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
+We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
 wrapped in an appropriately named function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">keypoints_to_delete</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tailend&quot;</span><span class="p">]</span>
 
@@ -587,7 +588,7 @@ wrapped in an appropriately named function.</p>
 <h2>Reorder keypoints<a class="headerlink" href="#reorder-keypoints" title="Link to this heading">#</a></h2>
 <p>We start with a list of keypoints in the desired order
 (in this case, we’ll just swap the order of the left and right ears).
-We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
+We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ordered_keypoints</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nose&quot;</span><span class="p">,</span> <span class="s2">&quot;earR&quot;</span><span class="p">,</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span> <span class="s2">&quot;middle&quot;</span><span class="p">,</span> <span class="s2">&quot;tailbase&quot;</span><span class="p">]</span>
 
 
@@ -625,7 +626,7 @@ the <code class="docutils literal notranslate"><span class="pre">dest_path</span
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved modified dataset to </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dest_path</span></a><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmpuarmbcho/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmpznmzm6lb/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 </pre></div>
 </div>
 <div class="admonition note">
@@ -686,7 +687,7 @@ we’ve defined above, and saved to the target directory.</p>
             <span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.346 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.350 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-convert-file-formats-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/convert_file_formats.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />

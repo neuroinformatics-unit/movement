@@ -29,7 +29,7 @@
   <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -43,12 +43,13 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../../../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/load_bboxes';</script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/load_bboxes.html" />
     <link rel="icon" href="../../../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -117,7 +118,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -907,19 +908,20 @@
         <span class="p">}</span>
     <span class="p">)</span>
 
-    <span class="c1"># Sort dataframe by ID and frame number</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Fill in empty frames with nans</span>
+    <span class="c1"># Define desired index: all combinations of ID and frame number</span>
     <span class="n">multi_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
         <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;frame_number&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+        <span class="c1"># these unique lists may not be sorted!</span>
         <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">],</span>
-    <span class="p">)</span>  <span class="c1"># desired index: all combinations of ID and frame number</span>
+    <span class="p">)</span>
 
-    <span class="c1"># Set index to (ID, frame number), fill in values with nans and</span>
-    <span class="c1"># reset to original index</span>
+    <span class="c1"># Set index to (ID, frame number), fill in values with nans,</span>
+    <span class="c1"># sort by ID and frame_number and reset to new index</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">multi_index</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">multi_index</span><span class="p">)</span>  <span class="c1"># fill in empty frame-ID pairs with nans</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sort by ID and frame</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 

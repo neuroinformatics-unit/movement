@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,12 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'community/contributing';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/community/contributing.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -120,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -359,6 +360,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="people.html">People</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mission-scope.html">Mission &amp; Scope</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmaps.html">Roadmaps</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">How to Contribute</a></li>
@@ -708,7 +710,7 @@ Once the module is included in the mapping, use the same syntax as for <a class=
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 Markdown</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
 </pre></div>
 </div>
@@ -716,13 +718,44 @@ Markdown</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
 RestructuredText</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.3.2.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
 </pre></div>
 </div>
 </div>
 </div>
 </section>
+</section>
+<section id="updating-the-contributors-list">
+<h3>Updating the contributors list<a class="headerlink" href="#updating-the-contributors-list" title="Link to this heading">#</a></h3>
+<p>The <a class="reference internal" href="people.html#target-contributors"><span class="std std-ref">contributors list</span></a> is automatically updated on the first day of each month by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/update_contributors_list.yml</span></code>).
+It uses the <a class="reference external" href="https://github.com/marketplace/actions/contribute-list">Contributors-Readme-Action</a> to generate the list of contributors based on the commits to the repository.</p>
+<p>It is also possible to manually add other contributors who have not contributed code to the repository, but have contributed in other ways (e.g. by providing sample data, or by actively participating in discussions).
+The way to add them differs depending on whether they are GitHub users or not.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+GitHub users</label><div class="sd-tab-content docutils">
+<p>To add a contributor who has a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">GITHUB</span> <span class="pre">CONTRIBUTORS</span> <span class="pre">--&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
+<p>Next, add their GitHub username (e.g. <code class="docutils literal notranslate"><span class="pre">newcontributor</span></code>) to the <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-start</span> <span class="pre">--&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-end</span> <span class="pre">--&gt;</span></code> lines as follows:</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- readme: githubUser1,githubUser2,newcontributor -start --&gt;</span>
+existing content...
+<span class="cm">&lt;!-- readme: githubUser1,githubUser2,newcontributor -end --&gt;</span>
+</pre></div>
+</div>
+<p>The aforementioned GitHub actions workflow will then automatically update the contributors list with <code class="docutils literal notranslate"><span class="pre">newcontributor</span></code>’s GitHub profile picture, name, and link to their GitHub profile.</p>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Non-GitHub users</label><div class="sd-tab-content docutils">
+<p>To add a contributor who does not have a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">NON-GITHUB</span> <span class="pre">CONTRIBUTORS</span> <span class="pre">--&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
+<p>Next, add a row containing the contributor’s image, name, and link to their website to the existing <code class="docutils literal notranslate"><span class="pre">list-table</span></code> as follows:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="k">*</span><span class="w"> </span>  - existing content...
+<span class="k">*</span><span class="w"> </span>  - [<span class="nt">![newcontributor</span>](<span class="na">https://newcontributor.image.jpg</span>) &lt;br /&gt; &lt;sub&gt;&lt;b&gt;New Contributor&lt;/b&gt;&lt;/sub&gt;](https://newcontributor.website.com)
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Link to this heading">#</a></h3>
@@ -819,22 +852,22 @@ To add a new file, you will need to:</p>
 <li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
 <li><p>Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-4">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
 Ubuntu</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sha256sum<span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
+<input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
 MacOS</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>&lt;filename&gt;
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-6" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
+<input id="sd-tab-item-8" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
 Windows</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>certutil<span class="w"> </span>-hashfile<span class="w"> </span>&lt;filename&gt;<span class="w"> </span>SHA256
 </pre></div>
@@ -953,6 +986,7 @@ Windows</label><div class="sd-tab-content docutils">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#external-references">External references</a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-contributors-list">Updating the contributors list</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation-locally">Building the documentation locally</a></li>
 </ul>
 </li>

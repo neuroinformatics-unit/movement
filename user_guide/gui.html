@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,12 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/gui';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/user_guide/gui.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -120,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -428,7 +429,7 @@
 <a class="reference external" href="https://napari.org/dev/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
-as points overlaid on video frames.</p>
+as points and tracks overlaid on video frames.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The GUI is still in early stages of development but we are working on ironing
@@ -438,7 +439,7 @@ if you find any bugs or have suggestions for improvements!</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">napari</span></code> plugin is shipped with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package starting from
 version <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code>.  To use it, you need to
-<a class="reference internal" href="installation.html#target-installation"><span class="std std-ref">install the package</span></a> via a method that
+<a class="reference internal" href="installation.html#target-installation"><span class="std std-ref">install the package</span></a> with a method that
 includes the <code class="docutils literal notranslate"><span class="pre">napari</span></code> dependency.</p>
 <section id="launch-the-gui">
 <h2>Launch the GUI<a class="headerlink" href="#launch-the-gui" title="Link to this heading">#</a></h2>
@@ -452,7 +453,7 @@ right-hand side, as in the <a class="reference internal" href="#target-widget-sc
 <p>In <code class="docutils literal notranslate"><span class="pre">napari</span></code>, data is typically loaded into <a class="reference external" href="https://napari.org/dev/guides/layers.html">layers</a>,
 which can be reordered and toggled for visibility in the layers list panel.
 For example, keypoint data can be added as a
-<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a>,
+<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> or a <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a>,
 while image stacks (including videos) can be added as
 <a class="reference external" href="https://napari.org/dev/howtos/layers/image.html">image layers</a>.
 Below, we’ll explain how to do this.</p>
@@ -462,38 +463,37 @@ Below, we’ll explain how to do this.</p>
 <p>Though this is not strictly necessary, it is usually informative to
 view the keypoints overlaid on a background that provides
 some spatial context. You can either <a class="reference internal" href="#target-load-video"><span class="std std-ref">load the video</span></a>
-corresponding to the dataset, or a <a class="reference internal" href="#target-load-frame"><span class="std std-ref">single image</span></a>,
-e.g., a still frame derived from that video.
-You can do this by dragging and dropping the corresponding file onto the
-<code class="docutils literal notranslate"><span class="pre">napari</span></code> window or by using the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">File(s)</span></code> menu option.
-Please read the following sections for detailed information
-and some important considerations.</p>
+corresponding to the dataset, or <a class="reference internal" href="#target-load-frame"><span class="std std-ref">load a single image</span></a> (e.g., a still frame derived from that video).
+You can do this by dragging and dropping the corresponding video or image file onto the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window or by using the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">File(s)</span></code> menu option.</p>
 <section id="load-a-video">
 <span id="target-load-video"></span><h3>Load a video<a class="headerlink" href="#load-a-video" title="Link to this heading">#</a></h3>
-<p>When trying to load a video file into <code class="docutils literal notranslate"><span class="pre">napari</span></code>, you will be prompted
+<p>Upon loading a video file into <code class="docutils literal notranslate"><span class="pre">napari</span></code>, you will be prompted
 via a pop-up dialog to select the reader.
 Choose the <code class="docutils literal notranslate"><span class="pre">video</span></code> reader—corresponding to the
 <a class="reference external" href="https://github.com/janclemenslab/napari-video"><code class="docutils literal notranslate"><span class="pre">napari-video</span></code></a>
 plugin—and click <code class="docutils literal notranslate"><span class="pre">OK</span></code>. You can optionally select to remember this reader
 for all files with the same extension.</p>
+<p><img alt="napari widget video reader" src="../_images/napari_plugin_video_reader.png" /></p>
 <p><code class="docutils literal notranslate"><span class="pre">napari-video</span></code> will load the video as an image stack with a slider
 at the bottom that you can use to navigate through frames.
 You may also use the left and right arrow keys to navigate
 frame-by-frame.</p>
+<p><img alt="napari widget video slider" src="../_images/napari_plugin_video_slider.png" /></p>
 <p>Clicking on the play button will start the video playback at a default
-rate of 10 frames per second. You can adjust that by right-clicking on the
-play button or by opening the <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> menu
+rate of 10 frames per second. You can adjust the playback speed by right-clicking on the
+play button, or by opening the <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> menu
 (<code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> on Windows) and changing
 the <code class="docutils literal notranslate"><span class="pre">Playback</span> <span class="pre">frames</span> <span class="pre">per</span> <span class="pre">second</span></code> setting.</p>
 <div class="warning admonition" id="target-video-playback-limitations">
 <p class="admonition-title">Video playback limitations</p>
 <ul class="simple">
-<li><p>The video playback may freeze or stutter if you click on the slider to jump
-to a specific frame. We recommended pausing the playback before such jumps.</p></li>
+<li><p>The video playback may freeze or stutter if you jump
+to a specific frame while the video is playing. We recommended pausing the playback first.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">napari-video</span></code> may struggle to play videos at a high frame rate, depending
 on your hardware, the video resolution and codec. If you experience
 performance issues, such as the video freezing or skipping frames,
-try reducing the playback frames per second or fall back to
+try reducing the playback speed or fall back to
 using a <a class="reference internal" href="#target-load-frame"><span class="std std-ref">single image</span></a> as a background.</p></li>
 </ul>
 </div>
@@ -530,42 +530,91 @@ as a single 2D frame without a slider.</p>
 <p>On the right-hand side of the window you should see
 an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. To load tracked data in napari:</p>
 <ol class="arabic simple">
-<li><p>Select the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> from the dropdown menu.</p></li>
+<li><p>Select one of the <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported formats</span></a> from the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu.</p></li>
 <li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code>  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.</p></li>
-<li><p>Select the file containing the tracked data. The path can be directly pasted or you can use the file browser button.</p></li>
+<li><p>Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.</p></li>
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
-<p>The data should be loaded into the viewer as a
-<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a>.
-By default, it is added at the top of the layer list.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported formats</span></a> for more information on
-the expected software and file formats.</p>
-</div>
-<p>You will see a view similar to the one below:</p>
-<p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_with_poses_as_points.png" /></p>
+<p>The data will be loaded into the viewer as a
+<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> and as a <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a>.
+By default, the data is added at the top of the layer list and the points layer is selected.</p>
+<p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_data_tracks.png" /></p>
+<p>You will see a view similar to the one above. Notice the three
+layers on the left-hand side list: the
+image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer.
+You can toggle the visibility of each of these layers by clicking on the eye icon.</p>
+<section id="the-points-layer">
+<h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
+<p>The points layer shows the data for the current frame.</p>
 <p>The keypoints are represented as points, colour-coded by
 keypoint for single-individual datasets, or by individual for
-multi-individual datasets. In datasets with one or no keypoints per individual,
-the points are always colour-coded by individual. If we enable the <code class="docutils literal notranslate"><span class="pre">display_text</span></code> option in the
+multi-individual datasets. In datasets with one keypoint per individual, or no keypoint dimension,
+the points are always colour-coded by individual.</p>
+<p>With the <a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> selected,
+if we enable the <code class="docutils literal notranslate"><span class="pre">display_text</span></code> option in the
 layer controls panel, the keypoint name will be displayed on the lower right corner of each point. If the
 dataset has no keypoint dimension, the individual name is shown instead.</p>
 <p>Hovering with your mouse over a point
 (with the points layer selected) will
-bring up a tooltip containing the names of the individual and keypoint,
+bring up a tooltip containing the properties of that point: the individual and keypoint it represents,
 the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
 the <code class="docutils literal notranslate"><span class="pre">fps</span></code> value you provided).</p>
-<p>Using the slider at the bottom of the window, you can move through
-the frames of the dataset, and the points and video will update
+<p><img alt="napari points layer tooltip" src="../_images/napari_points_layer_tooltip.png" /></p>
+<p>Using the frame slider at the bottom of the window, you can move through
+the frames of the dataset, and the points and video (if loaded) will update
 in sync.</p>
-<div class="admonition-stay-tuned admonition">
-<p class="admonition-title">Stay tuned</p>
-<p>Though the display style of the points layer is currently fixed, we are
-working on adding more customisation options in future releases, such as
-enabling you to change the point size, colour, or shape.</p>
+<div class="tip admonition">
+<p class="admonition-title">Changing markers size, colour and shape</p>
+<p>You can change the size, the colour and the shape of any selected markers using the
+<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> controls panel.</p>
+<p>You can use the following keyboard shortcuts to toggle the markers selection:</p>
+<ul class="simple">
+<li><p>To select all the markers in the current frame, press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p>To select all the markers in all the loaded frames, press <code class="docutils literal notranslate"><span class="pre">Shift</span> <span class="pre">+</span> <span class="pre">A</span></code>.</p></li>
+<li><p>To unselect the currently selected markers, press the relevant keyboard shortcut again.</p></li>
+</ul>
+<p>You can find all the <a class="reference external" href="https://napari.org/dev/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
+</section>
+<section id="the-tracks-layer">
+<h3>The tracks layer<a class="headerlink" href="#the-tracks-layer" title="Link to this heading">#</a></h3>
+<p>The tracks layer allows us to visualise data before and after the current frame.
+Remember that the current frame is determined by the position of the frame slider.</p>
+<p>The trajectory made up of all positions of a keypoint on all frames before the current frame is called <em>tail</em>.
+Similarly, its trajectory on all frames after the current frame is called <em>head</em>.</p>
+<p>Both tail and head tracks are represented as lines connecting the keypoints
+of the same individual across frames. The colour of the tracks follows
+the colour of the markers, and the length of the tracks can be adjusted in the
+<a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel, with the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> sliders.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> slider is at its maximum position, the tail track show the trajectory of the
+keypoints from the start of the video until the current frame. When the <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> slider is at its maximum position,
+the head track shows the trajectory of the keypoints from the current frame until the end of the video.</p>
+<p>For example, in the screenshot below, we can see from the tracks layer control panel that the
+selected layer shows the trajectories of the keypoints from the current frame until the
+end of the video.</p>
+<p><img alt="napari tracks layer head length" src="../_images/napari_tracks_layer_head_length.png" /></p>
+<p>You can also use the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel to
+change the colormap of a selected tracks layer.</p>
+<div class="warning admonition">
+<p class="admonition-title">Some caveats regarding the  <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a></p>
+<ul>
+<li><p>Currently there is no support in <code class="docutils literal notranslate"><span class="pre">napari</span></code> for fine control
+over the length of the tail and head tracks. However, we are
+working on a workaround, stay tuned!</p></li>
+<li><p>You may occasionally see a warning message in the GUI upon loading a datafile, that says:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>UserWarning:<span class="w"> </span>Previous<span class="w"> </span>color_by<span class="w"> </span>key<span class="w"> </span><span class="s1">&#39;keypoint_factorized&#39;</span>
+not<span class="w"> </span>present<span class="w"> </span><span class="k">in</span><span class="w"> </span>features.<span class="w"> </span>Falling<span class="w"> </span>back<span class="w"> </span>to<span class="w"> </span>track_id!
+</pre></div>
+</div>
+<p>This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.</p>
+</li>
+<li><p>Also note that currently the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">ID</span></code> checkbox in the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel refers to
+an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.</p></li>
+</ul>
+</div>
+</section>
 </section>
 </section>
 
@@ -625,7 +674,11 @@ enabling you to change the point size, colour, or shape.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-image">Load an image</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

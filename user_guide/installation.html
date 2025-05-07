@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=5dc116f1" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,12 +44,13 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b9afe91b"></script>
+    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/installation';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
     <link rel="canonical" href="https://movement.neuroinformatics.dev/user_guide/installation.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -120,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.5.1</p>
+    <p class="title logo__title">movement v0.6.0</p>
   
 </a></div>
     
@@ -500,12 +501,33 @@ window with the <code class="docutils literal notranslate"><span class="pre">mov
 </section>
 <section id="update-the-package">
 <h2>Update the package<a class="headerlink" href="#update-the-package" title="Link to this heading">#</a></h2>
-<p>To update movement to the latest version, we recommend installing it in a new environment,
-as this prevents potential compatibility issues caused by changes in dependency versions.</p>
-<p>To uninstall an existing environment named <code class="docutils literal notranslate"><span class="pre">movement-env</span></code>:</p>
+<p>To update <code class="docutils literal notranslate"><span class="pre">movement</span></code> to the latest version, you need to use the same package manager you used to install it (either <code class="docutils literal notranslate"><span class="pre">conda</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span></code>). If you are not sure which one you used, you can run from your active environment:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>list<span class="w"> </span>movement
+</pre></div>
+</div>
+<p>If the output shows <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> as the channel, you used <code class="docutils literal notranslate"><span class="pre">conda</span></code> to install it. If it shows <code class="docutils literal notranslate"><span class="pre">pypi</span></code>, you used <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
+<p>Once this is clear, you can update <code class="docutils literal notranslate"><span class="pre">movement</span></code> by running the relevant command from below:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Conda</label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>update<span class="w"> </span>movement<span class="w"> </span>-y
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Pip</label><div class="sd-tab-content docutils">
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>movement<span class="w"> </span>-U
+</pre></div>
+</div>
+</div>
+</div>
+<p>If the above fails, try installing it in a fresh new environment instead. This should prevent potential compatibility issues caused by changes in dependency versions. You can first uninstall the existing environment named <code class="docutils literal notranslate"><span class="pre">movement-env</span></code>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>remove<span class="w"> </span>-n<span class="w"> </span>movement-env
 </pre></div>
 </div>
+<p>Once the environment has been removed, you can create a new one following the <a class="reference internal" href="#install-the-package"><span class="std std-ref">installation instructions</span></a> above.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>If you are unsure about the environment name, you can get a list of the environments on your system with:</p>
@@ -513,7 +535,6 @@ as this prevents potential compatibility issues caused by changes in dependency 
 </pre></div>
 </div>
 </div>
-<p>Once the environment has been removed, you can create a new one following the <a class="reference internal" href="#install-the-package"><span class="std std-ref">installation instructions</span></a> above.</p>
 </section>
 </section>
 
