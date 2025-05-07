@@ -60,7 +60,7 @@ class DataLoader(QWidget):
         # Connect frame slider range update to layer events
         for action_str in ["inserted", "removed"]:
             getattr(self.viewer.layers.events, action_str).connect(
-                self._update_frame_slider_range, ref=True
+                self._update_frame_slider_range,
             )
 
         # Enable layer tooltips from napari settings
