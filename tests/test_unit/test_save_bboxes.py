@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from movement.io import save_bboxes
 from movement.io.save_bboxes import _write_single_via_row
 
 
@@ -87,13 +88,30 @@ def test_to_via_tracks_file_valid_dataset():
     pass
 
 
-def test_to_via_tracks_file_invalid_dataset():
-    """Test the VIA-tracks CSV file."""
-    pass
+@pytest.mark.parametrize(
+    "invalid_dataset, expected_exception",
+    [
+        ("not_a_dataset", TypeError),
+        ("empty_dataset", ValueError),
+        ("missing_var_bboxes_dataset", ValueError),
+        ("missing_two_vars_bboxes_dataset", ValueError),
+        ("missing_dim_bboxes_dataset", ValueError),
+        ("missing_two_dims_bboxes_dataset", ValueError),
+    ],
+)
+def test_to_via_tracks_file_invalid_dataset(
+    invalid_dataset, expected_exception, request, tmp_path
+):
+    """Test that an invalid dataset raises an error."""
+    with pytest.raises(expected_exception):
+        save_bboxes.to_via_tracks_file(
+            request.getfixturevalue(invalid_dataset),
+            tmp_path / "test.csv",
+        )
 
 
 def test_to_via_tracks_file_invalid_file_path():
-    """Test the VIA-tracks CSV file."""
+    """Test that an invalid file path raises an error."""
     pass
 
 
