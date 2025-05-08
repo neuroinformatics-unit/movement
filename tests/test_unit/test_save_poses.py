@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from pytest import DATA_PATHS
 
-from movement.io import load_poses, save_poses
+from movement.io import load_poses, nwb, save_poses
 
 output_files = [
     {
@@ -334,6 +334,80 @@ def test_to_nwb_file_valid_input(
             for nwbfile in nwbfiles
         ]
     )
+
+
+nwb_file_kwargs_expectations = {
+    "default_kwargs-single_nwb_file": {
+        "session_description": "not set",
+        "identifier": ["not set"],
+    },
+    "default_kwargs-multiple_nwb_files": {
+        "session_description": "not set",
+        "identifier": ["id_0", "id_1"],
+    },
+    "shared_kwargs-single_nwb_file": {
+        "session_description": "test session",
+        "identifier": ["subj1"],
+    },
+    "shared_kwargs-multiple_nwb_files": {
+        "session_description": "test session",
+        "identifier": ["id_0", "id_1"],
+    },
+    "kwargs_per_ind-multiple_nwb_files": {
+        "session_description": "test session",
+        "identifier": ["subj1", "subj2"],
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda ds: ds.drop_sel(individuals="id_1"),
+        lambda ds: ds,
+    ],
+    ids=["single_nwb_file", "multiple_nwb_files"],
+)
+@pytest.mark.parametrize(
+    "nwbfile_kwargs",
+    [
+        None,
+        {"session_description": "test session", "identifier": "subj1"},
+        {
+            "id_0": {
+                "session_description": "test session",
+                "identifier": "subj1",
+            },
+            "id_1": {
+                "session_description": "test session",
+                "identifier": "subj2",
+            },
+        },
+    ],
+    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
+)
+def test_to_nwb_file_min_nwbfile_kwargs(
+    selection_fn, nwbfile_kwargs, valid_poses_dataset, request
+):
+    """Test saving single-/multi-individual poses dataset to NWBFile(s)
+    with default or custom ``nwbfile_kwargs``.
+    """
+    ds = selection_fn(valid_poses_dataset)
+    test_id = request.node.callspec.id
+    config = nwb.NWBFileSaveConfig(nwbfile_kwargs=nwbfile_kwargs)
+    if test_id == "kwargs_per_ind-single_nwb_file":
+        with pytest.raises(ValueError, match=".*no individual was provided."):
+            save_poses.to_nwb_file_min(ds, config)
+        return
+    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    actual = [
+        (file.session_description, file.identifier) for file in nwb_files
+    ]
+    expected = nwb_file_kwargs_expectations.get(test_id)
+    expected = [
+        (expected["session_description"], id) for id in expected["identifier"]
+    ]
+    assert actual == expected
 
 
 def test_to_nwb_file_invalid_input(

@@ -4,15 +4,173 @@ The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.
 """
 
+import datetime
+from typing import Any
+
 import ndx_pose
 import pynwb
 import xarray as xr
+from attrs import define, field
 
 from movement.utils.logging import logger
 
 DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
     reference_frame="(0,0,0) corresponds to ...",
 )
+ConfigKwargsType = dict[str, Any] | dict[str, dict[str, Any]]
+
+
+@define
+class NWBFileSaveConfig:
+    """Configuration for saving ``movement poses`` dataset to NWBFile(s).
+
+    All fields are optional and will default to empty dictionaries.
+
+    Attributes
+    ----------
+    nwbfile_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+        Keyword arguments for the :class:`pynwb.file.NWBFile` constructor.
+        If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys
+        should correspond to individual names in the ``movement`` dataset,
+        and the inner dictionaries will be passed as keyword arguments to the
+        :class:`pynwb.file.NWBFile` constructor. If ``nwbfile_kwargs`` is a
+        single dictionary, the same arguments will be applied to all NWBFile
+        objects except for ``identifier``, which will be set to the individual
+        name.
+    subject_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+        Keyword arguments for the :class:`pynwb.file.Subject` constructor.
+        If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys
+        should correspond to individual names in the ``movement`` dataset,
+        and the inner dictionaries will be passed as keyword arguments to the
+        :class:`pynwb.file.Subject` constructor. If ``subject_kwargs`` is a
+        single dictionary, the same arguments will be applied to all Subjects
+        except for ``subject_id``, which will be set to the individual name.
+
+    Examples
+    --------
+    Create :class:`pynwb.file.NWBFile` objects with the same ``nwbfile_kwargs``
+    and the same ``subject_kwargs`` for all individuals (e.g. `id_0`, `id_1`)
+    in the dataset:
+
+    >>> from movement.io.nwb import NWBFileSaveConfig
+    >>> from movement.io.save_poses import to_nwb_file
+    >>> config = NWBFileSaveConfig(
+    ...     nwbfile_kwargs={"session_description": "test session"},
+    ...     subject_kwargs={"age": "1 year", "species": "mouse"},
+    ... )
+    >>> nwb_files = to_nwb_file(ds, config)
+
+    Create :class:`pynwb.file.NWBFile` objects with different
+    ``nwbfile_kwargs`` and ``subject_kwargs`` for each individual
+    (e.g. `id_0`, `id_1`) in the dataset:
+
+    >>> config = NWBFileSaveConfig(
+    ...     nwbfile_kwargs={
+    ...         "id_0": {
+    ...             "identifier": "subj1",
+    ...             "session_description": "subj1 session",
+    ...         },
+    ...         "id_1": {
+    ...             "identifier": "subj2",
+    ...             "session_description": "subj2 session",
+    ...         },
+    ...     },
+    ...     subject_kwargs={
+    ...         "id_0": {"age": "1 year", "species": "mouse"},
+    ...         "id_1": {"age": "2 years", "species": "rat"},
+    ...     },
+    ...     pose_estimation_series_kwargs={"reference_frame": "(0,0,0)"},
+    ...     pose_estimation_kwargs={"description": "test description"},
+    ...     skeletons_kwargs={"nodes": ["nose", "left_eye", "right_eye"]},
+    ... )
+    >>> nwb_files = to_nwb_file(ds, config)
+
+    """
+
+    nwbfile_kwargs: ConfigKwargsType = field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+    subject_kwargs: ConfigKwargsType = field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+    pose_estimation_series_kwargs: ConfigKwargsType = field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+    pose_estimation_kwargs: ConfigKwargsType = field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+    skeletons_kwargs: ConfigKwargsType = field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+
+    def get_nwbfile_kwargs(
+        self, individual: str | None = None
+    ) -> dict[str, Any]:
+        """Get the keyword arguments to initialise :class:`pynwb.file.NWBFile`.
+
+        If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys
+        should correspond to individual names in the ``movement`` dataset,
+        and the inner dictionaries will be passed as keyword arguments to the
+        :class:`pynwb.file.NWBFile` constructor.
+
+        If ``nwbfile_kwargs`` is a single dictionary, the same arguments will
+        be applied to all NWBFile objects, except for ``identifier``,
+        which will be set in the following order of precedence:
+
+        1. ``individual`` (if provided)
+        2. ``nwbfile_kwargs["identifier"]`` (if provided)
+        3. default value ``"not set"``
+
+        Parameters
+        ----------
+        individual : str, optional
+            Individual name. If provided, the method will attempt to retrieve
+            individual-specific settings or fall back to shared or default
+            settings.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments passed to :class:`pynwb.file.NWBFile`.
+
+        """
+        cfg = self.nwbfile_kwargs
+        if (
+            isinstance(cfg, dict)
+            and cfg
+            and all(isinstance(v, dict) for v in cfg.values())
+        ):  # Per-individual nwbfile_kwargs
+            if individual is None:
+                raise logger.error(
+                    ValueError(
+                        "NWBFileSaveConfig has per-individual nwbfile_kwargs, "
+                        "but no individual was provided."
+                    )
+                )
+            if individual in cfg:
+                base = dict(cfg[individual])
+                base.setdefault("identifier", individual)
+            else:
+                logger.warning(
+                    f"Individual '{individual}' not found in nwbfile_kwargs; "
+                    "using default values."
+                )
+                base = {
+                    "identifier": individual,
+                    "session_description": "not set",
+                    "session_start_time": datetime.datetime.now(datetime.UTC),
+                }
+        else:  # Shared nwbfile_kwargs
+            base = dict(cfg)
+            if individual:  # Overwrite identifier if provided
+                base["identifier"] = individual
+            else:
+                base.setdefault("identifier", "not set")
+        base.setdefault("session_description", "not set")
+        base.setdefault(
+            "session_start_time", datetime.datetime.now(datetime.UTC)
+        )
+        return base
 
 
 def _merge_kwargs(defaults, overrides):
@@ -51,8 +209,9 @@ def _ds_to_pose_and_skeleton_objects(
     pose_estimation_series_kwargs = _merge_kwargs(
         DEFAULT_POSE_ESTIMATION_SERIES_KWARGS, pose_estimation_series_kwargs
     )
+    skeleton_kwargs = skeleton_kwargs or {}
     individual = ds.individuals.values.item()
-    keypoints = ds.keypoints.values
+    keypoints = ds.keypoints.values.tolist()
     pose_estimation_series = []
     for keypoint in keypoints:
         pose_estimation_series.append(
@@ -68,8 +227,8 @@ def _ds_to_pose_and_skeleton_objects(
     skeleton_list = [
         ndx_pose.Skeleton(
             name=f"{individual}_skeleton",
-            nodes=keypoints,
-            **(skeleton_kwargs or {}),
+            nodes=skeleton_kwargs.pop("nodes", keypoints),
+            **skeleton_kwargs,
         )
     ]
     # Group all PoseEstimationSeries into a PoseEstimation object
