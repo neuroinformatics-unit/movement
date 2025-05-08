@@ -2,7 +2,10 @@ import numpy as np
 import pytest
 
 from movement.io import save_bboxes
-from movement.io.save_bboxes import _write_single_via_row
+from movement.io.save_bboxes import (
+    _map_individuals_to_track_ids,
+    _write_single_via_row,
+)
 
 
 @pytest.mark.parametrize(
@@ -82,10 +85,142 @@ def test_write_single_via_row(
     assert row[6] == f"{expected_region_attributes}"
 
 
-def test_to_via_tracks_file_valid_dataset():
+@pytest.mark.parametrize(
+    "list_individuals, expected_track_id",
+    [
+        (["id_1", "id_3", "id_2"], [1, 3, 2]),
+        (["id_1", "id_2", "id_3"], [1, 2, 3]),
+        (["id-1", "id-2", "id-3"], [1, 2, 3]),
+        (["id1", "id2", "id3"], [1, 2, 3]),
+        (["id101", "id2", "id333"], [101, 2, 333]),
+        (["mouse_0_id1", "mouse_0_id2"], [1, 2]),
+    ],
+    ids=[
+        "unsorted",
+        "sorted",
+        "underscores",
+        "dashes",
+        "multiple_digits",
+        "middle_and_end_digits",
+    ],
+)
+def test_map_individuals_to_track_ids_from_individuals_names(
+    list_individuals, expected_track_id
+):
+    """Test the mapping individuals to track IDs if the track ID is
+    extracted from the individuals' names.
+    """
+    # Map individuals to track IDs
+    map_individual_to_track_id = _map_individuals_to_track_ids(
+        list_individuals, extract_track_id_from_individuals=True
+    )
+
+    # Check values are as expected
+    assert [
+        map_individual_to_track_id[individual]
+        for individual in list_individuals
+    ] == expected_track_id
+
+
+@pytest.mark.parametrize(
+    "list_individuals, expected_track_id",
+    [
+        (["A", "B", "C"], [0, 1, 2]),
+        (["C", "B", "A"], [2, 1, 0]),
+        (["id99", "id88", "id77"], [2, 1, 0]),
+    ],
+    ids=["sorted", "unsorted", "ignoring_digits"],
+)
+def test_map_individuals_to_track_ids_factorised(
+    list_individuals, expected_track_id
+):
+    """Test the mapping individuals to track IDs if the track ID is
+    factorised from the sorted individuals' names.
+    """
+    # Map individuals to track IDs
+    map_individual_to_track_id = _map_individuals_to_track_ids(
+        list_individuals, extract_track_id_from_individuals=False
+    )
+
+    # Check values are as expected
+    assert [
+        map_individual_to_track_id[individual]
+        for individual in list_individuals
+    ] == expected_track_id
+
+
+@pytest.mark.parametrize(
+    "list_individuals, expected_error_message",
+    [
+        (
+            ["mouse_1_id0", "mouse_2_id0"],
+            (
+                "Could not extract a unique track ID for all individuals. "
+                "Expected 2 unique track IDs, but got 1."
+            ),
+        ),
+        (
+            ["mouse_id1.0", "mouse_id2.0"],
+            (
+                "Could not extract a unique track ID for all individuals. "
+                "Expected 2 unique track IDs, but got 1."
+            ),
+        ),
+        (["A", "B", "C", "D"], "Could not extract track ID from A."),
+    ],
+    ids=["id_clash_1", "id_clash_2", "individuals_without_digits"],
+)
+def test_map_individuals_to_track_ids_error(
+    list_individuals, expected_error_message
+):
+    """Test that an error is raised if extracting track IDs from the
+    individuals' names fails.
+    """
+    with pytest.raises(ValueError) as error:
+        _map_individuals_to_track_ids(
+            list_individuals,
+            extract_track_id_from_individuals=True,
+        )
+
+    # Check that the error message is as expected
+    assert str(error.value) == expected_error_message
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_bboxes_dataset",
+        # "valid_bboxes_dataset_in_seconds",
+        # "valid_bboxes_dataset_with_nan",
+        # "valid_bboxes_dataset_with_gaps", -- TODO
+    ],
+)
+@pytest.mark.parametrize(
+    "extract_track_id_from_individuals",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    "filename_prefix",
+    [None, "test_video"],
+)
+def test_to_via_tracks_file_valid_dataset(
+    valid_dataset,
+    request,
+    tmp_path,
+    extract_track_id_from_individuals,
+    filename_prefix,
+):
     """Test the VIA-tracks CSV file."""
-    # Test different valid datasets, including with gaps
-    pass
+    # TODO: Test different valid datasets, including those
+    # with IDs that are not present in all frames
+    save_bboxes.to_via_tracks_file(
+        request.getfixturevalue(valid_dataset),
+        tmp_path / "test_valid_dataset.csv",
+        extract_track_id_from_individuals,
+        filename_prefix,
+    )
+
+    # TODO:Check as many track IDs as individuals
 
 
 @pytest.mark.parametrize(
@@ -106,7 +241,7 @@ def test_to_via_tracks_file_invalid_dataset(
     with pytest.raises(expected_exception):
         save_bboxes.to_via_tracks_file(
             request.getfixturevalue(invalid_dataset),
-            tmp_path / "test.csv",
+            tmp_path / "test_invalid_dataset.csv",
         )
 
 
