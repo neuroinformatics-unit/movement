@@ -112,7 +112,7 @@ def to_dlc_style_df(
     to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.
 
     """
-    _validate_dataset(ds)
+    _validate_poses_dataset(ds)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
     coords = ds.coords["space"].data.tolist() + ["likelihood"]
@@ -253,7 +253,7 @@ def to_lp_file(
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
-    _validate_dataset(ds)
+    _validate_poses_dataset(ds)
     to_dlc_file(ds, file.path, split_individuals=True)
 
 
@@ -297,7 +297,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
-    _validate_dataset(ds)
+    _validate_poses_dataset(ds)
 
     ds = _remove_unoccupied_tracks(ds)
 
@@ -419,8 +419,8 @@ def _validate_file_path(
     return file
 
 
-def _validate_dataset(ds: xr.Dataset) -> None:
-    """Validate the input as a proper ``movement`` dataset.
+def _validate_poses_dataset(ds: xr.Dataset) -> None:
+    """Validate the input as a proper ``movement`` poses dataset.
 
     Parameters
     ----------
@@ -432,7 +432,8 @@ def _validate_dataset(ds: xr.Dataset) -> None:
     TypeError
         If the input is not an xarray Dataset.
     ValueError
-        If the dataset is missing required data variables or dimensions.
+        If the dataset is missing required data variables or dimensions
+        for a valid ``movement`` poses dataset.
 
     """
     if not isinstance(ds, xr.Dataset):
