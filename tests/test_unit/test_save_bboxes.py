@@ -190,8 +190,8 @@ def test_map_individuals_to_track_ids_error(
     "valid_dataset",
     [
         "valid_bboxes_dataset",
-        # "valid_bboxes_dataset_in_seconds",
-        # "valid_bboxes_dataset_with_nan",
+        "valid_bboxes_dataset_in_seconds",
+        "valid_bboxes_dataset_with_nan",
         # "valid_bboxes_dataset_with_gaps", -- TODO
     ],
 )
