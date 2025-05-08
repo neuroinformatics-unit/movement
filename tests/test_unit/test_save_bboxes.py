@@ -5,12 +5,9 @@ from movement.io.save_bboxes import _write_single_via_row
 
 
 @pytest.mark.parametrize(
-    "frame, track_id, xy_coordinates, wh_values, max_digits, confidence",
-    [
-        (1, 0, np.array([100, 200]), np.array([50, 30]), 5, 0.5),
-        (1, 0, np.array([100, 200]), np.array([50, 30]), 5, None),
-    ],
-    ids=["with_confidence", "without_confidence"],
+    "confidence",
+    [None, 0.5],
+    ids=["without_confidence", "with_confidence"],
 )
 @pytest.mark.parametrize(
     "filename_prefix",
@@ -22,17 +19,26 @@ from movement.io.save_bboxes import _write_single_via_row
     [None, 100],
     ids=["without_all_frames_size", "with_all_frames_size"],
 )
+@pytest.mark.parametrize(
+    "max_digits",
+    [5, 3],
+    ids=["max_digits_5", "max_digits_3"],
+)
 def test_write_single_via_row(
-    frame,
-    track_id,
-    xy_coordinates,
-    wh_values,
-    max_digits,
     confidence,
     filename_prefix,
     all_frames_size,
+    max_digits,
 ):
     """Test writing a single row of the VIA-tracks CSV file."""
+    # Fixed input values
+    frame, track_id, xy_coordinates, wh_values = (
+        1,
+        0,
+        np.array([100, 200]),
+        np.array([50, 30]),
+    )
+
     # Write single row of VIA-tracks CSV file
     row = _write_single_via_row(
         frame,
@@ -49,9 +55,9 @@ def test_write_single_via_row(
     filename_prefix = f"{f'{filename_prefix}_' if filename_prefix else ''}"
     expected_filename = f"{filename_prefix}{frame:0{max_digits}d}.jpg"
     expected_file_size = all_frames_size if all_frames_size is not None else 0
-    expected_file_attributes = "{}"  # placeholder
-    expected_region_count = 0  # placeholder
-    expected_region_id = 0  # placeholder
+    expected_file_attributes = "{}"  # placeholder value
+    expected_region_count = 0  # placeholder value
+    expected_region_id = 0  # placeholder value
     expected_region_shape_attributes = {
         "name": "rect",
         "x": float(xy_coordinates[0] - wh_values[0] / 2),
