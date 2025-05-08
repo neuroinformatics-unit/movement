@@ -153,6 +153,10 @@ ds = load_bboxes.from_file(
     fps=30,
 )
 ```
+
+Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding ``movement`` dataset `ds` will hold in its `position` array the centroid of each bounding box.
+
+
 :::
 
 :::{tab-item} From NumPy
@@ -176,7 +180,9 @@ ds = load_bboxes.from_numpy(
 
 The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
 
-For more information on the bounding boxes data structure, see the [movement bounding boxes dataset](target-poses-and-bboxes-dataset) page.
+
+
+For more information on the bounding boxes data structure, see the [movement dataset](target-poses-and-bboxes-dataset) page.
 
 
 (target-saving-pose-tracks)=
