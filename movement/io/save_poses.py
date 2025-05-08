@@ -232,8 +232,8 @@ def to_lp_file(
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
-        and associated metadata.
+        ``movement`` dataset containing pose tracks, coordinates,
+        confidence scores, and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .csv.
 
@@ -241,7 +241,7 @@ def to_lp_file(
     -----
     LightningPose saves pose estimation outputs as .csv files, using the same
     format as single-animal DeepLabCut projects. Therefore, under the hood,
-    this function calls :func:`movement.io.save_poses.to_dlc_file`
+    this function calls :func:`to_dlc_file`
     with ``split_individuals=True``. This setting means that each individual
     is saved to a separate file, with the individual's name appended to the
     file path, just before the file extension,
@@ -358,6 +358,116 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
+    logger.info(f"Saved poses dataset to {file.path}.")
+
+
+def to_tidy_df(ds: xr.Dataset) -> pd.DataFrame:
+    """Convert a ``movement`` dataset to a tidy pandas DataFrame.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Tidy DataFrame with columns: 'frame', 'track_id', 'keypoint', 'x', 'y',
+        and 'confidence' (if available in the dataset).
+
+    Notes
+    -----
+    The output DataFrame is in a tidy format where each row represents a
+    single observation (one keypoint for one individual at one frame).
+    The columns are:
+    - 'frame': integer, the frame number (time index)
+    - 'track_id': string, the individual ID
+    - 'keypoint': string, the keypoint name
+    - 'x': float, x-coordinate
+    - 'y': float, y-coordinate
+    - 'confidence': float, point-wise confidence scores (if present)
+
+    Examples
+    --------
+    >>> from movement.io import save_poses, load_poses
+    >>> ds = load_poses.from_sleap_file("path/to/file_sleap.analysis.h5")
+    >>> df = save_poses.to_tidy_df(ds)
+
+    """
+    _validate_dataset(ds)
+
+    # Compute frame indices
+    fps = getattr(ds, "fps", None)
+    if fps is not None:
+        frame_idxs = np.rint(ds.time.values * fps).astype(int)
+    else:
+        frame_idxs = ds.time.values.astype(int)
+
+    # Stack data to create tidy format
+    position = (
+        ds["position"]
+        .stack(obs=["time", "individuals", "keypoints"])
+        .transpose("obs", "space")
+    )
+
+    # Create frame indices for each observation
+    time_indices = position.indexes["obs"].get_level_values("time")
+    frame_values = frame_idxs[np.searchsorted(ds.time.values, time_indices)]
+
+    # Create DataFrame
+    df = pd.DataFrame(
+        {
+            "frame": frame_values,
+            "track_id": position.individuals.values,
+            "keypoint": position.keypoints.values,
+            "x": position.sel(space="x").values,
+            "y": position.sel(space="y").values,
+        }
+    )
+
+    # Add confidence only if present and not all NaN
+    if "confidence" in ds and not ds["confidence"].isnull().all():
+        confidence = ds["confidence"].stack(
+            obs=["time", "individuals", "keypoints"]
+        )
+        df["confidence"] = confidence.values
+
+    logger.info("Converted poses dataset to tidy DataFrame.")
+    return df.reset_index(drop=True)
+
+
+def to_animovement_file(ds: xr.Dataset, file_path: str | Path) -> None:
+    """Save a ``movement`` dataset to an animovement Parquet file.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+    file_path : pathlib.Path or str
+        Path to the file to save the poses to. File extension must be .parquet.
+
+    Notes
+    -----
+    The dataset is first converted to a tidy DataFrame using
+    :func:`to_tidy_df`, then saved as a Parquet file using pandas'
+    `to_parquet` method.
+
+    Examples
+    --------
+    >>> from movement.io import save_poses, load_poses
+    >>> ds = load_poses.from_sleap_file("path/to/file_sleap.analysis.h5")
+    >>> save_poses.to_animovement_file(ds, "path/to/file.parquet")
+
+    """
+    file = _validate_file_path(file_path, expected_suffix=[".parquet"])
+    _validate_dataset(ds)
+
+    # Convert to tidy DataFrame
+    df = to_tidy_df(ds)
+    # Save to Parquet
+    df.to_parquet(file.path, index=False)
     logger.info(f"Saved poses dataset to {file.path}.")
 
 
