@@ -10,6 +10,7 @@ import pynwb
 import xarray as xr
 
 from movement.io.nwb import (
+    NWBFileSaveConfig,
     _ds_to_pose_and_skeleton_objects,
     _write_behavior_processing_module,
 )
@@ -460,6 +461,52 @@ def to_nwb_file(
         _write_behavior_processing_module(
             nwb_file, pose_estimation[0], skeletons
         )
+
+
+def to_nwb_file_min(
+    ds: xr.Dataset, config: NWBFileSaveConfig | None = None
+) -> list[pynwb.NWBFile]:
+    """Save a ``movement`` dataset to one or more open NWB file objects.
+
+    The data will be written to the NWB file(s) in the "behavior" processing
+    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
+    Each individual in the dataset will be written to a separate file object,
+    as required by the NWB format. Note that the NWBFile object(s) are not
+    automatically saved to disk.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        ``movement`` poses dataset containing the data to be converted to NWB
+    config : NWBFileSaveConfig
+        Configuration object containing keyword arguments to customise the
+        :class:`pynwb.file.NWBFile` that will be created for each individual.
+        If None (default), default values will be used.
+        See :class:`movement.io.NWBFileSaveConfig` for more details.
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
+
+    """
+    config = config or NWBFileSaveConfig()
+    individuals = ds.individuals.values.tolist()
+    nwb_files = (
+        [
+            pynwb.NWBFile(**(config.get_nwbfile_kwargs(id)))
+            for id in individuals
+        ]
+        if len(individuals) > 1
+        else [pynwb.NWBFile(**(config.get_nwbfile_kwargs()))]
+    )
+    for nwb_file, individual in zip(nwb_files, individuals, strict=False):
+        pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
+            ds.sel(individuals=individual)
+        )
+        _write_behavior_processing_module(
+            nwb_file, pose_estimation[0], skeletons
+        )
+    return nwb_files
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
