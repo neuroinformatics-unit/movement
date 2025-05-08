@@ -12,6 +12,60 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset
 
 
+def _map_individuals_to_track_ids(
+    list_individuals: list[str], extract_track_id_from_individuals: bool
+) -> dict[str, int]:
+    """Map individuals to track IDs.
+
+    Parameters
+    ----------
+    list_individuals : list[str]
+        List of individuals.
+    extract_track_id_from_individuals : bool
+        If True, extract track_id from individuals' names. If False, the
+        track_id will be factorised from the sorted individuals' names.
+
+    Returns
+    -------
+    dict[str, int]
+        A dictionary mapping individuals (str) to track IDs (int).
+
+    """
+    # Use sorted list of individuals' names
+    list_individuals = sorted(list_individuals)
+
+    # Map individuals to track IDs
+    map_individual_to_track_id = {}
+    if extract_track_id_from_individuals:
+        # Extract consecutive integers at the end of individuals' names
+        for individual in list_individuals:
+            match = re.search(r"\d+$", individual)
+            if match:
+                map_individual_to_track_id[individual] = int(match.group())
+            else:
+                raise ValueError(
+                    f"Could not extract track ID from {individual}."
+                )
+
+        # Check that all individuals have a track ID
+        if len(set(map_individual_to_track_id.values())) != len(
+            set(list_individuals)
+        ):
+            raise ValueError(
+                "Could not extract a unique track ID for all individuals. "
+                f"Expected {len(set(list_individuals))} unique track IDs, "
+                f"but got {len(set(map_individual_to_track_id.values()))}."
+            )
+
+    else:
+        # Factorise track IDs from sorted individuals' names
+        map_individual_to_track_id = {
+            individual: i for i, individual in enumerate(list_individuals)
+        }
+
+    return map_individual_to_track_id
+
+
 def _write_single_via_row(
     frame_idx: int,
     track_id: int,
@@ -91,58 +145,76 @@ def _write_single_via_row(
     )
 
 
-def _map_individuals_to_track_ids(
-    list_individuals: list[str], extract_track_id_from_individuals: bool
-) -> dict[str, int]:
-    """Map individuals to track IDs.
+def _write_via_tracks_csv(
+    ds: xr.Dataset,
+    file_path: str | Path,
+    map_individual_to_track_id: dict,
+    max_digits: int,
+    filename_prefix: str | None,
+) -> None:
+    """Write a VIA-tracks CSV file.
 
     Parameters
     ----------
-    list_individuals : list[str]
-        List of individuals.
-    extract_track_id_from_individuals : bool
-        If True, extract track_id from individuals' names. If False, the
-        track_id will be factorised from the sorted individuals' names.
-
-    Returns
-    -------
-    dict[str, int]
-        A dictionary mapping individuals (str) to track IDs (int).
+    ds : xarray.Dataset
+        The movement bounding boxes dataset to export.
+    file_path : str or pathlib.Path
+        Path where the VIA-tracks CSV file will be saved.
+    map_individual_to_track_id : dict
+        Dictionary mapping individual names to track IDs.
+    max_digits : int
+        Maximum number of digits for frame number padding.
+    filename_prefix : str or None
+        Prefix for each image filename.
 
     """
-    # Use sorted list of individuals' names
-    list_individuals = sorted(list_individuals)
+    with open(file_path, "w", newline="") as f:
+        # Write header
+        writer = csv.writer(f)
+        writer.writerow(
+            [
+                "filename",
+                "file_size",
+                "file_attributes",
+                "region_count",
+                "region_id",
+                "region_shape_attributes",
+                "region_attributes",
+            ]
+        )
 
-    # Map individuals to track IDs
-    map_individual_to_track_id = {}
-    if extract_track_id_from_individuals:
-        # Extract consecutive integers at the end of individuals' names
-        for individual in list_individuals:
-            match = re.search(r"\d+$", individual)
-            if match:
-                map_individual_to_track_id[individual] = int(match.group())
-            else:
-                raise ValueError(
-                    f"Could not extract track ID from {individual}."
+        # For each individual and time point
+        for time_idx, time in enumerate(ds.time.values):
+            for individual in ds.individuals.values:
+                # Get position and shape data
+                xy = ds.position.sel(time=time, individuals=individual).values
+                wh = ds.shape.sel(time=time, individuals=individual).values
+
+                # Get confidence score
+                confidence = ds.confidence.sel(
+                    time=time, individuals=individual
+                ).values
+
+                # Get track_id from individual
+                # TODO: has to be an integer
+                track_id = map_individual_to_track_id[individual]
+
+                # Skip if NaN values
+                if np.isnan(xy).any() or np.isnan(wh).any():
+                    continue
+
+                # Write row
+                writer.writerow(
+                    _write_single_via_row(
+                        time_idx,
+                        track_id,
+                        xy,
+                        wh,
+                        max_digits,
+                        confidence if np.isnan(confidence) else None,
+                        filename_prefix,
+                    )
                 )
-
-        # Check that all individuals have a track ID
-        if len(set(map_individual_to_track_id.values())) != len(
-            set(list_individuals)
-        ):
-            raise ValueError(
-                "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(list_individuals))} unique track IDs, "
-                f"but got {len(set(map_individual_to_track_id.values()))}."
-            )
-
-    else:
-        # Factorise track IDs from sorted individuals' names
-        map_individual_to_track_id = {
-            individual: i for i, individual in enumerate(list_individuals)
-        }
-
-    return map_individual_to_track_id
 
 
 def to_via_tracks_file(
@@ -195,53 +267,13 @@ def to_via_tracks_file(
     )
 
     # Write csv file
-    with open(file.path, "w", newline="") as f:
-        # Write header
-        writer = csv.writer(f)
-        writer.writerow(
-            [
-                "filename",
-                "file_size",
-                "file_attributes",
-                "region_count",
-                "region_id",
-                "region_shape_attributes",
-                "region_attributes",
-            ]
-        )
-
-        # For each individual and time point
-        for time_idx, time in enumerate(ds.time.values):
-            for individual in ds.individuals.values:
-                # Get position and shape data
-                xy = ds.position.sel(time=time, individuals=individual).values
-                wh = ds.shape.sel(time=time, individuals=individual).values
-
-                # Get confidence score
-                confidence = ds.confidence.sel(
-                    time=time, individuals=individual
-                ).values
-
-                # Get track_id from individual
-                # TODO: has to be an integer
-                track_id = individual_to_track_id[individual]
-
-                # Skip if NaN values
-                if np.isnan(xy).any() or np.isnan(wh).any():
-                    continue
-
-                # # Write row
-                writer.writerow(
-                    _write_single_via_row(
-                        time_idx,
-                        track_id,
-                        xy,
-                        wh,
-                        max_digits,
-                        confidence if np.isnan(confidence) else None,
-                        filename_prefix,
-                    )
-                )
+    _write_via_tracks_csv(
+        ds,
+        file.path,
+        individual_to_track_id,
+        max_digits,
+        filename_prefix,
+    )
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")
     return file.path
