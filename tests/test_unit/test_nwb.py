@@ -1,6 +1,11 @@
-import ndx_pose
+import datetime
+from contextlib import nullcontext as does_not_raise
+from unittest.mock import patch
 
-from movement.io.nwb import _ds_to_pose_and_skeleton_objects
+import ndx_pose
+import pytest
+
+from movement.io.nwb import NWBFileSaveConfig, _ds_to_pose_and_skeleton_objects
 
 
 def test_ds_to_pose_and_skeleton_objects(valid_poses_dataset):
@@ -17,3 +22,137 @@ def test_ds_to_pose_and_skeleton_objects(valid_poses_dataset):
         == pose_estimation[0].pose_estimation_series.keys()
     )
     assert {"id_0_skeleton"} == skeletons.skeletons.keys()
+
+
+SESSION_START_TIME = datetime.datetime.now(datetime.UTC)
+
+
+@pytest.mark.parametrize(
+    "nwbfile_kwargs, individual, expected",
+    [
+        (
+            None,
+            None,
+            does_not_raise(
+                {
+                    "session_description": "not set",
+                    "identifier": "not set",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+        (
+            None,
+            "id_0",
+            does_not_raise(
+                {
+                    "session_description": "not set",
+                    "identifier": "id_0",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+        (
+            {
+                "session_description": "subj0 session",
+                "identifier": "subj0",
+                "session_start_time": SESSION_START_TIME,
+            },
+            None,
+            does_not_raise(None),  # Same as input kwargs
+        ),
+        (
+            {
+                "session_description": "subj0 session",
+                "identifier": "subj0",
+                "session_start_time": SESSION_START_TIME,
+            },
+            "id_0",
+            does_not_raise(
+                {
+                    "session_description": "subj0 session",
+                    "identifier": "id_0",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+        (
+            {
+                "id_0": {
+                    "session_description": "subj0 session",
+                    "identifier": "subj0",
+                },
+            },
+            None,
+            pytest.raises(ValueError, match=".*no individual was provided."),
+        ),
+        (
+            {
+                "id_0": {
+                    "session_description": "subj0 session",
+                    "identifier": "subj0",
+                },
+            },
+            "id_0",
+            does_not_raise(
+                {
+                    "session_description": "subj0 session",
+                    "identifier": "subj0",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+        (
+            {
+                "id_0": {
+                    "session_description": "subj0 session",
+                },
+            },
+            "id_0",
+            does_not_raise(
+                {
+                    "session_description": "subj0 session",
+                    "identifier": "id_0",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+        (
+            {
+                "id_0": {
+                    "session_description": "subj0 session",
+                },
+            },
+            "id_not_in_kwargs",
+            does_not_raise(
+                {
+                    "session_description": "not set",
+                    "identifier": "id_not_in_kwargs",
+                    "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+    ],
+    ids=[
+        "no args provided: default identifier",
+        "ind: ind as identifier",
+        "shared kwargs: kwargs as identifier",
+        "shared kwargs + ind: ind as identifier",
+        "kwargs per ind: error (no ind provided)",
+        "kwargs per ind + ind: kwargs as identifier",
+        "kwargs per ind (w/o identifier) + ind: ind as identifier",
+        "kwargs per ind + ind (not in kwargs): default with warning",
+    ],
+)
+def test_NWBFileSaveConfig_get_nwbfile_kwargs(
+    nwbfile_kwargs, individual, expected, request, caplog
+):
+    """Test NWBFileSaveConfig create_nwbfile with nwbfile_kwargs."""
+    with patch("datetime.datetime") as mock_datetime, expected as context:
+        mock_datetime.now.return_value = SESSION_START_TIME
+        config = NWBFileSaveConfig(nwbfile_kwargs=nwbfile_kwargs)
+        actual_kwargs = config.get_nwbfile_kwargs(individual)
+        expected_kwargs = context or nwbfile_kwargs
+        assert actual_kwargs == expected_kwargs
+        if "default with warning" in request.node.callspec.id:
+            assert "'id_not_in_kwargs' not found" in caplog.messages[0]
