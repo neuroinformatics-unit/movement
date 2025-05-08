@@ -54,7 +54,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = [
-  "napari[all]>=0.5.0",
+  "napari[all]>=0.6.0",
 ]
 dev = [
   "pytest",
