@@ -274,8 +274,13 @@ def from_via_tracks_file(
 
     Notes
     -----
-    The bounding boxes IDs specified in the "track" field of the VIA
-    tracks .csv file are mapped to the "individual_name" column of the
+    Note that the x,y coordinates in the input VIA tracks .csv file
+    represent the the top-left corner of each bounding box. Instead the
+    corresponding ``movement`` dataset holds in its ``position`` array the
+    centroid of each bounding box.
+
+    Additionally, the bounding boxes IDs specified in the "track" field of
+    the VIA tracks .csv file are mapped to the ``individuals`` dimension in the
     ``movement`` dataset. The individual names follow the format ``id_<N>``,
     with N being the bounding box ID.
 
