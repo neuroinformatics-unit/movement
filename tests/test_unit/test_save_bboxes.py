@@ -110,9 +110,22 @@ def test_to_via_tracks_file_invalid_dataset(
         )
 
 
-def test_to_via_tracks_file_invalid_file_path():
-    """Test that an invalid file path raises an error."""
-    pass
+@pytest.mark.parametrize(
+    "wrong_extension",
+    [
+        ".mp4",
+        "",
+    ],
+)
+def test_to_via_tracks_file_invalid_file_path(
+    valid_bboxes_dataset, tmp_path, wrong_extension
+):
+    """Test that file with wrong extension raises an error."""
+    with pytest.raises(ValueError):
+        save_bboxes.to_via_tracks_file(
+            valid_bboxes_dataset,
+            tmp_path / f"test{wrong_extension}",
+        )
 
 
 def test_to_via_tracks_file_with_nans():
