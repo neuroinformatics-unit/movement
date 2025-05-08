@@ -1,13 +1,15 @@
 """Save bounding boxes data from ``movement`` to VIA-tracks CSV format."""
 
 import csv
+import re
 from pathlib import Path
 
 import numpy as np
 import xarray as xr
 
-from movement.io.save_poses import _validate_dataset, _validate_file_path
+from movement.io.save_poses import _validate_file_path
 from movement.utils.logging import logger
+from movement.validators.datasets import ValidBboxesDataset
 
 
 def _write_single_via_row(
@@ -89,9 +91,64 @@ def _write_single_via_row(
     )
 
 
+def _map_individuals_to_track_ids(
+    list_individuals: list[str], extract_track_id_from_individuals: bool
+) -> dict[str, int]:
+    """Map individuals to track IDs.
+
+    Parameters
+    ----------
+    list_individuals : list[str]
+        List of individuals.
+    extract_track_id_from_individuals : bool
+        If True, extract track_id from individuals' names. If False, the
+        track_id will be factorised from the sorted individuals' names.
+
+    Returns
+    -------
+    dict[str, int]
+        A dictionary mapping individuals (str) to track IDs (int).
+
+    """
+    # Use sorted list of individuals' names
+    list_individuals = sorted(list_individuals)
+
+    # Map individuals to track IDs
+    map_individual_to_track_id = {}
+    if extract_track_id_from_individuals:
+        # Extract consecutive integers at the end of individuals' names
+        for individual in list_individuals:
+            match = re.search(r"\d+$", individual)
+            if match:
+                map_individual_to_track_id[individual] = int(match.group())
+            else:
+                raise ValueError(
+                    f"Could not extract track ID from {individual}."
+                )
+
+        # Check that all individuals have a track ID
+        if len(set(map_individual_to_track_id.values())) != len(
+            set(list_individuals)
+        ):
+            raise ValueError(
+                "Could not extract a unique track ID for all individuals. "
+                f"Expected {len(set(list_individuals))} unique track IDs, "
+                f"but got {len(set(map_individual_to_track_id.values()))}."
+            )
+
+    else:
+        # Factorise track IDs from sorted individuals' names
+        map_individual_to_track_id = {
+            individual: i for i, individual in enumerate(list_individuals)
+        }
+
+    return map_individual_to_track_id
+
+
 def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
+    extract_track_id_from_individuals: bool = False,
     filename_prefix: str | None = None,
 ) -> Path:
     """Save a movement bounding boxes dataset to a VIA-tracks CSV file.
@@ -102,6 +159,10 @@ def to_via_tracks_file(
         The movement bounding boxes dataset to export.
     file_path : str or pathlib.Path
         Path where the VIA-tracks CSV file will be saved.
+    extract_track_id_from_individuals : bool, optional
+        If True, extract track_id from individuals' names. If False, the
+        track_id will be factorised from the sorted individuals' names.
+        Default is False.
     filename_prefix : str, optional
         Prefix for each image filename, prepended to frame number. If None,
         nothing will be prepended.
@@ -120,17 +181,23 @@ def to_via_tracks_file(
     """
     # Validate file path and dataset
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
-    _validate_dataset(ds)
+    _validate_bboxes_dataset(ds)
 
     # Calculate the maximum number of digits required
     # to represent the frame number
     # (add 1 to prepend at least one zero)
     max_digits = len(str(ds.time.size)) + 1
 
-    with open(file.path, "w", newline="") as f:
-        writer = csv.writer(f)
+    # Map individuals to track IDs
+    individual_to_track_id = _map_individuals_to_track_ids(
+        ds.coords["individuals"].values,
+        extract_track_id_from_individuals,
+    )
 
+    # Write csv file
+    with open(file.path, "w", newline="") as f:
         # Write header
+        writer = csv.writer(f)
         writer.writerow(
             [
                 "filename",
@@ -156,7 +223,8 @@ def to_via_tracks_file(
                 ).values
 
                 # Get track_id from individual
-                track_id = ds.tracks.sel(individuals=individual).values
+                # TODO: has to be an integer
+                track_id = individual_to_track_id[individual]
 
                 # Skip if NaN values
                 if np.isnan(xy).any() or np.isnan(wh).any():
@@ -177,3 +245,38 @@ def to_via_tracks_file(
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")
     return file.path
+
+
+def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
+    """Validate the input as a proper ``movement`` pose dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to validate.
+
+    Raises
+    ------
+    TypeError
+        If the input is not an xarray Dataset.
+    ValueError
+        If the dataset is missing required data variables or dimensions
+        for a valid ``movement`` pose dataset.
+
+    """
+    if not isinstance(ds, xr.Dataset):
+        raise logger.error(
+            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
+        )
+
+    missing_vars = set(ValidBboxesDataset.VAR_NAMES) - set(ds.data_vars)
+    if missing_vars:
+        raise ValueError(
+            f"Missing required data variables: {sorted(missing_vars)}"
+        )  # sort for a reproducible error message
+
+    missing_dims = set(ValidBboxesDataset.DIM_NAMES) - set(ds.dims)
+    if missing_dims:
+        raise ValueError(
+            f"Missing required dimensions: {sorted(missing_dims)}"
+        )  # sort for a reproducible error message
