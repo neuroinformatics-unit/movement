@@ -276,8 +276,8 @@ def from_via_tracks_file(
     -----
     Note that the x,y coordinates in the input VIA tracks .csv file
     represent the the top-left corner of each bounding box. Instead the
-    corresponding ``movement`` dataset holds the centroid of each bounding
-    box in its `position` array.
+    corresponding ``movement`` dataset holds in its `position` array the
+    centroid of each bounding box.
 
     Additionally, the bounding boxes IDs specified in the "track" field of
     the VIA tracks .csv file are mapped to the "individual_name" column of

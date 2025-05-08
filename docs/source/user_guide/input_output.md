@@ -178,7 +178,7 @@ The resulting data structure `ds` will include the centroid trajectories for eac
 
 :::{note}
 Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box.
-Instead the corresponding ``movement`` dataset holds the centroid of each bounding box in its `position` array.
+Instead the corresponding ``movement`` dataset holds in its `position` array the centroid of each bounding box.
 :::
 
 For more information on the bounding boxes data structure, see the [movement dataset](target-poses-and-bboxes-dataset) page.
