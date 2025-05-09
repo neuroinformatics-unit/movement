@@ -125,44 +125,41 @@ class NWBFileSaveConfig:
         2. ``cfg[id_key]`` (if provided)
         3. ``defaults[id_key]`` (if provided)
         """
-        is_per_individual = (
-            cfg
-            and isinstance(cfg, dict)
-            and all(isinstance(v, dict) for v in cfg.values())
-        )
-        if is_per_individual:
+
+        def is_per_individual_config(cfg: dict) -> bool:
+            return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
+
+        def get_individual_or_raise(cfg: dict) -> str:
+            if len(cfg) == 1:
+                inferred = next(iter(cfg))
+                logger.warning(
+                    f"No individual was provided. Assuming '{inferred}' "
+                    f"since there is only one entry in {warn_context}."
+                )
+                return inferred
+            raise logger.error(
+                ValueError(
+                    f"NWBFileSaveConfig has per-individual {warn_context}, "
+                    "but no individual was provided."
+                )
+            )
+
+        if is_per_individual_config(cfg):
             if individual is None:
-                if len(cfg) == 1:
-                    individual = next(iter(cfg.keys()))
-                    logger.warning(
-                        f"No individual was provided. Assuming '{individual}' "
-                        f"as the individual since there is only one "
-                        f"configuration entry in {warn_context}."
-                    )
-                else:
-                    raise logger.error(
-                        ValueError(
-                            "NWBFileSaveConfig has per-individual "
-                            f"{warn_context}, but no individual was provided."
-                        )
-                    )
-            if individual in cfg:
-                base = dict(cfg[individual])
-                base.setdefault(id_key, individual)
-            else:
+                individual = get_individual_or_raise(cfg)
+            base = dict(cfg.get(individual, {}))
+            if not base:
                 logger.warning(
                     f"Individual '{individual}' not found in {warn_context}; "
                     f"setting only {id_key} to '{individual}'."
                 )
-                base = {id_key: individual}
-        else:
+            base.setdefault(id_key, individual)
+        else:  # Shared config
             base = dict(cfg)
             if individual is not None:
                 base[id_key] = individual
-
         if defaults:
-            for k, v in defaults.items():
-                base.setdefault(k, v)
+            base = {**defaults, **base}  # base overrides defaults
         return base
 
     def resolve_nwbfile_kwargs(
