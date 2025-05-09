@@ -491,13 +491,27 @@ def to_nwb_file_min(
     """
     config = config or NWBFileSaveConfig()
     individuals = ds.individuals.values.tolist()
+    subjects = (
+        {
+            id: pynwb.file.Subject(**(config.resolve_subject_kwargs(id)))
+            for id in individuals
+        }
+        if len(individuals) > 1
+        else pynwb.file.Subject(**(config.resolve_subject_kwargs()))
+    )
     nwb_files = (
         [
-            pynwb.NWBFile(**(config.resolve_nwbfile_kwargs(id)))
+            pynwb.NWBFile(
+                subject=subjects[id], **(config.resolve_nwbfile_kwargs(id))
+            )
             for id in individuals
         ]
         if len(individuals) > 1
-        else [pynwb.NWBFile(**(config.resolve_nwbfile_kwargs()))]
+        else [
+            pynwb.NWBFile(
+                subject=subjects, **(config.resolve_nwbfile_kwargs())
+            )
+        ]
     )
     for nwb_file, individual in zip(nwb_files, individuals, strict=False):
         pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
