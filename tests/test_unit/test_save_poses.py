@@ -353,6 +353,10 @@ nwb_file_kwargs_expectations = {
         "session_description": "test session",
         "identifier": ["id_0", "id_1"],
     },
+    "kwargs_per_ind-single_nwb_file": {
+        "session_description": "test session",
+        "identifier": ["subj1"],
+    },
     "kwargs_per_ind-multiple_nwb_files": {
         "session_description": "test session",
         "identifier": ["subj1", "subj2"],
@@ -396,9 +400,13 @@ def test_to_nwb_file_min_nwbfile_kwargs(
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(nwbfile_kwargs=nwbfile_kwargs)
     if test_id == "kwargs_per_ind-single_nwb_file":
+        # error as too many kwargs to choose from
         with pytest.raises(ValueError, match=".*no individual was provided."):
             save_poses.to_nwb_file_min(ds, config)
-        return
+        # recreate nwbfile_kwargs with only one individual
+        config.nwbfile_kwargs = {
+            k: v for k, v in config.nwbfile_kwargs.items() if k == "id_0"
+        }
     nwb_files = save_poses.to_nwb_file_min(ds, config)
     actual = [
         (file.session_description, file.identifier) for file in nwb_files
