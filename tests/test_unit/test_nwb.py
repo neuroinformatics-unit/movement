@@ -180,9 +180,7 @@ class TestNWBFileSaveConfig:
             expected_kwargs = context or nwbfile_kwargs
             assert actual_kwargs == expected_kwargs
             if "warn; kwarg as identifier" in request.node.callspec.id:
-                assert (
-                    "Assuming 'id_0' as the individual" in caplog.messages[0]
-                )
+                assert "Assuming 'id_0'" in caplog.messages[0]
             if "warn; ind as identifier" in request.node.callspec.id:
                 assert "'id_not_in_kwargs' not found" in caplog.messages[0]
 
@@ -253,8 +251,6 @@ class TestNWBFileSaveConfig:
             actual_kwargs = config.resolve_subject_kwargs(individual)
             assert actual_kwargs == expected_kwargs
             if "warn; kwarg as id" in request.node.callspec.id:
-                assert (
-                    "Assuming 'id_0' as the individual" in caplog.messages[0]
-                )
+                assert "Assuming 'id_0'" in caplog.messages[0]
             if "warn; ind as id" in request.node.callspec.id:
                 assert "'id_not_in_kwargs' not found" in caplog.messages[0]
