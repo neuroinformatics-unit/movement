@@ -347,7 +347,7 @@ nwb_file_kwargs_expectations = {
     },
     "shared_kwargs-single_nwb_file": {
         "session_description": "test session",
-        "identifier": ["subj1"],
+        "identifier": ["subj0"],
     },
     "shared_kwargs-multiple_nwb_files": {
         "session_description": "test session",
@@ -355,11 +355,11 @@ nwb_file_kwargs_expectations = {
     },
     "kwargs_per_ind-single_nwb_file": {
         "session_description": "test session",
-        "identifier": ["subj1"],
+        "identifier": ["subj0"],
     },
     "kwargs_per_ind-multiple_nwb_files": {
         "session_description": "test session",
-        "identifier": ["subj1", "subj2"],
+        "identifier": ["subj0", "subj1"],
     },
 }
 
@@ -376,15 +376,15 @@ nwb_file_kwargs_expectations = {
     "nwbfile_kwargs",
     [
         None,
-        {"session_description": "test session", "identifier": "subj1"},
+        {"session_description": "test session", "identifier": "subj0"},
         {
             "id_0": {
                 "session_description": "test session",
-                "identifier": "subj1",
+                "identifier": "subj0",
             },
             "id_1": {
                 "session_description": "test session",
-                "identifier": "subj2",
+                "identifier": "subj1",
             },
         },
     ],
@@ -415,6 +415,102 @@ def test_to_nwb_file_min_nwbfile_kwargs(
     expected = [
         (expected["session_description"], id) for id in expected["identifier"]
     ]
+    assert actual == expected
+
+
+subject_kwargs_expectations = {
+    "default_kwargs-single_nwb_file": [{"age__reference": "birth"}],
+    "default_kwargs-multiple_nwb_files": [
+        {
+            "age__reference": "birth",
+            "subject_id": "id_0",
+        },
+        {
+            "age__reference": "birth",
+            "subject_id": "id_1",
+        },
+    ],
+    "shared_kwargs-single_nwb_file": [
+        {
+            "age__reference": "birth",
+            "age": "P90D",
+            "subject_id": "subj0",
+        }
+    ],
+    "shared_kwargs-multiple_nwb_files": [
+        {
+            "age__reference": "birth",
+            "age": "P90D",
+            "subject_id": "id_0",
+        },
+        {
+            "age__reference": "birth",
+            "age": "P90D",
+            "subject_id": "id_1",
+        },
+    ],
+    "kwargs_per_ind-single_nwb_file": [
+        {
+            "age__reference": "birth",
+            "age": "P90D",
+            "subject_id": "subj0",
+        }
+    ],
+    "kwargs_per_ind-multiple_nwb_files": [
+        {
+            "age__reference": "birth",
+            "age": "P90D",
+            "subject_id": "subj0",
+        },
+        {
+            "age__reference": "birth",
+            "age": "P91D",
+            "subject_id": "subj1",
+        },
+    ],
+}
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda ds: ds.drop_sel(individuals="id_1"),
+        lambda ds: ds,
+    ],
+    ids=["single_nwb_file", "multiple_nwb_files"],
+)
+@pytest.mark.parametrize(
+    "subject_kwargs",
+    [
+        None,
+        {"age": "P90D", "subject_id": "subj0"},
+        {
+            "id_0": {"age": "P90D", "subject_id": "subj0"},
+            "id_1": {"age": "P91D", "subject_id": "subj1"},
+        },
+    ],
+    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
+)
+def test_to_nwb_file_subject_kwargs(
+    selection_fn, subject_kwargs, valid_poses_dataset, request
+):
+    """Test saving single-/multi-individual poses dataset to NWBFile(s)
+    with default or custom ``subject_kwargs``.
+    """
+    ds = selection_fn(valid_poses_dataset)
+    test_id = request.node.callspec.id
+    config = nwb.NWBFileSaveConfig(subject_kwargs=subject_kwargs)
+    if test_id == "kwargs_per_ind-single_nwb_file":
+        # error as too many kwargs to choose from
+        with pytest.raises(ValueError, match=".*no individual was provided."):
+            save_poses.to_nwb_file_min(ds, config)
+        # recreate subject_kwargs with only one individual
+        config.subject_kwargs = {
+            k: v for k, v in config.subject_kwargs.items() if k == "id_0"
+        }
+    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    actual = [file.subject.fields for file in nwb_files]
+    expected = subject_kwargs_expectations.get(test_id)
     assert actual == expected
 
 

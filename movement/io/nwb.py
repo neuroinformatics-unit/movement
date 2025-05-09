@@ -137,7 +137,6 @@ class NWBFileSaveConfig:
         cfg = self.nwbfile_kwargs
 
         def set_defaults(kwargs: dict[str, Any]) -> dict[str, Any]:
-            kwargs = dict(kwargs)
             kwargs.setdefault("session_description", "not set")
             kwargs.setdefault(
                 "session_start_time", datetime.datetime.now(datetime.UTC)
@@ -176,10 +175,78 @@ class NWBFileSaveConfig:
                     "using default values."
                 )
                 return set_defaults({"identifier": individual})
-        else:  # Shared nwbfile_kwargs
-            base = set_defaults(cfg)
+        # Shared nwbfile_kwargs
+        base = set_defaults(dict(cfg))
+        if individual is not None:
+            base["identifier"] = individual  # Overwrite identifier
+        return base
+
+    def resolve_subject_kwargs(
+        self, individual: str | None = None
+    ) -> dict[str, Any]:
+        """Resolve the keyword arguments for :class:`pynwb.file.Subject`.
+
+        If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys
+        should correspond to individual names in the ``movement`` dataset,
+        and the inner dictionaries will be passed as keyword arguments to the
+        :class:`pynwb.file.Subject` constructor.
+
+        If ``subject_kwargs`` is a single dictionary, the same arguments will
+        be applied to all Subject objects, except for ``subject_id``,
+        which will be set in the following order of precedence:
+        1. ``individual`` (if provided)
+        2. ``subject_kwargs["subject_id"]`` (if provided)
+
+        Parameters
+        ----------
+        individual : str, optional
+            Individual name. If provided, the method will attempt to retrieve
+            individual-specific settings or fall back to shared or default
+            settings.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments to be passed to :class:`pynwb.file.Subject`.
+
+        """
+        cfg = self.subject_kwargs
+
+        is_per_individual = (
+            isinstance(cfg, dict)
+            and cfg
+            and all(isinstance(v, dict) for v in cfg.values())
+        )
+        if is_per_individual:
+            if individual is None:
+                if len(cfg) == 1:
+                    individual = next(iter(cfg.keys()))
+                    logger.warning(
+                        f"No individual was provided. Assuming '{individual}' "
+                        "as the individual since there is only one "
+                        "configuration entry."
+                    )
+                else:
+                    raise logger.error(
+                        ValueError(
+                            "NWBFileSaveConfig has per-individual"
+                            "subject_kwargs, but no individual was provided."
+                        )
+                    )
+            if individual in cfg:
+                base = dict(cfg[individual])
+                base.setdefault("subject_id", individual)
+                return base
+            else:
+                logger.warning(
+                    f"Individual '{individual}' not found in subject_kwargs; "
+                    "setting only subject_id to '{individual}'."
+                )
+                return {"subject_id": individual}
+        else:
+            base = dict(cfg)
             if individual is not None:
-                base["identifier"] = individual  # Overwrite identifier
+                base["subject_id"] = individual
         return base
 
 
