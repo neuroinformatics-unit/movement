@@ -17,7 +17,7 @@ _At a glance_
 
 - **Regions of Interest (RoIs)**: An RoI backend was added for analysis of RoIs, allowing future development of the napari plugin.
 - **Plot Wrapper Functions**: Added to aid in initial "eyeballing" of data, making it easy to create common analysis plots with a single line of code.
-- **New examples**: {ref}`Extend your analysis methods along data dimensions <sphx_glr_examples_broadcasting_your_own_methods.py>`, {ref}`Pupil tracking <sphx_glr_examples_mouse_eye_movements.py>`.
+- **New examples**: {ref}`Extend your analysis methods along data dimensions <sphx_glr_examples_advanced_broadcasting_your_own_methods.py>`, {ref}`Pupil tracking <sphx_glr_examples_mouse_eye_movements.py>`.
 
 ## Original Roadmap
 
@@ -67,7 +67,7 @@ However when it comes to writing your own, custom analysis functions, most of th
 But this approach typically means that you're then stuck writing a `for` loop over the values in your `DataArray`, and on top of that having to copy across the dimension labels or coordinates into the new array you're making as the `for` loop runs.
 
 With this in mind, we have decided to expose the {func}`movement.utils.broadcasting.make_broadcastable` decorator, which can turn functions that take in one-dimensional data (e.g., a single spatial coordinate, or a single time-point) into functions that act across `DataArray`s with appropriate dimensions.
-You can find a new {ref}`example <sphx_glr_examples_broadcasting_your_own_methods.py>` on how to use this decorator on your own functions.
+You can find a new {ref}`example <sphx_glr_examples_advanced_broadcasting_your_own_methods.py>` on how to use this decorator on your own functions.
 
 ### Regions of Interest (RoIs)
 

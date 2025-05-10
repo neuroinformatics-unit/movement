@@ -94,6 +94,8 @@ exclude_patterns = [
     # this is to prevent sphinx from complaining about duplicate source files
     "examples/*.ipynb",
     "examples/*.py",
+    "examples/**/*.ipynb",
+    "examples/**/*.py",
 ]
 
 # Configure Sphinx gallery

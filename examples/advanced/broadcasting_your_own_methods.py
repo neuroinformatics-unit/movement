@@ -1,9 +1,21 @@
-"""Extend your analysis methods along data dimensions
+"""Broadcast functions across multi-dimensional data
 =====================================================
 
-Learn how to use the ``make_broadcastable`` decorator, to easily
-cast functions  across an entire ``xarray.DataArray``.
+Use the ``make_broadcastable`` decorator to efficiently
+apply functions across any data dimension.
 """
+
+# %%
+# Summary
+# -------
+# The ``make_broadcastable`` decorator is particularly useful when you need to
+# apply the same operation to multiple individuals or time points
+# while avoiding the need to write complex loops.
+#
+# The example walks through a practical case study of detecting when animals
+# enter a specific region of interest, showing how to convert a simple
+# point-in-rectangle check into a function that works on a data array
+# with many time-varying point trajectories.
 
 # %%
 # Imports
