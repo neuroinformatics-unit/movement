@@ -1,4 +1,4 @@
-.. target-exampled-advanced:
+.. target-examples-advanced:
 
 Advanced
 ~~~~~~~~
