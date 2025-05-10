@@ -1,6 +1,7 @@
 .. target-exampled-advanced:
 
-Advanced Examples
-~~~~~~~~~~~~~~~~~
+Advanced
+~~~~~~~~
 
-This section is dedicated to our power users.
+These examples are intended for experienced users who want to leverage the
+full power of ``movement``.
