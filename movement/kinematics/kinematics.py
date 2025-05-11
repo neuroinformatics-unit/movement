@@ -1,4 +1,4 @@
-"""Compute core kinematic variables such as time derivatives of position.
+"""Compute core kinematic variables such as time derivatives of ``position``.
 
 This module provides functions for computing fundamental kinematic properties
 such as displacement, velocity, acceleration, speed, and path length

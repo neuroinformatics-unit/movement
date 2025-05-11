@@ -1,4 +1,4 @@
-"""Kinematic computations for movement analysis."""
+"""Compute variables derived from ``position`` data."""
 
 from movement.kinematics.distances import compute_pairwise_distances
 from movement.kinematics.kinematics import (
