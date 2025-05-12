@@ -1,5 +1,6 @@
 """Save bounding boxes data from ``movement`` to VIA-tracks CSV format."""
 
+import _csv
 import csv
 import re
 from pathlib import Path
@@ -67,6 +68,7 @@ def _map_individuals_to_track_ids(
 
 
 def _write_single_via_row(
+    writer: _csv._writer,
     frame_number: int,
     track_id: int,
     xy_coordinates: np.ndarray,
@@ -80,6 +82,8 @@ def _write_single_via_row(
 
     Parameters
     ----------
+    writer : csv.writer
+        CSV writer object.
     frame_number : int
         Frame number.
     track_id : int
@@ -133,7 +137,7 @@ def _write_single_via_row(
     filename = f"{filename_prefix}{frame_number:0{max_digits}d}.jpg"
 
     # Define row data
-    return (
+    row = (
         filename,  # filename
         all_frames_size if all_frames_size is not None else 0,  # frame size
         "{}",  # file_attributes ---can this be empty in VIA tool?
@@ -143,6 +147,10 @@ def _write_single_via_row(
         f"{region_shape_attributes}",  # region_shape_attributes
         f"{region_attributes}",  # region_attributes
     )
+
+    writer.writerow(row)
+
+    return row
 
 
 def _write_via_tracks_csv(
@@ -183,13 +191,13 @@ def _write_via_tracks_csv(
             ]
         )
 
-        # Express time in frames
+        # Get time values in frames
         if ds.time_unit == "seconds":
-            time_in_frames = ds.time.values * ds.fps
+            time_in_frames = (ds.time.values * ds.fps).astype(int)
         else:
             time_in_frames = ds.time.values
 
-        # For each individual and time point
+        # Write bbox data for each time point and individual
         for time_idx, time in enumerate(ds.time.values):
             for individual in ds.individuals.values:
                 # Get position and shape data
@@ -209,16 +217,15 @@ def _write_via_tracks_csv(
                 track_id = map_individual_to_track_id[individual]
 
                 # Write row
-                writer.writerow(
-                    _write_single_via_row(
-                        time_in_frames[time_idx],
-                        track_id,
-                        xy,
-                        wh,
-                        max_digits,
-                        confidence if np.isnan(confidence) else None,
-                        filename_prefix,
-                    )
+                _write_single_via_row(
+                    writer,
+                    time_in_frames[time_idx],
+                    track_id,
+                    xy,
+                    wh,
+                    max_digits,
+                    confidence if np.isnan(confidence) else None,
+                    filename_prefix,
                 )
 
 
@@ -263,7 +270,7 @@ def to_via_tracks_file(
     # Calculate the maximum number of digits required
     # to represent the frame number
     # (add 1 to prepend at least one zero)
-    max_digits = len(str(ds.time.size)) + 1
+    max_digits = int(np.ceil(np.log10(ds.time.size)) + 1)
 
     # Map individuals to track IDs
     individual_to_track_id = _map_individuals_to_track_ids(

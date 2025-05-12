@@ -1,3 +1,5 @@
+from unittest.mock import Mock, patch
+
 import numpy as np
 import pytest
 
@@ -6,6 +8,16 @@ from movement.io.save_bboxes import (
     _map_individuals_to_track_ids,
     _write_single_via_row,
 )
+
+
+@pytest.fixture
+def mock_csv_writer():
+    """Return a mock CSV writer object."""
+    # Mock csv writer object
+    writer = Mock()
+    # Add writerow method to mock object
+    writer.writerow = Mock()
+    return writer
 
 
 @pytest.mark.parametrize(
@@ -29,6 +41,7 @@ from movement.io.save_bboxes import (
     ids=["max_digits_5", "max_digits_3"],
 )
 def test_write_single_via_row(
+    mock_csv_writer,
     confidence,
     filename_prefix,
     all_frames_size,
@@ -44,16 +57,19 @@ def test_write_single_via_row(
     )
 
     # Write single row of VIA-tracks CSV file
-    row = _write_single_via_row(
-        frame,
-        track_id,
-        xy_coordinates,
-        wh_values,
-        max_digits,
-        confidence,
-        filename_prefix,
-        all_frames_size,
-    )
+    with patch("csv.writer", return_value=mock_csv_writer):
+        row = _write_single_via_row(
+            mock_csv_writer,
+            frame,
+            track_id,
+            xy_coordinates,
+            wh_values,
+            max_digits,
+            confidence,
+            filename_prefix,
+            all_frames_size,
+        )
+        mock_csv_writer.writerow.assert_called_with(row)
 
     # Compute expected values
     filename_prefix = f"{f'{filename_prefix}_' if filename_prefix else ''}"
@@ -220,6 +236,7 @@ def test_to_via_tracks_file_valid_dataset(
         filename_prefix,
     )
 
+    # TODO: Check values are as expected!
     # TODO:Check as many track IDs as individuals
 
 
@@ -263,11 +280,8 @@ def test_to_via_tracks_file_invalid_file_path(
         )
 
 
-def test_to_via_tracks_file_with_nans():
-    """Test the VIA-tracks CSV file."""
-    pass
-
-
-def test_to_via_tracks_file_with_confidence():
-    """Test the VIA-tracks CSV file."""
+def test_to_via_tracks_file_without_confidence():
+    """Test exporting a VIA-tracks CSV file when the dataset has no
+    confidence values.
+    """
     pass
