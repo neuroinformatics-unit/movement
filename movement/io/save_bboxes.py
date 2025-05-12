@@ -83,7 +83,7 @@ def _write_single_row(
     confidence: float | None,
     track_id: int,
     frame_number: int,
-    max_digits: int,
+    frame_max_digits: int,
     image_file_prefix: str | None,
     image_file_suffix: str,
     image_size: int | None,
@@ -104,14 +104,14 @@ def _write_single_row(
         Integer identifying a single track.
     frame_number : int
         Frame number.
-    max_digits : int
+    frame_max_digits : int
         Maximum number of digits to represent the frame number
         (includes at least one padding zero).
     image_file_prefix : str | None
-        Prefix for the image filename, prepended to frame number. If None,
-        nothing is prepended to the frame number.
+        Prefix for the image filename, prepended to frame number. If None or
+        an empty string, nothing is prepended to the frame number.
     image_file_suffix : str
-        Suffix to add to each image filename (e.g. '.png').
+        File extension to add to each image filename, including the dot.
     image_size : int | None
         File size in bytes. If None, the file size is set to 0.
 
@@ -121,7 +121,7 @@ def _write_single_row(
         Data formatted for a single row in a VIA-tracks .csv file.
 
     """
-    # Calculate top-left coordinates
+    # Calculate top-left coordinates of bounding box
     x_center, y_center = xy_coordinates
     width, height = wh_values
     x_top_left = x_center - width / 2
@@ -147,7 +147,9 @@ def _write_single_row(
     # Define filename
     image_file_prefix = f"{image_file_prefix}_" if image_file_prefix else ""
     filename = (
-        f"{image_file_prefix}{frame_number:0{max_digits}d}.{image_file_suffix}"
+        f"{image_file_prefix}"
+        f"{frame_number:0{frame_max_digits}d}"
+        f"{image_file_suffix}"  # includes the dot
     )
 
     # Define row data
@@ -170,9 +172,9 @@ def _write_via_tracks_csv(
     ds: xr.Dataset,
     file_path: str | Path,
     map_individual_to_track_id: dict,
-    max_digits: int,
-    image_file_prefix: str | None,
+    frame_max_digits: int,
     image_file_suffix: str,
+    image_file_prefix: str | None,
 ) -> None:
     """Write a VIA-tracks CSV file.
 
@@ -184,12 +186,14 @@ def _write_via_tracks_csv(
         Path where the VIA-tracks CSV file will be saved.
     map_individual_to_track_id : dict
         Dictionary mapping individual names to track IDs.
-    max_digits : int
+    frame_max_digits : int
         Maximum number of digits for frame number padding.
-    image_file_prefix : str or None
-        Prefix for each image filename.
     image_file_suffix : str
-        Suffix to add to each image filename (e.g. '.png').
+        Suffix to add to each image filename as file extension,
+        including the dot.
+    image_file_prefix : str or None
+        Prefix for each image filename. If None or an empty string, nothing
+        is prepended to the frame number.
 
     """
     # Define VIA-tracks CSV header
@@ -240,7 +244,7 @@ def _write_via_tracks_csv(
                     confidence if not np.isnan(confidence) else None,
                     track_id,
                     time_in_frames[time_idx],
-                    max_digits,
+                    frame_max_digits,
                     image_file_prefix,
                     image_file_suffix,
                     image_size=None,
@@ -266,11 +270,11 @@ def to_via_tracks_file(
         If True, extract track_id from individuals' names. If False, the
         track_id will be factorised from the sorted individuals' names.
         Default is False.
-    image_file_prefix : str, optional
-        Prefix for each image filename, prepended to frame number. If None,
-        nothing will be prepended.
     image_file_suffix : str, optional
         Suffix to add to each image filename. Default is '.png'.
+    image_file_prefix : str, optional
+        Prefix for each image filename, prepended to frame number. If None or
+        an empty string, nothing will be prepended.
 
     Returns
     -------
@@ -291,9 +295,13 @@ def to_via_tracks_file(
     # Calculate the maximum number of digits required
     # to represent the frame number
     # (add 1 to prepend at least one zero)
-    max_digits = int(np.ceil(np.log10(ds.time.size)) + 1)
+    frame_max_digits = int(np.ceil(np.log10(ds.time.size)) + 1)
 
-    # Map individuals to track IDs
+    # Add dot to image_file_suffix if required
+    if not image_file_suffix.startswith("."):
+        image_file_suffix = f".{image_file_suffix}"
+
+    # Map individuals' names to track IDs
     individual_to_track_id = _map_individuals_to_track_ids(
         ds.coords["individuals"].values,
         extract_track_id_from_individuals,
@@ -304,9 +312,9 @@ def to_via_tracks_file(
         ds,
         file.path,
         individual_to_track_id,
-        max_digits,
-        image_file_prefix,
-        image_file_suffix,
+        frame_max_digits,
+        image_file_prefix=image_file_prefix,
+        image_file_suffix=image_file_suffix,
     )
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")

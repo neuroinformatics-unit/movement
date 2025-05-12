@@ -32,8 +32,8 @@ def mock_csv_writer():
 )
 @pytest.mark.parametrize(
     "image_file_suffix",
-    [None, "png"],
-    ids=["without_image_file_suffix", "with_image_file_suffix"],
+    ["jpg", "png", ".png"],
+    ids=["jpg_extension", "png_extension", "dot_png_extension"],
 )
 @pytest.mark.parametrize(
     "image_size",
@@ -79,11 +79,10 @@ def test_write_single_row(
         mock_csv_writer.writerow.assert_called_with(row)
 
     # Compute expected values
-    image_file_prefix = (
-        f"{f'{image_file_prefix}_' if image_file_prefix else ''}"
-    )
     expected_filename = (
-        f"{image_file_prefix}{frame:0{max_digits}d}.{image_file_suffix}"
+        (f"{image_file_prefix}_" if image_file_prefix else "")
+        + (f"{frame:0{max_digits}d}")
+        + (f"{image_file_suffix}")
     )
     expected_file_size = image_size if image_size is not None else 0
     expected_file_attributes = "{}"  # placeholder value
@@ -232,7 +231,7 @@ def test_map_individuals_to_track_ids_error(
 )
 @pytest.mark.parametrize(
     "image_file_suffix",
-    [None, ".png"],
+    [None, ".pngpng", ".jpg"],
 )
 def test_to_via_tracks_file_valid_dataset(
     valid_dataset,
@@ -245,13 +244,21 @@ def test_to_via_tracks_file_valid_dataset(
     """Test the VIA-tracks CSV file."""
     # TODO: Test different valid datasets, including those
     # with IDs that are not present in all frames
-    save_bboxes.to_via_tracks_file(
-        request.getfixturevalue(valid_dataset),
-        tmp_path / "test_valid_dataset.csv",
-        extract_track_id_from_individuals,
-        image_file_prefix=image_file_prefix,
-        image_file_suffix=image_file_suffix,
-    )
+    if image_file_suffix is None:
+        save_bboxes.to_via_tracks_file(
+            request.getfixturevalue(valid_dataset),
+            tmp_path / "test_valid_dataset.csv",
+            extract_track_id_from_individuals,
+            image_file_prefix=image_file_prefix,
+        )
+    else:
+        save_bboxes.to_via_tracks_file(
+            request.getfixturevalue(valid_dataset),
+            tmp_path / "test_valid_dataset.csv",
+            extract_track_id_from_individuals,
+            image_file_prefix=image_file_prefix,
+            image_file_suffix=image_file_suffix,
+        )
 
     # TODO: Check values are as expected!
     # TODO:Check as many track IDs as individuals
@@ -295,10 +302,3 @@ def test_to_via_tracks_file_invalid_file_path(
             valid_bboxes_dataset,
             tmp_path / f"test{wrong_extension}",
         )
-
-
-def test_to_via_tracks_file_without_confidence():
-    """Test exporting a VIA-tracks CSV file when the dataset has no
-    confidence values.
-    """
-    pass
