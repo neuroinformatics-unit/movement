@@ -67,41 +67,44 @@ def _map_individuals_to_track_ids(
     return map_individual_to_track_id
 
 
-def _write_single_via_row(
+def _write_single_row(
     writer: "_csv._writer",  # a string literal type annotation is required
-    frame_number: int,
-    track_id: int,
     xy_coordinates: np.ndarray,
     wh_values: np.ndarray,
+    confidence: float | None,
+    track_id: int,
+    frame_number: int,
     max_digits: int,
-    confidence: float | None = None,
-    filename_prefix: str | None = None,
+    image_file_prefix: str | None,
+    image_file_suffix: str,
     all_frames_size: int | None = None,
 ) -> tuple[str, int, str, int, int, str, str]:
-    """Return a list representing a single row for the VIA-tracks CSV file.
+    """Return a tuple representing a single row of a VIA-tracks CSV file.
 
     Parameters
     ----------
     writer : csv.writer
         CSV writer object.
-    frame_number : int
-        Frame number.
+    xy_coordinates : np.ndarray
+        Bounding box centroid position data (x, y).
+    wh_values : np.ndarray
+        Bounding box shape data (width, height).
+    confidence : float | None
+        Confidence score.
     track_id : int
         Integer identifying a single track.
-    xy_coordinates : np.ndarray
-        Position data (x, y).
-    wh_values : np.ndarray
-        Shape data (width, height).
+    frame_number : int
+        Frame number.
     max_digits : int
-        Maximum number of digits in the frame number. Used to pad the frame
-        number with zeros.
-    confidence: float | None, optional
-        Confidence score. Default is None.
-    filename_prefix : str | None, optional
-        Prefix for the filename, prepended to frame number. If None, nothing
-        is prepended to the frame number.
-    all_frames_size : int, optional
-        Size (in bytes) of all frames in the video. Default is 0.
+        Maximum number of digits to represent the frame number
+        (includes at least one padding zero).
+    image_file_prefix : str | None
+        Prefix for the image filename, prepended to frame number. If None,
+        nothing is prepended to the frame number.
+    image_file_suffix : str
+        Suffix to add to each image filename.
+    all_frames_size : int | None
+        Size (in bytes) of all frames in the video.
 
     Returns
     -------
@@ -133,19 +136,20 @@ def _write_single_via_row(
         region_attributes = f'{{"track":"{int(track_id)}"}}'
 
     # Define filename
-    filename_prefix = f"{filename_prefix}_" if filename_prefix else ""
-    filename = f"{filename_prefix}{frame_number:0{max_digits}d}.jpg"
+    image_file_prefix = f"{image_file_prefix}_" if image_file_prefix else ""
+    filename = (
+        f"{image_file_prefix}{frame_number:0{max_digits}d}.{image_file_suffix}"
+    )
 
     # Define row data
     row = (
-        filename,  # filename
-        all_frames_size if all_frames_size is not None else 0,  # frame size
-        "{}",  # file_attributes ---can this be empty in VIA tool?
-        # if not: '{{"clip":{}}}'.format("000"),
-        0,  # region_count -- should this be 0?
-        0,  # region_id
-        f"{region_shape_attributes}",  # region_shape_attributes
-        f"{region_attributes}",  # region_attributes
+        filename,
+        all_frames_size if all_frames_size is not None else 0,
+        "{}",  # file_attributes placeholder
+        0,  # region_count placeholder
+        0,  # region_id placeholder
+        f"{region_shape_attributes}",
+        f"{region_attributes}",
     )
 
     writer.writerow(row)
@@ -158,7 +162,8 @@ def _write_via_tracks_csv(
     file_path: str | Path,
     map_individual_to_track_id: dict,
     max_digits: int,
-    filename_prefix: str | None,
+    image_file_prefix: str | None,
+    image_file_suffix: str,
 ) -> None:
     """Write a VIA-tracks CSV file.
 
@@ -172,24 +177,26 @@ def _write_via_tracks_csv(
         Dictionary mapping individual names to track IDs.
     max_digits : int
         Maximum number of digits for frame number padding.
-    filename_prefix : str or None
+    image_file_prefix : str or None
         Prefix for each image filename.
+    image_file_suffix : str
+        Suffix to add to each image filename.
 
     """
+    # Define VIA-tracks CSV header
+    header = [
+        "filename",
+        "file_size",
+        "file_attributes",
+        "region_count",
+        "region_id",
+        "region_shape_attributes",
+        "region_attributes",
+    ]
+
     with open(file_path, "w", newline="") as f:
-        # Write header
         writer = csv.writer(f)
-        writer.writerow(
-            [
-                "filename",
-                "file_size",
-                "file_attributes",
-                "region_count",
-                "region_id",
-                "region_shape_attributes",
-                "region_attributes",
-            ]
-        )
+        writer.writerow(header)
 
         # Get time values in frames
         if ds.time_unit == "seconds":
@@ -217,15 +224,17 @@ def _write_via_tracks_csv(
                 track_id = map_individual_to_track_id[individual]
 
                 # Write row
-                _write_single_via_row(
+                # TODO: add image size if known
+                _write_single_row(
                     writer,
-                    time_in_frames[time_idx],
-                    track_id,
                     xy,
                     wh,
+                    confidence if not np.isnan(confidence) else None,
+                    track_id,
+                    time_in_frames[time_idx],
                     max_digits,
-                    confidence if np.isnan(confidence) else None,
-                    filename_prefix,
+                    image_file_prefix,
+                    image_file_suffix,
                 )
 
 
@@ -233,7 +242,8 @@ def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
     extract_track_id_from_individuals: bool = False,
-    filename_prefix: str | None = None,
+    image_file_prefix: str | None = None,
+    image_file_suffix: str = ".png",
 ) -> Path:
     """Save a movement bounding boxes dataset to a VIA-tracks CSV file.
 
@@ -247,9 +257,11 @@ def to_via_tracks_file(
         If True, extract track_id from individuals' names. If False, the
         track_id will be factorised from the sorted individuals' names.
         Default is False.
-    filename_prefix : str, optional
+    image_file_prefix : str, optional
         Prefix for each image filename, prepended to frame number. If None,
         nothing will be prepended.
+    image_file_suffix : str, optional
+        Suffix to add to each image filename. Default is '.png'.
 
     Returns
     -------
@@ -284,7 +296,8 @@ def to_via_tracks_file(
         file.path,
         individual_to_track_id,
         max_digits,
-        filename_prefix,
+        image_file_prefix,
+        image_file_suffix,
     )
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")

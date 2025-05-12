@@ -6,7 +6,7 @@ import pytest
 from movement.io import save_bboxes
 from movement.io.save_bboxes import (
     _map_individuals_to_track_ids,
-    _write_single_via_row,
+    _write_single_row,
 )
 
 
@@ -26,9 +26,14 @@ def mock_csv_writer():
     ids=["without_confidence", "with_confidence"],
 )
 @pytest.mark.parametrize(
-    "filename_prefix",
+    "image_file_prefix",
     [None, "test_video"],
     ids=["without_filename_prefix", "with_filename_prefix"],
+)
+@pytest.mark.parametrize(
+    "image_file_suffix",
+    [None, "png"],
+    ids=["without_image_file_suffix", "with_image_file_suffix"],
 )
 @pytest.mark.parametrize(
     "all_frames_size",
@@ -43,7 +48,8 @@ def mock_csv_writer():
 def test_write_single_via_row(
     mock_csv_writer,
     confidence,
-    filename_prefix,
+    image_file_prefix,
+    image_file_suffix,
     all_frames_size,
     max_digits,
 ):
@@ -58,22 +64,27 @@ def test_write_single_via_row(
 
     # Write single row of VIA-tracks CSV file
     with patch("csv.writer", return_value=mock_csv_writer):
-        row = _write_single_via_row(
+        row = _write_single_row(
             mock_csv_writer,
-            frame,
-            track_id,
             xy_coordinates,
             wh_values,
-            max_digits,
             confidence,
-            filename_prefix,
+            track_id,
+            frame,
+            max_digits,
+            image_file_prefix,
+            image_file_suffix,
             all_frames_size,
         )
         mock_csv_writer.writerow.assert_called_with(row)
 
     # Compute expected values
-    filename_prefix = f"{f'{filename_prefix}_' if filename_prefix else ''}"
-    expected_filename = f"{filename_prefix}{frame:0{max_digits}d}.jpg"
+    image_file_prefix = (
+        f"{f'{image_file_prefix}_' if image_file_prefix else ''}"
+    )
+    expected_filename = (
+        f"{image_file_prefix}{frame:0{max_digits}d}.{image_file_suffix}"
+    )
     expected_file_size = all_frames_size if all_frames_size is not None else 0
     expected_file_attributes = "{}"  # placeholder value
     expected_region_count = 0  # placeholder value
