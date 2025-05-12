@@ -36,7 +36,7 @@ def mock_csv_writer():
     ids=["without_image_file_suffix", "with_image_file_suffix"],
 )
 @pytest.mark.parametrize(
-    "all_frames_size",
+    "image_size",
     [None, 100],
     ids=["without_all_frames_size", "with_all_frames_size"],
 )
@@ -50,7 +50,7 @@ def test_write_single_row(
     confidence,
     image_file_prefix,
     image_file_suffix,
-    all_frames_size,
+    image_size,
     max_digits,
 ):
     """Test writing a single row of the VIA-tracks CSV file."""
@@ -74,7 +74,7 @@ def test_write_single_row(
             max_digits,
             image_file_prefix,
             image_file_suffix,
-            all_frames_size,
+            image_size,
         )
         mock_csv_writer.writerow.assert_called_with(row)
 
@@ -85,7 +85,7 @@ def test_write_single_row(
     expected_filename = (
         f"{image_file_prefix}{frame:0{max_digits}d}.{image_file_suffix}"
     )
-    expected_file_size = all_frames_size if all_frames_size is not None else 0
+    expected_file_size = image_size if image_size is not None else 0
     expected_file_attributes = "{}"  # placeholder value
     expected_region_count = 0  # placeholder value
     expected_region_id = 0  # placeholder value

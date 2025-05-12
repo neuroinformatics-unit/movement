@@ -86,7 +86,7 @@ def _write_single_row(
     max_digits: int,
     image_file_prefix: str | None,
     image_file_suffix: str,
-    all_frames_size: int | None = None,
+    image_size: int | None,
 ) -> tuple[str, int, str, int, int, str, str]:
     """Return a tuple representing a single row of a VIA-tracks CSV file.
 
@@ -111,9 +111,9 @@ def _write_single_row(
         Prefix for the image filename, prepended to frame number. If None,
         nothing is prepended to the frame number.
     image_file_suffix : str
-        Suffix to add to each image filename.
-    all_frames_size : int | None
-        Size (in bytes) of all frames in the video.
+        Suffix to add to each image filename (e.g. '.png').
+    image_size : int | None
+        File size in bytes. If None, the file size is set to 0.
 
     Returns
     -------
@@ -153,7 +153,7 @@ def _write_single_row(
     # Define row data
     row = (
         filename,
-        all_frames_size if all_frames_size is not None else 0,
+        image_size if image_size is not None else 0,
         "{}",  # file_attributes placeholder
         0,  # region_count placeholder
         0,  # region_id placeholder
@@ -189,7 +189,7 @@ def _write_via_tracks_csv(
     image_file_prefix : str or None
         Prefix for each image filename.
     image_file_suffix : str
-        Suffix to add to each image filename.
+        Suffix to add to each image filename (e.g. '.png').
 
     """
     # Define VIA-tracks CSV header
@@ -233,7 +233,6 @@ def _write_via_tracks_csv(
                 track_id = map_individual_to_track_id[individual]
 
                 # Write row
-                # TODO: add image size if known
                 _write_single_row(
                     writer,
                     xy,
@@ -244,6 +243,7 @@ def _write_via_tracks_csv(
                     max_digits,
                     image_file_prefix,
                     image_file_suffix,
+                    image_size=None,
                 )
 
 
