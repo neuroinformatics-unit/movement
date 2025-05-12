@@ -40,9 +40,9 @@ def _map_individuals_to_track_ids(
     if extract_track_id_from_individuals:
         # Look for consecutive integers at the end of the individuals' names
         for individual in list_individuals:
-            match = re.search(r"\d+?$", individual)
+            match = re.match(r".*?(\d+)$", individual)
             if match:
-                map_individual_to_track_id[individual] = int(match.group())
+                map_individual_to_track_id[individual] = int(match.group(1))
             else:
                 raise ValueError(
                     f"Could not extract track ID from {individual}."
