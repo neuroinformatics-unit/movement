@@ -22,8 +22,8 @@ def _map_individuals_to_track_ids(
     list_individuals : list[str]
         List of individuals.
     extract_track_id_from_individuals : bool
-        If True, extract track_id from individuals' names. If False, the
-        track_id will be factorised from the sorted individuals' names.
+        If True, extract track ID from individuals' names. If False, the
+        track ID will be factorised from the sorted list of individuals' names.
 
     Returns
     -------
@@ -37,7 +37,7 @@ def _map_individuals_to_track_ids(
     # Map individuals to track IDs
     map_individual_to_track_id = {}
     if extract_track_id_from_individuals:
-        # Extract consecutive integers at the end of individuals' names
+        # Look for consecutive integers at the end of the individuals' names
         for individual in list_individuals:
             match = re.search(r"\d+$", individual)
             if match:
@@ -67,7 +67,7 @@ def _map_individuals_to_track_ids(
 
 
 def _write_single_via_row(
-    frame_idx: int,
+    frame_number: int,
     track_id: int,
     xy_coordinates: np.ndarray,
     wh_values: np.ndarray,
@@ -80,8 +80,8 @@ def _write_single_via_row(
 
     Parameters
     ----------
-    frame_idx : int
-        Frame index (0-based).
+    frame_number : int
+        Frame number.
     track_id : int
         Integer identifying a single track.
     xy_coordinates : np.ndarray
@@ -130,13 +130,13 @@ def _write_single_via_row(
 
     # Define filename
     filename_prefix = f"{filename_prefix}_" if filename_prefix else ""
-    filename = f"{filename_prefix}{frame_idx:0{max_digits}d}.jpg"
+    filename = f"{filename_prefix}{frame_number:0{max_digits}d}.jpg"
 
     # Define row data
     return (
         filename,  # filename
         all_frames_size if all_frames_size is not None else 0,  # frame size
-        "{}",  # file_attributes ---can this be empty?
+        "{}",  # file_attributes ---can this be empty in VIA tool?
         # if not: '{{"clip":{}}}'.format("000"),
         0,  # region_count -- should this be 0?
         0,  # region_id
@@ -183,6 +183,12 @@ def _write_via_tracks_csv(
             ]
         )
 
+        # Express time in frames
+        if ds.time_unit == "seconds":
+            time_in_frames = ds.time.values * ds.fps
+        else:
+            time_in_frames = ds.time.values
+
         # For each individual and time point
         for time_idx, time in enumerate(ds.time.values):
             for individual in ds.individuals.values:
@@ -190,23 +196,22 @@ def _write_via_tracks_csv(
                 xy = ds.position.sel(time=time, individuals=individual).values
                 wh = ds.shape.sel(time=time, individuals=individual).values
 
+                # Skip if there are NaN values
+                if np.isnan(xy).any() or np.isnan(wh).any():
+                    continue
+
                 # Get confidence score
                 confidence = ds.confidence.sel(
                     time=time, individuals=individual
                 ).values
 
-                # Get track_id from individual
-                # TODO: has to be an integer
+                # Get track IDs from individuals' names
                 track_id = map_individual_to_track_id[individual]
-
-                # Skip if NaN values
-                if np.isnan(xy).any() or np.isnan(wh).any():
-                    continue
 
                 # Write row
                 writer.writerow(
                     _write_single_via_row(
-                        time_idx,
+                        time_in_frames[time_idx],
                         track_id,
                         xy,
                         wh,
