@@ -20,31 +20,88 @@ DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
 ConfigKwargsType = dict[str, Any] | dict[str, dict[str, Any]]
 
 
+def _safe_dict_field() -> Any:
+    """Create a field that defaults to an empty dictionary."""
+    return field(
+        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
+    )
+
+
 @define(kw_only=True)
 class NWBFileSaveConfig:
     """Configuration for saving ``movement poses`` dataset to NWBFile(s).
 
-    All fields are optional and will default to empty dictionaries.
+    This class is used with :func:`movement.io.save_poses.to_nwb_file`
+    to add custom metadata to the NWBFile(s) created from a given
+    ``movement`` dataset.
+    TODO: Clean up docstrings, might need to move some parts to
+    to_nwb_file
 
     Attributes
     ----------
     nwbfile_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
-        Keyword arguments for the :class:`pynwb.file.NWBFile` constructor.
+        Keyword arguments for :class:`pynwb.file.NWBFile`.
+
+        If ``nwbfile_kwargs`` is a single dictionary, the same keyword
+        arguments will be applied to all NWBFile objects except for
+        ``identifier``.
+
         If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys
         should correspond to individual names in the ``movement`` dataset,
         and the inner dictionaries will be passed as keyword arguments to the
-        :class:`pynwb.file.NWBFile` constructor. If ``nwbfile_kwargs`` is a
-        single dictionary, the same arguments will be applied to all NWBFile
-        objects except for ``identifier``, which will be set to the individual
-        name.
+        :class:`pynwb.file.NWBFile` constructor.
+
+        Default values for the following arguments will be set:
+        - ``session_description``: "not set"
+        - ``session_start_time``: current UTC time
+        - ``identifier``: "not set"
+
+        If specified, ``identifier`` will be set in the following
+        order of precedence:
+        1. ``identifier`` in the inner dictionary
+        2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
+        3. individual name in the ``movement`` dataset
+
     subject_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
-        Keyword arguments for the :class:`pynwb.file.Subject` constructor.
+        Keyword arguments for :class:`pynwb.file.Subject`.
+
+        If ``subject_kwargs`` is a single dictionary, the same keyword
+        arguments will be applied to all Subjects except for ``subject_id``.
+
         If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys
         should correspond to individual names in the ``movement`` dataset,
         and the inner dictionaries will be passed as keyword arguments to the
-        :class:`pynwb.file.Subject` constructor. If ``subject_kwargs`` is a
-        single dictionary, the same arguments will be applied to all Subjects
-        except for ``subject_id``, which will be set to the individual name.
+        :class:`pynwb.file.Subject` constructor.
+
+        If specified, ``subject_id`` will be set in the following
+        order of precedence:
+        1. ``subject_id`` in the inner dictionary
+        2. ``subject_kwargs["subject_id"]`` (single-individual dataset only)
+        3. individual name in the ``movement`` dataset
+
+    pose_estimation_series_kwargs :
+            dict[str, Any] | dict[str, dict[str, any]], optional
+        Keyword arguments for ``ndx_pose.PoseEstimationSeries`` [1]_.
+
+        If ``pose_estimation_series_kwargs`` is a single dictionary, the same
+        keyword arguments will be applied to all PoseEstimationSeries objects.
+
+        If ``pose_estimation_series_kwargs`` is a dictionary of dictionaries,
+        the outer keys should correspond to keypoint names in the
+        ``movement`` dataset, and the inner dictionaries will be passed as
+        keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.
+
+        Default values for the following arguments will be set:
+        - ``name``: keypoint name
+        - ``data``: position data for the keypoint
+        - ``confidence``: confidence data for the keypoint
+        - ``unit``: "pixels"
+        - ``timestamps``: time data for the keypoint
+        - ``reference_frame``: "(0,0,0) corresponds to ..."
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
 
     Examples
     --------
@@ -87,77 +144,94 @@ class NWBFileSaveConfig:
 
     """
 
-    nwbfile_kwargs: ConfigKwargsType = field(
-        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
-    )
-    subject_kwargs: ConfigKwargsType = field(
-        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
-    )
-    pose_estimation_series_kwargs: ConfigKwargsType = field(
-        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
-    )
-    pose_estimation_kwargs: ConfigKwargsType = field(
-        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
-    )
-    skeletons_kwargs: ConfigKwargsType = field(
-        factory=dict, converter=lambda x: x if isinstance(x, dict) else {}
-    )
+    nwbfile_kwargs: ConfigKwargsType = _safe_dict_field()
+    subject_kwargs: ConfigKwargsType = _safe_dict_field()
+    pose_estimation_series_kwargs: ConfigKwargsType = _safe_dict_field()
+    pose_estimation_kwargs: ConfigKwargsType = _safe_dict_field()
+    skeletons_kwargs: ConfigKwargsType = _safe_dict_field()
 
     def _resolve_kwargs(
         self,
         cfg: ConfigKwargsType,
-        individual: str | None,
+        entity: str | None,
+        entity_type: str,
         id_key: str,
         warn_context: str,
         defaults: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Resolve per-individual or shared kwargs.
+        """Resolve per-entity (individual/keypoint) or shared kwargs.
 
         If ``cfg`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual names in the ``movement`` dataset,
-        and the inner dictionaries will be returned as keyword arguments
-        for an individual.
+        should correspond to individual or keypoint names in the
+        ``movement`` dataset, and the inner dictionaries will be
+        returned as keyword arguments for an individual/keypoint.
 
         If ``cfg`` is a single dictionary, the same arguments will
-        be used for all individuals, except for ``id_key``,
+        be used for all individuals or keypoints, except for ``id_key``,
         which will be set in the following order of precedence:
-        1. ``individual`` (if provided)
+        1. ``entity`` (if provided)
         2. ``cfg[id_key]`` (if provided)
         3. ``defaults[id_key]`` (if provided)
+
+        Parameters
+        ----------
+        cfg : dict[str, Any] | dict[str, dict[str, Any]]
+            An attribute of :class:`NWBFileSaveConfig`
+            (e.g. ``nwbfile_kwargs``, ``subject_kwargs``).
+        entity : str | None
+            Individual or keypoint name.
+        entity_type : str | None
+            Type of entity (i.e. "individual", "keypoint"). Used in error
+            or warning messages.
+        id_key : str
+            The key in ``cfg`` corresponding to the entity identifier/name
+            (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the
+            returned dictionary.
+        warn_context : str
+            Context for the warning message (e.g. "nwbfile_kwargs",
+            "subject_kwargs").
+        defaults : dict[str, Any] | None
+            Default keyword arguments to be used.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments for a specific ``entity_type``.
+
         """
 
-        def is_per_individual_config(cfg: dict) -> bool:
+        def is_per_entity_config(cfg: dict) -> bool:
             return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
 
-        def get_individual_or_raise(cfg: dict) -> str:
+        def get_entity_or_raise(cfg: dict) -> str:
             if len(cfg) == 1:
                 inferred = next(iter(cfg))
                 logger.warning(
-                    f"No individual was provided. Assuming '{inferred}' "
+                    f"No {entity_type} was provided. Assuming '{inferred}' "
                     f"since there is only one entry in {warn_context}."
                 )
                 return inferred
             raise logger.error(
                 ValueError(
-                    f"NWBFileSaveConfig has per-individual {warn_context}, "
-                    "but no individual was provided."
+                    f"NWBFileSaveConfig has per-{entity_type} "
+                    f"{warn_context}, but no {entity_type} was provided."
                 )
             )
 
-        if is_per_individual_config(cfg):
-            if individual is None:
-                individual = get_individual_or_raise(cfg)
-            base = dict(cfg.get(individual, {}))
+        if is_per_entity_config(cfg):
+            if entity is None:
+                entity = get_entity_or_raise(cfg)
+            base = dict(cfg.get(entity, {}))
             if not base:
                 logger.warning(
-                    f"Individual '{individual}' not found in {warn_context}; "
-                    f"setting only {id_key} to '{individual}'."
+                    f"'{entity}' not found in {warn_context}; "
+                    f"setting only {id_key} to '{entity}'."
                 )
-            base.setdefault(id_key, individual)
+            base.setdefault(id_key, entity)
         else:  # Shared config
             base = dict(cfg)
-            if individual is not None:
-                base[id_key] = individual
+            if entity is not None:
+                base[id_key] = entity
         if defaults:
             base = {**defaults, **base}  # base overrides defaults
         return base
@@ -166,19 +240,6 @@ class NWBFileSaveConfig:
         self, individual: str | None = None
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.NWBFile`.
-
-        If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual names in the ``movement`` dataset,
-        and the inner dictionaries will be passed as keyword arguments to the
-        :class:`pynwb.file.NWBFile` constructor.
-
-        If ``nwbfile_kwargs`` is a single dictionary, the same arguments will
-        be applied to all NWBFile objects, except for ``identifier``,
-        which will be set in the following order of precedence:
-
-        1. ``individual`` (if provided)
-        2. ``nwbfile_kwargs["identifier"]`` (if provided)
-        3. default value ``"not set"``
 
         Parameters
         ----------
@@ -200,7 +261,8 @@ class NWBFileSaveConfig:
         }
         return self._resolve_kwargs(
             cfg=self.nwbfile_kwargs,
-            individual=individual,
+            entity=individual,
+            entity_type="individual",
             id_key="identifier",
             warn_context="nwbfile_kwargs",
             defaults=defaults,
@@ -210,17 +272,6 @@ class NWBFileSaveConfig:
         self, individual: str | None = None
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.Subject`.
-
-        If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual names in the ``movement`` dataset,
-        and the inner dictionaries will be passed as keyword arguments to the
-        :class:`pynwb.file.Subject` constructor.
-
-        If ``subject_kwargs`` is a single dictionary, the same arguments will
-        be applied to all Subject objects, except for ``subject_id``,
-        which will be set in the following order of precedence:
-        1. ``individual`` (if provided)
-        2. ``subject_kwargs["subject_id"]`` (if provided)
 
         Parameters
         ----------
@@ -237,9 +288,38 @@ class NWBFileSaveConfig:
         """
         return self._resolve_kwargs(
             cfg=self.subject_kwargs,
-            individual=individual,
+            entity=individual,
+            entity_type="individual",
             id_key="subject_id",
             warn_context="subject_kwargs",
+        )
+
+    def resolve_pose_estimation_series_kwargs(
+        self, keypoint: str | None = None
+    ) -> dict[str, Any]:
+        """Resolve the keyword arguments for ``ndx_pose.PoseEstimationSeries``.
+
+        Parameters
+        ----------
+        keypoint : str, optional
+            Keypoint name. If provided, the method will attempt to retrieve
+            keypoint-specific settings or fall back to shared or default
+            settings.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments to be passed to
+            ``ndx_pose.PoseEstimationSeries``.
+
+        """
+        return self._resolve_kwargs(
+            cfg=self.pose_estimation_series_kwargs,
+            entity=keypoint,
+            entity_type="keypoint",
+            id_key="name",
+            warn_context="pose_estimation_series_kwargs",
+            defaults=DEFAULT_POSE_ESTIMATION_SERIES_KWARGS,
         )
 
 
