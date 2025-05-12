@@ -5,7 +5,7 @@ import pytest
 
 from movement.io import save_bboxes
 from movement.io.save_bboxes import (
-    _map_individuals_to_track_ids,
+    _get_map_individuals_to_track_ids,
     _write_single_row,
 )
 
@@ -26,32 +26,20 @@ def mock_csv_writer():
     ids=["without_confidence", "with_confidence"],
 )
 @pytest.mark.parametrize(
-    "image_file_prefix",
-    [None, "test_video"],
-    ids=["without_filename_prefix", "with_filename_prefix"],
-)
-@pytest.mark.parametrize(
-    "image_file_suffix",
-    ["jpg", "png", ".png"],
-    ids=["jpg_extension", "png_extension", "dot_png_extension"],
-)
-@pytest.mark.parametrize(
     "image_size",
     [None, 100],
-    ids=["without_all_frames_size", "with_all_frames_size"],
+    ids=["without_image_size", "with_image_size"],
 )
 @pytest.mark.parametrize(
-    "max_digits",
-    [5, 3],
-    ids=["max_digits_5", "max_digits_3"],
+    "img_filename_template",
+    ["{:05d}.png", "{:03d}.jpg", "frame_{:03d}.jpg"],
+    ids=["png_extension", "jpg_extension", "frame_prefix"],
 )
 def test_write_single_row(
     mock_csv_writer,
     confidence,
-    image_file_prefix,
-    image_file_suffix,
     image_size,
-    max_digits,
+    img_filename_template,
 ):
     """Test writing a single row of the VIA-tracks CSV file."""
     # Fixed input values
@@ -71,19 +59,13 @@ def test_write_single_row(
             confidence,
             track_id,
             frame,
-            max_digits,
-            image_file_prefix,
-            image_file_suffix,
+            img_filename_template,
             image_size,
         )
         mock_csv_writer.writerow.assert_called_with(row)
 
     # Compute expected values
-    expected_filename = (
-        (f"{image_file_prefix}_" if image_file_prefix else "")
-        + (f"{frame:0{max_digits}d}")
-        + (f"{image_file_suffix}")
-    )
+    expected_filename = img_filename_template.format(frame)
     expected_file_size = image_size if image_size is not None else 0
     expected_file_attributes = "{}"  # placeholder value
     expected_region_count = 0  # placeholder value
@@ -137,7 +119,7 @@ def test_map_individuals_to_track_ids_from_individuals_names(
     extracted from the individuals' names.
     """
     # Map individuals to track IDs
-    map_individual_to_track_id = _map_individuals_to_track_ids(
+    map_individual_to_track_id = _get_map_individuals_to_track_ids(
         list_individuals, extract_track_id_from_individuals=True
     )
 
@@ -164,7 +146,7 @@ def test_map_individuals_to_track_ids_factorised(
     factorised from the sorted individuals' names.
     """
     # Map individuals to track IDs
-    map_individual_to_track_id = _map_individuals_to_track_ids(
+    map_individual_to_track_id = _get_map_individuals_to_track_ids(
         list_individuals, extract_track_id_from_individuals=False
     )
 
@@ -203,13 +185,58 @@ def test_map_individuals_to_track_ids_error(
     individuals' names fails.
     """
     with pytest.raises(ValueError) as error:
-        _map_individuals_to_track_ids(
+        _get_map_individuals_to_track_ids(
             list_individuals,
             extract_track_id_from_individuals=True,
         )
 
     # Check that the error message is as expected
     assert str(error.value) == expected_error_message
+
+
+@pytest.mark.parametrize(
+    "frame_max_digits",
+    [1, 100],
+    ids=["1_digit", "100_digits"],
+)
+@pytest.mark.parametrize(
+    "image_file_prefix, expected_prefix",
+    [
+        (None, ""),
+        ("", ""),
+        ("test_video", "test_video"),
+        ("test_video_", "test_video_"),
+    ],
+    ids=["no_prefix", "empty_prefix", "prefix", "prefix_underscore"],
+)
+@pytest.mark.parametrize(
+    "image_file_suffix, expected_suffix",
+    [
+        (".png", ".png"),
+        ("png", ".png"),
+        (".jpg", ".jpg"),
+    ],
+    ids=["png_extension", "png_no_dot", "jpg_extension"],
+)
+def test_get_image_filename_template(
+    frame_max_digits,
+    image_file_prefix,
+    expected_prefix,
+    image_file_suffix,
+    expected_suffix,
+):
+    """Test that the image filename template is as expected."""
+    expected_image_filename = (
+        f"{expected_prefix}{{:0{frame_max_digits}d}}{expected_suffix}"
+    )
+    assert (
+        save_bboxes._get_image_filename_template(
+            frame_max_digits=frame_max_digits,
+            image_file_prefix=image_file_prefix,
+            image_file_suffix=image_file_suffix,
+        )
+        == expected_image_filename
+    )
 
 
 @pytest.mark.parametrize(
