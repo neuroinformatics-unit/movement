@@ -45,7 +45,7 @@ def mock_csv_writer():
     [5, 3],
     ids=["max_digits_5", "max_digits_3"],
 )
-def test_write_single_via_row(
+def test_write_single_row(
     mock_csv_writer,
     confidence,
     image_file_prefix,
@@ -227,15 +227,20 @@ def test_map_individuals_to_track_ids_error(
     [True, False],
 )
 @pytest.mark.parametrize(
-    "filename_prefix",
+    "image_file_prefix",
     [None, "test_video"],
+)
+@pytest.mark.parametrize(
+    "image_file_suffix",
+    [None, ".png"],
 )
 def test_to_via_tracks_file_valid_dataset(
     valid_dataset,
     request,
     tmp_path,
     extract_track_id_from_individuals,
-    filename_prefix,
+    image_file_prefix,
+    image_file_suffix,
 ):
     """Test the VIA-tracks CSV file."""
     # TODO: Test different valid datasets, including those
@@ -244,7 +249,8 @@ def test_to_via_tracks_file_valid_dataset(
         request.getfixturevalue(valid_dataset),
         tmp_path / "test_valid_dataset.csv",
         extract_track_id_from_individuals,
-        filename_prefix,
+        image_file_prefix=image_file_prefix,
+        image_file_suffix=image_file_suffix,
     )
 
     # TODO: Check values are as expected!
