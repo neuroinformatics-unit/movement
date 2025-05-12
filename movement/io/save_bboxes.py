@@ -12,7 +12,25 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset
 
 
-def _map_individuals_to_track_ids(
+def _get_image_filename_template(
+    frame_max_digits: int,
+    image_file_prefix: str | None,
+    image_file_suffix: str,
+) -> str:
+    """Compute a format string for the image filename."""
+    # Add dot to image_file_suffix if required
+    if not image_file_suffix.startswith("."):
+        image_file_suffix = f".{image_file_suffix}"
+
+    # Define filename format string
+    return (
+        f"{image_file_prefix}"
+        f"{{:0{frame_max_digits}d}}"  #
+        f"{image_file_suffix}"
+    )
+
+
+def _get_map_individuals_to_track_ids(
     list_individuals: list[str], extract_track_id_from_individuals: bool
 ) -> dict[str, int]:
     """Map individuals to track IDs.
@@ -83,9 +101,7 @@ def _write_single_row(
     confidence: float | None,
     track_id: int,
     frame_number: int,
-    frame_max_digits: int,
-    image_file_prefix: str | None,
-    image_file_suffix: str,
+    img_filename_template: str,
     image_size: int | None,
 ) -> tuple[str, int, str, int, int, str, str]:
     """Return a tuple representing a single row of a VIA-tracks CSV file.
@@ -104,14 +120,8 @@ def _write_single_row(
         Integer identifying a single track.
     frame_number : int
         Frame number.
-    frame_max_digits : int
-        Maximum number of digits to represent the frame number
-        (includes at least one padding zero).
-    image_file_prefix : str | None
-        Prefix for the image filename, prepended to frame number. If None or
-        an empty string, nothing is prepended to the frame number.
-    image_file_suffix : str
-        File extension to add to each image filename, including the dot.
+    img_filename_template : str
+        Format string for each image filename.
     image_size : int | None
         File size in bytes. If None, the file size is set to 0.
 
@@ -144,18 +154,10 @@ def _write_single_row(
     else:
         region_attributes = f'{{"track":"{int(track_id)}"}}'
 
-    # Define filename
-    image_file_prefix = f"{image_file_prefix}_" if image_file_prefix else ""
-    filename = (
-        f"{image_file_prefix}"
-        f"{frame_number:0{frame_max_digits}d}"
-        f"{image_file_suffix}"  # includes the dot
-    )
-
     # Define row data
     row = (
-        filename,
-        image_size if image_size is not None else 0,
+        img_filename_template.format(frame_number),  # filename
+        image_size if image_size is not None else 0,  # file size
         "{}",  # file_attributes placeholder
         0,  # region_count placeholder
         0,  # region_id placeholder
@@ -172,9 +174,7 @@ def _write_via_tracks_csv(
     ds: xr.Dataset,
     file_path: str | Path,
     map_individual_to_track_id: dict,
-    frame_max_digits: int,
-    image_file_suffix: str,
-    image_file_prefix: str | None,
+    img_filename_template: str,
 ) -> None:
     """Write a VIA-tracks CSV file.
 
@@ -186,14 +186,8 @@ def _write_via_tracks_csv(
         Path where the VIA-tracks CSV file will be saved.
     map_individual_to_track_id : dict
         Dictionary mapping individual names to track IDs.
-    frame_max_digits : int
-        Maximum number of digits for frame number padding.
-    image_file_suffix : str
-        Suffix to add to each image filename as file extension,
-        including the dot.
-    image_file_prefix : str or None
-        Prefix for each image filename. If None or an empty string, nothing
-        is prepended to the frame number.
+    img_filename_template : str
+        Format string for each image filename.
 
     """
     # Define VIA-tracks CSV header
@@ -207,46 +201,44 @@ def _write_via_tracks_csv(
         "region_attributes",
     ]
 
-    with open(file_path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
+    # Get time values in frames
+    if ds.time_unit == "seconds":
+        time_in_frames = (ds.time.values * ds.fps).astype(int)
+    else:
+        time_in_frames = ds.time.values
 
-        # Get time values in frames
-        if ds.time_unit == "seconds":
-            time_in_frames = (ds.time.values * ds.fps).astype(int)
-        else:
-            time_in_frames = ds.time.values
+    with open(file_path, "w", newline="") as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(header)
 
         # Write bbox data for each time point and individual
         for time_idx, time in enumerate(ds.time.values):
-            for individual in ds.individuals.values:
+            for indiv in ds.individuals.values:
                 # Get position and shape data
-                xy = ds.position.sel(time=time, individuals=individual).values
-                wh = ds.shape.sel(time=time, individuals=individual).values
+                xy_data = ds.position.sel(time=time, individuals=indiv).values
+                wh_data = ds.shape.sel(time=time, individuals=indiv).values
 
                 # Skip if there are NaN values
-                if np.isnan(xy).any() or np.isnan(wh).any():
+                if np.isnan(xy_data).any() or np.isnan(wh_data).any():
                     continue
 
                 # Get confidence score
                 confidence = ds.confidence.sel(
-                    time=time, individuals=individual
+                    time=time, individuals=indiv
                 ).values
 
                 # Get track IDs from individuals' names
-                track_id = map_individual_to_track_id[individual]
+                track_id = map_individual_to_track_id[indiv]
 
                 # Write row
                 _write_single_row(
-                    writer,
-                    xy,
-                    wh,
+                    csv_writer,
+                    xy_data,
+                    wh_data,
                     confidence if not np.isnan(confidence) else None,
                     track_id,
                     time_in_frames[time_idx],
-                    frame_max_digits,
-                    image_file_prefix,
-                    image_file_suffix,
+                    img_filename_template,
                     image_size=None,
                 )
 
@@ -270,11 +262,11 @@ def to_via_tracks_file(
         If True, extract track_id from individuals' names. If False, the
         track_id will be factorised from the sorted individuals' names.
         Default is False.
-    image_file_suffix : str, optional
-        Suffix to add to each image filename. Default is '.png'.
     image_file_prefix : str, optional
         Prefix for each image filename, prepended to frame number. If None or
         an empty string, nothing will be prepended.
+    image_file_suffix : str, optional
+        Suffix to add to each image filename. Default is '.png'.
 
     Returns
     -------
@@ -292,17 +284,15 @@ def to_via_tracks_file(
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     _validate_bboxes_dataset(ds)
 
-    # Calculate the maximum number of digits required
-    # to represent the frame number
-    # (add 1 to prepend at least one zero)
-    frame_max_digits = int(np.ceil(np.log10(ds.time.size)) + 1)
-
-    # Add dot to image_file_suffix if required
-    if not image_file_suffix.startswith("."):
-        image_file_suffix = f".{image_file_suffix}"
+    # Define format string for image filenames
+    img_filename_template = _get_image_filename_template(
+        frame_max_digits=int(np.ceil(np.log10(ds.time.size)) + 1),
+        image_file_prefix=image_file_prefix,
+        image_file_suffix=image_file_suffix,
+    )
 
     # Map individuals' names to track IDs
-    individual_to_track_id = _map_individuals_to_track_ids(
+    map_individual_to_track_id = _get_map_individuals_to_track_ids(
         ds.coords["individuals"].values,
         extract_track_id_from_individuals,
     )
@@ -311,10 +301,8 @@ def to_via_tracks_file(
     _write_via_tracks_csv(
         ds,
         file.path,
-        individual_to_track_id,
-        frame_max_digits,
-        image_file_prefix=image_file_prefix,
-        image_file_suffix=image_file_suffix,
+        map_individual_to_track_id,
+        img_filename_template,
     )
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")
