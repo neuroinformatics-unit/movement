@@ -68,7 +68,7 @@ def _map_individuals_to_track_ids(
 
 
 def _write_single_via_row(
-    writer: _csv._writer,
+    writer: "_csv._writer",  # a string literal type annotation is required
     frame_number: int,
     track_id: int,
     xy_coordinates: np.ndarray,
