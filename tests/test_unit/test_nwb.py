@@ -30,7 +30,7 @@ class TestNWBFileSaveConfig:
     SESSION_START_TIME = datetime.datetime.now(datetime.UTC)
 
     @pytest.mark.parametrize(
-        "nwbfile_kwargs, individual, expected",
+        "kwargs, individual, expected",
         [
             (
                 None,
@@ -170,14 +170,14 @@ class TestNWBFileSaveConfig:
         ],
     )
     def test_resolve_nwbfile_kwargs(
-        self, nwbfile_kwargs, individual, expected, request, caplog
+        self, kwargs, individual, expected, request, caplog
     ):
-        """Test NWBFileSaveConfig create_nwbfile with nwbfile_kwargs."""
+        """Test resolving nwbfile_kwargs for a particular individual."""
         with patch("datetime.datetime") as mock_datetime, expected as context:
             mock_datetime.now.return_value = self.SESSION_START_TIME
-            config = NWBFileSaveConfig(nwbfile_kwargs=nwbfile_kwargs)
+            config = NWBFileSaveConfig(nwbfile_kwargs=kwargs)
             actual_kwargs = config.resolve_nwbfile_kwargs(individual)
-            expected_kwargs = context or nwbfile_kwargs
+            expected_kwargs = context or kwargs
             assert actual_kwargs == expected_kwargs
             if "warn; kwarg as identifier" in request.node.callspec.id:
                 assert "Assuming 'id_0'" in caplog.messages[0]
@@ -185,7 +185,7 @@ class TestNWBFileSaveConfig:
                 assert "'id_not_in_kwargs' not found" in caplog.messages[0]
 
     @pytest.mark.parametrize(
-        "subject_kwargs, individual, expected",
+        "kwargs, individual, expected",
         [
             (None, None, does_not_raise({})),
             (None, "id_0", does_not_raise({"subject_id": "id_0"})),
@@ -243,14 +243,133 @@ class TestNWBFileSaveConfig:
         ],
     )
     def test_resolve_subject_kwargs(
-        self, subject_kwargs, individual, expected, request, caplog
+        self, kwargs, individual, expected, request, caplog
     ):
-        """Test NWBFileSaveConfig create_nwbfile with nwbfile_kwargs."""
+        """Test resolving subject_kwargs for a particular individual."""
         with expected as expected_kwargs:
-            config = NWBFileSaveConfig(subject_kwargs=subject_kwargs)
+            config = NWBFileSaveConfig(subject_kwargs=kwargs)
             actual_kwargs = config.resolve_subject_kwargs(individual)
             assert actual_kwargs == expected_kwargs
             if "warn; kwarg as id" in request.node.callspec.id:
                 assert "Assuming 'id_0'" in caplog.messages[0]
             if "warn; ind as id" in request.node.callspec.id:
                 assert "'id_not_in_kwargs' not found" in caplog.messages[0]
+
+    @pytest.mark.parametrize(
+        "kwargs, keypoint, expected",
+        [
+            (
+                None,
+                None,
+                does_not_raise(
+                    {"reference_frame": "(0,0,0) corresponds to ..."}
+                ),
+            ),
+            (
+                None,
+                "centroid",
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "centroid",
+                    }
+                ),
+            ),
+            (
+                {"name": "anchor"},
+                None,
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "anchor",
+                    }
+                ),
+            ),
+            (
+                {"name": "anchor"},
+                "centroid",
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "centroid",
+                    }
+                ),
+            ),
+            (
+                {"centroid": {"name": "anchor"}, "left": {"name": "left_ear"}},
+                None,
+                pytest.raises(
+                    ValueError,
+                    match=".*no keypoint was provided.",
+                ),
+            ),
+            (
+                {"centroid": {"name": "anchor"}},
+                None,
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "anchor",
+                    }
+                ),
+            ),
+            (
+                {"centroid": {"name": "anchor"}},
+                "centroid",
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "anchor",
+                    }
+                ),
+            ),
+            (
+                {"centroid": {"description": "anchor part"}},
+                "centroid",
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "description": "anchor part",
+                        "name": "centroid",
+                    }
+                ),
+            ),
+            (
+                {"centroid": {"name": "anchor"}},
+                "name_not_in_kwargs",
+                does_not_raise(
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "name": "name_not_in_kwargs",
+                    }
+                ),
+            ),
+        ],
+        ids=[
+            "no args: defaults",
+            "kp: kp as name",
+            "shared kwargs: kwarg as name",
+            "shared kwargs + kp: kp as name",
+            "kwargs per kp: error (multiple keys but no kp provided)",
+            "kwargs per kp (assume key is kp): warn; kwarg as name",
+            "kwargs per kp + kp: kwarg as name",
+            "kwargs per kp (w/o name) + kp: kp as name",
+            "kwargs per kp + kp (not in kwargs): warn; kp as name",
+        ],
+    )
+    def test_resolve_pose_estimation_series_kwargs(
+        self, kwargs, keypoint, expected, request, caplog
+    ):
+        """Test resolving pose_estimation_series_kwargs for a particular
+        keypoint.
+        """
+        with expected as expected_kwargs:
+            config = NWBFileSaveConfig(pose_estimation_series_kwargs=kwargs)
+            actual_kwargs = config.resolve_pose_estimation_series_kwargs(
+                keypoint
+            )
+            assert actual_kwargs == expected_kwargs
+            if "warn; kwarg as name" in request.node.callspec.id:
+                assert "Assuming 'centroid'" in caplog.messages[0]
+            elif "warn; kp as name" in request.node.callspec.id:
+                assert "'name_not_in_kwargs' not found" in caplog.messages[0]
