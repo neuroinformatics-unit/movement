@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.io.utils import _validate_file_path
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
-from movement.validators.files import ValidFile
 
 
 def _ds_to_dlc_style_df(
@@ -378,45 +378,6 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
-
-
-def _validate_file_path(
-    file_path: str | Path, expected_suffix: list[str]
-) -> ValidFile:
-    """Validate the input file path.
-
-    We check that the file has write permission and the expected suffix(es).
-
-    Parameters
-    ----------
-    file_path : pathlib.Path or str
-        Path to the file to validate.
-    expected_suffix : list of str
-        Expected suffix(es) for the file.
-
-    Returns
-    -------
-    ValidFile
-        The validated file.
-
-    Raises
-    ------
-    OSError
-        If the file cannot be written.
-    ValueError
-        If the file does not have the expected suffix.
-
-    """
-    try:
-        file = ValidFile(
-            file_path,
-            expected_permission="w",
-            expected_suffix=expected_suffix,
-        )
-    except (OSError, ValueError) as error:
-        logger.error(error)
-        raise
-    return file
 
 
 def _validate_poses_dataset(ds: xr.Dataset) -> None:

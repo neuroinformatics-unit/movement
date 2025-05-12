@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from movement.io.save_poses import _validate_file_path
+from movement.io.utils import _validate_file_path
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset
 
