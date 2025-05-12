@@ -373,7 +373,7 @@ nwb_file_kwargs_expectations = {
     ids=["single_nwb_file", "multiple_nwb_files"],
 )
 @pytest.mark.parametrize(
-    "nwbfile_kwargs",
+    "kwargs",
     [
         None,
         {"session_description": "test session", "identifier": "subj0"},
@@ -391,14 +391,14 @@ nwb_file_kwargs_expectations = {
     ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
 )
 def test_to_nwb_file_min_nwbfile_kwargs(
-    selection_fn, nwbfile_kwargs, valid_poses_dataset, request
+    selection_fn, kwargs, valid_poses_dataset, request
 ):
     """Test saving single-/multi-individual poses dataset to NWBFile(s)
     with default or custom ``nwbfile_kwargs``.
     """
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(nwbfile_kwargs=nwbfile_kwargs)
+    config = nwb.NWBFileSaveConfig(nwbfile_kwargs=kwargs)
     if test_id == "kwargs_per_ind-single_nwb_file":
         # error as too many kwargs to choose from
         with pytest.raises(ValueError, match=".*no individual was provided."):
@@ -419,7 +419,9 @@ def test_to_nwb_file_min_nwbfile_kwargs(
 
 
 subject_kwargs_expectations = {
-    "default_kwargs-single_nwb_file": [{"age__reference": "birth"}],
+    "default_kwargs-single_nwb_file": [
+        {"age__reference": "birth", "subject_id": "id_0"}
+    ],
     "default_kwargs-multiple_nwb_files": [
         {
             "age__reference": "birth",
@@ -480,7 +482,7 @@ subject_kwargs_expectations = {
     ids=["single_nwb_file", "multiple_nwb_files"],
 )
 @pytest.mark.parametrize(
-    "subject_kwargs",
+    "kwargs",
     [
         None,
         {"age": "P90D", "subject_id": "subj0"},
@@ -492,25 +494,101 @@ subject_kwargs_expectations = {
     ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
 )
 def test_to_nwb_file_subject_kwargs(
-    selection_fn, subject_kwargs, valid_poses_dataset, request
+    selection_fn, kwargs, valid_poses_dataset, request
 ):
     """Test saving single-/multi-individual poses dataset to NWBFile(s)
     with default or custom ``subject_kwargs``.
     """
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(subject_kwargs=subject_kwargs)
-    if test_id == "kwargs_per_ind-single_nwb_file":
-        # error as too many kwargs to choose from
-        with pytest.raises(ValueError, match=".*no individual was provided."):
-            save_poses.to_nwb_file_min(ds, config)
-        # recreate subject_kwargs with only one individual
-        config.subject_kwargs = {
-            k: v for k, v in config.subject_kwargs.items() if k == "id_0"
-        }
+    config = nwb.NWBFileSaveConfig(subject_kwargs=kwargs)
     nwb_files = save_poses.to_nwb_file_min(ds, config)
     actual = [file.subject.fields for file in nwb_files]
     expected = subject_kwargs_expectations.get(test_id)
+    assert actual == expected
+
+
+pose_estimation_series_kwargs_expectations = {
+    "default_kwargs-single_keypoint": [
+        {
+            "reference_frame": "(0,0,0) corresponds to ...",
+            "unit": "pixels",
+            "name": "centroid",
+        },
+    ],
+    "default_kwargs-multiple_keypoints": [
+        {
+            "reference_frame": "(0,0,0) corresponds to ...",
+            "unit": "pixels",
+            "name": "centroid",
+        },
+        {
+            "reference_frame": "(0,0,0) corresponds to ...",
+            "unit": "pixels",
+            "name": "left",
+        },
+        {
+            "reference_frame": "(0,0,0) corresponds to ...",
+            "unit": "pixels",
+            "name": "right",
+        },
+    ],
+    "shared_kwargs-single_keypoint": [
+        {"reference_frame": "(0,0) is ...", "name": "anchor"}
+    ],
+    "shared_kwargs-multiple_keypoints": [
+        {"reference_frame": "(0,0) is ...", "name": "centroid"},
+        {"reference_frame": "(0,0) is ...", "name": "left"},
+        {"reference_frame": "(0,0) is ...", "name": "right"},
+    ],
+    "kwargs_per_keypoint-single_keypoint": [
+        {"name": "anchor"},
+    ],
+    "kwargs_per_keypoint-multiple_keypoints": [
+        {"name": "anchor"},
+        {"name": "left_ear"},
+        {"name": "right"},
+    ],
+}
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda ds: ds.drop_sel(keypoints=["left", "right"]),
+        lambda ds: ds,
+    ],
+    ids=["single_keypoint", "multiple_keypoints"],
+)
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        None,
+        {"reference_frame": "(0,0) is ...", "name": "anchor"},
+        {
+            "centroid": {"name": "anchor"},
+            "left": {"name": "left_ear"},
+        },
+    ],
+    ids=["default_kwargs", "shared_kwargs", "kwargs_per_keypoint"],
+)
+def test_to_nwb_file_pose_estimation_series_kwargs(
+    selection_fn, kwargs, valid_poses_dataset, request
+):
+    """Test saving single-/multi-keypoint poses dataset to NWBFile(s)
+    with default or custom ``pose_estimation_series_kwargs``.
+    """
+    ds = selection_fn(valid_poses_dataset).drop_sel(individuals="id_1")
+    test_id = request.node.callspec.id
+    config = nwb.NWBFileSaveConfig(pose_estimation_series_kwargs=kwargs)
+    nwb_file = save_poses.to_nwb_file_min(ds, config)[0]
+    expected = pose_estimation_series_kwargs_expectations.get(test_id)
+    expected_keys = expected[0].keys()
+    actual = []
+    for pes in nwb_file.processing["behavior"][
+        "PoseEstimation"
+    ].pose_estimation_series.values():
+        actual.append({key: getattr(pes, key) for key in expected_keys})
     assert actual == expected
 
 
