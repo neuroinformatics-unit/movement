@@ -16,6 +16,7 @@ from movement.utils.logging import logger
 
 DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
     reference_frame="(0,0,0) corresponds to ...",
+    unit="pixels",
 )
 ConfigKwargsType = dict[str, Any] | dict[str, dict[str, Any]]
 
@@ -51,7 +52,7 @@ class NWBFileSaveConfig:
         and the inner dictionaries will be passed as keyword arguments to the
         :class:`pynwb.file.NWBFile` constructor.
 
-        Default values for the following arguments will be set:
+        The following arguments will have default values:
         - ``session_description``: "not set"
         - ``session_start_time``: current UTC time
         - ``identifier``: "not set"
@@ -91,12 +92,14 @@ class NWBFileSaveConfig:
         ``movement`` dataset, and the inner dictionaries will be passed as
         keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.
 
-        Default values for the following arguments will be set:
-        - ``name``: keypoint name
+        The following arguments will be set based on the dataset:
         - ``data``: position data for the keypoint
         - ``confidence``: confidence data for the keypoint
-        - ``unit``: "pixels"
         - ``timestamps``: time data for the keypoint
+
+        Default values for the following arguments
+        - ``name``: keypoint name
+        - ``unit``: "pixels"
         - ``reference_frame``: "(0,0,0) corresponds to ..."
 
     References
@@ -200,9 +203,6 @@ class NWBFileSaveConfig:
 
         """
 
-        def is_per_entity_config(cfg: dict) -> bool:
-            return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
-
         def get_entity_or_raise(cfg: dict) -> str:
             if len(cfg) == 1:
                 inferred = next(iter(cfg))
@@ -218,7 +218,7 @@ class NWBFileSaveConfig:
                 )
             )
 
-        if is_per_entity_config(cfg):
+        if self._is_per_entity_config(cfg):
             if entity is None:
                 entity = get_entity_or_raise(cfg)
             base = dict(cfg.get(entity, {}))
@@ -269,7 +269,7 @@ class NWBFileSaveConfig:
         )
 
     def resolve_subject_kwargs(
-        self, individual: str | None = None
+        self, individual: str | None = None, prioritise_individual: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.Subject`.
 
@@ -279,6 +279,11 @@ class NWBFileSaveConfig:
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
+        prioritise_individual: bool, optional
+            Flag indicating whether ``individual`` should take
+            precedence over the ``subject_id`` in shared
+            ``subject_kwargs``.
+            Default is True.
 
         Returns
         -------
@@ -286,16 +291,25 @@ class NWBFileSaveConfig:
             Keyword arguments to be passed to :class:`pynwb.file.Subject`.
 
         """
-        return self._resolve_kwargs(
+        kwargs = self._resolve_kwargs(
             cfg=self.subject_kwargs,
             entity=individual,
             entity_type="individual",
             id_key="subject_id",
             warn_context="subject_kwargs",
         )
+        if not (
+            prioritise_individual
+            or self._is_per_entity_config(self.subject_kwargs)
+        ):
+            # Prioritise shared config subject_id
+            kwargs["subject_id"] = self.subject_kwargs.get(
+                "subject_id", individual
+            )
+        return kwargs
 
     def resolve_pose_estimation_series_kwargs(
-        self, keypoint: str | None = None
+        self, keypoint: str | None = None, prioritise_keypoint: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for ``ndx_pose.PoseEstimationSeries``.
 
@@ -305,6 +319,11 @@ class NWBFileSaveConfig:
             Keypoint name. If provided, the method will attempt to retrieve
             keypoint-specific settings or fall back to shared or default
             settings.
+        prioritise_keypoint: bool, optional
+            Flag indicating whether ``keypoint`` should take
+            precedence over the ``name`` in shared
+            ``pose_estimation_series_kwargs``.
+            Default is True.
 
         Returns
         -------
@@ -313,7 +332,7 @@ class NWBFileSaveConfig:
             ``ndx_pose.PoseEstimationSeries``.
 
         """
-        return self._resolve_kwargs(
+        kwargs = self._resolve_kwargs(
             cfg=self.pose_estimation_series_kwargs,
             entity=keypoint,
             entity_type="keypoint",
@@ -321,10 +340,96 @@ class NWBFileSaveConfig:
             warn_context="pose_estimation_series_kwargs",
             defaults=DEFAULT_POSE_ESTIMATION_SERIES_KWARGS,
         )
+        if not (
+            prioritise_keypoint
+            or self._is_per_entity_config(self.pose_estimation_series_kwargs)
+        ):
+            # Prioritise shared config keypoint name
+            kwargs["name"] = self.pose_estimation_series_kwargs.get(
+                "name", keypoint
+            )
+        return kwargs
+
+    def _is_per_entity_config(self, cfg: dict) -> bool:
+        return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
 
 
 def _merge_kwargs(defaults, overrides):
     return {**defaults, **(overrides or {})}
+
+
+def _ds_to_pose_and_skeleton_objects2(
+    ds: xr.Dataset,
+    config: NWBFileSaveConfig,
+) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
+    """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A single-individual ``movement`` poses dataset.
+    config : movement.io.NWBFileSaveConfig
+        Configuration object containing keyword arguments to customise
+        the PoseEstimation and Skeletons objects created from the dataset.
+        If None (default), default values will be used.
+        See :class:`movement.io.NWBFileSaveConfig` for more details.
+
+    Returns
+    -------
+    pose_estimation : list[ndx_pose.PoseEstimation]
+        List of PoseEstimation objects
+    skeletons : ndx_pose.Skeletons
+        Skeletons object containing all skeletons
+
+    """
+    if ds.individuals.size != 1:
+        raise logger.error(
+            ValueError(
+                "Dataset must contain only one individual to create "
+                "PoseEstimation and Skeletons objects."
+            )
+        )
+    skeleton_kwargs = dict(config.skeletons_kwargs)
+    individual = ds.individuals.values.item()
+    keypoints = ds.keypoints.values.tolist()
+    pose_estimation_series = [
+        ndx_pose.PoseEstimationSeries(
+            data=ds.sel(keypoints=keypoint).position.values,
+            confidence=ds.sel(keypoints=keypoint).confidence.values,
+            timestamps=ds.time.values,
+            **(
+                config.resolve_pose_estimation_series_kwargs(
+                    keypoint, len(keypoints) > 1
+                )
+            ),
+        )
+        for keypoint in keypoints
+    ]
+    skeleton_list = [
+        ndx_pose.Skeleton(
+            name=f"{individual}_skeleton",
+            nodes=skeleton_kwargs.pop("nodes", keypoints),
+            **skeleton_kwargs,
+        )
+    ]
+    # Group all PoseEstimationSeries into a PoseEstimation object
+    bodyparts_str = ", ".join(keypoints)
+    description = (
+        f"Estimated positions of {bodyparts_str} for "
+        f"{individual} using {ds.source_software}."
+    )
+    pose_estimation = [
+        ndx_pose.PoseEstimation(
+            name="PoseEstimation",
+            pose_estimation_series=pose_estimation_series,
+            description=description,
+            source_software=ds.source_software,
+            skeleton=skeleton_list[-1],
+            **config.pose_estimation_kwargs,
+        )
+    ]
+    skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
+    return pose_estimation, skeletons
 
 
 def _ds_to_pose_and_skeleton_objects(
@@ -369,7 +474,6 @@ def _ds_to_pose_and_skeleton_objects(
                 name=keypoint,
                 data=ds.sel(keypoints=keypoint).position.values,
                 confidence=ds.sel(keypoints=keypoint).confidence.values,
-                unit="pixels",
                 timestamps=ds.sel(keypoints=keypoint).time.values,
                 **pose_estimation_series_kwargs,
             )

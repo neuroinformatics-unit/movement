@@ -262,7 +262,10 @@ class TestNWBFileSaveConfig:
                 None,
                 None,
                 does_not_raise(
-                    {"reference_frame": "(0,0,0) corresponds to ..."}
+                    {
+                        "reference_frame": "(0,0,0) corresponds to ...",
+                        "unit": "pixels",
+                    }
                 ),
             ),
             (
@@ -272,6 +275,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "centroid",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -282,6 +286,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "anchor",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -292,6 +297,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "centroid",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -310,6 +316,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "anchor",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -320,6 +327,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "anchor",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -331,6 +339,7 @@ class TestNWBFileSaveConfig:
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "description": "anchor part",
                         "name": "centroid",
+                        "unit": "pixels",
                     }
                 ),
             ),
@@ -341,6 +350,7 @@ class TestNWBFileSaveConfig:
                     {
                         "reference_frame": "(0,0,0) corresponds to ...",
                         "name": "name_not_in_kwargs",
+                        "unit": "pixels",
                     }
                 ),
             ),
