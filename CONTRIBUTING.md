@@ -240,7 +240,8 @@ If your PR introduces new modules that should *not* be documented in the [API re
 ### Updating the examples
 We use [sphinx-gallery](sphinx-gallery:)
 to create the [examples](target-examples).
-To add new examples, you will need to create a new `.py` file in `examples/`.
+To add new examples, you will need to create a new `.py` file in `examples/`,
+or in `examples/advanced/` if your example targets experienced users.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](sphinx-gallery:syntax).
 
