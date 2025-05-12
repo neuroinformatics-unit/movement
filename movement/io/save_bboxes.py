@@ -2,7 +2,6 @@
 
 import _csv
 import csv
-import re
 from pathlib import Path
 
 import numpy as np
@@ -40,9 +39,19 @@ def _map_individuals_to_track_ids(
     if extract_track_id_from_individuals:
         # Look for consecutive integers at the end of the individuals' names
         for individual in list_individuals:
-            match = re.match(r".*?(\d+)$", individual)
-            if match:
-                map_individual_to_track_id[individual] = int(match.group(1))
+            # Find the first non-digit character starting from the end
+            last_idx = len(individual) - 1
+            first_non_digit_idx = last_idx
+            while (
+                first_non_digit_idx >= 0
+                and individual[first_non_digit_idx].isdigit()
+            ):
+                first_non_digit_idx -= 1
+
+            # Extract track ID from first digit character until the end
+            if first_non_digit_idx < last_idx:
+                track_id = int(individual[first_non_digit_idx + 1 :])
+                map_individual_to_track_id[individual] = track_id
             else:
                 raise ValueError(
                     f"Could not extract track ID from {individual}."
