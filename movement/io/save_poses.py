@@ -12,7 +12,7 @@ import xarray as xr
 from movement.io.nwb import (
     NWBFileSaveConfig,
     _ds_to_pose_and_skeleton_objects,
-    _ds_to_pose_and_skeleton_objects2,
+    _ds_to_pose_and_skeletons,
     _write_behavior_processing_module,
 )
 from movement.utils.logging import logger
@@ -506,7 +506,7 @@ def to_nwb_file_min(
         for id in individuals
     ]
     for nwb_file, individual in zip(nwb_files, individuals, strict=False):
-        pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects2(
+        pose_estimation, skeletons = _ds_to_pose_and_skeletons(
             ds.sel(individuals=individual), config
         )
         _write_behavior_processing_module(
