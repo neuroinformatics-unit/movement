@@ -368,6 +368,7 @@ def _merge_kwargs(defaults, overrides):
 def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
     config: NWBFileSaveConfig | None = None,
+    subject: pynwb.file.Subject | None = None,
 ) -> tuple[ndx_pose.PoseEstimation, ndx_pose.Skeletons]:
     """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
@@ -380,6 +381,8 @@ def _ds_to_pose_and_skeletons(
         the PoseEstimation and Skeletons objects created from the dataset.
         If None (default), default values will be used.
         See :class:`movement.io.NWBFileSaveConfig` for more details.
+    subject : pynwb.file.Subject, optional
+        Subject object to be linked in the Skeleton object.
 
     Returns
     -------
@@ -387,7 +390,7 @@ def _ds_to_pose_and_skeletons(
         PoseEstimation object containing PoseEstimationSeries objects
         for each keypoint in the dataset.
     skeletons : ndx_pose.Skeletons
-        Skeletons object containing all skeletons
+        Skeletons object containing all Skeleton objects.
 
     """
     if ds.individuals.size != 1:
@@ -418,6 +421,7 @@ def _ds_to_pose_and_skeletons(
         ndx_pose.Skeleton(
             name=f"{individual}_skeleton",
             nodes=skeleton_kwargs.pop("nodes", keypoints),
+            subject=subject,
             **skeleton_kwargs,
         )
     ]
