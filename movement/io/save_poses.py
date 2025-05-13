@@ -513,6 +513,7 @@ def to_nwb_file_min(
             if ds.sizes.get("individuals") is None
             else ds.sel(individuals=id),
             config,
+            subjects[id],
         )
         for id in individuals
     }
