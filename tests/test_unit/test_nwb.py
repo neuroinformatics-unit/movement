@@ -5,14 +5,14 @@ from unittest.mock import patch
 import ndx_pose
 import pytest
 
-from movement.io.nwb import NWBFileSaveConfig, _ds_to_pose_and_skeleton_objects
+from movement.io.nwb import NWBFileSaveConfig, _ds_to_pose_and_skeletons
 
 
-def test_ds_to_pose_and_skeleton_objects(valid_poses_dataset):
+def test_ds_to_pose_and_skeletons(valid_poses_dataset):
     """Test the conversion of a valid poses dataset to
-    PoseEstimationSeries and Skeletons objects.
+    ``ndx_pose`` PoseEstimation and Skeletons.
     """
-    pose_estimation, skeletons = _ds_to_pose_and_skeleton_objects(
+    pose_estimation, skeletons = _ds_to_pose_and_skeletons(
         valid_poses_dataset.sel(individuals="id_0")
     )
     assert isinstance(pose_estimation, list)
@@ -22,6 +22,18 @@ def test_ds_to_pose_and_skeleton_objects(valid_poses_dataset):
         == pose_estimation[0].pose_estimation_series.keys()
     )
     assert {"id_0_skeleton"} == skeletons.skeletons.keys()
+
+
+def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
+    """Test the conversion of a poses dataset with more than one
+    individual to ``ndx_pose`` PoseEstimation and Skeletons raises
+    an error.
+    """
+    with pytest.raises(
+        ValueError,
+        match=".*must contain only one individual.*",
+    ):
+        _ds_to_pose_and_skeletons(valid_poses_dataset)
 
 
 class TestNWBFileSaveConfig:

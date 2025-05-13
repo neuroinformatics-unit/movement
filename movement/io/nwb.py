@@ -355,9 +355,9 @@ def _merge_kwargs(defaults, overrides):
     return {**defaults, **(overrides or {})}
 
 
-def _ds_to_pose_and_skeleton_objects2(
+def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
-    config: NWBFileSaveConfig,
+    config: NWBFileSaveConfig | None = None,
 ) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
     """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
@@ -386,6 +386,7 @@ def _ds_to_pose_and_skeleton_objects2(
                 "PoseEstimation and Skeletons objects."
             )
         )
+    config = config or NWBFileSaveConfig()
     skeleton_kwargs = dict(config.skeletons_kwargs)
     individual = ds.individuals.values.item()
     keypoints = ds.keypoints.values.tolist()
