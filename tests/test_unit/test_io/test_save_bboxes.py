@@ -533,3 +533,28 @@ def test_write_single_row(
     assert row[4] == expected_region_id
     assert row[5] == expected_region_shape_attributes
     assert row[6] == expected_region_attributes
+
+
+def test_number_of_quotes_in_region_attributes(valid_bboxes_dataset, tmp_path):
+    """Test that the number of quotes in the region attributes is as expected.
+
+    The VIA-tracks CSV file format requires the keys in the region attributes,
+    the region shape attributes, and the file attributes to be enclosed in
+    double quotes.
+    """
+    # Define output file path
+    output_path = tmp_path / "test_valid_dataset.csv"
+
+    # Save VIA-tracks CSV file
+    save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
+
+    # Check that the number of quotes in the region attributes is as expected
+    with open(output_path) as file:
+        lines = file.readlines()
+
+    assert lines[1] == (
+        '00.png,0,"{""shot"": 0}",0,0,'  # placeholder values
+        '"{""name"": ""rect"", ""x"": -30.0, ""y"": -20.0, '
+        '""width"": 60.0, ""height"": 40.0}",'  # region shape attributes
+        '"{""track"": 0, ""confidence"": 0.9}"\n'  # region attributes
+    )
