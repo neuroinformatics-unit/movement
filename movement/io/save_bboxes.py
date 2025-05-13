@@ -28,14 +28,17 @@ def to_via_tracks_file(
     file_path : str or pathlib.Path
         Path where the VIA-tracks CSV file will be saved.
     extract_track_id_from_individuals : bool, optional
-        If True, extract track_id from individuals' names. If False, the
-        track_id will be factorised from the sorted individuals' names.
-        Default is False.
+        If True, extract track IDs from the numbers at the end of the
+        individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
+        track IDs will be factorised from the list of sorted individuals'
+        names. Default is False.
     image_file_prefix : str, optional
-        Prefix for each image filename, prepended to frame number. If None or
-        an empty string, nothing will be prepended.
+        Prefix to apply to every image filename. It is prepended to the frame
+        number which is padded with leading zeros. If None or an empty string,
+        nothing will be prepended to the padded frame number. Default is None.
     image_file_suffix : str, optional
-        Suffix to add to each image filename. Default is '.png'.
+        Suffix to add to each image filename holding the file extension.
+        Strings with or without the dot are accepted. Default is '.png'.
 
     Returns
     -------
@@ -44,9 +47,31 @@ def to_via_tracks_file(
 
     Examples
     --------
-    >>> from movement.io import save_boxes, load_boxes
-    >>> ds = load_boxes.from_via_tracks_file("/path/to/file.csv")
+    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    deriving the track IDs from the list of sorted individuals and assuming
+    the image files are PNG files:
+    >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(ds, "/path/to/output.csv")
+
+    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    extracting track IDs from the end of the individuals' names and assuming
+    the image files are JPG files:
+    >>> save_boxes.to_via_tracks_file(
+    ...     ds,
+    ...     "/path/to/output.csv",
+    ...     extract_track_id_from_individuals=True,
+    ...     image_file_suffix=".jpg",
+    ... )
+
+    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    with image filenames following the format ``frame_{frame_number}.jpg``
+    and the track IDs derived from the list of sorted individuals:
+    >>> save_boxes.to_via_tracks_file(
+    ...     ds,
+    ...     "/path/to/output.csv",
+    ...     image_file_prefix="frame_",
+    ...     image_file_suffix=".jpg",
+    ... )
 
     """
     # Validate file path and dataset
@@ -55,7 +80,7 @@ def to_via_tracks_file(
 
     # Define format string for image filenames
     img_filename_template = _get_image_filename_template(
-        frame_max_digits=int(np.ceil(np.log10(ds.time.size)) + 1),
+        frame_max_digits=int(np.ceil(np.log10(ds.time.size))),
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
@@ -66,7 +91,7 @@ def to_via_tracks_file(
         extract_track_id_from_individuals,
     )
 
-    # Write csv file
+    # Write file
     _write_via_tracks_csv(
         ds,
         file.path,
@@ -118,12 +143,17 @@ def _get_image_filename_template(
     image_file_prefix: str | None,
     image_file_suffix: str,
 ) -> str:
-    """Compute a format string for the image filename.
+    """Compute a format string for the images' filenames.
+
+    The filenames of the images in the VIA-tracks CSV file are computed from
+    the frame number which is padded with at least one leading zero.
+    Optionally, a prefix can be added to the padded frame number. The suffix
+    refers to the file extension of the image files.
 
     Parameters
     ----------
     frame_max_digits : int
-        Maximum number of digits in the frame number.
+        Maximum number of digits used to represent the frame number.
     image_file_prefix : str | None
         Prefix for each image filename, prepended to frame number. If None or
         an empty string, nothing will be prepended.
@@ -136,11 +166,11 @@ def _get_image_filename_template(
         Format string for each image filename.
 
     """
-    # Add dot to image_file_suffix if required
+    # Add the dot to the file extension if required
     if not image_file_suffix.startswith("."):
         image_file_suffix = f".{image_file_suffix}"
 
-    # Add prefix to image_file_prefix if required
+    # Add the prefix if not None or not an empty string
     image_file_prefix_modified = (
         f"{image_file_prefix}" if image_file_prefix else ""
     )
@@ -148,13 +178,14 @@ def _get_image_filename_template(
     # Define filename format string
     return (
         f"{image_file_prefix_modified}"
-        f"{{:0{frame_max_digits}d}}"  #
+        f"{{:0{frame_max_digits + 1}d}}"  # +1 to pad with at least one zero
         f"{image_file_suffix}"
     )
 
 
 def _get_map_individuals_to_track_ids(
-    list_individuals: list[str], extract_track_id_from_individuals: bool
+    list_individuals: list[str],
+    extract_track_id_from_individuals: bool,
 ) -> dict[str, int]:
     """Map individuals' names to track IDs.
 
@@ -163,56 +194,91 @@ def _get_map_individuals_to_track_ids(
     list_individuals : list[str]
         List of individuals' names.
     extract_track_id_from_individuals : bool
-        If True, extract track ID from individuals' names. If False, the
-        track ID will be factorised from the sorted list of individuals' names.
+        If True, extract track ID from the last consecutive digits in
+        the individuals' names. If False, the track IDs will be factorised
+        from the sorted list of individuals' names.
 
     Returns
     -------
     dict[str, int]
-        A dictionary mapping individuals (str) to track IDs (int).
+        A dictionary mapping individuals' names (str) to track IDs (int).
+
+    Raises
+    ------
+    ValueError
+        If extract_track_id_from_individuals is True and:
+        - a track ID is not found by looking at the last consecutive digits
+          in an individual's name, or
+        - the extracted track IDs cannot be uniquely mapped to the
+          individuals' names.
 
     """
-    # Use sorted list of individuals' names
-    list_individuals = sorted(list_individuals)
-
-    # Map individuals to track IDs
-    map_individual_to_track_id = {}
     if extract_track_id_from_individuals:
-        # Look for consecutive integers at the end of the individuals' names
-        for individual in list_individuals:
-            # Find the first non-digit character starting from the end
-            last_idx = len(individual) - 1
-            first_non_digit_idx = last_idx
-            while (
-                first_non_digit_idx >= 0
-                and individual[first_non_digit_idx].isdigit()
-            ):
-                first_non_digit_idx -= 1
-
-            # Extract track ID from first digit character until the end
-            if first_non_digit_idx < last_idx:
-                track_id = int(individual[first_non_digit_idx + 1 :])
-                map_individual_to_track_id[individual] = track_id
-            else:
-                raise ValueError(
-                    f"Could not extract track ID from {individual}."
-                )
-
-        # Check that all individuals have a track ID
-        if len(set(map_individual_to_track_id.values())) != len(
-            set(list_individuals)
-        ):
-            raise ValueError(
-                "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(list_individuals))} unique track IDs, "
-                f"but got {len(set(map_individual_to_track_id.values()))}."
-            )
-
+        # Extract track IDs from the individuals' names
+        map_individual_to_track_id = _get_track_id_from_individuals(
+            list_individuals
+        )
     else:
         # Factorise track IDs from sorted individuals' names
+        list_individuals = sorted(list_individuals)
         map_individual_to_track_id = {
             individual: i for i, individual in enumerate(list_individuals)
         }
+
+    return map_individual_to_track_id
+
+
+def _get_track_id_from_individuals(
+    list_individuals: list[str],
+) -> dict[str, int]:
+    """Extract track IDs as the last digits in the individuals' names.
+
+    Parameters
+    ----------
+    list_individuals : list[str]
+        List of individuals' names.
+
+    Returns
+    -------
+    dict[str, int]
+        A dictionary mapping individuals' names (str) to track IDs (int).
+
+    Raises
+    ------
+    ValueError
+        If a track ID is not found by looking at the last consecutive digits
+        in an individual's name, or if the extracted track IDs cannot be
+        uniquely mapped to the individuals' names.
+
+    """
+    map_individual_to_track_id = {}
+
+    for individual in list_individuals:
+        # Find the first non-digit character starting from the end
+        last_idx = len(individual) - 1
+        first_non_digit_idx = last_idx
+        while (
+            first_non_digit_idx >= 0
+            and individual[first_non_digit_idx].isdigit()
+        ):
+            first_non_digit_idx -= 1
+
+        # Extract track ID from (first_non_digit_idx+1) until the end
+        if first_non_digit_idx < last_idx:
+            track_id = int(individual[first_non_digit_idx + 1 :])
+            map_individual_to_track_id[individual] = track_id
+        else:
+            raise ValueError(f"Could not extract track ID from {individual}.")
+
+    # Check that all individuals have a unique track ID
+    if len(set(map_individual_to_track_id.values())) != len(
+        set(list_individuals)
+    ):
+        raise ValueError(
+            "Could not extract a unique track ID for all individuals. "
+            f"Expected {len(set(list_individuals))} unique track IDs, "
+            f"but got {len(set(map_individual_to_track_id.values()))}."
+        )
 
     return map_individual_to_track_id
 
@@ -265,7 +331,7 @@ def _write_via_tracks_csv(
                 xy_data = ds.position.sel(time=time, individuals=indiv).values
                 wh_data = ds.shape.sel(time=time, individuals=indiv).values
 
-                # Skip if there are NaN values
+                # Skip this row if there are NaN values
                 if np.isnan(xy_data).any() or np.isnan(wh_data).any():
                     continue
 
@@ -273,6 +339,8 @@ def _write_via_tracks_csv(
                 confidence = ds.confidence.sel(
                     time=time, individuals=indiv
                 ).values
+                if np.isnan(confidence):
+                    confidence = None  # pass as None if confidence is NaN
 
                 # Get track IDs from individuals' names
                 track_id = map_individual_to_track_id[indiv]
@@ -282,7 +350,7 @@ def _write_via_tracks_csv(
                     csv_writer,
                     xy_data,
                     wh_data,
-                    confidence if not np.isnan(confidence) else None,
+                    confidence,
                     track_id,
                     time_in_frames[time_idx],
                     img_filename_template,
@@ -292,7 +360,7 @@ def _write_via_tracks_csv(
 
 def _write_single_row(
     writer: "_csv._writer",  # requires a string literal type annotation
-    xy_coordinates: np.ndarray,
+    xy_values: np.ndarray,
     wh_values: np.ndarray,
     confidence: float | None,
     track_id: int,
@@ -306,29 +374,33 @@ def _write_single_row(
     ----------
     writer : csv.writer
         CSV writer object.
-    xy_coordinates : np.ndarray
-        Bounding box centroid position data (x, y).
+    xy_values : np.ndarray
+        Array with the x, y coordinates of the bounding box centroid.
     wh_values : np.ndarray
-        Bounding box shape data (width, height).
+        Array with the width and height of the bounding box.
     confidence : float | None
-        Confidence score.
+        Confidence score for the bounding box detection.
     track_id : int
-        Integer identifying a single track.
+        Integer identifying a single track of bounding boxes across frames.
     frame_number : int
         Frame number.
     img_filename_template : str
-        Format string for each image filename.
+        Format string to apply to the image filename. The image filename is
+        formatted as the frame number padded with at least one leading zero,
+        plus the file extension. Optionally, a prefix can be added to the
+        padded frame number.
     image_size : int | None
         File size in bytes. If None, the file size is set to 0.
 
     Returns
     -------
     tuple[str, int, str, int, int, str, str]
-        Data formatted for a single row in a VIA-tracks .csv file.
+        A tuple with the data formatted for a single row in a VIA-tracks
+        .csv file.
 
     """
     # Calculate top-left coordinates of bounding box
-    x_center, y_center = xy_coordinates
+    x_center, y_center = xy_values
     width, height = wh_values
     x_top_left = x_center - width / 2
     y_top_left = y_center - height / 2
@@ -350,10 +422,13 @@ def _write_single_row(
     else:
         region_attributes = f'{{"track":"{int(track_id)}"}}'
 
+    # Set image size
+    image_size = int(image_size) if image_size is not None else 0
+
     # Define row data
     row = (
         img_filename_template.format(frame_number),  # filename
-        image_size if image_size is not None else 0,  # file size
+        image_size,  # file size in bytes
         "{}",  # file_attributes placeholder
         0,  # region_count placeholder
         0,  # region_id placeholder

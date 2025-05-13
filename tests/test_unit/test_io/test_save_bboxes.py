@@ -15,7 +15,7 @@ def mock_csv_writer():
     """Return a mock CSV writer object."""
     # Mock csv writer object
     writer = Mock()
-    # Add writerow method to mock object
+    # Add writerow method to the mock object
     writer.writerow = Mock()
     return writer
 
@@ -145,7 +145,7 @@ def test_get_image_filename_template(
 ):
     """Test that the image filename template is as expected."""
     expected_image_filename = (
-        f"{expected_prefix}{{:0{frame_max_digits}d}}{expected_suffix}"
+        f"{expected_prefix}{{:0{frame_max_digits + 1}d}}{expected_suffix}"
     )
     assert (
         save_bboxes._get_image_filename_template(
@@ -160,18 +160,18 @@ def test_get_image_filename_template(
 @pytest.mark.parametrize(
     "list_individuals, expected_track_id",
     [
-        (["id_1", "id_3", "id_2"], [1, 3, 2]),
-        (["id_1", "id_2", "id_3"], [1, 2, 3]),
-        (["id-1", "id-2", "id-3"], [1, 2, 3]),
         (["id1", "id2", "id3"], [1, 2, 3]),
+        (["id1", "id3", "id2"], [1, 3, 2]),
+        (["id-1", "id-2", "id-3"], [1, 2, 3]),
+        (["id_1", "id_2", "id_3"], [1, 2, 3]),
         (["id101", "id2", "id333"], [101, 2, 333]),
         (["mouse_0_id1", "mouse_0_id2"], [1, 2]),
     ],
     ids=[
-        "unsorted",
         "sorted",
-        "underscores",
+        "unsorted",
         "dashes",
+        "underscores",
         "multiple_digits",
         "middle_and_end_digits",
     ],
@@ -201,7 +201,7 @@ def test_get_map_individuals_to_track_ids_from_individuals_names(
         (["C", "B", "A"], [2, 1, 0]),
         (["id99", "id88", "id77"], [2, 1, 0]),
     ],
-    ids=["sorted", "unsorted", "ignoring_digits"],
+    ids=["sorted", "unsorted", "should_ignore_digits"],
 )
 def test_get_map_individuals_to_track_ids_factorised(
     list_individuals, expected_track_id
@@ -238,15 +238,15 @@ def test_get_map_individuals_to_track_ids_factorised(
                 "Expected 2 unique track IDs, but got 1."
             ),
         ),
-        (["A", "B", "C", "D"], "Could not extract track ID from A."),
+        (["A_1", "B_2", "C"], "Could not extract track ID from C."),
     ],
     ids=["id_clash_1", "id_clash_2", "individuals_without_digits"],
 )
 def test_get_map_individuals_to_track_ids_error(
     list_individuals, expected_error_message
 ):
-    """Test that an error is raised if extracting track IDs from the
-    individuals' names fails.
+    """Test that the appropriate error is raised if extracting track IDs
+    from the individuals' names fails.
     """
     with pytest.raises(ValueError) as error:
         _get_map_individuals_to_track_ids(
@@ -281,7 +281,7 @@ def test_write_single_row(
 ):
     """Test writing a single row of the VIA-tracks CSV file."""
     # Fixed input values
-    frame, track_id, xy_coordinates, wh_values = (
+    frame, track_id, xy_values, wh_values = (
         1,
         0,
         np.array([100, 200]),
@@ -292,7 +292,7 @@ def test_write_single_row(
     with patch("csv.writer", return_value=mock_csv_writer):
         row = _write_single_row(
             mock_csv_writer,
-            xy_coordinates,
+            xy_values,
             wh_values,
             confidence,
             track_id,
@@ -310,8 +310,8 @@ def test_write_single_row(
     expected_region_id = 0  # placeholder value
     expected_region_shape_attributes = {
         "name": "rect",
-        "x": float(xy_coordinates[0] - wh_values[0] / 2),
-        "y": float(xy_coordinates[1] - wh_values[1] / 2),
+        "x": float(xy_values[0] - wh_values[0] / 2),
+        "y": float(xy_values[1] - wh_values[1] / 2),
         "width": float(wh_values[0]),
         "height": float(wh_values[1]),
     }
