@@ -317,14 +317,13 @@ class NWBFileSaveConfig:
             Keyword arguments to be passed to :class:`pynwb.file.Subject`.
 
         """
-        kwargs = self._resolve_kwargs(
+        return self._resolve_kwargs(
             attr_name="subject_kwargs",
             entity=individual,
             entity_type="individual",
             id_key="subject_id",
             prioritise_entity=prioritise_individual,
         )
-        return kwargs
 
     def resolve_pose_estimation_series_kwargs(
         self, keypoint: str | None = None, prioritise_keypoint: bool = True
@@ -350,14 +349,13 @@ class NWBFileSaveConfig:
             ``ndx_pose.PoseEstimationSeries``.
 
         """
-        kwargs = self._resolve_kwargs(
+        return self._resolve_kwargs(
             attr_name="pose_estimation_series_kwargs",
             entity=keypoint,
             entity_type="keypoint",
             id_key="name",
             prioritise_entity=prioritise_keypoint,
         )
-        return kwargs
 
     def _is_per_entity_config(self, cfg: dict) -> bool:
         return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
