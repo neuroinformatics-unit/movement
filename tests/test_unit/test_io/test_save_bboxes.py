@@ -1,6 +1,8 @@
+import json
 from unittest.mock import Mock, patch
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -34,6 +36,15 @@ def valid_bboxes_dataset_with_late_id0(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
+@pytest.fixture
+def valid_bboxes_dataset_individuals_modified(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with individuals named "id_333" and
+    "id_444".
+    """
+    valid_bboxes_dataset.assign_coords(individuals=["id_333", "id_444"])
+    return valid_bboxes_dataset
+
+
 @pytest.mark.parametrize(
     "valid_dataset",
     [
@@ -41,38 +52,31 @@ def valid_bboxes_dataset_with_late_id0(valid_bboxes_dataset):
         "valid_bboxes_dataset_in_seconds",
         "valid_bboxes_dataset_with_nan",
         "valid_bboxes_dataset_with_late_id0",
-        # TODO: test a dataset with some/all NaNs in the confidence array
+        # TODO: test a dataset with some NaNs in the confidence array
+        # TODO: test a dataset with all NaNs in the confidence array
     ],
 )
 @pytest.mark.parametrize(
-    "extract_track_id_from_individuals",
-    [True],  # , False],
-)
-@pytest.mark.parametrize(
     "image_file_prefix",
-    [None],  # , "test_video"],
+    [None, "test_video"],
 )
 @pytest.mark.parametrize(
     "image_file_suffix",
-    [None],  # , ".pngpng", ".jpg"],
+    [None, ".png", "png", ".jpg"],
 )
 def test_to_via_tracks_file_valid_dataset(
     valid_dataset,
-    request,
-    tmp_path,
-    extract_track_id_from_individuals,
     image_file_prefix,
     image_file_suffix,
+    tmp_path,
+    request,
 ):
     """Test the VIA-tracks CSV file."""
     # Define output file path
     output_path = tmp_path / "test_valid_dataset.csv"
 
     # Prepare kwargs
-    kwargs = {
-        "extract_track_id_from_individuals": extract_track_id_from_individuals,
-        "image_file_prefix": image_file_prefix,
-    }
+    kwargs = {"image_file_prefix": image_file_prefix}
     if image_file_suffix is not None:
         kwargs["image_file_suffix"] = image_file_suffix
 
@@ -84,7 +88,7 @@ def test_to_via_tracks_file_valid_dataset(
         **kwargs,
     )
 
-    # Verify that we can recover the original dataset
+    # Check that we can recover the original dataset
     if input_dataset.time_unit == "seconds":
         ds = load_bboxes.from_via_tracks_file(
             output_path, fps=input_dataset.fps
@@ -92,30 +96,81 @@ def test_to_via_tracks_file_valid_dataset(
     else:
         ds = load_bboxes.from_via_tracks_file(output_path)
 
-    # If the position or shape data contain NaNs, remove those
-    # from the dataset before comparing
-    # shape should be null where position is null
-    slc_null_position = input_dataset.position.isnull().values
-    input_dataset.shape.values[slc_null_position] = np.nan
-    # position should be null where shape is null
-    slc_null_shape = input_dataset.shape.isnull().values
-    input_dataset.position.values[slc_null_shape] = np.nan
-
-    # if position or shape are missing, confidence will be missing too
-    # because that annotation is skipped
-    input_dataset.confidence.values[
-        np.any(slc_null_position, axis=1) | np.any(slc_null_shape, axis=1)
-    ] = np.nan
-
+    # If the position or shape data arrays contain NaNs, remove those
+    # data points from the dataset before comparing (remove position, shape and
+    # confidence values, since the corresponding annotations would be skipped
+    # when writing the VIA-tracks CSV file)
+    null_position_or_shape = (
+        input_dataset.position.isnull() | input_dataset.shape.isnull()
+    )
+    input_dataset.shape.values[null_position_or_shape] = np.nan
+    input_dataset.position.values[null_position_or_shape] = np.nan
+    input_dataset.confidence.values[np.any(null_position_or_shape, axis=1)] = (
+        np.nan
+    )
     xr.testing.assert_equal(ds, input_dataset)
-    # xr.testing.assert_equal(ds.position, input_dataset.position)
-    # xr.testing.assert_equal(ds.shape, input_dataset.shape)
-    # xr.testing.assert_equal(ds.confidence, input_dataset.confidence)
 
-    # TODO: Check values are as expected!
-    # - extract_track_id_from_individuals
-    # - image_file_prefix
-    # - image_file_suffix
+    # Check image file prefix is as expected
+    df = pd.read_csv(output_path)
+    if image_file_prefix is not None:
+        assert df["filename"].str.startswith(image_file_prefix).all()
+    else:
+        assert df["filename"].str.startswith("0").all()
+
+    # Check image file suffix is as expected
+    if image_file_suffix is not None:
+        assert df["filename"].str.endswith(image_file_suffix).all()
+    else:
+        assert df["filename"].str.endswith(".png").all()
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_bboxes_dataset",
+        # individuals: "id_0", "id_1"
+        "valid_bboxes_dataset_individuals_modified",
+        # individuals: "id_333", "id_444"
+    ],
+)
+@pytest.mark.parametrize(
+    "extract_track_id_from_individuals",
+    [True, False],
+)
+def test_to_via_tracks_file_extract_track_id_from_individuals(
+    extract_track_id_from_individuals,
+    valid_dataset,
+    tmp_path,
+    request,
+):
+    """Test that the VIA-tracks CSV file is as expected when extracting
+    track IDs from the individuals' names.
+    """
+    # Define output file path
+    output_path = tmp_path / "test_valid_dataset.csv"
+
+    # Save VIA-tracks CSV file
+    input_dataset = request.getfixturevalue(valid_dataset)
+    save_bboxes.to_via_tracks_file(
+        input_dataset,
+        output_path,
+        extract_track_id_from_individuals=extract_track_id_from_individuals,
+    )
+
+    # Check track ID in relation to individuals' names
+    df = pd.read_csv(output_path)
+    df["region_attributes"] = [
+        json.loads(el) for el in df["region_attributes"]
+    ]
+    set_unique_track_ids = set([ra["track"] for ra in df["region_attributes"]])
+
+    # Note: we check if the sets of IDs is as expected, regardless of the order
+    if extract_track_id_from_individuals:
+        assert set_unique_track_ids == set(
+            [indiv.split("_")[1] for indiv in input_dataset.individuals.values]
+        )
+    else:
+        assert set_unique_track_ids == {"0", "1"}
 
 
 @pytest.mark.parametrize(
