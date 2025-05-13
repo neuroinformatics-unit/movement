@@ -45,48 +45,61 @@ def valid_bboxes_dataset_individuals_modified(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
+@pytest.fixture
+def valid_bboxes_dataset_confidence_all_nans(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with all NaNs in
+    the confidence array.
+    """
+    valid_bboxes_dataset["confidence"] = xr.DataArray(
+        data=np.nan,
+        dims=valid_bboxes_dataset.confidence.dims,
+        coords=valid_bboxes_dataset.confidence.coords,
+    )
+    return valid_bboxes_dataset
+
+
+@pytest.fixture
+def valid_bboxes_dataset_confidence_some_nans(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with some NaNs in
+    the confidence array.
+
+    `valid_bboxes_dataset` represents two individuals moving in uniform
+    linear motion for 10 frames, with time in frames. The confidence values
+    for the first 3 frames for individual 0 are set to NaN.
+    """
+    # Set first 3 frames for individual 0 to NaN
+    confidence_array = valid_bboxes_dataset.confidence.values
+    confidence_array[:3, 0] = np.nan
+
+    valid_bboxes_dataset["confidence"] = xr.DataArray(
+        data=confidence_array,
+        dims=valid_bboxes_dataset.confidence.dims,
+        coords=valid_bboxes_dataset.confidence.coords,
+    )
+    return valid_bboxes_dataset
+
+
 @pytest.mark.parametrize(
     "valid_dataset",
     [
         "valid_bboxes_dataset",
         "valid_bboxes_dataset_in_seconds",
-        "valid_bboxes_dataset_with_nan",
+        "valid_bboxes_dataset_with_nan",  # nans in position array
         "valid_bboxes_dataset_with_late_id0",
-        # TODO: test a dataset with some NaNs in the confidence array
-        # TODO: test a dataset with all NaNs in the confidence array
     ],
-)
-@pytest.mark.parametrize(
-    "image_file_prefix",
-    [None, "test_video"],
-)
-@pytest.mark.parametrize(
-    "image_file_suffix",
-    [None, ".png", "png", ".jpg"],
 )
 def test_to_via_tracks_file_valid_dataset(
     valid_dataset,
-    image_file_prefix,
-    image_file_suffix,
     tmp_path,
     request,
 ):
-    """Test the VIA-tracks CSV file."""
+    """Test the VIA-tracks CSV file with different valid bboxes datasets."""
     # Define output file path
     output_path = tmp_path / "test_valid_dataset.csv"
 
-    # Prepare kwargs
-    kwargs = {"image_file_prefix": image_file_prefix}
-    if image_file_suffix is not None:
-        kwargs["image_file_suffix"] = image_file_suffix
-
     # Save VIA-tracks CSV file
     input_dataset = request.getfixturevalue(valid_dataset)
-    save_bboxes.to_via_tracks_file(
-        input_dataset,
-        output_path,
-        **kwargs,
-    )
+    save_bboxes.to_via_tracks_file(input_dataset, output_path)
 
     # Check that we can recover the original dataset
     if input_dataset.time_unit == "seconds":
@@ -97,9 +110,9 @@ def test_to_via_tracks_file_valid_dataset(
         ds = load_bboxes.from_via_tracks_file(output_path)
 
     # If the position or shape data arrays contain NaNs, remove those
-    # data points from the dataset before comparing (remove position, shape and
-    # confidence values, since the corresponding annotations would be skipped
-    # when writing the VIA-tracks CSV file)
+    # data points from the dataset before comparing (i.e. remove their
+    # position, shape and confidence values, since these annotations will
+    # be skipped when writing the VIA-tracks CSV file)
     null_position_or_shape = (
         input_dataset.position.isnull() | input_dataset.shape.isnull()
     )
@@ -109,6 +122,39 @@ def test_to_via_tracks_file_valid_dataset(
         np.nan
     )
     xr.testing.assert_equal(ds, input_dataset)
+
+
+@pytest.mark.parametrize(
+    "image_file_prefix",
+    [None, "test_video"],
+)
+@pytest.mark.parametrize(
+    "image_file_suffix",
+    [None, ".png", "png", ".jpg"],
+)
+def test_to_via_tracks_file_image_filename(
+    valid_bboxes_dataset,
+    image_file_prefix,
+    image_file_suffix,
+    tmp_path,
+):
+    """Test the VIA-tracks CSV file with different image file prefixes and
+    suffixes.
+    """
+    # Define output file path
+    output_path = tmp_path / "test_valid_dataset.csv"
+
+    # Prepare kwargs
+    kwargs = {"image_file_prefix": image_file_prefix}
+    if image_file_suffix is not None:
+        kwargs["image_file_suffix"] = image_file_suffix
+
+    # Save VIA-tracks CSV file
+    save_bboxes.to_via_tracks_file(
+        valid_bboxes_dataset,
+        output_path,
+        **kwargs,
+    )
 
     # Check image file prefix is as expected
     df = pd.read_csv(output_path)
@@ -125,6 +171,51 @@ def test_to_via_tracks_file_valid_dataset(
 
 
 @pytest.mark.parametrize(
+    "valid_dataset, expected_confidence_nan_count",
+    [
+        ("valid_bboxes_dataset", 0),
+        # all annotations should have a confidence value
+        ("valid_bboxes_dataset_confidence_all_nans", 20),
+        # some annotations should have a confidence value
+        ("valid_bboxes_dataset_confidence_some_nans", 3),
+        # no annotations should have a confidence value
+    ],
+)
+def test_to_via_tracks_file_confidence(
+    valid_dataset,
+    expected_confidence_nan_count,
+    tmp_path,
+    request,
+):
+    """Test that the VIA-tracks CSV file is as expected when the confidence
+    array contains NaNs.
+    """
+    # Define output file path
+    output_path = tmp_path / "test_valid_dataset.csv"
+
+    # Save VIA-tracks CSV file
+    input_dataset = request.getfixturevalue(valid_dataset)
+    save_bboxes.to_via_tracks_file(input_dataset, output_path)
+
+    # Check that the input dataset has the expected number of NaNs in the
+    # confidence array
+    confidence_is_nan = input_dataset.confidence.isnull().values
+    assert np.sum(confidence_is_nan) == expected_confidence_nan_count
+
+    # Check that the confidence values in the exported file match the dataset
+    df = pd.read_csv(output_path)
+    df["region_attributes"] = [
+        json.loads(el) for el in df["region_attributes"]
+    ]
+
+    # Check the "confidence" region attribute is present for
+    # as many rows as there are non-NaN confidence values
+    assert sum(
+        ["confidence" in row for row in df["region_attributes"]]
+    ) == np.sum(~confidence_is_nan)
+
+
+@pytest.mark.parametrize(
     "valid_dataset",
     [
         "valid_bboxes_dataset",
@@ -138,8 +229,8 @@ def test_to_via_tracks_file_valid_dataset(
     [True, False],
 )
 def test_to_via_tracks_file_extract_track_id_from_individuals(
-    extract_track_id_from_individuals,
     valid_dataset,
+    extract_track_id_from_individuals,
     tmp_path,
     request,
 ):
@@ -162,7 +253,9 @@ def test_to_via_tracks_file_extract_track_id_from_individuals(
     df["region_attributes"] = [
         json.loads(el) for el in df["region_attributes"]
     ]
-    set_unique_track_ids = set([ra["track"] for ra in df["region_attributes"]])
+    set_unique_track_ids = set(
+        [row["track"] for row in df["region_attributes"]]
+    )
 
     # Note: we check if the sets of IDs is as expected, regardless of the order
     if extract_track_id_from_individuals:
