@@ -152,35 +152,42 @@ class NWBFileSaveConfig:
     pose_estimation_series_kwargs: ConfigKwargsType = _safe_dict_field()
     pose_estimation_kwargs: ConfigKwargsType = _safe_dict_field()
     skeletons_kwargs: ConfigKwargsType = _safe_dict_field()
+    DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
+        reference_frame="(0,0,0) corresponds to ...", unit="pixels"
+    )
+    DEFAULT_NWBFILE_KWARGS = dict(
+        session_description="not set", identifier="not set"
+    )
 
     def _resolve_kwargs(
         self,
-        cfg: ConfigKwargsType,
+        attr_name: str,
         entity: str | None,
         entity_type: str,
         id_key: str,
-        warn_context: str,
-        defaults: dict[str, Any] | None = None,
+        prioritise_entity: bool = True,
     ) -> dict[str, Any]:
         """Resolve per-entity (individual/keypoint) or shared kwargs.
 
-        If ``cfg`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual or keypoint names in the
-        ``movement`` dataset, and the inner dictionaries will be
-        returned as keyword arguments for an individual/keypoint.
+        If the kwargs attribute (retrieved from ``attr_name``) is a
+        dictionary of dictionaries, the outer keys should correspond to
+        individual or keypoint names in the ``movement`` dataset,
+        and the inner dictionaries will be returned as keyword arguments
+        for an individual/keypoint.
 
-        If ``cfg`` is a single dictionary, the same arguments will
-        be used for all individuals or keypoints, except for ``id_key``,
+        If the retrieved attribute is a single dictionary, the same arguments
+        will be used for all individuals or keypoints except for ``id_key``,
         which will be set in the following order of precedence:
         1. ``entity`` (if provided)
-        2. ``cfg[id_key]`` (if provided)
-        3. ``defaults[id_key]`` (if provided)
+        2. ``kwargs[id_key]`` (if provided)
+        3. ``DEFAULT_<attr_name>[id_key]`` (class attribute)
 
         Parameters
         ----------
-        cfg : dict[str, Any] | dict[str, dict[str, Any]]
-            An attribute of :class:`NWBFileSaveConfig`
-            (e.g. ``nwbfile_kwargs``, ``subject_kwargs``).
+        attr_name : str
+            The name of the attribute in the class (e.g. ``nwbfile_kwargs``,
+            ``subject_kwargs``, ``pose_estimation_series_kwargs``) to be
+            resolved.
         entity : str | None
             Individual or keypoint name.
         entity_type : str | None
@@ -190,11 +197,10 @@ class NWBFileSaveConfig:
             The key in ``cfg`` corresponding to the entity identifier/name
             (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the
             returned dictionary.
-        warn_context : str
-            Context for the warning message (e.g. "nwbfile_kwargs",
-            "subject_kwargs").
-        defaults : dict[str, Any] | None
-            Default keyword arguments to be used.
+        prioritise_entity : bool, optional
+            Flag indicating whether ``entity`` should take
+            precedence over the ``id_key`` when the attribute is a shared
+            config (i.e. a single dictionary). Default is True.
 
         Returns
         -------
@@ -203,41 +209,46 @@ class NWBFileSaveConfig:
 
         """
 
-        def get_entity_or_raise(cfg: dict) -> str:
+        def infer_entity_or_raise(cfg: dict) -> str:
             if len(cfg) == 1:
                 inferred = next(iter(cfg))
                 logger.warning(
                     f"No {entity_type} was provided. Assuming '{inferred}' "
-                    f"since there is only one entry in {warn_context}."
+                    f"since there is only one entry in {attr_name}."
                 )
                 return inferred
             raise logger.error(
                 ValueError(
                     f"NWBFileSaveConfig has per-{entity_type} "
-                    f"{warn_context}, but no {entity_type} was provided."
+                    f"{attr_name}, but no {entity_type} was provided."
                 )
             )
 
+        cfg = getattr(self, attr_name)
+        defaults = getattr(self, f"DEFAULT_{attr_name.upper()}", None)
+
         if self._is_per_entity_config(cfg):
             if entity is None:
-                entity = get_entity_or_raise(cfg)
+                entity = infer_entity_or_raise(cfg)
             base = dict(cfg.get(entity, {}))
             if not base:
                 logger.warning(
-                    f"'{entity}' not found in {warn_context}; "
+                    f"'{entity}' not found in {attr_name}; "
                     f"setting only {id_key} to '{entity}'."
                 )
             base.setdefault(id_key, entity)
         else:  # Shared config
             base = dict(cfg)
-            if entity is not None:
+            if not prioritise_entity:
+                base[id_key] = cfg.get(id_key, entity)
+            elif entity is not None:
                 base[id_key] = entity
         if defaults:
             base = {**defaults, **base}  # base overrides defaults
         return base
 
     def resolve_nwbfile_kwargs(
-        self, individual: str | None = None
+        self, individual: str | None = None, prioritise_individual: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.NWBFile`.
 
@@ -247,6 +258,11 @@ class NWBFileSaveConfig:
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
+        prioritise_individual: bool, optional
+            Flag indicating whether ``individual`` should take
+            precedence over the ``identifier`` in shared
+            ``nwbfile_kwargs``.
+            Default is True.
 
         Returns
         -------
@@ -254,19 +270,17 @@ class NWBFileSaveConfig:
             Keyword arguments to be passed to :class:`pynwb.file.NWBFile`.
 
         """
-        defaults = {
-            "session_description": "not set",
-            "session_start_time": datetime.datetime.now(datetime.UTC),
-            "identifier": "not set",
-        }
-        return self._resolve_kwargs(
-            cfg=self.nwbfile_kwargs,
+        kwargs = self._resolve_kwargs(
+            attr_name="nwbfile_kwargs",
             entity=individual,
             entity_type="individual",
             id_key="identifier",
-            warn_context="nwbfile_kwargs",
-            defaults=defaults,
+            prioritise_entity=prioritise_individual,
         )
+        kwargs.setdefault(
+            "session_start_time", datetime.datetime.now(datetime.UTC)
+        )
+        return kwargs
 
     def resolve_subject_kwargs(
         self, individual: str | None = None, prioritise_individual: bool = True
@@ -292,20 +306,12 @@ class NWBFileSaveConfig:
 
         """
         kwargs = self._resolve_kwargs(
-            cfg=self.subject_kwargs,
+            attr_name="subject_kwargs",
             entity=individual,
             entity_type="individual",
             id_key="subject_id",
-            warn_context="subject_kwargs",
+            prioritise_entity=prioritise_individual,
         )
-        if not (
-            prioritise_individual
-            or self._is_per_entity_config(self.subject_kwargs)
-        ):
-            # Prioritise shared config subject_id
-            kwargs["subject_id"] = self.subject_kwargs.get(
-                "subject_id", individual
-            )
         return kwargs
 
     def resolve_pose_estimation_series_kwargs(
@@ -333,21 +339,12 @@ class NWBFileSaveConfig:
 
         """
         kwargs = self._resolve_kwargs(
-            cfg=self.pose_estimation_series_kwargs,
+            attr_name="pose_estimation_series_kwargs",
             entity=keypoint,
             entity_type="keypoint",
             id_key="name",
-            warn_context="pose_estimation_series_kwargs",
-            defaults=DEFAULT_POSE_ESTIMATION_SERIES_KWARGS,
+            prioritise_entity=prioritise_keypoint,
         )
-        if not (
-            prioritise_keypoint
-            or self._is_per_entity_config(self.pose_estimation_series_kwargs)
-        ):
-            # Prioritise shared config keypoint name
-            kwargs["name"] = self.pose_estimation_series_kwargs.get(
-                "name", keypoint
-            )
         return kwargs
 
     def _is_per_entity_config(self, cfg: dict) -> bool:
