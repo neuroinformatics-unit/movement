@@ -370,13 +370,13 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
 def to_nwb_file(
     ds: xr.Dataset,
-    nwb_files: pynwb.NWBFile | list[pynwb.NWBFile],
+    nwb_files: pynwb.file.NWBFile | list[pynwb.file.NWBFile],
     *,
     pose_estimation_series_kwargs: dict | None = None,
     pose_estimation_kwargs: dict | None = None,
     skeletons_kwargs: dict | None = None,
 ) -> None:
-    """Save a ``movement`` dataset to one or more open NWB file objects.
+    """Save a ``movement`` dataset to one or more open NWBFile objects.
 
     The data will be written to the NWB file(s) in the "behavior" processing
     module, formatted according to the ``ndx-pose`` NWB extension [1]_.
@@ -388,7 +388,7 @@ def to_nwb_file(
     ----------
     ds : xr.Dataset
         ``movement`` poses dataset containing the data to be converted to NWB
-    nwb_files : list[pynwb.NWBFile] | pynwb.NWBFile
+    nwb_files : list[pynwb.file.NWBFile] | pynwb.file.NWBFile
         An NWBFile object or a list of such objects to which the data
         will be added.
     pose_estimation_series_kwargs : dict, optional
@@ -466,8 +466,8 @@ def to_nwb_file(
 
 def to_nwb_file_min(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None
-) -> list[pynwb.NWBFile]:
-    """Save a ``movement`` dataset to one or more open NWB file objects.
+) -> list[pynwb.file.NWBFile]:
+    """Save a ``movement`` dataset to one or more open NWBFile objects.
 
     The data will be written to the NWB file(s) in the "behavior" processing
     module, formatted according to the ``ndx-pose`` NWB extension [1]_.
@@ -477,13 +477,17 @@ def to_nwb_file_min(
 
     Parameters
     ----------
-    ds : xr.Dataset
+    ds : xarray.Dataset
         ``movement`` poses dataset containing the data to be converted to NWB
-    config : NWBFileSaveConfig
+    config : NWBFileSaveConfig, optional
         Configuration object containing keyword arguments to customise the
         :class:`pynwb.file.NWBFile` that will be created for each individual.
         If None (default), default values will be used.
-        See :class:`movement.io.NWBFileSaveConfig` for more details.
+
+    Returns
+    -------
+    list[pynwb.file.NWBFile]
+        List of NWBFile objects, one for each individual in the dataset.
 
     References
     ----------
@@ -496,14 +500,14 @@ def to_nwb_file_min(
         individuals = [individuals]
     subjects = {
         id: pynwb.file.Subject(
-            **(config.resolve_subject_kwargs(id, len(individuals) > 1))
+            **(config._resolve_subject_kwargs(id, len(individuals) > 1))
         )
         for id in individuals
     }
     nwb_files = [
         pynwb.NWBFile(
             subject=subjects[id],
-            **(config.resolve_nwbfile_kwargs(id, len(individuals) > 1)),
+            **(config._resolve_nwbfile_kwargs(id, len(individuals) > 1)),
         )
         for id in individuals
     ]

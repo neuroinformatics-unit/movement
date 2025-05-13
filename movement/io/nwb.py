@@ -1,4 +1,4 @@
-"""Functions to convert between movement poses datasets and NWB files.
+"""Helpers to convert between movement poses datasets and NWB files.
 
 The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.
@@ -259,7 +259,7 @@ class NWBFileSaveConfig:
             base = {**defaults, **base}  # base overrides defaults
         return base
 
-    def resolve_nwbfile_kwargs(
+    def _resolve_nwbfile_kwargs(
         self, individual: str | None = None, prioritise_individual: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.NWBFile`.
@@ -294,7 +294,7 @@ class NWBFileSaveConfig:
         )
         return kwargs
 
-    def resolve_subject_kwargs(
+    def _resolve_subject_kwargs(
         self, individual: str | None = None, prioritise_individual: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for :class:`pynwb.file.Subject`.
@@ -325,7 +325,7 @@ class NWBFileSaveConfig:
             prioritise_entity=prioritise_individual,
         )
 
-    def resolve_pose_estimation_series_kwargs(
+    def _resolve_pose_estimation_series_kwargs(
         self, keypoint: str | None = None, prioritise_keypoint: bool = True
     ) -> dict[str, Any]:
         """Resolve the keyword arguments for ``ndx_pose.PoseEstimationSeries``.
@@ -410,7 +410,7 @@ def _ds_to_pose_and_skeletons(
             confidence=ds.sel(keypoints=keypoint).confidence.values,
             timestamps=ds.time.values,
             **(
-                config.resolve_pose_estimation_series_kwargs(
+                config._resolve_pose_estimation_series_kwargs(
                     keypoint, len(keypoints) > 1
                 )
             ),
@@ -517,7 +517,7 @@ def _ds_to_pose_and_skeleton_objects(
 
 
 def _write_behavior_processing_module(
-    nwb_file: pynwb.NWBFile,
+    nwb_file: pynwb.file.NWBFile,
     pose_estimation: ndx_pose.PoseEstimation,
     skeletons: ndx_pose.Skeletons,
 ) -> None:
@@ -530,8 +530,8 @@ def _write_behavior_processing_module(
 
     Parameters
     ----------
-    nwb_file : pynwb.NWBFile
-        The NWB file object to which the data will be added.
+    nwb_file : pynwb.file.NWBFile
+        The NWBFile object to which the data will be added.
     pose_estimation : ndx_pose.PoseEstimation
         PoseEstimation object containing the pose data for an individual.
     skeletons : ndx_pose.Skeletons
