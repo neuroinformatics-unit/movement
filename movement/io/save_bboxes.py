@@ -331,7 +331,8 @@ def _write_via_tracks_csv(
                 xy_data = ds.position.sel(time=time, individuals=indiv).values
                 wh_data = ds.shape.sel(time=time, individuals=indiv).values
 
-                # Skip this row if there are NaN values
+                # If the position or shape data contains NaNs, do not write
+                # this annotation
                 if np.isnan(xy_data).any() or np.isnan(wh_data).any():
                     continue
 

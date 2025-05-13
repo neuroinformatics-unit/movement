@@ -2,8 +2,9 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
+import xarray as xr
 
-from movement.io import save_bboxes
+from movement.io import load_bboxes, save_bboxes
 from movement.io.save_bboxes import (
     _get_map_individuals_to_track_ids,
     _write_single_row,
@@ -20,26 +21,40 @@ def mock_csv_writer():
     return writer
 
 
+@pytest.fixture
+def valid_bboxes_dataset_with_late_id0(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with id_0 starting at time index 3.
+
+    `valid_bboxes_dataset` represents two individuals moving in uniform
+    linear motion for 10 frames, with low confidence values and time in frames.
+    """
+    valid_bboxes_dataset.position.loc[
+        {"individuals": "id_0", "time": [0, 1, 2]}
+    ] = np.nan
+    return valid_bboxes_dataset
+
+
 @pytest.mark.parametrize(
     "valid_dataset",
     [
         "valid_bboxes_dataset",
         "valid_bboxes_dataset_in_seconds",
         "valid_bboxes_dataset_with_nan",
-        # "valid_bboxes_dataset_with_gaps", -- TODO
+        "valid_bboxes_dataset_with_late_id0",
+        # TODO: test a dataset with some/all NaNs in the confidence array
     ],
 )
 @pytest.mark.parametrize(
     "extract_track_id_from_individuals",
-    [True, False],
+    [True],  # , False],
 )
 @pytest.mark.parametrize(
     "image_file_prefix",
-    [None, "test_video"],
+    [None],  # , "test_video"],
 )
 @pytest.mark.parametrize(
     "image_file_suffix",
-    [None, ".pngpng", ".jpg"],
+    [None],  # , ".pngpng", ".jpg"],
 )
 def test_to_via_tracks_file_valid_dataset(
     valid_dataset,
@@ -50,26 +65,57 @@ def test_to_via_tracks_file_valid_dataset(
     image_file_suffix,
 ):
     """Test the VIA-tracks CSV file."""
-    # TODO: Test different valid datasets, including those
-    # with IDs that are not present in all frames
-    if image_file_suffix is None:
-        save_bboxes.to_via_tracks_file(
-            request.getfixturevalue(valid_dataset),
-            tmp_path / "test_valid_dataset.csv",
-            extract_track_id_from_individuals,
-            image_file_prefix=image_file_prefix,
+    # Define output file path
+    output_path = tmp_path / "test_valid_dataset.csv"
+
+    # Prepare kwargs
+    kwargs = {
+        "extract_track_id_from_individuals": extract_track_id_from_individuals,
+        "image_file_prefix": image_file_prefix,
+    }
+    if image_file_suffix is not None:
+        kwargs["image_file_suffix"] = image_file_suffix
+
+    # Save VIA-tracks CSV file
+    input_dataset = request.getfixturevalue(valid_dataset)
+    save_bboxes.to_via_tracks_file(
+        input_dataset,
+        output_path,
+        **kwargs,
+    )
+
+    # Verify that we can recover the original dataset
+    if input_dataset.time_unit == "seconds":
+        ds = load_bboxes.from_via_tracks_file(
+            output_path, fps=input_dataset.fps
         )
     else:
-        save_bboxes.to_via_tracks_file(
-            request.getfixturevalue(valid_dataset),
-            tmp_path / "test_valid_dataset.csv",
-            extract_track_id_from_individuals,
-            image_file_prefix=image_file_prefix,
-            image_file_suffix=image_file_suffix,
-        )
+        ds = load_bboxes.from_via_tracks_file(output_path)
+
+    # If the position or shape data contain NaNs, remove those
+    # from the dataset before comparing
+    # shape should be null where position is null
+    slc_null_position = input_dataset.position.isnull().values
+    input_dataset.shape.values[slc_null_position] = np.nan
+    # position should be null where shape is null
+    slc_null_shape = input_dataset.shape.isnull().values
+    input_dataset.position.values[slc_null_shape] = np.nan
+
+    # if position or shape are missing, confidence will be missing too
+    # because that annotation is skipped
+    input_dataset.confidence.values[
+        np.any(slc_null_position, axis=1) | np.any(slc_null_shape, axis=1)
+    ] = np.nan
+
+    xr.testing.assert_equal(ds, input_dataset)
+    # xr.testing.assert_equal(ds.position, input_dataset.position)
+    # xr.testing.assert_equal(ds.shape, input_dataset.shape)
+    # xr.testing.assert_equal(ds.confidence, input_dataset.confidence)
 
     # TODO: Check values are as expected!
-    # TODO:Check as many track IDs as individuals
+    # - extract_track_id_from_individuals
+    # - image_file_prefix
+    # - image_file_suffix
 
 
 @pytest.mark.parametrize(

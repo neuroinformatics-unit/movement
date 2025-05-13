@@ -56,7 +56,7 @@ def valid_bboxes_arrays():
         position[:, 1, i] = (-1) ** i * np.arange(n_frames)
 
     # build a valid array for constant bbox shape (60, 40)
-    constant_shape = (60, 40)  # width, height in pixels
+    constant_shape = float(60), float(40)  # width, height in pixels
     shape = np.tile(constant_shape, (n_frames, n_individuals, 1)).transpose(
         0, 2, 1
     )
@@ -82,6 +82,15 @@ def valid_bboxes_arrays():
 def valid_bboxes_dataset(valid_bboxes_arrays):
     """Return a valid bboxes dataset for two individuals moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
+
+    It represents 2 individuals for 10 frames, in 2D space.
+    - Individual 0 moves along the x=y line from the origin.
+    - Individual 1 moves along the x=-y line line from the origin.
+
+    All confidence values are set to 0.9 except the following which are set
+    to 0.1:
+    - Individual 0 at frames 2, 3, 4
+    - Individual 1 at frames 2, 3
     """
     dim_names = ValidBboxesDataset.DIM_NAMES
 
@@ -118,6 +127,7 @@ def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
     """Return a valid bboxes dataset with time in seconds.
 
     The origin of time is assumed to be time = frame 0 = 0 seconds.
+    The time unit is set to "seconds" and the fps is set to 60.
     """
     fps = 60
     valid_bboxes_dataset["time"] = valid_bboxes_dataset.time / fps
