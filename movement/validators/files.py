@@ -590,12 +590,13 @@ class ValidNWBFile:
     """Class for validating NWB files.
 
     The validator ensures that the file is either:
+
     - a valid NWB file (.nwb) path, or
-    - an open NWBFile object.
+    - an open :class:`NWBFile<pynwb.file.NWBFile>` object.
 
     Attributes
     ----------
-    file : str | Path | NWBFile
+    file : str | Path | pynwb.file.NWBFile
         Path to the NWB file on disk (ending in ".nwb"),
         or an open NWBFile object.
 

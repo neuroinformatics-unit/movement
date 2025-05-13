@@ -843,19 +843,20 @@ def from_anipose_file(
 
 
 def from_nwb_file(
-    file: str | Path | pynwb.NWBFile,
+    file: str | Path | pynwb.file.NWBFile,
     key_name: str = "PoseEstimation",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an NWB file.
 
-    The input can be a path to an NWB file on disk or an open NWB file object.
+    The input can be a path to an NWB file on disk or an open
+    :class:`NWBFile<pynwb.file.NWBFile>` object.
     The data will be extracted from the NWB file's behavior processing module,
     which is assumed to contain a ``PoseEstimation`` object formatted according
     to the ``ndx-pose`` NWB extension [1]_.
 
     Parameters
     ----------
-    file : str | Path | NWBFile
+    file : str | Path | pynwb.file.NWBFile
         Path to the NWB file on disk (ending in ".nwb"),
         or an open NWBFile object.
     key_name: str, optional
@@ -909,22 +910,22 @@ def from_nwb_file(
 
 
 def _ds_from_nwb_object(
-    nwb_file: pynwb.NWBFile,
+    nwb_file: pynwb.file.NWBFile,
     key_name: str = "PoseEstimation",
 ) -> xr.Dataset:
-    """Extract a ``movement`` poses dataset from an open NWB file object.
+    """Extract a ``movement`` poses dataset from an open NWBFile object.
 
     Parameters
     ----------
-    nwb_file : pynwb.NWBFile
-        An open NWB file object.
+    nwb_file : pynwb.file.NWBFile
+        An open NWBFile object.
     key_name: str
-        Name of the ``PoseEstimation`` object in the NWB "behavior"
-        processing module, by default "PoseEstimation".
+        Name of the ``ndx_pose.PoseEstimation`` object in the
+        "behavior" processing module. Default is "PoseEstimation".
 
     Returns
     -------
-    movement_ds : xr.Dataset
+    xarray.Dataset
         A single-individual ``movement`` poses dataset
 
     """
@@ -945,7 +946,6 @@ def _ds_from_nwb_object(
         else:
             # Compute fps from the time differences between timestamps
             fps = np.nanmedian(1 / np.diff(pes.timestamps))
-
         single_keypoint_datasets.append(
             # create movement dataset with 1 keypoint and 1 individual
             from_numpy(
@@ -957,5 +957,4 @@ def _ds_from_nwb_object(
                 source_software=source_software,
             )
         )
-
     return xr.merge(single_keypoint_datasets)
