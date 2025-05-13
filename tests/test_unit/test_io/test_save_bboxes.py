@@ -254,16 +254,19 @@ def test_to_via_tracks_file_extract_track_id_from_individuals(
         json.loads(el) for el in df["region_attributes"]
     ]
     set_unique_track_ids = set(
-        [row["track"] for row in df["region_attributes"]]
+        [int(row["track"]) for row in df["region_attributes"]]
     )
 
     # Note: we check if the sets of IDs is as expected, regardless of the order
     if extract_track_id_from_individuals:
         assert set_unique_track_ids == set(
-            [indiv.split("_")[1] for indiv in input_dataset.individuals.values]
+            [
+                int(indiv.split("_")[1])
+                for indiv in input_dataset.individuals.values
+            ]
         )
     else:
-        assert set_unique_track_ids == {"0", "1"}
+        assert set_unique_track_ids == {0, 1}
 
 
 @pytest.mark.parametrize(
@@ -502,17 +505,18 @@ def test_write_single_row(
     expected_file_attributes = "{}"  # placeholder value
     expected_region_count = 0  # placeholder value
     expected_region_id = 0  # placeholder value
-    expected_region_shape_attributes = {
-        "name": "rect",
-        "x": float(xy_values[0] - wh_values[0] / 2),
-        "y": float(xy_values[1] - wh_values[1] / 2),
-        "width": float(wh_values[0]),
-        "height": float(wh_values[1]),
-    }
+    expected_region_shape_attrs_dict = (
+        f'{{"name": "rect", '
+        f'"x": {float(xy_values[0] - wh_values[0] / 2)}, '
+        f'"y": {float(xy_values[1] - wh_values[1] / 2)}, '
+        f'"width": {float(wh_values[0])}, '
+        f'"height": {float(wh_values[1])}}}'
+    )
+    expected_region_shape_attributes = expected_region_shape_attrs_dict
     expected_region_attributes = (
-        f'{{"track":"{int(track_id)}", "confidence":"{confidence}"}}'
+        f'{{"track": {int(track_id)}, "confidence": {confidence}}}'
         if confidence is not None
-        else f'{{"track":"{int(track_id)}"}}'
+        else f'{{"track": {int(track_id)}}}'
     )
 
     # Check values are as expected

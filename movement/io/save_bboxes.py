@@ -407,15 +407,21 @@ def _write_single_row(
     y_top_left = y_center - height / 2
 
     # Define region shape attributes
-    region_shape_attributes = f'{{"name": "rect", "x": {float(x_top_left)}, "y": {float(y_top_left)}, "width": {float(width)}, "height": {float(height)}}}'
+    region_shape_attributes = (
+        f'{{"name": "rect", '
+        f'"x": {float(x_top_left)}, '
+        f'"y": {float(y_top_left)}, '
+        f'"width": {float(width)}, '
+        f'"height": {float(height)}}}'
+    )
 
     # Define region attributes
     if confidence is not None:
         region_attributes = (
-            f'{{"track":{int(track_id)}, "confidence":{confidence}}}'
+            f'{{"track": {int(track_id)}, "confidence": {confidence}}}'
         )
     else:
-        region_attributes = f'{{"track":{int(track_id)}}}'
+        region_attributes = f'{{"track": {int(track_id)}}}'
 
     # Set image size
     image_size = int(image_size) if image_size is not None else 0
