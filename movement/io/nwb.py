@@ -368,7 +368,7 @@ def _merge_kwargs(defaults, overrides):
 def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
     config: NWBFileSaveConfig | None = None,
-) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
+) -> tuple[ndx_pose.PoseEstimation, ndx_pose.Skeletons]:
     """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
     Parameters
@@ -383,8 +383,9 @@ def _ds_to_pose_and_skeletons(
 
     Returns
     -------
-    pose_estimation : list[ndx_pose.PoseEstimation]
-        List of PoseEstimation objects
+    pose_estimation : ndx_pose.PoseEstimation
+        PoseEstimation object containing PoseEstimationSeries objects
+        for each keypoint in the dataset.
     skeletons : ndx_pose.Skeletons
         Skeletons object containing all skeletons
 
@@ -426,16 +427,14 @@ def _ds_to_pose_and_skeletons(
         f"Estimated positions of {bodyparts_str} for "
         f"{individual} using {ds.source_software}."
     )
-    pose_estimation = [
-        ndx_pose.PoseEstimation(
-            name="PoseEstimation",
-            pose_estimation_series=pose_estimation_series,
-            description=description,
-            source_software=ds.source_software,
-            skeleton=skeleton_list[-1],
-            **config.pose_estimation_kwargs,
-        )
-    ]
+    pose_estimation = ndx_pose.PoseEstimation(
+        name="PoseEstimation",
+        pose_estimation_series=pose_estimation_series,
+        description=description,
+        source_software=ds.source_software,
+        skeleton=skeleton_list[-1],
+        **config.pose_estimation_kwargs,
+    )
     skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
     return pose_estimation, skeletons
 

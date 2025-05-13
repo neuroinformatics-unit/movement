@@ -367,7 +367,7 @@ nwb_file_kwargs_expectations = {
 @pytest.mark.parametrize(
     "selection_fn",
     [
-        lambda ds: ds.drop_sel(individuals="id_1"),
+        lambda ds: ds.sel(individuals="id_0"),
         lambda ds: ds,
     ],
     ids=["single_nwb_file", "multiple_nwb_files"],
@@ -468,7 +468,7 @@ subject_kwargs_expectations = {
 @pytest.mark.parametrize(
     "selection_fn",
     [
-        lambda ds: ds.drop_sel(individuals="id_1"),
+        lambda ds: ds.sel(individuals="id_0"),
         lambda ds: ds,
     ],
     ids=["single_nwb_file", "multiple_nwb_files"],
@@ -547,7 +547,7 @@ pose_estimation_series_kwargs_expectations = {
 @pytest.mark.parametrize(
     "selection_fn",
     [
-        lambda ds: ds.drop_sel(keypoints=["left", "right"]),
+        lambda ds: ds.sel(keypoints=["centroid"]),
         lambda ds: ds,
     ],
     ids=["single_keypoint", "multiple_keypoints"],
@@ -570,7 +570,8 @@ def test_to_nwb_file_pose_estimation_series_kwargs(
     """Test saving single-/multi-keypoint poses dataset to NWBFile(s)
     with default or custom ``pose_estimation_series_kwargs``.
     """
-    ds = selection_fn(valid_poses_dataset).drop_sel(individuals="id_1")
+    # Use single-individual dataset for simplicity
+    ds = selection_fn(valid_poses_dataset).isel(individuals=0)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(pose_estimation_series_kwargs=kwargs)
     nwb_file = save_poses.to_nwb_file_min(ds, config)[0]
