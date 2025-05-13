@@ -430,7 +430,8 @@ def _write_single_row(
     # Define region attributes
     region_attributes_dict: dict[str, float | int] = {"track": int(track_id)}
     if confidence is not None:
-        region_attributes_dict["confidence"] = confidence
+        region_attributes_dict["confidence"] = float(confidence)
+        # convert to float to ensure json-serializable
     region_attributes = json.dumps(region_attributes_dict)
 
     # Set image size
