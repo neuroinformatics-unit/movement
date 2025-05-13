@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 import ndx_pose
 import pytest
+from pynwb.file import Subject
 
 from movement.io.nwb import NWBFileSaveConfig, _ds_to_pose_and_skeletons
 
@@ -15,15 +16,17 @@ def test_ds_to_pose_and_skeletons(valid_poses_dataset):
     ``ndx_pose`` PoseEstimation and Skeletons.
     """
     pose_estimation, skeletons = _ds_to_pose_and_skeletons(
-        valid_poses_dataset.sel(individuals="id_0")
+        valid_poses_dataset.sel(individuals="id_0"),
+        subject=Subject(subject_id="id_0"),
     )
-    assert isinstance(pose_estimation, list)
+    assert isinstance(pose_estimation, ndx_pose.PoseEstimation)
     assert isinstance(skeletons, ndx_pose.Skeletons)
     assert (
         set(valid_poses_dataset.keypoints.values)
-        == pose_estimation[0].pose_estimation_series.keys()
+        == pose_estimation.pose_estimation_series.keys()
     )
     assert {"id_0_skeleton"} == skeletons.skeletons.keys()
+    assert skeletons.skeletons["id_0_skeleton"].subject.subject_id == "id_0"
 
 
 def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
