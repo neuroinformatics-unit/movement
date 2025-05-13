@@ -2,6 +2,7 @@
 
 import _csv
 import csv
+import json
 from pathlib import Path
 
 import numpy as np
@@ -399,6 +400,11 @@ def _write_single_row(
         A tuple with the data formatted for a single row in a VIA-tracks
         .csv file.
 
+    Notes
+    -----
+    The reference for the VIA-tracks CSV file format is taken from
+    https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
+
     """
     # Calculate top-left coordinates of bounding box
     x_center, y_center = xy_values
@@ -406,35 +412,39 @@ def _write_single_row(
     x_top_left = x_center - width / 2
     y_top_left = y_center - height / 2
 
+    # Define file attributes (placeholder value)
+    # file_attributes = f'{{"shot": {0}}}'
+    file_attributes = json.dumps({"shot": 0})
+
     # Define region shape attributes
-    region_shape_attributes = (
-        f'{{"name": "rect", '
-        f'"x": {float(x_top_left)}, '
-        f'"y": {float(y_top_left)}, '
-        f'"width": {float(width)}, '
-        f'"height": {float(height)}}}'
+    region_shape_attributes = json.dumps(
+        {
+            "name": "rect",
+            "x": float(x_top_left),
+            "y": float(y_top_left),
+            "width": float(width),
+            "height": float(height),
+        }
     )
 
     # Define region attributes
+    region_attributes_dict: dict[str, float | int] = {"track": int(track_id)}
     if confidence is not None:
-        region_attributes = (
-            f'{{"track": {int(track_id)}, "confidence": {confidence}}}'
-        )
-    else:
-        region_attributes = f'{{"track": {int(track_id)}}}'
+        region_attributes_dict["confidence"] = confidence
+    region_attributes = json.dumps(region_attributes_dict)
 
     # Set image size
     image_size = int(image_size) if image_size is not None else 0
 
     # Define row data
     row = (
-        img_filename_template.format(frame_number),  # filename
-        image_size,  # file size in bytes
-        "{}",  # file_attributes placeholder
+        img_filename_template.format(frame_number),
+        image_size,
+        file_attributes,
         0,  # region_count placeholder
         0,  # region_id placeholder
-        f"{region_shape_attributes}",
-        f"{region_attributes}",
+        region_shape_attributes,
+        region_attributes,
     )
 
     writer.writerow(row)

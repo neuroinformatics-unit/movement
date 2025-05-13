@@ -502,22 +502,28 @@ def test_write_single_row(
     # Compute expected values
     expected_filename = img_filename_template.format(frame)
     expected_file_size = image_size if image_size is not None else 0
-    expected_file_attributes = "{}"  # placeholder value
+    expected_file_attributes = '{"shot": 0}'  # placeholder value
     expected_region_count = 0  # placeholder value
     expected_region_id = 0  # placeholder value
-    expected_region_shape_attrs_dict = (
-        f'{{"name": "rect", '
-        f'"x": {float(xy_values[0] - wh_values[0] / 2)}, '
-        f'"y": {float(xy_values[1] - wh_values[1] / 2)}, '
-        f'"width": {float(wh_values[0])}, '
-        f'"height": {float(wh_values[1])}}}'
+
+    expected_region_shape_attrs_dict = {
+        "name": "rect",
+        "x": float(xy_values[0] - wh_values[0] / 2),
+        "y": float(xy_values[1] - wh_values[1] / 2),
+        "width": float(wh_values[0]),
+        "height": float(wh_values[1]),
+    }
+    expected_region_shape_attributes = json.dumps(
+        expected_region_shape_attrs_dict
     )
-    expected_region_shape_attributes = expected_region_shape_attrs_dict
-    expected_region_attributes = (
-        f'{{"track": {int(track_id)}, "confidence": {confidence}}}'
-        if confidence is not None
-        else f'{{"track": {int(track_id)}}}'
-    )
+
+    expected_region_attributes_dict = {
+        "track": int(track_id),
+    }
+    if confidence is not None:
+        expected_region_attributes_dict["confidence"] = confidence
+
+    expected_region_attributes = json.dumps(expected_region_attributes_dict)
 
     # Check values are as expected
     assert row[0] == expected_filename
@@ -525,5 +531,5 @@ def test_write_single_row(
     assert row[2] == expected_file_attributes
     assert row[3] == expected_region_count
     assert row[4] == expected_region_id
-    assert row[5] == f"{expected_region_shape_attributes}"
-    assert row[6] == f"{expected_region_attributes}"
+    assert row[5] == expected_region_shape_attributes
+    assert row[6] == expected_region_attributes
