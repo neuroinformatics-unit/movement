@@ -356,7 +356,7 @@ class TestNWBFileSaveConfig:
         ):
             mock_datetime.now.return_value = self.SESSION_START_TIME
             config = NWBFileSaveConfig(**{attr: input_kwargs})
-            resolver = getattr(config, f"resolve_{attr}")
+            resolver = getattr(config, f"_resolve_{attr}")
             actual = resolver(entity)
             assert actual == expected or input_kwargs
         case_id = request.node.callspec.id
