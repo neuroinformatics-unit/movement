@@ -53,12 +53,14 @@ class NWBFileSaveConfig:
         :class:`pynwb.file.NWBFile` constructor.
 
         The following arguments will have default values:
+
         - ``session_description``: "not set"
         - ``session_start_time``: current UTC time
         - ``identifier``: "not set"
 
         If specified, ``identifier`` will be set in the following
         order of precedence:
+
         1. ``identifier`` in the inner dictionary
         2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
@@ -76,6 +78,7 @@ class NWBFileSaveConfig:
 
         If specified, ``subject_id`` will be set in the following
         order of precedence:
+
         1. ``subject_id`` in the inner dictionary
         2. ``subject_kwargs["subject_id"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
@@ -93,14 +96,23 @@ class NWBFileSaveConfig:
         keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.
 
         The following arguments will be set based on the dataset:
+
         - ``data``: position data for the keypoint
         - ``confidence``: confidence data for the keypoint
         - ``timestamps``: time data for the keypoint
 
-        Default values for the following arguments
-        - ``name``: keypoint name
+        The following arguments will have default values:
+
         - ``unit``: "pixels"
         - ``reference_frame``: "(0,0,0) corresponds to ..."
+
+        If specified, ``name`` will be set in the following
+        order of precedence:
+
+        1. ``name`` in the inner dictionary
+        2. ``pose_estimation_series_kwargs["name"]`` (single-keypoint
+           dataset only)
+        3. keypoint name in the ``movement`` dataset
 
     References
     ----------
