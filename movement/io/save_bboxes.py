@@ -28,7 +28,7 @@ def to_via_tracks_file(
     ds : xarray.Dataset
         The movement bounding boxes dataset to export.
     file_path : str or pathlib.Path
-        Path where the VIA tracks .csv file will be saved.
+        Path where the VIA tracks .csv file [1]_ will be saved.
     extract_track_id_from_individuals : bool, optional
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
@@ -52,10 +52,9 @@ def to_via_tracks_file(
     pathlib.Path
         Path to the saved file.
 
-    Notes
-    -----
-    The VIA tracks .csv file format is described in the
-    [VIA documentation](https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html).
+    References
+    ----------
+    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
 
     Examples
     --------
@@ -494,7 +493,7 @@ def _write_single_row(
 
     Notes
     -----
-    The reference for the VIA tracks .csv file format is taken from
+    The reference for the VIA tracks .csv file format is at
     https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
 
     """
