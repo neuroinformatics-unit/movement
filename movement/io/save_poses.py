@@ -498,16 +498,17 @@ def to_nwb_file_min(
     individuals = ds.individuals.values.tolist()
     if isinstance(individuals, str):
         individuals = [individuals]
+    is_multi_ind = len(individuals) > 1
     subjects = {
         id: pynwb.file.Subject(
-            **(config._resolve_subject_kwargs(id, len(individuals) > 1))
+            **(config._resolve_subject_kwargs(id, is_multi_ind))
         )
         for id in individuals
     }
     nwb_files = [
         pynwb.NWBFile(
             subject=subjects[id],
-            **(config._resolve_nwbfile_kwargs(id, len(individuals) > 1)),
+            **(config._resolve_nwbfile_kwargs(id, is_multi_ind)),
         )
         for id in individuals
     ]
@@ -518,6 +519,7 @@ def to_nwb_file_min(
             else ds.sel(individuals=id),
             config,
             subjects[id],
+            is_multi_ind,
         )
         for id in individuals
     }
