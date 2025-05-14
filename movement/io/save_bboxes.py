@@ -17,6 +17,7 @@ def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
     extract_track_id_from_individuals: bool = False,
+    frame_max_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
 ) -> Path:
@@ -33,6 +34,11 @@ def to_via_tracks_file(
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be factorised from the list of sorted individuals'
         names. Default is False.
+    frame_max_digits : int, optional
+        The number of digits to use to represent frame numbers in the output
+        file (including leading zeros). If None, the number of digits is
+        automatically determined from the largest frame number in the dataset,
+        plus one (to have at least one leading zero). Default is None.
     image_file_prefix : str, optional
         Prefix to apply to every image filename. It is prepended to the frame
         number which is padded with leading zeros. If None or an empty string,
@@ -74,14 +80,27 @@ def to_via_tracks_file(
     ...     image_file_suffix=".jpg",
     ... )
 
+    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    with frame numbers represented with 4 digits, including leading zeros
+    (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
+    >>> save_boxes.to_via_tracks_file(
+    ...     ds,
+    ...     "/path/to/output.csv",
+    ...     frame_max_digits=4,
+    ... )
+
     """
     # Validate file path and dataset
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     _validate_bboxes_dataset(ds)
 
     # Define format string for image filenames
+    frame_max_digits = _check_frame_max_digits(
+        ds=ds,
+        n_digits_to_use=frame_max_digits,
+    )
     img_filename_template = _get_image_filename_template(
-        frame_max_digits=int(np.ceil(np.log10(ds.time.size))),
+        frame_max_digits=frame_max_digits,
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
@@ -146,20 +165,20 @@ def _get_image_filename_template(
 ) -> str:
     """Compute a format string for the images' filenames.
 
-    The filenames of the images in the VIA-tracks CSV file are computed from
-    the frame number which is padded with at least one leading zero.
-    Optionally, a prefix can be added to the padded frame number. The suffix
-    refers to the file extension of the image files.
+    The filenames of the images in the VIA-tracks CSV file are derived from
+    the frame numbers. Optionally, a prefix can be added to the frame number.
+    The suffix refers to the file extension of the image files.
 
     Parameters
     ----------
     frame_max_digits : int
-        Maximum number of digits used to represent the frame number.
+        Maximum number of digits used to represent the frame number including
+        any leading zeros.
     image_file_prefix : str | None
         Prefix for each image filename, prepended to frame number. If None or
         an empty string, nothing will be prepended.
     image_file_suffix : str
-        Suffix to add to each image filename.
+        Suffix to add to each image filename to represent the file extension.
 
     Returns
     -------
@@ -179,9 +198,41 @@ def _get_image_filename_template(
     # Define filename format string
     return (
         f"{image_file_prefix_modified}"
-        f"{{:0{frame_max_digits + 1}d}}"  # +1 to pad with at least one zero
+        f"{{:0{frame_max_digits}d}}"
         f"{image_file_suffix}"
     )
+
+
+def _check_frame_max_digits(
+    ds: xr.Dataset,
+    n_digits_to_use: int | None,
+) -> int:
+    """Check the number of digits to represent the frame number is valid.
+
+    If n_digits_to_use is None, the number of digits is inferred based
+    on the minimum number of digits required to represent the largest
+    frame number in the dataset.
+    """
+    # Compute minimum number of digits required to represent the
+    # largest frame number
+    if ds.time_unit == "seconds":
+        max_frame_number = max((ds.time.values * ds.fps).astype(int))
+    else:
+        max_frame_number = max(ds.time.values)
+    min_required_digits = len(str(max_frame_number))
+
+    # If None, infer automatically
+    if n_digits_to_use is None:
+        return min_required_digits + 1  # pad with at least one zero
+    elif n_digits_to_use < min_required_digits:
+        raise ValueError(
+            "The requested number of digits to represent the frame "
+            "number cannot be used to represent all the frame numbers."
+            f"Got {n_digits_to_use}, but the maximum frame number has "
+            f"{min_required_digits} digits"
+        )
+    else:
+        return n_digits_to_use
 
 
 def _get_map_individuals_to_track_ids(
