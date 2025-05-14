@@ -27,6 +27,10 @@ from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
 from movement.napari.loader_widgets import DataLoader
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:.*Previous color_by key.*:UserWarning"
+)
+
 
 # ------------------- tests for widget instantiation--------------------------#
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
@@ -577,6 +581,9 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
 
 
 # ------------------- tests for layers style ----------------------------#
+@pytest.mark.filterwarnings(
+    "ignore:.*Private attribute access.*:FutureWarning"
+)
 @pytest.mark.parametrize(
     (
         "filename, source_software, "
