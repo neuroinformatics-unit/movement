@@ -1,4 +1,4 @@
-"""Save bounding boxes data from ``movement`` to VIA-tracks CSV format."""
+"""Save bounding boxes data from ``movement`` to VIA tracks .csv format."""
 
 import _csv
 import csv
@@ -21,14 +21,14 @@ def to_via_tracks_file(
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
 ) -> Path:
-    """Save a movement bounding boxes dataset to a VIA-tracks CSV file.
+    """Save a movement bounding boxes dataset to a VIA tracks .csv file.
 
     Parameters
     ----------
     ds : xarray.Dataset
         The movement bounding boxes dataset to export.
     file_path : str or pathlib.Path
-        Path where the VIA-tracks CSV file will be saved.
+        Path where the VIA tracks .csv file will be saved.
     extract_track_id_from_individuals : bool, optional
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
@@ -54,15 +54,18 @@ def to_via_tracks_file(
 
     Examples
     --------
-    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the list of individuals' names and assuming
     the image files are PNG files:
+
     >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(ds, "/path/to/output.csv")
 
-    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the list of sorted individuals' names and
     assuming the image files are JPG files:
+
+    >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
@@ -70,8 +73,10 @@ def to_via_tracks_file(
     ...     image_file_suffix=".jpg",
     ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     with image filenames following the format ``frame-<frame_number>.jpg``:
+
+    >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
@@ -79,9 +84,11 @@ def to_via_tracks_file(
     ...     image_file_suffix=".jpg",
     ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
+    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     with frame numbers represented with 4 digits, including leading zeros
     (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
+
+    >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
@@ -165,7 +172,7 @@ def _get_image_filename_template(
 ) -> str:
     """Compute a format string for the images' filenames.
 
-    The filenames of the images in the VIA-tracks CSV file are derived from
+    The filenames of the images in the VIA tracks .csv file are derived from
     the frame numbers. Optionally, a prefix can be added to the frame number.
     The suffix refers to the file extension of the image files.
 
@@ -350,21 +357,21 @@ def _write_via_tracks_csv(
     map_individual_to_track_id: dict,
     img_filename_template: str,
 ) -> None:
-    """Write a VIA-tracks CSV file.
+    """Write a VIA tracks .csv file.
 
     Parameters
     ----------
     ds : xarray.Dataset
         A movement bounding boxes dataset.
     file_path : str or pathlib.Path
-        Path where the VIA-tracks CSV file will be saved.
+        Path where the VIA tracks .csv file will be saved.
     map_individual_to_track_id : dict
         Dictionary mapping individuals' names to track IDs.
     img_filename_template : str
         Format string for the images' filenames.
 
     """
-    # Define VIA-tracks CSV header
+    # Define VIA tracks .csv header
     header = [
         "filename",
         "file_size",
@@ -449,7 +456,7 @@ def _write_single_row(
     img_filename: str,
     image_size: int | None,
 ) -> tuple[str, int, str, int, int, str, str]:
-    """Write a single row of a VIA-tracks CSV file and return it as a tuple.
+    """Write a single row of a VIA tracks .csv file and return it as a tuple.
 
     Parameters
     ----------
@@ -482,7 +489,7 @@ def _write_single_row(
 
     Notes
     -----
-    The reference for the VIA-tracks CSV file format is taken from
+    The reference for the VIA tracks .csv file format is taken from
     https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
 
     """
