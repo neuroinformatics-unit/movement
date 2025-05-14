@@ -255,10 +255,23 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 (target-saving-bboxes-tracks)=
 ## Saving bounding box tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can easily save the bounding box tracks to a .csv file using the standard Python library `csv`.
+We currently support exporting a [movement bboxes datasets](target-poses-and-bboxes-dataset) as a [VIA tracks .csv file](https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html), so that you can visualise and correct your bounding box tracks with the [VGG Image Annotator (VIA-2) software](https://www.robots.ox.ac.uk/~vgg/software/via/via.html).
 
-Here is an example of how you can save a bounding boxes dataset to a .csv file:
+To export your bounding boxes dataset `ds`, you will need to import the {mod}`movement.io.save_bboxes` module:
 
+```python
+from movement.io import save_bboxes
+```
+
+Then you can save it as a VIA tracks .csv file:
+```python
+save_bboxes.to_via_tracks_file(ds, "/path/to/output/file.csv")
+```
+
+By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to extract the track IDs from the individuals' names, but you can also select to extract them from the sorted list of individuals.
+
+
+Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library `csv`. Below is an example of how you can do this:
 ```python
 # define name for output csv file
 filepath = "tracking_output.csv"
@@ -279,7 +292,7 @@ with open(filepath, mode="w", newline="") as file:
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
-Alternatively, we can convert the `movement` bounding boxes dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+Or if you prefer to work with `pandas`, you can convert the `movement` bounding boxes dataset to a `pandas` DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 
 
 (target-sample-data)=
