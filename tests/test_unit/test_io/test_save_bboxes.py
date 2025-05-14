@@ -120,8 +120,8 @@ def test_to_via_tracks_file_valid_dataset(
     tmp_path,
     request,
 ):
-    """Test the VIA-tracks CSV file with different valid bboxes datasets."""
-    # Save VIA-tracks CSV file
+    """Test the VIA tracks .csv file with different valid bboxes datasets."""
+    # Save VIA tracks .csv file
     input_dataset = request.getfixturevalue(valid_dataset)
     output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(input_dataset, output_path)
@@ -137,7 +137,7 @@ def test_to_via_tracks_file_valid_dataset(
     # Check the dataset matches the original one.
     # If the position or shape data arrays contain NaNs, remove those
     # data points from the original dataset before comparing (these bboxes
-    # are skipped when writing the VIA-tracks CSV file)
+    # are skipped when writing the VIA tracks .csv file)
     null_position_or_shape = (
         input_dataset.position.isnull() | input_dataset.shape.isnull()
     )
@@ -163,7 +163,7 @@ def test_to_via_tracks_file_image_filename(
     image_file_suffix,
     tmp_path,
 ):
-    """Test the VIA-tracks CSV export with different image file prefixes and
+    """Test the VIA tracks .csv export with different image file prefixes and
     suffixes.
     """
     # Prepare kwargs
@@ -171,7 +171,7 @@ def test_to_via_tracks_file_image_filename(
     if image_file_suffix is not None:
         kwargs["image_file_suffix"] = image_file_suffix
 
-    # Save VIA-tracks CSV file
+    # Save VIA tracks .csv file
     output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(
         valid_bboxes_dataset,
@@ -210,10 +210,10 @@ def test_to_via_tracks_file_confidence(
     tmp_path,
     request,
 ):
-    """Test that the VIA-tracks CSV file is as expected when the confidence
+    """Test that the VIA tracks .csv file is as expected when the confidence
     array contains NaNs.
     """
-    # Save VIA-tracks CSV file
+    # Save VIA tracks .csv file
     input_dataset = request.getfixturevalue(valid_dataset)
     output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(input_dataset, output_path)
@@ -255,10 +255,10 @@ def test_to_via_tracks_file_extract_track_id_from_individuals(
     tmp_path,
     request,
 ):
-    """Test that the VIA-tracks CSV file is as expected when extracting
+    """Test that the VIA tracks .csv file is as expected when extracting
     track IDs from the individuals' names.
     """
-    # Save VIA-tracks CSV file
+    # Save VIA tracks .csv file
     output_path = tmp_path / "test_valid_dataset.csv"
     input_dataset = request.getfixturevalue(valid_dataset)
     save_bboxes.to_via_tracks_file(
@@ -300,7 +300,7 @@ def test_to_via_tracks_file_region_count_and_id(
     valid_dataset, tmp_path, request
 ):
     """Test that the region count and region ID are as expected."""
-    # Save VIA-tracks CSV file
+    # Save VIA tracks .csv file
     output_path = tmp_path / "test_valid_dataset.csv"
     input_dataset = request.getfixturevalue(valid_dataset)
     save_bboxes.to_via_tracks_file(input_dataset, output_path)
@@ -612,7 +612,7 @@ def test_write_single_row(
     image_size,
     img_filename_template,
 ):
-    """Test writing a single row of the VIA-tracks CSV file."""
+    """Test writing a single row of the VIA tracks .csv file."""
     # Fixed input values
     frame, track_id, region_count, region_id, xy_values, wh_values = (
         1,
@@ -623,7 +623,7 @@ def test_write_single_row(
         np.array([50, 30]),
     )
 
-    # Write single row of VIA-tracks CSV file
+    # Write single row of VIA tracks .csv file
     with patch("csv.writer", return_value=mock_csv_writer):
         row = _write_single_row(
             writer=mock_csv_writer,
@@ -672,20 +672,20 @@ def test_write_single_row(
 def test_number_of_quotes_in_via_tracks_csv_file(
     valid_bboxes_dataset, tmp_path
 ):
-    """Test the literal string for two lines of the VIA-tracks CSV file.
+    """Test the literal string for two lines of the VIA tracks .csv file.
 
-    This is to verify that the quotes in the output VIA-tracks CSV file are
+    This is to verify that the quotes in the output VIA tracks .csv file are
     as expected. Without the required double quotes, the file won't be
     importable in the VIA annotation tool.
 
-    The VIA-tracks CSV file format has:
+    The VIA tracks .csv file format has:
     - dictionary-like items wrapped around single double-quotes (")
     - keys in these dictionaries wrapped around double double-quotes ("")
 
-    See an example of the VIA-tracks CSV file format at:
+    See an example of the VIA tracks .csv file format at:
     https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
     """
-    # Save VIA-tracks CSV file
+    # Save VIA tracks .csv file
     output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
 
@@ -726,10 +726,10 @@ def test_number_of_quotes_in_via_tracks_csv_file(
     ],
 )
 def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
-    """Test that an exported VIA-tracks CSV file can be loaded back into
+    """Test that an exported VIA tracks .csv file can be loaded back into
     the a dataset that matches the original one.
     """
-    # Load a bboxes dataset from a VIA-tracks CSV file
+    # Load a bboxes dataset from a VIA tracks .csv file
     original_ds = load_bboxes.from_via_tracks_file(
         via_file_path, use_frame_numbers_from_file=True
     )
