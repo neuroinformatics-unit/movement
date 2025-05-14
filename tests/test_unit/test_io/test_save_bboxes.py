@@ -677,3 +677,36 @@ def test_number_of_quotes_in_via_tracks_csv_file(
         '""x"": -21.0, ""y"": -29.0, ""width"": 60.0, ""height"": 40.0}",'
         '"{""track"": 1, ""confidence"": 0.9}"\n'  # region attributes
     )
+
+
+@pytest.mark.parametrize(
+    "via_file_path",
+    [
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+    ],
+)
+def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
+    """Test that an exported VIA-tracks CSV file can be loaded back into
+    the original dataset.
+    """
+    # Load a bboxes dataset from a VIA-tracks CSV file
+    original_ds = load_bboxes.from_via_tracks_file(
+        via_file_path, use_frame_numbers_from_file=True
+    )
+
+    # Export the dataset
+    output_path = tmp_path / "test_via_file.csv"
+    save_bboxes.to_via_tracks_file(
+        original_ds,
+        output_path,
+        extract_track_id_from_individuals=True,
+    )
+
+    # Load the exported file
+    recovered_ds = load_bboxes.from_via_tracks_file(
+        output_path, use_frame_numbers_from_file=True
+    )
+
+    # Compare the original and recovered datasets
+    xr.testing.assert_equal(original_ds, recovered_ds)
