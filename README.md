@@ -51,7 +51,7 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 
 > [!Tip]
 > If you prefer analysing your data in R, we recommend checking out the
-> [animovement](https://www.roald-arboel.com/animovement/) toolbox, which is similar in scope.
+> [animovement](https://roald-arboel.com/animovement/) toolbox, which is similar in scope.
 > We are working together with its developer
 > to gradually converge on common data standards and workflows.
 
