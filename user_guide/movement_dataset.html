@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -97,6 +97,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -121,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -676,7 +679,7 @@ points and store the results within the same dataset, for convenience.</p>
 <span class="n">ds</span><span class="o">.</span><span class="n">velocity</span>
 </pre></div>
 </div>
-<p>The output of <a class="reference internal" href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code></a> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
+<p>The output of <code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
 with the same <strong>dimensions</strong> as the original <code class="docutils literal notranslate"><span class="pre">position</span></code> <strong>data variable</strong>,
 so adding it to the existing <code class="docutils literal notranslate"><span class="pre">ds</span></code> makes sense and works seamlessly.</p>
 <p>We can also update existing <strong>data variables</strong> in-place, using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>. For example, if we wanted to update the <code class="docutils literal notranslate"><span class="pre">position</span></code>

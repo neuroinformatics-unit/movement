@@ -1,6 +1,0 @@
-compute\_head\_direction\_vector
-================================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_head_direction_vector

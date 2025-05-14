@@ -1,6 +1,0 @@
-compute\_time\_derivative
-=========================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_time_derivative

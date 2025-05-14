@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -95,6 +95,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -119,7 +122,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -413,7 +416,7 @@
 <ul class="simple">
 <li><p><strong>Regions of Interest (RoIs)</strong>: An RoI backend was added for analysis of RoIs, allowing future development of the napari plugin.</p></li>
 <li><p><strong>Plot Wrapper Functions</strong>: Added to aid in initial “eyeballing” of data, making it easy to create common analysis plots with a single line of code.</p></li>
-<li><p><strong>New examples</strong>: <a class="reference internal" href="../examples/broadcasting_your_own_methods.html#sphx-glr-examples-broadcasting-your-own-methods-py"><span class="std std-ref">Extend your analysis methods along data dimensions</span></a>, <a class="reference internal" href="../examples/mouse_eye_movements.html#sphx-glr-examples-mouse-eye-movements-py"><span class="std std-ref">Pupil tracking</span></a>.</p></li>
+<li><p><strong>New examples</strong>: <a class="reference internal" href="../examples/advanced/broadcasting_your_own_methods.html#sphx-glr-examples-advanced-broadcasting-your-own-methods-py"><span class="std std-ref">Extend your analysis methods along data dimensions</span></a>, <a class="reference internal" href="../examples/mouse_eye_movements.html#sphx-glr-examples-mouse-eye-movements-py"><span class="std std-ref">Pupil tracking</span></a>.</p></li>
 </ul>
 <section id="original-roadmap">
 <h2>Original Roadmap<a class="headerlink" href="#original-roadmap" title="Link to this heading">#</a></h2>
@@ -458,7 +461,7 @@ The data-structures that <code class="docutils literal notranslate"><span class=
 However when it comes to writing your own, custom analysis functions, most of the time it is much easier to write a function that takes in a single input, rather than writing an appropriate function that acts on an entire <code class="docutils literal notranslate"><span class="pre">DataArray</span></code>.
 But this approach typically means that you’re then stuck writing a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop over the values in your <code class="docutils literal notranslate"><span class="pre">DataArray</span></code>, and on top of that having to copy across the dimension labels or coordinates into the new array you’re making as the <code class="docutils literal notranslate"><span class="pre">for</span></code> loop runs.</p>
 <p>With this in mind, we have decided to expose the <a class="reference internal" href="../api/movement.utils.broadcasting.make_broadcastable.html#movement.utils.broadcasting.make_broadcastable" title="movement.utils.broadcasting.make_broadcastable"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.utils.broadcasting.make_broadcastable()</span></code></a> decorator, which can turn functions that take in one-dimensional data (e.g., a single spatial coordinate, or a single time-point) into functions that act across <code class="docutils literal notranslate"><span class="pre">DataArray</span></code>s with appropriate dimensions.
-You can find a new <a class="reference internal" href="../examples/broadcasting_your_own_methods.html#sphx-glr-examples-broadcasting-your-own-methods-py"><span class="std std-ref">example</span></a> on how to use this decorator on your own functions.</p>
+You can find a new <a class="reference internal" href="../examples/advanced/broadcasting_your_own_methods.html#sphx-glr-examples-advanced-broadcasting-your-own-methods-py"><span class="std std-ref">example</span></a> on how to use this decorator on your own functions.</p>
 </section>
 <section id="regions-of-interest-rois">
 <h3>Regions of Interest (RoIs)<a class="headerlink" href="#regions-of-interest-rois" title="Link to this heading">#</a></h3>

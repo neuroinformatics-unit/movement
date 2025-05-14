@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -99,6 +99,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -123,7 +126,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -371,7 +374,12 @@
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -450,7 +458,7 @@ boundary angles relative to regions of interest (RoIs).</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_velocity</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_velocity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_centroid_trajectory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest" class="sphx-glr-backref-module-movement-roi-base sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a>
 </pre></div>
@@ -794,7 +802,7 @@ compute this from <code class="docutils literal notranslate"><span class="pre">p
 <code class="docutils literal notranslate"><span class="pre">movement.kinematics</span></code>.
 We will also define our reference frame, or “global north” direction, to be
 the direction of the positive x-axis.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_velocity</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">positions</span></a><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">positions</span></a><span class="p">)</span>
 <span class="n">global_north</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
 
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">allocentric_angles</span></a> <span class="o">=</span> <a href="../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point" title="movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point" class="sphx-glr-backref-module-movement-roi-base sphx-glr-backref-type-py-method"><span class="n">nest_region</span><span class="o">.</span><span class="n">compute_allocentric_angle_to_nearest_point</span></a><span class="p">(</span>
@@ -854,10 +862,10 @@ their forward vectors rapidly change.</p></li>
 the egocentric angles of all the individuals, reflecting the individuals’
 attempts to avoid colliding with (and to make space to move passed) each
 other.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.241 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.282 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-boundary-angles-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/boundary_angles.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/boundary_angles.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
 </a>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">

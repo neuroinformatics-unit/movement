@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -55,7 +55,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Extend your analysis methods along data dimensions" href="broadcasting_your_own_methods.html" />
+    <link rel="next" title="Advanced" href="advanced/index.html" />
     <link rel="prev" title="Compute distances and angles to regions of interest" href="boundary_angles.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -97,6 +97,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -121,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -369,7 +372,12 @@
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Load and upsample bounding box tracks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -863,10 +871,10 @@ code.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/os.html#os.remove" title="os.remove" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">remove</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filepath</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.280 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.336 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-upsample-bboxes-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/load_and_upsample_bboxes.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/load_and_upsample_bboxes.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
 </a>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
@@ -906,11 +914,11 @@ code.</p>
       </div>
     </a>
     <a class="right-next"
-       href="broadcasting_your_own_methods.html"
+       href="advanced/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Extend your analysis methods along data dimensions</p>
+        <p class="prev-next-title">Advanced</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

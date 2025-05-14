@@ -1,6 +1,0 @@
-compute\_pairwise\_distances
-============================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_pairwise_distances

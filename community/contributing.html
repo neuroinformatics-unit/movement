@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -97,6 +97,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -121,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -661,7 +664,8 @@ Our <code class="docutils literal notranslate"><span class="pre">pre-commit</spa
 <h3>Updating the examples<a class="headerlink" href="#updating-the-examples" title="Link to this heading">#</a></h3>
 <p>We use <a class="reference external" href="https://sphinx-gallery.github.io/stable/#">sphinx-gallery</a>
 to create the <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">examples</span></a>.
-To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>.
+To add new examples, you will need to create a new <code class="docutils literal notranslate"><span class="pre">.py</span></code> file in <code class="docutils literal notranslate"><span class="pre">examples/</span></code>,
+or in <code class="docutils literal notranslate"><span class="pre">examples/advanced/</span></code> if your example targets experienced users.
 The file should be structured as specified in the relevant
 <a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax#">sphinx-gallery documentation</a>.</p>
 <p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration#binder-links">integration with binder</a>
@@ -736,7 +740,7 @@ The way to add them differs depending on whether they are GitHub users or not.</
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
 GitHub users</label><div class="sd-tab-content docutils">
-<p>To add a contributor who has a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">GITHUB</span> <span class="pre">CONTRIBUTORS</span> <span class="pre">--&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
+<p>To add a contributor who has a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">GITHUB</span> <span class="pre">CONTRIBUTORS</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
 <p>Next, add their GitHub username (e.g. <code class="docutils literal notranslate"><span class="pre">newcontributor</span></code>) to the <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-start</span> <span class="pre">--&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">readme:</span> <span class="pre">-end</span> <span class="pre">--&gt;</span></code> lines as follows:</p>
 <div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cm">&lt;!-- readme: githubUser1,githubUser2,newcontributor -start --&gt;</span>
 existing content...
@@ -748,7 +752,7 @@ existing content...
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-5">
 Non-GitHub users</label><div class="sd-tab-content docutils">
-<p>To add a contributor who does not have a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">&lt;!--</span> <span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">NON-GITHUB</span> <span class="pre">CONTRIBUTORS</span> <span class="pre">--&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
+<p>To add a contributor who does not have a GitHub account, locate the section marked with <code class="docutils literal notranslate"><span class="pre">MANUAL:</span> <span class="pre">OTHER</span> <span class="pre">NON-GITHUB</span> <span class="pre">CONTRIBUTORS</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/source/community/people.md</span></code>.</p>
 <p>Next, add a row containing the contributor’s image, name, and link to their website to the existing <code class="docutils literal notranslate"><span class="pre">list-table</span></code> as follows:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="k">*</span><span class="w"> </span>  - existing content...
 <span class="k">*</span><span class="w"> </span>  - [<span class="nt">![newcontributor</span>](<span class="na">https://newcontributor.image.jpg</span>) &lt;br /&gt; &lt;sub&gt;&lt;b&gt;New Contributor&lt;/b&gt;&lt;/sub&gt;](https://newcontributor.website.com)

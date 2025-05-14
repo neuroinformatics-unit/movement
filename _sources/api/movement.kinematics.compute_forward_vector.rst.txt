@@ -1,6 +1,0 @@
-compute\_forward\_vector
-========================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_forward_vector

@@ -19,7 +19,9 @@ Information on specific functions, classes, and methods.
     movement.io.load_bboxes
     movement.io.load_poses
     movement.io.save_poses
-    movement.kinematics
+    movement.kinematics.distances
+    movement.kinematics.kinematics
+    movement.kinematics.orientation
     movement.napari.convert
     movement.napari.layer_styles
     movement.plots.occupancy

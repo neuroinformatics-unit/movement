@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -99,6 +99,9 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
+</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -123,7 +126,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.0</p>
+    <p class="title logo__title">movement v0.6.1</p>
   
 </a></div>
     
@@ -371,7 +374,12 @@
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="broadcasting_your_own_methods.html">Extend your analysis methods along data dimensions</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -449,8 +457,8 @@ to download the full example code. or to run this example in your browser via Bi
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <a href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector</span></a><span class="p">,</span>
-    <a href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector_angle</span></a><span class="p">,</span>
+    <span class="n">compute_forward_vector</span><span class="p">,</span>
+    <span class="n">compute_forward_vector_angle</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_centroid_trajectory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">cart2pol</span></a><span class="p">,</span> <a href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">pol2cart</span></a>
@@ -625,7 +633,7 @@ We will do this for a small time window to make the plot more readable.</p>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fd59c59f680&gt;
+<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f706a61d040&gt;
 </pre></div>
 </div>
 </section>
@@ -688,7 +696,7 @@ Coordinates:
 <section id="compute-the-forward-vector">
 <h2>Compute the “forward” vector<a class="headerlink" href="#compute-the-forward-vector" title="Link to this heading">#</a></h2>
 <p>We can also estimate the head direction using the
-<a class="reference internal" href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector()</span></code></a>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector()</span></code>
 function, which takes a different approach to the one we used above:
 it accepts a pair of bilaterally symmetric keypoints and
 computes the vector that originates at the midpoint between the keypoints
@@ -696,7 +704,7 @@ and is perpendicular to the line connecting them.</p>
 <p>Here we will use the two ears to find the head direction vector.
 We may prefer this method if we expect the snout detection to be
 unreliable (e.g., because it’s often occluded in a top-down camera view).</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector</span></a><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a> <span class="o">=</span> <span class="n">compute_forward_vector</span><span class="p">(</span>
     <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="o">=</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="o">=</span><span class="s2">&quot;right_ear&quot;</span><span class="p">,</span>
@@ -730,7 +738,7 @@ vector to any line connecting two bilaterally symmetric keypoints.
 For example, you could estimate the forward direction for the pelvis given
 two keypoints at the hips.</p>
 <p>Specifically for the head direction vector, you may also use the alias
-<a class="reference internal" href="../api/movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_head_direction_vector()</span></code></a>,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_head_direction_vector()</span></code>,
 which makes the intent of the function clearer.</p>
 </section>
 <section id="compute-head-direction-angle">
@@ -740,9 +748,9 @@ as an angle, rather than as a vector.
 We can compute this angle from the forward vector as
 we did with the head-to-snout vector, i.e., by converting the vector to
 polar coordinates and extracting the <code class="docutils literal notranslate"><span class="pre">phi</span></code> coordinate. However, it’s
-more convenient to use the <a class="reference internal" href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector_angle()</span></code></a> function, which
+more convenient to use the <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector_angle()</span></code> function, which
 by default would return the same <code class="docutils literal notranslate"><span class="pre">phi</span></code> angle.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector_angle</span></a><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a> <span class="o">=</span> <span class="n">compute_forward_vector_angle</span><span class="p">(</span>
     <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="o">=</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="o">=</span><span class="s2">&quot;right_ear&quot;</span><span class="p">,</span>
@@ -849,10 +857,10 @@ We could check that by plotting a histogram of the differences.</p>
 </div>
 <p>For the majority of the time, the two methods
 differ less than 20 degrees (2 histogram bins).</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.805 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.833 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-head-direction-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_head_direction.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo.svg" style="width: 150px;" />
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_head_direction.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
 </a>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">

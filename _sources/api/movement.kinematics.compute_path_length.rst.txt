@@ -1,6 +1,0 @@
-compute\_path\_length
-=====================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_path_length
