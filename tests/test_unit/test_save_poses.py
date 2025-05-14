@@ -585,6 +585,70 @@ def test_to_nwb_file_pose_estimation_series_kwargs(
     assert actual == expected
 
 
+pose_estimation_kwargs_expectations = {
+    "default_kwargs-single_nwb_file": [
+        {"name": "PoseEstimation", "source_software": "test"}
+    ],
+    "default_kwargs-multiple_nwb_files": [
+        {"name": "PoseEstimation", "source_software": "test"},
+        {"name": "PoseEstimation", "source_software": "test"},
+    ],
+    "shared_kwargs-single_nwb_file": [
+        {"name": "subj0", "source_software": "other"}
+    ],
+    "shared_kwargs-multiple_nwb_files": [
+        {"name": "id_0", "source_software": "other"},
+        {"name": "id_1", "source_software": "other"},
+    ],
+    "kwargs_per_ind-single_nwb_file": [
+        {"name": "subj0", "source_software": "other0"}
+    ],
+    "kwargs_per_ind-multiple_nwb_files": [
+        {"name": "subj0", "source_software": "other0"},
+        {"name": "subj1", "source_software": "other1"},
+    ],
+}
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda ds: ds.sel(individuals=["id_0"]),
+        lambda ds: ds,
+    ],
+    ids=["single_nwb_file", "multiple_nwb_files"],
+)
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        None,
+        {"name": "subj0", "source_software": "other"},
+        {
+            "id_0": {"name": "subj0", "source_software": "other0"},
+            "id_1": {"name": "subj1", "source_software": "other1"},
+        },
+    ],
+    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
+)
+def test_to_nwb_file_pose_estimation_kwargs(
+    selection_fn, kwargs, valid_poses_dataset, request
+):
+    """Test saving single-/multi-individual poses dataset to NWBFile(s)
+    with default or custom ``pose_estimation_kwargs``.
+    """
+    ds = selection_fn(valid_poses_dataset)
+    test_id = request.node.callspec.id
+    config = nwb.NWBFileSaveConfig(pose_estimation_kwargs=kwargs)
+    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    expected = pose_estimation_kwargs_expectations.get(test_id)
+    expected_keys = expected[0].keys()
+    actual = []
+    for exp, nwb_file in zip(expected, nwb_files, strict=True):
+        pe = nwb_file.processing["behavior"][exp["name"]]
+        actual.append({key: getattr(pe, key) for key in expected_keys})
+    assert actual == expected
+
+
 def test_to_nwb_file_invalid_input(
     valid_poses_dataset, initialised_nwb_file_object
 ):

@@ -327,10 +327,49 @@ class TestNWBFileSaveConfig:
             ),
         ),
     ]
+    pose_estimation_kwargs_params: list[NWBFileSaveConfigTestCase] = [
+        (
+            None,
+            None,
+            does_not_raise({}),
+        ),
+        (
+            None,
+            "subj0",
+            does_not_raise({}),
+        ),
+        ({"name": "subj0"}, None, does_not_raise({"name": "subj0"})),
+        (
+            {"name": "subj0"},
+            "id_0",
+            does_not_raise({"name": "id_0"}),
+        ),
+        (
+            {"id_0": {"name": "subj0"}, "id_1": {"name": "subj1"}},
+            None,
+            pytest.raises(ValueError, match=".*no individual was provided."),
+        ),
+        (
+            {"id_0": {"name": "subj0"}},
+            None,
+            does_not_raise({"name": "subj0"}),
+        ),
+        (
+            {"id_0": {"name": "subj0"}},
+            "id_0",
+            does_not_raise({"name": "subj0"}),
+        ),
+        (
+            {"id_0": {"name": "subj0"}},
+            "id_not_in_kwargs",
+            does_not_raise({"name": "id_not_in_kwargs"}),
+        ),
+    ]
     ATTR_PARAMS = {
         "nwbfile_kwargs": nwbfile_kwargs_params,
         "subject_kwargs": subject_kwargs_params,
         "pose_estimation_series_kwargs": pose_estimation_series_kwargs_params,
+        "pose_estimation_kwargs": pose_estimation_kwargs_params,
     }
 
     combined_params = []

@@ -52,14 +52,18 @@ class NWBFileSaveConfig:
         and the inner dictionaries will be passed as keyword arguments to the
         :class:`pynwb.file.NWBFile` constructor.
 
+        The following arguments cannot be overwritten:
+
+        - ``subject``: :class:`pynwb.file.Subject` created for the individual
+            using ``subject_kwargs``
+
         The following arguments will have default values:
 
         - ``session_description``: "not set"
         - ``session_start_time``: current UTC time
         - ``identifier``: "not set"
 
-        If specified, ``identifier`` will be set in the following
-        order of precedence:
+        ``identifier`` will be set in the following order of precedence:
 
         1. ``identifier`` in the inner dictionary
         2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
@@ -76,8 +80,7 @@ class NWBFileSaveConfig:
         and the inner dictionaries will be passed as keyword arguments to the
         :class:`pynwb.file.Subject` constructor.
 
-        If specified, ``subject_id`` will be set in the following
-        order of precedence:
+        ``subject_id`` will be set in the following order of precedence:
 
         1. ``subject_id`` in the inner dictionary
         2. ``subject_kwargs["subject_id"]`` (single-individual dataset only)
@@ -95,7 +98,8 @@ class NWBFileSaveConfig:
         ``movement`` dataset, and the inner dictionaries will be passed as
         keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.
 
-        The following arguments will be set based on the dataset:
+        The following arguments will be set based on the dataset and cannot
+        be overwritten:
 
         - ``data``: position data for the keypoint
         - ``confidence``: confidence data for the keypoint
@@ -106,13 +110,67 @@ class NWBFileSaveConfig:
         - ``unit``: "pixels"
         - ``reference_frame``: "(0,0,0) corresponds to ..."
 
-        If specified, ``name`` will be set in the following
-        order of precedence:
+        ``name`` will be set in the following order of precedence:
 
         1. ``name`` in the inner dictionary
         2. ``pose_estimation_series_kwargs["name"]`` (single-keypoint
            dataset only)
         3. keypoint name in the ``movement`` dataset
+
+    pose_estimation_kwargs :
+            dict[str, Any] | dict[str, dict[str, any]], optional
+        Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.
+
+        If ``pose_estimation_kwargs`` is a single dictionary, the same
+        keyword arguments will be applied to all PoseEstimation objects.
+
+        If ``pose_estimation_kwargs`` is a dictionary of dictionaries,
+        the outer keys should correspond to individual names in the
+        ``movement`` dataset, and the inner dictionaries will be passed as
+        keyword arguments to the ``ndx_pose.PoseEstimation`` constructor.
+
+        The following arguments cannot be overwritten:
+
+        - ``pose_estimation_series``: list of PoseEstimationSeries objects
+        - ``skeleton``: Skeleton object
+
+        The following arguments will have default values:
+
+        - ``source_software``: ``source_software`` attribute from the
+            ``movement`` dataset
+        - ``description``: "Estimated positions of <keypoints> for
+          <individual> using <source_software>."
+
+        If specified, ``name`` will be set in the following
+        order of precedence:
+
+        1. ``name`` in the inner dictionary
+        2. ``pose_estimation_kwargs["name"]`` (single-individual dataset only)
+        3. individual name in the ``movement`` dataset
+
+    skeletons_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+        Keyword arguments for ``ndx_pose.Skeleton`` [1]_.
+
+        If ``skeletons_kwargs`` is a single dictionary, the same
+        keyword arguments will be applied to all Skeleton objects.
+
+        If ``skeletons_kwargs`` is a dictionary of dictionaries,
+        the outer keys should correspond to individual names in the
+        ``movement`` dataset, and the inner dictionaries will be passed as
+        keyword arguments to the ``ndx_pose.Skeleton`` constructor.
+
+        The following arguments will have default values:
+
+        - ``name``: "<individual>_skeleton"
+        - ``nodes``: list of keypoint names in the dataset
+        - ``subject``: :class:`pynwb.file.Subject` for the individual
+
+        If specified, ``name`` will be set in the following
+        order of precedence:
+
+        1. ``name`` in the inner dictionary
+        2. ``skeletons_kwargs["name"]`` (single-individual dataset only)
+        3. individual name in the ``movement`` dataset
 
     References
     ----------
@@ -164,11 +222,11 @@ class NWBFileSaveConfig:
     pose_estimation_series_kwargs: ConfigKwargsType = _safe_dict_field()
     pose_estimation_kwargs: ConfigKwargsType = _safe_dict_field()
     skeletons_kwargs: ConfigKwargsType = _safe_dict_field()
-    DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
-        reference_frame="(0,0,0) corresponds to ...", unit="pixels"
-    )
     DEFAULT_NWBFILE_KWARGS = dict(
         session_description="not set", identifier="not set"
+    )
+    DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
+        reference_frame="(0,0,0) corresponds to ...", unit="pixels"
     )
 
     def _resolve_kwargs(
@@ -210,9 +268,9 @@ class NWBFileSaveConfig:
             (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the
             returned dictionary.
         prioritise_entity : bool, optional
-            Flag indicating whether ``entity`` should take
-            precedence over the ``id_key`` when the attribute is a shared
-            config (i.e. a single dictionary). Default is True.
+            Flag indicating whether ``entity`` should take precedence over
+            the ``id_key`` when the attribute is a shared config
+            (i.e. a single dictionary). Default is True.
 
         Returns
         -------
@@ -271,10 +329,8 @@ class NWBFileSaveConfig:
             individual-specific settings or fall back to shared or default
             settings.
         prioritise_individual: bool, optional
-            Flag indicating whether ``individual`` should take
-            precedence over the ``identifier`` in shared
-            ``nwbfile_kwargs``.
-            Default is True.
+            Flag indicating whether ``individual`` should take precedence over
+            the ``identifier`` in shared ``nwbfile_kwargs``. Default is True.
 
         Returns
         -------
@@ -306,10 +362,8 @@ class NWBFileSaveConfig:
             individual-specific settings or fall back to shared or default
             settings.
         prioritise_individual: bool, optional
-            Flag indicating whether ``individual`` should take
-            precedence over the ``subject_id`` in shared
-            ``subject_kwargs``.
-            Default is True.
+            Flag indicating whether ``individual`` should take precedence over
+            the ``subject_id`` in shared ``subject_kwargs``. Default is True.
 
         Returns
         -------
@@ -337,9 +391,8 @@ class NWBFileSaveConfig:
             keypoint-specific settings or fall back to shared or default
             settings.
         prioritise_keypoint: bool, optional
-            Flag indicating whether ``keypoint`` should take
-            precedence over the ``name`` in shared
-            ``pose_estimation_series_kwargs``.
+            Flag indicating whether ``keypoint`` should take precedence over
+            the ``name`` in shared ``pose_estimation_series_kwargs``.
             Default is True.
 
         Returns
@@ -357,8 +410,59 @@ class NWBFileSaveConfig:
             prioritise_entity=prioritise_keypoint,
         )
 
-    def _is_per_entity_config(self, cfg: dict) -> bool:
+    def _resolve_pose_estimation_kwargs(
+        self,
+        individual: str | None = None,
+        prioritise_individual: bool = True,
+        defaults: dict | None = None,
+    ) -> dict[str, Any]:
+        """Resolve the keyword arguments for ``ndx_pose.PoseEstimation``.
+
+        Parameters
+        ----------
+        individual : str, optional
+            Individual name. If provided, the method will attempt to retrieve
+            individual-specific settings or fall back to shared or default
+            settings.
+        prioritise_individual: bool, optional
+            Flag indicating whether ``individual`` should take precedence over
+            the ``name`` in shared ``pose_estimation_kwargs``. Default is True.
+        defaults : dict, optional
+            Default keyword arguments to be used.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments to be passed to ``ndx_pose.PoseEstimation``.
+
+        """
+        kwargs = self._resolve_kwargs(
+            attr_name="pose_estimation_kwargs",
+            entity=individual,
+            entity_type="individual",
+            id_key="name",
+            prioritise_entity=prioritise_individual,
+        )
+        if defaults is not None:
+            for key, value in defaults.items():
+                kwargs.setdefault(key, value)
+        if not self._has_key(self.pose_estimation_kwargs, "name"):
+            kwargs.pop("name", None)  # Use ndx_pose default
+        return kwargs
+
+    @staticmethod
+    def _is_per_entity_config(cfg: ConfigKwargsType) -> bool:
         return bool(cfg) and all(isinstance(v, dict) for v in cfg.values())
+
+    @staticmethod
+    def _has_key(cfg: ConfigKwargsType, key: str) -> bool:
+        if isinstance(cfg, dict):
+            if key in cfg:
+                return True
+            for sub_dict in cfg.values():
+                if isinstance(sub_dict, dict) and key in sub_dict:
+                    return True
+        return False
 
 
 def _merge_kwargs(defaults, overrides):
@@ -369,6 +473,7 @@ def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
     config: NWBFileSaveConfig | None = None,
     subject: pynwb.file.Subject | None = None,
+    is_multi_individual: bool = False,
 ) -> tuple[ndx_pose.PoseEstimation, ndx_pose.Skeletons]:
     """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
@@ -383,6 +488,9 @@ def _ds_to_pose_and_skeletons(
         See :class:`movement.io.NWBFileSaveConfig` for more details.
     subject : pynwb.file.Subject, optional
         Subject object to be linked in the Skeleton object.
+    is_multi_individual : bool, optional
+        Flag indicating whether ``ds`` originates from a multi-individual
+        dataset.
 
     Returns
     -------
@@ -426,18 +534,21 @@ def _ds_to_pose_and_skeletons(
         )
     ]
     # Group all PoseEstimationSeries into a PoseEstimation object
-    bodyparts_str = ", ".join(keypoints)
     description = (
-        f"Estimated positions of {bodyparts_str} for "
+        f"Estimated positions of {', '.join(keypoints)} for "
         f"{individual} using {ds.source_software}."
     )
     pose_estimation = ndx_pose.PoseEstimation(
-        name="PoseEstimation",
         pose_estimation_series=pose_estimation_series,
-        description=description,
-        source_software=ds.source_software,
         skeleton=skeleton_list[-1],
-        **config.pose_estimation_kwargs,
+        **config._resolve_pose_estimation_kwargs(
+            individual,
+            is_multi_individual,
+            {
+                "description": description,
+                "source_software": ds.source_software,
+            },
+        ),
     )
     skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
     return pose_estimation, skeletons
@@ -456,12 +567,11 @@ def _ds_to_pose_and_skeleton_objects(
     ds : xarray.Dataset
         A single-individual ``movement`` poses dataset.
     pose_estimation_series_kwargs : dict, optional
-        PoseEstimationSeries keyword arguments.
-        See ``ndx_pose``, by default None
+        ``ndx_pose.PoseEstimationSeries`` keyword arguments. Default is None.
     pose_estimation_kwargs : dict, optional
-        PoseEstimation keyword arguments. See ``ndx_pose``, by default None
+        ``ndx_pose.PoseEstimation`` keyword arguments. Default is None.
     skeleton_kwargs : dict, optional
-        Skeleton keyword arguments. See ``ndx_pose``, by default None
+        ``ndx_pose.Skeleton`` keyword arguments. Default is None.
 
     Returns
     -------
