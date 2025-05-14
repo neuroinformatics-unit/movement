@@ -535,12 +535,22 @@ def test_write_single_row(
     assert row[6] == expected_region_attributes
 
 
-def test_number_of_quotes_in_region_attributes(valid_bboxes_dataset, tmp_path):
-    """Test that the number of quotes in the region attributes is as expected.
+def test_number_of_quotes_in_via_tracks_csv_file(
+    valid_bboxes_dataset, tmp_path
+):
+    """Test that the first row of the VIA-tracks CSV file is as expected.
 
-    The VIA-tracks CSV file format requires the keys in the region attributes,
-    the region shape attributes, and the file attributes to be enclosed in
-    double quotes.
+    This is to verify that the quotes in the output VIA-tracks CSV file are
+    as expected as a proxy for checking that the file is loadable in the VIA
+    annotation tool.
+
+    The VIA-tracks CSV file format has:
+    - dictionary-like items wrapped around single double-quotes (")
+    - keys in these dictionary-like items wrapped around double double-quotes
+      ("")
+
+    See an example of the VIA-tracks CSV file format at
+    https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
     """
     # Define output file path
     output_path = tmp_path / "test_valid_dataset.csv"
@@ -548,13 +558,14 @@ def test_number_of_quotes_in_region_attributes(valid_bboxes_dataset, tmp_path):
     # Save VIA-tracks CSV file
     save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
 
-    # Check that the number of quotes in the region attributes is as expected
+    # Check the literal string for the first line is as expected
     with open(output_path) as file:
         lines = file.readlines()
 
     assert lines[1] == (
         '00.png,0,"{""shot"": 0}",0,0,'  # placeholder values
-        '"{""name"": ""rect"", ""x"": -30.0, ""y"": -20.0, '
+        '"{""name"": ""rect"", '
+        '""x"": -30.0, ""y"": -20.0, '
         '""width"": 60.0, ""height"": 40.0}",'  # region shape attributes
         '"{""track"": 0, ""confidence"": 0.9}"\n'  # region attributes
     )
