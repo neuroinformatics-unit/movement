@@ -572,8 +572,10 @@ def test_write_single_row(
 ):
     """Test writing a single row of the VIA-tracks CSV file."""
     # Fixed input values
-    frame, track_id, xy_values, wh_values = (
+    frame, track_id, region_count, region_id, xy_values, wh_values = (
         1,
+        0,
+        88,
         0,
         np.array([100, 200]),
         np.array([50, 30]),
@@ -587,6 +589,8 @@ def test_write_single_row(
             wh_values,
             confidence,
             track_id,
+            region_count,
+            region_id,
             frame,
             img_filename_template,
             image_size,
@@ -597,8 +601,6 @@ def test_write_single_row(
     expected_filename = img_filename_template.format(frame)
     expected_file_size = image_size if image_size is not None else 0
     expected_file_attributes = '{"shot": 0}'  # placeholder value
-    expected_region_count = 0  # placeholder value
-    expected_region_id = 0  # placeholder value
 
     expected_region_shape_attrs_dict = {
         "name": "rect",
@@ -623,8 +625,8 @@ def test_write_single_row(
     assert row[0] == expected_filename
     assert row[1] == expected_file_size
     assert row[2] == expected_file_attributes
-    assert row[3] == expected_region_count
-    assert row[4] == expected_region_id
+    assert row[3] == region_count
+    assert row[4] == region_id
     assert row[5] == expected_region_shape_attributes
     assert row[6] == expected_region_attributes
 
@@ -657,9 +659,12 @@ def test_number_of_quotes_in_via_tracks_csv_file(
         lines = file.readlines()
 
     assert lines[1] == (
-        '00.png,0,"{""shot"": 0}",0,0,'  # placeholder values
-        '"{""name"": ""rect"", '
-        '""x"": -30.0, ""y"": -20.0, '
-        '""width"": 60.0, ""height"": 40.0}",'  # region shape attributes
+        "00.png,"  # filename
+        "0,"  # filesize
+        '"{""shot"": 0}",'  # file attributes
+        "2,"  # region_count
+        "0,"  # region_id
+        '"{""name"": ""rect"", '  # region shape attributes
+        '""x"": -30.0, ""y"": -20.0, ""width"": 60.0, ""height"": 40.0}",'
         '"{""track"": 0, ""confidence"": 0.9}"\n'  # region attributes
     )

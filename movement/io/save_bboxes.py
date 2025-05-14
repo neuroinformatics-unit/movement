@@ -379,6 +379,12 @@ def _write_via_tracks_csv(
 
         # Write bbox data for each time point and individual
         for time_idx, time in enumerate(ds.time.values):
+            # Initialize region ID
+            region_id = 0
+
+            # Get region count for this frame
+            region_count = int(ds.sel(time=time).individuals.size)
+
             for indiv in ds.individuals.values:
                 # Get position and shape data
                 xy_data = ds.position.sel(time=time, individuals=indiv).values
@@ -406,10 +412,16 @@ def _write_via_tracks_csv(
                     wh_data,
                     confidence,
                     track_id,
-                    time_in_frames[time_idx],
+                    region_count,
+                    region_id,
+                    time_in_frames[time_idx],  # instead pass filename?
                     img_filename_template,
+                    # instead pass img_filename_template.format(frame_number)?
                     image_size=None,
                 )
+
+                # Update region ID for next bounding box
+                region_id += 1
 
 
 def _write_single_row(
@@ -418,6 +430,8 @@ def _write_single_row(
     wh_values: np.ndarray,
     confidence: float | None,
     track_id: int,
+    region_count: int,
+    region_id: int,
     frame_number: int,
     img_filename_template: str,
     image_size: int | None,
@@ -436,6 +450,12 @@ def _write_single_row(
         Confidence score for the bounding box detection.
     track_id : int
         Integer identifying a single track of bounding boxes across frames.
+    region_count : int
+        Number of annotations in the current frame.
+    region_id : int
+        Integer that identifies the bounding boxes in a frame starting from 0.
+        Note that it is the result of an enumeration, and it does not
+        necessarily match the track ID.
     frame_number : int
         Frame number.
     img_filename_template : str
@@ -465,7 +485,6 @@ def _write_single_row(
     y_top_left = y_center - height / 2
 
     # Define file attributes (placeholder value)
-    # file_attributes = f'{{"shot": {0}}}'
     file_attributes = json.dumps({"shot": 0})
 
     # Define region shape attributes
@@ -494,8 +513,8 @@ def _write_single_row(
         img_filename_template.format(frame_number),
         image_size,
         file_attributes,
-        0,  # region_count placeholder
-        0,  # region_id placeholder
+        region_count,
+        region_id,
         region_shape_attributes,
         region_attributes,
     )
