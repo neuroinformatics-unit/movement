@@ -16,7 +16,7 @@ from movement.io.save_bboxes import (
 @pytest.fixture
 def mock_csv_writer():
     """Return a mock CSV writer object."""
-    # Mock csv writer object
+    # Mock object
     writer = Mock()
     # Add writerow method to the mock object
     writer.writerow = Mock()
@@ -121,14 +121,12 @@ def test_to_via_tracks_file_valid_dataset(
     request,
 ):
     """Test the VIA-tracks CSV file with different valid bboxes datasets."""
-    # Define output file path
-    output_path = tmp_path / "test_valid_dataset.csv"
-
     # Save VIA-tracks CSV file
     input_dataset = request.getfixturevalue(valid_dataset)
+    output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(input_dataset, output_path)
 
-    # Check that we can recover the original dataset
+    # Check that the exported file is readable in movement
     if input_dataset.time_unit == "seconds":
         ds = load_bboxes.from_via_tracks_file(
             output_path, fps=input_dataset.fps
@@ -136,10 +134,10 @@ def test_to_via_tracks_file_valid_dataset(
     else:
         ds = load_bboxes.from_via_tracks_file(output_path)
 
+    # Check the dataset matches the original one.
     # If the position or shape data arrays contain NaNs, remove those
-    # data points from the dataset before comparing (i.e. remove their
-    # position, shape and confidence values, since these bboxes will
-    # be skipped when writing the VIA-tracks CSV file)
+    # data points from the original dataset before comparing (these bboxes
+    # are skipped when writing the VIA-tracks CSV file)
     null_position_or_shape = (
         input_dataset.position.isnull() | input_dataset.shape.isnull()
     )
@@ -165,18 +163,16 @@ def test_to_via_tracks_file_image_filename(
     image_file_suffix,
     tmp_path,
 ):
-    """Test the VIA-tracks CSV file with different image file prefixes and
+    """Test the VIA-tracks CSV export with different image file prefixes and
     suffixes.
     """
-    # Define output file path
-    output_path = tmp_path / "test_valid_dataset.csv"
-
     # Prepare kwargs
     kwargs = {"image_file_prefix": image_file_prefix}
     if image_file_suffix is not None:
         kwargs["image_file_suffix"] = image_file_suffix
 
     # Save VIA-tracks CSV file
+    output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(
         valid_bboxes_dataset,
         output_path,
@@ -217,11 +213,9 @@ def test_to_via_tracks_file_confidence(
     """Test that the VIA-tracks CSV file is as expected when the confidence
     array contains NaNs.
     """
-    # Define output file path
-    output_path = tmp_path / "test_valid_dataset.csv"
-
     # Save VIA-tracks CSV file
     input_dataset = request.getfixturevalue(valid_dataset)
+    output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(input_dataset, output_path)
 
     # Check that the input dataset has the expected number of NaNs in the
@@ -264,10 +258,8 @@ def test_to_via_tracks_file_extract_track_id_from_individuals(
     """Test that the VIA-tracks CSV file is as expected when extracting
     track IDs from the individuals' names.
     """
-    # Define output file path
-    output_path = tmp_path / "test_valid_dataset.csv"
-
     # Save VIA-tracks CSV file
+    output_path = tmp_path / "test_valid_dataset.csv"
     input_dataset = request.getfixturevalue(valid_dataset)
     save_bboxes.to_via_tracks_file(
         input_dataset,
@@ -294,6 +286,53 @@ def test_to_via_tracks_file_extract_track_id_from_individuals(
         )
     else:
         assert set_unique_track_ids == {0, 1}
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    [
+        "valid_bboxes_dataset",
+        "valid_bboxes_dataset_with_nan",
+        "valid_bboxes_dataset_with_late_id0",
+    ],
+)
+def test_to_via_tracks_file_region_count_and_id(
+    valid_dataset, tmp_path, request
+):
+    """Test that the region count and region ID are as expected."""
+    # Save VIA-tracks CSV file
+    output_path = tmp_path / "test_valid_dataset.csv"
+    input_dataset = request.getfixturevalue(valid_dataset)
+    save_bboxes.to_via_tracks_file(input_dataset, output_path)
+
+    # Read output file as a dataframe
+    df = pd.read_csv(output_path)
+
+    # Check that the region count matches the number of annotations
+    # per filename
+    df_bboxes_count = df["filename"].value_counts(sort=False)
+    map_filename_to_bboxes_count = {
+        filename: count
+        for filename, count in zip(
+            df_bboxes_count.index,
+            df_bboxes_count,
+            strict=True,
+        )
+    }
+    assert all(
+        df["region_count"].values
+        == [map_filename_to_bboxes_count[fn] for fn in df["filename"]]
+    )
+
+    # Check that the region ID per filename ranges from 0 to the
+    # number of annotations per filename
+    assert all(
+        np.all(
+            df["region_id"].values[df["filename"] == fn]
+            == np.array(range(map_filename_to_bboxes_count[fn]))
+        )
+        for fn in df["filename"]
+    )
 
 
 @pytest.mark.parametrize(

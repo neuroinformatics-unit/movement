@@ -373,23 +373,32 @@ def _write_via_tracks_csv(
     else:
         time_in_frames = ds.time.values
 
+    # Locate bboxes with null position or shape
+    null_position_or_shape = np.any(ds.position.isnull(), axis=1) | np.any(
+        ds.shape.isnull(), axis=1
+    )  # (time, individuals)
+
     with open(file_path, "w", newline="") as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(header)
 
-        # Write bbox data for each time point and individual
+        # Loop through frames
         for time_idx, time in enumerate(ds.time.values):
             frame_number = time_in_frames[time_idx]
 
-            region_id = 0
-            region_count = int(ds.sel(time=time).individuals.size)
+            # Compute region count for current frame
+            region_count = int(np.sum(~null_position_or_shape[time_idx, :]))
 
+            # Initialise region ID for current frame
+            region_id = 0
+
+            # Loop through individuals
             for indiv in ds.individuals.values:
                 # Get position and shape data
                 xy_data = ds.position.sel(time=time, individuals=indiv).values
                 wh_data = ds.shape.sel(time=time, individuals=indiv).values
 
-                # If the position or shape data contains NaNs, do not write
+                # If the position or shape data contain NaNs, do not write
                 # this bounding box to file
                 if np.isnan(xy_data).any() or np.isnan(wh_data).any():
                     continue
@@ -417,7 +426,7 @@ def _write_via_tracks_csv(
                     image_size=None,
                 )
 
-                # Update region ID for next bounding box
+                # Update region ID for this frame
                 region_id += 1
 
 
