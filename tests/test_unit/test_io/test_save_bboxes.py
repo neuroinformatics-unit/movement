@@ -92,6 +92,20 @@ def valid_bboxes_dataset_confidence_some_nans(valid_bboxes_dataset):
     return valid_bboxes_dataset
 
 
+def _get_min_required_digits_in_ds(ds):
+    """Return the minimum number of digits required to represent the
+    largest frame number in the input dataset.
+    """
+    # Compute the maximum frame number
+    max_frame_number = max(ds.time.values)
+    if "seconds" in ds.time_unit:
+        max_frame_number = int(max_frame_number * ds.fps)
+
+    # Return the minimum number of digits required to represent the
+    # largest frame number
+    return len(str(max_frame_number))
+
+
 @pytest.mark.parametrize(
     "valid_dataset",
     [
@@ -323,7 +337,7 @@ def test_to_via_tracks_file_invalid_file_path(
 
 
 @pytest.mark.parametrize(
-    "frame_max_digits",
+    "frame_n_digits",
     [1, 100],
     ids=["1_digit", "100_digits"],
 )
@@ -347,7 +361,7 @@ def test_to_via_tracks_file_invalid_file_path(
     ids=["png_extension", "png_no_dot", "jpg_extension"],
 )
 def test_get_image_filename_template(
-    frame_max_digits,
+    frame_n_digits,
     image_file_prefix,
     expected_prefix,
     image_file_suffix,
@@ -355,11 +369,11 @@ def test_get_image_filename_template(
 ):
     """Test that the image filename template is as expected."""
     expected_image_filename = (
-        f"{expected_prefix}{{:0{frame_max_digits}d}}{expected_suffix}"
+        f"{expected_prefix}{{:0{frame_n_digits}d}}{expected_suffix}"
     )
     assert (
         save_bboxes._get_image_filename_template(
-            frame_max_digits=frame_max_digits,
+            frame_n_digits=frame_n_digits,
             image_file_prefix=image_file_prefix,
             image_file_suffix=image_file_suffix,
         )
@@ -368,73 +382,62 @@ def test_get_image_filename_template(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_str, expected_min_digits,",
+    "valid_dataset_str,",
     [
-        ("valid_bboxes_dataset", 1),
-        ("valid_bboxes_dataset_in_seconds", 1),
-        ("valid_bboxes_dataset_min_frame_number_modified", 3),
+        ("valid_bboxes_dataset"),
+        ("valid_bboxes_dataset_in_seconds"),
+        ("valid_bboxes_dataset_min_frame_number_modified"),
     ],
     ids=["min_2_digits", "min_2_digits_in_seconds", "min_3_digits"],
 )
-@pytest.mark.parametrize("frame_max_digits", [None, 7], ids=["auto", "user"])
-def test_check_frame_max_digits(
+@pytest.mark.parametrize(
+    "frame_n_digits",
+    [None, 7],
+    ids=["auto", "user"],
+)
+def test_check_frame_required_digits(
     valid_dataset_str,
-    expected_min_digits,
-    frame_max_digits,
+    frame_n_digits,
     request,
 ):
     """Test that the number of digits to represent the frame number is
     computed as expected.
     """
     ds = request.getfixturevalue(valid_dataset_str)
-
-    # Check min required digits in input dataset
-    if "seconds" in valid_dataset_str:
-        max_frame_number = max((ds.time.values * ds.fps).astype(int))
-    else:
-        max_frame_number = max(ds.time.values)
-    min_required_digits = len(str(max_frame_number))
-    assert min_required_digits == expected_min_digits
+    min_required_digits = _get_min_required_digits_in_ds(ds)
 
     # Compute expected number of digits in output
-    if frame_max_digits is None:
+    if frame_n_digits is None:
         expected_out_digits = min_required_digits + 1
     else:
-        expected_out_digits = frame_max_digits
+        expected_out_digits = frame_n_digits
 
     # Check the number of digits to use in the output is as expected
     assert (
-        save_bboxes._check_frame_max_digits(
-            ds=ds,
-            n_digits_to_use=frame_max_digits,
+        save_bboxes._check_frame_required_digits(
+            ds=ds, frame_n_digits=frame_n_digits
         )
         == expected_out_digits
     )
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_str, expected_min_digits_in_ds, requested_n_digits",
+    "valid_dataset_str, requested_n_digits",
     [
-        ("valid_bboxes_dataset", 1, 0),
-        ("valid_bboxes_dataset_min_frame_number_modified", 3, 2),
+        ("valid_bboxes_dataset", 0),
+        ("valid_bboxes_dataset_min_frame_number_modified", 2),
     ],
+    ids=["min_2_digits", "min_3_digits"],
 )
-def test_check_frame_max_digits_error(
-    valid_dataset_str, expected_min_digits_in_ds, requested_n_digits, request
+def test_check_frame_required_digits_error(
+    valid_dataset_str, requested_n_digits, request
 ):
     ds = request.getfixturevalue(valid_dataset_str)
-
-    # Check min required digits in input dataset
-    if "seconds" in valid_dataset_str:
-        max_frame_number = max((ds.time.values * ds.fps).astype(int))
-    else:
-        max_frame_number = max(ds.time.values)
-    min_required_digits = len(str(max_frame_number))
-    assert min_required_digits == expected_min_digits_in_ds
+    min_required_digits = _get_min_required_digits_in_ds(ds)
 
     with pytest.raises(ValueError) as error:
-        save_bboxes._check_frame_max_digits(
-            ds=ds, n_digits_to_use=requested_n_digits
+        save_bboxes._check_frame_required_digits(
+            ds=ds, frame_n_digits=requested_n_digits
         )
 
     assert str(error.value) == (

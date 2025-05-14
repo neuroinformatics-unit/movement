@@ -17,7 +17,7 @@ def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
     extract_track_id_from_individuals: bool = False,
-    frame_max_digits: int | None = None,
+    frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
 ) -> Path:
@@ -34,7 +34,7 @@ def to_via_tracks_file(
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be factorised from the list of sorted individuals'
         names. Default is False.
-    frame_max_digits : int, optional
+    frame_n_digits : int, optional
         The number of digits to use to represent frame numbers in the output
         file (including leading zeros). If None, the number of digits is
         automatically determined from the largest frame number in the dataset,
@@ -86,7 +86,7 @@ def to_via_tracks_file(
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
-    ...     frame_max_digits=4,
+    ...     frame_n_digits=4,
     ... )
 
     """
@@ -94,13 +94,14 @@ def to_via_tracks_file(
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
     _validate_bboxes_dataset(ds)
 
-    # Define format string for image filenames
-    frame_max_digits = _check_frame_max_digits(
-        ds=ds,
-        n_digits_to_use=frame_max_digits,
+    # Check the number of digits required to represent the frame numbers
+    frame_n_digits = _check_frame_required_digits(
+        ds=ds, frame_n_digits=frame_n_digits
     )
+
+    # Define format string for image filenames
     img_filename_template = _get_image_filename_template(
-        frame_max_digits=frame_max_digits,
+        frame_n_digits=frame_n_digits,
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
@@ -159,7 +160,7 @@ def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
 
 
 def _get_image_filename_template(
-    frame_max_digits: int,
+    frame_n_digits: int,
     image_file_prefix: str | None,
     image_file_suffix: str,
 ) -> str:
@@ -171,9 +172,9 @@ def _get_image_filename_template(
 
     Parameters
     ----------
-    frame_max_digits : int
-        Maximum number of digits used to represent the frame number including
-        any leading zeros.
+    frame_n_digits : int
+        Number of digits used to represent the frame number, including any
+        leading zeros.
     image_file_prefix : str | None
         Prefix for each image filename, prepended to frame number. If None or
         an empty string, nothing will be prepended.
@@ -198,14 +199,14 @@ def _get_image_filename_template(
     # Define filename format string
     return (
         f"{image_file_prefix_modified}"
-        f"{{:0{frame_max_digits}d}}"
+        f"{{:0{frame_n_digits}d}}"
         f"{image_file_suffix}"
     )
 
 
-def _check_frame_max_digits(
+def _check_frame_required_digits(
     ds: xr.Dataset,
-    n_digits_to_use: int | None,
+    frame_n_digits: int | None,
 ) -> int:
     """Check the number of digits to represent the frame number is valid.
 
@@ -221,18 +222,18 @@ def _check_frame_max_digits(
         max_frame_number = max(ds.time.values)
     min_required_digits = len(str(max_frame_number))
 
-    # If None, infer automatically
-    if n_digits_to_use is None:
+    # If requested number of digits is None, infer automatically
+    if frame_n_digits is None:
         return min_required_digits + 1  # pad with at least one zero
-    elif n_digits_to_use < min_required_digits:
+    elif frame_n_digits < min_required_digits:
         raise ValueError(
             "The requested number of digits to represent the frame "
             "number cannot be used to represent all the frame numbers."
-            f"Got {n_digits_to_use}, but the maximum frame number has "
+            f"Got {frame_n_digits}, but the maximum frame number has "
             f"{min_required_digits} digits"
         )
     else:
-        return n_digits_to_use
+        return frame_n_digits
 
 
 def _get_map_individuals_to_track_ids(
