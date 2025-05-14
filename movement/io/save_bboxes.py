@@ -16,7 +16,7 @@ from movement.validators.datasets import ValidBboxesDataset
 def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
-    extract_track_id_from_individuals: bool = False,
+    extract_track_id_from_individuals: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
@@ -33,10 +33,10 @@ def to_via_tracks_file(
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be factorised from the list of sorted individuals'
-        names. Default is False.
+        names. Default is True.
     frame_n_digits : int, optional
-        The number of digits to use to represent frame numbers in the output
-        file (including leading zeros). If None, the number of digits is
+        The number of digits to use to represent frame numbers in the image
+        filenames (including leading zeros). If None, the number of digits is
         automatically determined from the largest frame number in the dataset,
         plus one (to have at least one leading zero). Default is None.
     image_file_prefix : str, optional
@@ -44,7 +44,7 @@ def to_via_tracks_file(
         number which is padded with leading zeros. If None or an empty string,
         nothing will be prepended to the padded frame number. Default is None.
     image_file_suffix : str, optional
-        Suffix to add to each image filename holding the file extension.
+        Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
 
     Returns
