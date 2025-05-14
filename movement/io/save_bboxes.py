@@ -55,24 +55,23 @@ def to_via_tracks_file(
     Examples
     --------
     Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
-    deriving the track IDs from the list of sorted individuals and assuming
+    deriving the track IDs from the list of individuals' names and assuming
     the image files are PNG files:
     >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(ds, "/path/to/output.csv")
 
     Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
-    extracting track IDs from the end of the individuals' names and assuming
-    the image files are JPG files:
+    deriving the track IDs from the list of sorted individuals' names and
+    assuming the image files are JPG files:
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
-    ...     extract_track_id_from_individuals=True,
+    ...     extract_track_id_from_individuals=False,
     ...     image_file_suffix=".jpg",
     ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
-    with image filenames following the format ``frame-<frame_number>.jpg``
-    and the track IDs derived from the list of sorted individuals:
+    with image filenames following the format ``frame-<frame_number>.jpg``:
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
@@ -125,7 +124,7 @@ def to_via_tracks_file(
 
 
 def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
-    """Validate the input as a proper ``movement`` pose dataset.
+    """Verify the input dataset is a valid ``movement`` bboxes dataset.
 
     Parameters
     ----------
@@ -138,7 +137,7 @@ def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
         If the input is not an xarray Dataset.
     ValueError
         If the dataset is missing required data variables or dimensions
-        for a valid ``movement`` pose dataset.
+        for a valid ``movement`` bboxes dataset.
 
     """
     if not isinstance(ds, xr.Dataset):
@@ -176,15 +175,15 @@ def _get_image_filename_template(
         Number of digits used to represent the frame number, including any
         leading zeros.
     image_file_prefix : str | None
-        Prefix for each image filename, prepended to frame number. If None or
-        an empty string, nothing will be prepended.
+        Prefix for each image filename, prepended to the frame number. If
+        None or an empty string, nothing will be prepended.
     image_file_suffix : str
         Suffix to add to each image filename to represent the file extension.
 
     Returns
     -------
     str
-        Format string for each image filename.
+        Format string for the images' filenames.
 
     """
     # Add the dot to the file extension if required
@@ -210,9 +209,27 @@ def _check_frame_required_digits(
 ) -> int:
     """Check the number of digits to represent the frame number is valid.
 
-    If n_digits_to_use is None, the number of digits is inferred based
-    on the minimum number of digits required to represent the largest
-    frame number in the dataset.
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A movement dataset.
+    frame_n_digits : int | None
+        The proposed number of digits to use to represent the frame numbers
+        in the image filenames (including leading zeros). If None, the number
+        of digits is inferred based on the largest frame number in the dataset.
+
+    Returns
+    -------
+    int
+        The number of digits to use to represent the frame numbers in the
+        image filenames (including leading zeros).
+
+    Raises
+    ------
+    ValueError
+        If the proposed number of digits is not enough to represent all the
+        frame numbers.
+
     """
     # Compute minimum number of digits required to represent the
     # largest frame number
@@ -240,7 +257,7 @@ def _get_map_individuals_to_track_ids(
     list_individuals: list[str],
     extract_track_id_from_individuals: bool,
 ) -> dict[str, int]:
-    """Map individuals' names to track IDs.
+    """Compute a mapping of individuals' names to track IDs.
 
     Parameters
     ----------
@@ -254,16 +271,7 @@ def _get_map_individuals_to_track_ids(
     Returns
     -------
     dict[str, int]
-        A dictionary mapping individuals' names (str) to track IDs (int).
-
-    Raises
-    ------
-    ValueError
-        If extract_track_id_from_individuals is True and:
-        - a track ID is not found by looking at the last consecutive digits
-          in an individual's name, or
-        - the extracted track IDs cannot be uniquely mapped to the
-          individuals' names.
+        A dictionary mapping individuals' names to track IDs.
 
     """
     if extract_track_id_from_individuals:
@@ -294,7 +302,7 @@ def _get_track_id_from_individuals(
     Returns
     -------
     dict[str, int]
-        A dictionary mapping individuals' names (str) to track IDs (int).
+        A dictionary mapping individuals' names to track IDs.
 
     Raises
     ------
@@ -347,13 +355,13 @@ def _write_via_tracks_csv(
     Parameters
     ----------
     ds : xarray.Dataset
-        The movement bounding boxes dataset to export.
+        A movement bounding boxes dataset.
     file_path : str or pathlib.Path
         Path where the VIA-tracks CSV file will be saved.
     map_individual_to_track_id : dict
-        Dictionary mapping individual names to track IDs.
+        Dictionary mapping individuals' names to track IDs.
     img_filename_template : str
-        Format string for each image filename.
+        Format string for the images' filenames.
 
     """
     # Define VIA-tracks CSV header
@@ -441,7 +449,7 @@ def _write_single_row(
     img_filename: str,
     image_size: int | None,
 ) -> tuple[str, int, str, int, int, str, str]:
-    """Return a tuple representing a single row of a VIA-tracks CSV file.
+    """Write a single row of a VIA-tracks CSV file and return it as a tuple.
 
     Parameters
     ----------
@@ -501,8 +509,8 @@ def _write_single_row(
     # Define region attributes
     region_attributes_dict: dict[str, float | int] = {"track": int(track_id)}
     if confidence is not None:
+        # convert to float to ensure it is json-serializable
         region_attributes_dict["confidence"] = float(confidence)
-        # convert to float to ensure json-serializable
     region_attributes = json.dumps(region_attributes_dict)
 
     # Set image size

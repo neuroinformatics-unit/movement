@@ -434,7 +434,7 @@ def test_get_image_filename_template(
     [None, 7],
     ids=["auto", "user"],
 )
-def test_check_frame_required_digits(
+def test_get_min_required_digits_in_ds(
     valid_dataset_str,
     frame_n_digits,
     request,
@@ -468,9 +468,12 @@ def test_check_frame_required_digits(
     ],
     ids=["min_2_digits", "min_3_digits"],
 )
-def test_check_frame_required_digits_error(
+def test_get_min_required_digits_in_ds_error(
     valid_dataset_str, requested_n_digits, request
 ):
+    """Test that an error is raised if the requested number of digits is
+    not enough to represent all the frame numbers.
+    """
     ds = request.getfixturevalue(valid_dataset_str)
     min_required_digits = _get_min_required_digits_in_ds(ds)
 
@@ -669,31 +672,28 @@ def test_write_single_row(
 def test_number_of_quotes_in_via_tracks_csv_file(
     valid_bboxes_dataset, tmp_path
 ):
-    """Test that the first row of the VIA-tracks CSV file is as expected.
+    """Test the literal string for two lines of the VIA-tracks CSV file.
 
     This is to verify that the quotes in the output VIA-tracks CSV file are
-    as expected as a proxy for checking that the file is loadable in the VIA
-    annotation tool.
+    as expected. Without the required double quotes, the file won't be
+    importable in the VIA annotation tool.
 
     The VIA-tracks CSV file format has:
     - dictionary-like items wrapped around single double-quotes (")
-    - keys in these dictionary-like items wrapped around double double-quotes
-      ("")
+    - keys in these dictionaries wrapped around double double-quotes ("")
 
-    See an example of the VIA-tracks CSV file format at
+    See an example of the VIA-tracks CSV file format at:
     https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
     """
-    # Define output file path
-    output_path = tmp_path / "test_valid_dataset.csv"
-
     # Save VIA-tracks CSV file
+    output_path = tmp_path / "test_valid_dataset.csv"
     save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
 
-    # Check the literal string for the first line is as expected
+    # Read text file
     with open(output_path) as file:
         lines = file.readlines()
 
-    # Check a line for bbox id 0
+    # Check a line with bbox id_0
     assert lines[1] == (
         "00.png,"  # filename
         "0,"  # filesize
@@ -705,7 +705,7 @@ def test_number_of_quotes_in_via_tracks_csv_file(
         '"{""track"": 0, ""confidence"": 0.9}"\n'  # region attributes
     )
 
-    # Check a line for bbox id 1
+    # Check a line with bbox id_1
     assert lines[-1] == (
         "09.png,"  # filename
         "0,"  # filesize
@@ -727,7 +727,7 @@ def test_number_of_quotes_in_via_tracks_csv_file(
 )
 def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
     """Test that an exported VIA-tracks CSV file can be loaded back into
-    the original dataset.
+    the a dataset that matches the original one.
     """
     # Load a bboxes dataset from a VIA-tracks CSV file
     original_ds = load_bboxes.from_via_tracks_file(
