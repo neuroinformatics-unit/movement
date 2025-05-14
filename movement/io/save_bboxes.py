@@ -52,6 +52,11 @@ def to_via_tracks_file(
     pathlib.Path
         Path to the saved file.
 
+    Notes
+    -----
+    The VIA tracks .csv file format is described in the
+    [VIA documentation](https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html).
+
     Examples
     --------
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
