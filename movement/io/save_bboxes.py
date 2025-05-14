@@ -379,11 +379,9 @@ def _write_via_tracks_csv(
 
         # Write bbox data for each time point and individual
         for time_idx, time in enumerate(ds.time.values):
-            # Initialize region ID
-            region_id = 0
+            frame_number = time_in_frames[time_idx]
 
-            # Get region count for this frame
-            # (i.e., the total number of bounding boxes in this frame)
+            region_id = 0
             region_count = int(ds.sel(time=time).individuals.size)
 
             for indiv in ds.individuals.values:
@@ -392,7 +390,7 @@ def _write_via_tracks_csv(
                 wh_data = ds.shape.sel(time=time, individuals=indiv).values
 
                 # If the position or shape data contains NaNs, do not write
-                # this annotation
+                # this bounding box to file
                 if np.isnan(xy_data).any() or np.isnan(wh_data).any():
                     continue
 
@@ -415,9 +413,7 @@ def _write_via_tracks_csv(
                     track_id,
                     region_count,
                     region_id,
-                    time_in_frames[time_idx],  # instead pass filename?
-                    img_filename_template,
-                    # instead pass img_filename_template.format(frame_number)?
+                    img_filename_template.format(frame_number),
                     image_size=None,
                 )
 
@@ -433,8 +429,7 @@ def _write_single_row(
     track_id: int,
     region_count: int,
     region_id: int,
-    frame_number: int,
-    img_filename_template: str,
+    img_filename: str,
     image_size: int | None,
 ) -> tuple[str, int, str, int, int, str, str]:
     """Return a tuple representing a single row of a VIA-tracks CSV file.
@@ -452,18 +447,13 @@ def _write_single_row(
     track_id : int
         Integer identifying a single track of bounding boxes across frames.
     region_count : int
-        Number of annotations in the current frame.
+        Total number of bounding boxes in the current frame.
     region_id : int
         Integer that identifies the bounding boxes in a frame starting from 0.
         Note that it is the result of an enumeration, and it does not
         necessarily match the track ID.
-    frame_number : int
-        Frame number.
-    img_filename_template : str
-        Format string to apply to the image filename. The image filename is
-        formatted as the frame number padded with at least one leading zero,
-        plus the file extension. Optionally, a prefix can be added to the
-        padded frame number.
+    img_filename : str
+        Filename of the image file corresponding to the current frame.
     image_size : int | None
         File size in bytes. If None, the file size is set to 0.
 
@@ -511,7 +501,7 @@ def _write_single_row(
 
     # Define row data
     row = (
-        img_filename_template.format(frame_number),
+        img_filename,
         image_size,
         file_attributes,
         region_count,

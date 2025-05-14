@@ -138,7 +138,7 @@ def test_to_via_tracks_file_valid_dataset(
 
     # If the position or shape data arrays contain NaNs, remove those
     # data points from the dataset before comparing (i.e. remove their
-    # position, shape and confidence values, since these annotations will
+    # position, shape and confidence values, since these bboxes will
     # be skipped when writing the VIA-tracks CSV file)
     null_position_or_shape = (
         input_dataset.position.isnull() | input_dataset.shape.isnull()
@@ -201,11 +201,11 @@ def test_to_via_tracks_file_image_filename(
     "valid_dataset, expected_confidence_nan_count",
     [
         ("valid_bboxes_dataset", 0),
-        # all annotations should have a confidence value
+        # all bboxes should have a confidence value
         ("valid_bboxes_dataset_confidence_all_nans", 20),
-        # some annotations should have a confidence value
+        # some bboxes should have a confidence value
         ("valid_bboxes_dataset_confidence_some_nans", 3),
-        # no annotations should have a confidence value
+        # no bboxes should have a confidence value
     ],
 )
 def test_to_via_tracks_file_confidence(
@@ -584,24 +584,19 @@ def test_write_single_row(
     # Write single row of VIA-tracks CSV file
     with patch("csv.writer", return_value=mock_csv_writer):
         row = _write_single_row(
-            mock_csv_writer,
-            xy_values,
-            wh_values,
-            confidence,
-            track_id,
-            region_count,
-            region_id,
-            frame,
-            img_filename_template,
-            image_size,
+            writer=mock_csv_writer,
+            xy_values=xy_values,
+            wh_values=wh_values,
+            confidence=confidence,
+            track_id=track_id,
+            region_count=region_count,
+            region_id=region_id,
+            img_filename=img_filename_template.format(frame),
+            image_size=image_size,
         )
         mock_csv_writer.writerow.assert_called_with(row)
 
-    # Compute expected values
-    expected_filename = img_filename_template.format(frame)
-    expected_file_size = image_size if image_size is not None else 0
-    expected_file_attributes = '{"shot": 0}'  # placeholder value
-
+    # Compute expected region shape attributes
     expected_region_shape_attrs_dict = {
         "name": "rect",
         "x": float(xy_values[0] - wh_values[0] / 2),
@@ -613,6 +608,7 @@ def test_write_single_row(
         expected_region_shape_attrs_dict
     )
 
+    # Compute expected region attributes
     expected_region_attributes_dict = {
         "track": int(track_id),
     }
@@ -622,9 +618,9 @@ def test_write_single_row(
     expected_region_attributes = json.dumps(expected_region_attributes_dict)
 
     # Check values are as expected
-    assert row[0] == expected_filename
-    assert row[1] == expected_file_size
-    assert row[2] == expected_file_attributes
+    assert row[0] == img_filename_template.format(frame)
+    assert row[1] == (image_size if image_size is not None else 0)
+    assert row[2] == '{"shot": 0}'  # placeholder value
     assert row[3] == region_count
     assert row[4] == region_id
     assert row[5] == expected_region_shape_attributes
