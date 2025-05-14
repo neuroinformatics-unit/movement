@@ -229,6 +229,20 @@ providing sample data, or by actively participating in discussions).
                     <sub><b>Mikkel Roald-Arbøl</b></sub>
                 </a>
             </td>
+            <td align="center">
+                <a href="https://github.com/mahi7828">
+                    <img src="https://avatars.githubusercontent.com/u/140162102?v=4" width="100;" alt="mahi7828"/>
+                    <br />
+                    <sub><b>Mahima Sahu</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/shigrafs">
+                    <img src="https://avatars.githubusercontent.com/u/140247389?v=4" width="100;" alt="shigrafs"/>
+                    <br />
+                    <sub><b>shigrafs</b></sub>
+                </a>
+            </td>
 		</tr>
 	<tbody>
 </table>
