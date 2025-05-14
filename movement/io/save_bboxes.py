@@ -65,12 +65,12 @@ def to_via_tracks_file(
     ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA-tracks CSV file,
-    with image filenames following the format ``frame_{frame_number}.jpg``
+    with image filenames following the format ``frame-<frame_number>.jpg``
     and the track IDs derived from the list of sorted individuals:
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
-    ...     image_file_prefix="frame_",
+    ...     image_file_prefix="frame-",
     ...     image_file_suffix=".jpg",
     ... )
 
