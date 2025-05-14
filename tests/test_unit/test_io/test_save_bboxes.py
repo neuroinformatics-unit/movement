@@ -658,6 +658,7 @@ def test_number_of_quotes_in_via_tracks_csv_file(
     with open(output_path) as file:
         lines = file.readlines()
 
+    # Check a line for bbox id 0
     assert lines[1] == (
         "00.png,"  # filename
         "0,"  # filesize
@@ -667,4 +668,16 @@ def test_number_of_quotes_in_via_tracks_csv_file(
         '"{""name"": ""rect"", '  # region shape attributes
         '""x"": -30.0, ""y"": -20.0, ""width"": 60.0, ""height"": 40.0}",'
         '"{""track"": 0, ""confidence"": 0.9}"\n'  # region attributes
+    )
+
+    # Check a line for bbox id 1
+    assert lines[-1] == (
+        "09.png,"  # filename
+        "0,"  # filesize
+        '"{""shot"": 0}",'  # file attributes
+        "2,"  # region_count
+        "1,"  # region_id
+        '"{""name"": ""rect"", '  # region shape attributes
+        '""x"": -21.0, ""y"": -29.0, ""width"": 60.0, ""height"": 40.0}",'
+        '"{""track"": 1, ""confidence"": 0.9}"\n'  # region attributes
     )

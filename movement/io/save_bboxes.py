@@ -383,6 +383,7 @@ def _write_via_tracks_csv(
             region_id = 0
 
             # Get region count for this frame
+            # (i.e., the total number of bounding boxes in this frame)
             region_count = int(ds.sel(time=time).individuals.size)
 
             for indiv in ds.individuals.values:
