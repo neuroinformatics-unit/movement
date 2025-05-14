@@ -255,7 +255,7 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 (target-saving-bboxes-tracks)=
 ## Saving bounding box tracks
 
-We currently support exporting a [movement bboxes datasets](target-poses-and-bboxes-dataset) as a [VIA tracks .csv file](https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html), so that you can visualise and correct your bounding box tracks with the [VGG Image Annotator (VIA-2) software](https://www.robots.ox.ac.uk/~vgg/software/via/via.html).
+We currently support exporting a [movement bboxes datasets](target-poses-and-bboxes-dataset) as a [VIA tracks .csv file](via:docs/face_track_annotation.html), so that you can visualise and correct your bounding box tracks with the [VGG Image Annotator (VIA-2) software](via:via.html).
 
 To export your bounding boxes dataset `ds`, you will need to import the {mod}`movement.io.save_bboxes` module:
 
@@ -268,7 +268,7 @@ Then you can save it as a VIA tracks .csv file:
 save_bboxes.to_via_tracks_file(ds, "/path/to/output/file.csv")
 ```
 
-By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to extract the track IDs from the individuals' names, but you can also select to extract them from the sorted list of individuals.
+By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to extract the track IDs from the individuals' names, but you can also select to extract them from the sorted list of individuals with `extract_track_id_from_individuals=True`.
 
 
 Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library `csv`. Below is an example of how you can do this:
