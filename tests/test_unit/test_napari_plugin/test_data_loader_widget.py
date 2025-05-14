@@ -23,7 +23,13 @@ from napari.layers import (
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
-from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDoubleSpinBox,
+    QLineEdit,
+    QPushButton,
+)
 
 from movement.napari.loader_widgets import DataLoader
 
@@ -39,7 +45,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Check that the widget has the expected number of rows
-    assert data_loader_widget.layout().rowCount() == 4
+    assert data_loader_widget.layout().rowCount() == 5
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
@@ -48,6 +54,7 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
         (QPushButton, "browse_button"),
+        (QCheckBox, "bboxes_checkbox"),
     ]
     assert all(
         data_loader_widget.findChild(widget_type, widget_name) is not None
