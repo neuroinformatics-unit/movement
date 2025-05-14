@@ -105,16 +105,15 @@ def ds_to_napari_shapes(
         napari Shapes array with shape (N, 4, 4),
         where N is n_individuals * n_frames
         and each (4, 4) entry is a matrix of 4 rows (1 per corner vertex)
-        with the columns (track_id, frame_id, y, x).
+        with the columns (track_id, frame, y, x).
     properties : pd.DataFrame
         DataFrame with properties (individual, time).
 
     Notes
     -----
     A corresponding napari Shapes array can be derived from the Tracks array
-    by taking its last 5 columns: (frame_idx, c_y, c_x, height, width).
-    See the documentation
-    on the napari Tracks [1]_  and Points [2]_ layers.
+    by ignoring the first column of the third dimension
+    (i.e. an N,4,3 array).
 
     References
     ----------
