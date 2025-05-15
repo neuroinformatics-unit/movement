@@ -35,12 +35,10 @@ class NWBFileSaveConfig:
     This class is used with :func:`movement.io.save_poses.to_nwb_file`
     to add custom metadata to the NWBFile(s) created from a given
     ``movement`` dataset.
-    TODO: Clean up docstrings, might need to move some parts to
-    to_nwb_file
 
     Attributes
     ----------
-    nwbfile_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+    nwbfile_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for :class:`pynwb.file.NWBFile`.
 
         If ``nwbfile_kwargs`` is a single dictionary, the same keyword
@@ -55,7 +53,7 @@ class NWBFileSaveConfig:
         The following arguments cannot be overwritten:
 
         - ``subject``: :class:`pynwb.file.Subject` created for the individual
-            using ``subject_kwargs``
+          using ``subject_kwargs``
 
         The following arguments will have default values if not set:
 
@@ -69,7 +67,7 @@ class NWBFileSaveConfig:
         2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
 
-    subject_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+    subject_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for :class:`pynwb.file.Subject`.
 
         If ``subject_kwargs`` is a single dictionary, the same keyword
@@ -86,8 +84,7 @@ class NWBFileSaveConfig:
         2. ``subject_kwargs["subject_id"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
 
-    pose_estimation_series_kwargs :
-            dict[str, Any] | dict[str, dict[str, any]], optional
+    pose_estimation_series_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.PoseEstimationSeries`` [1]_.
 
         If ``pose_estimation_series_kwargs`` is a single dictionary, the same
@@ -117,8 +114,7 @@ class NWBFileSaveConfig:
            dataset only)
         3. keypoint name in the ``movement`` dataset
 
-    pose_estimation_kwargs :
-            dict[str, Any] | dict[str, dict[str, any]], optional
+    pose_estimation_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.
 
         If ``pose_estimation_kwargs`` is a single dictionary, the same
@@ -137,7 +133,7 @@ class NWBFileSaveConfig:
         The following arguments will have default values if not set:
 
         - ``source_software``: ``source_software`` attribute from the
-            ``movement`` dataset
+          ``movement`` dataset
         - ``description``: "Estimated positions of <keypoints> for
           <individual> using <source_software>."
 
@@ -148,7 +144,7 @@ class NWBFileSaveConfig:
         2. ``pose_estimation_kwargs["name"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
 
-    skeleton_kwargs : dict[str, Any] | dict[str, dict[str, any]], optional
+    skeleton_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.Skeleton`` [1]_.
 
         If ``skeleton_kwargs`` is a single dictionary, the same
@@ -162,7 +158,7 @@ class NWBFileSaveConfig:
         The following arguments cannot be overwritten:
 
         - ``subject``: :class:`pynwb.file.Subject` created for the individual
-            using ``subject_kwargs``
+          using ``subject_kwargs``
 
         The following arguments will have default values if not set:
 
@@ -179,46 +175,13 @@ class NWBFileSaveConfig:
     ----------
     .. [1] https://github.com/rly/ndx-pose
 
-    Examples
+    See Also
     --------
-    Create :class:`pynwb.file.NWBFile` objects with the same ``nwbfile_kwargs``
-    and the same ``subject_kwargs`` for all individuals (e.g. `id_0`, `id_1`)
-    in the dataset:
+    movement.io.save_poses.to_nwb_file
+        Example usage of this class to save a ``movement`` dataset
+        to an NWB file.
 
-    >>> from movement.io.nwb import NWBFileSaveConfig
-    >>> from movement.io.save_poses import to_nwb_file
-    >>> config = NWBFileSaveConfig(
-    ...     nwbfile_kwargs={"session_description": "test session"},
-    ...     subject_kwargs={"age": "1 year", "species": "mouse"},
-    ... )
-    >>> nwb_files = to_nwb_file(ds, config)
-
-    Create :class:`pynwb.file.NWBFile` objects with different
-    ``nwbfile_kwargs`` and ``subject_kwargs`` for each individual
-    (e.g. `id_0`, `id_1`) in the dataset:
-
-    >>> config = NWBFileSaveConfig(
-    ...     nwbfile_kwargs={
-    ...         "id_0": {
-    ...             "identifier": "subj1",
-    ...             "session_description": "subj1 session",
-    ...         },
-    ...         "id_1": {
-    ...             "identifier": "subj2",
-    ...             "session_description": "subj2 session",
-    ...         },
-    ...     },
-    ...     subject_kwargs={
-    ...         "id_0": {"age": "1 year", "species": "mouse"},
-    ...         "id_1": {"age": "2 years", "species": "rat"},
-    ...     },
-    ...     pose_estimation_series_kwargs={"reference_frame": "(0,0,0)"},
-    ...     pose_estimation_kwargs={"description": "test description"},
-    ...     skeleton_kwargs={"nodes": ["nose", "left_eye", "right_eye"]},
-    ... )
-    >>> nwb_files = to_nwb_file(ds, config)
-
-    """
+    """  # noqa: E501
 
     nwbfile_kwargs: ConfigKwargsType = _safe_dict_field()
     subject_kwargs: ConfigKwargsType = _safe_dict_field()
@@ -261,9 +224,9 @@ class NWBFileSaveConfig:
             The name of the attribute in the class (e.g. ``nwbfile_kwargs``,
             ``subject_kwargs``, ``pose_estimation_series_kwargs``) to be
             resolved.
-        entity : str | None
+        entity : str or None
             Individual or keypoint name.
-        entity_type : str | None
+        entity_type : str or None
             Type of entity (i.e. "individual", "keypoint"). Used in error
             or warning messages.
         id_key : str
@@ -510,10 +473,6 @@ class NWBFileSaveConfig:
         return False
 
 
-def _merge_kwargs(defaults, overrides):
-    return {**defaults, **(overrides or {})}
-
-
 def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
     config: NWBFileSaveConfig | None = None,
@@ -601,78 +560,6 @@ def _ds_to_pose_and_skeletons(
     return pose_estimation, skeletons
 
 
-def _ds_to_pose_and_skeleton_objects(
-    ds: xr.Dataset,
-    pose_estimation_series_kwargs: dict | None = None,
-    pose_estimation_kwargs: dict | None = None,
-    skeleton_kwargs: dict | None = None,
-) -> tuple[list[ndx_pose.PoseEstimation], ndx_pose.Skeletons]:
-    """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        A single-individual ``movement`` poses dataset.
-    pose_estimation_series_kwargs : dict, optional
-        ``ndx_pose.PoseEstimationSeries`` keyword arguments. Default is None.
-    pose_estimation_kwargs : dict, optional
-        ``ndx_pose.PoseEstimation`` keyword arguments. Default is None.
-    skeleton_kwargs : dict, optional
-        ``ndx_pose.Skeleton`` keyword arguments. Default is None.
-
-    Returns
-    -------
-    pose_estimation : list[ndx_pose.PoseEstimation]
-        List of PoseEstimation objects
-    skeletons : ndx_pose.Skeletons
-        Skeletons object containing all skeletons
-
-    """
-    # Use default kwargs, but updated with any user-provided kwargs
-    pose_estimation_series_kwargs = _merge_kwargs(
-        DEFAULT_POSE_ESTIMATION_SERIES_KWARGS, pose_estimation_series_kwargs
-    )
-    skeleton_kwargs = skeleton_kwargs or {}
-    individual = ds.individuals.values.item()
-    keypoints = ds.keypoints.values.tolist()
-    pose_estimation_series = []
-    for keypoint in keypoints:
-        pose_estimation_series.append(
-            ndx_pose.PoseEstimationSeries(
-                name=keypoint,
-                data=ds.sel(keypoints=keypoint).position.values,
-                confidence=ds.sel(keypoints=keypoint).confidence.values,
-                timestamps=ds.sel(keypoints=keypoint).time.values,
-                **pose_estimation_series_kwargs,
-            )
-        )
-    skeleton_list = [
-        ndx_pose.Skeleton(
-            name=f"{individual}_skeleton",
-            nodes=skeleton_kwargs.pop("nodes", keypoints),
-            **skeleton_kwargs,
-        )
-    ]
-    # Group all PoseEstimationSeries into a PoseEstimation object
-    bodyparts_str = ", ".join(keypoints)
-    description = (
-        f"Estimated positions of {bodyparts_str} for "
-        f"{individual} using {ds.source_software}."
-    )
-    pose_estimation = [
-        ndx_pose.PoseEstimation(
-            name="PoseEstimation",
-            pose_estimation_series=pose_estimation_series,
-            description=description,
-            source_software=ds.source_software,
-            skeleton=skeleton_list[-1],
-            **(pose_estimation_kwargs or {}),
-        )
-    ]
-    skeletons = ndx_pose.Skeletons(skeletons=skeleton_list)
-    return pose_estimation, skeletons
-
-
 def _write_behavior_processing_module(
     nwb_file: pynwb.file.NWBFile,
     pose_estimation: ndx_pose.PoseEstimation,
@@ -706,15 +593,13 @@ def _write_behavior_processing_module(
             "Data will be added to existing behavior processing module."
         )
         behavior_pm = nwb_file.processing["behavior"]
-
     try:
         behavior_pm.add(skeletons)
-        logger.info("Added Skeletons object to NWB file.")
+        logger.debug("Added Skeletons object to NWB file.")
     except ValueError:
         logger.warning("Skeletons object already exists. Skipping...")
-
     try:
         behavior_pm.add(pose_estimation)
-        logger.info("Added PoseEstimation object to NWB file.")
+        logger.debug("Added PoseEstimation object to NWB file.")
     except ValueError:
         logger.warning("PoseEstimation object already exists. Skipping...")
