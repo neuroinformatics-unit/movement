@@ -582,24 +582,22 @@ def _write_behavior_processing_module(
         Skeletons object containing the skeleton data for an individual.
 
     """
-    try:
+
+    def add_to_behavior(obj, obj_name: str):
+        try:
+            behavior_pm.add(obj)
+            logger.debug(f"Added {obj_name} object to NWB file.")
+        except ValueError:
+            logger.warning(f"{obj_name} object already exists. Skipping...")
+
+    behavior_pm = nwb_file.processing.get("behavior")
+    if behavior_pm is None:
         behavior_pm = nwb_file.create_processing_module(
             name="behavior",
             description="processed behavioral data",
         )
         logger.debug("Created behavior processing module in NWB file.")
-    except ValueError:
-        logger.debug(
-            "Data will be added to existing behavior processing module."
-        )
-        behavior_pm = nwb_file.processing["behavior"]
-    try:
-        behavior_pm.add(skeletons)
-        logger.debug("Added Skeletons object to NWB file.")
-    except ValueError:
-        logger.warning("Skeletons object already exists. Skipping...")
-    try:
-        behavior_pm.add(pose_estimation)
-        logger.debug("Added PoseEstimation object to NWB file.")
-    except ValueError:
-        logger.warning("PoseEstimation object already exists. Skipping...")
+    else:
+        logger.debug("Using existing behavior processing module.")
+    add_to_behavior(skeletons, "Skeletons")
+    add_to_behavior(pose_estimation, "PoseEstimation")
