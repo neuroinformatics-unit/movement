@@ -649,6 +649,72 @@ def test_to_nwb_file_pose_estimation_kwargs(
     assert actual == expected
 
 
+skeleton_kwargs_expectations = {
+    "default_kwargs-single_nwb_file": [
+        {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]}
+    ],
+    "default_kwargs-multiple_nwb_files": [
+        {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]},
+        {"name": "skeleton_id_1", "nodes": ["centroid", "left", "right"]},
+    ],
+    "shared_kwargs-single_nwb_file": [
+        {"name": "skeleton0", "nodes": ["anchor", "left_ear", "right_ear"]}
+    ],
+    "shared_kwargs-multiple_nwb_files": [
+        {"name": "id_0", "nodes": ["anchor", "left_ear", "right_ear"]},
+        {"name": "id_1", "nodes": ["anchor", "left_ear", "right_ear"]},
+    ],
+    "kwargs_per_ind-single_nwb_file": [
+        {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]}
+    ],
+    "kwargs_per_ind-multiple_nwb_files": [
+        {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]},
+        {"name": "skeleton_id_1", "nodes": ["node4", "node5", "node6"]},
+    ],
+}
+
+
+@pytest.mark.parametrize(
+    "selection_fn",
+    [
+        lambda ds: ds.sel(individuals=["id_0"]),
+        lambda ds: ds,
+    ],
+    ids=["single_nwb_file", "multiple_nwb_files"],
+)
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        None,
+        {"name": "skeleton0", "nodes": ["anchor", "left_ear", "right_ear"]},
+        {
+            "id_0": {"nodes": ["node1", "node2", "node3"]},
+            "id_1": {"nodes": ["node4", "node5", "node6"]},
+        },
+    ],
+    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
+)
+def test_to_nwb_file_skeleton_kwargs(
+    selection_fn, kwargs, valid_poses_dataset, request
+):
+    """Test saving single-/multi-individual poses dataset to NWBFile(s)
+    with default or custom ``skeleton_kwargs``.
+    """
+    ds = selection_fn(valid_poses_dataset)
+    test_id = request.node.callspec.id
+    config = nwb.NWBFileSaveConfig(skeleton_kwargs=kwargs)
+    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    expected = skeleton_kwargs_expectations.get(test_id)
+    expected_keys = expected[0].keys()
+    actual = []
+    for exp, nwb_file in zip(expected, nwb_files, strict=True):
+        skeleton = nwb_file.processing["behavior"]["Skeletons"].skeletons[
+            exp["name"]
+        ]
+        actual.append({key: getattr(skeleton, key) for key in expected_keys})
+    assert actual == expected
+
+
 def test_to_nwb_file_invalid_input(
     valid_poses_dataset, initialised_nwb_file_object
 ):
