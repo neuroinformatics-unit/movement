@@ -581,9 +581,6 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
 
 
 # ------------------- tests for layers style ----------------------------#
-@pytest.mark.filterwarnings(
-    "ignore:.*Private attribute access.*:FutureWarning"
-)
 @pytest.mark.parametrize(
     (
         "filename, source_software, "
