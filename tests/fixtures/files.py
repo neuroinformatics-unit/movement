@@ -521,22 +521,7 @@ def nwb_file(nwbfile_object, tmp_path):
 
 
 @pytest.fixture
-def initialised_nwbfile_object():
-    """Return an initialised NWBFile object."""
-
-    def _initialised_nwbfile_object(identifier="subj1"):
-        """Initialise an NWBFile object."""
-        return NWBFile(
-            session_description="session_description",
-            identifier=identifier,
-            session_start_time=datetime.datetime.now(datetime.UTC),
-        )
-
-    return _initialised_nwbfile_object
-
-
-@pytest.fixture
-def nwbfile_object(initialised_nwbfile_object):
+def nwbfile_object():
     """Return an NWBFile object containing poses for
     a single individual with three keypoints and the associated
     skeleton object, as well as a camera device.
@@ -547,7 +532,11 @@ def nwbfile_object(initialised_nwbfile_object):
         ``kwargs`` are passed to ``create_pose_estimation_series``.
         """
         identifier = "subj1"
-        nwb_file_obj = initialised_nwbfile_object(identifier)
+        nwb_file_obj = NWBFile(
+            session_description="session_description",
+            identifier=identifier,
+            session_start_time=datetime.datetime.now(datetime.UTC),
+        )
         subject = Subject(subject_id=identifier, species="Mus musculus")
         nwb_file_obj.subject = subject
         keypoints = ["front_left_paw", "body", "front_right_paw"]

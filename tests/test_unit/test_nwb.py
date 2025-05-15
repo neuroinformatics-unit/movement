@@ -8,7 +8,11 @@ import ndx_pose
 import pytest
 from pynwb.file import Subject
 
-from movement.io.nwb import NWBFileSaveConfig, _ds_to_pose_and_skeletons
+from movement.io.nwb import (
+    NWBFileSaveConfig,
+    _ds_to_pose_and_skeletons,
+    _write_behavior_processing_module,
+)
 
 
 def test_ds_to_pose_and_skeletons(valid_poses_dataset):
@@ -39,6 +43,21 @@ def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
         match=".*must contain only one individual.*",
     ):
         _ds_to_pose_and_skeletons(valid_poses_dataset)
+
+
+def test_write_behavior_processing_module(nwbfile_object, caplog):
+    """Test that writing to an NWBFile with existing behavior
+    processing module, Skeletons, and PoseEstimation will
+    not overwrite them.
+    """
+    _write_behavior_processing_module(
+        nwbfile_object(), ndx_pose.PoseEstimation(), ndx_pose.Skeletons()
+    )
+    assert {
+        "Using existing behavior processing module.",
+        "Skeletons object already exists. Skipping...",
+        "PoseEstimation object already exists. Skipping...",
+    } == set(caplog.messages)
 
 
 NWBFileSaveConfigTestCase = tuple[
