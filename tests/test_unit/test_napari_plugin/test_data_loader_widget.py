@@ -27,6 +27,10 @@ from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
 
 from movement.napari.loader_widgets import DataLoader
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:.*Previous color_by key.*:UserWarning"
+)
+
 
 # ------------------- tests for widget instantiation--------------------------#
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
