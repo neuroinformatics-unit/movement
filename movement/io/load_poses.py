@@ -900,8 +900,8 @@ def from_nwb_file(
     file = ValidNWBFile(file).file
     if isinstance(file, Path):
         with pynwb.NWBHDF5IO(file, mode="r") as io:
-            nwb_file_object = io.read()
-            ds = _ds_from_nwb_object(nwb_file_object, key_name=key_name)
+            nwbfile_object = io.read()
+            ds = _ds_from_nwb_object(nwbfile_object, key_name=key_name)
             ds.attrs["source_file"] = file
     else:  # file is an open NWBFile object
         ds = _ds_from_nwb_object(file, key_name=key_name)
