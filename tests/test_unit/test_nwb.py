@@ -25,8 +25,8 @@ def test_ds_to_pose_and_skeletons(valid_poses_dataset):
         set(valid_poses_dataset.keypoints.values)
         == pose_estimation.pose_estimation_series.keys()
     )
-    assert {"id_0_skeleton"} == skeletons.skeletons.keys()
-    assert skeletons.skeletons["id_0_skeleton"].subject.subject_id == "id_0"
+    assert {"skeleton_id_0"} == skeletons.skeletons.keys()
+    assert skeletons.skeletons["skeleton_id_0"].subject.subject_id == "id_0"
 
 
 def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
@@ -365,11 +365,50 @@ class TestNWBFileSaveConfig:
             does_not_raise({"name": "id_not_in_kwargs"}),
         ),
     ]
+    skeleton_kwargs_params: list[NWBFileSaveConfigTestCase] = [
+        (
+            None,
+            None,
+            does_not_raise({"name": "skeleton"}),
+        ),
+        (
+            None,
+            "id_0",
+            does_not_raise({"name": "skeleton_id_0"}),
+        ),
+        ({"name": "id_0"}, None, does_not_raise({"name": "id_0"})),
+        (
+            {"name": "id_0"},
+            "id_1",
+            does_not_raise({"name": "id_1"}),
+        ),
+        (
+            {"id_0": {"name": "id_0"}, "id_1": {"name": "id_1"}},
+            None,
+            pytest.raises(ValueError, match=".*no individual was provided."),
+        ),
+        (
+            {"id_0": {"name": "id_0"}},
+            None,
+            does_not_raise({"name": "id_0"}),
+        ),
+        (
+            {"id_0": {"name": "id_0_skeleton"}},
+            "id_0",
+            does_not_raise({"name": "id_0_skeleton"}),
+        ),
+        (
+            {"id_0": {"name": "id_0"}},
+            "id_not_in_kwargs",
+            does_not_raise({"name": "id_not_in_kwargs"}),
+        ),
+    ]
     ATTR_PARAMS = {
         "nwbfile_kwargs": nwbfile_kwargs_params,
         "subject_kwargs": subject_kwargs_params,
         "pose_estimation_series_kwargs": pose_estimation_series_kwargs_params,
         "pose_estimation_kwargs": pose_estimation_kwargs_params,
+        "skeleton_kwargs": skeleton_kwargs_params,
     }
 
     combined_params = []
