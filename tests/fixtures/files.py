@@ -505,7 +505,7 @@ def via_track_ids_not_unique_per_frame():
 
 # ---------------- NWB file fixtures ----------------------------
 @pytest.fixture
-def nwb_file(nwb_file_object, tmp_path):
+def nwb_file(nwbfile_object, tmp_path):
     """Return the file path for a valid NWB poses file."""
 
     def _nwb_file(**kwargs):
@@ -514,17 +514,17 @@ def nwb_file(nwb_file_object, tmp_path):
         """
         file_path = tmp_path / "test_pose.nwb"
         with NWBHDF5IO(file_path, mode="w") as io:
-            io.write(nwb_file_object(**kwargs))
+            io.write(nwbfile_object(**kwargs))
         return file_path
 
     return _nwb_file
 
 
 @pytest.fixture
-def initialised_nwb_file_object():
+def initialised_nwbfile_object():
     """Return an initialised NWBFile object."""
 
-    def _initialised_nwb_file_object(identifier="subj1"):
+    def _initialised_nwbfile_object(identifier="subj1"):
         """Initialise an NWBFile object."""
         return NWBFile(
             session_description="session_description",
@@ -532,22 +532,22 @@ def initialised_nwb_file_object():
             session_start_time=datetime.datetime.now(datetime.UTC),
         )
 
-    return _initialised_nwb_file_object
+    return _initialised_nwbfile_object
 
 
 @pytest.fixture
-def nwb_file_object(initialised_nwb_file_object):
+def nwbfile_object(initialised_nwbfile_object):
     """Return an NWBFile object containing poses for
     a single individual with three keypoints and the associated
     skeleton object, as well as a camera device.
     """
 
-    def _nwb_file_object(**kwargs):
+    def _nwbfile_object(**kwargs):
         """Create an NWBFile object with poses.
         ``kwargs`` are passed to ``create_pose_estimation_series``.
         """
         identifier = "subj1"
-        nwb_file_obj = initialised_nwb_file_object(identifier)
+        nwb_file_obj = initialised_nwbfile_object(identifier)
         subject = Subject(subject_id=identifier, species="Mus musculus")
         nwb_file_obj.subject = subject
         keypoints = ["front_left_paw", "body", "front_right_paw"]
@@ -593,7 +593,7 @@ def nwb_file_object(initialised_nwb_file_object):
         behavior_pm.add(pose_estimation)
         return nwb_file_obj
 
-    return _nwb_file_object
+    return _nwbfile_object
 
 
 def create_pose_estimation_series(
@@ -601,7 +601,7 @@ def create_pose_estimation_series(
 ):
     """Create a PoseEstimationSeries object for a keypoint,
     providing either ``rate`` and ``starting_time`` or just ``timestamps``.
-    If none of these are provided, default `timestamps` are generated.
+    If none of these are provided, default ``timestamps`` are generated.
     """
     n_frames = 100
     n_dims = 2  # 2D (can also be 3D)

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from pynwb import NWBFile
 from pytest import DATA_PATHS
 
 from movement.io import load_poses, nwb, save_poses
@@ -307,33 +308,21 @@ def test_to_sleap_analysis_file_invalid_dataset(
 
 @pytest.mark.parametrize(
     "selection_fn",
-    [lambda ds: ds.drop_sel(individuals="id_1"), lambda ds: ds],
+    [
+        lambda ds: ds.sel(individuals="id_0"),
+        lambda ds: ds,
+    ],
     ids=["single_nwb_file", "multiple_nwb_files"],
 )
-def test_to_nwb_file_valid_input(
-    selection_fn, valid_poses_dataset, initialised_nwb_file_object
-):
+def test_to_nwb_file_valid_input(selection_fn, valid_poses_dataset):
+    """Test saving single-/multi-individual poses dataset to NWBFile(s)
+    with default configuration.
+    """
     ds = selection_fn(valid_poses_dataset)
-    nwbfiles = (
-        [initialised_nwb_file_object(ind) for ind in ds.individuals.values]
-        if ds.individuals.size > 1
-        else initialised_nwb_file_object()
-    )
-    save_poses.to_nwb_file(ds, nwbfiles)
-    if not isinstance(nwbfiles, list):
-        nwbfiles = [nwbfiles]
-    assert all(
-        [
-            "PoseEstimation" in nwbfile.processing["behavior"].data_interfaces
-            for nwbfile in nwbfiles
-        ]
-    )
-    assert all(
-        [
-            "Skeletons" in nwbfile.processing["behavior"].data_interfaces
-            for nwbfile in nwbfiles
-        ]
-    )
+    nwbfiles = save_poses.to_nwb_file(ds)
+    assert isinstance(nwbfiles, list)
+    assert len(nwbfiles) == ds.individuals.size
+    assert all(isinstance(nwbfile, NWBFile) for nwbfile in nwbfiles)
 
 
 nwb_file_kwargs_expectations = {
@@ -390,7 +379,7 @@ nwb_file_kwargs_expectations = {
     ],
     ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
 )
-def test_to_nwb_file_min_nwbfile_kwargs(
+def test_to_nwb_file_nwbfile_kwargs(
     selection_fn, kwargs, valid_poses_dataset, request
 ):
     """Test saving single-/multi-individual poses dataset to NWBFile(s)
@@ -399,7 +388,7 @@ def test_to_nwb_file_min_nwbfile_kwargs(
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(nwbfile_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    nwb_files = save_poses.to_nwb_file(ds, config)
     actual = [
         (file.session_description, file.identifier) for file in nwb_files
     ]
@@ -494,7 +483,7 @@ def test_to_nwb_file_subject_kwargs(
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(subject_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    nwb_files = save_poses.to_nwb_file(ds, config)
     actual = [file.subject.fields for file in nwb_files]
     expected = subject_kwargs_expectations.get(test_id)
     assert actual == expected
@@ -574,7 +563,7 @@ def test_to_nwb_file_pose_estimation_series_kwargs(
     ds = selection_fn(valid_poses_dataset).isel(individuals=0)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(pose_estimation_series_kwargs=kwargs)
-    nwb_file = save_poses.to_nwb_file_min(ds, config)[0]
+    nwb_file = save_poses.to_nwb_file(ds, config)[0]
     expected = pose_estimation_series_kwargs_expectations.get(test_id)
     expected_keys = expected[0].keys()
     actual = []
@@ -639,7 +628,7 @@ def test_to_nwb_file_pose_estimation_kwargs(
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(pose_estimation_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    nwb_files = save_poses.to_nwb_file(ds, config)
     expected = pose_estimation_kwargs_expectations.get(test_id)
     expected_keys = expected[0].keys()
     actual = []
@@ -703,7 +692,7 @@ def test_to_nwb_file_skeleton_kwargs(
     ds = selection_fn(valid_poses_dataset)
     test_id = request.node.callspec.id
     config = nwb.NWBFileSaveConfig(skeleton_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file_min(ds, config)
+    nwb_files = save_poses.to_nwb_file(ds, config)
     expected = skeleton_kwargs_expectations.get(test_id)
     expected_keys = expected[0].keys()
     actual = []
@@ -713,15 +702,6 @@ def test_to_nwb_file_skeleton_kwargs(
         ]
         actual.append({key: getattr(skeleton, key) for key in expected_keys})
     assert actual == expected
-
-
-def test_to_nwb_file_invalid_input(
-    valid_poses_dataset, initialised_nwb_file_object
-):
-    with pytest.raises(ValueError):
-        save_poses.to_nwb_file(
-            valid_poses_dataset, initialised_nwb_file_object()
-        )
 
 
 def test_remove_unoccupied_tracks(valid_poses_dataset):

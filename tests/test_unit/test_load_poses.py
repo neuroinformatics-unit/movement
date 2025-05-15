@@ -290,7 +290,7 @@ def test_load_from_anipose_file():
 
 
 @pytest.mark.parametrize("kwargs", [{}, {"rate": 10.0, "starting_time": 0.0}])
-@pytest.mark.parametrize("input_type", ["nwb_file", "nwb_file_object"])
+@pytest.mark.parametrize("input_type", ["nwb_file", "nwbfile_object"])
 def test_load_from_nwb_file(input_type, kwargs, request):
     """Test loading poses from an NWB file path or NWBFile object.
     ``kwargs`` determine whether the PoseEstimationSeries in the NWB file
