@@ -650,8 +650,9 @@ def test_add_points_and_tracks_layer_style(
     # Check the color of the markers follows the expected property
     # (we check there are as many unique colors as there are unique
     # values in the expected property)
+    points_layer_colormap_sorted = np.unique(points_layer.face_color, axis=0)
     assert (
-        np.unique(points_layer.face_color, axis=0).shape[0]
+        points_layer_colormap_sorted.shape[0]
         == np.unique(points_layer.properties[expected_color_property]).shape[0]
     )
 
@@ -665,14 +666,15 @@ def test_add_points_and_tracks_layer_style(
     # name
     assert tracks_layer.colormap == points_layer.face_colormap.name
     # values
-    list_colormap_keys = points_layer._face.categorical_colormap.colormap
+    text_colormap_sorted = np.r_[
+        [
+            np.array(v)
+            for v in points_layer.text.color.colormap.colormap.values()
+        ]
+    ]
+    text_colormap_sorted = text_colormap_sorted[
+        text_colormap_sorted[:, 0].argsort()
+    ]
     np.testing.assert_array_equal(
-        [
-            points_layer._face.categorical_colormap.colormap[ky]
-            for ky in list_colormap_keys
-        ],
-        [
-            points_layer.text.color.colormap.colormap[ky]
-            for ky in list_colormap_keys
-        ],
+        points_layer_colormap_sorted, text_colormap_sorted
     )
