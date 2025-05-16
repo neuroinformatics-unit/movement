@@ -894,7 +894,7 @@ def from_nwb_file(
     >>> ds_singles = [
     ...     load_poses.from_nwb_file(f) for f in ["id1.nwb", "id2.nwb"]
     ... ]
-    >>> ds_multi = xr.merge(datasets)
+    >>> ds_multi = xr.merge(ds_singles)
 
     """
     file = ValidNWBFile(file).file
