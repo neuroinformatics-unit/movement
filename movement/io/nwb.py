@@ -518,11 +518,17 @@ def _ds_to_pose_and_skeletons(
     config = config or NWBFileSaveConfig()
     individual = ds.individuals.values.item()
     keypoints = ds.keypoints.values.tolist()
+    # Convert timestamps to seconds if necessary
+    timestamps = (
+        ds.time.values
+        if ds.time_unit == "seconds"
+        else ds.time.values / getattr(ds, "fps", 1.0)
+    )
     pose_estimation_series = [
         ndx_pose.PoseEstimationSeries(
             data=ds.sel(keypoints=keypoint).position.values,
             confidence=ds.sel(keypoints=keypoint).confidence.values,
-            timestamps=ds.time.values,
+            timestamps=timestamps,
             **(
                 config._resolve_pose_estimation_series_kwargs(
                     keypoint, len(keypoints) > 1
