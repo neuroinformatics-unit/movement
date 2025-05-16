@@ -594,6 +594,7 @@ def create_pose_estimation_series(
     """
     n_frames = 100
     n_dims = 2  # 2D (can also be 3D)
+    rng = np.random.default_rng(seed=42)
     if timestamps is not None:
         rate = None
     if timestamps is None and rate is None:
@@ -601,7 +602,7 @@ def create_pose_estimation_series(
     return PoseEstimationSeries(
         name=keypoint,
         description="Marker placed around fingers of front left paw.",
-        data=np.random.rand(n_frames, n_dims),
+        data=rng.random((n_frames, n_dims)),
         unit="pixels",
         reference_frame="(0,0,0) corresponds to ...",
         timestamps=timestamps,
