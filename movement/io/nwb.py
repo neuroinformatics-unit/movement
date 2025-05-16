@@ -14,10 +14,6 @@ from attrs import define, field
 
 from movement.utils.logging import logger
 
-DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
-    reference_frame="(0,0,0) corresponds to ...",
-    unit="pixels",
-)
 ConfigKwargsType = dict[str, Any] | dict[str, dict[str, Any]]
 
 
@@ -270,7 +266,7 @@ class NWBFileSaveConfig:
             if not base:
                 logger.warning(
                     f"'{entity}' not found in {attr_name}; "
-                    f"setting only {id_key} to '{entity}'."
+                    f"setting '{entity}' as {id_key}."
                 )
             base.setdefault(id_key, entity)
         else:  # Shared config
