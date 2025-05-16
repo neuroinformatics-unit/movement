@@ -7,6 +7,7 @@ from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
     LayerStyle,
     PointsStyle,
+    ShapesStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -65,12 +66,27 @@ def default_style_attributes():
             "tail_length": 30,
             "tail_width": 2,
         },
+        # Additional attributes for ShapesStyle
+        ShapesStyle: {
+            "edge_width": 3,
+            "opacity": 1.0,
+            "shape_type": "rectangle",
+            "face_color": "#FFFFFF00",
+            "edge_color": None,
+            "edge_color_cycle": None,
+            "edge_colormap": DEFAULT_COLORMAP,
+            "text": {
+                "visible": False,
+                "anchor": "lower_left",
+                "translation": 5,
+            },
+        },
     }
 
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle],
+    [LayerStyle, PointsStyle, TracksStyle, ShapesStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -230,3 +246,98 @@ def test_tracks_style_color_by(
         assert tracks_style.colormap == default_tracks_style["colormap"]
     else:
         assert tracks_style.colormap == set_color_by_kwargs["cmap"]
+
+
+@pytest.mark.parametrize(
+    "property, expected_n_colors",
+    [
+        ("category", 3),
+        ("value", 5),
+    ],
+)
+@pytest.mark.parametrize(
+    "shapes_style_text_dict",
+    [
+        "default",
+        "with_color_key",
+    ],
+)
+def test_shapes_style_set_color_by(
+    sample_layer_style,
+    sample_properties,
+    shapes_style_text_dict,
+    property,
+    expected_n_colors,
+):
+    """Test that set_color_by updates the color and color cycle of
+    the point markers and the text.
+    """
+    # Create a shapes style object with predefined properties
+    shapes_style = sample_layer_style(ShapesStyle)
+
+    # Add a color key to the text dictionary if required
+    if shapes_style_text_dict == "with_color_key":
+        shapes_style.text = {"color": {"fallback": "white"}}
+
+    # Color markers and text by the property "prop"
+    shapes_style.set_color_by(
+        property=property,
+        properties_df=sample_properties,
+    )
+
+    # Check that the markers and the text color follow "prop"
+    assert shapes_style.edge_color == property
+    assert "color" in shapes_style.text
+    assert shapes_style.text["color"]["feature"] == property
+
+    # Check the color cycle
+    color_cycle = _sample_colormap(
+        len(sample_properties[property].unique()),
+        cmap_name=DEFAULT_COLORMAP,
+    )
+    assert shapes_style.edge_color_cycle == color_cycle
+    assert shapes_style.text["color"]["colormap"] == color_cycle
+
+    # Check number of colors is as expected
+    assert len(shapes_style.edge_color_cycle) == expected_n_colors
+    assert len(shapes_style.text["color"]["colormap"]) == expected_n_colors
+
+    # Check that all colors are tuples of length 4 (RGBA)
+    assert all(
+        isinstance(c, tuple) and len(c) == 4
+        for c in shapes_style.edge_color_cycle
+    )
+
+
+@pytest.mark.parametrize(
+    "property",
+    [
+        "category",
+        "value",
+    ],
+)
+def test_shapes_style_set_text_by(
+    property, sample_layer_style, default_style_attributes
+):
+    """Test that set_text_by updates the text property of the shapes layer."""
+    # Create a shapes style object with predefined properties
+    shapes_style = sample_layer_style(ShapesStyle)
+
+    # Get the default attributes
+    default_shapes_style = default_style_attributes[ShapesStyle]
+
+    # Check there is no text set
+    assert (
+        "string" not in shapes_style.text
+        or shapes_style.text["string"] != property
+    )
+
+    # Set text by the property "category"
+    shapes_style.set_text_by(property=property)
+
+    # Check that the text properties are as expected
+    assert shapes_style.text["string"] == property
+    assert all(
+        shapes_style.text[attr] == default_shapes_style["text"][attr]
+        for attr in default_shapes_style["text"]
+    )

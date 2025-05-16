@@ -214,13 +214,16 @@ class DataLoader(QWidget):
             self.bboxes_checkbox.isChecked()
             and self.source_software in SUPPORTED_BBOXES_FILES
         ):
-            self.shapes, self.shapes_properties = ds_to_napari_shapes(ds)
+            self.shapes = ds_to_napari_shapes(ds)
         if (
             self.bboxes_checkbox.isChecked()
             and self.source_software not in SUPPORTED_BBOXES_FILES
         ):
             self.shapes = None
             show_warning(f"{self.source_software} to bboxes not supported.")
+
+            # Also warn via logger for integration with tests.
+            logger.warning(f"{self.source_software} to bboxes not supported.")
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)

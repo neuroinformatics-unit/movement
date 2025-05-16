@@ -131,7 +131,7 @@ class ShapesStyle(LayerStyle):
     face_color: str = "#FFFFFF00"  # transparent face
     edge_color: str | None = None
     edge_color_cycle: list[tuple] | None = None
-    edge_colormap: str = "turbo"
+    edge_colormap: str = DEFAULT_COLORMAP
     text: dict = field(
         default_factory=lambda: {
             "visible": False,
