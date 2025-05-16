@@ -420,7 +420,7 @@ def to_nwb_file(
     ...     nwbfile_kwargs={"session_description": "test session"},
     ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},
     ... )
-    >>> nwb_files = to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
 
     Create NWBFiles with different :class:`pynwb.file.NWBFile`
     and :class:`pynwb.file.Subject` metadata for each individual
@@ -442,7 +442,22 @@ def to_nwb_file(
     ...         "individual2": {"age": "P91D", "sex": "F"},
     ...     },
     ... )
-    >>> nwb_files = to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+
+    Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``
+    metadata for different keypoints (e.g. ``leftear``, ``rightear``):
+
+    >>> config = NWBFileSaveConfig(
+    ...     pose_estimation_series_kwargs={
+    ...         "leftear": {
+    ...             "description": "left ear",
+    ...         },
+    ...         "rightear": {
+    ...             "description": "right ear",
+    ...         },
+    ...     },
+    ... )
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
 
     See Also
     --------
