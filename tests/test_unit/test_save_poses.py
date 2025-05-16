@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from pynwb import NWBFile
 from pytest import DATA_PATHS
 
 from movement.io import load_poses, nwb, save_poses
@@ -306,67 +305,34 @@ def test_to_sleap_analysis_file_invalid_dataset(
         )
 
 
-@pytest.mark.parametrize(
-    "selection_fn",
-    [
-        lambda ds: ds.sel(individuals="id_0"),
-        lambda ds: ds,
-    ],
-    ids=["single_nwb_file", "multiple_nwb_files"],
-)
-def test_to_nwb_file_valid_input(selection_fn, valid_poses_dataset):
-    """Test saving single-/multi-individual poses dataset to NWBFile(s)
-    with default configuration.
+@pytest.fixture
+def shared_nwb_config():
+    """Fixture to provide a shared NWBFileSaveConfig."""
+    return nwb.NWBFileSaveConfig(
+        nwbfile_kwargs={
+            "session_description": "test session",
+            "identifier": "subj0",
+        },
+        subject_kwargs={"age": "P90D", "subject_id": "subj0"},
+        pose_estimation_series_kwargs={
+            "reference_frame": "(0,0) is ...",
+            "name": "anchor",
+        },
+        pose_estimation_kwargs={"name": "subj0", "source_software": "other"},
+        skeleton_kwargs={
+            "name": "skeleton0",
+            "nodes": ["anchor", "left_ear", "right_ear"],
+        },
+    )
+
+
+@pytest.fixture
+def per_entity_nwb_config():
+    """Fixture to provide a per-entity (individual and keypoint)
+    NWBFileSaveConfig.
     """
-    ds = selection_fn(valid_poses_dataset)
-    nwbfiles = save_poses.to_nwb_file(ds)
-    assert isinstance(nwbfiles, list)
-    assert len(nwbfiles) == ds.individuals.size
-    assert all(isinstance(nwbfile, NWBFile) for nwbfile in nwbfiles)
-
-
-nwb_file_kwargs_expectations = {
-    "default_kwargs-single_nwb_file": {
-        "session_description": "not set",
-        "identifier": ["id_0"],
-    },
-    "default_kwargs-multiple_nwb_files": {
-        "session_description": "not set",
-        "identifier": ["id_0", "id_1"],
-    },
-    "shared_kwargs-single_nwb_file": {
-        "session_description": "test session",
-        "identifier": ["subj0"],
-    },
-    "shared_kwargs-multiple_nwb_files": {
-        "session_description": "test session",
-        "identifier": ["id_0", "id_1"],
-    },
-    "kwargs_per_ind-single_nwb_file": {
-        "session_description": "test session",
-        "identifier": ["subj0"],
-    },
-    "kwargs_per_ind-multiple_nwb_files": {
-        "session_description": "test session",
-        "identifier": ["subj0", "subj1"],
-    },
-}
-
-
-@pytest.mark.parametrize(
-    "selection_fn",
-    [
-        lambda ds: ds.sel(individuals="id_0"),
-        lambda ds: ds,
-    ],
-    ids=["single_nwb_file", "multiple_nwb_files"],
-)
-@pytest.mark.parametrize(
-    "kwargs",
-    [
-        None,
-        {"session_description": "test session", "identifier": "subj0"},
-        {
+    return nwb.NWBFileSaveConfig(
+        nwbfile_kwargs={
             "id_0": {
                 "session_description": "test session",
                 "identifier": "subj0",
@@ -376,81 +342,116 @@ nwb_file_kwargs_expectations = {
                 "identifier": "subj1",
             },
         },
-    ],
-    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
-)
-def test_to_nwb_file_nwbfile_kwargs(
-    selection_fn, kwargs, valid_poses_dataset, request
-):
-    """Test saving single-/multi-individual poses dataset to NWBFile(s)
-    with default or custom ``nwbfile_kwargs``.
-    """
-    ds = selection_fn(valid_poses_dataset)
-    test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(nwbfile_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file(ds, config)
-    actual = [
-        (file.session_description, file.identifier) for file in nwb_files
-    ]
-    expected = nwb_file_kwargs_expectations.get(test_id)
-    expected = [
-        (expected["session_description"], id) for id in expected["identifier"]
-    ]
-    assert actual == expected
+        subject_kwargs={
+            "id_0": {"age": "P90D", "subject_id": "subj0"},
+            "id_1": {"age": "P91D", "subject_id": "subj1"},
+        },
+        pose_estimation_series_kwargs={
+            "centroid": {"name": "anchor"},
+            "left": {"name": "left_ear"},
+        },
+        pose_estimation_kwargs={
+            "id_0": {"name": "subj0", "source_software": "other0"},
+            "id_1": {"name": "subj1", "source_software": "other1"},
+        },
+        skeleton_kwargs={
+            "id_0": {"nodes": ["node1", "node2", "node3"]},
+            "id_1": {"nodes": ["node4", "node5", "node6"]},
+        },
+    )
 
 
-subject_kwargs_expectations = {
-    "default_kwargs-single_nwb_file": [
-        {"age__reference": "birth", "subject_id": "id_0"}
-    ],
-    "default_kwargs-multiple_nwb_files": [
-        {
-            "age__reference": "birth",
-            "subject_id": "id_0",
-        },
-        {
-            "age__reference": "birth",
-            "subject_id": "id_1",
-        },
-    ],
-    "shared_kwargs-single_nwb_file": [
-        {
-            "age__reference": "birth",
-            "age": "P90D",
-            "subject_id": "subj0",
-        }
-    ],
-    "shared_kwargs-multiple_nwb_files": [
-        {
-            "age__reference": "birth",
-            "age": "P90D",
-            "subject_id": "id_0",
-        },
-        {
-            "age__reference": "birth",
-            "age": "P90D",
-            "subject_id": "id_1",
-        },
-    ],
-    "kwargs_per_ind-single_nwb_file": [
-        {
-            "age__reference": "birth",
-            "age": "P90D",
-            "subject_id": "subj0",
-        }
-    ],
-    "kwargs_per_ind-multiple_nwb_files": [
-        {
-            "age__reference": "birth",
-            "age": "P90D",
-            "subject_id": "subj0",
-        },
-        {
-            "age__reference": "birth",
-            "age": "P91D",
-            "subject_id": "subj1",
-        },
-    ],
+nwb_file_expectations_ind = {
+    "default_kwargs-single_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "not set", "identifier": "id_0"}
+        ],
+        "subject_kwargs": [{"subject_id": "id_0"}],
+        "pose_estimation_kwargs": [
+            {"name": "PoseEstimation", "source_software": "test"}
+        ],
+        "skeleton_kwargs": [
+            {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]}
+        ],
+    },
+    "default_kwargs-multi_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "not set", "identifier": "id_0"},
+            {"session_description": "not set", "identifier": "id_1"},
+        ],
+        "subject_kwargs": [
+            {"subject_id": "id_0"},
+            {"subject_id": "id_1"},
+        ],
+        "pose_estimation_kwargs": [
+            {"name": "PoseEstimation", "source_software": "test"},
+            {"name": "PoseEstimation", "source_software": "test"},
+        ],
+        "skeleton_kwargs": [
+            {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]},
+            {"name": "skeleton_id_1", "nodes": ["centroid", "left", "right"]},
+        ],
+    },
+    "shared_kwargs-single_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "test session", "identifier": "subj0"}
+        ],
+        "subject_kwargs": [{"age": "P90D", "subject_id": "subj0"}],
+        "pose_estimation_kwargs": [
+            {"name": "subj0", "source_software": "other"}
+        ],
+        "skeleton_kwargs": [
+            {"name": "skeleton0", "nodes": ["anchor", "left_ear", "right_ear"]}
+        ],
+    },
+    "shared_kwargs-multi_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "test session", "identifier": "id_0"},
+            {"session_description": "test session", "identifier": "id_1"},
+        ],
+        "subject_kwargs": [
+            {"age": "P90D", "subject_id": "id_0"},
+            {"age": "P90D", "subject_id": "id_1"},
+        ],
+        "pose_estimation_kwargs": [
+            {"name": "id_0", "source_software": "other"},
+            {"name": "id_1", "source_software": "other"},
+        ],
+        "skeleton_kwargs": [
+            {"name": "id_0", "nodes": ["anchor", "left_ear", "right_ear"]},
+            {"name": "id_1", "nodes": ["anchor", "left_ear", "right_ear"]},
+        ],
+    },
+    "custom_kwargs-single_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "test session", "identifier": "subj0"}
+        ],
+        "subject_kwargs": [{"age": "P90D", "subject_id": "subj0"}],
+        "pose_estimation_kwargs": [
+            {"name": "subj0", "source_software": "other0"}
+        ],
+        "skeleton_kwargs": [
+            {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]}
+        ],
+    },
+    "custom_kwargs-multi_ind": {
+        "nwbfile_kwargs": [
+            {"session_description": "test session", "identifier": "subj0"},
+            {"session_description": "test session", "identifier": "subj1"},
+        ],
+        "subject_kwargs": [
+            {"age": "P90D", "subject_id": "subj0"},
+            {"age": "P91D", "subject_id": "subj1"},
+        ],
+        "pose_estimation_kwargs": [
+            {"name": "subj0", "source_software": "other0"},
+            {"name": "subj1", "source_software": "other1"},
+        ],
+        "skeleton_kwargs": [
+            {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]},
+            {"name": "skeleton_id_1", "nodes": ["node4", "node5", "node6"]},
+        ],
+    },
 }
 
 
@@ -460,76 +461,128 @@ subject_kwargs_expectations = {
         lambda ds: ds.sel(individuals="id_0"),
         lambda ds: ds,
     ],
-    ids=["single_nwb_file", "multiple_nwb_files"],
+    ids=["single_ind", "multi_ind"],
 )
 @pytest.mark.parametrize(
-    "kwargs",
-    [
-        None,
-        {"age": "P90D", "subject_id": "subj0"},
-        {
-            "id_0": {"age": "P90D", "subject_id": "subj0"},
-            "id_1": {"age": "P91D", "subject_id": "subj1"},
-        },
-    ],
-    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
+    "config",
+    [None, "shared_nwb_config", "per_entity_nwb_config"],
+    ids=["default_kwargs", "shared_kwargs", "custom_kwargs"],
 )
-def test_to_nwb_file_subject_kwargs(
-    selection_fn, kwargs, valid_poses_dataset, request
+def test_to_nwb_file_with_single_or_multi_ind_ds(
+    selection_fn, config, valid_poses_dataset, request
 ):
-    """Test saving single-/multi-individual poses dataset to NWBFile(s)
-    with default or custom ``subject_kwargs``.
+    """Test that saving single-/multi-individual poses dataset to NWBFile(s)
+    with various configurations correctly sets the per-individual
+    NWBFile, Subject, PoseEstimation, and Skeleton attributes.
     """
     ds = selection_fn(valid_poses_dataset)
+    config = request.getfixturevalue(config) if config else config
     test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(subject_kwargs=kwargs)
     nwb_files = save_poses.to_nwb_file(ds, config)
-    actual = [file.subject.fields for file in nwb_files]
-    expected = subject_kwargs_expectations.get(test_id)
-    assert actual == expected
+    actual_nwbfile_kwargs = []
+    actual_subject_kwargs = []
+    actual_pose_estimation_kwargs = []
+    actual_skeleton_kwargs = []
+    expected_nwbfile_kwargs = nwb_file_expectations_ind.get(test_id).get(
+        "nwbfile_kwargs"
+    )
+    expected_subject_kwargs = nwb_file_expectations_ind.get(test_id).get(
+        "subject_kwargs"
+    )
+    expected_pose_estimation_kwargs = nwb_file_expectations_ind.get(
+        test_id
+    ).get("pose_estimation_kwargs")
+    expected_skeleton_kwargs = nwb_file_expectations_ind.get(test_id).get(
+        "skeleton_kwargs"
+    )
+    for expected_skeleton, expected_pe, nwb_file in zip(
+        expected_skeleton_kwargs,
+        expected_pose_estimation_kwargs,
+        nwb_files,
+        strict=True,
+    ):
+        pe = nwb_file.processing["behavior"][expected_pe["name"]]
+        skeleton = nwb_file.processing["behavior"]["Skeletons"][
+            expected_skeleton["name"]
+        ]
+        actual_nwbfile_kwargs.append(
+            {key: getattr(nwb_file, key) for key in expected_nwbfile_kwargs[0]}
+        )
+        actual_subject_kwargs.append(
+            {
+                key: getattr(nwb_file.subject, key)
+                for key in expected_subject_kwargs[0]
+            }
+        )
+        actual_pose_estimation_kwargs.append(
+            {
+                key: getattr(pe, key)
+                for key in expected_pose_estimation_kwargs[0]
+            }
+        )
+        actual_skeleton_kwargs.append(
+            {
+                key: getattr(skeleton, key)
+                for key in expected_skeleton_kwargs[0]
+            }
+        )
+    assert actual_nwbfile_kwargs == expected_nwbfile_kwargs
+    assert actual_subject_kwargs == expected_subject_kwargs
+    assert actual_pose_estimation_kwargs == expected_pose_estimation_kwargs
+    assert actual_skeleton_kwargs == expected_skeleton_kwargs
 
 
-pose_estimation_series_kwargs_expectations = {
-    "default_kwargs-single_keypoint": [
-        {
-            "reference_frame": "(0,0,0) corresponds to ...",
-            "unit": "pixels",
-            "name": "centroid",
-        },
-    ],
-    "default_kwargs-multiple_keypoints": [
-        {
-            "reference_frame": "(0,0,0) corresponds to ...",
-            "unit": "pixels",
-            "name": "centroid",
-        },
-        {
-            "reference_frame": "(0,0,0) corresponds to ...",
-            "unit": "pixels",
-            "name": "left",
-        },
-        {
-            "reference_frame": "(0,0,0) corresponds to ...",
-            "unit": "pixels",
-            "name": "right",
-        },
-    ],
-    "shared_kwargs-single_keypoint": [
-        {"reference_frame": "(0,0) is ...", "name": "anchor"}
-    ],
-    "shared_kwargs-multiple_keypoints": [
-        {"reference_frame": "(0,0) is ...", "name": "centroid"},
-        {"reference_frame": "(0,0) is ...", "name": "left"},
-        {"reference_frame": "(0,0) is ...", "name": "right"},
-    ],
-    "kwargs_per_keypoint-single_keypoint": [
-        {"name": "anchor"},
-    ],
-    "kwargs_per_keypoint-multiple_keypoints": [
-        {"name": "anchor"},
-        {"name": "left_ear"},
-        {"name": "right"},
-    ],
+nwb_file_expectations_keypoint = {
+    "default_kwargs-single_keypoint": {
+        "pose_estimation_series_kwargs": [
+            {
+                "reference_frame": "(0,0,0) corresponds to ...",
+                "unit": "pixels",
+                "name": "centroid",
+            },
+        ],
+    },
+    "default_kwargs-multi_keypoint": {
+        "pose_estimation_series_kwargs": [
+            {
+                "reference_frame": "(0,0,0) corresponds to ...",
+                "unit": "pixels",
+                "name": "centroid",
+            },
+            {
+                "reference_frame": "(0,0,0) corresponds to ...",
+                "unit": "pixels",
+                "name": "left",
+            },
+            {
+                "reference_frame": "(0,0,0) corresponds to ...",
+                "unit": "pixels",
+                "name": "right",
+            },
+        ],
+    },
+    "shared_kwargs-single_keypoint": {
+        "pose_estimation_series_kwargs": [
+            {"reference_frame": "(0,0) is ...", "name": "anchor"}
+        ],
+    },
+    "shared_kwargs-multi_keypoint": {
+        "pose_estimation_series_kwargs": [
+            {"reference_frame": "(0,0) is ...", "name": "centroid"},
+            {"reference_frame": "(0,0) is ...", "name": "left"},
+            {"reference_frame": "(0,0) is ...", "name": "right"},
+        ],
+    },
+    "custom_kwargs-single_keypoint": {
+        "pose_estimation_series_kwargs": [{"name": "anchor"}],
+    },
+    "custom_kwargs-multi_keypoint": {
+        "pose_estimation_series_kwargs": [
+            {"name": "anchor"},
+            {"name": "left_ear"},
+            {"name": "right"},
+        ],
+    },
 }
 
 
@@ -539,169 +592,39 @@ pose_estimation_series_kwargs_expectations = {
         lambda ds: ds.sel(keypoints=["centroid"]),
         lambda ds: ds,
     ],
-    ids=["single_keypoint", "multiple_keypoints"],
+    ids=["single_keypoint", "multi_keypoint"],
 )
 @pytest.mark.parametrize(
-    "kwargs",
-    [
-        None,
-        {"reference_frame": "(0,0) is ...", "name": "anchor"},
-        {
-            "centroid": {"name": "anchor"},
-            "left": {"name": "left_ear"},
-        },
-    ],
-    ids=["default_kwargs", "shared_kwargs", "kwargs_per_keypoint"],
+    "config",
+    [None, "shared_nwb_config", "per_entity_nwb_config"],
+    ids=["default_kwargs", "shared_kwargs", "custom_kwargs"],
 )
-def test_to_nwb_file_pose_estimation_series_kwargs(
-    selection_fn, kwargs, valid_poses_dataset, request
+def test_to_nwb_file_with_single_or_multi_keypoint_ds(
+    selection_fn, config, valid_poses_dataset, request
 ):
-    """Test saving single-/multi-keypoint poses dataset to NWBFile(s)
-    with default or custom ``pose_estimation_series_kwargs``.
+    """Test saving single-/multi-keypoint poses dataset to NWBFile(s) with
+    various configurations correctly sets the per-keypoint PoseEstimationSeries
+    attributes.
     """
     # Use single-individual dataset for simplicity
     ds = selection_fn(valid_poses_dataset).isel(individuals=0)
     test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(pose_estimation_series_kwargs=kwargs)
+    config = request.getfixturevalue(config) if config else config
     nwb_file = save_poses.to_nwb_file(ds, config)[0]
-    expected = pose_estimation_series_kwargs_expectations.get(test_id)
-    expected_keys = expected[0].keys()
-    actual = []
+    pose_estimation_name = (
+        "PoseEstimation" if "default" in test_id else "subj0"
+    )
+    expected_pes_kwargs = nwb_file_expectations_keypoint.get(test_id).get(
+        "pose_estimation_series_kwargs"
+    )
+    actual_pes_kwargs = []
     for pes in nwb_file.processing["behavior"][
-        "PoseEstimation"
+        pose_estimation_name
     ].pose_estimation_series.values():
-        actual.append({key: getattr(pes, key) for key in expected_keys})
-    assert actual == expected
-
-
-pose_estimation_kwargs_expectations = {
-    "default_kwargs-single_nwb_file": [
-        {"name": "PoseEstimation", "source_software": "test"}
-    ],
-    "default_kwargs-multiple_nwb_files": [
-        {"name": "PoseEstimation", "source_software": "test"},
-        {"name": "PoseEstimation", "source_software": "test"},
-    ],
-    "shared_kwargs-single_nwb_file": [
-        {"name": "subj0", "source_software": "other"}
-    ],
-    "shared_kwargs-multiple_nwb_files": [
-        {"name": "id_0", "source_software": "other"},
-        {"name": "id_1", "source_software": "other"},
-    ],
-    "kwargs_per_ind-single_nwb_file": [
-        {"name": "subj0", "source_software": "other0"}
-    ],
-    "kwargs_per_ind-multiple_nwb_files": [
-        {"name": "subj0", "source_software": "other0"},
-        {"name": "subj1", "source_software": "other1"},
-    ],
-}
-
-
-@pytest.mark.parametrize(
-    "selection_fn",
-    [
-        lambda ds: ds.sel(individuals=["id_0"]),
-        lambda ds: ds,
-    ],
-    ids=["single_nwb_file", "multiple_nwb_files"],
-)
-@pytest.mark.parametrize(
-    "kwargs",
-    [
-        None,
-        {"name": "subj0", "source_software": "other"},
-        {
-            "id_0": {"name": "subj0", "source_software": "other0"},
-            "id_1": {"name": "subj1", "source_software": "other1"},
-        },
-    ],
-    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
-)
-def test_to_nwb_file_pose_estimation_kwargs(
-    selection_fn, kwargs, valid_poses_dataset, request
-):
-    """Test saving single-/multi-individual poses dataset to NWBFile(s)
-    with default or custom ``pose_estimation_kwargs``.
-    """
-    ds = selection_fn(valid_poses_dataset)
-    test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(pose_estimation_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file(ds, config)
-    expected = pose_estimation_kwargs_expectations.get(test_id)
-    expected_keys = expected[0].keys()
-    actual = []
-    for exp, nwb_file in zip(expected, nwb_files, strict=True):
-        pe = nwb_file.processing["behavior"][exp["name"]]
-        actual.append({key: getattr(pe, key) for key in expected_keys})
-    assert actual == expected
-
-
-skeleton_kwargs_expectations = {
-    "default_kwargs-single_nwb_file": [
-        {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]}
-    ],
-    "default_kwargs-multiple_nwb_files": [
-        {"name": "skeleton_id_0", "nodes": ["centroid", "left", "right"]},
-        {"name": "skeleton_id_1", "nodes": ["centroid", "left", "right"]},
-    ],
-    "shared_kwargs-single_nwb_file": [
-        {"name": "skeleton0", "nodes": ["anchor", "left_ear", "right_ear"]}
-    ],
-    "shared_kwargs-multiple_nwb_files": [
-        {"name": "id_0", "nodes": ["anchor", "left_ear", "right_ear"]},
-        {"name": "id_1", "nodes": ["anchor", "left_ear", "right_ear"]},
-    ],
-    "kwargs_per_ind-single_nwb_file": [
-        {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]}
-    ],
-    "kwargs_per_ind-multiple_nwb_files": [
-        {"name": "skeleton_id_0", "nodes": ["node1", "node2", "node3"]},
-        {"name": "skeleton_id_1", "nodes": ["node4", "node5", "node6"]},
-    ],
-}
-
-
-@pytest.mark.parametrize(
-    "selection_fn",
-    [
-        lambda ds: ds.sel(individuals=["id_0"]),
-        lambda ds: ds,
-    ],
-    ids=["single_nwb_file", "multiple_nwb_files"],
-)
-@pytest.mark.parametrize(
-    "kwargs",
-    [
-        None,
-        {"name": "skeleton0", "nodes": ["anchor", "left_ear", "right_ear"]},
-        {
-            "id_0": {"nodes": ["node1", "node2", "node3"]},
-            "id_1": {"nodes": ["node4", "node5", "node6"]},
-        },
-    ],
-    ids=["default_kwargs", "shared_kwargs", "kwargs_per_ind"],
-)
-def test_to_nwb_file_skeleton_kwargs(
-    selection_fn, kwargs, valid_poses_dataset, request
-):
-    """Test saving single-/multi-individual poses dataset to NWBFile(s)
-    with default or custom ``skeleton_kwargs``.
-    """
-    ds = selection_fn(valid_poses_dataset)
-    test_id = request.node.callspec.id
-    config = nwb.NWBFileSaveConfig(skeleton_kwargs=kwargs)
-    nwb_files = save_poses.to_nwb_file(ds, config)
-    expected = skeleton_kwargs_expectations.get(test_id)
-    expected_keys = expected[0].keys()
-    actual = []
-    for exp, nwb_file in zip(expected, nwb_files, strict=True):
-        skeleton = nwb_file.processing["behavior"]["Skeletons"].skeletons[
-            exp["name"]
-        ]
-        actual.append({key: getattr(skeleton, key) for key in expected_keys})
-    assert actual == expected
+        actual_pes_kwargs.append(
+            {key: getattr(pes, key) for key in expected_pes_kwargs[0]}
+        )
+    assert actual_pes_kwargs == expected_pes_kwargs
 
 
 def test_remove_unoccupied_tracks(valid_poses_dataset):
