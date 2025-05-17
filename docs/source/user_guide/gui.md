@@ -252,15 +252,17 @@ The shapes layer allows us to visualize the bounding boxes of data for the curre
 
 ![napari widget with shapes loaded](../_static/napari_shapes_layer.png)
 
-Bounding boxes are represented as rectangles color-coded by individual.
+Bounding boxes are represented as rectangles color-coded by individual. Bounding boxes are always labeled and coloured by individual, even for data with keypoints.
 
-Similarly to points, with the [shapes layer](napari:howtos/layers/points.html) selected if we enable the `display text` checkbox from the layer controls panel the individual name will be displayed in the lower left of the bounding box.
+With the [shapes layer](napari:howtos/layers/shapes.html) selected, if we enable the `display text` checkbox from the layer controls panel the individual name will be displayed in the lower left of the bounding box.
+
+As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the points, tracks, bounding boxes, and video (if loaded) in sync.
 
 :::{admonition} Bounding boxes and [supported formats](target-supported-formats)
 :class: warning
 
 Currently, `movement`'s GUI only supports rendering a VGG Image Annotation dataset (VIA-tracks) as a shapes layer.
-However, we are currently working on solutions for rendering our [supported poses formats](target-supported-formats) as shapes layers as well.
+However, we are currently working on solutions for rendering our [supported poses formats](target-supported-formats) as bounding boxes/shapes layers as well.
 
 :::
 
