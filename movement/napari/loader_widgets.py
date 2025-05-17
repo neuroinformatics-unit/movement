@@ -318,7 +318,6 @@ class DataLoader(QWidget):
         shapes_style = ShapesStyle(
             name=f"shapes: {self.file_name}",
         )
-        shapes_style.set_text_by(property=self.text_property)
         shapes_style.set_color_by(
             property=self.color_property_factorized,
             properties_df=self.properties.iloc[self.data_not_nan, :],

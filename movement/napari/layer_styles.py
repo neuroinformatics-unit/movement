@@ -139,6 +139,7 @@ class ShapesStyle(LayerStyle):
             # it actually displays the text in the lower
             # _right_ corner of the marker
             "translation": 5,  # pixels
+            "string": "individual",
         }
     )
 
@@ -177,17 +178,6 @@ class ShapesStyle(LayerStyle):
         # Set color cycle for points and text
         self.edge_color_cycle = color_cycle
         self.text["color"].update({"colormap": color_cycle})
-
-    def set_text_by(self, property: str) -> None:
-        """Set the text property for the shapes layer.
-
-        Parameters
-        ----------
-        property : str
-            The column name in the properties DataFrame to use for text.
-
-        """
-        self.text["string"] = property
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:

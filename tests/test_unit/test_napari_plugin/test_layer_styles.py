@@ -79,6 +79,7 @@ def default_style_attributes():
                 "visible": False,
                 "anchor": "lower_left",
                 "translation": 5,
+                "string": "individual",
             },
         },
     }
@@ -306,38 +307,4 @@ def test_shapes_style_set_color_by(
     assert all(
         isinstance(c, tuple) and len(c) == 4
         for c in shapes_style.edge_color_cycle
-    )
-
-
-@pytest.mark.parametrize(
-    "property",
-    [
-        "category",
-        "value",
-    ],
-)
-def test_shapes_style_set_text_by(
-    property, sample_layer_style, default_style_attributes
-):
-    """Test that set_text_by updates the text property of the shapes layer."""
-    # Create a shapes style object with predefined properties
-    shapes_style = sample_layer_style(ShapesStyle)
-
-    # Get the default attributes
-    default_shapes_style = default_style_attributes[ShapesStyle]
-
-    # Check there is no text set
-    assert (
-        "string" not in shapes_style.text
-        or shapes_style.text["string"] != property
-    )
-
-    # Set text by the property "category"
-    shapes_style.set_text_by(property=property)
-
-    # Check that the text properties are as expected
-    assert shapes_style.text["string"] == property
-    assert all(
-        shapes_style.text[attr] == default_shapes_style["text"][attr]
-        for attr in default_shapes_style["text"]
     )
