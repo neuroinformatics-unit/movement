@@ -127,26 +127,25 @@ def valid_poses_path_and_ds_nan_end(
 
 
 @pytest.fixture
-def sample_layer_data():
+def sample_layer_data(rng):
     """Return a dictionary of sample data for each napari layer type."""
     n_frames = 2000
-
-    sample_points_data = np.random.rand(n_frames, 3)
-    sample_image_data = np.random.rand(n_frames, 200, 200)
+    sample_points_data = rng.random((n_frames, 3))
+    sample_image_data = rng.random((n_frames, 200, 200))
     sample_tracks_data = np.hstack(
         (
             np.tile([1, 2, 3, 4], (1, n_frames // 4)).T,
-            np.random.rand(n_frames, 3),
+            rng.random((n_frames, 3)),
         )
     )
-    sample_labels_data = np.random.randint(0, 2, (200, 200))
-    sample_shapes_data = np.random.rand(4, 2)
+    sample_labels_data = rng.integers(0, 2, (200, 200))
+    sample_shapes_data = rng.random((4, 2))
     sample_surface_data = (
-        np.random.rand(4, 2),  # vertices
+        rng.random((4, 2)),  # vertices
         np.array([[0, 1, 2], [1, 2, 3]]),  # faces
         np.linspace(0, 1, 4),  # values
     )
-    sample_vector_data = np.random.rand(100, 2, 2)
+    sample_vector_data = rng.random((100, 2, 2))
 
     return {
         "Points": sample_points_data,

@@ -177,15 +177,13 @@ def update_attribute_column(
 
 
 @pytest.fixture()
-def create_valid_from_numpy_inputs():
+def create_valid_from_numpy_inputs(rng):
     """Define a factory of valid inputs to "from_numpy" function."""
     n_frames = 5
     n_space = 2
     n_individuals = 86
     individual_names_array = np.arange(n_individuals).reshape(-1, 1)
     first_frame_number = 1  # should match sample file
-
-    rng = np.random.default_rng(seed=42)
 
     def _create_valid_from_numpy_inputs(with_frame_array=False):
         """Return a dictionary of valid inputs to the `from_numpy` function."""
