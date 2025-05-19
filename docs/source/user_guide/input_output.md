@@ -97,7 +97,6 @@ ds = load_poses.from_file(
 :::
 
 :::{tab-item} NWB
-
 To load NWB files in .nwb format:
 ```python
 ds = load_poses.from_nwb_file(
@@ -196,8 +195,10 @@ For more information on the bounding boxes data structure, see the [movement dat
 (target-saving-pose-tracks)=
 ## Saving pose tracks
 [movement poses datasets](target-poses-and-bboxes-dataset) can be saved in a variety of
-formats, including DeepLabCut-style files (.h5 or .csv) and
-[SLEAP-style analysis files](sleap:tutorials/analysis) (.h5).
+formats:
+- DeepLabCut-style files (.h5 or .csv)
+- [SLEAP-style analysis files](sleap:tutorials/analysis) (.h5)
+- NWB files (.nwb)
 
 To export pose tracks from `movement`, first import the {mod}`movement.io.save_poses` module:
 
@@ -209,13 +210,22 @@ Then, depending on the desired format, use one of the following functions:
 
 :::::{tab-set}
 
-::::{tab-item} SLEAP
+::::{tab-item} DeepLabCut
+To save as a DeepLabCut file, in .h5 or .csv format:
+```python
+save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
+save_poses.to_dlc_file(ds, "/path/to/file.csv")
+```
+The {func}`movement.io.save_poses.to_dlc_file` function also accepts
+a `split_individuals` boolean argument. If set to `True`, the function will
+save the data as separate single-animal DeepLabCut-style files.
+::::
 
+::::{tab-item} SLEAP
 To save as a SLEAP analysis file in .h5 format:
 ```python
 save_poses.to_sleap_analysis_file(ds, "/path/to/file.h5")
 ```
-
 :::{note}
 When saving to SLEAP-style files, only `track_names`, `node_names`, `tracks`, `track_occupancy`,
 and `point_scores` are saved. `labels_path` will only be saved if the source
@@ -228,22 +238,7 @@ each attribute and data variable represents, see the
 :::
 ::::
 
-::::{tab-item} DeepLabCut
-
-To save as a DeepLabCut file, in .h5 or .csv format:
-```python
-save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
-save_poses.to_dlc_file(ds, "/path/to/file.csv")
-```
-
-The {func}`movement.io.save_poses.to_dlc_file` function also accepts
-a `split_individuals` boolean argument. If set to `True`, the function will
-save the data as separate single-animal DeepLabCut-style files.
-
-::::
-
 ::::{tab-item} LightningPose
-
 To save as a LightningPose file in .csv format:
 ```python
 save_poses.to_lp_file(ds, "/path/to/file.csv")
@@ -255,8 +250,27 @@ DeepLabCut .csv format, the above command is equivalent to:
 save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ```
 :::
-
 ::::
+
+::::{tab-item} NWB
+To convert a `movement` poses dataset to {class}`NWBFile<pynwb.file.NWBFile>` objects:
+```python
+nwb_files = save_poses.to_nwb_file(ds)
+```
+These `NWBFile`s can then be saved to disk as .nwb files using {class}`pynwb.NWBHDF5IO`:
+```python
+from pynwb import NWBHDF5IO
+
+for file in nwb_files:
+    with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
+        io.write(file)
+```
+:::{note}
+To allow adding additional data to NWB files before saving, the {func}`movement.io.save_poses.to_nwb_file` function does not write to disk directly.
+Instead, it returns a list of {class}`NWBFile<pynwb.file.NWBFile>` objects---one per individual in the dataset---since NWB files are designed to represent data from a single individual.
+:::
+::::
+
 :::::
 
 
