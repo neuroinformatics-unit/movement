@@ -278,9 +278,9 @@ def test_path_length_with_nan(
 
 # Regex patterns to match the warning messages
 exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
-include_threshold_100 = r".*The result may be unreliable.*id_0.*right: 10/10.*"
+include_threshold_100 = r".*The result may be unreliable.*right.*id_0.*10/10.*"
 include_threshold_20 = (
-    r".*The result may be unreliable.*id_0.*centroid: 3/10.*right: 10/10.*"
+    r".*The result may be unreliable.*centroid.*right.*id_0.*3/10.*10/10.*"
 )
 
 
