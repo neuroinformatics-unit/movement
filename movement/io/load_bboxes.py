@@ -86,8 +86,9 @@ def from_numpy(
 
     >>> import numpy as np
     >>> from movement.io import load_bboxes
+    >>> rng = np.random.default_rng(seed=42)
     >>> ds = load_bboxes.from_numpy(
-    ...     position_array=np.random.rand(100, 2, 2),
+    ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
     ...     individual_names=["id_0", "id_1"],
@@ -102,7 +103,7 @@ def from_numpy(
     20.033,... 21.65 s.
 
     >>> ds = load_bboxes.from_numpy(
-    ...     position_array=np.random.rand(100, 2, 2),
+    ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
     ...     individual_names=["id_0", "id_1"],
@@ -115,7 +116,7 @@ def from_numpy(
     To do this, we simply omit the ``frame_array`` input argument.
 
     >>> ds = load_bboxes.from_numpy(
-    ...     position_array=np.random.rand(100, 2, 2),
+    ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
     ...     individual_names=["id_0", "id_1"],
@@ -127,7 +128,7 @@ def from_numpy(
     and pass an ``fps`` value.
 
     >>> ds = load_bboxes.from_numpy(
-    ...     position_array=np.random.rand(100, 2, 2),
+    ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
     ...     individual_names=["id_0", "id_1"],

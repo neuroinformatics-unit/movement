@@ -71,8 +71,9 @@ def from_numpy(
 
     >>> import numpy as np
     >>> from movement.io import load_poses
+    >>> rng = np.random.default_rng(seed=42)
     >>> ds = load_poses.from_numpy(
-    ...     position_array=np.random.rand(100, 2, 3, 2),
+    ...     position_array=rng.random((100, 2, 3, 2)),
     ...     confidence_array=np.ones((100, 3, 2)),
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],

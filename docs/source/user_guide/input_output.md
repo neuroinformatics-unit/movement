@@ -109,8 +109,9 @@ with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypo
 ```python
 import numpy as np
 
+rng = np.random.default_rng(seed=42)
 ds = load_poses.from_numpy(
-    position_array=np.random.rand(100, 2, 3, 2),
+    position_array=rng.random((100, 2, 3, 2)),
     confidence_array=np.ones((100, 3, 2)),
     individual_names=["Alice", "Bob"],
     keypoint_names=["snout", "centre", "tail_base"],
@@ -167,8 +168,9 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
 ```python
 import numpy as np
 
+rng = np.random.default_rng(seed=42)
 ds = load_bboxes.from_numpy(
-    position_array=np.random.rand(100, 2, 2),
+    position_array=rng.random((100, 2, 2)),
     shape_array=np.ones((100, 2, 2)) * [40, 30],
     confidence_array=np.ones((100, 2)) * 0.5,
     individual_names=["id_0", "id_1"]
