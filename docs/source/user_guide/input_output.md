@@ -12,6 +12,8 @@ To analyse pose tracks, `movement` supports loading data from various frameworks
 - [LightingPose](lp:) (LP)
 - [Anipose](anipose:) (Anipose)
 
+Additionally, `movement` supports loading data stored in [Neurodata Without Borders (NWB)](https://nwb-overview.readthedocs.io/en/latest/) format (using the [``ndx-pose``](https://github.com/rly/ndx-pose) extension).
+
 To analyse bounding box tracks, `movement` currently supports the [VGG Image Annotator](via:) (VIA) format for [tracks annotation](via:docs/face_track_annotation.html).
 
 :::{note}
@@ -36,8 +38,23 @@ To read a pose tracks file into a [movement poses dataset](target-poses-and-bbox
 
 ::::{tab-set}
 
-:::{tab-item} SLEAP
+:::{tab-item} DeepLabCut
+To load DeepLabCut files in .h5 format:
+```python
+ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
 
+# or equivalently
+ds = load_poses.from_file(
+    "/path/to/file.h5", source_software="DeepLabCut", fps=30
+)
+```
+To load DeepLabCut files in .csv format:
+```python
+ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
+```
+:::
+
+:::{tab-item} SLEAP
 To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
@@ -48,32 +65,12 @@ ds = load_poses.from_file(
 )
 ```
 To load [SLEAP analysis files](sleap:tutorials/analysis) in .slp format (experimental, see notes in {func}`movement.io.load_poses.from_sleap_file`):
-
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 ```
 :::
 
-:::{tab-item} DeepLabCut
-
-To load DeepLabCut files in .h5 format:
-```python
-ds = load_poses.from_dlc_file("/path/to/file.h5", fps=30)
-
-# or equivalently
-ds = load_poses.from_file(
-    "/path/to/file.h5", source_software="DeepLabCut", fps=30
-)
-```
-
-To load DeepLabCut files in .csv format:
-```python
-ds = load_poses.from_dlc_file("/path/to/file.csv", fps=30)
-```
-:::
-
 :::{tab-item} LightningPose
-
 To load LightningPose files in .csv format:
 ```python
 ds = load_poses.from_lp_file("/path/to/file.analysis.csv", fps=30)
@@ -86,26 +83,43 @@ ds = load_poses.from_file(
 :::
 
 :::{tab-item} Anipose
-
 To load Anipose files in .csv format:
 ```python
 ds = load_poses.from_anipose_file(
     "/path/to/file.analysis.csv", fps=30, individual_name="individual_0"
-)  # We can optionally specify the individual name, by default it is "individual_0"
+)  # Optionally specify the individual name; defaults to "individual_0"
 
 # or equivalently
 ds = load_poses.from_file(
     "/path/to/file.analysis.csv", source_software="Anipose", fps=30, individual_name="individual_0"
 )
+```
+:::
 
+:::{tab-item} NWB
+
+To load NWB files in .nwb format:
+```python
+ds = load_poses.from_nwb_file(
+    "path/to/file.nwb", key_name="PoseEstimation"
+)  # Optionally specify the name of the PoseEstimation object; defaults to "PoseEstimation"
+
+# or equivalently
+ds = load_poses.from_file(
+    "path/to/file.nwb", source_software="NWB", key_name="PoseEstimation"
+)
+```
+The above functions also accept an open {class}`NWBFile<pynwb.file.NWBFile>` object as input:
+```python
+with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
+    nwb_file = io.read()
+    ds = load_poses.from_nwb_file(nwb_file, key_name="PoseEstimation")
 ```
 :::
 
 :::{tab-item} From NumPy
-
 In the example below, we create random position data for two individuals, ``Alice`` and ``Bob``,
 with three keypoints each: ``snout``, ``centre``, and ``tail_base``. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
-
 ```python
 import numpy as np
 
@@ -142,7 +156,6 @@ We currently support loading bounding box tracks in the VGG Image Annotator (VIA
 
 ::::{tab-set}
 :::{tab-item} VGG Image Annotator
-
 To load a VIA tracks .csv file:
 ```python
 ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
@@ -154,17 +167,12 @@ ds = load_bboxes.from_file(
     fps=30,
 )
 ```
-
 Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding ``movement`` dataset `ds` will hold in its `position` array the centroid of each bounding box.
-
-
 :::
 
 :::{tab-item} From NumPy
-
 In the example below, we create random position data for two bounding boxes, ``id_0`` and ``id_1``,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.
-
 ```python
 import numpy as np
 
@@ -181,8 +189,6 @@ ds = load_bboxes.from_numpy(
 ::::
 
 The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
-
-
 
 For more information on the bounding boxes data structure, see the [movement dataset](target-poses-and-bboxes-dataset) page.
 
