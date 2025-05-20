@@ -92,15 +92,7 @@ Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.c
 * [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
 * [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
-These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:
-
-```sh
-ruff .
-mypy -p movement
-check-manifest
-codespell
-```
-
+These will prevent code from being committed if any of these hooks fail.
 To run all the hooks before committing:
 
 ```sh
