@@ -521,7 +521,7 @@ def nwb_file(nwbfile_object, tmp_path):
 
 
 @pytest.fixture
-def nwbfile_object():
+def nwbfile_object(rng):
     """Return an NWBFile object containing poses for
     a single individual with three keypoints and the associated
     skeleton object, as well as a camera device.
@@ -555,7 +555,7 @@ def nwbfile_object():
         pose_estimation_series = []
         for keypoint in keypoints:
             pose_estimation_series.append(
-                create_pose_estimation_series(keypoint, **kwargs)
+                create_pose_estimation_series(rng, keypoint, **kwargs)
             )
         pose_estimation = PoseEstimation(
             name="PoseEstimation",
@@ -586,7 +586,7 @@ def nwbfile_object():
 
 
 def create_pose_estimation_series(
-    keypoint, starting_time=None, rate=None, timestamps=None
+    rng, keypoint, starting_time=None, rate=None, timestamps=None
 ):
     """Create a PoseEstimationSeries object for a keypoint,
     providing either ``rate`` and ``starting_time`` or just ``timestamps``.
@@ -594,7 +594,6 @@ def create_pose_estimation_series(
     """
     n_frames = 100
     n_dims = 2  # 2D (can also be 3D)
-    rng = np.random.default_rng(seed=42)
     if timestamps is not None:
         rate = None
     if timestamps is None and rate is None:
