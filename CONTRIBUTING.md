@@ -63,9 +63,11 @@ We recommend, and adhere, to the following conventions:
 - Please submit _draft_ PRs as early as possible to allow for discussion.
 - The PR title should be descriptive e.g. "Add new function to do X" or "Fix bug in Y".
 - The PR description should be used to provide context and motivation for the changes.
-- One approval of a PR (by a repo owner) is enough for it to be merged.
+  - If the PR is solving an issue, please add the issue number to the PR description, e.g. "Fixes #123" or "Closes #123".
+  - Make sure to include cross-links to other relevant issues, PRs and Zulip threads, for context.
+- The maintainers triage PRs and assign suitable reviewers using the GitHub review system.
+- One approval of a PR (by a maintainer) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
-- Ask for a review from someone specific if you think they would be a particularly suited reviewer.
 - PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
