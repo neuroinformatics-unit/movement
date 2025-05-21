@@ -124,15 +124,17 @@ Make sure to provide docstrings for all public functions, classes, and methods.
 This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
-We use [pytest](https://docs.pytest.org/en/latest/) for testing and aim for
-~100% test coverage (as far as is reasonable).
-All new features should be tested.
-Write your test methods and classes in the _tests_ folder.
+We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.
 
-For some tests, you will need to use real experimental data.
-Do not include these data in the repository, especially if they are large.
-We store several sample datasets in an external data repository.
-See [sample data](#sample-data) for more information.
+Tests are stored in the `tests` directory, structured as follows:
+
+- `test_unit/`: Contains unit tests that closely follow the `movement` package structure.
+- `test_integration/`: Includes tests for interactions between different modules.
+- `fixtures/`: Holds reusable test data fixtures, automatically imported via `conftest.py`. Check for existing fixtures before adding new ones, to avoid duplication.
+
+For tests requiring experimental data, you can use [sample data](#sample-data) from our external data repository.
+These datasets are accessible through the `pytest.DATA_PATHS` dictionary, populated in `conftest.py`.
+Avoid including large data files directly in the GitHub repository.
 
 ### Logging
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
