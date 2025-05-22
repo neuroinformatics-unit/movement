@@ -6,8 +6,14 @@ from typing import Literal
 import h5py
 import numpy as np
 import pandas as pd
+import pynwb
 import xarray as xr
 
+from movement.io.nwb import (
+    NWBFileSaveConfig,
+    _ds_to_pose_and_skeletons,
+    _write_behavior_processing_module,
+)
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
 from movement.validators.files import ValidFile
@@ -359,6 +365,139 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
             else:
                 f.create_dataset(key, data=val)
     logger.info(f"Saved poses dataset to {file.path}.")
+
+
+def to_nwb_file(
+    ds: xr.Dataset, config: NWBFileSaveConfig | None = None
+) -> list[pynwb.file.NWBFile]:
+    """Save a ``movement`` dataset to one or more open NWBFile objects.
+
+    The data will be written to the NWB file(s) in the "behavior" processing
+    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
+    Each individual in the dataset will be written to a separate file object,
+    as required by the NWB format. Note that the NWBFile object(s) are not
+    automatically saved to disk.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        ``movement`` poses dataset containing the data to be converted to NWB
+    config : NWBFileSaveConfig, optional
+        Configuration object containing keyword arguments to customise the
+        :class:`pynwb.file.NWBFile` that will be created for each individual.
+        If None (default), default values will be used.
+
+    Returns
+    -------
+    list[pynwb.file.NWBFile]
+        List of NWBFile objects, one for each individual in the dataset.
+
+    References
+    ----------
+    .. [1] https://github.com/rly/ndx-pose
+
+    Examples
+    --------
+    Create :class:`pynwb.file.NWBFile` objects for each individual in
+    a ``movement`` poses dataset ``ds`` and save them to disk:
+
+    >>> from movement.sample_data import fetch_dataset
+    >>> from movement.io import save_poses
+    >>> from pynwb import NWBHDF5IO
+    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")
+    >>> nwb_files = save_poses.to_nwb_file(ds)
+    >>> for file in nwb_files:
+    ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
+    ...         io.write(file)
+
+    Create NWBFiles with the same sets of custom
+    :class:`pynwb.file.NWBFile` and :class:`pynwb.file.Subject`
+    metadata for each individual in the dataset using an
+    :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object:
+
+    >>> from movement.io.nwb import NWBFileSaveConfig
+    >>> config = NWBFileSaveConfig(
+    ...     nwbfile_kwargs={"session_description": "test session"},
+    ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},
+    ... )
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+
+    Create NWBFiles with different :class:`pynwb.file.NWBFile`
+    and :class:`pynwb.file.Subject` metadata for each individual
+    (e.g. ``individual1``, ``individual2``) in the dataset:
+
+    >>> config = NWBFileSaveConfig(
+    ...     nwbfile_kwargs={
+    ...         "individual1": {
+    ...             "identifier": "subj1",
+    ...             "session_description": "subj1 session",
+    ...         },
+    ...         "individual2": {
+    ...             "identifier": "subj2",
+    ...             "session_description": "subj2 session",
+    ...         },
+    ...     },
+    ...     subject_kwargs={
+    ...         "individual1": {"age": "P90D", "sex": "M"},
+    ...         "individual2": {"age": "P91D", "sex": "F"},
+    ...     },
+    ... )
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+
+    Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``
+    metadata for different keypoints (e.g. ``leftear``, ``rightear``):
+
+    >>> config = NWBFileSaveConfig(
+    ...     pose_estimation_series_kwargs={
+    ...         "leftear": {
+    ...             "description": "left ear",
+    ...         },
+    ...         "rightear": {
+    ...             "description": "right ear",
+    ...         },
+    ...     },
+    ... )
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+
+    See Also
+    --------
+    movement.io.nwb.NWBFileSaveConfig :
+        For further details on the configuration object and its parameters.
+
+    """
+    config = config or NWBFileSaveConfig()
+    individuals = ds.individuals.values.tolist()
+    if isinstance(individuals, str):
+        individuals = [individuals]
+    is_multi_ind = len(individuals) > 1
+    subjects = {
+        id: pynwb.file.Subject(
+            **(config._resolve_subject_kwargs(id, is_multi_ind))
+        )
+        for id in individuals
+    }
+    nwb_files = [
+        pynwb.NWBFile(
+            subject=subjects[id],
+            **(config._resolve_nwbfile_kwargs(id, is_multi_ind)),
+        )
+        for id in individuals
+    ]
+    pose_estimation_skeletons = {
+        id: _ds_to_pose_and_skeletons(
+            ds
+            if ds.sizes.get("individuals") is None
+            else ds.sel(individuals=id),
+            config,
+            subjects[id],
+            is_multi_ind,
+        )
+        for id in individuals
+    }
+    for nwb_file, id in zip(nwb_files, individuals, strict=True):
+        pose_estimation, skeletons = pose_estimation_skeletons[id]
+        _write_behavior_processing_module(nwb_file, pose_estimation, skeletons)
+    return nwb_files
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
