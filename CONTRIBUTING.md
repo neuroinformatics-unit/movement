@@ -1,6 +1,30 @@
 # How to Contribute
 
+## Before you start
+
+Before starting work on a contribution, please check the [issue tracker](movement-github:issues) to see if there's already an issue describing what you have in mind.
+
+- If there is, add a comment to let others know you're willing to work on it.
+- If there isn't, please create a new issue to describe your idea.
+
+We strongly encourage discussing your plans before you start coding—either in the issue itself or on our [Zulip chat](movement-zulip:).
+This helps avoid duplicated effort and ensures your work aligns with the project's [scope](target-mission) and [roadmap](target-roadmaps).
+
+Keep in mind that we use issues liberally to track development.
+Some may be vague or aspirational, serving as reminders for future work rather than tasks ready to be tackled.
+There are a few reasons an issue might not be actionable yet:
+
+- It depends on other issues being resolved first.
+- It hasn't been clearly scoped. In such cases, helping to clarify the scope or breaking the issue into smaller parts can be a valuable contribution. Maintainers typically lead this process, but you're welcome to participate in the discussion.
+- It doesn't currently fit into the roadmap or the maintainers' priorities, meaning we may be unable to commit to timely guidance and prompt code reviews.
+
+If you're unsure whether an issue is ready to work on, just ask!
+
+Some issues are labelled as ``good first issue``.
+These are especially suitable if you're new to the project, and we recommend starting there.
+
 ## Contributing code
+
 
 ### Creating a development environment
 It is recommended to use [conda](conda:)
@@ -39,9 +63,11 @@ We recommend, and adhere, to the following conventions:
 - Please submit _draft_ PRs as early as possible to allow for discussion.
 - The PR title should be descriptive e.g. "Add new function to do X" or "Fix bug in Y".
 - The PR description should be used to provide context and motivation for the changes.
-- One approval of a PR (by a repo owner) is enough for it to be merged.
+  - If the PR is solving an issue, please add the issue number to the PR description, e.g. "Fixes #123" or "Closes #123".
+  - Make sure to include cross-links to other relevant issues, PRs and Zulip threads, for context.
+- The maintainers triage PRs and assign suitable reviewers using the GitHub review system.
+- One approval of a PR (by a maintainer) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
-- Ask for a review from someone specific if you think they would be a particularly suited reviewer.
 - PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
@@ -66,15 +92,7 @@ Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.c
 * [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
 * [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
-These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:
-
-```sh
-ruff .
-mypy -p movement
-check-manifest
-codespell
-```
-
+These will prevent code from being committed if any of these hooks fail.
 To run all the hooks before committing:
 
 ```sh
@@ -106,15 +124,17 @@ Make sure to provide docstrings for all public functions, classes, and methods.
 This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
-We use [pytest](https://docs.pytest.org/en/latest/) for testing and aim for
-~100% test coverage (as far as is reasonable).
-All new features should be tested.
-Write your test methods and classes in the _tests_ folder.
+We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.
 
-For some tests, you will need to use real experimental data.
-Do not include these data in the repository, especially if they are large.
-We store several sample datasets in an external data repository.
-See [sample data](#sample-data) for more information.
+Tests are stored in the `tests` directory, structured as follows:
+
+- `test_unit/`: Contains unit tests that closely follow the `movement` package structure.
+- `test_integration/`: Includes tests for interactions between different modules.
+- `fixtures/`: Holds reusable test data fixtures, automatically imported via `conftest.py`. Check for existing fixtures before adding new ones, to avoid duplication.
+
+For tests requiring experimental data, you can use [sample data](#sample-data) from our external data repository.
+These datasets are accessible through the `pytest.DATA_PATHS` dictionary, populated in `conftest.py`.
+Avoid including large data files directly in the GitHub repository.
 
 ### Logging
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
