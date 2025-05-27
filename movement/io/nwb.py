@@ -476,7 +476,7 @@ def _ds_to_pose_and_skeletons(
     ds: xr.Dataset,
     config: NWBFileSaveConfig | None = None,
     subject: pynwb.file.Subject | None = None,
-    is_multi_individual: bool = False,
+    from_multi_individual: bool = False,
 ) -> tuple[ndx_pose.PoseEstimation, ndx_pose.Skeletons]:
     """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
 
@@ -491,7 +491,7 @@ def _ds_to_pose_and_skeletons(
         See :class:`movement.io.nwb.NWBFileSaveConfig` for more details.
     subject : pynwb.file.Subject, optional
         Subject object to be linked in the Skeleton object.
-    is_multi_individual : bool, optional
+    from_multi_individual : bool, optional
         Flag indicating whether ``ds`` originates from a multi-individual
         dataset. Passed to the ``NWBFileSaveConfig`` methods to determine
         whether to prioritise individual names in the dataset over ``name``
@@ -540,7 +540,7 @@ def _ds_to_pose_and_skeletons(
         ndx_pose.Skeleton(
             subject=subject,
             **config._resolve_skeleton_kwargs(
-                individual, is_multi_individual, {"nodes": keypoints}
+                individual, from_multi_individual, {"nodes": keypoints}
             ),
         )
     ]
@@ -555,7 +555,7 @@ def _ds_to_pose_and_skeletons(
         skeleton=skeleton_list[-1],
         **config._resolve_pose_estimation_kwargs(
             individual,
-            is_multi_individual,
+            from_multi_individual,
             {
                 "description": description,
                 "source_software": ds.source_software,
