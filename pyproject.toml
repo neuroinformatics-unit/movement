@@ -13,7 +13,7 @@ dynamic = ["version"]
 license = { text = "BSD-3-Clause" }
 
 dependencies = [
-  "numpy",
+  "numpy>=2.0.0",
   "pandas",
   "h5py",
   "attrs",
