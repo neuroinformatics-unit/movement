@@ -464,3 +464,11 @@ class TestNWBFileSaveConfig:
             )
         elif "warn; ind as" in case_id or "warn; kp as" in case_id:
             assert f"'{entity}' not found" in caplog.messages[0]
+
+    def test_warning_if_session_start_time_not_provided(self, caplog):
+        """Test that not setting ``session_start_time`` in ``nwb_file_kwargs``
+        results in a warning message about using the current UTC time
+        as default.
+        """
+        NWBFileSaveConfig()._resolve_nwbfile_kwargs()
+        assert "using current UTC time as default" in caplog.messages[0]

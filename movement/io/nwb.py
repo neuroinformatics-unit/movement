@@ -307,9 +307,12 @@ class NWBFileSaveConfig:
             id_key="identifier",
             prioritise_entity=prioritise_individual,
         )
-        kwargs.setdefault(
-            "session_start_time", datetime.datetime.now(datetime.UTC)
-        )
+        if "session_start_time" not in kwargs:
+            logger.warning(
+                "No session_start_time provided in nwbfile_kwargs; "
+                "using current UTC time as default."
+            )
+            kwargs["session_start_time"] = datetime.datetime.now(datetime.UTC)
         return kwargs
 
     def _resolve_subject_kwargs(
