@@ -89,7 +89,6 @@ class TestNWBFileSaveConfig:
             does_not_raise(
                 {
                     "session_description": "not set",
-                    "identifier": "not set",
                     "session_start_time": SESSION_START_TIME,
                 }
             ),

@@ -55,7 +55,6 @@ class NWBFileSaveConfig:
 
         - ``session_description``: "not set"
         - ``session_start_time``: current UTC time
-        - ``identifier``: "not set"
 
         ``identifier`` will be set in the following order of precedence:
 
@@ -184,9 +183,7 @@ class NWBFileSaveConfig:
     pose_estimation_series_kwargs: ConfigKwargsType = _safe_dict_field()
     pose_estimation_kwargs: ConfigKwargsType = _safe_dict_field()
     skeleton_kwargs: ConfigKwargsType = _safe_dict_field()
-    DEFAULT_NWBFILE_KWARGS = dict(
-        session_description="not set", identifier="not set"
-    )
+    DEFAULT_NWBFILE_KWARGS = dict(session_description="not set")
     DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
         reference_frame="(0,0,0) corresponds to ...", unit="pixels"
     )
