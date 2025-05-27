@@ -369,7 +369,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
 def to_nwb_file(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None
-) -> list[pynwb.file.NWBFile]:
+) -> pynwb.file.NWBFile | list[pynwb.file.NWBFile]:
     """Save a ``movement`` dataset to one or more NWBFile objects.
 
     The data will be written to :class:`pynwb.file.NWBFile` object(s)
@@ -392,8 +392,10 @@ def to_nwb_file(
 
     Returns
     -------
-    list[pynwb.file.NWBFile]
-        List of NWBFile objects, one for each individual in the dataset.
+    pynwb.file.NWBFile or list[pynwb.file.NWBFile]
+        If the dataset contains only one individual, a single NWBFile object
+        will be returned. If the dataset contains multiple individuals,
+        a list of NWBFile objects will be returned, one for each individual.
 
     References
     ----------
@@ -500,7 +502,7 @@ def to_nwb_file(
     for nwb_file, id in zip(nwb_files, individuals, strict=True):
         pose_estimation, skeletons = pose_estimation_skeletons[id]
         _write_behavior_processing_module(nwb_file, pose_estimation, skeletons)
-    return nwb_files
+    return nwb_files if is_multi_ind else nwb_files[0]
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
