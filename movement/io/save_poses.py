@@ -429,11 +429,11 @@ def to_nwb_file(
     >>> config = NWBFileSaveConfig(
     ...     nwbfile_kwargs={
     ...         "individual1": {
-    ...             "identifier": "subj1",
+    ...             "experimenter": "experimenter1",
     ...             "session_description": "subj1 session",
     ...         },
     ...         "individual2": {
-    ...             "identifier": "subj2",
+    ...             "experimenter": "experimenter2",
     ...             "session_description": "subj2 session",
     ...         },
     ...     },
