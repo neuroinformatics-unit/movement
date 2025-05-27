@@ -481,11 +481,11 @@ def _ds_to_pose_and_skeletons(
     ----------
     ds : xarray.Dataset
         A single-individual ``movement`` poses dataset.
-    config : movement.io.NWBFileSaveConfig
+    config : movement.io.nwb.NWBFileSaveConfig
         Configuration object containing keyword arguments to customise
         the PoseEstimation and Skeletons objects created from the dataset.
         If None (default), default values will be used.
-        See :class:`movement.io.NWBFileSaveConfig` for more details.
+        See :class:`movement.io.nwb.NWBFileSaveConfig` for more details.
     subject : pynwb.file.Subject, optional
         Subject object to be linked in the Skeleton object.
     is_multi_individual : bool, optional
