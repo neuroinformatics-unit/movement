@@ -34,7 +34,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     """
     validate_dims_coords(da, {"time": []})
     label = label or da.name or "data"
-    nan_report = f"\nMissing points (marked as NaN) in {label}"
+    nan_report = f"Missing points (marked as NaN) in {label}:"
     nan_count = (
         da.isnull().any("space").sum("time")
         if "space" in da.dims
