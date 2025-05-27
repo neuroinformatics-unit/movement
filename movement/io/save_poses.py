@@ -410,10 +410,10 @@ def to_nwb_file(
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
 
-    Create NWBFiles with the same sets of custom
-    :class:`pynwb.file.NWBFile` and :class:`pynwb.file.Subject`
-    metadata for each individual in the dataset using an
-    :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object:
+    Create NWBFiles with custom metadata shared across individuals.
+    Specifically, we add metadata for :class:`pynwb.file.NWBFile`
+    and :class:`pynwb.file.Subject` via the 
+    :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object.
 
     >>> from movement.io.nwb import NWBFileSaveConfig
     >>> config = NWBFileSaveConfig(
