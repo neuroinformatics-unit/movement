@@ -372,19 +372,22 @@ def to_nwb_file(
 ) -> list[pynwb.file.NWBFile]:
     """Save a ``movement`` dataset to one or more NWBFile objects.
 
-    The data will be written to the NWB file(s) in the "behavior" processing
-    module, formatted according to the ``ndx-pose`` NWB extension [1]_.
-    Each individual in the dataset will be written to a separate file object,
-    as required by the NWB format. Note that the NWBFile object(s) are not
-    automatically saved to disk.
+    The data will be written to :class:`pynwb.file.NWBFile` object(s)
+    in the "behavior" processing module, formatted according to the
+    ``ndx-pose`` NWB extension [1]_.
+    Each individual in the dataset will be written to a separate NWBFile,
+    as required by the NWB format.
+    Note that the NWBFile(s) are not automatically saved to disk.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` poses dataset containing the data to be converted to NWB
+        ``movement`` poses dataset containing the data to be converted to
+        NWBFile(s).
     config : NWBFileSaveConfig, optional
         Configuration object containing keyword arguments to customise the
-        :class:`pynwb.file.NWBFile` that will be created for each individual.
+        :class:`pynwb.file.NWBFile`(s) that will be created
+        for each individual.
         If None (default), default values will be used.
 
     Returns

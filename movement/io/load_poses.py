@@ -850,8 +850,8 @@ def from_nwb_file(
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an NWB file.
 
-    The input can be a path to an NWB file on disk or an
-    :class:`NWBFile<pynwb.file.NWBFile>` object.
+    The input can be a path to an NWB file on disk or a
+    :class:`pynwb.file.NWBFile` object.
     The data will be extracted from the NWB file's behavior processing module,
     which is assumed to contain a ``PoseEstimation`` object formatted according
     to the ``ndx-pose`` NWB extension [1]_.
@@ -878,7 +878,7 @@ def from_nwb_file(
     Examples
     --------
     Open an NWB file and load pose tracks from the
-    :class:`NWBFile<pynwb.file.NWBFile>` object:
+    :class:`pynwb.file.NWBFile` object:
 
     >>> import pynwb
     >>> import xarray as xr
