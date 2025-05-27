@@ -850,7 +850,7 @@ def from_nwb_file(
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an NWB file.
 
-    The input can be a path to an NWB file on disk or an open
+    The input can be a path to an NWB file on disk or an
     :class:`NWBFile<pynwb.file.NWBFile>` object.
     The data will be extracted from the NWB file's behavior processing module,
     which is assumed to contain a ``PoseEstimation`` object formatted according
@@ -860,7 +860,7 @@ def from_nwb_file(
     ----------
     file : str | Path | pynwb.file.NWBFile
         Path to the NWB file on disk (ending in ".nwb"),
-        or an open NWBFile object.
+        or an NWBFile object.
     key_name: str, optional
         Name of the ``PoseEstimation`` object in the NWB "behavior"
         processing module, by default "PoseEstimation".
@@ -877,7 +877,8 @@ def from_nwb_file(
 
     Examples
     --------
-    Open an NWB file and load pose tracks from the file object:
+    Open an NWB file and load pose tracks from the
+    :class:`NWBFile<pynwb.file.NWBFile>` object:
 
     >>> import pynwb
     >>> import xarray as xr
@@ -905,7 +906,7 @@ def from_nwb_file(
             nwbfile_object = io.read()
             ds = _ds_from_nwb_object(nwbfile_object, key_name=key_name)
             ds.attrs["source_file"] = file
-    else:  # file is an open NWBFile object
+    else:  # file is an NWBFile object
         ds = _ds_from_nwb_object(file, key_name=key_name)
     return ds
 
@@ -914,12 +915,12 @@ def _ds_from_nwb_object(
     nwb_file: pynwb.file.NWBFile,
     key_name: str = "PoseEstimation",
 ) -> xr.Dataset:
-    """Extract a ``movement`` poses dataset from an open NWBFile object.
+    """Extract a ``movement`` poses dataset from an NWBFile object.
 
     Parameters
     ----------
     nwb_file : pynwb.file.NWBFile
-        An open NWBFile object.
+        An NWBFile object.
     key_name: str
         Name of the ``ndx_pose.PoseEstimation`` object in the
         "behavior" processing module. Default is "PoseEstimation".

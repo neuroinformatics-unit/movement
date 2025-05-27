@@ -370,7 +370,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 def to_nwb_file(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None
 ) -> list[pynwb.file.NWBFile]:
-    """Save a ``movement`` dataset to one or more open NWBFile objects.
+    """Save a ``movement`` dataset to one or more NWBFile objects.
 
     The data will be written to the NWB file(s) in the "behavior" processing
     module, formatted according to the ``ndx-pose`` NWB extension [1]_.
