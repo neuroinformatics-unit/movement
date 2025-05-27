@@ -412,7 +412,7 @@ def to_nwb_file(
 
     Create NWBFiles with custom metadata shared across individuals.
     Specifically, we add metadata for :class:`pynwb.file.NWBFile`
-    and :class:`pynwb.file.Subject` via the 
+    and :class:`pynwb.file.Subject` via the
     :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object.
 
     >>> from movement.io.nwb import NWBFileSaveConfig
