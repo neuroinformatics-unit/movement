@@ -122,8 +122,9 @@ def from_file(
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-        The fps argument is ignored when source_software is "NWB", as the
-        frame rate will be estimated from timestamps in the file.
+        This argument is ignored when ``source_software`` is "NWB", as the
+        frame rate will be directly read or estimated from metadata in
+        the NWB file.
     **kwargs : dict, optional
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
@@ -162,7 +163,8 @@ def from_file(
         if fps is not None:
             logger.warning(
                 "The fps argument is ignored when loading from an NWB file. "
-                "The frame rate will be estimated from timestamps in the file."
+                "The frame rate will be directly read or estimated from "
+                "metadata in the file."
             )
         return from_nwb_file(file_path, **kwargs)
     else:
