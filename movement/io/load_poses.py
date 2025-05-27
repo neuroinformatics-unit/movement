@@ -907,7 +907,6 @@ def from_nwb_file(
             ds.attrs["source_file"] = file
     else:  # file is an open NWBFile object
         ds = _ds_from_nwb_object(file, key_name=key_name)
-        ds.attrs["source_file"] = None
     return ds
 
 

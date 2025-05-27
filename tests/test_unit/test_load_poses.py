@@ -305,10 +305,12 @@ def test_load_from_nwb_file(input_type, kwargs, request):
         "keypoints": 3,
         "space": 2,
     }
-    assert ds_from_file_path.attrs == {
+    expected_attrs = {
         "ds_type": "poses",
         "fps": 10.0,
         "time_unit": "seconds",
         "source_software": "DeepLabCut",
-        "source_file": nwb_file if input_type == "nwb_file" else None,
     }
+    if input_type == "nwb_file":
+        expected_attrs["source_file"] = nwb_file
+    assert ds_from_file_path.attrs == expected_attrs
