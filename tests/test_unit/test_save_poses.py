@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from pytest import DATA_PATHS
 
-from movement.io import load_poses, nwb, save_poses
+from movement.io import load_poses, save_poses
 
 output_files = [
     {
@@ -303,62 +303,6 @@ def test_to_sleap_analysis_file_invalid_dataset(
             request.getfixturevalue(invalid_poses_dataset),
             new_h5_file,
         )
-
-
-@pytest.fixture
-def shared_nwb_config():
-    """Fixture to provide a shared NWBFileSaveConfig."""
-    return nwb.NWBFileSaveConfig(
-        nwbfile_kwargs={
-            "session_description": "test session",
-            "identifier": "subj0",
-        },
-        subject_kwargs={"age": "P90D", "subject_id": "subj0"},
-        pose_estimation_series_kwargs={
-            "reference_frame": "(0,0) is ...",
-            "name": "anchor",
-        },
-        pose_estimation_kwargs={"name": "subj0", "source_software": "other"},
-        skeleton_kwargs={
-            "name": "skeleton0",
-            "nodes": ["anchor", "left_ear", "right_ear"],
-        },
-    )
-
-
-@pytest.fixture
-def per_entity_nwb_config():
-    """Fixture to provide a per-entity (individual and keypoint)
-    NWBFileSaveConfig.
-    """
-    return nwb.NWBFileSaveConfig(
-        nwbfile_kwargs={
-            "id_0": {
-                "session_description": "test session",
-                "identifier": "subj0",
-            },
-            "id_1": {
-                "session_description": "test session",
-                "identifier": "subj1",
-            },
-        },
-        subject_kwargs={
-            "id_0": {"age": "P90D", "subject_id": "subj0"},
-            "id_1": {"age": "P91D", "subject_id": "subj1"},
-        },
-        pose_estimation_series_kwargs={
-            "centroid": {"name": "anchor"},
-            "left": {"name": "left_ear"},
-        },
-        pose_estimation_kwargs={
-            "id_0": {"name": "subj0", "source_software": "other0"},
-            "id_1": {"name": "subj1", "source_software": "other1"},
-        },
-        skeleton_kwargs={
-            "id_0": {"nodes": ["node1", "node2", "node3"]},
-            "id_1": {"nodes": ["node4", "node5", "node6"]},
-        },
-    )
 
 
 nwb_file_expectations_ind = {
