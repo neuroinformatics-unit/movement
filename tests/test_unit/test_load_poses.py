@@ -2,71 +2,13 @@
 
 from unittest.mock import patch
 
-import h5py
 import numpy as np
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
-from sleap_io.io.slp import read_labels, write_labels
-from sleap_io.model.labels import LabeledFrame, Labels
 
 from movement.io import load_poses
 from movement.validators.datasets import ValidPosesDataset
-
-
-@pytest.fixture
-def sleap_slp_file_without_tracks(tmp_path):
-    """Mock and return the path to a SLEAP .slp file without tracks."""
-    sleap_file = DATA_PATHS.get("SLEAP_single-mouse_EPM.predictions.slp")
-    labels = read_labels(sleap_file)
-    file_path = tmp_path / "track_is_none.slp"
-    lfs = []
-    for lf in labels.labeled_frames:
-        instances = []
-        for inst in lf.instances:
-            inst.track = None
-            inst.tracking_score = 0
-            instances.append(inst)
-        lfs.append(
-            LabeledFrame(
-                video=lf.video, frame_idx=lf.frame_idx, instances=instances
-            )
-        )
-    write_labels(
-        file_path,
-        Labels(
-            labeled_frames=lfs,
-            videos=labels.videos,
-            skeletons=labels.skeletons,
-        ),
-    )
-    return file_path
-
-
-@pytest.fixture
-def sleap_h5_file_without_tracks(tmp_path):
-    """Mock and return the path to a SLEAP .h5 file without tracks."""
-    sleap_file = DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
-    file_path = tmp_path / "track_is_none.h5"
-    with h5py.File(sleap_file, "r") as f1, h5py.File(file_path, "w") as f2:
-        for key in list(f1.keys()):
-            if key == "track_names":
-                f2.create_dataset(key, data=[])
-            else:
-                f1.copy(key, f2, name=key)
-    return file_path
-
-
-@pytest.fixture(
-    params=[
-        "sleap_h5_file_without_tracks",
-        "sleap_slp_file_without_tracks",
-    ]
-)
-def sleap_file_without_tracks(request):
-    """Fixture to parametrize the SLEAP files without tracks."""
-    return request.getfixturevalue(request.param)
-
 
 expected_values_poses = {
     "vars_dims": {"position": 4, "confidence": 3},
@@ -259,18 +201,19 @@ def test_load_multi_individual_from_lp_file_raises():
 
 @pytest.mark.parametrize(
     "source_software",
-    ["SLEAP", "DeepLabCut", "LightningPose", "Anipose", "Unknown"],
+    ["DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "Unknown"],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(source_software, fps):
+def test_from_file_delegates_correctly(source_software, fps, caplog):
     """Test that the from_file() function delegates to the correct
     loader function according to the source_software.
     """
     software_to_loader = {
-        "SLEAP": "movement.io.load_poses.from_sleap_file",
         "DeepLabCut": "movement.io.load_poses.from_dlc_file",
+        "SLEAP": "movement.io.load_poses.from_sleap_file",
         "LightningPose": "movement.io.load_poses.from_lp_file",
         "Anipose": "movement.io.load_poses.from_anipose_file",
+        "NWB": "movement.io.load_poses.from_nwb_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
@@ -278,7 +221,14 @@ def test_from_file_delegates_correctly(source_software, fps):
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
             load_poses.from_file("some_file", source_software, fps)
-            mock_loader.assert_called_with("some_file", fps)
+            expected_call_args = (
+                ("some_file", fps)
+                if source_software != "NWB"
+                else ("some_file",)
+            )
+            mock_loader.assert_called_with(*expected_call_args)
+            if source_software == "NWB" and fps is not None:
+                assert "fps argument is ignored" in caplog.messages[0]
 
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
@@ -303,8 +253,8 @@ def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
 
 
 def test_from_multiview_files():
-    """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
+    """Test loading pose tracks from multiple files (representing
+    different views).
     """
     view_names = ["view_0", "view_1"]
     file_path_dict = {
@@ -337,3 +287,30 @@ def test_load_from_anipose_file():
         "r-edge",
         "r-middle",
     ]
+
+
+@pytest.mark.parametrize("kwargs", [{}, {"rate": 10.0, "starting_time": 0.0}])
+@pytest.mark.parametrize("input_type", ["nwb_file", "nwbfile_object"])
+def test_load_from_nwb_file(input_type, kwargs, request):
+    """Test loading poses from an NWB file path or NWBFile object.
+    ``kwargs`` determine whether the PoseEstimationSeries in the NWB file
+    are created with default ``timestamps`` (empty kwargs) or without
+    timestamps, by providing ``rate`` and ``starting_time``.
+    """
+    nwb_file = request.getfixturevalue(input_type)(**kwargs)
+    ds_from_file_path = load_poses.from_nwb_file(nwb_file)
+    assert ds_from_file_path.sizes == {
+        "time": 100,
+        "individuals": 1,
+        "keypoints": 3,
+        "space": 2,
+    }
+    expected_attrs = {
+        "ds_type": "poses",
+        "fps": 10.0,
+        "time_unit": "seconds",
+        "source_software": "DeepLabCut",
+    }
+    if input_type == "nwb_file":
+        expected_attrs["source_file"] = nwb_file
+    assert ds_from_file_path.attrs == expected_attrs

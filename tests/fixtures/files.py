@@ -1,4 +1,7 @@
-"""Valid and invalid file fixtures."""
+"""Valid and invalid file fixtures.
+
+Note: NWB file fixtures are in tests/fixtures/nwb.py.
+"""
 
 import os
 from pathlib import Path
@@ -6,6 +9,8 @@ from unittest.mock import mock_open, patch
 
 import h5py
 import pytest
+from sleap_io.io.slp import read_labels, write_labels
+from sleap_io.model.labels import LabeledFrame, Labels
 
 
 # ------------------ Generic file fixtures ----------------------
@@ -237,6 +242,62 @@ def spurious_column_anipose_csv_file(tmp_path):
 def sleap_file(request):
     """Return the file path for a SLEAP .h5 or .slp file."""
     return pytest.DATA_PATHS.get(request.param)
+
+
+@pytest.fixture
+def sleap_slp_file_without_tracks(tmp_path):
+    """Mock and return the path to a SLEAP .slp file without tracks."""
+    sleap_file = pytest.DATA_PATHS.get(
+        "SLEAP_single-mouse_EPM.predictions.slp"
+    )
+    labels = read_labels(sleap_file)
+    file_path = tmp_path / "track_is_none.slp"
+    lfs = []
+    for lf in labels.labeled_frames:
+        instances = []
+        for inst in lf.instances:
+            inst.track = None
+            inst.tracking_score = 0
+            instances.append(inst)
+        lfs.append(
+            LabeledFrame(
+                video=lf.video, frame_idx=lf.frame_idx, instances=instances
+            )
+        )
+    write_labels(
+        file_path,
+        Labels(
+            labeled_frames=lfs,
+            videos=labels.videos,
+            skeletons=labels.skeletons,
+        ),
+    )
+    return file_path
+
+
+@pytest.fixture
+def sleap_h5_file_without_tracks(tmp_path):
+    """Mock and return the path to a SLEAP .h5 file without tracks."""
+    sleap_file = pytest.DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
+    file_path = tmp_path / "track_is_none.h5"
+    with h5py.File(sleap_file, "r") as f1, h5py.File(file_path, "w") as f2:
+        for key in list(f1.keys()):
+            if key == "track_names":
+                f2.create_dataset(key, data=[])
+            else:
+                f1.copy(key, f2, name=key)
+    return file_path
+
+
+@pytest.fixture(
+    params=[
+        "sleap_h5_file_without_tracks",
+        "sleap_slp_file_without_tracks",
+    ]
+)
+def sleap_file_without_tracks(request):
+    """Fixture to parametrize the SLEAP files without tracks."""
+    return request.getfixturevalue(request.param)
 
 
 # ---------------- VIA tracks CSV file fixtures ----------------------------
