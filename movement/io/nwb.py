@@ -62,6 +62,23 @@ class NWBFileSaveConfig:
         2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
         3. individual name in the ``movement`` dataset
 
+    processing_module_kwargs: dict[str, Any] or dict[str, dict[str, Any]], optional
+        Keyword arguments for :class:`pynwb.base.ProcessingModule`.
+
+        If ``processing_module_kwargs`` is a single dictionary, the same
+        keyword arguments will be applied to all ProcessingModules.
+
+        If ``processing_module_kwargs`` is a dictionary of dictionaries,
+        the outer keys should correspond to individual names in the
+        ``movement`` dataset, and the inner dictionaries will be passed as
+        keyword arguments to the :class:`pynwb.file.ProcessingModule`
+        constructor.
+
+        The following arguments will have default values if not set:
+
+        - ``name``: "behavior"
+        - ``description``: "processed behavioral data"
+
     subject_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for :class:`pynwb.file.Subject`.
 
@@ -179,11 +196,15 @@ class NWBFileSaveConfig:
     """  # noqa: E501
 
     nwbfile_kwargs: ConfigKwargsType = _safe_dict_field()
+    processing_module_kwargs: ConfigKwargsType = _safe_dict_field()
     subject_kwargs: ConfigKwargsType = _safe_dict_field()
     pose_estimation_series_kwargs: ConfigKwargsType = _safe_dict_field()
     pose_estimation_kwargs: ConfigKwargsType = _safe_dict_field()
     skeleton_kwargs: ConfigKwargsType = _safe_dict_field()
     DEFAULT_NWBFILE_KWARGS = dict(session_description="not set")
+    DEFAULT_PROCESSING_MODULE_KWARGS = dict(
+        name="behavior", description="processed behavioral data"
+    )
     DEFAULT_POSE_ESTIMATION_SERIES_KWARGS = dict(
         reference_frame="(0,0,0) corresponds to ...", unit="pixels"
     )
@@ -194,7 +215,7 @@ class NWBFileSaveConfig:
         entity: str | None,
         entity_type: str,
         id_key: str,
-        prioritise_entity: bool = True,
+        prioritise_entity: bool = False,
     ) -> dict[str, Any]:
         """Resolve per-entity (individual/keypoint) or shared kwargs.
 
@@ -229,7 +250,7 @@ class NWBFileSaveConfig:
         prioritise_entity : bool, optional
             Flag indicating whether ``entity`` should take precedence over
             the ``id_key`` when the attribute is a shared config
-            (i.e. a single dictionary). Default is True.
+            (i.e. a single dictionary). Default is False.
 
         Returns
         -------
@@ -310,6 +331,34 @@ class NWBFileSaveConfig:
                 "using current UTC time as default."
             )
             kwargs["session_start_time"] = datetime.datetime.now(datetime.UTC)
+        return kwargs
+
+    def _resolve_processing_module_kwargs(
+        self, individual: str | None = None
+    ) -> dict[str, Any]:
+        """Resolve the keyword arguments for :class:`pynwb.base.ProcessingModule`.
+
+        Parameters
+        ----------
+        individual : str, optional
+            Individual name. If provided, the method will attempt to retrieve
+            individual-specific settings or fall back to shared or default
+            settings.
+
+        Returns
+        -------
+        dict[str, Any]
+            Keyword arguments to be passed to :class:`pynwb.base.ProcessingModule`.
+
+        """  # noqa: E501
+        kwargs = self._resolve_kwargs(
+            attr_name="processing_module_kwargs",
+            entity=individual,
+            entity_type="individual",
+            id_key="name",
+        )
+        if kwargs.get("name") in (individual, None):
+            kwargs["name"] = self.DEFAULT_PROCESSING_MODULE_KWARGS["name"]
         return kwargs
 
     def _resolve_subject_kwargs(
@@ -562,22 +611,29 @@ def _ds_to_pose_and_skeletons(
     return pose_estimation, skeletons
 
 
-def _write_behavior_processing_module(
+def _write_processing_module(
     nwb_file: pynwb.file.NWBFile,
+    processing_module_kwargs: dict[str, Any],
     pose_estimation: ndx_pose.PoseEstimation,
     skeletons: ndx_pose.Skeletons,
 ) -> None:
     """Write behaviour processing data to an NWB file.
 
-    PoseEstimation or Skeletons objects will be written to the NWB file's
-    "behavior" processing module, formatted according to the ``ndx-pose`` NWB
-    extension. If the module does not exist, it will be created.
-    Data will not overwrite any existing objects in the NWB file.
+    PoseEstimation or Skeletons objects will be written to the specified
+    ProcessingModule in the NWB file, formatted according to the
+    ``ndx-pose`` NWB extension. If the module does not exist, it will be
+    created. Existing objects in the NWB file will not be overwritten.
 
     Parameters
     ----------
     nwb_file : pynwb.file.NWBFile
         The NWBFile object to which the data will be added.
+    processing_module_kwargs : dict[str, Any]
+        Keyword arguments for the :class:`pynwb.base.ProcessingModule` in the
+        NWB file. The ``name`` key will be used to determine the
+        ProcessingModule to which the data will be added.
+        If the ProcessingModule does not exist, it will be created with these
+        keyword arguments.
     pose_estimation : ndx_pose.PoseEstimation
         PoseEstimation object containing the pose data for an individual.
     skeletons : ndx_pose.Skeletons
@@ -585,21 +641,25 @@ def _write_behavior_processing_module(
 
     """
 
-    def add_to_behavior(obj, obj_name: str):
+    def add_to_processing_module(obj, obj_name: str):
         try:
-            behavior_pm.add(obj)
+            processing_module.add(obj)
             logger.debug(f"Added {obj_name} object to NWB file.")
         except ValueError:
             logger.warning(f"{obj_name} object already exists. Skipping...")
 
-    behavior_pm = nwb_file.processing.get("behavior")
-    if behavior_pm is None:
-        behavior_pm = nwb_file.create_processing_module(
-            name="behavior",
-            description="processed behavioral data",
+    processing_module_name = processing_module_kwargs.get("name")
+    processing_module = nwb_file.processing.get(processing_module_name)
+    if processing_module is None:
+        processing_module = nwb_file.create_processing_module(
+            **processing_module_kwargs
         )
-        logger.debug("Created behavior processing module in NWB file.")
+        logger.debug(
+            f"Created {processing_module_name} processing module in NWB file."
+        )
     else:
-        logger.debug("Using existing behavior processing module.")
-    add_to_behavior(skeletons, "Skeletons")
-    add_to_behavior(pose_estimation, "PoseEstimation")
+        logger.debug(
+            f"Using existing {processing_module_name} processing module."
+        )
+    add_to_processing_module(skeletons, "Skeletons")
+    add_to_processing_module(pose_estimation, "PoseEstimation")

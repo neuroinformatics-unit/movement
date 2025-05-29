@@ -11,7 +11,7 @@ from pynwb.file import Subject
 from movement.io.nwb import (
     NWBFileSaveConfig,
     _ds_to_pose_and_skeletons,
-    _write_behavior_processing_module,
+    _write_processing_module,
 )
 
 
@@ -45,13 +45,16 @@ def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
         _ds_to_pose_and_skeletons(valid_poses_dataset)
 
 
-def test_write_behavior_processing_module(nwbfile_object, caplog):
-    """Test that writing to an NWBFile with existing behavior
+def test_write_processing_module(nwbfile_object, caplog):
+    """Test that writing to an NWBFile with existing "behavior"
     processing module, Skeletons, and PoseEstimation will
     not overwrite them.
     """
-    _write_behavior_processing_module(
-        nwbfile_object(), ndx_pose.PoseEstimation(), ndx_pose.Skeletons()
+    _write_processing_module(
+        nwbfile_object(),
+        {"name": "behavior"},
+        ndx_pose.PoseEstimation(),
+        ndx_pose.Skeletons(),
     )
     assert {
         "Using existing behavior processing module.",
@@ -81,6 +84,20 @@ class TestNWBFileSaveConfig:
         "kwargs per entity + entity: kwarg as id",
         "kwargs per entity (w/o id) + entity: entity as id",
         "kwargs per entity + entity (not in kwargs): warn; entity as id",
+    ]
+    # Separate case IDs for processing module kwargs as the module name
+    # is expected to either be user-specified or the default "behavior"
+    # (i.e. never the individual name).
+    CASE_IDS_PROCESSING_MODULE = [
+        "no args: default id",
+        "entity: default as id",
+        "shared kwargs: kwarg as id",
+        "shared kwargs + entity: kwargs as id",
+        "kwargs per entity: error (multiple keys but no entity provided)",
+        "kwargs per entity (assume key is entity): warn; kwarg as id",
+        "kwargs per entity + entity: kwarg as id",
+        "kwargs per entity (w/o id) + entity: default as id",
+        "kwargs per entity + entity (not in kwargs): warn; default as id",
     ]
     nwbfile_kwargs_params: list[NWBFileSaveConfigTestCase] = [
         (
@@ -201,6 +218,90 @@ class TestNWBFileSaveConfig:
                     "session_description": "not set",
                     "identifier": "id_not_in_kwargs",
                     "session_start_time": SESSION_START_TIME,
+                }
+            ),
+        ),
+    ]
+    processing_module_kwargs_params: list[NWBFileSaveConfigTestCase] = [
+        (
+            None,
+            None,
+            does_not_raise(
+                {
+                    "name": "behavior",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            None,
+            "id_0",
+            does_not_raise(
+                {
+                    "name": "behavior",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            {"name": "behaviour"},
+            None,
+            does_not_raise(
+                {
+                    "name": "behaviour",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            {"name": "behaviour"},
+            "id_0",
+            does_not_raise(
+                {
+                    "name": "behaviour",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            {"id_0": {"name": "behaviour0"}, "id_1": {"name": "behaviour1"}},
+            None,
+            pytest.raises(ValueError, match=".*no individual was provided."),
+        ),
+        (
+            {"id_0": {"name": "behaviour0"}},
+            None,
+            does_not_raise(
+                {
+                    "name": "behaviour0",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            {"id_0": {"name": "behaviour0"}},
+            "id_0",
+            does_not_raise(
+                {
+                    "name": "behaviour0",
+                    "description": "processed behavioral data",
+                }
+            ),
+        ),
+        (
+            {"id_0": {"description": "processed behav data"}},
+            "id_0",
+            does_not_raise(
+                {"name": "behavior", "description": "processed behav data"}
+            ),
+        ),
+        (
+            {"id_0": {"name": "behaviour0"}},
+            "id_not_in_kwargs",
+            does_not_raise(
+                {
+                    "name": "behavior",
+                    "description": "processed behavioral data",
                 }
             ),
         ),
@@ -423,6 +524,7 @@ class TestNWBFileSaveConfig:
     ]
     ATTR_PARAMS = {
         "nwbfile_kwargs": nwbfile_kwargs_params,
+        "processing_module_kwargs": processing_module_kwargs_params,
         "subject_kwargs": subject_kwargs_params,
         "pose_estimation_series_kwargs": pose_estimation_series_kwargs_params,
         "pose_estimation_kwargs": pose_estimation_kwargs_params,
@@ -433,9 +535,14 @@ class TestNWBFileSaveConfig:
     combined_ids = []
 
     for attr, param_list in ATTR_PARAMS.items():
+        case_ids = (
+            CASE_IDS_PROCESSING_MODULE
+            if attr == "processing_module_kwargs"
+            else CASE_IDS
+        )
         for i, (kwargs, entity, expected) in enumerate(param_list):
             combined_params.append((attr, kwargs, entity, expected))
-            combined_ids.append(f"{attr}-{CASE_IDS[i]}")
+            combined_ids.append(f"{attr}-{case_ids[i]}")
 
     @pytest.mark.parametrize(
         "attr, input_kwargs, entity, expected_context",

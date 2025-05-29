@@ -12,7 +12,7 @@ import xarray as xr
 from movement.io.nwb import (
     NWBFileSaveConfig,
     _ds_to_pose_and_skeletons,
-    _write_behavior_processing_module,
+    _write_processing_module,
 )
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
@@ -386,7 +386,7 @@ def to_nwb_file(
         NWBFile(s).
     config : NWBFileSaveConfig, optional
         Configuration object containing keyword arguments to customise the
-        :class:`pynwb.file.NWBFile`(s) that will be created
+        :class:`pynwb.file.NWBFile` (s) that will be created
         for each individual.
         If None (default), default values will be used.
 
@@ -416,13 +416,15 @@ def to_nwb_file(
     ...         io.write(file)
 
     Create NWBFiles with custom metadata shared across individuals.
-    Specifically, we add metadata for :class:`pynwb.file.NWBFile`
-    and :class:`pynwb.file.Subject` via the
-    :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object.
+    Specifically, we add metadata for :class:`pynwb.file.NWBFile`,
+    :class:`pynwb.base.ProcessingModule`, and :class:`pynwb.file.Subject`
+    via the :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>`
+    object.
 
     >>> from movement.io.nwb import NWBFileSaveConfig
     >>> config = NWBFileSaveConfig(
     ...     nwbfile_kwargs={"session_description": "test session"},
+    ...     processing_module_kwargs={"description": "processed behav data"},
     ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},
     ... )
     >>> nwb_files = save_poses.to_nwb_file(ds, config)
@@ -501,7 +503,10 @@ def to_nwb_file(
     }
     for nwb_file, id in zip(nwb_files, individuals, strict=True):
         pose_estimation, skeletons = pose_estimation_skeletons[id]
-        _write_behavior_processing_module(nwb_file, pose_estimation, skeletons)
+        processing_module_kwargs = config._resolve_processing_module_kwargs(id)
+        _write_processing_module(
+            nwb_file, processing_module_kwargs, pose_estimation, skeletons
+        )
     return nwb_files if is_multi_ind else nwb_files[0]
 
 

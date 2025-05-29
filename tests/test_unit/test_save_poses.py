@@ -310,6 +310,9 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "not set", "identifier": "id_0"}
         ],
+        "processing_module_kwargs": [
+            {"description": "processed behavioral data"}
+        ],
         "subject_kwargs": [{"subject_id": "id_0"}],
         "pose_estimation_kwargs": [
             {"name": "PoseEstimation", "source_software": "test"}
@@ -322,6 +325,10 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "not set", "identifier": "id_0"},
             {"session_description": "not set", "identifier": "id_1"},
+        ],
+        "processing_module_kwargs": [
+            {"description": "processed behavioral data"},
+            {"description": "processed behavioral data"},
         ],
         "subject_kwargs": [
             {"subject_id": "id_0"},
@@ -340,6 +347,9 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "test session", "identifier": "subj0"}
         ],
+        "processing_module_kwargs": [
+            {"description": "processed behav for test session"}
+        ],
         "subject_kwargs": [{"age": "P90D", "subject_id": "subj0"}],
         "pose_estimation_kwargs": [
             {"name": "subj0", "source_software": "other"}
@@ -352,6 +362,10 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "test session", "identifier": "id_0"},
             {"session_description": "test session", "identifier": "id_1"},
+        ],
+        "processing_module_kwargs": [
+            {"description": "processed behav for test session"},
+            {"description": "processed behav for test session"},
         ],
         "subject_kwargs": [
             {"age": "P90D", "subject_id": "id_0"},
@@ -370,6 +384,9 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "test session", "identifier": "subj0"}
         ],
+        "processing_module_kwargs": [
+            {"description": "processed behav for subj0"}
+        ],
         "subject_kwargs": [{"age": "P90D", "subject_id": "subj0"}],
         "pose_estimation_kwargs": [
             {"name": "subj0", "source_software": "other0"}
@@ -382,6 +399,10 @@ nwb_file_expectations_ind = {
         "nwbfile_kwargs": [
             {"session_description": "test session", "identifier": "subj0"},
             {"session_description": "test session", "identifier": "subj1"},
+        ],
+        "processing_module_kwargs": [
+            {"description": "processed behav for subj0"},
+            {"description": "processed behav for subj1"},
         ],
         "subject_kwargs": [
             {"age": "P90D", "subject_id": "subj0"},
@@ -426,12 +447,16 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
     if ds.individuals.size == 1:
         nwb_files = [nwb_files]
     actual_nwbfile_kwargs = []
+    actual_processing_module_kwargs = []
     actual_subject_kwargs = []
     actual_pose_estimation_kwargs = []
     actual_skeleton_kwargs = []
     expected_nwbfile_kwargs = nwb_file_expectations_ind.get(test_id).get(
         "nwbfile_kwargs"
     )
+    expected_processing_module_kwargs = nwb_file_expectations_ind.get(
+        test_id
+    ).get("processing_module_kwargs")
     expected_subject_kwargs = nwb_file_expectations_ind.get(test_id).get(
         "subject_kwargs"
     )
@@ -447,12 +472,17 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
         nwb_files,
         strict=True,
     ):
-        pe = nwb_file.processing["behavior"][expected_pe["name"]]
-        skeleton = nwb_file.processing["behavior"]["Skeletons"][
-            expected_skeleton["name"]
-        ]
+        processing_module = nwb_file.processing["behavior"]
+        pose_estimation = processing_module[expected_pe["name"]]
+        skeleton = processing_module["Skeletons"][expected_skeleton["name"]]
         actual_nwbfile_kwargs.append(
             {key: getattr(nwb_file, key) for key in expected_nwbfile_kwargs[0]}
+        )
+        actual_processing_module_kwargs.append(
+            {
+                key: getattr(processing_module, key)
+                for key in expected_processing_module_kwargs[0]
+            }
         )
         actual_subject_kwargs.append(
             {
@@ -462,7 +492,7 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
         )
         actual_pose_estimation_kwargs.append(
             {
-                key: getattr(pe, key)
+                key: getattr(pose_estimation, key)
                 for key in expected_pose_estimation_kwargs[0]
             }
         )
@@ -473,6 +503,7 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
             }
         )
     assert actual_nwbfile_kwargs == expected_nwbfile_kwargs
+    assert actual_processing_module_kwargs == expected_processing_module_kwargs
     assert actual_subject_kwargs == expected_subject_kwargs
     assert actual_pose_estimation_kwargs == expected_pose_estimation_kwargs
     assert actual_skeleton_kwargs == expected_skeleton_kwargs

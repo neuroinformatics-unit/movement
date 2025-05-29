@@ -129,6 +129,9 @@ def shared_nwb_config():
             "session_description": "test session",
             "identifier": "subj0",
         },
+        processing_module_kwargs={
+            "description": "processed behav for test session",
+        },
         subject_kwargs={"age": "P90D", "subject_id": "subj0"},
         pose_estimation_series_kwargs={
             "reference_frame": "(0,0) is ...",
@@ -156,6 +159,14 @@ def per_entity_nwb_config():
             "id_1": {
                 "session_description": "test session",
                 "identifier": "subj1",
+            },
+        },
+        processing_module_kwargs={
+            "id_0": {
+                "description": "processed behav for subj0",
+            },
+            "id_1": {
+                "description": "processed behav for subj1",
             },
         },
         subject_kwargs={
