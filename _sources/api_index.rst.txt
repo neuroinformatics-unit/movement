@@ -18,6 +18,7 @@ Information on specific functions, classes, and methods.
     movement.filtering
     movement.io.load_bboxes
     movement.io.load_poses
+    movement.io.nwb
     movement.io.save_poses
     movement.kinematics.distances
     movement.kinematics.kinematics

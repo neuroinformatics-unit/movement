@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -415,8 +415,14 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.nwb</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NWBFileSaveConfig</span><span class="p">,</span>
+    <span class="n">_ds_to_pose_and_skeletons</span><span class="p">,</span>
+    <span class="n">_write_processing_module</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidPosesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidFile</span>
@@ -779,6 +785,152 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_nwb_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_nwb_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">NWBFileSaveConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to one or more NWBFile objects.</span>
+
+<span class="sd">    The data will be written to :class:`pynwb.file.NWBFile` object(s)</span>
+<span class="sd">    in the &quot;behavior&quot; processing module, formatted according to the</span>
+<span class="sd">    ``ndx-pose`` NWB extension [1]_.</span>
+<span class="sd">    Each individual in the dataset will be written to a separate NWBFile,</span>
+<span class="sd">    as required by the NWB format.</span>
+<span class="sd">    Note that the NWBFile(s) are not automatically saved to disk.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` poses dataset containing the data to be converted to</span>
+<span class="sd">        NWBFile(s).</span>
+<span class="sd">    config : NWBFileSaveConfig, optional</span>
+<span class="sd">        Configuration object containing keyword arguments to customise the</span>
+<span class="sd">        :class:`pynwb.file.NWBFile` (s) that will be created</span>
+<span class="sd">        for each individual.</span>
+<span class="sd">        If None (default), default values will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pynwb.file.NWBFile or list[pynwb.file.NWBFile]</span>
+<span class="sd">        If the dataset contains only one individual, a single NWBFile object</span>
+<span class="sd">        will be returned. If the dataset contains multiple individuals,</span>
+<span class="sd">        a list of NWBFile objects will be returned, one for each individual.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create :class:`pynwb.file.NWBFile` objects for each individual in</span>
+<span class="sd">    a ``movement`` poses dataset ``ds`` and save them to disk:</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_poses</span>
+<span class="sd">    &gt;&gt;&gt; from pynwb import NWBHDF5IO</span>
+<span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(&quot;DLC_two-mice.predictions.csv&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds)</span>
+<span class="sd">    &gt;&gt;&gt; for file in nwb_files:</span>
+<span class="sd">    ...     with NWBHDF5IO(f&quot;{file.identifier}.nwb&quot;, &quot;w&quot;) as io:</span>
+<span class="sd">    ...         io.write(file)</span>
+
+<span class="sd">    Create NWBFiles with custom metadata shared across individuals.</span>
+<span class="sd">    Specifically, we add metadata for :class:`pynwb.file.NWBFile`,</span>
+<span class="sd">    :class:`pynwb.base.ProcessingModule`, and :class:`pynwb.file.Subject`</span>
+<span class="sd">    via the :class:`NWBFileSaveConfig&lt;movement.io.nwb.NWBFileSaveConfig&gt;`</span>
+<span class="sd">    object.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io.nwb import NWBFileSaveConfig</span>
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     nwbfile_kwargs={&quot;session_description&quot;: &quot;test session&quot;},</span>
+<span class="sd">    ...     processing_module_kwargs={&quot;description&quot;: &quot;processed behav data&quot;},</span>
+<span class="sd">    ...     subject_kwargs={&quot;age&quot;: &quot;P90D&quot;, &quot;species&quot;: &quot;Mus musculus&quot;},</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    Create NWBFiles with different :class:`pynwb.file.NWBFile`</span>
+<span class="sd">    and :class:`pynwb.file.Subject` metadata for each individual</span>
+<span class="sd">    (e.g. ``individual1``, ``individual2``) in the dataset:</span>
+
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     nwbfile_kwargs={</span>
+<span class="sd">    ...         &quot;individual1&quot;: {</span>
+<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter1&quot;,</span>
+<span class="sd">    ...             &quot;session_description&quot;: &quot;subj1 session&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...         &quot;individual2&quot;: {</span>
+<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter2&quot;,</span>
+<span class="sd">    ...             &quot;session_description&quot;: &quot;subj2 session&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ...     subject_kwargs={</span>
+<span class="sd">    ...         &quot;individual1&quot;: {&quot;age&quot;: &quot;P90D&quot;, &quot;sex&quot;: &quot;M&quot;},</span>
+<span class="sd">    ...         &quot;individual2&quot;: {&quot;age&quot;: &quot;P91D&quot;, &quot;sex&quot;: &quot;F&quot;},</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``</span>
+<span class="sd">    metadata for different keypoints (e.g. ``leftear``, ``rightear``):</span>
+
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     pose_estimation_series_kwargs={</span>
+<span class="sd">    ...         &quot;leftear&quot;: {</span>
+<span class="sd">    ...             &quot;description&quot;: &quot;left ear&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...         &quot;rightear&quot;: {</span>
+<span class="sd">    ...             &quot;description&quot;: &quot;right ear&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
+<span class="sd">        For further details on the configuration object and its parameters.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
+    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">individuals</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">individuals</span> <span class="o">=</span> <span class="p">[</span><span class="n">individuals</span><span class="p">]</span>
+    <span class="n">is_multi_ind</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">subjects</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">Subject</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_subject_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">is_multi_ind</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">}</span>
+    <span class="n">nwb_files</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="n">subjects</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_nwbfile_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">is_multi_ind</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">]</span>
+    <span class="n">pose_estimation_skeletons</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="n">_ds_to_pose_and_skeletons</span><span class="p">(</span>
+            <span class="n">ds</span>
+            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="nb">id</span><span class="p">),</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">subjects</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span>
+            <span class="n">is_multi_ind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">nwb_file</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nwb_files</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">pose_estimation</span><span class="p">,</span> <span class="n">skeletons</span> <span class="o">=</span> <span class="n">pose_estimation_skeletons</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">processing_module_kwargs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_resolve_processing_module_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">_write_processing_module</span><span class="p">(</span>
+            <span class="n">nwb_file</span><span class="p">,</span> <span class="n">processing_module_kwargs</span><span class="p">,</span> <span class="n">pose_estimation</span><span class="p">,</span> <span class="n">skeletons</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">nwb_files</span> <span class="k">if</span> <span class="n">is_multi_ind</span> <span class="k">else</span> <span class="n">nwb_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 

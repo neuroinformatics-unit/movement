@@ -16,8 +16,6 @@
     :toctree: .
     :nosignatures:
     
-    calculate_nan_stats
-    
     report_nan_values
     
 

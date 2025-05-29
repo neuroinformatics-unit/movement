@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -418,6 +418,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFile</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
@@ -1005,6 +1006,38 @@
                         <span class="s2">&quot;Please review the VIA tracks .csv file.&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ValidNWBFile">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidNWBFile.html#movement.validators.files.ValidNWBFile">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidNWBFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating NWB files.</span>
+
+<span class="sd">    The validator ensures that the file is either:</span>
+
+<span class="sd">    - a valid NWB file (.nwb) path, or</span>
+<span class="sd">    - an :class:`NWBFile&lt;pynwb.file.NWBFile&gt;` object.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str | Path | pynwb.file.NWBFile</span>
+<span class="sd">        Path to the NWB file on disk (ending in &quot;.nwb&quot;),</span>
+<span class="sd">        or an NWBFile object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">NWBFile</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="k">else</span> <span class="n">f</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">((</span><span class="n">Path</span><span class="p">,</span> <span class="n">NWBFile</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_is_valid_nwb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the file path has read permission and .nwb suffix.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="n">ValidFile</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.nwb&quot;</span><span class="p">])</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

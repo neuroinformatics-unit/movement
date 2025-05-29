@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -409,77 +409,33 @@
                    <h1>Source code for movement.utils.reports</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Utility functions for reporting missing data.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-
-
-<div class="viewcode-block" id="calculate_nan_stats">
-<a class="viewcode-back" href="../../../api/movement.utils.reports.calculate_nan_stats.html#movement.utils.reports.calculate_nan_stats">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_nan_stats</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">keypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate NaN stats for a given keypoint and individual.</span>
-
-<span class="sd">    This function calculates the number and percentage of NaN points</span>
-<span class="sd">    for a given keypoint and individual in the input data. A keypoint</span>
-<span class="sd">    is considered NaN if any of its ``space`` coordinates are NaN.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
-<span class="sd">        The input data containing ``keypoints`` and ``individuals``</span>
-<span class="sd">        dimensions.</span>
-<span class="sd">    keypoint : str, optional</span>
-<span class="sd">        The name of the keypoint for which to generate the report.</span>
-<span class="sd">        If ``None``, it is assumed that the input data contains only</span>
-<span class="sd">        one keypoint and this keypoint is used.</span>
-<span class="sd">        Default is ``None``.</span>
-<span class="sd">    individual : str, optional</span>
-<span class="sd">        The name of the individual for which to generate the report.</span>
-<span class="sd">        If ``None``, it is assumed that the input data contains only</span>
-<span class="sd">        one individual and this individual is used.</span>
-<span class="sd">        Default is ``None``.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        A string containing the report.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">selection_criteria</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">individual</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">selection_criteria</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">individual</span>
-    <span class="k">if</span> <span class="n">keypoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">selection_criteria</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">keypoint</span>
-    <span class="n">selected_data</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="o">**</span><span class="n">selection_criteria</span><span class="p">)</span> <span class="k">if</span> <span class="n">selection_criteria</span> <span class="k">else</span> <span class="n">data</span>
-    <span class="p">)</span>
-    <span class="n">n_nans</span> <span class="o">=</span> <span class="n">selected_data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">([</span><span class="s2">&quot;space&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-    <span class="n">n_points</span> <span class="o">=</span> <span class="n">selected_data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">percent_nans</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">n_nans</span> <span class="o">/</span> <span class="n">n_points</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t\t</span><span class="si">{</span><span class="n">keypoint</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">n_nans</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_points</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent_nans</span><span class="si">}</span><span class="s2">%)&quot;</span></div>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
 
 
 <div class="viewcode-block" id="report_nan_values">
 <a class="viewcode-back" href="../../../api/movement.utils.reports.report_nan_values.html#movement.utils.reports.report_nan_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">report_nan_values</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report the number and percentage of keypoints that are NaN.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report the number and percentage of data points that are NaN.</span>
 
-<span class="sd">    Numbers are reported for each individual and keypoint in the data.</span>
+<span class="sd">    The number of NaNs are counted for each element along the required</span>
+<span class="sd">    ``time`` dimension.</span>
+<span class="sd">    If the DataArray has the ``space`` dimension, the ``space`` dimension</span>
+<span class="sd">    is reduced by checking if any values in the ``space`` coordinates</span>
+<span class="sd">    are NaN, e.g. a 2D point is considered as NaN if any of its x or y</span>
+<span class="sd">    coordinates are NaN.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    da : xarray.DataArray</span>
-<span class="sd">        The input data containing ``keypoints`` and ``individuals``</span>
-<span class="sd">        dimensions.</span>
+<span class="sd">        The input data with ``time`` as a required dimension.</span>
 <span class="sd">    label : str, optional</span>
 <span class="sd">        Label to identify the data in the report. If not provided,</span>
-<span class="sd">        the name of the DataArray is used as the label.</span>
-<span class="sd">        Default is ``None``.</span>
+<span class="sd">        the name of the DataArray is used. If the DataArray has no</span>
+<span class="sd">        name, &quot;data&quot; is used as the label.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -487,22 +443,37 @@
 <span class="sd">        A string containing the report.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Compile the report</span>
-    <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">name</span>
-    <span class="n">nan_report</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Missing points (marked as NaN) in </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="c1"># Check if the data has individuals and keypoints dimensions</span>
-    <span class="n">has_individuals_dim</span> <span class="o">=</span> <span class="s2">&quot;individuals&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span>
-    <span class="n">has_keypoints_dim</span> <span class="o">=</span> <span class="s2">&quot;keypoints&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span>
-    <span class="c1"># Default values for individuals and keypoints</span>
-    <span class="n">individuals</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="n">has_individuals_dim</span> <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span> <span class="k">if</span> <span class="n">has_keypoints_dim</span> <span class="k">else</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
-        <span class="n">ind_name</span> <span class="o">=</span> <span class="n">ind</span> <span class="k">if</span> <span class="n">ind</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">Individual: </span><span class="si">{</span><span class="n">ind_name</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">keypoints</span><span class="p">:</span>
-            <span class="n">nan_report</span> <span class="o">+=</span> <span class="n">calculate_nan_stats</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">keypoint</span><span class="o">=</span><span class="n">kp</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">ind</span><span class="p">)</span>
-    <span class="c1"># Write nan report to logger</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;data&quot;</span>
+    <span class="n">nan_report</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Missing points (marked as NaN) in </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">:&quot;</span>
+    <span class="n">nan_count</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span>
+        <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Drop coord labels without NaNs</span>
+    <span class="n">nan_count</span> <span class="o">=</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">nan_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;No missing points (marked as NaN) in </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="n">total_count</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">nan_count_str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">nan_count</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">total_count</span><span class="si">}</span><span class="s2"> (&quot;</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">nan_count</span> <span class="o">/</span> <span class="n">total_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;%)&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># Stack all dimensions except for the last</span>
+    <span class="n">nan_count_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">nan_count_str</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">new_dim</span><span class="o">=</span><span class="n">nan_count_str</span><span class="o">.</span><span class="n">dims</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nan_count_str</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="k">else</span> <span class="n">nan_count_str</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+    <span class="n">nan_count_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">nan_count_df</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nan_count_df</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">nan_count_df</span>
+    <span class="p">)</span>
+    <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">nan_count_df</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">nan_report</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">nan_report</span></div>
 

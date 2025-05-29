@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>calculate_nan_stats &#8212; movement</title>
+    <title>from_nwb_file &#8212; movement</title>
   
   
   
@@ -44,19 +44,19 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.reports.calculate_nan_stats';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.io.load_poses.from_nwb_file';</script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.reports.calculate_nan_stats.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.io.load_poses.from_nwb_file.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="report_nan_values" href="movement.utils.reports.report_nan_values.html" />
-    <link rel="prev" title="movement.utils.reports" href="movement.utils.reports.html" /> 
+    <link rel="next" title="from_sleap_file" href="movement.io.load_poses.from_sleap_file.html" />
+    <link rel="prev" title="from_numpy" href="movement.io.load_poses.from_numpy.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -377,7 +377,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html">from_via_tracks_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_poses.html">movement.io.load_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load_poses.html">movement.io.load_poses</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_anipose_file.html">from_anipose_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_anipose_style_df.html">from_anipose_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html">from_dlc_file</a></li>
@@ -386,13 +386,19 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">from_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_multiview_files.html">from_multiview_files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">from_numpy</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">from_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">from_sleap_file</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.nwb.html">movement.io.nwb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -472,8 +478,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">calculate_nan_stats</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.report_nan_values.html">report_nan_values</a></li>
 </ul>
 </details></li>
@@ -499,6 +504,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
 </ul>
 </details></li>
@@ -546,9 +552,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.utils.reports.html" class="nav-link">movement.utils.reports</a></li>
+    <li class="breadcrumb-item"><a href="movement.io.load_poses.html" class="nav-link">movement.io.load_poses</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">calculate_nan_stats</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">from_nwb_file</span></li>
   </ul>
 </nav>
 </div>
@@ -564,37 +570,69 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="calculate-nan-stats">
-<h1>calculate_nan_stats<a class="headerlink" href="#calculate-nan-stats" title="Link to this heading">#</a></h1>
+                   <section id="from-nwb-file">
+<h1>from_nwb_file<a class="headerlink" href="#from-nwb-file" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.utils.reports.calculate_nan_stats">
-<span class="sig-prename descclassname"><span class="pre">movement.utils.reports.</span></span><span class="sig-name descname"><span class="pre">calculate_nan_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keypoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/reports.html#calculate_nan_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.reports.calculate_nan_stats" title="Link to this definition">#</a></dt>
-<dd><p>Calculate NaN stats for a given keypoint and individual.</p>
-<p>This function calculates the number and percentage of NaN points
-for a given keypoint and individual in the input data. A keypoint
-is considered NaN if any of its <code class="docutils literal notranslate"><span class="pre">space</span></code> coordinates are NaN.</p>
+<dt class="sig sig-object py" id="movement.io.load_poses.from_nwb_file">
+<span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processing_module_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'behavior'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose_estimation_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PoseEstimation'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_nwb_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_nwb_file" title="Link to this definition">#</a></dt>
+<dd><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset from an NWB file.</p>
+<p>The input can be a path to an NWB file on disk or a
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object.
+The data will be extracted from the NWB file’s
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>
+(specified by <code class="docutils literal notranslate"><span class="pre">processing_module_key</span></code>) that contains the
+<code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> object (specified by <code class="docutils literal notranslate"><span class="pre">pose_estimation_key</span></code>)
+formatted according to the <code class="docutils literal notranslate"><span class="pre">ndx-pose</span></code> NWB extension <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – The input data containing <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> and <code class="docutils literal notranslate"><span class="pre">individuals</span></code>
-dimensions.</p></li>
-<li><p><strong>keypoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the keypoint for which to generate the report.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code>, it is assumed that the input data contains only
-one keypoint and this keypoint is used.
-Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p><strong>individual</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the individual for which to generate the report.
-If <code class="docutils literal notranslate"><span class="pre">None</span></code>, it is assumed that the input data contains only
-one individual and this individual is used.
-Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>Path</em><em> | </em><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><em>pynwb.file.NWBFile</em></a>) – Path to the NWB file on disk (ending in “.nwb”),
+or an NWBFile object.</p></li>
+<li><p><strong>processing_module_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a> in the NWB file that
+contains the pose estimation data. Default is “behavior”.</p></li>
+<li><p><strong>pose_estimation_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> object in the processing
+module (specified by <code class="docutils literal notranslate"><span class="pre">processing_module_key</span></code>).
+Default is “PoseEstimation”.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A string containing the report.</p>
+<dd class="field-even"><p>A single-individual <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing the pose tracks,
+confidence scores, and associated metadata.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)">xarray.Dataset</a></p>
 </dd>
 </dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p><a class="github reference external" href="https://github.com/rly/ndx-pose">rly/ndx-pose</a></p>
+</aside>
+</aside>
+<p class="rubric">Examples</p>
+<p>Open an NWB file and load pose tracks from the
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBHDF5IO</span><span class="p">(</span><span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">nwb_file</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span><span class="n">nwb_file</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or, directly load pose tracks from an NWB file on disk:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span><span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Load two single-individual datasets from two NWB files and merge them
+into a multi-individual dataset:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds_singles</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;id1.nwb&quot;</span><span class="p">,</span> <span class="s2">&quot;id2.nwb&quot;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds_multi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ds_singles</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -613,20 +651,20 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.utils.reports.html"
+       href="movement.io.load_poses.from_numpy.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.utils.reports</p>
+        <p class="prev-next-title">from_numpy</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.reports.report_nan_values.html"
+       href="movement.io.load_poses.from_sleap_file.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">report_nan_values</p>
+        <p class="prev-next-title">from_sleap_file</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -649,7 +687,7 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.reports.calculate_nan_stats"><code class="docutils literal notranslate"><span class="pre">calculate_nan_stats()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load_poses.from_nwb_file"><code class="docutils literal notranslate"><span class="pre">from_nwb_file()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -657,7 +695,7 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.utils.reports.calculate_nan_stats.rst.txt"
+      <li><a href="../_sources/api/movement.io.load_poses.from_nwb_file.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

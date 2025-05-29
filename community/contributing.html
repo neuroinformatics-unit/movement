@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -430,6 +430,27 @@
                 <article class="bd-article">
                    <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
 <span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading">#</a></h1>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
+<p>Before starting work on a contribution, please check the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">issue tracker</a> to see if there’s already an issue describing what you have in mind.</p>
+<ul class="simple">
+<li><p>If there is, add a comment to let others know you’re willing to work on it.</p></li>
+<li><p>If there isn’t, please create a new issue to describe your idea.</p></li>
+</ul>
+<p>We strongly encourage discussing your plans before you start coding—either in the issue itself or on our <a class="reference external" href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement">Zulip chat</a>.
+This helps avoid duplicated effort and ensures your work aligns with the project’s <a class="reference internal" href="mission-scope.html#target-mission"><span class="std std-ref">scope</span></a> and <a class="reference internal" href="roadmaps.html#target-roadmaps"><span class="std std-ref">roadmap</span></a>.</p>
+<p>Keep in mind that we use issues liberally to track development.
+Some may be vague or aspirational, serving as reminders for future work rather than tasks ready to be tackled.
+There are a few reasons an issue might not be actionable yet:</p>
+<ul class="simple">
+<li><p>It depends on other issues being resolved first.</p></li>
+<li><p>It hasn’t been clearly scoped. In such cases, helping to clarify the scope or breaking the issue into smaller parts can be a valuable contribution. Maintainers typically lead this process, but you’re welcome to participate in the discussion.</p></li>
+<li><p>It doesn’t currently fit into the roadmap or the maintainers’ priorities, meaning we may be unable to commit to timely guidance and prompt code reviews.</p></li>
+</ul>
+<p>If you’re unsure whether an issue is ready to work on, just ask!</p>
+<p>Some issues are labelled as <code class="docutils literal notranslate"><span class="pre">good</span> <span class="pre">first</span> <span class="pre">issue</span></code>.
+These are especially suitable if you’re new to the project, and we recommend starting there.</p>
+</section>
 <section id="contributing-code">
 <h2>Contributing code<a class="headerlink" href="#contributing-code" title="Link to this heading">#</a></h2>
 <section id="creating-a-development-environment">
@@ -463,10 +484,15 @@ We recommend, and adhere, to the following conventions:</p>
 <ul class="simple">
 <li><p>Please submit <em>draft</em> PRs as early as possible to allow for discussion.</p></li>
 <li><p>The PR title should be descriptive e.g. “Add new function to do X” or “Fix bug in Y”.</p></li>
-<li><p>The PR description should be used to provide context and motivation for the changes.</p></li>
-<li><p>One approval of a PR (by a repo owner) is enough for it to be merged.</p></li>
+<li><p>The PR description should be used to provide context and motivation for the changes.</p>
+<ul>
+<li><p>If the PR is solving an issue, please add the issue number to the PR description, e.g. “Fixes #123” or “Closes #123”.</p></li>
+<li><p>Make sure to include cross-links to other relevant issues, PRs and Zulip threads, for context.</p></li>
+</ul>
+</li>
+<li><p>The maintainers triage PRs and assign suitable reviewers using the GitHub review system.</p></li>
+<li><p>One approval of a PR (by a maintainer) is enough for it to be merged.</p></li>
 <li><p>Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.</p></li>
-<li><p>Ask for a review from someone specific if you think they would be a particularly suited reviewer.</p></li>
 <li><p>PRs are preferably merged via the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits">“squash and merge”</a> option, to keep a clean commit history on the <em>main</em> branch.</p></li>
 </ul>
 <p>A typical PR workflow would be:</p>
@@ -496,14 +522,8 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p><a class="reference external" href="https://github.com/mgedmin/check-manifest">check-manifest</a> to ensure that the right files are included in the pip package.</p></li>
 <li><p><a class="reference external" href="https://github.com/codespell-project/codespell">codespell</a> to check for common misspellings.</p></li>
 </ul>
-<p>These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ruff<span class="w"> </span>.
-mypy<span class="w"> </span>-p<span class="w"> </span>movement
-check-manifest
-codespell
-</pre></div>
-</div>
-<p>To run all the hooks before committing:</p>
+<p>These will prevent code from being committed if any of these hooks fail.
+To run all the hooks before committing:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>run<span class="w">  </span><span class="c1"># for staged files</span>
 pre-commit<span class="w"> </span>run<span class="w"> </span>-a<span class="w">  </span><span class="c1"># for all files in the repository</span>
 </pre></div>
@@ -528,14 +548,16 @@ This is important as it allows for <a class="reference internal" href="#updating
 </section>
 <section id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h3>
-<p>We use <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a> for testing and aim for
-~100% test coverage (as far as is reasonable).
-All new features should be tested.
-Write your test methods and classes in the <em>tests</em> folder.</p>
-<p>For some tests, you will need to use real experimental data.
-Do not include these data in the repository, especially if they are large.
-We store several sample datasets in an external data repository.
-See <a class="reference internal" href="#sample-data">sample data</a> for more information.</p>
+<p>We use <a class="reference external" href="https://docs.pytest.org/en/latest/">pytest</a> for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.</p>
+<p>Tests are stored in the <code class="docutils literal notranslate"><span class="pre">tests</span></code> directory, structured as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_unit/</span></code>: Contains unit tests that closely follow the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package structure.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_integration/</span></code>: Includes tests for interactions between different modules.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fixtures/</span></code>: Holds reusable test data fixtures, automatically imported via <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>. Check for existing fixtures before adding new ones, to avoid duplication.</p></li>
+</ul>
+<p>For tests requiring experimental data, you can use <a class="reference internal" href="#sample-data">sample data</a> from our external data repository.
+These datasets are accessible through the <code class="docutils literal notranslate"><span class="pre">pytest.DATA_PATHS</span></code> dictionary, populated in <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>.
+Avoid including large data files directly in the GitHub repository.</p>
 </section>
 <section id="logging">
 <h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h3>
@@ -960,6 +982,7 @@ Windows</label><div class="sd-tab-content docutils">
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-you-start">Before you start</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-code">Contributing code</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>

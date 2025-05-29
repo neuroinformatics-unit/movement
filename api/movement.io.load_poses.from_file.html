@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -386,13 +386,19 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">from_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_multiview_files.html">from_multiview_files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">from_numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_nwb_file.html">from_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">from_sleap_file</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.nwb.html">movement.io.nwb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -473,7 +479,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.calculate_nan_stats.html">calculate_nan_stats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.report_nan_values.html">report_nan_values</a></li>
 </ul>
 </details></li>
@@ -499,6 +504,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
 </ul>
 </details></li>
@@ -578,9 +584,12 @@ be among those supported by the <code class="docutils literal notranslate"><span
 <code class="docutils literal notranslate"><span class="pre">from_slp_file()</span></code> or <code class="docutils literal notranslate"><span class="pre">from_lp_file()</span></code> functions. One of these
 these functions will be called internally, based on
 the value of <code class="docutils literal notranslate"><span class="pre">source_software</span></code>.</p></li>
-<li><p><strong>source_software</strong> (<em>&quot;DeepLabCut&quot;</em><em>, </em><em>&quot;SLEAP&quot;</em><em>, </em><em>&quot;LightningPose&quot;</em><em>, or </em><em>&quot;Anipose&quot;</em>) – The source software of the file.</p></li>
+<li><p><strong>source_software</strong> (<em>{&quot;DeepLabCut&quot;</em><em>, </em><em>&quot;SLEAP&quot;</em><em>, </em><em>&quot;LightningPose&quot;</em><em>, </em><em>&quot;Anipose&quot;</em><em>,         </em><em>&quot;NWB&quot;}</em>) – The source software of the file.</p></li>
 <li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The number of frames per second in the video. If None (default),
-the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.</p></li>
+the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.
+This argument is ignored when <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is “NWB”, as the
+frame rate will be directly read or estimated from metadata in
+the NWB file.</p></li>
 <li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Additional keyword arguments to pass to the software-specific
 loading functions that are listed under “See Also”.</p></li>
 </ul>
@@ -595,7 +604,7 @@ and associated metadata.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_dlc_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_sleap_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file" title="movement.io.load_poses.from_lp_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_lp_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_anipose_file.html#movement.io.load_poses.from_anipose_file" title="movement.io.load_poses.from_anipose_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_anipose_file</span></code></a></p>
+<p><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html#movement.io.load_poses.from_dlc_file" title="movement.io.load_poses.from_dlc_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_dlc_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_sleap_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_lp_file.html#movement.io.load_poses.from_lp_file" title="movement.io.load_poses.from_lp_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_lp_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_anipose_file.html#movement.io.load_poses.from_anipose_file" title="movement.io.load_poses.from_anipose_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_anipose_file</span></code></a>, <a class="reference internal" href="movement.io.load_poses.from_nwb_file.html#movement.io.load_poses.from_nwb_file" title="movement.io.load_poses.from_nwb_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses.from_nwb_file</span></code></a></p>
 </div>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>

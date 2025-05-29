@@ -1,0 +1,20 @@
+ValidNWBFile
+============
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidNWBFile
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

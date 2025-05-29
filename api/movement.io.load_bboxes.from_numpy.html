@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -386,13 +386,19 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">from_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_multiview_files.html">from_multiview_files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">from_numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_nwb_file.html">from_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">from_sleap_file</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.nwb.html">movement.io.nwb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -473,7 +479,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.calculate_nan_stats.html">calculate_nan_stats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.report_nan_values.html">report_nan_values</a></li>
 </ul>
 </details></li>
@@ -499,6 +504,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
 </ul>
 </details></li>
@@ -621,8 +627,9 @@ to the end frame 1299. The confidence score for all bounding boxes is set
 to 0.5.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id_0&quot;</span><span class="p">,</span> <span class="s2">&quot;id_1&quot;</span><span class="p">],</span>
@@ -637,7 +644,7 @@ the capture of the 0th frame. So for the frames 1200, 1201, 1203,… 1299
 the corresponding time coordinates in seconds will be 20, 20.0167,
 20.033,… 21.65 s.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id_0&quot;</span><span class="p">,</span> <span class="s2">&quot;id_1&quot;</span><span class="p">],</span>
@@ -650,7 +657,7 @@ the corresponding time coordinates in seconds will be 20, 20.0167,
 coordinate in frames, and assume the first tracked frame is frame 0.
 To do this, we simply omit the <code class="docutils literal notranslate"><span class="pre">frame_array</span></code> input argument.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id_0&quot;</span><span class="p">,</span> <span class="s2">&quot;id_1&quot;</span><span class="p">],</span>
@@ -662,7 +669,7 @@ coordinate in seconds, and assume the first tracked frame is captured
 at time = 0 seconds. To do this, we omit the <code class="docutils literal notranslate"><span class="pre">frame_array</span></code> input argument
 and pass an <code class="docutils literal notranslate"><span class="pre">fps</span></code> value.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id_0&quot;</span><span class="p">,</span> <span class="s2">&quot;id_1&quot;</span><span class="p">],</span>

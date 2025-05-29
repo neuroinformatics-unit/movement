@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -56,7 +56,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="movement.utils.vector" href="movement.utils.vector.html" />
-    <link rel="prev" title="calculate_nan_stats" href="movement.utils.reports.calculate_nan_stats.html" /> 
+    <link rel="prev" title="movement.utils.reports" href="movement.utils.reports.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -386,13 +386,19 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">from_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_multiview_files.html">from_multiview_files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">from_numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_nwb_file.html">from_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">from_sleap_file</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.nwb.html">movement.io.nwb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -473,7 +479,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="movement.utils.reports.calculate_nan_stats.html">calculate_nan_stats</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">report_nan_values</a></li>
 </ul>
 </details></li>
@@ -499,6 +504,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
 </ul>
 </details></li>
@@ -569,16 +575,20 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.utils.reports.report_nan_values">
 <span class="sig-prename descclassname"><span class="pre">movement.utils.reports.</span></span><span class="sig-name descname"><span class="pre">report_nan_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">da</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/reports.html#report_nan_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.reports.report_nan_values" title="Link to this definition">#</a></dt>
-<dd><p>Report the number and percentage of keypoints that are NaN.</p>
-<p>Numbers are reported for each individual and keypoint in the data.</p>
+<dd><p>Report the number and percentage of data points that are NaN.</p>
+<p>The number of NaNs are counted for each element along the required
+<code class="docutils literal notranslate"><span class="pre">time</span></code> dimension.
+If the DataArray has the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension, the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension
+is reduced by checking if any values in the <code class="docutils literal notranslate"><span class="pre">space</span></code> coordinates
+are NaN, e.g. a 2D point is considered as NaN if any of its x or y
+coordinates are NaN.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – The input data containing <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> and <code class="docutils literal notranslate"><span class="pre">individuals</span></code>
-dimensions.</p></li>
+<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – The input data with <code class="docutils literal notranslate"><span class="pre">time</span></code> as a required dimension.</p></li>
 <li><p><strong>label</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Label to identify the data in the report. If not provided,
-the name of the DataArray is used as the label.
-Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+the name of the DataArray is used. If the DataArray has no
+name, “data” is used as the label.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -606,12 +616,12 @@ Default is <code class="docutils literal notranslate"><span class="pre">None</sp
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.utils.reports.calculate_nan_stats.html"
+       href="movement.utils.reports.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">calculate_nan_stats</p>
+        <p class="prev-next-title">movement.utils.reports</p>
       </div>
     </a>
     <a class="right-next"

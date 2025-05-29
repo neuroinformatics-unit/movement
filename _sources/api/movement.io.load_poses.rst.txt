@@ -32,6 +32,8 @@
     
     from_numpy
     
+    from_nwb_file
+    
     from_sleap_file
     
 

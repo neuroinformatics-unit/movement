@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -415,6 +415,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.io.slp</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_labels</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sleap_io.model.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">Labels</span>
@@ -426,6 +427,7 @@
     <span class="n">ValidDeepLabCutCSV</span><span class="p">,</span>
     <span class="n">ValidFile</span><span class="p">,</span>
     <span class="n">ValidHDF5</span><span class="p">,</span>
+    <span class="n">ValidNWBFile</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -482,8 +484,9 @@
 
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
+<span class="sd">    &gt;&gt;&gt; rng = np.random.default_rng(seed=42)</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand(100, 2, 3, 2),</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 3, 2)),</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 3, 2)),</span>
 <span class="sd">    ...     individual_names=[&quot;Alice&quot;, &quot;Bob&quot;],</span>
 <span class="sd">    ...     keypoint_names=[&quot;snout&quot;, &quot;centre&quot;, &quot;tail_base&quot;],</span>
@@ -508,7 +511,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-        <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="s2">&quot;Anipose&quot;</span>
+        <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Anipose&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;NWB&quot;</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -523,11 +530,15 @@
 <span class="sd">        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these</span>
 <span class="sd">        these functions will be called internally, based on</span>
 <span class="sd">        the value of ``source_software``.</span>
-<span class="sd">    source_software : &quot;DeepLabCut&quot;, &quot;SLEAP&quot;, &quot;LightningPose&quot;, or &quot;Anipose&quot;</span>
+<span class="sd">    source_software : {&quot;DeepLabCut&quot;, &quot;SLEAP&quot;, &quot;LightningPose&quot;, &quot;Anipose&quot;, \</span>
+<span class="sd">        &quot;NWB&quot;}</span>
 <span class="sd">        The source software of the file.</span>
 <span class="sd">    fps : float, optional</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
+<span class="sd">        This argument is ignored when ``source_software`` is &quot;NWB&quot;, as the</span>
+<span class="sd">        frame rate will be directly read or estimated from metadata in</span>
+<span class="sd">        the NWB file.</span>
 <span class="sd">    **kwargs : dict, optional</span>
 <span class="sd">        Additional keyword arguments to pass to the software-specific</span>
 <span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
@@ -544,6 +555,7 @@
 <span class="sd">    movement.io.load_poses.from_sleap_file</span>
 <span class="sd">    movement.io.load_poses.from_lp_file</span>
 <span class="sd">    movement.io.load_poses.from_anipose_file</span>
+<span class="sd">    movement.io.load_poses.from_nwb_file</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -561,6 +573,14 @@
         <span class="k">return</span> <span class="n">from_lp_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;Anipose&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">from_anipose_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;NWB&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;The fps argument is ignored when loading from an NWB file. &quot;</span>
+                <span class="s2">&quot;The frame rate will be directly read or estimated from &quot;</span>
+                <span class="s2">&quot;metadata in the file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">from_nwb_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1258,6 +1278,145 @@
         <span class="n">anipose_df</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="n">individual_name</span>
     <span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="from_nwb_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_nwb_file.html#movement.io.load_poses.from_nwb_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_nwb_file</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span>
+    <span class="n">processing_module_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;behavior&quot;</span><span class="p">,</span>
+    <span class="n">pose_estimation_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PoseEstimation&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from an NWB file.</span>
+
+<span class="sd">    The input can be a path to an NWB file on disk or a</span>
+<span class="sd">    :class:`pynwb.file.NWBFile` object.</span>
+<span class="sd">    The data will be extracted from the NWB file&#39;s</span>
+<span class="sd">    :class:`pynwb.base.ProcessingModule`</span>
+<span class="sd">    (specified by ``processing_module_key``) that contains the</span>
+<span class="sd">    ``ndx_pose.PoseEstimation`` object (specified by ``pose_estimation_key``)</span>
+<span class="sd">    formatted according to the ``ndx-pose`` NWB extension [1]_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str | Path | pynwb.file.NWBFile</span>
+<span class="sd">        Path to the NWB file on disk (ending in &quot;.nwb&quot;),</span>
+<span class="sd">        or an NWBFile object.</span>
+<span class="sd">    processing_module_key : str, optional</span>
+<span class="sd">        Name of the :class:`pynwb.base.ProcessingModule` in the NWB file that</span>
+<span class="sd">        contains the pose estimation data. Default is &quot;behavior&quot;.</span>
+<span class="sd">    pose_estimation_key: str, optional</span>
+<span class="sd">        Name of the ``ndx_pose.PoseEstimation`` object in the processing</span>
+<span class="sd">        module (specified by ``processing_module_key``).</span>
+<span class="sd">        Default is &quot;PoseEstimation&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        A single-individual ``movement`` dataset containing the pose tracks,</span>
+<span class="sd">        confidence scores, and associated metadata.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Open an NWB file and load pose tracks from the</span>
+<span class="sd">    :class:`pynwb.file.NWBFile` object:</span>
+
+<span class="sd">    &gt;&gt;&gt; import pynwb</span>
+<span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
+<span class="sd">    &gt;&gt;&gt; with pynwb.NWBHDF5IO(&quot;path/to/file.nwb&quot;, mode=&quot;r&quot;) as io:</span>
+<span class="sd">    ...     nwb_file = io.read()</span>
+<span class="sd">    ...     ds = load_poses.from_nwb_file(nwb_file)</span>
+
+<span class="sd">    Or, directly load pose tracks from an NWB file on disk:</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_nwb_file(&quot;path/to/file.nwb&quot;)</span>
+
+<span class="sd">    Load two single-individual datasets from two NWB files and merge them</span>
+<span class="sd">    into a multi-individual dataset:</span>
+
+<span class="sd">    &gt;&gt;&gt; ds_singles = [</span>
+<span class="sd">    ...     load_poses.from_nwb_file(f) for f in [&quot;id1.nwb&quot;, &quot;id2.nwb&quot;]</span>
+<span class="sd">    ... ]</span>
+<span class="sd">    &gt;&gt;&gt; ds_multi = xr.merge(ds_singles)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">ValidNWBFile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">file</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBHDF5IO</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+            <span class="n">nwbfile_object</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds_from_nwb_object</span><span class="p">(</span>
+                <span class="n">nwbfile_object</span><span class="p">,</span> <span class="n">processing_module_key</span><span class="p">,</span> <span class="n">pose_estimation_key</span>
+            <span class="p">)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># file is an NWBFile object</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds_from_nwb_object</span><span class="p">(</span>
+            <span class="n">file</span><span class="p">,</span> <span class="n">processing_module_key</span><span class="p">,</span> <span class="n">pose_estimation_key</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_nwb_object</span><span class="p">(</span>
+    <span class="n">nwb_file</span><span class="p">:</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span>
+    <span class="n">processing_module_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;behavior&quot;</span><span class="p">,</span>
+    <span class="n">pose_estimation_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PoseEstimation&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a ``movement`` poses dataset from an NWBFile object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nwb_file : pynwb.file.NWBFile</span>
+<span class="sd">        An NWBFile object.</span>
+<span class="sd">    processing_module_key : str, optional</span>
+<span class="sd">        Name of the :class:`pynwb.base.ProcessingModule` in the NWB file that</span>
+<span class="sd">        contains the pose estimation data. Default is &quot;behavior&quot;.</span>
+<span class="sd">    pose_estimation_key: str, optional</span>
+<span class="sd">        Name of the ``ndx_pose.PoseEstimation`` object in the processing</span>
+<span class="sd">        module (specified by ``processing_module_key``).</span>
+<span class="sd">        Default is &quot;PoseEstimation&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        A single-individual ``movement`` poses dataset</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pose_estimation</span> <span class="o">=</span> <span class="n">nwb_file</span><span class="o">.</span><span class="n">processing</span><span class="p">[</span><span class="n">processing_module_key</span><span class="p">][</span>
+        <span class="n">pose_estimation_key</span>
+    <span class="p">]</span>
+    <span class="n">source_software</span> <span class="o">=</span> <span class="n">pose_estimation</span><span class="o">.</span><span class="n">source_software</span>
+    <span class="n">pose_estimation_series</span> <span class="o">=</span> <span class="n">pose_estimation</span><span class="o">.</span><span class="n">pose_estimation_series</span>
+    <span class="n">single_keypoint_datasets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">pes</span> <span class="ow">in</span> <span class="n">pose_estimation_series</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Extract position and confidence data for each keypoint</span>
+        <span class="n">position_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pes</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># shape: (n_frames, n_space)</span>
+        <span class="n">confidence_data</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># shape: (n_frames,)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pes</span><span class="o">.</span><span class="n">confidence</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pes</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">position_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pes</span><span class="o">.</span><span class="n">rate</span><span class="p">:</span>  <span class="c1"># in Hz</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="n">pes</span><span class="o">.</span><span class="n">rate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Compute fps from the time differences between timestamps</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">pes</span><span class="o">.</span><span class="n">timestamps</span><span class="p">))</span>
+        <span class="n">single_keypoint_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="c1"># create movement dataset with 1 keypoint and 1 individual</span>
+            <span class="n">from_numpy</span><span class="p">(</span>
+                <span class="n">position_data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+                <span class="n">confidence_data</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+                <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="n">nwb_file</span><span class="o">.</span><span class="n">identifier</span><span class="p">],</span>
+                <span class="n">keypoint_names</span><span class="o">=</span><span class="p">[</span><span class="n">keypoint</span><span class="p">],</span>
+                <span class="n">fps</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">fps</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+                <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">single_keypoint_datasets</span><span class="p">)</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

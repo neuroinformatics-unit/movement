@@ -22,6 +22,8 @@
     
     ValidHDF5
     
+    ValidNWBFile
+    
     ValidVIATracksCSV
     
 

@@ -1,0 +1,20 @@
+NWBFileSaveConfig
+=================
+
+.. currentmodule:: movement.io.nwb
+
+.. autoclass:: NWBFileSaveConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

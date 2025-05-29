@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../../../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -497,8 +497,9 @@
 
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; rng = np.random.default_rng(seed=42)</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand(100, 2, 2),</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
 <span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
@@ -513,7 +514,7 @@
 <span class="sd">    20.033,... 21.65 s.</span>
 
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand(100, 2, 2),</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
 <span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
@@ -526,7 +527,7 @@
 <span class="sd">    To do this, we simply omit the ``frame_array`` input argument.</span>
 
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand(100, 2, 2),</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
 <span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
@@ -538,7 +539,7 @@
 <span class="sd">    and pass an ``fps`` value.</span>
 
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=np.random.rand(100, 2, 2),</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
 <span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>

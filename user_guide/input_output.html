@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=2bd037f0"></script>
+    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,7 +124,7 @@
   
   
   
-    <p class="title logo__title">movement v0.6.1</p>
+    <p class="title logo__title">movement v0.7.0</p>
   
 </a></div>
     
@@ -438,6 +438,7 @@
 <li><p><a class="reference external" href="https://lightning-pose.readthedocs.io/en/stable/#">LightingPose</a> (LP)</p></li>
 <li><p><a class="reference external" href="https://anipose.readthedocs.io/en/latest/">Anipose</a> (Anipose)</p></li>
 </ul>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">movement</span></code> supports loading data stored in <a class="reference external" href="https://nwb-overview.readthedocs.io/en/latest/">Neurodata Without Borders (NWB)</a> format (using the <a class="reference external" href="https://github.com/rly/ndx-pose"><code class="docutils literal notranslate"><span class="pre">ndx-pose</span></code></a> extension).</p>
 <p>To analyse bounding box tracks, <code class="docutils literal notranslate"><span class="pre">movement</span></code> currently supports the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a> (VIA) format for <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">tracks annotation</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -457,23 +458,6 @@ included with the package.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
-SLEAP</label><div class="sd-tab-content docutils">
-<p>To load <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> in .h5 format (recommended):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-
-<span class="c1"># or equivalently</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-    <span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p>To load <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> in .slp format (experimental, see notes in <a class="reference internal" href="../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_poses.from_sleap_file()</span></code></a>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.predictions.slp&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-1">
 DeepLabCut</label><div class="sd-tab-content docutils">
 <p>To load DeepLabCut files in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -486,6 +470,23 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 </div>
 <p>To load DeepLabCut files in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_dlc_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+SLEAP</label><div class="sd-tab-content docutils">
+<p>To load <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> in .h5 format (recommended):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;/path/to/file.analysis.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>To load <a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP analysis files</a> in .slp format (experimental, see notes in <a class="reference internal" href="../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_poses.from_sleap_file()</span></code></a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span><span class="p">(</span><span class="s2">&quot;/path/to/file.predictions.slp&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -508,25 +509,57 @@ Anipose</label><div class="sd-tab-content docutils">
 <p>To load Anipose files in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_anipose_file</span><span class="p">(</span>
     <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span>
-<span class="p">)</span>  <span class="c1"># We can optionally specify the individual name, by default it is &quot;individual_0&quot;</span>
+<span class="p">)</span>  <span class="c1"># Optionally specify the individual name; defaults to &quot;individual_0&quot;</span>
 
 <span class="c1"># or equivalently</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
-    <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;Anipose&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span>
+    <span class="s2">&quot;/path/to/file.analysis.csv&quot;</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;Anipose&quot;</span><span class="p">,</span>
+    <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">individual_name</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-
 </pre></div>
 </div>
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
+NWB</label><div class="sd-tab-content docutils">
+<p>To load NWB files in .nwb format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span>
+    <span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">,</span>
+    <span class="n">processing_module_key</span><span class="o">=</span><span class="s2">&quot;behavior&quot;</span><span class="p">,</span>
+    <span class="n">pose_estimation_key</span><span class="o">=</span><span class="s2">&quot;PoseEstimation&quot;</span><span class="p">,</span>
+<span class="p">)</span>  <span class="c1"># Optionally specify the name of the ProcessingModule and PoseEstimation objects.</span>
+<span class="c1"># Defaults are &quot;behavior&quot; and &quot;PoseEstimation&quot;, respectively.</span>
+
+<span class="c1"># or equivalently</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;NWB&quot;</span><span class="p">,</span>
+    <span class="n">processing_module_key</span><span class="o">=</span><span class="s2">&quot;behavior&quot;</span><span class="p">,</span>
+    <span class="n">pose_estimation_key</span><span class="o">=</span><span class="s2">&quot;PoseEstimation&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The above functions also accept an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object as input:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBHDF5IO</span><span class="p">(</span><span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+    <span class="n">nwb_file</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span>
+        <span class="n">nwb_file</span><span class="p">,</span> <span class="n">pose_estimation_key</span><span class="o">=</span><span class="s2">&quot;PoseEstimation&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two individuals, <code class="docutils literal notranslate"><span class="pre">Alice</span></code> and <code class="docutils literal notranslate"><span class="pre">Bob</span></code>,
 with three keypoints each: <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, and <code class="docutils literal notranslate"><span class="pre">tail_base</span></code>. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
     <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
     <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">],</span>
     <span class="n">keypoint_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;centre&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">],</span>
@@ -550,8 +583,8 @@ the pose estimation software.</p>
 </div>
 <p>We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a <code class="docutils literal notranslate"><span class="pre">from_numpy()</span></code> method, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-5" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
 VGG Image Annotator</label><div class="sd-tab-content docutils">
 <p>To load a VIA tracks .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span><span class="s2">&quot;path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -566,15 +599,16 @@ VGG Image Annotator</label><div class="sd-tab-content docutils">
 </div>
 <p>Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> will hold in its <code class="docutils literal notranslate"><span class="pre">position</span></code> array the centroid of each bounding box.</p>
 </div>
-<input id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
+<input id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two bounding boxes, <code class="docutils literal notranslate"><span class="pre">id_0</span></code> and <code class="docutils literal notranslate"><span class="pre">id_1</span></code>,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-    <span class="n">position_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
     <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
     <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id_0&quot;</span><span class="p">,</span> <span class="s2">&quot;id_1&quot;</span><span class="p">]</span>
@@ -589,16 +623,32 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
 <section id="saving-pose-tracks">
 <span id="target-saving-pose-tracks"></span><h2>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses datasets</span></a> can be saved in a variety of
-formats, including DeepLabCut-style files (.h5 or .csv) and
-<a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP-style analysis files</a> (.h5).</p>
+formats:</p>
+<ul class="simple">
+<li><p>DeepLabCut-style files (.h5 or .csv)</p></li>
+<li><p><a class="reference external" href="https://sleap.ai/tutorials/analysis#">SLEAP-style analysis files</a> (.h5)</p></li>
+<li><p>NWB files (.nwb)</p></li>
+</ul>
 <p>To export pose tracks from <code class="docutils literal notranslate"><span class="pre">movement</span></code>, first import the <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
 </pre></div>
 </div>
 <p>Then, depending on the desired format, use one of the following functions:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-7" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
+<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+DeepLabCut</label><div class="sd-tab-content docutils">
+<p>To save as a DeepLabCut file, in .h5 or .csv format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>  <span class="c1"># preferred format</span>
+<span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_poses.to_dlc_file()</span></code></a> function also accepts
+a <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> boolean argument. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the function will
+save the data as separate single-animal DeepLabCut-style files.</p>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
 SLEAP</label><div class="sd-tab-content docutils">
 <p>To save as a SLEAP analysis file in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>
@@ -616,20 +666,8 @@ each attribute and data variable represents, see the
 <a class="reference external" href="https://sleap.ai/api/sleap.info.write_tracking_h5.html#module-sleap.info.write_tracking_h5">SLEAP documentation</a>.</p>
 </div>
 </div>
-<input id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
-DeepLabCut</label><div class="sd-tab-content docutils">
-<p>To save as a DeepLabCut file, in .h5 or .csv format:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.h5&quot;</span><span class="p">)</span>  <span class="c1"># preferred format</span>
-<span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The <a class="reference internal" href="../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_poses.to_dlc_file()</span></code></a> function also accepts
-a <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> boolean argument. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the function will
-save the data as separate single-animal DeepLabCut-style files.</p>
-</div>
-<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-9">
+<input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
 LightningPose</label><div class="sd-tab-content docutils">
 <p>To save as a LightningPose file in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">)</span>
@@ -642,6 +680,31 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+NWB</label><div class="sd-tab-content docutils">
+<p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_poses.to_nwb_file()</span></code></a> function also accepts
+a <a class="reference internal" href="../api/movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">movement.io.nwb.NWBFileSaveConfig</span></code></a> object as its <code class="docutils literal notranslate"><span class="pre">config</span></code> argument
+for customising metadata such as session or subject information in the resulting <code class="docutils literal notranslate"><span class="pre">NWBFile</span></code>s
+(see <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">the</span> <span class="pre">API</span> <span class="pre">reference</span></code></a> for examples).</p>
+<p>These <code class="docutils literal notranslate"><span class="pre">NWBFile</span></code>s can then be saved to disk as .nwb files using <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.html#pynwb.NWBHDF5IO" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.NWBHDF5IO</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span>
+
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">nwb_files</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.nwb&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To allow adding additional data to NWB files before saving, <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file</span></code></a> does not write to disk directly.
+Instead, it returns a list of <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v2.8.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects—one per individual in the dataset—since NWB files are designed to represent data from a single individual.</p>
 </div>
 </div>
 </div>
