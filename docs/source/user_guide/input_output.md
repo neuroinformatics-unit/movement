@@ -91,7 +91,10 @@ ds = load_poses.from_anipose_file(
 
 # or equivalently
 ds = load_poses.from_file(
-    "/path/to/file.analysis.csv", source_software="Anipose", fps=30, individual_name="individual_0"
+    "/path/to/file.analysis.csv",
+    source_software="Anipose",
+    fps=30,
+    individual_name="individual_0",
 )
 ```
 :::
@@ -100,19 +103,27 @@ ds = load_poses.from_file(
 To load NWB files in .nwb format:
 ```python
 ds = load_poses.from_nwb_file(
-    "path/to/file.nwb", key_name="PoseEstimation"
-)  # Optionally specify the name of the PoseEstimation object; defaults to "PoseEstimation"
+    "path/to/file.nwb",
+    processing_module_key="behavior",
+    pose_estimation_key="PoseEstimation",
+)  # Optionally specify the name of the ProcessingModule and PoseEstimation objects.
+# Defaults are "behavior" and "PoseEstimation", respectively.
 
 # or equivalently
 ds = load_poses.from_file(
-    "path/to/file.nwb", source_software="NWB", key_name="PoseEstimation"
+    "path/to/file.nwb",
+    source_software="NWB",
+    processing_module_key="behavior",
+    pose_estimation_key="PoseEstimation",
 )
 ```
-The above functions also accept an open {class}`NWBFile<pynwb.file.NWBFile>` object as input:
+The above functions also accept an {class}`NWBFile<pynwb.file.NWBFile>` object as input:
 ```python
 with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     nwb_file = io.read()
-    ds = load_poses.from_nwb_file(nwb_file, key_name="PoseEstimation")
+    ds = load_poses.from_nwb_file(
+        nwb_file, pose_estimation_key="PoseEstimation"
+    )
 ```
 :::
 

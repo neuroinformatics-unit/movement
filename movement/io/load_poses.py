@@ -846,24 +846,31 @@ def from_anipose_file(
 
 def from_nwb_file(
     file: str | Path | pynwb.file.NWBFile,
-    key_name: str = "PoseEstimation",
+    processing_module_key: str = "behavior",
+    pose_estimation_key: str = "PoseEstimation",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an NWB file.
 
     The input can be a path to an NWB file on disk or a
     :class:`pynwb.file.NWBFile` object.
-    The data will be extracted from the NWB file's behavior processing module,
-    which is assumed to contain a ``PoseEstimation`` object formatted according
-    to the ``ndx-pose`` NWB extension [1]_.
+    The data will be extracted from the NWB file's
+    :class:`pynwb.base.ProcessingModule`
+    (specified by ``processing_module_key``) that contains the
+    ``ndx_pose.PoseEstimation`` object (specified by ``pose_estimation_key``)
+    formatted according to the ``ndx-pose`` NWB extension [1]_.
 
     Parameters
     ----------
     file : str | Path | pynwb.file.NWBFile
         Path to the NWB file on disk (ending in ".nwb"),
         or an NWBFile object.
-    key_name: str, optional
-        Name of the ``PoseEstimation`` object in the NWB "behavior"
-        processing module, by default "PoseEstimation".
+    processing_module_key : str, optional
+        Name of the :class:`pynwb.base.ProcessingModule` in the NWB file that
+        contains the pose estimation data. Default is "behavior".
+    pose_estimation_key: str, optional
+        Name of the ``ndx_pose.PoseEstimation`` object in the processing
+        module (specified by ``processing_module_key``).
+        Default is "PoseEstimation".
 
     Returns
     -------
@@ -904,16 +911,21 @@ def from_nwb_file(
     if isinstance(file, Path):
         with pynwb.NWBHDF5IO(file, mode="r") as io:
             nwbfile_object = io.read()
-            ds = _ds_from_nwb_object(nwbfile_object, key_name=key_name)
+            ds = _ds_from_nwb_object(
+                nwbfile_object, processing_module_key, pose_estimation_key
+            )
             ds.attrs["source_file"] = file
     else:  # file is an NWBFile object
-        ds = _ds_from_nwb_object(file, key_name=key_name)
+        ds = _ds_from_nwb_object(
+            file, processing_module_key, pose_estimation_key
+        )
     return ds
 
 
 def _ds_from_nwb_object(
     nwb_file: pynwb.file.NWBFile,
-    key_name: str = "PoseEstimation",
+    processing_module_key: str = "behavior",
+    pose_estimation_key: str = "PoseEstimation",
 ) -> xr.Dataset:
     """Extract a ``movement`` poses dataset from an NWBFile object.
 
@@ -921,9 +933,13 @@ def _ds_from_nwb_object(
     ----------
     nwb_file : pynwb.file.NWBFile
         An NWBFile object.
-    key_name: str
-        Name of the ``ndx_pose.PoseEstimation`` object in the
-        "behavior" processing module. Default is "PoseEstimation".
+    processing_module_key : str, optional
+        Name of the :class:`pynwb.base.ProcessingModule` in the NWB file that
+        contains the pose estimation data. Default is "behavior".
+    pose_estimation_key: str, optional
+        Name of the ``ndx_pose.PoseEstimation`` object in the processing
+        module (specified by ``processing_module_key``).
+        Default is "PoseEstimation".
 
     Returns
     -------
@@ -931,7 +947,9 @@ def _ds_from_nwb_object(
         A single-individual ``movement`` poses dataset
 
     """
-    pose_estimation = nwb_file.processing["behavior"][key_name]
+    pose_estimation = nwb_file.processing[processing_module_key][
+        pose_estimation_key
+    ]
     source_software = pose_estimation.source_software
     pose_estimation_series = pose_estimation.pose_estimation_series
     single_keypoint_datasets = []
