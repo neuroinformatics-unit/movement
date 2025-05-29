@@ -153,11 +153,11 @@ def per_entity_nwb_config():
     return NWBFileSaveConfig(
         nwbfile_kwargs={
             "id_0": {
-                "session_description": "test session",
+                "session_description": "session subj0",
                 "identifier": "subj0",
             },
             "id_1": {
-                "session_description": "test session",
+                "session_description": "session subj1",
                 "identifier": "subj1",
             },
         },

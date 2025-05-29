@@ -74,7 +74,11 @@ class TestNWBFileSaveConfig:
     SESSION_START_TIME = datetime.datetime.now(datetime.UTC)
 
     # --- Parameter sets ---
-    CASE_IDS = [
+    # Generic case IDs for nwbfile, subject, pose_estimation,
+    # pose_estimation_series, and skeletons kwargs, where the
+    # entity (individual/keypoint) name can either be extracted
+    # from the config object, the specified entity arg, or defaults.
+    CASE_IDS_GENERIC = [
         "no args: default id",
         "entity: entity as id",
         "shared kwargs: kwarg as id",
@@ -85,9 +89,9 @@ class TestNWBFileSaveConfig:
         "kwargs per entity (w/o id) + entity: entity as id",
         "kwargs per entity + entity (not in kwargs): warn; entity as id",
     ]
-    # Separate case IDs for processing module kwargs as the module name
-    # is expected to either be user-specified or the default "behavior"
-    # (i.e. never the individual name).
+    # Special case IDs for processing module kwargs as the module name
+    # is expected to either be user-specified via the config or the
+    # default "behavior" (i.e. never the individual name).
     CASE_IDS_PROCESSING_MODULE = [
         "no args: default id",
         "entity: default as id",
@@ -538,7 +542,7 @@ class TestNWBFileSaveConfig:
         case_ids = (
             CASE_IDS_PROCESSING_MODULE
             if attr == "processing_module_kwargs"
-            else CASE_IDS
+            else CASE_IDS_GENERIC
         )
         for i, (kwargs, entity, expected) in enumerate(param_list):
             combined_params.append((attr, kwargs, entity, expected))

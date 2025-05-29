@@ -382,7 +382,7 @@ nwb_file_expectations_ind = {
     },
     "custom_kwargs-single_ind": {
         "nwbfile_kwargs": [
-            {"session_description": "test session", "identifier": "subj0"}
+            {"session_description": "session subj0", "identifier": "subj0"}
         ],
         "processing_module_kwargs": [
             {"description": "processed behav for subj0"}
@@ -397,8 +397,8 @@ nwb_file_expectations_ind = {
     },
     "custom_kwargs-multi_ind": {
         "nwbfile_kwargs": [
-            {"session_description": "test session", "identifier": "subj0"},
-            {"session_description": "test session", "identifier": "subj1"},
+            {"session_description": "session subj0", "identifier": "subj0"},
+            {"session_description": "session subj1", "identifier": "subj1"},
         ],
         "processing_module_kwargs": [
             {"description": "processed behav for subj0"},
