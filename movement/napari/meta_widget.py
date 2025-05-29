@@ -3,6 +3,7 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
+from movement.napari.export_widgets import ShapesExporter
 from movement.napari.loader_widgets import DataLoader
 
 
@@ -22,6 +23,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             DataLoader(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Load tracked data",
+        )
+
+        # Add the shapes exporter widget
+        self.add_widget(
+            ShapesExporter(napari_viewer, parent=self),
+            collapsible=True,
+            widget_title="Export Shapes",
         )
 
         self.loader = self.collapsible_widgets[0]
