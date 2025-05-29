@@ -1,7 +1,7 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
 import warnings
-from typing import Literal
+from typing import Any, Literal
 
 import xarray as xr
 from scipy import signal
@@ -66,7 +66,8 @@ def interpolate_over_time(
     method: str = "linear",
     max_gap: int | None = None,
     print_report: bool = False,
-    **kwargs: dict | None,
+    fill_value: float | str | None = None,
+    **kwargs: Any,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
@@ -80,6 +81,7 @@ def interpolate_over_time(
         The input data to be interpolated.
     method : str
         String indicating which method to use for interpolation.
+        Methods are: `linear`, `nearest`, `bfill`, `ffill`, `constant`.
         Default is ``linear``.
     max_gap : int, optional
         Maximum size of gap, a continuous sequence of missing observations
@@ -90,6 +92,8 @@ def interpolate_over_time(
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``False``.
+    fill_value : float, optional
+        Value to use for constant fill (only applicable if method="constant").
     **kwargs : dict
         Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
         which in turn passes them verbatim to the underlying
@@ -109,13 +113,26 @@ def interpolate_over_time(
     at the first data point after a gap and the last value before a gap.
 
     """
-    data_interpolated = data.interpolate_na(
-        dim="time",
-        method=method,
-        use_coordinate=False,
-        max_gap=max_gap + 1 if max_gap is not None else None,
-        **kwargs,
-    )
+    if method in ["bfill", "ffill"]:
+        data_interpolated = getattr(data, method)(dim="time", **kwargs)
+    elif method == "constant":
+        if fill_value is None:
+            raise ValueError(
+                "fill_value must be provided when method='constant'"
+            )
+        data_interpolated = data.fillna(fill_value)
+    else:
+        if fill_value is not None:
+            kwargs["fill_value"] = fill_value
+
+        data_interpolated = data.interpolate_na(
+            dim="time",
+            method=method,
+            use_coordinate=False,
+            max_gap=max_gap + 1 if max_gap is not None else None,
+            **kwargs,
+        )
+
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_interpolated, "output"))
