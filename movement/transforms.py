@@ -4,9 +4,11 @@ import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
+from movement.utils.logging import log_to_attrs
 from movement.validators.arrays import validate_dims_coords
 
 
+@log_to_attrs
 def scale(
     data: xr.DataArray,
     factor: ArrayLike | float = 1.0,
@@ -37,9 +39,50 @@ def scale(
 
     Notes
     -----
-    When scale is used multiple times on the same xarray.DataArray,
-    xarray.DataArray.attrs["space_unit"] is overwritten each time or is dropped
-    if ``None`` is passed by default or explicitly.
+    This function makes two changes to the resulting data array's attributes
+    (``xarray.DataArray.attrs``) each time it is called:
+
+    - It sets the ``space_unit`` attribute to the value of the parameter
+      with the same name, or removes it if ``space_unit=None``.
+    - It adds a new entry to the ``log`` attribute of the data array, which
+      contains a record of the operations performed, including the
+      parameters used, as well as the datetime of the function call.
+
+    Examples
+    --------
+    Let's imagine a camera viewing a 2D plane from the top, with an
+    estimated resolution of 10 pixels per cm. We can scale down
+    position data by a factor of 1/10 to express it in cm units.
+
+    >>> from movement.transforms import scale
+    >>> ds["position"] = scale(ds["position"], factor=1/10, space_unit="cm")
+    >>> print(ds["position"].space_unit
+    cm
+    >>> print(ds["position"].log
+    [
+        {'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212', \
+    'factor': 0.1, 'space_unit': 'cm'}
+    ]
+
+    Note that the attributes of the scaled data array now contain the assigned
+    ``space_unit`` as well as a ``log`` entry with the arguments passed to
+    the function.
+
+    We can also scale the two spatial dimensions by different factors.
+    >>> ds["position"] = scale(
+    >>>     ds["position"], factor=[10, 20], space_unit=None
+    >>> )
+
+    The second scale operation removed the ``space_unit`` attribute, restored
+    the x axis to its original scale, and scaled up the y axis to twice its
+    original size. The log should now contain two entries:
+    >>> print(ds["position"].log
+    [
+        {'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212', \
+    'factor': 0.1, 'space_unit': 'cm'},
+        {'operation': 'scale', 'datetime': '2025-05-30 16:11:00.799668', \
+    'factor': [10, 20], 'space_unit': None}
+    ]
 
     """
     if len(data.coords["space"]) == 2:
