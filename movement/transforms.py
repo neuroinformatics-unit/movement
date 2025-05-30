@@ -56,33 +56,37 @@ def scale(
 
     >>> from movement.transforms import scale
     >>> ds["position"] = scale(ds["position"], factor=1/10, space_unit="cm")
-    >>> print(ds["position"].space_unit
+    >>> print(ds["position"].space_unit)
     cm
-    >>> print(ds["position"].log
-    [
-        {'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212', \
-    'factor': 0.1, 'space_unit': 'cm'}
-    ]
+    >>> print(ds["position"].log)
+    [{'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212',\
+'factor': 0.1, 'space_unit': 'cm'}]
 
     Note that the attributes of the scaled data array now contain the assigned
     ``space_unit`` as well as a ``log`` entry with the arguments passed to
     the function.
 
     We can also scale the two spatial dimensions by different factors.
-    >>> ds["position"] = scale(
-    >>>     ds["position"], factor=[10, 20], space_unit=None
-    >>> )
 
-    The second scale operation removed the ``space_unit`` attribute, restored
-    the x axis to its original scale, and scaled up the y axis to twice its
-    original size. The log should now contain two entries:
-    >>> print(ds["position"].log
+    >>> ds["position"] = scale(ds["position"], factor=[10, 20])
+
+    The second scale operation restored the x axis to its original scale,
+    and scaled up the y axis to twice its original size.
+    The log should now contain two entries:
+
+    >>> print(ds["position"].log)
     [
         {'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212', \
-    'factor': 0.1, 'space_unit': 'cm'},
+'factor': 0.1, 'space_unit': 'cm'},
         {'operation': 'scale', 'datetime': '2025-05-30 16:11:00.799668', \
-    'factor': [10, 20], 'space_unit': None}
+'factor': [10, 20]}
     ]
+
+    The ``space_unit`` attribute has been removed, as it was not provided
+    in the second call to the function.
+
+    >>> "space_unit" in ds["position"].attrs
+    False
 
     """
     if len(data.coords["space"]) == 2:
