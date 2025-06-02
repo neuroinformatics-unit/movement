@@ -98,13 +98,10 @@ def from_file(
     file_path: Path | str,
     source_software: Literal[
         "DeepLabCut",
-
         "SLEAP",
-
         "LightningPose",
-
         "Anipose",
-        "animovement",,
+        "animovement",
         "NWB",
     ],
     fps: float | None = None,
