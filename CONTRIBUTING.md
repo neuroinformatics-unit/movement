@@ -35,7 +35,7 @@ development environment for movement. In the following we assume you have
 First, create and activate a `conda` environment with some prerequisites:
 
 ```sh
-conda create -n movement-dev -c conda-forge python=3.11 pytables
+conda create -n movement-dev -c conda-forge python=3.13 pytables
 conda activate movement-dev
 ```
 
