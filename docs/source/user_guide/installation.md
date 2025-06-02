@@ -54,6 +54,14 @@ pip install 'movement[napari]' # works on zsh (default shell on macOS)
 :::
 ::::
 
+:::{dropdown} Note for Apple Silicon users with macOS 13 or earlier
+:color: info
+:icon: info
+
+We recommend installing `movement` following the `Conda` instructions above, as the `pip` method will likely fail for you.
+Alternatively, updating your macOS to version 14 or later will allow `pip` installations to work as expected.
+:::
+
 ### Developers
 If you are a developer looking to contribute to movement, please refer to our [contributing guide](target-contributing) for detailed setup instructions and guidelines.
 
