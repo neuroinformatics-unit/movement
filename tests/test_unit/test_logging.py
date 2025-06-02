@@ -71,7 +71,7 @@ def test_logger_repr():
 @pytest.mark.parametrize(
     "selector_fn, expected_selector_type",
     [
-        (lambda ds: ds, xr.Dataset),        # take full dataset
+        (lambda ds: ds, xr.Dataset),  # take full dataset
         (lambda ds: ds.position, xr.DataArray),  # take position DataArray
     ],
 )
@@ -95,9 +95,7 @@ def test_log_to_attrs(
     # Apply operation to dataset or data array
     dataset = request.getfixturevalue(input_data)
     input_data = selector_fn(dataset)
-    output_data = fake_func(
-        input_data, "test1", kwarg="test2", **extra_kwargs
-    )
+    output_data = fake_func(input_data, "test1", kwarg="test2", **extra_kwargs)
 
     # Check that output is as expected
     assert isinstance(output_data, expected_selector_type)
@@ -110,7 +108,7 @@ def test_log_to_attrs(
 
     log_entry = log_entries[0]
     assert log_entry["operation"] == "fake_func"
-    assert log_entry["arg"] == "'test1'"    # repr() puts quotes around strings
+    assert log_entry["arg"] == "'test1'"  # repr() puts quotes around strings
     if extra_kwargs:
         assert log_entry["kwargs"] == "{'extra1': 42}"
     else:
@@ -119,6 +117,7 @@ def test_log_to_attrs(
 
 def test_log_to_attrs_json_decode_error(valid_poses_dataset):
     """Test that a JSON decode error in the log attribute is handled."""
+
     @log_to_attrs
     def fake_func(data):
         return data
@@ -133,7 +132,7 @@ def test_log_to_attrs_json_decode_error(valid_poses_dataset):
     # Check that a warning is written to the log file
     assert_log_entry_in_file(
         ["WARNING", "Failed to decode existing log in attributes"],
-        pytest.LOG_FILE
+        pytest.LOG_FILE,
     )
 
     # Check that the log contains only the new entry from the fake_func call
