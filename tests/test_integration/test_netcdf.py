@@ -1,5 +1,6 @@
 """Test saving movement datasets to NetCDF files."""
 
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -35,6 +36,19 @@ def dataset_with_derived_variables(valid_poses_dataset):
     return ds
 
 
+@pytest.fixture
+def dataset_with_datetime_index(valid_poses_dataset):
+    """Create a dataset with a pd.DateTimeIndex as the time coordinate."""
+    ds = valid_poses_dataset.copy()
+    timestamps = pd.date_range(
+        start=pd.Timestamp.now(),
+        periods=ds.sizes["time"],
+        freq=pd.Timedelta(seconds=1),
+    )
+    ds.assign_coords(time=timestamps)
+    return ds
+
+
 @pytest.mark.parametrize(
     "dataset",
     [
@@ -45,10 +59,11 @@ def dataset_with_derived_variables(valid_poses_dataset):
         "valid_bboxes_dataset_with_nan",
         "processed_dataset",
         "dataset_with_derived_variables",
+        "dataset_with_datetime_index",
     ],
 )
 @pytest.mark.parametrize("engine", ["netcdf4", "scipy", "h5netcdf"])
-def test_save_and_load_netcdf(dataset, engine, tmp_path, request):
+def test_ds_save_and_load_netcdf(dataset, engine, tmp_path, request):
     """Test that saving a movement dataset to a NetCDF file and then
     loading it back returns the same Dataset.
 
@@ -60,3 +75,13 @@ def test_save_and_load_netcdf(dataset, engine, tmp_path, request):
     loaded_ds = xr.load_dataset(netcdf_file)
     xr.testing.assert_allclose(loaded_ds, ds)
     assert loaded_ds.attrs == ds.attrs
+
+
+def test_da_save_and_load_netcdf(valid_poses_dataset, tmp_path):
+    """Test saving a DataArray to a NetCDF file and loading it back."""
+    da = valid_poses_dataset["position"]
+    netcdf_file = tmp_path / "test_dataarray.nc"
+    da.to_netcdf(netcdf_file)
+    loaded_da = xr.load_dataarray(netcdf_file)
+    xr.testing.assert_allclose(loaded_da, da)
+    assert loaded_da.attrs == da.attrs
