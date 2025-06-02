@@ -3,7 +3,25 @@
 import pytest
 import xarray as xr
 
+from movement.filtering import filter_by_confidence, rolling_filter
 from movement.kinematics import compute_forward_vector, compute_speed
+from movement.transforms import scale
+
+
+@pytest.fixture
+def processed_dataset(valid_poses_dataset):
+    """Process a valid poses dataset by applying filters and transforms."""
+    ds = valid_poses_dataset.copy()
+    ds["position_filtered"] = filter_by_confidence(
+        ds["position"], ds["confidence"], threshold=0.5
+    )
+    ds["position_smoothed"] = rolling_filter(
+        ds["position"], window=3, min_periods=2, statistic="median"
+    )
+    ds["position_scaled"] = scale(
+        ds["position_smoothed"], factor=1 / 10, space_unit="cm"
+    )
+    return ds
 
 
 @pytest.fixture
@@ -25,6 +43,7 @@ def dataset_with_derived_variables(valid_poses_dataset):
         "valid_bboxes_dataset",  # time unit is in frames
         "valid_bboxes_dataset_in_seconds",
         "valid_bboxes_dataset_with_nan",
+        "processed_dataset",
         "dataset_with_derived_variables",
     ],
 )

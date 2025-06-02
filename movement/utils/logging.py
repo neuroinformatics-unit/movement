@@ -1,5 +1,7 @@
 """Logging utilities for the movement package."""
 
+import inspect
+import json
 import sys
 import warnings
 from datetime import datetime
@@ -124,15 +126,33 @@ def log_to_attrs(func):
         log_entry = {
             "operation": func.__name__,
             "datetime": str(datetime.now()),
-            **{f"arg_{i}": arg for i, arg in enumerate(args[1:], start=1)},
-            **kwargs,
         }
 
-        # Append the log entry to the result's attributes
+        # Extract argument names from the function signature
+        signature = inspect.signature(func)
+        bound_args = signature.bind(*args, **kwargs)
+        bound_args.apply_defaults()
+
+        # Store each argument
+        # (excluding the first, which is the Dataset/DataArray itself)
+        for param_name, value in list(bound_args.arguments.items())[1:]:
+            if param_name == "kwargs" and not value:
+                continue  # Skip empty kwargs
+            log_entry[param_name] = repr(value)
+
         if result is not None and hasattr(result, "attrs"):
-            if "log" not in result.attrs:
-                result.attrs["log"] = []
-            result.attrs["log"].append(log_entry)
+            log_str = result.attrs.get("log", "[]")
+            try:
+                log_list = json.loads(log_str)
+            except json.JSONDecodeError:
+                log_list = []
+                logger.warning(
+                    f"Failed to decode existing log in attributes: {log_str}. "
+                    f"Overwriting with an empty list."
+                )
+
+            log_list.append(log_entry)
+            result.attrs["log"] = json.dumps(log_list, indent=2)
 
         return result
 
