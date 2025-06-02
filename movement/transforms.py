@@ -29,8 +29,8 @@ def scale(
         broadcasted.
     space_unit : str or None
         The unit of the scaled data stored as a property in
-        xarray.DataArray.attrs['space_unit']. In case of the default (``None``)
-        the ``space_unit`` attribute is dropped.
+        ``xarray.DataArray.attrs['space_unit']``. In case of the default
+        (``None``) the ``space_unit`` attribute is dropped.
 
     Returns
     -------
