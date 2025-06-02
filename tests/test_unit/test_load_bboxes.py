@@ -317,7 +317,7 @@ def test_from_via_tracks_file(
         (
             r"_(0\d*)_$",
             AttributeError,
-            "/crab_1/00000.jpg (row 0): "
+            "00000.jpg (row 0): "
             r"The provided frame regexp (_(0\d*)_$) did not return any "
             "matches and a frame number could not be extracted from "
             "the filename.",
@@ -325,7 +325,7 @@ def test_from_via_tracks_file(
         (
             r"(0\d*\.\w+)$",
             ValueError,
-            "/crab_1/00000.jpg (row 0): "
+            "00000.jpg (row 0): "
             "The frame number extracted from the filename "
             r"using the provided regexp ((0\d*\.\w+)$) "
             "could not be cast as an integer.",

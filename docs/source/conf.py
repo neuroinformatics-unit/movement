@@ -175,7 +175,7 @@ html_css_files = [
     ("css/custom.css", {"priority": 100}),
 ]
 html_js_files = [
-    "js/contributors.js", # javascript for contributors table
+    "js/contributors.js",  # javascript for contributors table
 ]
 html_favicon = "_static/light-logo-niu.png"
 
@@ -190,6 +190,7 @@ linkcheck_anchors_ignore_for_url = [
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
+    "https://www.sainsburywellcome.org/",  # Occassional ConnectTimeoutError
 ]
 
 
@@ -224,6 +225,7 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
+    "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
 }
 
 
