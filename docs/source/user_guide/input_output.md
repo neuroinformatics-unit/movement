@@ -383,7 +383,7 @@ and then convert back when loading.
 
 :::{note}
 xarray also supports compression and chunking options with netCDF, which can be useful for managing large datasets.
-For more details, see the [xarray documentation on netCDF](https://docs.xarray.dev/en/stable/io.html#netcdf).
+For more details, see the [xarray documentation on netCDF](xarray:user-guide/io.html).
 :::
 
 Below is a realistic example of how you may integrate netCDF into you
