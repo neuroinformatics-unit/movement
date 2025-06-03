@@ -281,7 +281,7 @@ ds.my_custom_attribute
 ```
 
 (target-attrs-data-type-warning)=
-:::{warning} 
+:::{warning}
 Keep in mind that only certain attribute data types are compatible with the [netCDF format](https://docs.unidata.ucar.edu/nug/current/).
 If you plan to [save your dataset to a netCDF file](target-netcdf), make sure to only use
 attributes that are scalars, strings, or 1D arrays. Complex data types
