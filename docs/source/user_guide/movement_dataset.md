@@ -185,7 +185,7 @@ the `movement` package have additional **attributes**, such as:
 - `frame_path`: the path to a single still frame from the video.
 
 You can also add your own custom **attributes** to the dataset, as long as
-their valus are of [simple data types](target-attrs-data-type-warning).
+their values are of [simple data types](target-attrs-data-type-warning).
 For example, if you would like to record the frame of the full video at which
 the loaded tracking data starts, you could add a `frame_offset` variable
 to the attributes of the dataset:
