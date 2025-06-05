@@ -7,7 +7,7 @@ Our goal with `movement` is to enable pipelines that are input-agnostic,
 meaning they are not tied to a specific motion tracking tool or data format.
 Therefore, our input/output functions are designed to facilitate data flows
 between various third-party formats and `movement`'s own native
-[data structure](target-poses-and-bboxes-dataset) based on [xarray](xarray:).
+[data structure](target-poses-and-bboxes-dataset) based on [xarray](xarray:). It may be useful to think of movement supporting two types of data loading/saving:
 
 - [Supported third-party formats](target-supported-formats). `movement` provides convenient functions for loading/saving data in formats written by popular motion tracking tools as well as established data specifications. You can think of these as "Import" and "Export/Save As" functions.
 - [Native saving and loading with netCDF](target-netCDF). `movement` leverages xarray's built-in netCDF support to save and load datasets while preserving all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
@@ -386,7 +386,7 @@ xarray also supports compression and chunking options with netCDF, which can be 
 For more details, see the [xarray documentation on netCDF](xarray:user-guide/io.html).
 :::
 
-Below is a realistic example of how you may integrate netCDF into you
+Below is an example of how you may integrate netCDF into you
 `movement`-powered workflows:
 
 ```python
