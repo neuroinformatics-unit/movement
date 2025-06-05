@@ -208,6 +208,7 @@ Among other things, you can:
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
 - save and load datasets to/from [netCDF files](xarray:user-guide/io.html), which is our recommended format for [natively storing movement datasets](target-netcdf).
+- export data into other data structures, such as [Pandas DataFrames](xarray:user-guide/pandas.html) or [NumPy arrays](xarray:user-guide/duckarrays.html).
 
 As an example, here's how you can use {meth}`xarray.Dataset.sel` to select subsets of
 data:
