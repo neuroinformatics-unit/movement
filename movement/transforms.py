@@ -55,7 +55,7 @@ def scale(
     position data by a factor of 1/10 to express it in cm units.
 
     >>> from movement.transforms import scale
-    >>> ds["position"] = scale(ds["position"], factor=1/10, space_unit="cm")
+    >>> ds["position"] = scale(ds["position"], factor=1 / 10, space_unit="cm")
     >>> print(ds["position"].space_unit)
     cm
     >>> print(ds["position"].log)

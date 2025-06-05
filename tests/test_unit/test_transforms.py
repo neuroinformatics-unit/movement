@@ -33,7 +33,7 @@ def data_array_with_dims_and_coords(
     )
 
 
-def sanitize_attrs(attrs: str) -> str:
+def drop_attrs_log(attrs: dict) -> dict:
     """Drop the log string from attrs to faclitate testing.
     The log string will never exactly match, because datetimes differ.
     """
@@ -69,7 +69,7 @@ def sample_data_3d() -> xr.DataArray:
         pytest.param(
             {"space_unit": "elephants"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23(), space_unit="elephants",
+                nparray_0_to_23(), space_unit="elephants"
             ),
             id="No scaling, add space_unit",
         ),
@@ -86,18 +86,22 @@ def sample_data_3d() -> xr.DataArray:
         pytest.param(
             {"factor": 0.5, "space_unit": "elephants"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23() * 0.5, space_unit="elephants",
+                nparray_0_to_23() * 0.5, space_unit="elephants"
             ),
             id="Halve, add space_unit",
         ),
         pytest.param(
             {"factor": [0.5, 2]},
-            data_array_with_dims_and_coords(nparray_0_to_23() * [0.5, 2]),
+            data_array_with_dims_and_coords(
+                nparray_0_to_23() * [0.5, 2],
+            ),
             id="x / 2, y * 2",
         ),
         pytest.param(
             {"factor": np.array([0.5, 2]).reshape(1, 2)},
-            data_array_with_dims_and_coords(nparray_0_to_23() * [0.5, 2]),
+            data_array_with_dims_and_coords(
+                nparray_0_to_23() * [0.5, 2],
+            ),
             id="x / 2, y * 2, should squeeze to cast across space",
         ),
     ],
@@ -110,7 +114,7 @@ def test_scale(
     """Test scaling with different factors and space_units."""
     scaled_data = scale(sample_data_2d, **optional_arguments)
     xr.testing.assert_equal(scaled_data, expected_output)
-    assert sanitize_attrs(scaled_data.attrs) == expected_output.attrs
+    assert drop_attrs_log(scaled_data.attrs) == expected_output.attrs
 
 
 @pytest.mark.parametrize(
@@ -152,7 +156,7 @@ def test_scale_space_dimension(dims: list[str], data_shape):
             {"factor": 2, "space_unit": "elephants"},
             {"factor": 0.5, "space_unit": "crabs"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23(), space_unit="crabs",
+                nparray_0_to_23(), space_unit="crabs"
             ),
             id="No net scaling, final crabs space_unit",
         ),
@@ -166,7 +170,7 @@ def test_scale_space_dimension(dims: list[str], data_shape):
             {"factor": 2, "space_unit": None},
             {"factor": 0.5, "space_unit": "elephants"},
             data_array_with_dims_and_coords(
-                nparray_0_to_23(), space_unit="elephants",
+                nparray_0_to_23(), space_unit="elephants"
             ),
             id="No net scaling, final elephant space_unit",
         ),
@@ -187,7 +191,7 @@ def test_scale_twice(
         **optional_arguments_2,
     )
     xr.testing.assert_equal(output_data_array, expected_output)
-    assert sanitize_attrs(output_data_array.attrs) == expected_output.attrs
+    assert drop_attrs_log(output_data_array.attrs) == expected_output.attrs
 
 
 @pytest.mark.parametrize(
