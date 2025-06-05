@@ -367,7 +367,7 @@ fig.tight_layout()
 #
 # Note that currently we do not provide explicit methods to export a
 # ``movement`` bounding boxes dataset in a specific format. However, we can
-# easily save the bounding boxes’ trajectories to a .csv file using the
+# save the bounding boxes’ trajectories to a .csv file using the
 # standard Python library ``csv``.
 
 # define name for output csv file
