@@ -7,7 +7,9 @@ Our goal with `movement` is to enable pipelines that are input-agnostic,
 meaning they are not tied to a specific motion tracking tool or data format.
 Therefore, our input/output functions are designed to facilitate data flows
 between various third-party formats and `movement`'s own native
-[data structure](target-poses-and-bboxes-dataset) based on [xarray](xarray:). It may be useful to think of movement supporting two types of data loading/saving:
+[data structure](target-poses-and-bboxes-dataset) based on [xarray](xarray:).
+
+It may be useful to think of `movement` supporting two types of data loading/saving:
 
 - [Supported third-party formats](target-supported-formats). `movement` provides convenient functions for loading/saving data in formats written by popular motion tracking tools as well as established data specifications. You can think of these as "Import" and "Export/Save As" functions.
 - [Native saving and loading with netCDF](target-netCDF). `movement` leverages xarray's built-in netCDF support to save and load datasets while preserving all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
@@ -21,15 +23,17 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be loaded from and saved to various third-party formats.
 
-| Source Software | Abbreviation | Source Format | Dataset Type |
-|-----------------|--------------|-------------|--------------|
-| [DeepLabCut](dlc:) | DLC | DLC-style .h5 or .csv file, or corresponding pandas DataFrame | Pose |
-| [SLEAP](sleap:) | SLEAP | [analysis](sleap:tutorials/analysis) .h5 or .slp file | Pose |
-| [LightningPose](lp:) | LP | DLC-style .csv file, or corresponding pandas DataFrame | Pose |
-| [Anipose](anipose:) | | triangulation .csv file, or corresponding pandas DataFrame | Pose |
-| [VGG Image Annotator](via:) | VIA | .csv file for [tracks annotation](via:docs/face_track_annotation.html) | Bounding box |
-| [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose) | Pose |
-| Any |  | Numpy arrays | Pose or Bounding box |
+| Source Software | Abbreviation | Source Format | Dataset Type | Supported Operations |
+|-----------------|--------------|-------------|--------------|-------------------|
+| [DeepLabCut](dlc:) | DLC | DLC-style .h5 or .csv file, or corresponding pandas DataFrame | Pose | Load & Save |
+| [SLEAP](sleap:) | SLEAP | [analysis](sleap:tutorials/analysis) .h5 or .slp file | Pose | Load & Save |
+| [LightningPose](lp:) | LP | DLC-style .csv file, or corresponding pandas DataFrame | Pose | Load & Save |
+| [Anipose](anipose:) | | triangulation .csv file, or corresponding pandas DataFrame | Pose | Load |
+| [VGG Image Annotator](via:) | VIA | .csv file for [tracks annotation](via:docs/face_track_annotation.html) | Bounding box | Load |
+| [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose) | Pose | Load & Save |
+| Any |  | Numpy arrays | Pose or Bounding box | Load & Save* |
+
+*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
 
 :::{note}
 Currently, `movement` only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
