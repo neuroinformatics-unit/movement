@@ -59,8 +59,14 @@ def scale(
     >>> print(ds["position"].space_unit)
     cm
     >>> print(ds["position"].log)
-    [{'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212',\
-'factor': 0.1, 'space_unit': 'cm'}]
+    [
+        {
+            "operation": "scale",
+            "datetime": "2025-06-05 15:08:16.919947",
+            "factor": "0.1",
+            "space_unit": "'cm'"
+        }
+    ]
 
     Note that the attributes of the scaled data array now contain the assigned
     ``space_unit`` as well as a ``log`` entry with the arguments passed to
@@ -72,18 +78,8 @@ def scale(
 
     The second scale operation restored the x axis to its original scale,
     and scaled up the y axis to twice its original size.
-    The log should now contain two entries:
-
-    >>> print(ds["position"].log)
-    [
-        {'operation': 'scale', 'datetime': '2025-05-30 16:07:39.402212', \
-'factor': 0.1, 'space_unit': 'cm'},
-        {'operation': 'scale', 'datetime': '2025-05-30 16:11:00.799668', \
-'factor': [10, 20]}
-    ]
-
-    The ``space_unit`` attribute has been removed, as it was not provided
-    in the second call to the function.
+    The log will now contain two entries, but the ``space_unit`` attribute
+    has been removed, as it was not provided in the second function call.
 
     >>> "space_unit" in ds["position"].attrs
     False
