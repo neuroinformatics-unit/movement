@@ -362,8 +362,7 @@ ds_mouse_smooth.update(
 # ``ds_mouse_smooth.position`` data array. Let's inspect it to summarise
 # what we've done.
 
-for entry in ds_mouse_smooth.position.log:
-    print(entry)
+print(ds_mouse_smooth.position.log)
 
 # %%
 # Now let's visualise the difference between the raw data and the final

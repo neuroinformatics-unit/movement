@@ -184,7 +184,11 @@ the `movement` package have additional **attributes**, such as:
 - `video_path`: the path to the video file corresponding to the pose tracks.
 - `frame_path`: the path to a single still frame from the video.
 
-You can also add your own custom **attributes** to the dataset. For example, if you would like to record the frame of the full video at which the loaded tracking data starts, you could add a `frame_offset` variable to the attributes of the dataset:
+You can also add your own custom **attributes** to the dataset, as long as
+their values are of [simple data types](target-attrs-data-type-warning).
+For example, if you would like to record the frame of the full video at which
+the loaded tracking data starts, you could add a `frame_offset` variable
+to the attributes of the dataset:
 ```
 ds.attrs["frame_offset"] = 142
 ```
@@ -196,13 +200,15 @@ ds.attrs["frame_offset"] = 142
 Since a `movement` dataset is an {class}`xarray.Dataset`, you can use all of `xarray`'s intuitive interface
 and rich built-in functionalities for data manipulation and analysis.
 
-For example, you can:
+Among other things, you can:
 - access the **data variables** and **attributes** of a dataset `ds` using dot notation (e.g. `ds.position`, `ds.fps`),
 - [index and select data](xarray:user-guide/indexing.html) by **coordinate** label
 (e.g. `ds.sel(individuals=["individual1", "individual2"])`) or by integer index (e.g. `ds.isel(time=slice(0,50))`),
 - use **dimension** names for
 [data aggregation and broadcasting](xarray:user-guide/computation.html), and
 - use `xarray`'s built-in [plotting methods](xarray:user-guide/plotting.html).
+- save and load datasets to/from [netCDF files](xarray:user-guide/io.html), which is our recommended format for [natively storing movement datasets](target-netcdf).
+- export data into other data structures, such as [Pandas DataFrames](xarray:user-guide/pandas.html) or [NumPy arrays](xarray:user-guide/duckarrays.html).
 
 As an example, here's how you can use {meth}`xarray.Dataset.sel` to select subsets of
 data:
@@ -255,7 +261,7 @@ ds["velocity"] = compute_velocity(ds.position)
 ds.velocity
 ```
 
-The output of {func}`movement.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
+The output of {func}`compute_velocity<movement.kinematics.kinematics.compute_velocity>` is an {class}`xarray.DataArray` object,
 with the same **dimensions** as the original `position` **data variable**,
 so adding it to the existing `ds` makes sense and works seamlessly.
 
@@ -274,3 +280,12 @@ ds.attrs["my_custom_attribute"] = "my_custom_value"
 # we can now access this value using dot notation on the dataset
 ds.my_custom_attribute
 ```
+
+(target-attrs-data-type-warning)=
+:::{warning}
+Keep in mind that only certain attribute data types are compatible with the [netCDF format](https://docs.unidata.ucar.edu/nug/current/).
+If you plan to [save your dataset to a netCDF file](target-netcdf), make sure to only use
+attributes that are scalars, strings, or 1D arrays. Complex data types
+and arbitrary Python objects will likely lead to errors when saving.
+The error message will include the term "illegal data type for attribute..".
+:::

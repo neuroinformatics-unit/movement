@@ -8,6 +8,8 @@ missing values.
 # %%
 # Imports
 # -------
+import json
+
 from movement import sample_data
 from movement.filtering import filter_by_confidence, interpolate_over_time
 from movement.kinematics import compute_velocity
@@ -159,10 +161,20 @@ ds.position.squeeze().plot.line(
 # The order of these operations and the parameters with which they were
 # performed are saved in the ``log`` attribute of the ``position`` data array.
 # This is useful for keeping track of the processing steps that have been
-# applied to the data. Let's inspect the log entries.
+# applied to the data. Let's inspect the log:
 
-for log_entry in ds.position.log:
-    print(log_entry)
+print(ds.position.log)
+
+# %%
+# If you want to retrieve a certain parameter from the log, you can use
+# ``json.loads()`` to parse the log string into a list of dictionaries.
+
+log_entries = json.loads(ds.position.log)  # A list of dictionaries
+
+# Print the 'max_gap' parameter from the last log entry
+print(
+    log_entries[-1].get("max_gap", None)  # None if "max_gap" is not present
+)
 
 # %%
 # Filtering multiple data variables
