@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=5a057da9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -97,9 +97,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
-</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -124,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.7.0</p>
+    <p class="title logo__title">movement v0.7.1</p>
   
 </a></div>
     
@@ -612,7 +609,11 @@ the <code class="docutils literal notranslate"><span class="pre">movement</span>
 <li><p><code class="docutils literal notranslate"><span class="pre">video_path</span></code>: the path to the video file corresponding to the pose tracks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">frame_path</span></code>: the path to a single still frame from the video.</p></li>
 </ul>
-<p>You can also add your own custom <strong>attributes</strong> to the dataset. For example, if you would like to record the frame of the full video at which the loaded tracking data starts, you could add a <code class="docutils literal notranslate"><span class="pre">frame_offset</span></code> variable to the attributes of the dataset:</p>
+<p>You can also add your own custom <strong>attributes</strong> to the dataset, as long as
+their values are of <a class="reference internal" href="#target-attrs-data-type-warning"><span class="std std-ref">simple data types</span></a>.
+For example, if you would like to record the frame of the full video at which
+the loaded tracking data starts, you could add a <code class="docutils literal notranslate"><span class="pre">frame_offset</span></code> variable
+to the attributes of the dataset:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_offset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">142</span>
 </pre></div>
 </div>
@@ -624,7 +625,7 @@ the <code class="docutils literal notranslate"><span class="pre">movement</span>
 <h3>Using xarray’s built-in functionality<a class="headerlink" href="#using-xarrays-built-in-functionality" title="Link to this heading">#</a></h3>
 <p>Since a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, you can use all of <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s intuitive interface
 and rich built-in functionalities for data manipulation and analysis.</p>
-<p>For example, you can:</p>
+<p>Among other things, you can:</p>
 <ul class="simple">
 <li><p>access the <strong>data variables</strong> and <strong>attributes</strong> of a dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> using dot notation (e.g. <code class="docutils literal notranslate"><span class="pre">ds.position</span></code>, <code class="docutils literal notranslate"><span class="pre">ds.fps</span></code>),</p></li>
 <li><p><a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/indexing.html#">index and select data</a> by <strong>coordinate</strong> label
@@ -632,6 +633,8 @@ and rich built-in functionalities for data manipulation and analysis.</p>
 <li><p>use <strong>dimension</strong> names for
 <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/computation.html#">data aggregation and broadcasting</a>, and</p></li>
 <li><p>use <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/plotting.html#">plotting methods</a>.</p></li>
+<li><p>save and load datasets to/from <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">netCDF files</a>, which is our recommended format for <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">natively storing movement datasets</span></a>.</p></li>
+<li><p>export data into other data structures, such as <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/pandas.html#">Pandas DataFrames</a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">NumPy arrays</a>.</p></li>
 </ul>
 <p>As an example, here’s how you can use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> to select subsets of
 data:</p>
@@ -679,7 +682,7 @@ points and store the results within the same dataset, for convenience.</p>
 <span class="n">ds</span><span class="o">.</span><span class="n">velocity</span>
 </pre></div>
 </div>
-<p>The output of <code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
+<p>The output of <a class="reference internal" href="../api/movement.kinematics.kinematics.compute_velocity.html#movement.kinematics.kinematics.compute_velocity" title="movement.kinematics.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_velocity</span></code></a> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
 with the same <strong>dimensions</strong> as the original <code class="docutils literal notranslate"><span class="pre">position</span></code> <strong>data variable</strong>,
 so adding it to the existing <code class="docutils literal notranslate"><span class="pre">ds</span></code> makes sense and works seamlessly.</p>
 <p>We can also update existing <strong>data variables</strong> in-place, using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>. For example, if we wanted to update the <code class="docutils literal notranslate"><span class="pre">position</span></code>
@@ -693,6 +696,14 @@ and <code class="docutils literal notranslate"><span class="pre">velocity</span>
 <span class="c1"># we can now access this value using dot notation on the dataset</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">my_custom_attribute</span>
 </pre></div>
+</div>
+<div class="admonition warning" id="target-attrs-data-type-warning">
+<p class="admonition-title">Warning</p>
+<p>Keep in mind that only certain attribute data types are compatible with the <a class="reference external" href="https://docs.unidata.ucar.edu/nug/current/">netCDF format</a>.
+If you plan to <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">save your dataset to a netCDF file</span></a>, make sure to only use
+attributes that are scalars, strings, or 1D arrays. Complex data types
+and arbitrary Python objects will likely lead to errors when saving.
+The error message will include the term “illegal data type for attribute…”.</p>
 </div>
 </section>
 </section>

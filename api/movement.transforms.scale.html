@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../_static/documentation_options.js?v=5a057da9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -97,9 +97,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
-</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -124,7 +121,7 @@
   
   
   
-    <p class="title logo__title">movement v0.7.0</p>
+    <p class="title logo__title">movement v0.7.1</p>
   
 </a></div>
     
@@ -366,7 +363,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.filtering.html">movement.filtering</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">filter_by_confidence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">interpolate_over_time</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.filtering.median_filter.html">median_filter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.rolling_filter.html">rolling_filter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
@@ -587,8 +583,8 @@ a list of floats), the length of the resulting array must match the
 length of data array’s space dimension along which it will be
 broadcasted.</p></li>
 <li><p><strong>space_unit</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> or </em><em>None</em>) – The unit of the scaled data stored as a property in
-xarray.DataArray.attrs[‘space_unit’]. In case of the default (<code class="docutils literal notranslate"><span class="pre">None</span></code>)
-the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> attribute is dropped.</p></li>
+<code class="docutils literal notranslate"><span class="pre">xarray.DataArray.attrs['space_unit']</span></code>. In case of the default
+(<code class="docutils literal notranslate"><span class="pre">None</span></code>) the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> attribute is dropped.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -599,9 +595,49 @@ the <code class="docutils literal notranslate"><span class="pre">space_unit</spa
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>When scale is used multiple times on the same xarray.DataArray,
-xarray.DataArray.attrs[“space_unit”] is overwritten each time or is dropped
-if <code class="docutils literal notranslate"><span class="pre">None</span></code> is passed by default or explicitly.</p>
+<p>This function makes two changes to the resulting data array’s attributes
+(<code class="docutils literal notranslate"><span class="pre">xarray.DataArray.attrs</span></code>) each time it is called:</p>
+<ul class="simple">
+<li><p>It sets the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> attribute to the value of the parameter
+with the same name, or removes it if <code class="docutils literal notranslate"><span class="pre">space_unit=None</span></code>.</p></li>
+<li><p>It adds a new entry to the <code class="docutils literal notranslate"><span class="pre">log</span></code> attribute of the data array, which
+contains a record of the operations performed, including the
+parameters used, as well as the datetime of the function call.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p>Let’s imagine a camera viewing a 2D plane from the top, with an
+estimated resolution of 10 pixels per cm. We can scale down
+position data by a factor of 1/10 to express it in cm units.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">scale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">space_unit</span><span class="o">=</span><span class="s2">&quot;cm&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">space_unit</span><span class="p">)</span>
+<span class="go">cm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+<span class="go">[</span>
+<span class="go">    {</span>
+<span class="go">        &quot;operation&quot;: &quot;scale&quot;,</span>
+<span class="go">        &quot;datetime&quot;: &quot;2025-06-05 15:08:16.919947&quot;,</span>
+<span class="go">        &quot;factor&quot;: &quot;0.1&quot;,</span>
+<span class="go">        &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;</span>
+<span class="go">    }</span>
+<span class="go">]</span>
+</pre></div>
+</div>
+<p>Note that the attributes of the scaled data array now contain the assigned
+<code class="docutils literal notranslate"><span class="pre">space_unit</span></code> as well as a <code class="docutils literal notranslate"><span class="pre">log</span></code> entry with the arguments passed to
+the function.</p>
+<p>We can also scale the two spatial dimensions by different factors.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The second scale operation restored the x axis to its original scale,
+and scaled up the y axis to twice its original size.
+The log will now contain two entries, but the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> attribute
+has been removed, as it was not provided in the second function call.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;space_unit&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+<span class="go">False</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

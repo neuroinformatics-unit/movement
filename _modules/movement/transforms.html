@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../_static/documentation_options.js?v=5a057da9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -94,9 +94,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
-</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -121,7 +118,7 @@
   
   
   
-    <p class="title logo__title">movement v0.7.0</p>
+    <p class="title logo__title">movement v0.7.1</p>
   
 </a></div>
     
@@ -413,11 +410,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_to_attrs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
 
 
 <div class="viewcode-block" id="scale">
 <a class="viewcode-back" href="../../api/movement.transforms.scale.html#movement.transforms.scale">[docs]</a>
+<span class="nd">@log_to_attrs</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">factor</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -438,8 +437,8 @@
 <span class="sd">        broadcasted.</span>
 <span class="sd">    space_unit : str or None</span>
 <span class="sd">        The unit of the scaled data stored as a property in</span>
-<span class="sd">        xarray.DataArray.attrs[&#39;space_unit&#39;]. In case of the default (``None``)</span>
-<span class="sd">        the ``space_unit`` attribute is dropped.</span>
+<span class="sd">        ``xarray.DataArray.attrs[&#39;space_unit&#39;]``. In case of the default</span>
+<span class="sd">        (``None``) the ``space_unit`` attribute is dropped.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -448,9 +447,50 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    When scale is used multiple times on the same xarray.DataArray,</span>
-<span class="sd">    xarray.DataArray.attrs[&quot;space_unit&quot;] is overwritten each time or is dropped</span>
-<span class="sd">    if ``None`` is passed by default or explicitly.</span>
+<span class="sd">    This function makes two changes to the resulting data array&#39;s attributes</span>
+<span class="sd">    (``xarray.DataArray.attrs``) each time it is called:</span>
+
+<span class="sd">    - It sets the ``space_unit`` attribute to the value of the parameter</span>
+<span class="sd">      with the same name, or removes it if ``space_unit=None``.</span>
+<span class="sd">    - It adds a new entry to the ``log`` attribute of the data array, which</span>
+<span class="sd">      contains a record of the operations performed, including the</span>
+<span class="sd">      parameters used, as well as the datetime of the function call.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Let&#39;s imagine a camera viewing a 2D plane from the top, with an</span>
+<span class="sd">    estimated resolution of 10 pixels per cm. We can scale down</span>
+<span class="sd">    position data by a factor of 1/10 to express it in cm units.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.transforms import scale</span>
+<span class="sd">    &gt;&gt;&gt; ds[&quot;position&quot;] = scale(ds[&quot;position&quot;], factor=1 / 10, space_unit=&quot;cm&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(ds[&quot;position&quot;].space_unit)</span>
+<span class="sd">    cm</span>
+<span class="sd">    &gt;&gt;&gt; print(ds[&quot;position&quot;].log)</span>
+<span class="sd">    [</span>
+<span class="sd">        {</span>
+<span class="sd">            &quot;operation&quot;: &quot;scale&quot;,</span>
+<span class="sd">            &quot;datetime&quot;: &quot;2025-06-05 15:08:16.919947&quot;,</span>
+<span class="sd">            &quot;factor&quot;: &quot;0.1&quot;,</span>
+<span class="sd">            &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;</span>
+<span class="sd">        }</span>
+<span class="sd">    ]</span>
+
+<span class="sd">    Note that the attributes of the scaled data array now contain the assigned</span>
+<span class="sd">    ``space_unit`` as well as a ``log`` entry with the arguments passed to</span>
+<span class="sd">    the function.</span>
+
+<span class="sd">    We can also scale the two spatial dimensions by different factors.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds[&quot;position&quot;] = scale(ds[&quot;position&quot;], factor=[10, 20])</span>
+
+<span class="sd">    The second scale operation restored the x axis to its original scale,</span>
+<span class="sd">    and scaled up the y axis to twice its original size.</span>
+<span class="sd">    The log will now contain two entries, but the ``space_unit`` attribute</span>
+<span class="sd">    has been removed, as it was not provided in the second function call.</span>
+
+<span class="sd">    &gt;&gt;&gt; &quot;space_unit&quot; in ds[&quot;position&quot;].attrs</span>
+<span class="sd">    False</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>

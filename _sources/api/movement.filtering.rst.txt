@@ -20,8 +20,6 @@
     
     interpolate_over_time
     
-    median_filter
-    
     rolling_filter
     
     savgol_filter

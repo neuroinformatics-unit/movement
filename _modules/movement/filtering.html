@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=fe7df9b0"></script>
+    <script src="../../_static/documentation_options.js?v=5a057da9"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -94,9 +94,6 @@
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-<aside class="bd-header-announcement" aria-label="Announcement">
-  <div class="bd-header-announcement__content">Get some hands-on training on movement and other open-source tools for animal behaviour at the Neuroinformatics Unit <a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> , 11th-15th August 2025 in London! </div>
-</aside>
 
   
     <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
@@ -121,7 +118,7 @@
   
   
   
-    <p class="title logo__title">movement v0.7.0</p>
+    <p class="title logo__title">movement v0.7.1</p>
   
 </a></div>
     
@@ -409,7 +406,6 @@
                    <h1>Source code for movement.filtering</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Filter and interpolate tracks in ``movement`` datasets.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -672,7 +668,7 @@
 <span class="sd">    stretch of NaNs present in the input data will be propagated</span>
 <span class="sd">    proportionally to the size of the window (specifically, by</span>
 <span class="sd">    ``floor(window/2)``). Note that, unlike</span>
-<span class="sd">    :func:`movement.filtering.median_filter`, there is no ``min_periods``</span>
+<span class="sd">    :func:`movement.filtering.rolling_filter`, there is no ``min_periods``</span>
 <span class="sd">    option to control this behaviour.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -692,28 +688,6 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_smoothed</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">data_smoothed</span></div>
-
-
-
-<div class="viewcode-block" id="median_filter">
-<a class="viewcode-back" href="../../api/movement.filtering.median_filter.html#movement.filtering.median_filter">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">median_filter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth data by applying a median filter over time (deprecated).</span>
-
-<span class="sd">    .. deprecated:: 0.3.0</span>
-<span class="sd">       This function is deprecated and will be removed in a future release.</span>
-<span class="sd">       Use :func:`rolling_filter` with `statistic=&quot;median&quot;` instead.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The function `movement.filtering.median_filter` is deprecated and &quot;</span>
-        <span class="s2">&quot;will be removed in a future release. &quot;</span>
-        <span class="s2">&quot;Please use `movement.filtering.rolling_filter` instead, &quot;</span>
-        <span class="s2">&quot;with `statistic=&#39;median&#39;`.&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">rolling_filter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

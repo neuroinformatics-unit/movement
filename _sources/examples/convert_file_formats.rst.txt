@@ -67,7 +67,7 @@ Imports
 Load the dataset
 ----------------
 We'll start with the path to a file output by one of
-our :ref:`supported pose estimation frameworks<target-formats>`.
+our :ref:`supported pose estimation frameworks<target-supported-formats>`.
 For example, the path could be something like:
 
 .. GENERATED FROM PYTHON SOURCE LINES 39-43
@@ -355,7 +355,7 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmpcv0mii02/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmps8t2ooe4/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 
@@ -436,7 +436,7 @@ we've defined above, and saved to the target directory.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.354 seconds)
+   **Total running time of the script:** (0 minutes 0.351 seconds)
 
 
 .. _sphx_glr_download_examples_convert_file_formats.py:
