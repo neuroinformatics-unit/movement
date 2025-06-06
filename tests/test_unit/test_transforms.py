@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import numpy as np
@@ -30,6 +31,16 @@ def data_array_with_dims_and_coords(
         coords=coords,
         attrs=attributes,
     )
+
+
+def drop_attrs_log(attrs: dict) -> dict:
+    """Drop the log string from attrs to faclitate testing.
+    The log string will never exactly match, because datetimes differ.
+    """
+    attrs_copy = attrs.copy()
+    if "log" in attrs:
+        attrs_copy.pop("log", None)
+    return attrs_copy
 
 
 @pytest.fixture
@@ -103,7 +114,7 @@ def test_scale(
     """Test scaling with different factors and space_units."""
     scaled_data = scale(sample_data_2d, **optional_arguments)
     xr.testing.assert_equal(scaled_data, expected_output)
-    assert scaled_data.attrs == expected_output.attrs
+    assert drop_attrs_log(scaled_data.attrs) == expected_output.attrs
 
 
 @pytest.mark.parametrize(
@@ -180,7 +191,7 @@ def test_scale_twice(
         **optional_arguments_2,
     )
     xr.testing.assert_equal(output_data_array, expected_output)
-    assert output_data_array.attrs == expected_output.attrs
+    assert drop_attrs_log(output_data_array.attrs) == expected_output.attrs
 
 
 @pytest.mark.parametrize(
@@ -241,3 +252,30 @@ def test_scale_invalid_3d_space(factor):
     assert str(error.value) == (
         "Input data must contain ['z'] in the 'space' coordinates.\n"
     )
+
+
+def test_scale_log(sample_data_2d: xr.DataArray):
+    """Test that the log attribute is correctly populated
+    in the scaled data array.
+    """
+
+    def verify_log_entry(entry, expected_factor, expected_space_unit):
+        """Verify each scale log entry."""
+        assert entry["factor"] == expected_factor
+        assert entry["space_unit"] == expected_space_unit
+        assert entry["operation"] == "scale"
+        assert "datetime" in entry
+
+    # scale data twice
+    scaled_data = scale(
+        scale(sample_data_2d, factor=2, space_unit="elephants"),
+        factor=[1, 2],
+        space_unit="crabs",
+    )
+
+    # verify the log attribute
+    assert "log" in scaled_data.attrs
+    log_entries = json.loads(scaled_data.attrs["log"])
+    assert len(log_entries) == 2
+    verify_log_entry(log_entries[0], "2", "'elephants'")
+    verify_log_entry(log_entries[1], "[1, 2]", "'crabs'")
