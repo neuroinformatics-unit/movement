@@ -34,7 +34,7 @@ from movement.io import load_poses, save_poses
 # Load the dataset
 # ----------------
 # We'll start with the path to a file output by one of
-# our :ref:`supported pose estimation frameworks<target-formats>`.
+# our :ref:`supported pose estimation frameworks<target-supported-formats>`.
 # For example, the path could be something like:
 
 # uncomment and edit the following line to point to your own local file

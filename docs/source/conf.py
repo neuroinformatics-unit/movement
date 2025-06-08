@@ -126,12 +126,6 @@ html_title = "movement"
 
 # Customize the theme
 html_theme_options = {
-    "announcement": (
-        "Get some hands-on training on movement and other open-source tools "
-        "for animal behaviour at the Neuroinformatics Unit "
-        "<a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> "
-        ", 11th-15th August 2025 in London! "
-    ),
     "icon_links": [
         {
             # Label for this link
@@ -190,7 +184,7 @@ linkcheck_anchors_ignore_for_url = [
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
-    "https://www.sainsburywellcome.org/",  # Occassional ConnectTimeoutError
+    "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
 ]
 
 

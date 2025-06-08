@@ -501,7 +501,7 @@ def _df_from_via_tracks_file(
 
     # Define desired index: all combinations of ID and frame number
     multi_index = pd.MultiIndex.from_product(
-        [df["ID"].unique(), df["frame_number"].unique()],
+        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
         # these unique lists may not be sorted!
         names=["ID", "frame_number"],
     )

@@ -1,3 +1,4 @@
+import json
 import warnings
 
 import pytest
@@ -71,30 +72,70 @@ def test_logger_repr():
     "selector_fn, expected_selector_type",
     [
         (lambda ds: ds, xr.Dataset),  # take full dataset
-        (lambda ds: ds.position, xr.DataArray),  # take position data array
+        (lambda ds: ds.position, xr.DataArray),  # take position DataArray
     ],
 )
+@pytest.mark.parametrize(
+    "extra_kwargs",
+    [{}, {"extra1": 42}],
+    ids=["no_extra_kwargs", "with_extra_kwargs"],
+)
 def test_log_to_attrs(
-    input_data, selector_fn, expected_selector_type, request
+    input_data, selector_fn, expected_selector_type, extra_kwargs, request
 ):
-    """Test that the ``log_to_attrs()`` decorator appends
-    log entries to the dataset's or the data array's ``log``
-    attribute and check that ``attrs`` contains all the expected values.
+    """Test that the ``log_to_attrs()`` decorator saves
+    log entries to the dataset's or data array's ``log``
+    attribute.
     """
 
-    # a fake operation on the dataset to log
     @log_to_attrs
-    def fake_func(data, arg, kwarg=None):
+    def fake_func(data, arg, kwarg=None, **kwargs):
         return data
 
-    # apply operation to dataset or data array
+    # Apply operation to dataset or data array
     dataset = request.getfixturevalue(input_data)
     input_data = selector_fn(dataset)
-    output_data = fake_func(input_data, "test1", kwarg="test2")
+    output_data = fake_func(input_data, "test1", kwarg="test2", **extra_kwargs)
 
-    # check the log in the dataset is as expected
+    # Check that output is as expected
     assert isinstance(output_data, expected_selector_type)
     assert "log" in output_data.attrs
-    assert output_data.attrs["log"][0]["operation"] == "fake_func"
-    assert output_data.attrs["log"][0]["arg_1"] == "test1"
-    assert output_data.attrs["log"][0]["kwarg"] == "test2"
+
+    # Deserialize the log from JSON
+    log_entries = json.loads(output_data.attrs["log"])
+    assert isinstance(log_entries, list)
+    assert len(log_entries) == 1
+
+    log_entry = log_entries[0]
+    assert log_entry["operation"] == "fake_func"
+    assert log_entry["arg"] == "'test1'"  # repr() puts quotes around strings
+    if extra_kwargs:
+        assert log_entry["kwargs"] == "{'extra1': 42}"
+    else:
+        assert "kwargs" not in log_entry
+
+
+def test_log_to_attrs_json_decode_error(valid_poses_dataset):
+    """Test that a JSON decode error in the log attribute is handled."""
+
+    @log_to_attrs
+    def fake_func(data):
+        return data
+
+    # Create a dataset with an invalid log attribute
+    invalid_log = '[{"invalid_json": "missing_quote}]'  # Invalid JSON
+    valid_poses_dataset.attrs["log"] = invalid_log
+
+    # Call the function to trigger the decorator
+    result = fake_func(valid_poses_dataset)
+
+    # Check that a warning is written to the log file
+    assert_log_entry_in_file(
+        ["WARNING", "Failed to decode existing log in attributes"],
+        pytest.LOG_FILE,
+    )
+
+    # Check that the log contains only the new entry from the fake_func call
+    log_entries = json.loads(result.attrs["log"])
+    assert len(log_entries) == 1
+    assert log_entries[0]["operation"] == "fake_func"
