@@ -39,9 +39,9 @@ def _construct_track_and_time_cols(
     return track_id_col, time_col
 
 
-def ds_to_napari_tracks(
+def ds_to_napari_layers(
     ds: xr.Dataset,
-) -> tuple[np.ndarray, pd.DataFrame]:
+) -> tuple[np.ndarray, np.ndarray, pd.DataFrame]:
     """Convert ``movement`` dataset to napari Tracks array and properties.
 
     Parameters
@@ -52,10 +52,16 @@ def ds_to_napari_tracks(
 
     Returns
     -------
-    data : np.ndarray
+    points_position_data : np.ndarray
         napari Tracks array with shape (N, 4),
         where N is n_keypoints * n_individuals * n_frames
         and the 4 columns are (track_id, frame_idx, y, x).
+    bboxes_shape_data : np.ndarray
+        napari Shapes array with shape (N, 4, 4),
+        where N is n_individuals * n_frames
+        and each (4, 4) entry is a matrix of 4 rows
+        (1 per corner vertex, starting from upper left and progressing in
+        counterclockwise order) with the columns (track_id, frame, y, x).
     properties : pd.DataFrame
         DataFrame with properties (individual, keypoint, time, confidence).
 
@@ -65,10 +71,15 @@ def ds_to_napari_tracks(
     by taking its last 3 columns: (frame_idx, y, x). See the documentation
     on the napari Tracks [1]_  and Points [2]_ layers.
 
+    Similarly, the napari Shapes [3]_ array can be derived by
+    taking the last 3 columns from the inner arrays: (frame_idx, y, x),
+    resulting in an (N, 4, 3) array.
+
     References
     ----------
     .. [1] https://napari.org/stable/howtos/layers/tracks.html
     .. [2] https://napari.org/stable/howtos/layers/points.html
+    .. [3] https://napari.org/stable/howtos/layers/points.html
 
     """
     # Construct the napari Tracks array
@@ -83,7 +94,45 @@ def ds_to_napari_tracks(
         axes_reordering,  # to: individuals, keypoints, frames, xy
     ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
 
-    data = np.hstack((track_id_col, time_col, yx_cols))
+    points_position_data = np.hstack((track_id_col, time_col, yx_cols))
+
+    if "shape" in ds.data_vars:
+        # Compute bbox corners
+        xmin_ymin = ds.position - (ds.shape / 2)
+        xmax_ymax = ds.position + (ds.shape / 2)
+
+        xmax_ymin = xmin_ymin.copy()  # swap xmin dimension for xmax
+        xmin_ymax = xmin_ymin.copy()  # swap ymin dimension for ymax
+        xmax_ymin.loc[{"space": "x"}] = xmax_ymax.loc[{"space": "x"}]
+        xmin_ymax.loc[{"space": "y"}] = xmax_ymax.loc[{"space": "y"}]
+
+        # Add track_id and time columns to each corner array
+        corner_arrays_with_track_id_and_time = [
+            np.c_[
+                track_id_col,
+                time_col,
+                np.transpose(corner.values, axes_reordering).reshape(-1, 2),
+            ]
+            for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
+        ]
+
+        # Concatenate corner arrays along columns
+        corners_array = np.concatenate(
+            corner_arrays_with_track_id_and_time, axis=1
+        )
+
+        # Reshape to napari expected format
+        # goes through corners counterclockwise from xmin_ymin
+        # in image coordinates
+        corners_array = corners_array.reshape(
+            -1, 4, 4
+        )  # last dimension: track_id, time, x, y
+        bboxes_shape_data = corners_array[
+            :, :, [0, 1, 3, 2]
+        ]  # swap x and y columns
+
+    else:
+        bboxes_shape_data = None
 
     # Construct the properties DataFrame
     # Stack individuals, time and keypoints (if present) dimensions
@@ -95,72 +144,4 @@ def ds_to_napari_tracks(
 
     properties = _construct_properties_dataframe(ds_)
 
-    return data, properties
-
-
-def ds_to_napari_shapes(
-    ds: xr.Dataset,
-) -> np.ndarray:
-    """Convert ``movement`` dataset to napari Shapes array.
-
-    Parameters
-    ----------
-    ds : xr.Dataset
-        ``movement`` dataset containing bounding box tracks,
-        confidence scores, and associated metadata. Must contain centroid
-        x/y coordinates and height/width values.
-
-    Returns
-    -------
-    shapes : np.ndarray
-        napari Shapes array with shape (N, 4, 4),
-        where N is n_individuals * n_frames
-        and each (4, 4) entry is a matrix of 4 rows (1 per corner vertex)
-        with the columns (track_id, frame, y, x).
-
-    Notes
-    -----
-    The track_id column is included to match the output of
-    ```ds_to_napari_tracks()```. The Shapes [1]_ array can be derived by
-    taking the last 3 columns from the inner arrays: (frame_idx, y, x),
-    resulting in an (N, 4, 3) array.
-
-    References
-    ----------
-    .. [1] https://napari.org/stable/howtos/layers/shapes.html
-
-    """
-    # Each keypoint of each individual is a separate track
-    track_id_col, time_col = _construct_track_and_time_cols(ds)
-
-    # Construct the napari Tracks array
-    # Reorder axes to (individuals, keypoints, frames, xy)
-    axes_reordering: tuple[int, ...] = (2, 0, 1)
-    yx_cols = np.transpose(
-        ds.position.values,  # from: frames, xy, keypoints, individuals
-        axes_reordering,  # to: individuals, keypoints, frames, xy
-    ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
-    hw_cols = np.transpose(
-        ds.shape.values,  # from: frames, width, height, keypoints, individuals
-        axes_reordering,  # to: individuals, keypoints, frames, hw
-    ).reshape(-1, 2)[:, [1, 0]]  # swap w and h columns
-
-    # Convert centroid, height/width representation
-    # to corner vertex representation.
-    # Start with getting extents.
-    min_y = (yx_cols[:, 0] - (hw_cols[:, 0] / 2)).reshape(-1, 1)
-    max_y = (yx_cols[:, 0] + (hw_cols[:, 0] / 2)).reshape(-1, 1)
-    min_x = (yx_cols[:, 1] - (hw_cols[:, 1] / 2)).reshape(-1, 1)
-    max_x = (yx_cols[:, 1] + (hw_cols[:, 1] / 2)).reshape(-1, 1)
-
-    # Convert extents to corner vertex representation, starting with
-    # lower left and ending with lower right.
-    ll = np.concatenate((track_id_col, time_col, min_y, min_x), axis=1)
-    ul = np.concatenate((track_id_col, time_col, max_y, min_x), axis=1)
-    ur = np.concatenate((track_id_col, time_col, max_y, max_x), axis=1)
-    lr = np.concatenate((track_id_col, time_col, min_y, max_x), axis=1)
-
-    shapes = np.array([ll, ul, ur, lr])
-    shapes = np.moveaxis(shapes, (0, 1, 2), (1, 0, 2))
-
-    return shapes
+    return points_position_data, bboxes_shape_data, properties

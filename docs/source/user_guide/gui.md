@@ -5,7 +5,7 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
-as points, tracks, and rectangular bounding boxes overlaid on video frames.
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
@@ -134,22 +134,26 @@ an expanded `Load tracked data` menu. To load tracked data in napari:
 1. Select one of the [supported formats](target-supported-formats) from the `source software` dropdown menu.
 2. Set the `fps`  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
 3. Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.
-4. Optionally, you may load the selected file as rectangular bounding boxes in addition to keypoints and tracks by ticking the `load bboxes from path?` checkbox. Currently, this is only supported for bounding box datasets, i.e. if `source software` is set to VIA-tracks.
-5. Click `Load`.
+4. Click `Load`.
 
 The data will be loaded into the viewer as a
 [points layer](napari:howtos/layers/points.html) and as a [tracks layer](napari:howtos/layers/tracks.html).
-If bounding box data is selected to be loaded and visualized, it is loaded as a [shapes layer](napari:howtos/layers/shapes.html).
+If the file format includes height and width data for bounding boxes, it is loaded as a napari [shapes layer](napari:howtos/layers/shapes.html).
 By default, the data is added at the top of the layer list and the points layer is selected.
+
+For a poses dataset, you will see a view similar to this:
 
 (target-widget-screenshot)=
 
 ![napari widget with poses dataset loaded](../_static/napari_plugin_data_tracks.png)
 
+And for a bounding boxes dataset, you will see a view more like the one below:
 
-You will see a view similar to the one above. Notice the three
-layers on the left-hand side list: the
-image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer.
+![napari widget with shapes loaded](../_static/napari_shapes_layer.png)
+
+
+Notice the layers on the left-hand side list: the
+image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer. Bounding boxes have a fourth layer, the shapes layer.
 You can toggle the visibility of each of these layers by clicking on the eye icon.
 
 
@@ -250,34 +254,8 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 
 The shapes layer allows us to visualize the bounding boxes of data for the current frame.
 
-![napari widget with shapes loaded](../_static/napari_shapes_layer.png)
-
-Bounding boxes are represented as rectangles color-coded by individual. Bounding boxes are always labeled and coloured by individual, even for data with keypoints.
+Bounding boxes are represented as rectangles color-coded by individual.
 
 With the [shapes layer](napari:howtos/layers/shapes.html) selected, if we enable the `display text` checkbox from the layer controls panel the individual name will be displayed in the lower left of the bounding box.
 
 As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the points, tracks, bounding boxes, and video (if loaded) in sync.
-
-:::{admonition} Bounding boxes and [supported formats](target-supported-formats)
-:class: warning
-
-Currently, `movement`'s GUI only supports rendering a VGG Image Annotation dataset (VIA-tracks) as a shapes layer.
-However, we are currently working on solutions for rendering our [supported poses formats](target-supported-formats) as bounding boxes/shapes layers as well.
-
-:::
-
-:::{admonition} Changing bounding box size, colour and shape
-:class: tip
-
-You can change edge and face colour as well as the positions of a bounding box's corner vertices using the
-[shapes layer](napari:howtos/layers/shapes.html) controls panel.
-
-You can use the following keyboard shortcuts to toggle the bounding boxes selection:
-- To select all the bounding boxes in the current frame, press `A`.
-- To select all the bounding boxes in all the loaded frames, press `Shift + A`.
-- To unselect the currently selected bounding boxes, press the relevant keyboard shortcut again.
-
-You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcuts) in the top menu of the
-`napari` window, under `Preferences > Shortcuts`.
-
-:::

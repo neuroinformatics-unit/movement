@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from movement.napari.convert import ds_to_napari_shapes, ds_to_napari_tracks
+from movement.napari.convert import ds_to_napari_layers
 
 
 def set_some_confidence_values_to_nan(ds, individuals, time):
@@ -49,19 +49,19 @@ def valid_bboxes_confidence_with_all_nan(valid_bboxes_dataset):
 
 
 @pytest.mark.parametrize(
-    "ds_name",
+    "ds_name, is_bboxes",
     [
-        "valid_poses_dataset",
-        "valid_poses_dataset_with_nan",
-        "valid_poses_confidence_with_some_nan",
-        "valid_poses_confidence_with_all_nan",
-        "valid_bboxes_dataset",
-        "valid_bboxes_dataset_with_nan",
-        "valid_bboxes_confidence_with_some_nan",
-        "valid_bboxes_confidence_with_all_nan",
+        ("valid_poses_dataset", False),
+        ("valid_poses_dataset_with_nan", False),
+        ("valid_poses_confidence_with_some_nan", False),
+        ("valid_poses_confidence_with_all_nan", False),
+        ("valid_bboxes_dataset", True),
+        ("valid_bboxes_dataset_with_nan", True),
+        ("valid_bboxes_confidence_with_some_nan", True),
+        ("valid_bboxes_confidence_with_all_nan", True),
     ],
 )
-def test_valid_dataset_to_napari_tracks(ds_name, request):
+def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
     """Test that the conversion from movement dataset to napari
     tracks returns the expected data and properties.
     """
@@ -71,8 +71,9 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
     n_keypoints = ds.sizes.get("keypoints", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
-    # Convert the dataset to a napari Tracks array and properties DataFrame
-    data, props = ds_to_napari_tracks(ds)
+    # Convert the dataset to a napari Tracks array, napari Shapes array
+    # (will be None for non-bboxes datasets) and properties dataframe
+    data, bboxes, props = ds_to_napari_layers(ds)
 
     # Prepare expected y, x positions and corresponding confidence values.
     # Assume values are extracted from the dataset in a specific way,
@@ -100,6 +101,56 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
         (expected_track_ids, expected_frame_ids, expected_yx)
     )
 
+    # Generate expected bboxes
+    if is_bboxes:
+        heights, widths = (
+            [],
+            [],
+        )
+        for id in ds.individuals.values:
+            positions = ds.position.sel(individuals=id)
+            dims = ds.shape.sel(individuals=id)
+            # Height and width are labeled "y" and "x" in the test dataset
+            heights.extend(dims.sel(space="y").values)
+            widths.extend(dims.sel(space="x").values)
+
+        expected_hw = np.column_stack((heights, widths))
+
+        # Compute corner position arrays
+        xmin_ymin = np.flip(expected_yx - (expected_hw / 2), axis=1)
+        xmax_ymax = np.flip(expected_yx + (expected_hw / 2), axis=1)
+
+        xmin_ymax = xmin_ymin.copy()
+        xmin_ymax[:, 1] = xmax_ymax[:, 1]
+        xmax_ymin = xmin_ymin.copy()
+        xmax_ymin[:, 0] = xmax_ymax[:, 0]
+
+        # Add expected time/track columns
+        corner_arrays_with_track_id_and_time = [
+            np.c_[
+                expected_track_ids,
+                expected_frame_ids,
+                corner,  # np.transpose(corner, (2, 0, 1)).reshape(-1, 2),
+            ]
+            for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
+        ]
+
+        # Concatenate corner arrays along columns
+        corners_array = np.concatenate(
+            corner_arrays_with_track_id_and_time, axis=1
+        )
+
+        # reshape to correct format and order of vertices
+        corners_array = corners_array.reshape(
+            -1, 4, 4
+        )  # last dimension: track_id, time, x, y
+        expected_bboxes = corners_array[
+            :, :, [0, 1, 3, 2]
+        ]  # swap x and y columns
+
+    else:
+        expected_bboxes = None
+
     # Generate expected properties DataFrame
     expected_props_dict = {
         "individual": np.repeat(
@@ -121,83 +172,13 @@ def test_valid_dataset_to_napari_tracks(ds_name, request):
 
     # Assert that the data array matches the expected data
     np.testing.assert_allclose(data, expected_data, equal_nan=True)
+    if expected_bboxes is None:
+        assert bboxes is None
+    else:
+        np.testing.assert_allclose(bboxes, expected_bboxes, equal_nan=True)
 
     # Assert that the properties DataFrame matches the expected properties
     assert_frame_equal(props, expected_props)
-
-
-@pytest.mark.parametrize(
-    "ds_name",
-    [
-        "valid_bboxes_dataset",
-        "valid_bboxes_dataset_with_nan",
-        "valid_bboxes_confidence_with_some_nan",
-        "valid_bboxes_confidence_with_all_nan",
-    ],
-)
-def test_valid_dataset_to_napari_shapes(ds_name, request):
-    """Test that the conversion from movement dataset to napari
-    tracks returns the expected Shapes array.
-
-    Other properties (y/x position, properties df) are covered by
-    ``test_valid_dataset_to_napari_tracks()``.
-    """
-    ds = request.getfixturevalue(ds_name)
-    n_frames = ds.sizes["time"]
-    n_individuals = ds.sizes["individuals"]
-    n_keypoints = ds.sizes.get("keypoints", 1)
-    n_tracks = n_individuals * n_keypoints  # total tracked points
-
-    # Convert the dataset to a napari Shapes
-    shapes = ds_to_napari_shapes(ds)
-
-    # Prepare expected y, x positions and corresponding confidence values.
-    # Assume values are extracted from the dataset in a specific way,
-    # by iterating first over individuals and then over keypoints.
-    y_coords, x_coords, heights, widths = [], [], [], []
-    for id in ds.individuals.values:
-        positions = ds.position.sel(individuals=id)
-        dims = ds.shape.sel(individuals=id)
-
-        y_coords.extend(positions.sel(space="y").values)
-        x_coords.extend(positions.sel(space="x").values)
-
-        # Height and width are labeled "y" and "x" in the test dataset
-        heights.extend(dims.sel(space="y").values)
-        widths.extend(dims.sel(space="x").values)
-
-    # Generate expected data array
-    expected_track_ids = np.repeat(np.arange(n_tracks), n_frames).reshape(
-        -1, 1
-    )
-    expected_frame_ids = np.tile(np.arange(n_frames), n_tracks).reshape(-1, 1)
-
-    expected_yx = np.column_stack((y_coords, x_coords))
-    expected_hw = np.column_stack((heights, widths))
-
-    min_y = (expected_yx[:, 0] - (expected_hw[:, 0] / 2)).reshape(-1, 1)
-    max_y = (expected_yx[:, 0] + (expected_hw[:, 0] / 2)).reshape(-1, 1)
-    min_x = (expected_yx[:, 1] - (expected_hw[:, 1] / 2)).reshape(-1, 1)
-    max_x = (expected_yx[:, 1] + (expected_hw[:, 1] / 2)).reshape(-1, 1)
-
-    ll = np.concatenate(
-        (expected_track_ids, expected_frame_ids, min_y, min_x), axis=1
-    )
-    ul = np.concatenate(
-        (expected_track_ids, expected_frame_ids, max_y, min_x), axis=1
-    )
-    ur = np.concatenate(
-        (expected_track_ids, expected_frame_ids, max_y, max_x), axis=1
-    )
-    lr = np.concatenate(
-        (expected_track_ids, expected_frame_ids, min_y, max_x), axis=1
-    )
-
-    expected_shapes = np.array([ll, ul, ur, lr])
-    expected_shapes = np.moveaxis(expected_shapes, (0, 1, 2), (1, 0, 2))
-
-    # Assert that the data array matches the expected data
-    np.testing.assert_allclose(shapes, expected_shapes, equal_nan=True)
 
 
 @pytest.mark.parametrize(
@@ -209,10 +190,10 @@ def test_valid_dataset_to_napari_shapes(ds_name, request):
         ("missing_dim_poses_dataset", KeyError),
     ],
 )
-def test_invalid_poses_to_napari_tracks(ds_name, expected_exception, request):
+def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
     """Test that the conversion from movement poses dataset to napari
     tracks raises the expected error for invalid datasets.
     """
     ds = request.getfixturevalue(ds_name)
     with pytest.raises(expected_exception):
-        ds_to_napari_tracks(ds)
+        ds_to_napari_layers(ds)

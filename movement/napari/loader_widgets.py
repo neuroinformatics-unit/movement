@@ -10,7 +10,6 @@ from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -22,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.io import load_bboxes, load_poses
-from movement.napari.convert import ds_to_napari_shapes, ds_to_napari_tracks
+from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import PointsStyle, ShapesStyle, TracksStyle
 from movement.utils.logging import logger
 
@@ -54,13 +53,12 @@ class DataLoader(QWidget):
 
         # Ensure bounding boxes data variable is initialized
         # so we can check if it exists more cleanly later
-        self.shapes = None
+        self.bboxes = None
 
         # Create widgets
         self._create_source_software_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
-        self._create_bboxes_checkbox_widget()
         self._create_load_button()
 
         # Connect frame slider range update to layer events
@@ -115,23 +113,6 @@ class DataLoader(QWidget):
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
         self.layout().addRow("file path:", self.file_path_layout)
-
-    def _create_bboxes_checkbox_widget(self):
-        """Create a checkbox for optionally loading bounding boxes.
-
-        Will additionally attempt to load the data as a shapes layer if the
-        source software supports conversion to bounding boxes.
-        """
-        # Checkbox widget
-        self.bboxes_checkbox = QCheckBox()
-        self.bboxes_checkbox.setObjectName("bboxes_checkbox")
-
-        # Layout for checkbox widget
-        self.bboxes_checkbox_layout = QHBoxLayout()
-        self.bboxes_checkbox_layout.addWidget(self.bboxes_checkbox)
-        self.layout().addRow(
-            "load bboxes from path?", self.bboxes_checkbox_layout
-        )
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
@@ -189,7 +170,7 @@ class DataLoader(QWidget):
         # Add the data as a points and a tracks layers
         self._add_points_layer()
         self._add_tracks_layer()
-        if self.shapes is not None and self.bboxes_checkbox.isChecked():
+        if self.bboxes is not None:
             self._add_shapes_layer()
 
         # Set the frame slider position
@@ -206,24 +187,7 @@ class DataLoader(QWidget):
         ds = loader.from_file(self.file_path, self.source_software, self.fps)
 
         # Convert to napari Tracks array
-        self.data, self.properties = ds_to_napari_tracks(ds)
-
-        # Also convert to napari Shapes array if supported and selected
-        # Warn user if conversion isn't supported.
-        if (
-            self.bboxes_checkbox.isChecked()
-            and self.source_software in SUPPORTED_BBOXES_FILES
-        ):
-            self.shapes = ds_to_napari_shapes(ds)
-        if (
-            self.bboxes_checkbox.isChecked()
-            and self.source_software not in SUPPORTED_BBOXES_FILES
-        ):
-            self.shapes = None
-            show_warning(f"{self.source_software} to bboxes not supported.")
-
-            # Also warn via logger for integration with tests.
-            logger.warning(f"{self.source_software} to bboxes not supported.")
+        self.data, self.bboxes, self.properties = ds_to_napari_layers(ds)
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -316,16 +280,15 @@ class DataLoader(QWidget):
     def _add_shapes_layer(self):
         """Add tracked data to the viewer as a Shapes layer."""
         shapes_style = ShapesStyle(
-            name=f"shapes: {self.file_name}",
+            name=f"bounds: {self.file_name}",
         )
-        shapes_style.set_color_by(
-            property=self.color_property_factorized,
+        shapes_style.set_color_cycle(
             properties_df=self.properties.iloc[self.data_not_nan, :],
         )
         self.shapes_layer = self.viewer.add_shapes(
-            self.shapes[:, :, 1:],
+            self.bboxes[self.data_not_nan, :, 1:],
             properties=self.properties.iloc[self.data_not_nan, :],
-            metadata={"max_frame_idx": max(self.shapes[:, 0, 1])},
+            metadata={"max_frame_idx": max(self.bboxes[:, 0, 1])},
             **shapes_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Shapes layer.")

@@ -72,14 +72,17 @@ def default_style_attributes():
             "opacity": 1.0,
             "shape_type": "rectangle",
             "face_color": "#FFFFFF00",
-            "edge_color": None,
+            "edge_color": "individual_factorized",
             "edge_color_cycle": None,
             "edge_colormap": DEFAULT_COLORMAP,
             "text": {
-                "visible": False,
+                "visible": True,
                 "anchor": "lower_left",
                 "translation": 5,
                 "string": "individual",
+                "color": {
+                    "feature": "individual_factorized",
+                },
             },
         },
     }
@@ -250,50 +253,35 @@ def test_tracks_style_color_by(
 
 
 @pytest.mark.parametrize(
-    "property, expected_n_colors",
+    "sample_column_names, expected_n_colors",
     [
-        ("category", 3),
-        ("value", 5),
+        (["individual_factorized", "value"], 3),
+        (["category", "individual_factorized"], 5),
     ],
 )
-@pytest.mark.parametrize(
-    "shapes_style_text_dict",
-    [
-        "default",
-        "with_color_key",
-    ],
-)
-def test_shapes_style_set_color_by(
+def test_shapes_style_set_color_cycle(
     sample_layer_style,
     sample_properties,
-    shapes_style_text_dict,
-    property,
+    sample_column_names,
     expected_n_colors,
 ):
     """Test that set_color_by updates the color and color cycle of
-    the point markers and the text.
+    the bounding boxes and the text.
     """
     # Create a shapes style object with predefined properties
     shapes_style = sample_layer_style(ShapesStyle)
 
-    # Add a color key to the text dictionary if required
-    if shapes_style_text_dict == "with_color_key":
-        shapes_style.text = {"color": {"fallback": "white"}}
+    # Set the sample data to have the expected column names
+    sample_properties.columns = sample_column_names
 
     # Color markers and text by the property "prop"
-    shapes_style.set_color_by(
-        property=property,
+    shapes_style.set_color_cycle(
         properties_df=sample_properties,
     )
 
-    # Check that the markers and the text color follow "prop"
-    assert shapes_style.edge_color == property
-    assert "color" in shapes_style.text
-    assert shapes_style.text["color"]["feature"] == property
-
     # Check the color cycle
     color_cycle = _sample_colormap(
-        len(sample_properties[property].unique()),
+        len(sample_properties["individual_factorized"].unique()),
         cmap_name=DEFAULT_COLORMAP,
     )
     assert shapes_style.edge_color_cycle == color_cycle
