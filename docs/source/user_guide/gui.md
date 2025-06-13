@@ -5,7 +5,7 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
-as points and tracks overlaid on video frames.
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
@@ -138,16 +138,22 @@ an expanded `Load tracked data` menu. To load tracked data in napari:
 
 The data will be loaded into the viewer as a
 [points layer](napari:howtos/layers/points.html) and as a [tracks layer](napari:howtos/layers/tracks.html).
+If the file format includes height and width data for bounding boxes, it is loaded as a napari [shapes layer](napari:howtos/layers/shapes.html).
 By default, the data is added at the top of the layer list and the points layer is selected.
+
+For a poses dataset, you will see a view similar to this:
 
 (target-widget-screenshot)=
 
 ![napari widget with poses dataset loaded](../_static/napari_plugin_data_tracks.png)
 
+And for a bounding boxes dataset, you will see a view more like the one below:
 
-You will see a view similar to the one above. Notice the three
-layers on the left-hand side list: the
-image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer.
+![napari widget with shapes loaded](../_static/napari_shapes_layer.png)
+
+
+Notice the layers on the left-hand side list: the
+image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer. Bounding boxes have a fourth layer, the shapes layer.
 You can toggle the visibility of each of these layers by clicking on the eye icon.
 
 
@@ -243,3 +249,13 @@ working on a workaround, stay tuned!
 - Also note that currently the `show ID` checkbox in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.
 :::
+
+### The shapes layer
+
+The shapes layer allows us to visualize the bounding boxes of data for the current frame.
+
+Bounding boxes are represented as rectangles color-coded by individual.
+
+With the [shapes layer](napari:howtos/layers/shapes.html) selected, if we enable the `display text` checkbox from the layer controls panel the individual name will be displayed in the lower left of the bounding box.
+
+As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the points, tracks, bounding boxes, and video (if loaded) in sync.
