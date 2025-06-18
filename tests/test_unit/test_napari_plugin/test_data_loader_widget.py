@@ -23,9 +23,17 @@ from napari.layers import (
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
-from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
+from qtpy.QtWidgets import (
+    QComboBox,
+    QDoubleSpinBox,
+    QLineEdit,
+    QPushButton,
+)
 
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.loader_widgets import (
+    SUPPORTED_BBOXES_FILES,
+    DataLoader,
+)
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:.*Previous color_by key.*:UserWarning"
@@ -273,6 +281,11 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
+    if source_software in SUPPORTED_BBOXES_FILES:
+        assert data_loader_widget.bboxes is not None
+    else:
+        # Only bounding boxes should create a shapes layer currently
+        assert data_loader_widget.bboxes is None
 
     # Check the style attributes are set
     assert data_loader_widget.color_property is not None
@@ -287,6 +300,10 @@ def test_on_load_clicked_with_valid_file_path(
     tracks_layer = viewer.layers[1]
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
+    if source_software in SUPPORTED_BBOXES_FILES:
+        shapes_layer = viewer.layers[2]
+        assert shapes_layer.name == f"bounds: {file_path.name}"
+
     # Check that the points layer is set as active
     assert viewer.layers.selection.active == points_layer
 
@@ -300,6 +317,10 @@ def test_on_load_clicked_with_valid_file_path(
         "Added tracked dataset as a napari Points layer.",
         "Added tracked dataset as a napari Tracks layer.",
     }
+    if source_software in SUPPORTED_BBOXES_FILES:
+        expected_log_messages.add(
+            "Added tracked dataset as a napari Shapes layer."
+        )
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
 
