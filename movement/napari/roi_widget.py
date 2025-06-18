@@ -1,17 +1,20 @@
-"""Widget for defining regions of interest (ROIs)."""
+"""Widget for defining regions of interest (ROIs).
 
-from napari.layers import Layer, Shapes
+Created Shapes are shown in a table view using the
+[Qt Model/View framework](https://doc.qt.io/qt-6/model-view-programming.html)
+"""
+
+from napari.layers import Shapes
 from napari.viewer import Viewer
+from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
-    QComboBox,
     QFormLayout,
-    QTableWidget,
-    QTableWidgetItem,
+    QTableView,
     QWidget,
 )
 
 
-class ROIWidget(QWidget):
+class RoiWidget(QWidget):
     """Widget for defining regions of interest (ROIs)."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -19,70 +22,109 @@ class ROIWidget(QWidget):
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
+        self.roi_table_view = RoiTableView(self)  # initially no model
+        self.layout().addRow(self.roi_table_view)
 
-        # Create widgets
-        self._create_roi_table()
-        self._create_layer_selector()
+    def ensure_initialised(self):
+        """Ensure the Shapes layer and ROI table model are set up."""
+        shapes_layer = self._get_or_create_shapes_layer("ROIs")
+        current_model = self.roi_table_view.model()
 
-    def _create_layer_selector(self):
-        """Create a dropdown selecting a shapes layer."""
-        self.layer_selector = QComboBox()
-        self._update_layer_selector()
-        self.layer_selector.currentIndexChanged.connect(
-            self._on_layer_selected
+        model_is_valid = (
+            isinstance(current_model, RoiTableModel) and
+            current_model.layer in self.viewer.layers
         )
-        self.layout().addRow("Shapes layer:", self.layer_selector)
 
-        # Create a shapes layer if none exists
-        if self.layer_selector.count() == 0:
-            self._create_default_shapes_layer()
+        if not model_is_valid:
+            model = RoiTableModel(shapes_layer)
+            self.roi_table_view.setModel(model)
+            # When a layer is removed, update the model
+            self.viewer.layers.events.removed.connect(
+                self.roi_table_view.model()._on_layer_deleted
+            )
 
-    def _create_roi_table(self):
-        """Create the table for displaying ROIs."""
-        self.roi_table = QTableWidget()
-        self.roi_table.setColumnCount(2)
-        self.roi_table.setHorizontalHeaderLabels(["Name", "Type"])
-        # Optional: make it read-only for now
-        self.roi_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.roi_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.layout().addRow(self.roi_table)
+    def _get_shapes_layer(self, name: str) -> Shapes | None:
+        """Return the Shapes layer with the given name, if it exists."""
+        shape_layers = {
+            layer.name: layer for layer in self.viewer.layers
+            if isinstance(layer, Shapes)
+        }
+        return shape_layers.get(name)
 
-    def _update_layer_selector(self):
-        """Update the dropdown with current Shapes layers."""
-        self.layer_selector.clear()
-        shapes_layers = [
-            layer for layer in self.viewer.layers if isinstance(layer, Shapes)
-        ]
-        for layer in shapes_layers:
-            self.layer_selector.addItem(layer.name)
+    def _get_or_create_shapes_layer(self, name: str) -> Shapes:
+        """Get the Shapes layer by name, or create one if it doesn't exist."""
+        existing_layer = self._get_shapes_layer(name)
+        if existing_layer is not None:
+            return existing_layer
 
-    def _get_layers_by_type(self, layer_type: Layer) -> list:
-        """Return a list of napari layers of a given type."""
-        return [
-            layer.name
-            for layer in self.viewer.layers
-            if isinstance(layer, layer_type)
-        ]
+        return self.viewer.add_shapes(name=name)
 
-    def _create_default_shapes_layer(self):
-        """Create and select a default Shapes layer if none exists."""
-        self.viewer.add_shapes(name="ROIs")
-        self._update_layer_selector()
-        index = self.layer_selector.findText("ROIs")
-        self.layer_selector.setCurrentIndex(index)
 
-    def _on_layer_selected(self, index):
-        layer_name = self.layer_selector.currentText()
-        self.shapes_layer = self.viewer.layers[layer_name]
-        self._update_roi_table()
-        self.shapes_layer.events.data.connect(self._update_roi_table)
+class RoiTableView(QTableView):
+    """Table view for displaying and managing ROIs."""
 
-    def _update_roi_table(self):
-        """Update table based on current Shapes layer."""
-        data = self.shapes_layer.data
-        types = self.shapes_layer.shape_type
+    def __init__(self, viewer: Viewer, parent=None):
+        """Initialize the ROI table view."""
+        super().__init__(parent=parent)
+        self.setSelectionBehavior(QTableView.SelectRows)
+        self.setSelectionMode(QTableView.SingleSelection)
 
-        self.roi_table.setRowCount(len(data))
-        for i, (shape, shape_type) in enumerate(zip(data, types)):
-            self.roi_table.setItem(i, 0, QTableWidgetItem(f"ROI {i}"))
-            self.roi_table.setItem(i, 1, QTableWidgetItem(shape_type))
+
+class RoiTableModel(QAbstractTableModel):
+    """Table model for napari Shapes layer ROIs."""
+
+    def __init__(self, shapes_layer: Shapes, parent=None):
+        """Initialize the ROI model with a Shapes layer."""
+        super().__init__(parent)
+        self.layer = shapes_layer
+        # Connect to layer events
+        self.layer.events.data.connect(self._on_layer_data_changed)
+
+    def rowCount(self, parent=QModelIndex()):
+        """Return the number of ROIs in the Shapes layer."""
+        return len(self.layer.data) if self.layer else 0
+
+    def columnCount(self, parent=QModelIndex()):
+        """Return the number of columns in the ROI table."""
+        return 2 if self.layer else 0
+
+    def data(self, index, role=Qt.DisplayRole):
+        """Return the actual data to be shown in each cell of the table."""
+        if not index.isValid() or role != Qt.DisplayRole:
+            return None
+
+        row, col = index.row(), index.column()
+        if col == 0:
+            return f"ROI-{row}"
+        elif col == 1:
+            return self.layer.shape_type[row]
+        return None
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        """Supply the header labels for the table."""
+        if role != Qt.DisplayRole:
+            return None
+        if orientation == Qt.Horizontal:
+            return ["ROI Name", "Type"][section]
+        else:  # Vertical orientation
+            return str(section)  # Return the row index as a string
+
+    def _on_layer_data_changed(self, event=None):
+        """Update the model when the Shapes layer data changes.
+
+        This will notify the view to refresh its display.
+        """
+        # Only trigger if a shape is added or removed
+        if event.action in ["added", "removed"]:
+            self.beginResetModel()
+            self.endResetModel()
+
+    def _on_layer_deleted(self, event=None):
+        """Handle the deletion of the Shapes layer."""
+        # Only reset the model if the layer being removed
+        # is the one we are currently using.
+        if event.value == self.layer:
+            self.layer.events.data.disconnect(self._on_layer_data_changed)
+            self.layer = None
+            self.beginResetModel()
+            self.endResetModel()
