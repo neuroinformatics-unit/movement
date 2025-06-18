@@ -4,6 +4,7 @@ from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
 from movement.napari.loader_widgets import DataLoader
+from movement.napari.roi_widget import ROIWidget
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -22,6 +23,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             DataLoader(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Load tracked data",
+        )
+
+        # Add the ROI widget
+        self.add_widget(
+            ROIWidget(napari_viewer, parent=self),
+            collapsible=True,
+            widget_title="Define ROIs",
         )
 
         self.loader = self.collapsible_widgets[0]
