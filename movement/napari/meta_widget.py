@@ -4,7 +4,7 @@ from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
 from movement.napari.loader_widgets import DataLoader
-from movement.napari.roi_widget import ROIWidget
+from movement.napari.roi_widget import RoiWidget
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -27,10 +27,19 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
 
         # Add the ROI widget
         self.add_widget(
-            ROIWidget(napari_viewer, parent=self),
+            RoiWidget(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Define ROIs",
         )
 
-        self.loader = self.collapsible_widgets[0]
-        self.loader.expand()  # expand the loader widget by default
+        loader_collapsible = self.collapsible_widgets[0]
+        loader_collapsible.expand()  # expand the loader widget by default
+
+        roi_collapsible = self.collapsible_widgets[1]
+        roi_widget = roi_collapsible.content()
+        # When ROI collapsible is expanded, initialise the ROI widget's
+        # connection to a napari Shapes layer and ROI table model.
+        roi_collapsible.toggled_signal_with_self.connect(
+            lambda _, state: roi_widget.ensure_initialised()
+            if state else None
+        )
