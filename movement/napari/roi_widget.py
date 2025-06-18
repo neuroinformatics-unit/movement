@@ -31,8 +31,8 @@ class RoiWidget(QWidget):
         current_model = self.roi_table_view.model()
 
         model_is_valid = (
-            isinstance(current_model, RoiTableModel) and
-            current_model.layer in self.viewer.layers
+            isinstance(current_model, RoiTableModel)
+            and current_model.layer in self.viewer.layers
         )
 
         if not model_is_valid:
@@ -46,7 +46,8 @@ class RoiWidget(QWidget):
     def _get_shapes_layer(self, name: str) -> Shapes | None:
         """Return the Shapes layer with the given name, if it exists."""
         shape_layers = {
-            layer.name: layer for layer in self.viewer.layers
+            layer.name: layer
+            for layer in self.viewer.layers
             if isinstance(layer, Shapes)
         }
         return shape_layers.get(name)
