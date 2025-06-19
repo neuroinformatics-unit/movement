@@ -4,7 +4,6 @@ Created Shapes are shown in a table view using the
 [Qt Model/View framework](https://doc.qt.io/qt-6/model-view-programming.html)
 """
 
-import pandas as pd
 from napari.layers import Shapes
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -119,7 +118,8 @@ class RoiTableModel(QAbstractTableModel):
         # Note that napari auto-extends the name property when new shapes
         # are added, so this list includes the just added shapes (if any).
         existing_names = [
-            n for n in list(self.layer.properties.get("name", []))
+            n
+            for n in list(self.layer.properties.get("name", []))
             if isinstance(n, str)
         ]
 
