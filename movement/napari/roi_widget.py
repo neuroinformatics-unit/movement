@@ -81,11 +81,11 @@ class RoiTableModel(QAbstractTableModel):
         # Connect to layer events
         self.layer.events.data.connect(self._on_layer_data_changed)
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=QModelIndex()):  # noqa: B008
         """Return the number of ROIs in the Shapes layer."""
         return len(self.layer.data) if self.layer else 0
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=QModelIndex()):  # noqa: B008
         """Return the number of columns in the ROI table."""
         return 2 if self.layer else 0
 
