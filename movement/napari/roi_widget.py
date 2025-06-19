@@ -4,6 +4,7 @@ Created Shapes are shown in a table view using the
 [Qt Model/View framework](https://doc.qt.io/qt-6/model-view-programming.html)
 """
 
+import pandas as pd
 from napari.layers import Shapes
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -96,7 +97,7 @@ class RoiTableModel(QAbstractTableModel):
 
         row, col = index.row(), index.column()
         if col == 0:
-            return f"ROI-{row}"
+            return self.layer.properties.get("name", [""])[row]
         elif col == 1:
             return self.layer.shape_type[row]
         return None
@@ -111,14 +112,29 @@ class RoiTableModel(QAbstractTableModel):
             return str(section)  # Return the row index as a string
 
     def _on_layer_data_changed(self, event=None):
-        """Update the model when the Shapes layer data changes.
+        """Update the model when the Shapes layer data changes."""
+        if self.layer is None or event.action not in ["added", "removed"]:
+            return
 
-        This will notify the view to refresh its display.
-        """
-        # Only trigger if a shape is added or removed
-        if event.action in ["added", "removed"]:
-            self.beginResetModel()
-            self.endResetModel()
+        # Note that napari auto-extends the name property when new shapes
+        # are added, so this list includes the just added shapes (if any).
+        existing_names = [
+            n for n in list(self.layer.properties.get("name", []))
+            if isinstance(n, str)
+        ]
+
+        if event.action == "added":
+            self._auto_assign_roi_names(existing_names)
+
+        self.layer.properties = {"name": existing_names}
+
+        self.layer.text = {
+            "string": "{name}",
+            "color": "white",
+        }
+
+        self.beginResetModel()
+        self.endResetModel()
 
     def _on_layer_deleted(self, event=None):
         """Handle the deletion of the Shapes layer."""
@@ -129,3 +145,22 @@ class RoiTableModel(QAbstractTableModel):
             self.layer = None
             self.beginResetModel()
             self.endResetModel()
+
+    def _auto_assign_roi_names(self, existing_names):
+        """Automatically assign names to ROIs.
+
+        We name ROIs in the format "ROI-<number>". The number is
+        incremented based on the highest existing number among existing
+        ROIs with such automatic names.
+        """
+        auto_names = [
+            name for name in existing_names if name.startswith("ROI-")
+        ]
+        max_suffix = max(
+            [int(name.split("-")[-1]) for name in auto_names] + [-1]
+        )
+        next_auto_name = f"ROI-{max_suffix + 1}"
+        if existing_names:
+            existing_names[-1] = next_auto_name
+        else:
+            existing_names.append(next_auto_name)
