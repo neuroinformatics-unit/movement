@@ -115,18 +115,22 @@ class RoiTableModel(QAbstractTableModel):
         if self.layer is None or event.action not in ["added", "removed"]:
             return
 
-        # Note that napari auto-extends the name property when new shapes
-        # are added, so this list includes the just added shapes (if any).
-        existing_names = [
+        # Note that this list includes the just added shapes (if any),
+        # but this could be a duplicate of an existing name.
+        current_names = [
             n
             for n in list(self.layer.properties.get("name", []))
             if isinstance(n, str)
         ]
 
-        if event.action == "added":
-            self._auto_assign_roi_names(existing_names)
+        # This ensures new ROIs are given unique names.
+        updated_names = (
+            self._update_roi_names(current_names)
+            if event.action == "added"
+            else current_names  # No need to update names on shape removal
+        )
 
-        self.layer.properties = {"name": existing_names}
+        self.layer.properties = {"name": updated_names}
 
         self.layer.text = {
             "string": "{name}",
@@ -146,13 +150,13 @@ class RoiTableModel(QAbstractTableModel):
             self.beginResetModel()
             self.endResetModel()
 
-    def _auto_assign_roi_names(self, existing_names):
-        """Automatically assign names to ROIs.
+    def _update_roi_names(self, existing_names: list) -> list:
+        """Update the names of existing ROIs.
 
         We name ROIs in the format "ROI-<number>". The number is
-        incremented based on the highest existing number among existing
-        ROIs with such automatic names.
+        incremented based on existing ROIs with such auto-assigned names.
         """
+        updated_names = existing_names.copy()
         auto_names = [
             name for name in existing_names if name.startswith("ROI-")
         ]
@@ -161,6 +165,7 @@ class RoiTableModel(QAbstractTableModel):
         )
         next_auto_name = f"ROI-{max_suffix + 1}"
         if existing_names:
-            existing_names[-1] = next_auto_name
+            updated_names[-1] = next_auto_name
         else:
-            existing_names.append(next_auto_name)
+            updated_names.append(next_auto_name)
+        return updated_names
