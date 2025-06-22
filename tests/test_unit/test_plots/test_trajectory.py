@@ -36,7 +36,7 @@ plt.switch_backend("Agg")  # to avoid pop-up window
         ),
         pytest.param(
             False,
-            {"individual": "individual_0"},
+            {"individual": "id_0"},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="only individual specified",
         ),
@@ -73,11 +73,11 @@ def test_trajectory_plot(one_individual, image, selection, expected_data):
             id="no_keypoints",
         ),
         pytest.param(
-            {"individuals": "individual_0"},
+            {"individuals": "id_0"},
             id="no_individuals",
         ),
         pytest.param(
-            {"keypoints": "centre", "individuals": "individual_0"},
+            {"keypoints": "centre", "individuals": "id_0"},
             id="only_time_space",
         ),
     ],
@@ -104,9 +104,9 @@ def test_trajectory_dropped_dim(two_individuals, selection):
             id="default",
         ),
         pytest.param(
-            {"individual": "individual_0"},
+            {"individual": "id_0"},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
-            id="individual_0",
+            id="id_0",
         ),
         pytest.param(
             {"keypoints": ["snout", "tail"]},
@@ -114,14 +114,14 @@ def test_trajectory_dropped_dim(two_individuals, selection):
             id="snout-tail",
         ),
         pytest.param(
-            {"individual": "individual_0", "keypoints": ["tail"]},
+            {"individual": "id_0", "keypoints": ["tail"]},
             np.array([[0, -1], [0, 0], [0, 1], [0, 2]], dtype=float),
-            id="tail individual_0",
+            id="tail id_0",
         ),
         pytest.param(
-            {"individual": "individual_1", "keypoints": ["tail"]},
+            {"individual": "id_1", "keypoints": ["tail"]},
             np.array([[0, 1], [0, 0], [0, -1], [0, -2]], dtype=float),
-            id="tail individual_1",
+            id="tail id_1",
         ),
     ],
 )
@@ -137,6 +137,4 @@ def test_trajectory_multiple_individuals(two_individuals):
     with pytest.raises(
         ValueError, match="Only one individual can be selected."
     ):
-        plot_centroid_trajectory(
-            two_individuals, individual=["individual_0", "individual_1"]
-        )
+        plot_centroid_trajectory(two_individuals, individual=["id_0", "id_1"])
