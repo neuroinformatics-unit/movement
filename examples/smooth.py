@@ -47,6 +47,7 @@ print(ds_wasp)
 
 
 def plot_raw_and_smooth_timeseries_and_psd(
+    
     ds_raw,
     ds_smooth,
     individual="individual_0",
@@ -54,6 +55,11 @@ def plot_raw_and_smooth_timeseries_and_psd(
     space="x",
     time_range=None,
 ):
+    # Fallback if the specified individual is not found
+    if individual not in ds_raw.individuals:
+        print(f"Provided individual '{individual}' not found. Falling back to '{ds_raw.individuals.values[0]}'")
+        individual = ds_raw.individuals.values[0]
+
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
