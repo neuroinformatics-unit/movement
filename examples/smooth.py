@@ -57,7 +57,6 @@ def plot_raw_and_smooth_timeseries_and_psd(
     # Fallback if the specified individual is not found
     if individual not in ds_raw.individuals:
         individual = ds_raw.individuals.values[0]
-
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
