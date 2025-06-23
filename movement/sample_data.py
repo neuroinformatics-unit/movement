@@ -236,9 +236,20 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     # Add trajectory data
     # Assume "poses" if not of type "bboxes"
     data_type = "bboxes" if metadata[filename]["type"] == "bboxes" else "poses"
-    paths_dict[data_type] = Path(
-        SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
-    )
+    if filename.endswith(".zip"):
+        # If the file is a zip archive, we need to unpack it into a folder
+        # and return the path to that folder
+        unzipped_folder_name = filename.replace(".zip", ".unzipped")
+        file_paths = SAMPLE_DATA.fetch(
+            f"{data_type}/{filename}",
+            processor=pooch.Unzip(extract_dir=unzipped_folder_name),
+            progressbar=True,
+        )  # returns a list of str paths to the unzipped files
+        paths_dict[data_type] = Path(file_paths[0]).parent  # Get parent folder
+    else:
+        paths_dict[data_type] = Path(
+            SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
+        )
     return paths_dict
 
 
