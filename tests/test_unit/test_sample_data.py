@@ -1,5 +1,6 @@
 """Test suite for the sample_data module."""
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pooch
@@ -7,7 +8,12 @@ import pytest
 from requests.exceptions import RequestException
 from xarray import Dataset
 
-from movement.sample_data import _fetch_metadata, fetch_dataset, list_datasets
+from movement.sample_data import (
+    _fetch_metadata,
+    fetch_dataset,
+    fetch_dataset_paths,
+    list_datasets,
+)
 
 # Define sample datasets for parametrization
 SAMPLE_DATASETS = {
@@ -160,6 +166,47 @@ def test_fetch_dataset(sample_name, sample_metadata, with_video):
         assert video_path is None
 
 
-def test_fetch_dataset_invalid():
-    with pytest.raises(ValueError):
-        fetch_dataset("nonexistent_file")
+@pytest.mark.parametrize(
+    "sample_name, expected_exception",
+    [
+        ("nonexistent_file", ValueError),
+        ("TRex_five-locusts.zip", NotImplementedError),
+    ],
+    ids=["invalid_file", "TRex_folder_zip"],
+)
+def test_fetch_dataset_invalid(sample_name, expected_exception):
+    with pytest.raises(expected_exception):
+        fetch_dataset(sample_name)
+
+
+@pytest.mark.parametrize(
+    "sample_name",
+    [
+        list(SAMPLE_DATASETS.keys())[0],
+        "TRex_five-locusts.zip",
+    ],
+    ids=[
+        "poses_in_single_file",
+        "poses_in_zipped_folder",
+    ],
+)
+def test_fetch_dataset_paths(sample_name):
+    """Test that the returned pose paths points to correct location.
+
+    If the pose files are in a zipped folder, the path should point to the
+    unzipped folder, otherwise it should point to the file itself.
+    """
+    paths = fetch_dataset_paths(sample_name)
+    poses_path = Path(paths["poses"])
+
+    if sample_name.endswith(".zip"):
+        # If the sample is a zip file,
+        # the path should point to the unzipped folder
+        assert poses_path.is_dir()
+        assert poses_path.name == sample_name.replace(".zip", "")
+        assert len(list(poses_path.iterdir())) > 1
+    else:
+        # If the sample is a single file,
+        # the path should point to the file itself
+        assert poses_path.is_file()
+        assert poses_path.name == sample_name

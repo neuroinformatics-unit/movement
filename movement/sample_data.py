@@ -291,6 +291,14 @@ def fetch_dataset(
     fetch_dataset_paths
 
     """
+    # If the filename start with "TRex", raise an NotImplementedError
+    if filename.startswith("TRex"):
+        raise logger.error(
+            NotImplementedError(
+                "The loading of TRex datasets is not implemented yet."
+            )
+        )
+
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     for key, load_module in zip(
