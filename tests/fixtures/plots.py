@@ -66,7 +66,7 @@ def two_individuals(one_individual):
     in sample_data_one_cross, the 1-st mouse is moving in the opposite
     direction, i.e. with it's snout towards the negative side of the y axis.
 
-    The left and right keypoints are not mirrored for individual_1, so this
+    The left and right keypoints are not mirrored for id_1, so this
     mouse is moving flipped around on it's back.
     """
     da_id1 = one_individual.copy()
