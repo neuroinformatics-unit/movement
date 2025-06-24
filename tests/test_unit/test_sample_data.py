@@ -9,34 +9,35 @@ from xarray import Dataset
 
 from movement.sample_data import _fetch_metadata, fetch_dataset, list_datasets
 
+# Define sample datasets for parametrization
+SAMPLE_DATASETS = {
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5": {
+        "fps": 50,
+        "frame_file": "three-mice_Aeon_frame-5sec.png",
+        "video_file": "three-mice_Aeon_video.avi",
+    },
+    "DLC_single-wasp.predictions.h5": {
+        "fps": 40,
+        "frame_file": "single-wasp_frame-10sec.png",
+        "video_file": None,
+    },
+    "LP_mouse-face_AIND.predictions.csv": {
+        "fps": 60,
+        "frame_file": None,
+        "video_file": None,
+    },
+    "VIA_multiple-crabs_5-frames_labels.csv": {
+        "fps": None,
+        "frame_file": None,
+        "video_file": None,
+    },
+}
+
 
 @pytest.fixture(scope="module")
 def valid_sample_datasets():
-    """Return a dict mapping valid sample dataset file names to their
-    respective fps values, and associated frame and video file names.
-    """
-    return {
-        "SLEAP_three-mice_Aeon_proofread.analysis.h5": {
-            "fps": 50,
-            "frame_file": "three-mice_Aeon_frame-5sec.png",
-            "video_file": "three-mice_Aeon_video.avi",
-        },
-        "DLC_single-wasp.predictions.h5": {
-            "fps": 40,
-            "frame_file": "single-wasp_frame-10sec.png",
-            "video_file": None,
-        },
-        "LP_mouse-face_AIND.predictions.csv": {
-            "fps": 60,
-            "frame_file": None,
-            "video_file": None,
-        },
-        "VIA_multiple-crabs_5-frames_labels.csv": {
-            "fps": None,
-            "frame_file": None,
-            "video_file": None,
-        },
-    }
+    """Return the predefined sample datasets mapping."""
+    return SAMPLE_DATASETS.copy()
 
 
 def validate_metadata(metadata: dict[str, dict]) -> None:
@@ -127,28 +128,38 @@ def test_list_datasets(valid_sample_datasets):
     assert all(file in list_datasets() for file in valid_sample_datasets)
 
 
+# Parametrized fetch_dataset test
+@pytest.mark.parametrize(
+    "sample_name, sample_metadata",
+    list(SAMPLE_DATASETS.items()),
+    ids=list(SAMPLE_DATASETS.keys()),
+)
 @pytest.mark.parametrize("with_video", [True, False])
-def test_fetch_dataset(valid_sample_datasets, with_video):
-    # test with valid files
-    for sample_name, sample in valid_sample_datasets.items():
-        ds = fetch_dataset(sample_name, with_video=with_video)
-        assert isinstance(ds, Dataset)
+def test_fetch_dataset(sample_name, sample_metadata, with_video):
+    """Test fetch_dataset for each sample dataset with/without video."""
+    ds = fetch_dataset(sample_name, with_video=with_video)
+    assert isinstance(ds, Dataset)
 
-        assert getattr(ds, "fps", None) == sample["fps"]
+    # Check fps attribute
+    assert getattr(ds, "fps", None) == sample_metadata["fps"]
 
-        frame_path = getattr(ds, "frame_path", None)
-        video_path = getattr(ds, "video_path", None)
+    # Check frame_path
+    frame_path = getattr(ds, "frame_path", None)
+    if sample_metadata["frame_file"]:
+        assert frame_path is not None
+        assert frame_path.split("/")[-1] == sample_metadata["frame_file"]
+    else:
+        assert frame_path is None
 
-        if sample["frame_file"]:
-            assert frame_path.split("/")[-1] == sample["frame_file"]
-        else:
-            assert frame_path is None
+    # Check video_path
+    video_path = getattr(ds, "video_path", None)
+    if sample_metadata["video_file"] and with_video:
+        assert video_path is not None
+        assert video_path.split("/")[-1] == sample_metadata["video_file"]
+    else:
+        assert video_path is None
 
-        if sample["video_file"] and with_video:
-            assert video_path.split("/")[-1] == sample["video_file"]
-        else:
-            assert video_path is None
 
-    # Test with an invalid file
+def test_fetch_dataset_invalid():
     with pytest.raises(ValueError):
         fetch_dataset("nonexistent_file")
