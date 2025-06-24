@@ -425,6 +425,10 @@ The `metadata.yaml` file holds metadata for each sample dataset,
 including information on data provenance as well as the mapping between data files and related
 video/frame files.
 
+For most sample datasets, the tracking data lives in a single file under `poses` or `bboxes`.
+However, some tools—like [TRex](TRex:)—may split their tracking outputs across multiple files.
+In those cases, the dataset is distributed as a ZIP archive containing every relevant file, and is automatically extracted when fetched.
+
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
 Python package, which can download data from pre-specified URLs and store them
