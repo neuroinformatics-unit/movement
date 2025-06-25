@@ -20,7 +20,7 @@ def one_individual():
 
     """
     time_steps = 4
-    individuals = ["individual_0"]
+    individuals = ["id_0"]
     keypoints = ["left", "centre", "right", "snout", "tail"]
     space = ["x", "y"]
     positions = {
@@ -66,10 +66,10 @@ def two_individuals(one_individual):
     in sample_data_one_cross, the 1-st mouse is moving in the opposite
     direction, i.e. with it's snout towards the negative side of the y axis.
 
-    The left and right keypoints are not mirrored for individual_1, so this
+    The left and right keypoints are not mirrored for id_1, so this
     mouse is moving flipped around on it's back.
     """
     da_id1 = one_individual.copy()
     da_id1.loc[dict(space="y")] = da_id1.sel(space="y") * -1
-    da_id1 = da_id1.assign_coords(individuals=["individual_1"])
+    da_id1 = da_id1.assign_coords(individuals=["id_1"])
     return xr.concat([one_individual.copy(), da_id1], "individuals")

@@ -45,8 +45,7 @@ def from_numpy(
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "individual_0",
-        "individual_1", etc.
+        (default), the individuals will be named "id_0", "id_1", etc.
     keypoint_names : list of str, optional
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
@@ -734,7 +733,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 def from_anipose_style_df(
     df: pd.DataFrame,
     fps: float | None = None,
-    individual_name: str = "individual_0",
+    individual_name: str = "id_0",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
 
@@ -746,7 +745,7 @@ def from_anipose_style_df(
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
     individual_name : str, optional
-        Name of the individual, by default "individual_0"
+        Name of the individual, by default "id_0"
 
     Returns
     -------
@@ -804,7 +803,7 @@ def from_anipose_style_df(
 def from_anipose_file(
     file_path: Path | str,
     fps: float | None = None,
-    individual_name: str = "individual_0",
+    individual_name: str = "id_0",
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
 
@@ -816,7 +815,7 @@ def from_anipose_file(
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
     individual_name : str, optional
-        Name of the individual, by default "individual_0"
+        Name of the individual, by default "id_0"
 
     Returns
     -------

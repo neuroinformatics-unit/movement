@@ -10,7 +10,7 @@ position_arrays = [
         "names": None,
         "array_type": "multi_individual_array",
         "individual_names_expected_exception": does_not_raise(
-            ["individual_0", "individual_1"]
+            ["id_0", "id_1"]
         ),
         "keypoint_names_expected_exception": does_not_raise(
             ["keypoint_0", "keypoint_1"]
