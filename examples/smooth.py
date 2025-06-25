@@ -54,6 +54,7 @@ def plot_raw_and_smooth_timeseries_and_psd(
     space="x",
     time_range=None,
 ):
+    # If no individual is specified, use the first one
     if individual is None:
         individual = ds_raw.individuals[0]
     # If no time range is specified, plot the entire time series

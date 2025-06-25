@@ -106,8 +106,7 @@ class ValidPosesDataset:
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "id_0",
-        "id_1", etc.
+        (default), the individuals will be named "id_0", "id_1", etc.
     keypoint_names : list of str, optional
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
