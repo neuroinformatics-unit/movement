@@ -1,7 +1,11 @@
 """Widget for defining regions of interest (ROIs).
 
-Created Shapes are shown in a table view using the
-[Qt Model/View framework](https://doc.qt.io/qt-6/model-view-programming.html)
+ROIs are drawn as shapes in a napari Shapes layer
+and shown in a table view.
+
+See the `Qt Model/View framework
+<https://doc.qt.io/qt-6/model-view-programming.html>`_
+for more background on this widget's architecture.
 """
 
 from contextlib import suppress
@@ -17,177 +21,6 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-
-class RoiWidget(QWidget):
-    """Widget for defining regions of interest (ROIs)."""
-
-    def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the ROI widget."""
-        super().__init__(parent=parent)
-        self.viewer = napari_viewer
-        self.current_model: RoiTableModel | None = None
-
-        main_layout = QVBoxLayout()
-        self.setLayout(main_layout)
-
-        # Create layout for layer selection
-        layer_picker_layout = self._create_layer_selection_layout()
-        main_layout.addLayout(layer_picker_layout)
-
-        # Create table view
-        self.roi_table_view = RoiTableView(self)
-        main_layout.addWidget(self.roi_table_view)
-
-        # Connect layer insertion & removal events to update dropdown
-        self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
-        self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
-
-        # Initialize dropdown
-        self._update_layer_dropdown()
-
-    def _get_roi_layers(self) -> dict[str, Shapes]:
-        """Get all ROI layers (Shapes layers that start with 'ROI').
-
-        Returns a dictionary with layer names as keys and layers as values.
-        """
-        return {
-            layer.name: layer
-            for layer in self.viewer.layers
-            if isinstance(layer, Shapes) and layer.name.startswith("ROI")
-        }
-
-    def _get_roi_layer_by_name(self, name: str) -> Shapes | None:
-        """Return the ROI layer with the given name."""
-        return self._get_roi_layers().get(name)
-
-    def _get_roi_layer_names(self) -> list[str]:
-        """Return the names of all ROI layers."""
-        return list(self._get_roi_layers().keys())
-
-    def _create_layer_selection_layout(self):
-        """Create the ROI layer selection layout with dropdown and button."""
-        layer_picker_layout = QHBoxLayout()
-
-        # Layer selection dropdown
-        self.roi_layer_picker = QComboBox()
-        self.roi_layer_picker.setMinimumWidth(150)
-        self.roi_layer_picker.currentTextChanged.connect(
-            self._on_roi_layer_selected
-        )
-
-        # Create new layer button
-        self.create_roi_layer_btn = QPushButton("Create new ROI layer")
-        self.create_roi_layer_btn.clicked.connect(self._create_new_roi_layer)
-
-        layer_picker_layout.addWidget(self.roi_layer_picker)
-        layer_picker_layout.addWidget(self.create_roi_layer_btn)
-        layer_picker_layout.addStretch()  # Push widgets to the left
-
-        return layer_picker_layout
-
-    def _update_layer_dropdown(self, event=None):
-        """Update the layer dropdown with current ROI layers.
-
-        We consider only Shapes layers that start with "ROI".
-        """
-        current_text = self.roi_layer_picker.currentText()
-        roi_layer_names = self._get_roi_layer_names()
-
-        self.roi_layer_picker.clear()
-        if roi_layer_names:
-            self.roi_layer_picker.addItems(roi_layer_names)
-            if current_text in roi_layer_names:
-                # Try to restore previous selection
-                self.roi_layer_picker.setCurrentText(current_text)
-            else:
-                self.roi_layer_picker.setCurrentIndex(0)
-        else:
-            self.roi_layer_picker.addItem("No ROI layers available")
-
-        # Update button state
-        self.create_roi_layer_btn.setEnabled(True)
-
-    def _on_roi_layer_selected(self, layer_name: str):
-        """Handle layer selection from dropdown."""
-        if not layer_name or layer_name == "No ROI layers available":
-            self._clear_table_model()
-            self.viewer.layers.selection.clear()
-            return
-
-        roi_layer = self._get_roi_layer_by_name(layer_name)
-        if roi_layer is not None:
-            # Select the layer in napari
-            self.viewer.layers.selection.clear()
-            self.viewer.layers.selection.add(roi_layer)
-            # Connect the layer to the table model
-            self._link_roi_layer_to_model(roi_layer)
-
-    def _create_new_roi_layer(self):
-        """Create a new ROI layer and select it."""
-        # Let napari handle the naming automatically
-        new_layer = self.viewer.add_shapes(name="ROIs")
-        # Select the new layer in the layer picker
-        self.roi_layer_picker.setCurrentText(new_layer.name)
-
-    def _link_roi_layer_to_model(self, roi_layer: Shapes):
-        """Link a ROI layer to a table model."""
-        # Disconnect previous model if it exists
-        if self.current_model is not None:
-            self.current_model.layer.events.data.disconnect(
-                self.current_model._on_layer_data_changed
-            )
-            self.current_model.layer.events.name.disconnect(
-                self._on_roi_layer_renamed
-            )
-            self.viewer.layers.events.removed.disconnect(
-                self.current_model._on_layer_deleted
-            )
-
-        # Create new model
-        self.current_model = RoiTableModel(roi_layer)
-        self.roi_table_view.setModel(self.current_model)
-
-        # Connect layer events
-        self.viewer.layers.events.removed.connect(
-            self.current_model._on_layer_deleted
-        )
-        # Connect to layer name changes
-        roi_layer.events.name.connect(self._on_roi_layer_renamed)
-
-    def _on_roi_layer_renamed(self, event=None):
-        """Handle layer renaming by updating the dropdown."""
-        # Update the dropdown to reflect the new name
-        self._update_layer_dropdown()
-
-        # Automatically select the renamed layer in the picker
-        self.roi_layer_picker.setCurrentText(event.source.name)
-
-    def _clear_table_model(self):
-        """Clear the table model when no layer is selected."""
-        if self.current_model is not None:
-            self.current_model.layer.events.data.disconnect(
-                self.current_model._on_layer_data_changed
-            )
-            self.current_model.layer.events.name.disconnect(
-                self._on_roi_layer_renamed
-            )
-            self.viewer.layers.events.removed.disconnect(
-                self.current_model._on_layer_deleted
-            )
-            self.current_model = None
-
-        self.roi_table_view.setModel(None)
-
-
-class RoiTableView(QTableView):
-    """Table view for displaying and managing ROIs."""
-
-    def __init__(self, viewer: Viewer, parent=None):
-        """Initialize the ROI table view."""
-        super().__init__(parent=parent)
-        self.setSelectionBehavior(QTableView.SelectRows)
-        self.setSelectionMode(QTableView.SingleSelection)
 
 
 class RoiTableModel(QAbstractTableModel):
@@ -230,7 +63,7 @@ class RoiTableModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        """Supply the header labels for the table."""
+        """Supply the column names for the table."""
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -308,3 +141,180 @@ class RoiTableModel(QAbstractTableModel):
         else:  # No existing ROIs, so add the first one
             updated_names.append(next_auto_name)
         return updated_names
+
+
+class RoiTableView(QTableView):
+    """Table view for displaying and managing ROIs."""
+
+    def __init__(self, parent=None):
+        """Initialize the ROI table view."""
+        super().__init__(parent=parent)
+        self.setSelectionBehavior(QTableView.SelectRows)
+        self.setSelectionMode(QTableView.SingleSelection)
+
+
+class RoiWidget(QWidget):
+    """Widget for defining regions of interest (ROIs).
+
+    ROIs are drawn as shapes in a napari Shapes layer
+    and shown in a table view
+    """
+
+    def __init__(self, napari_viewer: Viewer, parent=None):
+        """Initialize the ROI widget."""
+        super().__init__(parent=parent)
+        self.viewer = napari_viewer
+        self.current_model: RoiTableModel | None = None
+
+        self._setup_ui()
+        self._connect_signals()
+        self._update_layer_dropdown()
+
+    def _setup_ui(self):
+        """Set up the user interface."""
+        main_layout = QVBoxLayout()
+        self.setLayout(main_layout)
+
+        # Create layout for layer selection
+        layer_picker_layout = self._create_layer_selection_layout()
+        main_layout.addLayout(layer_picker_layout)
+
+        # Create table view
+        self.roi_table_view = RoiTableView(self)
+        main_layout.addWidget(self.roi_table_view)
+
+    def _connect_signals(self):
+        """Connect layer events to update dropdown."""
+        self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
+        self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
+
+    def _create_layer_selection_layout(self):
+        """Create the ROI layer selection layout with dropdown and button."""
+        layer_picker_layout = QHBoxLayout()
+
+        # Layer selection dropdown
+        self.layer_picker = QComboBox()
+        self.layer_picker.setMinimumWidth(150)
+        self.layer_picker.currentTextChanged.connect(self._on_layer_selected)
+
+        # Create new layer button
+        self.create_layer_button = QPushButton("Create new ROI layer")
+        self.create_layer_button.clicked.connect(self._create_new_layer)
+
+        layer_picker_layout.addWidget(self.layer_picker)
+        layer_picker_layout.addWidget(self.create_layer_button)
+        layer_picker_layout.addStretch()  # Push widgets to the left
+
+        return layer_picker_layout
+
+    def _get_roi_layers(self) -> dict[str, Shapes]:
+        """Get all ROI layers (Shapes layers that start with 'ROI').
+
+        Returns a dictionary with layer names as keys and layers as values.
+        """
+        return {
+            layer.name: layer
+            for layer in self.viewer.layers
+            if isinstance(layer, Shapes) and layer.name.startswith("ROI")
+        }
+
+    def _get_roi_layer_by_name(self, name: str) -> Shapes | None:
+        """Return the ROI layer with the given name."""
+        return self._get_roi_layers().get(name)
+
+    def _get_roi_layer_names(self) -> list[str]:
+        """Return the names of all ROI layers."""
+        return list(self._get_roi_layers().keys())
+
+    def _update_layer_dropdown(self, event=None):
+        """Update the layer dropdown with current ROI layers.
+
+        We consider only Shapes layers that start with "ROI".
+        """
+        current_text = self.layer_picker.currentText()
+        roi_layer_names = self._get_roi_layer_names()
+
+        self.layer_picker.clear()
+        if roi_layer_names:
+            self.layer_picker.addItems(roi_layer_names)
+            if current_text in roi_layer_names:
+                # Try to restore previous selection
+                self.layer_picker.setCurrentText(current_text)
+            else:
+                self.layer_picker.setCurrentIndex(0)
+        else:
+            self.layer_picker.addItem("No ROI layers available")
+
+        # Update button state
+        self.create_layer_button.setEnabled(True)
+
+    def _on_layer_selected(self, layer_name: str):
+        """Handle layer selection from dropdown."""
+        if not layer_name or layer_name == "No ROI layers available":
+            self._clear_table_model()
+            self.viewer.layers.selection.clear()
+            return
+
+        roi_layer = self._get_roi_layer_by_name(layer_name)
+        if roi_layer is not None:
+            # Select the layer in napari
+            self.viewer.layers.selection.clear()
+            self.viewer.layers.selection.add(roi_layer)
+            # Connect the layer to the table model
+            self._link_layer_to_model(roi_layer)
+
+    def _create_new_layer(self):
+        """Create a new ROI layer and select it."""
+        # Let napari handle the naming automatically
+        new_layer = self.viewer.add_shapes(name="ROIs")
+        # Select the new layer in the layer picker
+        self.layer_picker.setCurrentText(new_layer.name)
+
+    def _link_layer_to_model(self, roi_layer: Shapes):
+        """Link a ROI layer to a table model."""
+        # Disconnect previous model if it exists
+        if self.current_model is not None:
+            self.current_model.layer.events.data.disconnect(
+                self.current_model._on_layer_data_changed
+            )
+            self.current_model.layer.events.name.disconnect(
+                self._on_layer_renamed
+            )
+            self.viewer.layers.events.removed.disconnect(
+                self.current_model._on_layer_deleted
+            )
+
+        # Create new model
+        self.current_model = RoiTableModel(roi_layer)
+        self.roi_table_view.setModel(self.current_model)
+
+        # Connect layer events
+        self.viewer.layers.events.removed.connect(
+            self.current_model._on_layer_deleted
+        )
+        # Connect to layer name changes
+        roi_layer.events.name.connect(self._on_layer_renamed)
+
+    def _on_layer_renamed(self, event=None):
+        """Handle layer renaming by updating the dropdown."""
+        # Update the dropdown to reflect the new name
+        self._update_layer_dropdown()
+
+        # Automatically select the renamed layer in the picker
+        self.layer_picker.setCurrentText(event.source.name)
+
+    def _clear_table_model(self):
+        """Clear the table model when no layer is selected."""
+        if self.current_model is not None:
+            self.current_model.layer.events.data.disconnect(
+                self.current_model._on_layer_data_changed
+            )
+            self.current_model.layer.events.name.disconnect(
+                self._on_layer_renamed
+            )
+            self.viewer.layers.events.removed.disconnect(
+                self.current_model._on_layer_deleted
+            )
+            self.current_model = None
+
+        self.roi_table_view.setModel(None)
