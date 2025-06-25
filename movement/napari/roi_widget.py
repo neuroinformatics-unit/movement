@@ -15,6 +15,7 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
+    QGroupBox,
     QHBoxLayout,
     QPushButton,
     QTableView,
@@ -67,7 +68,7 @@ class RoiTableModel(QAbstractTableModel):
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
-            return ["ROI Name", "Type"][section]
+            return ["Name", "Shape type"][section]
         else:  # Vertical orientation
             return str(section)  # Return the row index as a string
 
@@ -175,13 +176,27 @@ class RoiWidget(QWidget):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
-        # Create layout for layer selection
-        layer_picker_layout = self._create_layer_selection_layout()
-        main_layout.addLayout(layer_picker_layout)
+        # Create layer selection group box
+        layer_group = QGroupBox("Select a shapes layer to draw ROIs")
+        layer_group.setToolTip(
+            "Select an existing shapes layer to draw ROIs on, "
+            "or create a new one. Only shapes layers that start with "
+            "'ROI' are considered."
+        )
+        layer_layout = self._create_layer_selection_layout()
+        layer_group.setLayout(layer_layout)
+        main_layout.addWidget(layer_group)
 
-        # Create table view
+        # Create table view group box
+        table_group = QGroupBox("ROIs drawn in this layer")
+        table_group.setToolTip(
+            "Use napari layer controls (top left) to draw shapes."
+        )
+        table_layout = QVBoxLayout()
         self.roi_table_view = RoiTableView(self)
-        main_layout.addWidget(self.roi_table_view)
+        table_layout.addWidget(self.roi_table_view)
+        table_group.setLayout(table_layout)
+        main_layout.addWidget(table_group)
 
     def _connect_signals(self):
         """Connect layer events to update dropdown."""

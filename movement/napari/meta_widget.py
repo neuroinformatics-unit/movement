@@ -34,6 +34,3 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
 
         loader_collapsible = self.collapsible_widgets[0]
         loader_collapsible.expand()  # expand the loader widget by default
-
-        # The ROI widget is now self-initializing via the dropdown
-        # No need to automatically expand or initialize it
