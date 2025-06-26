@@ -102,12 +102,12 @@ def ds_to_napari_layers(
         xmax_ymax = ds.position + (ds.shape / 2)
 
         # initialise xmax, ymin corner as xmin, ymin
-        xmax_ymin = xmin_ymin.copy()  
+        xmax_ymin = xmin_ymin.copy()
         # overwrite its x coordinate to xmax
         xmax_ymin.loc[{"space": "x"}] = xmax_ymax.loc[{"space": "x"}]
-        
-    	# initialise xmin, ymin corner as xmin, ymin
-        xmin_ymax = xmin_ymin.copy()  
+
+        # initialise xmin, ymin corner as xmin, ymin
+        xmin_ymax = xmin_ymin.copy()
         # overwrite its y coordinate to ymax
         xmin_ymax.loc[{"space": "y"}] = xmax_ymax.loc[{"space": "y"}]
 

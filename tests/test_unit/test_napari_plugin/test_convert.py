@@ -130,7 +130,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
             np.c_[
                 expected_track_ids,
                 expected_frame_ids,
-                corner,  
+                corner,
             ]
             for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
         ]
@@ -175,7 +175,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
     if is_bboxes:
         np.testing.assert_allclose(bboxes, expected_bboxes, equal_nan=True)
     else:
-    	assert bboxes is None
+        assert bboxes is None
 
     # Assert that the properties DataFrame matches the expected properties
     assert_frame_equal(props, expected_props)

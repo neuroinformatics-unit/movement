@@ -252,6 +252,6 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 
 The boxes layer shows the bounding boxes for the data in the current frame, as rectangles color-coded by individual.
 
-The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) and clicking the `display text` checkbox in the layer controls panel. 
+The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) and clicking the `display text` checkbox in the layer controls panel.
 
 As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the bounding boxes and the rest of the loaded data in sync.
