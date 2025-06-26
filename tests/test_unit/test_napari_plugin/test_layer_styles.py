@@ -7,6 +7,7 @@ from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
     LayerStyle,
     PointsStyle,
+    ShapesStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -65,12 +66,31 @@ def default_style_attributes():
             "tail_length": 30,
             "tail_width": 2,
         },
+        # Additional attributes for ShapesStyle
+        ShapesStyle: {
+            "edge_width": 3,
+            "opacity": 1.0,
+            "shape_type": "rectangle",
+            "face_color": "#FFFFFF00",
+            "edge_color": "individual_factorized",
+            "edge_color_cycle": None,
+            "edge_colormap": DEFAULT_COLORMAP,
+            "text": {
+                "visible": True,
+                "anchor": "lower_left",
+                "translation": 5,
+                "string": "individual",
+                "color": {
+                    "feature": "individual_factorized",
+                },
+            },
+        },
     }
 
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle],
+    [LayerStyle, PointsStyle, TracksStyle, ShapesStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -230,3 +250,49 @@ def test_tracks_style_color_by(
         assert tracks_style.colormap == default_tracks_style["colormap"]
     else:
         assert tracks_style.colormap == set_color_by_kwargs["cmap"]
+
+
+@pytest.mark.parametrize(
+    "sample_column_names, expected_n_colors",
+    [
+        (["individual_factorized", "value"], 3),
+        (["category", "individual_factorized"], 5),
+    ],
+)
+def test_shapes_style_set_color_cycle(
+    sample_layer_style,
+    sample_properties,
+    sample_column_names,
+    expected_n_colors,
+):
+    """Test that set_color_by updates the color and color cycle of
+    the bounding boxes and the text.
+    """
+    # Create a shapes style object with predefined properties
+    shapes_style = sample_layer_style(ShapesStyle)
+
+    # Set the sample data to have the expected column names
+    sample_properties.columns = sample_column_names
+
+    # Color markers and text by the property "prop"
+    shapes_style.set_color_cycle(
+        properties_df=sample_properties,
+    )
+
+    # Check the color cycle
+    color_cycle = _sample_colormap(
+        len(sample_properties["individual_factorized"].unique()),
+        cmap_name=DEFAULT_COLORMAP,
+    )
+    assert shapes_style.edge_color_cycle == color_cycle
+    assert shapes_style.text["color"]["colormap"] == color_cycle
+
+    # Check number of colors is as expected
+    assert len(shapes_style.edge_color_cycle) == expected_n_colors
+    assert len(shapes_style.text["color"]["colormap"]) == expected_n_colors
+
+    # Check that all colors are tuples of length 4 (RGBA)
+    assert all(
+        isinstance(c, tuple) and len(c) == 4
+        for c in shapes_style.edge_color_cycle
+    )

@@ -121,6 +121,56 @@ class TracksStyle(LayerStyle):
             self.colormap = cmap
 
 
+@dataclass
+class ShapesStyle(LayerStyle):
+    """Style properties for a napari Shapes layer."""
+
+    edge_width: int = 3
+    opacity: float = 1.0
+    shape_type: str = "rectangle"
+    face_color: str = "#FFFFFF00"  # transparent face
+    edge_color: str = "individual_factorized"
+    edge_color_cycle: list[tuple] | None = None
+    edge_colormap: str = DEFAULT_COLORMAP
+    text: dict = field(
+        default_factory=lambda: {
+            "visible": True,  # default visible text for bboxes
+            "anchor": "lower_left",
+            "translation": 5,  # pixels
+            "string": "individual",
+            "color": {
+                "feature": "individual_factorized",
+            },
+        }
+    )
+
+    def set_color_cycle(
+        self,
+        properties_df: pd.DataFrame,
+        cmap: str | None = None,
+    ) -> None:
+        """Calculate the color cycle for markers/text by properties DataFrame.
+
+        Parameters
+        ----------
+        properties_df : pd.DataFrame
+            The properties DataFrame containing the data for generating the
+            colormap. It should contain a column with the same name as
+            edge_color.
+        cmap : str, optional
+            The name of the colormap to use, otherwise use the edge_colormap.
+
+        """
+        if cmap is None:
+            cmap = self.edge_colormap
+        n_colors = len(properties_df[self.edge_color].unique())
+        color_cycle = _sample_colormap(n_colors, cmap)
+
+        # Set color cycle for edges and text
+        self.edge_color_cycle = color_cycle
+        self.text["color"].update({"colormap": color_cycle})
+
+
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     """Sample n equally-spaced colors from a napari colormap.
 

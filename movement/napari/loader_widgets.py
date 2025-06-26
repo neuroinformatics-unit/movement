@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from napari.components.dims import RangeTuple
-from napari.layers import Image, Points, Tracks
+from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -21,8 +21,8 @@ from qtpy.QtWidgets import (
 )
 
 from movement.io import load_bboxes, load_poses
-from movement.napari.convert import ds_to_napari_tracks
-from movement.napari.layer_styles import PointsStyle, TracksStyle
+from movement.napari.convert import ds_to_napari_layers
+from movement.napari.layer_styles import PointsStyle, ShapesStyle, TracksStyle
 from movement.utils.logging import logger
 
 # Allowed file suffixes for each supported source software
@@ -50,6 +50,10 @@ class DataLoader(QWidget):
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
+
+        # Ensure bounding boxes data variable is initialized
+        # so we can check if it exists more cleanly later
+        self.bboxes = None
 
         # Create widgets
         self._create_source_software_widget()
@@ -166,6 +170,8 @@ class DataLoader(QWidget):
         # Add the data as a points and a tracks layers
         self._add_points_layer()
         self._add_tracks_layer()
+        if self.bboxes is not None:
+            self._add_shapes_layer()
 
         # Set the frame slider position
         self._set_initial_state()
@@ -180,8 +186,8 @@ class DataLoader(QWidget):
         )
         ds = loader.from_file(self.file_path, self.source_software, self.fps)
 
-        # Convert to napari Tracks array
-        self.data, self.properties = ds_to_napari_tracks(ds)
+        # Convert to napari arrays
+        self.data, self.bboxes, self.properties = ds_to_napari_layers(ds)
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -259,6 +265,7 @@ class DataLoader(QWidget):
             # tail_length in the slider to the value passed.
             # It also affects the head_length slider.
         )
+
         tracks_style.set_color_by(property=self.color_property_factorized)
 
         # Add data as a tracks layer
@@ -269,6 +276,22 @@ class DataLoader(QWidget):
             **tracks_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
+
+    def _add_shapes_layer(self):
+        """Add bounding boxes data to the viewer as a Shapes layer."""
+        shapes_style = ShapesStyle(
+            name=f"boxes: {self.file_name}",
+        )
+        shapes_style.set_color_cycle(
+            properties_df=self.properties.iloc[self.data_not_nan, :],
+        )
+        self.shapes_layer = self.viewer.add_shapes(
+            self.bboxes[self.data_not_nan, :, 1:],
+            properties=self.properties.iloc[self.data_not_nan, :],
+            metadata={"max_frame_idx": max(self.bboxes[:, 0, 1])},
+            **shapes_style.as_kwargs(),
+        )
+        logger.info("Added tracked dataset as a napari Shapes layer.")
 
     def _update_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
@@ -282,7 +305,7 @@ class DataLoader(QWidget):
         list_layers = [
             ly
             for ly in self.viewer.layers
-            if isinstance(ly, Points | Tracks | Image)
+            if isinstance(ly, Points | Tracks | Image | Shapes)
         ]
         if len(list_layers) > 0:
             # Get the maximum frame index from all candidate layers
@@ -292,6 +315,12 @@ class DataLoader(QWidget):
                 [
                     getattr(ly, "metadata", {}).get(
                         "max_frame_idx", ly.data.shape[0] - 1
+                    )
+                    if not isinstance(ly, Shapes)
+                    # Napari stores shapes as a list of 2D arrays instead
+                    # of a 3D array, so we can't use data.shape for them
+                    else getattr(ly, "metadata", {}).get(
+                        "max_frame_idx", len(ly.data) - 1
                     )
                     for ly in list_layers
                 ]
