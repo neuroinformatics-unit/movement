@@ -26,7 +26,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
 def _construct_track_and_time_cols(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Create columns for track ID and time based on a ``movement`` dataset."""
+    """Create napari-required columns for track ID and time based on a ``movement`` dataset."""
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
     n_keypoints = ds.sizes.get("keypoints", 1)
@@ -101,9 +101,14 @@ def ds_to_napari_layers(
         xmin_ymin = ds.position - (ds.shape / 2)
         xmax_ymax = ds.position + (ds.shape / 2)
 
-        xmax_ymin = xmin_ymin.copy()  # swap xmin dimension for xmax
-        xmin_ymax = xmin_ymin.copy()  # swap ymin dimension for ymax
+        # initialise xmax, ymin corner as xmin, ymin
+        xmax_ymin = xmin_ymin.copy()  
+        # overwrite its x coordinate to xmax
         xmax_ymin.loc[{"space": "x"}] = xmax_ymax.loc[{"space": "x"}]
+        
+    	# initialise xmin, ymin corner as xmin, ymin
+        xmin_ymax = xmin_ymin.copy()  
+        # overwrite its y coordinate to ymax
         xmin_ymax.loc[{"space": "y"}] = xmax_ymax.loc[{"space": "y"}]
 
         # Add track_id and time columns to each corner array

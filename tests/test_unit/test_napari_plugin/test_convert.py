@@ -110,7 +110,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
         for id in ds.individuals.values:
             positions = ds.position.sel(individuals=id)
             dims = ds.shape.sel(individuals=id)
-            # Height and width are labeled "y" and "x" in the test dataset
+            # Height and width are labeled "y" and "x" in the shape data array
             heights.extend(dims.sel(space="y").values)
             widths.extend(dims.sel(space="x").values)
 
@@ -130,7 +130,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
             np.c_[
                 expected_track_ids,
                 expected_frame_ids,
-                corner,  # np.transpose(corner, (2, 0, 1)).reshape(-1, 2),
+                corner,  
             ]
             for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
         ]
@@ -172,10 +172,10 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
 
     # Assert that the data array matches the expected data
     np.testing.assert_allclose(data, expected_data, equal_nan=True)
-    if expected_bboxes is None:
-        assert bboxes is None
-    else:
+    if is_bboxes:
         np.testing.assert_allclose(bboxes, expected_bboxes, equal_nan=True)
+    else:
+    	assert bboxes is None
 
     # Assert that the properties DataFrame matches the expected properties
     assert_frame_equal(props, expected_props)

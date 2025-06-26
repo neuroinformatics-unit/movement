@@ -186,7 +186,7 @@ class DataLoader(QWidget):
         )
         ds = loader.from_file(self.file_path, self.source_software, self.fps)
 
-        # Convert to napari Tracks array
+        # Convert to napari arrays
         self.data, self.bboxes, self.properties = ds_to_napari_layers(ds)
 
         # Find rows that do not contain NaN values
@@ -278,9 +278,9 @@ class DataLoader(QWidget):
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
     def _add_shapes_layer(self):
-        """Add tracked data to the viewer as a Shapes layer."""
+        """Add bounding boxes data to the viewer as a Shapes layer."""
         shapes_style = ShapesStyle(
-            name=f"bounds: {self.file_name}",
+            name=f"boxes: {self.file_name}",
         )
         shapes_style.set_color_cycle(
             properties_df=self.properties.iloc[self.data_not_nan, :],
