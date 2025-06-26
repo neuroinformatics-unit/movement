@@ -441,65 +441,44 @@ The most important parts of this module are:
 1. The `SAMPLE_DATA` download manager object.
 2. The `list_datasets()` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
 3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
-4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into movement, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
+4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
 
 ### Adding new data
-Only core movement developers may add new files to the external data repository.
+Only core `movement` developers may add new files to the external data repository.
+Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
 
-1. Create a [GIN](gin:) account
-2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
-3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
-4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
-5. Add your new files to the `poses`, `bboxes`, `videos` and/or `frames` folders as appropriate. Follow the existing file naming conventions as closely as possible.
-6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
-    ::::{tab-set}
-    :::{tab-item} Ubuntu
-    ```bash
-    sha256sum <filename>
-    ```
-    :::
-
-    :::{tab-item} MacOS
-    ```bash
-    shasum -a 256 <filename>
-    ```
-    :::
-
-    :::{tab-item} Windows
-    ```bash
-    certutil -hashfile <filename> SHA256
-    ```
-    :::
-    ::::
-    For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with movement installed, it will calculate the sha256 hashes for all files in the `poses`, `bboxes`, `videos` and `frames` folders and write them to files named `poses_hashes.txt`, `bboxes_hashes.txt`, `videos_hashes.txt`, and `frames_hashes.txt` respectively.
-
-7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes you've calculated. See the example entry below for guidance.
-
-8. Commit a specific file with `gin commit -m <message> <filename>`, or `gin commit -m <message> .` to commit all changes.
-
-9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
+1. Create a [GIN](gin:) account.
+2. Request collaborator access to the [movement data repository](gin:neuroinformatics/movement-test-data) if you don't already have it.
+3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
+4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
+5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
+6. Add metadata for your new files to `metadata.yaml` using the example entry below as a template. You can leave all `sha256sum` values as `null` for now.
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a Python environment with `movement` installed.
+8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
+9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronize changes bidirectionally.
 
 ### `metadata.yaml` example entry
 ```yaml
-"SLEAP_three-mice_Aeon_proofread.analysis.h5":
-  sha256sum: "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a"
-  source_software: "SLEAP"
-  type: "poses"  # "poses" or "bboxes" depending on the type of tracked data
+SLEAP_three-mice_Aeon_proofread.analysis.h5:
+  sha256sum: null
+  source_software: SLEAP
+  type: poses
   fps: 50
-  species: "mouse"
+  species: mouse
   number_of_individuals: 3
   shared_by:
-    name: "Chang Huan Lo"
-    affiliation: "Sainsbury Wellcome Centre, UCL"
+    name: Chang Huan Lo
+    affiliation: Sainsbury Wellcome Centre, UCL
   frame:
-    file_name: "three-mice_Aeon_frame-5sec.png"
-    sha256sum: "889e1bbee6cb23eb6d52820748123579acbd0b2a7265cf72a903dabb7fcc3d1a"
+    file_name: three-mice_Aeon_frame-5sec.png
+    sha256sum: null
   video:
-    file_name: "three-mice_Aeon_video.avi"
-    sha256sum: "bc7406442c90467f11a982fd6efd85258ec5ec7748228b245caf0358934f0e7d"
-  note: "All labels were proofread (user-defined) and can be considered ground truth. It was exported from the .slp file with the same prefix."
+    file_name: three-mice_Aeon_video.avi
+    sha256sum: null
+  note: All labels were proofread (user-defined) and can be considered ground truth.
+    It was exported from the .slp file with the same prefix.
 ```
