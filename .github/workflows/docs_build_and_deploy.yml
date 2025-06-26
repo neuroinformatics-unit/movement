@@ -2,9 +2,10 @@ name: Docs
 
 # Generate the documentation on all merges to main, all pull requests, or by
 # manual workflow dispatch. The build job can be used as a CI check that the
-# docs still build successfully. The deploy job only runs when a tag is
-# pushed and actually moves the generated html to the gh-pages branch
-# (which triggers a GitHub pages deployment).
+# docs still build successfully. The deploy job which moves the generated
+# html to the gh-pages branch and triggers a GitHub pages deployment
+# only runs when a tag is pushed or when the workflow is manually dispatched
+# from the main branch.
 on:
   push:
     branches:
@@ -19,7 +20,11 @@ jobs:
 
   linting:
     # scheduled workflows should not run on forks
-    if: (${{ github.event_name == 'schedule' }} && ${{ github.repository_owner == 'neuroinformatics-unit' }} && ${{ github.ref == 'refs/heads/main' }}) || (${{ github.event_name != 'schedule' }})
+    if: |
+      (github.event_name == 'schedule' &&
+      github.repository_owner == 'neuroinformatics-unit' &&
+      github.ref == 'refs/heads/main') ||
+      (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/lint@v2
@@ -45,7 +50,9 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
+    if: |
+      (github.event_name == 'push' && github.ref_type == 'tag') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main

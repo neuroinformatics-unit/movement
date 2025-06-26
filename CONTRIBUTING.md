@@ -207,10 +207,9 @@ Other `.md`  or `.rst` files are linked to the homepage via the `toctree` direct
 We use [Sphinx](sphinx-doc:) and the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html)
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (`.github/workflows/docs_build_and_deploy.yml`).
-The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
-The deployment job is only triggered whenever a tag is pushed to the _main_ branch,
-ensuring that the documentation is published in sync with each PyPI release.
-
+The build job runs on each PR, ensuring that the documentation build is not broken by new changes.
+The deployment job runs on tag pushes (for PyPI releases) or manual triggers on the _main_ branch.
+This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.
 
 ### Editing the documentation
 To edit the documentation, first clone the repository, and install `movement` in a
