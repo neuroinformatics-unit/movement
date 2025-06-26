@@ -165,7 +165,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
-    The function returns the paths to the downloaded files.
+    The function stores the paths to the downloaded files in a dictionary.
 
     Parameters
     ----------
@@ -233,12 +233,18 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
         ),
     }
-    # Add trajectory data
+
     # Assume "poses" if not of type "bboxes"
     data_type = "bboxes" if metadata[filename]["type"] == "bboxes" else "poses"
-    paths_dict[data_type] = Path(
-        SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
-    )
+
+    if filename.endswith(".zip"):
+        # Store the path to the unzipped folder containing multiple files
+        paths_dict[data_type] = _fetch_and_unzip_folder(data_type, filename)
+    else:
+        # Store the path to a single downloaded file
+        paths_dict[data_type] = Path(
+            SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
+        )
     return paths_dict
 
 
@@ -285,6 +291,14 @@ def fetch_dataset(
     fetch_dataset_paths
 
     """
+    # If the filename start with "TRex", raise an NotImplementedError
+    if filename.startswith("TRex"):
+        raise logger.error(
+            NotImplementedError(
+                "The loading of TRex datasets is not implemented yet."
+            )
+        )
+
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     for key, load_module in zip(
@@ -304,3 +318,41 @@ def fetch_dataset(
         ds.attrs["video_path"] = file_paths["video"].as_posix()
 
     return ds
+
+
+def _fetch_and_unzip_folder(data_type: str, filename: str) -> Path:
+    """Download & unpack a zipped folder containing multiple files.
+
+    Parameters
+    ----------
+    data_type : str
+        Type of data to fetch, e.g. "poses", "bboxes"
+    filename : str
+        Name of the zipped folder to fetch, e.g. "TRex_five-locusts.zip"
+
+    Returns
+    -------
+    Path
+        Path to the folder containing the unpacked files,
+        e.g. "/path/to/TRex_five-locusts.zip.unzip/TREX_five-locusts/"
+
+    """
+    raw_paths = SAMPLE_DATA.fetch(
+        f"{data_type}/{filename}",
+        processor=pooch.Unzip(),
+        progressbar=True,
+    )  # list of str
+    paths = [Path(p) for p in raw_paths]  # convert to Path objects
+
+    # filter out unwanted files and directories
+    UNWANTED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+    UNWANTED_DIRS = {"__MACOSX"}
+
+    filtered = [
+        p
+        for p in paths
+        if p.name not in UNWANTED_FILES
+        and not any(part in UNWANTED_DIRS for part in p.parts)
+    ]
+    # all remaining files should live in the same folder
+    return filtered[0].parent

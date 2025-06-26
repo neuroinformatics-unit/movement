@@ -212,6 +212,7 @@ myst_url_schemes = {
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
     "anipose": "https://anipose.readthedocs.io/en/latest/",
+    "TRex": "https://trex.run/docs/",
 }
 
 intersphinx_mapping = {
