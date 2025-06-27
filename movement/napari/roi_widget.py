@@ -152,6 +152,32 @@ class RoiTableView(QTableView):
         super().__init__(parent=parent)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QTableView.SingleSelection)
+        self.current_model: RoiTableModel | None = None
+
+    def setModel(self, model):
+        """Override setModel to connect selection signals."""
+        super().setModel(model)
+        self.current_model = model
+
+        if model is not None:
+            self.selectionModel().selectionChanged.connect(
+                self._on_selection_changed
+            )
+
+    def _on_selection_changed(self, selected, deselected):
+        """Handle table row selection changes."""
+        if self.current_model is None or self.current_model.layer is None:
+            return
+
+        # Get the selected row index
+        indexes = selected.indexes()
+        if not indexes:
+            return
+
+        # Select the corresponding shape in napari
+        row = indexes[0].row()
+        if row < len(self.current_model.layer.data):
+            self.current_model.layer.selected_data = {row}
 
 
 class RoiWidget(QWidget):
