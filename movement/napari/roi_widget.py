@@ -44,7 +44,7 @@ class RoiTableModel(QAbstractTableModel):
 
     def data(self, index, role=Qt.DisplayRole):
         """Return the actual data to be shown in each cell of the table."""
-        if not index.isValid() or role != Qt.DisplayRole:
+        if not index.isValid():
             return None
 
         row, col = index.row(), index.column()
@@ -52,16 +52,63 @@ class RoiTableModel(QAbstractTableModel):
         if row >= len(self.layer.data):
             return None
 
-        if col == 0:
-            names = self.layer.properties.get("name", [])
-            return names[row] if row < len(names) else ""
-        elif col == 1:
-            return (
-                self.layer.shape_type[row]
-                if row < len(self.layer.shape_type)
-                else ""
-            )
+        if role == Qt.DisplayRole:
+            if col == 0:
+                return self._get_name_for_row(row)
+            elif col == 1:
+                return (
+                    self.layer.shape_type[row]
+                    if row < len(self.layer.shape_type)
+                    else ""
+                )
+        elif role == Qt.EditRole and col == 0:
+            # Return editable data for the Name column
+            return self._get_name_for_row(row)
         return None
+
+    def flags(self, index):
+        """Return the item flags for the given index."""
+        if not index.isValid():
+            return Qt.NoItemFlags
+
+        # Make only the Name column (column 0) editable
+        if index.column() == 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
+        else:
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+    def setData(self, index, value, role=Qt.EditRole):
+        """Set the data for the given index.
+
+        This allows the user to edit the name of the ROI.
+        """
+        if not index.isValid() or role != Qt.EditRole:
+            return False
+
+        row, col = index.row(), index.column()
+
+        if row >= len(self.layer.data):
+            return False
+
+        # Only allow editing the Name column
+        if col == 0:
+            names = list(self.layer.properties.get("name", []))
+
+            # Ensure we have enough names
+            while len(names) <= row:
+                names.append("")
+
+            # Update the name
+            names[row] = str(value)
+
+            # Update the layer properties
+            self.layer.properties = {"name": names}
+
+            # Emit data changed signal
+            self.dataChanged.emit(index, index)
+            return True
+
+        return False
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         """Supply the column names for the table."""
@@ -71,6 +118,11 @@ class RoiTableModel(QAbstractTableModel):
             return ["Name", "Shape type"][section]
         else:  # Vertical orientation
             return str(section)  # Return the row index as a string
+
+    def _get_name_for_row(self, row):
+        """Get the name for a specific row."""
+        names = self.layer.properties.get("name", [])
+        return names[row] if row < len(names) else ""
 
     def _on_layer_data_changed(self, event=None):
         """Update the model when the ROI Shapes layer data changes."""
@@ -152,6 +204,9 @@ class RoiTableView(QTableView):
         super().__init__(parent=parent)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QTableView.SingleSelection)
+        self.setEditTriggers(
+            QTableView.DoubleClicked | QTableView.EditKeyPressed
+        )
         self.current_model: RoiTableModel | None = None
 
     def setModel(self, model):
