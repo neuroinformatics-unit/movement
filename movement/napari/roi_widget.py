@@ -258,10 +258,10 @@ class RoiWidget(QWidget):
         self.setLayout(main_layout)
 
         # Create layer selection group box
-        layer_group = QGroupBox("Select a shapes layer to draw ROIs")
+        layer_group = QGroupBox("Layer to draw ROIs on")
         layer_group.setToolTip(
             "Select an existing shapes layer to draw ROIs on, "
-            "or create a new one. Only shapes layers that start with "
+            "or create a new one.\nOnly shapes layers that start with "
             "'ROI' are considered."
         )
         layer_layout = self._create_layer_selection_layout()
@@ -294,12 +294,11 @@ class RoiWidget(QWidget):
         self.layer_picker.currentTextChanged.connect(self._on_layer_selected)
 
         # Create new layer button
-        self.create_layer_button = QPushButton("Create new ROI layer")
+        self.create_layer_button = QPushButton("Add new layer")
         self.create_layer_button.clicked.connect(self._create_new_layer)
 
         layer_picker_layout.addWidget(self.layer_picker)
         layer_picker_layout.addWidget(self.create_layer_button)
-        layer_picker_layout.addStretch()  # Push widgets to the left
 
         return layer_picker_layout
 
@@ -339,14 +338,14 @@ class RoiWidget(QWidget):
             else:
                 self.layer_picker.setCurrentIndex(0)
         else:
-            self.layer_picker.addItem("No ROI layers available")
+            self.layer_picker.addItem("Select a shapes layer")
 
         # Update button state
         self.create_layer_button.setEnabled(True)
 
     def _on_layer_selected(self, layer_name: str):
         """Handle layer selection from dropdown."""
-        if not layer_name or layer_name == "No ROI layers available":
+        if not layer_name or layer_name == "Select a shapes layer":
             self._clear_table_model()
             self.viewer.layers.selection.clear()
             return
