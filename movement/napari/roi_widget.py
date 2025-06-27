@@ -94,17 +94,10 @@ class RoiTableModel(QAbstractTableModel):
         if col == 0:
             names = list(self.layer.properties.get("name", []))
 
-            # Ensure we have enough names
             while len(names) <= row:
-                names.append("")
-
-            # Update the name
-            names[row] = str(value)
-
-            # Update the layer properties
-            self.layer.properties = {"name": names}
-
-            # Emit data changed signal
+                names.append("")  # Ensure we have enough names
+            names[row] = str(value)  # Update the name
+            self.layer.properties = {"name": names}  # Update layer properties
             self.dataChanged.emit(index, index)
             return True
 
@@ -284,6 +277,11 @@ class RoiWidget(QWidget):
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
         self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
 
+        # Connect to name change events for all existing shapes layers
+        for layer in self.viewer.layers:
+            if isinstance(layer, Shapes):
+                layer.events.name.connect(self._update_layer_dropdown)
+
     def _create_layer_selection_layout(self):
         """Create the ROI layer selection layout with dropdown and button."""
         layer_picker_layout = QHBoxLayout()
@@ -326,6 +324,13 @@ class RoiWidget(QWidget):
 
         We consider only Shapes layers that start with "ROI".
         """
+        # Connect to name change events for any new Shapes layers
+        if event is not None and hasattr(event, "value"):
+            layer = event.value
+            if isinstance(layer, Shapes):
+                # Connect to name changes for new layers
+                layer.events.name.connect(self._update_layer_dropdown)
+
         current_text = self.layer_picker.currentText()
         roi_layer_names = self._get_roi_layer_names()
 
@@ -378,6 +383,14 @@ class RoiWidget(QWidget):
             self.viewer.layers.events.removed.disconnect(
                 self.current_model._on_layer_deleted
             )
+
+        # Auto-assign names if the layer has shapes but no names
+        # This can happened if shapes are drawn before the layer is given
+        # a name starting with "ROI".
+        if len(roi_layer.data) > 0 and not roi_layer.properties.get("name"):
+            names = [f"ROI-{i + 1}" for i in range(len(roi_layer.data))]
+            roi_layer.properties = {"name": names}
+            roi_layer.text = {"string": "{name}", "color": "white"}
 
         # Create new model
         self.current_model = RoiTableModel(roi_layer)
