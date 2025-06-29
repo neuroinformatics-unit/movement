@@ -24,6 +24,7 @@ from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_tracks
 from movement.napari.layer_styles import PointsStyle, TracksStyle
 from movement.utils.logging import logger
+from movement.utils.napari_utils import set_tracks_color_by
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -259,14 +260,19 @@ class DataLoader(QWidget):
             # tail_length in the slider to the value passed.
             # It also affects the head_length slider.
         )
-        tracks_style.set_color_by(property=self.color_property_factorized)
 
-        # Add data as a tracks layer
-        self.viewer.add_tracks(
+        self.tracks_layer = self.viewer.add_tracks(
             self.data[self.data_not_nan, :],
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **tracks_style.as_kwargs(),
+        )
+
+        set_tracks_color_by(
+            self.tracks_layer,
+            preferred=self.color_property_factorized,
+            fallback="track_id",
+            viewer=self.viewer,
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
