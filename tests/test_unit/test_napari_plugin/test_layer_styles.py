@@ -8,6 +8,7 @@ from movement.napari.layer_styles import (
     BoxesStyle,
     LayerStyle,
     PointsStyle,
+    RoiStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -79,12 +80,25 @@ def default_style_attributes():
                 "translation": 5,
             },
         },
+        # Additional attributes for RoiStyle
+        RoiStyle: {
+            "blending": "translucent",
+            "face_color": "red",
+            "edge_color": "red",
+            "edge_width": 3.0,
+            "opacity": 0.5,
+            "text": {
+                "visible": True,
+                "anchor": "center",
+                "color": "white",
+            },
+        },
     }
 
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle],
+    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle, RoiStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -304,3 +318,26 @@ def test_shapes_style_set_color_by(
         isinstance(c, tuple) and len(c) == 4
         for c in boxes_style.edge_color_cycle
     )
+
+
+@pytest.mark.parametrize(
+
+    "color",
+    [
+        "blue",
+        "green",
+        (1.0, 0.0, 0.0, 1.0),  # Red as RGBA tuple
+        (0.0, 1.0, 0.0, 0.5),  # Green with alpha
+    ],
+)
+def test_roi_style_set_color(color, sample_layer_style):
+    """Test that set_color updates the color of the ROI layer."""
+    # Create a ROI style object
+    roi_style = sample_layer_style(RoiStyle)
+
+    # Set the color
+    roi_style.set_color(color)
+
+    # Check that all color properties are updated
+    assert roi_style.face_color == color
+    assert roi_style.edge_color == color
