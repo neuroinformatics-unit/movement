@@ -346,31 +346,35 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
     )
     paths = [Path(p) for p in raw_paths]  # convert to Path objects
 
-    # Filter data files and copy them to the destination directory
+    # Filter data files
     UNWANTED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
     UNWANTED_DIRS = {"__MACOSX"}
+    valid_paths = [
+        path
+        for path in paths
+        if path.name not in UNWANTED_FILES
+        and not any(part in UNWANTED_DIRS for part in path.parts)
+    ]
 
+    # Copy files to a new destination directory
     extract_dir_name = file_path.with_suffix("").name
     extract_dir = SAMPLE_DATA.path / data_type / f"{file_name}.unzip"
     dest_dir = SAMPLE_DATA.path / data_type / extract_dir_name
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    for path in paths:
-        if path.name in UNWANTED_FILES or any(
-            part in UNWANTED_DIRS for part in path.parts
-        ):
-            continue
-        try:
+    try:
+        for path in valid_paths:
             rel_path = path.relative_to(extract_dir / extract_dir_name)
             dest_path = dest_dir / rel_path
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path.as_posix(), dest_path.as_posix())
-        except Exception as e:
-            logger.warning(
-                f"Failed to copy file {path} to {dest_path}. "
-                f"Using the original path instead: {e}"
-            )
-            return path.parent
+    except Exception as e:
+        logger.warning(
+            f"Failed to copy files from {extract_dir} to {dest_dir}. "
+            f"Using the original path instead: {e}"
+        )
+        shutil.rmtree(dest_dir)  # remove the dest_dir
+        return valid_paths[0].parent  # return the original path
 
     # Clean up the .unzip folder
     try:

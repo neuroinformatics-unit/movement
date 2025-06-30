@@ -37,13 +37,25 @@ SAMPLE_DATASETS = {
         "frame_file": None,
         "video_file": None,
     },
+    "TRex_five-locusts.zip": {
+        "fps": 5,
+        "frame_file": "locusts-noqr_n-5_date-20250117_frame-bg.png",
+        "video_file": None,
+    },
 }
 
 
 @pytest.fixture(scope="module")
-def valid_sample_datasets():
-    """Return the predefined sample datasets mapping."""
-    return SAMPLE_DATASETS.copy()
+def sample_dataset_names():
+    """Return a list of sample dataset names."""
+    return list(SAMPLE_DATASETS.keys())
+
+
+@pytest.fixture(params=list(SAMPLE_DATASETS.items()))
+def sample_dataset(request):
+    """Return the name of a sample dataset and its metadata."""
+    sample_name, sample_metadata = request.param
+    return sample_name, sample_metadata
 
 
 def validate_metadata(metadata: dict[str, dict]) -> None:
@@ -129,20 +141,19 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
             validate_metadata(metadata)
 
 
-def test_list_datasets(valid_sample_datasets):
+def test_list_datasets(sample_dataset_names):
     assert isinstance(list_datasets(), list)
-    assert all(file in list_datasets() for file in valid_sample_datasets)
+    assert all(file in list_datasets() for file in sample_dataset_names)
 
 
-# Parametrized fetch_dataset test
-@pytest.mark.parametrize(
-    "sample_name, sample_metadata",
-    list(SAMPLE_DATASETS.items()),
-    ids=list(SAMPLE_DATASETS.keys()),
-)
 @pytest.mark.parametrize("with_video", [True, False])
-def test_fetch_dataset(sample_name, sample_metadata, with_video):
+def test_fetch_dataset(sample_dataset, with_video):
     """Test fetch_dataset for each sample dataset with/without video."""
+    sample_name, sample_metadata = sample_dataset
+    # Skip TRex datasets as they are not supported yet
+    if sample_name.startswith("TRex"):
+        pytest.xfail("TRex datasets are not supported yet.")
+
     ds = fetch_dataset(sample_name, with_video=with_video)
     assert isinstance(ds, Dataset)
 
@@ -179,34 +190,91 @@ def test_fetch_dataset_invalid(sample_name, expected_exception):
         fetch_dataset(sample_name)
 
 
-@pytest.mark.parametrize(
-    "sample_name",
-    [
-        list(SAMPLE_DATASETS.keys())[0],
-        "TRex_five-locusts.zip",
-    ],
-    ids=[
-        "poses_in_single_file",
-        "poses_in_zipped_folder",
-    ],
-)
-def test_fetch_dataset_paths(sample_name):
+def test_fetch_dataset_paths(sample_dataset):
     """Test that the returned pose paths points to correct location.
 
     If the pose files are in a zipped folder, the path should point to the
     unzipped folder, otherwise it should point to the file itself.
     """
+    sample_name, _ = sample_dataset
     paths = fetch_dataset_paths(sample_name)
-    poses_path = Path(paths["poses"])
+    data_path = Path(paths.get("poses", paths.get("bboxes")))
 
     if sample_name.endswith(".zip"):
         # If the sample is a zip file,
         # the path should point to the unzipped folder
-        assert poses_path.is_dir()
-        assert poses_path.name == sample_name.replace(".zip", "")
-        assert len(list(poses_path.iterdir())) > 1
+        assert data_path.is_dir()
+        assert data_path.name == sample_name.replace(".zip", "")
+        file_paths = list(data_path.iterdir())
+        assert len(file_paths) > 1
+        # Make sure unwanted files are not present
+        assert not any(
+            file_path.name in {".DS_Store", "Thumbs.db", "desktop.ini"}
+            for file_path in file_paths
+        )
     else:
         # If the sample is a single file,
         # the path should point to the file itself
-        assert poses_path.is_file()
-        assert poses_path.name == sample_name
+        assert data_path.is_file()
+        assert data_path.name == sample_name
+
+
+@pytest.mark.parametrize(
+    "failing_func,expected_warning",
+    [
+        pytest.param(
+            "copy2",
+            "Failed to copy file",
+            id="copy2_exception",
+        ),
+        pytest.param(
+            "rmtree",
+            "Failed to remove unzip dir",
+            id="rmtree_exception",
+        ),
+    ],
+)
+def test_fetch_and_unzip_exceptions(
+    tmp_path, monkeypatch, caplog, failing_func, expected_warning
+):
+    """Test _fetch_and_unzip handles failures to copy files
+    or remove dirs gracefully, raising the appropriate warning.
+
+    It also tests that unwanted files are not copied to the new dest folder.
+    """
+    from movement import sample_data
+
+    # Create the proper directory structure that the function expects
+    extract_dir = tmp_path / "poses" / "test.zip.unzip"
+    extract_dir_name = "test"
+    extract_dir_with_name = extract_dir / extract_dir_name
+    extract_dir_with_name.mkdir(parents=True, exist_ok=True)
+
+    # Create a file inside the extract directory
+    file_to_copy = extract_dir_with_name / "file.txt"
+    file_to_copy.write_text("data")
+    # Also create an unwanted file
+    unwanted_file = extract_dir_with_name / ".DS_Store"
+    unwanted_file.write_text("unwanted")
+
+    # Patch SAMPLE_DATA.path to use our tmp_path
+    monkeypatch.setattr(sample_data.SAMPLE_DATA, "path", tmp_path)
+    # Patch SAMPLE_DATA.fetch to return the fake files
+    monkeypatch.setattr(
+        sample_data.SAMPLE_DATA,
+        "fetch",
+        lambda *a, **k: [file_to_copy.as_posix(), unwanted_file.as_posix()],
+    )
+
+    with patch(f"shutil.{failing_func}", side_effect=OSError("failed")):
+        result = sample_data._fetch_and_unzip("poses", "test.zip")
+        result_paths = list(result.iterdir())
+        if failing_func == "copy2":
+            # original folder is kept, incl. unwanted file
+            assert result == file_to_copy.parent
+            assert ".DS_Store" in result_paths
+        else:  # rmtree
+            # new dest folder is returned, without unwanted file
+            assert result == tmp_path / "poses" / "test"
+            assert ".DS_Store" not in result_paths
+        assert expected_warning in caplog.records[-1].getMessage()
