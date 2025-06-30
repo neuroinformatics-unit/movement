@@ -459,7 +459,7 @@ To add a new file, you will need to:
 6. Add metadata for your new files to `metadata.yaml` using the example entry below as a template. You can leave all `sha256sum` values as `null` for now.
 7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a Python environment with `movement` installed.
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
-9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronize changes bidirectionally.
+9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 
 ### `metadata.yaml` example entry
 ```yaml

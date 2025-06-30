@@ -320,39 +320,58 @@ def fetch_dataset(
     return ds
 
 
-def _fetch_and_unzip_folder(data_type: str, filename: str) -> Path:
-    """Download & unpack a zipped folder containing multiple files.
+def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
+    """Download and extract a zipped archive and return the folder path.
 
     Parameters
     ----------
     data_type : str
-        Type of data to fetch, e.g. "poses", "bboxes"
-    filename : str
-        Name of the zipped folder to fetch, e.g. "TRex_five-locusts.zip"
+        Type of data to fetch, e.g. "poses", "bboxes".
+    file_name : str
+        Name of the .zip file to fetch, e.g. "TRex_five-locusts.zip"
 
     Returns
     -------
     Path
-        Path to the folder containing the unpacked files,
-        e.g. "/path/to/TRex_five-locusts.zip.unzip/TREX_five-locusts/"
+        Path to the folder containing the unarchived file(s),
+        e.g. "/path/to/TRex_five-locusts/"
 
     """
+    file_path = Path(data_type) / file_name
     raw_paths = SAMPLE_DATA.fetch(
-        f"{data_type}/{filename}",
+        file_path.as_posix(),
         processor=pooch.Unzip(),
         progressbar=True,
-    )  # list of str
+    )
     paths = [Path(p) for p in raw_paths]  # convert to Path objects
 
-    # filter out unwanted files and directories
+    # Filter data files and move them to the destination directory
     UNWANTED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
     UNWANTED_DIRS = {"__MACOSX"}
+    extract_dir_name = file_path.with_suffix("").name
+    extract_dir = SAMPLE_DATA.path / data_type / f"{file_name}.unzip"
+    dest_dir = SAMPLE_DATA.path / data_type / extract_dir_name
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    for path in paths:
+        if path.name in UNWANTED_FILES or any(
+            part in UNWANTED_DIRS for part in path.parts
+        ):
+            continue
+        try:
+            rel_path = path.relative_to(extract_dir / extract_dir_name)
+            dest_path = dest_dir / rel_path
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(path), str(dest_path))
+        except Exception as e:
+            logger.warning(
+                f"Failed to move file {path} to {dest_path}. "
+                f"Using the original path instead: {e}"
+            )
+            return path.parent
 
-    filtered = [
-        p
-        for p in paths
-        if p.name not in UNWANTED_FILES
-        and not any(part in UNWANTED_DIRS for part in p.parts)
-    ]
-    # all remaining files should live in the same folder
-    return filtered[0].parent
+    # Clean up the .unzip folder
+    try:
+        shutil.rmtree(extract_dir)
+    except Exception as e:
+        logger.warning(f"Failed to remove unzip dir {extract_dir}: {e}")
+    return dest_dir
