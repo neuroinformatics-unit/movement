@@ -190,6 +190,36 @@ class BoxesStyle(LayerStyle):
         self.text["string"] = property
 
 
+@dataclass
+class RoiStyle(LayerStyle):
+    """Style properties for napari Shapes layers containing ROIs."""
+
+    name: str = "ROIs"
+    face_color: str | tuple = "red"
+    edge_color: str | tuple = "red"
+    edge_width: float = 3.0
+    opacity: float = 0.5
+    text: dict = field(
+        default_factory=lambda: {
+            "visible": True,
+            "anchor": "center",
+            "color": "white",
+        }
+    )
+
+    def set_color(self, color: str | tuple) -> None:
+        """Set the color of the ROI layer.
+
+        Parameters
+        ----------
+        color : str or tuple
+            The color to use for both fill and outline.
+
+        """
+        self.face_color = color
+        self.edge_color = color
+
+
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     """Sample n equally-spaced colors from a napari colormap.
 
