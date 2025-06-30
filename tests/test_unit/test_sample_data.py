@@ -268,13 +268,13 @@ def test_fetch_and_unzip_exceptions(
 
     with patch(f"shutil.{failing_func}", side_effect=OSError("failed")):
         result = sample_data._fetch_and_unzip("poses", "test.zip")
-        result_paths = list(result.iterdir())
+        result_names = [p.name for p in result.iterdir()]
         if failing_func == "copy2":
             # original folder is kept, incl. unwanted file
             assert result == file_to_copy.parent
-            assert ".DS_Store" in result_paths
+            assert ".DS_Store" in result_names
         else:  # rmtree
             # new dest folder is returned, without unwanted file
             assert result == tmp_path / "poses" / "test"
-            assert ".DS_Store" not in result_paths
+            assert ".DS_Store" not in result_names
         assert expected_warning in caplog.records[-1].getMessage()
