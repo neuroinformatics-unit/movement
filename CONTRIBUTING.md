@@ -435,16 +435,16 @@ Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
 like verification of sha256 hashes and decompression of archives.
 
-The relevant functionality is implemented in the `movement.sample_data.py` module.
+The relevant functionality is implemented in the {mod}`movement.sample_data` module.
 The most important parts of this module are:
 
 1. The `SAMPLE_DATA` download manager object.
-2. The `list_datasets()` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
-3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
-4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
+2. The {func}`list_datasets()<movement.sample_data.list_datasets>` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
+3. The {func}`fetch_dataset_paths()<movement.sample_data.fetch_dataset_paths>` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
+4. The {func}`fetch_dataset()<movement.sample_data.fetch_dataset>` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
-This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
+This can be changed by setting the `DATA_DIR` variable in the `sample_data.py` file.
 
 ### Adding new data
 Only core `movement` developers may add new files to the external data repository.
@@ -457,7 +457,7 @@ To add a new file, you will need to:
 4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the example entry below as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a Python environment with `movement` installed.
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 
