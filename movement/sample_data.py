@@ -6,6 +6,7 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
+import shutil
 from pathlib import Path
 
 import pooch
@@ -239,7 +240,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     if filename.endswith(".zip"):
         # Store the path to the unzipped folder containing multiple files
-        paths_dict[data_type] = _fetch_and_unzip_folder(data_type, filename)
+        paths_dict[data_type] = _fetch_and_unzip(data_type, filename)
     else:
         # Store the path to a single downloaded file
         paths_dict[data_type] = Path(
@@ -345,13 +346,15 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
     )
     paths = [Path(p) for p in raw_paths]  # convert to Path objects
 
-    # Filter data files and move them to the destination directory
+    # Filter data files and copy them to the destination directory
     UNWANTED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
     UNWANTED_DIRS = {"__MACOSX"}
+
     extract_dir_name = file_path.with_suffix("").name
     extract_dir = SAMPLE_DATA.path / data_type / f"{file_name}.unzip"
     dest_dir = SAMPLE_DATA.path / data_type / extract_dir_name
     dest_dir.mkdir(parents=True, exist_ok=True)
+
     for path in paths:
         if path.name in UNWANTED_FILES or any(
             part in UNWANTED_DIRS for part in path.parts
@@ -361,10 +364,10 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
             rel_path = path.relative_to(extract_dir / extract_dir_name)
             dest_path = dest_dir / rel_path
             dest_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(path), str(dest_path))
+            shutil.copy2(path.as_posix(), dest_path.as_posix())
         except Exception as e:
             logger.warning(
-                f"Failed to move file {path} to {dest_path}. "
+                f"Failed to copy file {path} to {dest_path}. "
                 f"Using the original path instead: {e}"
             )
             return path.parent
