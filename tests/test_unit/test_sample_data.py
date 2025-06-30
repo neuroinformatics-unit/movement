@@ -9,6 +9,8 @@ from requests.exceptions import RequestException
 from xarray import Dataset
 
 from movement.sample_data import (
+    SAMPLE_DATA,
+    _fetch_and_unzip,
     _fetch_metadata,
     fetch_dataset,
     fetch_dataset_paths,
@@ -242,36 +244,29 @@ def test_fetch_and_unzip_exceptions(
 
     It also tests that unwanted files are not copied to the new dest folder.
     """
-    from movement import sample_data
-
     # Create the proper directory structure that the function expects
-    extract_dir = tmp_path / "poses" / "test.zip.unzip"
-    extract_dir_name = "test"
-    extract_dir_with_name = extract_dir / extract_dir_name
-    extract_dir_with_name.mkdir(parents=True, exist_ok=True)
-
-    # Create a file inside the extract directory
-    file_to_copy = extract_dir_with_name / "file.txt"
-    file_to_copy.write_text("data")
-    # Also create an unwanted file
-    unwanted_file = extract_dir_with_name / ".DS_Store"
-    unwanted_file.write_text("unwanted")
+    extract_dir = tmp_path / "poses" / "test.zip.unzip" / "test"
+    extract_dir.mkdir(parents=True, exist_ok=True)
+    # Create two files: one valid and one unwanted
+    file_names = ["file.txt", ".DS_Store"]
+    for file_name in file_names:
+        (extract_dir / file_name).touch()
 
     # Patch SAMPLE_DATA.path to use our tmp_path
-    monkeypatch.setattr(sample_data.SAMPLE_DATA, "path", tmp_path)
+    monkeypatch.setattr(SAMPLE_DATA, "path", tmp_path)
     # Patch SAMPLE_DATA.fetch to return the fake files
     monkeypatch.setattr(
-        sample_data.SAMPLE_DATA,
+        SAMPLE_DATA,
         "fetch",
-        lambda *a, **k: [file_to_copy.as_posix(), unwanted_file.as_posix()],
+        lambda *a, **k: [str(extract_dir / file) for file in file_names],
     )
 
     with patch(f"shutil.{failing_func}", side_effect=OSError("failed")):
-        result = sample_data._fetch_and_unzip("poses", "test.zip")
+        result = _fetch_and_unzip("poses", "test.zip")
         result_names = [p.name for p in result.iterdir()]
         if failing_func == "copy2":
             # original folder is kept, incl. unwanted file
-            assert result == file_to_copy.parent
+            assert result == extract_dir
             assert ".DS_Store" in result_names
         else:  # rmtree
             # new dest folder is returned, without unwanted file
