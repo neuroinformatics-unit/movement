@@ -29,7 +29,7 @@ These are especially suitable if you're new to the project, and we recommend sta
 ### Creating a development environment
 It is recommended to use [conda](conda:)
 or [mamba](mamba:) to create a
-development environment for movement. In the following we assume you have
+development environment for `movement`. In the following we assume you have
 `conda` installed, but the same commands will also work with `mamba`/`micromamba`.
 
 First, create and activate a `conda` environment with some prerequisites:
@@ -39,7 +39,7 @@ conda create -n movement-dev -c conda-forge python=3.13 pytables
 conda activate movement-dev
 ```
 
-To install movement for development, clone the [GitHub repository](movement-github:),
+To install `movement` for development, clone the [GitHub repository](movement-github:),
 and then run from within the repository:
 
 ```sh
@@ -159,7 +159,7 @@ raise logger.exception(ValueError("message")) # with traceback
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
 * Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`.
 
 ### Continuous integration
@@ -178,7 +178,7 @@ We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR
 * MINOR = new feature
 * MAJOR = breaking change
 
-We use [setuptools_scm](setuptools-scm:) to automatically version movement.
+We use [setuptools_scm](setuptools-scm:) to automatically version `movement`.
 It has been pre-configured in the `pyproject.toml` file.
 `setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme).
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
@@ -266,7 +266,7 @@ The file should be structured as specified in the relevant
 
 We are using sphinx-gallery's [integration with binder](sphinx-gallery:configuration#binder-links)
 to provide interactive versions of the examples.
-If your examples rely on packages that are not among movement's dependencies,
+If your examples rely on packages that are not among `movement`'s dependencies,
 you will need to add them to the `docs/source/environment.yml` file.
 That file is used by binder to create the conda environment in which the
 examples are run. See the relevant section of the
@@ -280,7 +280,7 @@ Docstrings in the `.py` files for the [API reference](target-api) and the [examp
 #### Internal references
 ::::{tab-set}
 :::{tab-item} Markdown
-For referencing movement objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing `movement` objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```markdown
@@ -288,7 +288,7 @@ For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```
 :::
 :::{tab-item} RestructuredText
-For referencing movement objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing `movement` objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```rst
