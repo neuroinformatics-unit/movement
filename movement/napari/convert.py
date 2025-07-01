@@ -26,7 +26,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
 def _construct_track_and_time_cols(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Create napari-required columns for track ID and time based on a ``movement`` dataset."""
+    """Create required track ID/time columns from a ``movement`` dataset."""
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
     n_keypoints = ds.sizes.get("keypoints", 1)
@@ -41,7 +41,7 @@ def _construct_track_and_time_cols(
 
 def ds_to_napari_layers(
     ds: xr.Dataset,
-) -> tuple[np.ndarray, np.ndarray, pd.DataFrame]:
+) -> tuple[np.ndarray, np.ndarray | None, pd.DataFrame]:
     """Convert ``movement`` dataset to napari Tracks array and properties.
 
     Parameters
@@ -52,18 +52,20 @@ def ds_to_napari_layers(
 
     Returns
     -------
-    points_position_data : np.ndarray
+    points_as_napari : np.ndarray
         napari Tracks array with shape (N, 4),
         where N is n_keypoints * n_individuals * n_frames
         and the 4 columns are (track_id, frame_idx, y, x).
-    bboxes_shape_data : np.ndarray
+    bboxes_as_napari : np.ndarray | None
         napari Shapes array with shape (N, 4, 4),
         where N is n_individuals * n_frames
         and each (4, 4) entry is a matrix of 4 rows
         (1 per corner vertex, starting from upper left and progressing in
         counterclockwise order) with the columns (track_id, frame, y, x).
+        Returns None when the input dataset doesn't have a "shape" variable.
     properties : pd.DataFrame
-        DataFrame with properties (individual, keypoint, time, confidence).
+        DataFrame with properties (individual, keypoint, time, confidence)
+        for use with napari layers.
 
     Notes
     -----
@@ -71,21 +73,16 @@ def ds_to_napari_layers(
     by taking its last 3 columns: (frame_idx, y, x). See the documentation
     on the napari Tracks [1]_  and Points [2]_ layers.
 
-    Similarly, the napari Shapes [3]_ array can be derived by
-    taking the last 3 columns from the inner arrays: (frame_idx, y, x),
-    resulting in an (N, 4, 3) array.
-
     References
     ----------
     .. [1] https://napari.org/stable/howtos/layers/tracks.html
     .. [2] https://napari.org/stable/howtos/layers/points.html
-    .. [3] https://napari.org/stable/howtos/layers/points.html
 
     """
-    # Construct the napari Tracks array
-    # Reorder axes to (individuals, keypoints, frames, xy)
+    # Construct the track_ID and time columns for the napari Tracks array
     track_id_col, time_col = _construct_track_and_time_cols(ds)
 
+    # Reorder axes to (individuals, keypoints, frames, xy)
     axes_reordering: tuple[int, ...] = (2, 0, 1)
     if "keypoints" in ds.coords:
         axes_reordering = (3,) + axes_reordering
@@ -94,8 +91,10 @@ def ds_to_napari_layers(
         axes_reordering,  # to: individuals, keypoints, frames, xy
     ).reshape(-1, 2)[:, [1, 0]]  # swap x and y columns
 
-    points_position_data = np.hstack((track_id_col, time_col, yx_cols))
+    points_as_napari = np.hstack((track_id_col, time_col, yx_cols))
+    bboxes_as_napari = None
 
+    # Construct the napari Shapes array if requisite data is present
     if "shape" in ds.data_vars:
         # Compute bbox corners
         xmin_ymin = ds.position - (ds.shape / 2)
@@ -132,12 +131,9 @@ def ds_to_napari_layers(
         corners_array = corners_array.reshape(
             -1, 4, 4
         )  # last dimension: track_id, time, x, y
-        bboxes_shape_data = corners_array[
+        bboxes_as_napari = corners_array[
             :, :, [0, 1, 3, 2]
         ]  # swap x and y columns
-
-    else:
-        bboxes_shape_data = None
 
     # Construct the properties DataFrame
     # Stack individuals, time and keypoints (if present) dimensions
@@ -149,4 +145,4 @@ def ds_to_napari_layers(
 
     properties = _construct_properties_dataframe(ds_)
 
-    return points_position_data, bboxes_shape_data, properties
+    return points_as_napari, bboxes_as_napari, properties

@@ -5,9 +5,9 @@ import pytest
 
 from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
+    BoxesStyle,
     LayerStyle,
     PointsStyle,
-    ShapesStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -66,23 +66,17 @@ def default_style_attributes():
             "tail_length": 30,
             "tail_width": 2,
         },
-        # Additional attributes for ShapesStyle
-        ShapesStyle: {
+        # Additional attributes for BoxesStyle
+        BoxesStyle: {
             "edge_width": 3,
             "opacity": 1.0,
             "shape_type": "rectangle",
             "face_color": "#FFFFFF00",
-            "edge_color": "individual_factorized",
-            "edge_color_cycle": None,
             "edge_colormap": DEFAULT_COLORMAP,
             "text": {
                 "visible": True,
                 "anchor": "lower_left",
                 "translation": 5,
-                "string": "individual",
-                "color": {
-                    "feature": "individual_factorized",
-                },
             },
         },
     }
@@ -90,7 +84,7 @@ def default_style_attributes():
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle, ShapesStyle],
+    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -189,30 +183,37 @@ def test_points_style_set_color_by(
         "value",
     ],
 )
-def test_points_style_set_text_by(
-    property, sample_layer_style, default_style_attributes
+@pytest.mark.parametrize(
+    "layer_type",
+    [
+        PointsStyle,
+        BoxesStyle,
+    ],
+)
+def test_layer_style_set_text_by(
+    property, layer_type, sample_layer_style, default_style_attributes
 ):
     """Test that set_text_by updates the text property of the points layer."""
     # Create a points style object with predefined properties
-    points_style = sample_layer_style(PointsStyle)
+    layer_style = sample_layer_style(layer_type)
 
     # Get the default attributes
-    default_points_style = default_style_attributes[PointsStyle]
+    default_layer_style = default_style_attributes[layer_type]
 
     # Check there is no text set
     assert (
-        "string" not in points_style.text
-        or points_style.text["string"] != property
+        "string" not in layer_style.text
+        or layer_style.text["string"] != property
     )
 
-    # Set text by the property "category"
-    points_style.set_text_by(property=property)
+    # Set text by the parametrized property
+    layer_style.set_text_by(property=property)
 
     # Check that the text properties are as expected
-    assert points_style.text["string"] == property
+    assert layer_style.text["string"] == property
     assert all(
-        points_style.text[attr] == default_points_style["text"][attr]
-        for attr in default_points_style["text"]
+        layer_style.text[attr] == default_layer_style["text"][attr]
+        for attr in default_layer_style["text"]
     )
 
 
@@ -252,47 +253,45 @@ def test_tracks_style_color_by(
         assert tracks_style.colormap == set_color_by_kwargs["cmap"]
 
 
-@pytest.mark.parametrize(
-    "sample_column_names, expected_n_colors",
-    [
-        (["individual_factorized", "value"], 3),
-        (["category", "individual_factorized"], 5),
-    ],
-)
-def test_shapes_style_set_color_cycle(
+@pytest.mark.parametrize("n_individuals", [3, 5])
+@pytest.mark.parametrize("color_property", ["individual", "category"])
+def test_shapes_style_set_color_by(
     sample_layer_style,
-    sample_properties,
-    sample_column_names,
-    expected_n_colors,
+    sample_properties_with_factorized,
+    n_individuals,
+    color_property,
 ):
     """Test that set_color_by updates the color and color cycle of
     the bounding boxes and the text.
     """
     # Create a shapes style object with predefined properties
-    shapes_style = sample_layer_style(ShapesStyle)
+    boxes_style = sample_layer_style(BoxesStyle)
 
-    # Set the sample data to have the expected column names
-    sample_properties.columns = sample_column_names
-
-    # Color markers and text by the property "prop"
-    shapes_style.set_color_cycle(
-        properties_df=sample_properties,
+    # Initialize text/edge color for sample bboxes layer
+    boxes_style.set_color_by(
+        property=color_property,
+        properties_df=sample_properties_with_factorized,
     )
 
-    # Check the color cycle
+    # Generate the sample color cycle
     color_cycle = _sample_colormap(
-        len(sample_properties["individual_factorized"].unique()),
+        len(
+            sample_properties_with_factorized[
+                color_property + "_factorized"
+            ].unique()
+        ),
         cmap_name=DEFAULT_COLORMAP,
     )
-    assert shapes_style.edge_color_cycle == color_cycle
-    assert shapes_style.text["color"]["colormap"] == color_cycle
+    # Check that bboxes edges and text color cycles match the sample
+    assert boxes_style.edge_color_cycle == color_cycle
+    assert boxes_style.text["color"]["colormap"] == color_cycle
 
-    # Check number of colors is as expected
-    assert len(shapes_style.edge_color_cycle) == expected_n_colors
-    assert len(shapes_style.text["color"]["colormap"]) == expected_n_colors
+    # Check number of colors matches the number of individuals
+    assert len(boxes_style.edge_color_cycle) == n_individuals
+    assert len(boxes_style.text["color"]["colormap"]) == n_individuals
 
     # Check that all colors are tuples of length 4 (RGBA)
     assert all(
         isinstance(c, tuple) and len(c) == 4
-        for c in shapes_style.edge_color_cycle
+        for c in boxes_style.edge_color_cycle
     )

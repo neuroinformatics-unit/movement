@@ -149,7 +149,7 @@ For a poses dataset, you will see a view similar to this:
 
 And for a bounding boxes dataset, you will see a view more like the one below:
 
-![napari widget with shapes loaded](../_static/napari_shapes_layer.png)
+![napari widget with shapes loaded](../_static/napari_bboxes_layer.png)
 
 
 You can toggle the visibility of each of these layers by clicking on the eye icon.
@@ -255,3 +255,19 @@ The boxes layer shows the bounding boxes for the data in the current frame, as r
 The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) and clicking the `display text` checkbox in the layer controls panel.
 
 As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the bounding boxes and the rest of the loaded data in sync.
+
+:::{admonition} Changing bounding box size, colour and shape
+:class: tip
+
+You can change edge and face colour as well as the positions of a bounding box's corner vertices using the
+[shapes layer](napari:howtos/layers/shapes.html) controls panel.
+
+You can use the following keyboard shortcuts to toggle the bounding boxes selection:
+- To select all the bounding boxes in the current frame, enable the select shapes tool (`5` or `S`) and press `A`.
+- To deselect, click off of the bounding boxes.
+- Individual vertices can be selected instead of the entire rectangle using the select vertex tool: `4` or `D`.
+
+You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcuts) in the top menu of the
+`napari` window, under `Preferences > Shortcuts`.
+
+:::

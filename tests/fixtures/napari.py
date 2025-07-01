@@ -1,4 +1,7 @@
+import string
+
 import numpy as np
+import pandas as pd
 import pytest
 
 from movement.io import save_poses
@@ -139,7 +142,7 @@ def sample_layer_data(rng):
         )
     )
     sample_labels_data = rng.integers(0, 2, (200, 200))
-    sample_shapes_data = rng.random((4, 2))
+    sample_shapes_data = rng.random((n_frames, 4, 2))
     sample_surface_data = (
         rng.random((4, 2)),  # vertices
         np.array([[0, 1, 2], [1, 2, 3]]),  # faces
@@ -157,3 +160,15 @@ def sample_layer_data(rng):
         "Vectors": sample_vector_data,
         "n_frames": n_frames,
     }
+
+
+@pytest.fixture
+def sample_properties_with_factorized(n_individuals, color_property):
+    n_repeats = 3
+
+    list_unique_individuals = list(string.ascii_uppercase[:n_individuals])
+    data = pd.DataFrame({color_property: list_unique_individuals * n_repeats})
+    codes, _ = pd.factorize(data[color_property])
+    data[color_property + "_factorized"] = codes
+
+    return data

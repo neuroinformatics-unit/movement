@@ -20,6 +20,43 @@ def set_all_confidence_values_to_nan(ds):
     return ds
 
 
+def _get_expected_bboxes_napari(
+    expected_track_ids,
+    expected_frame_ids,
+    expected_yx,
+    expected_hw,
+):
+    # Compute corner position arrays
+    xmin_ymin = np.flip(expected_yx - (expected_hw / 2), axis=1)
+    xmax_ymax = np.flip(expected_yx + (expected_hw / 2), axis=1)
+
+    xmin_ymax = xmin_ymin.copy()
+    xmin_ymax[:, 1] = xmax_ymax[:, 1]
+    xmax_ymin = xmin_ymin.copy()
+    xmax_ymin[:, 0] = xmax_ymax[:, 0]
+
+    # Add expected time/track columns
+    corner_arrays_with_track_id_and_time = [
+        np.c_[
+            expected_track_ids,
+            expected_frame_ids,
+            corner,
+        ]
+        for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
+    ]
+
+    # Concatenate corner arrays along columns
+    corners_array = np.concatenate(
+        corner_arrays_with_track_id_and_time, axis=1
+    )
+    # reshape to correct format and order of vertices
+    corners_array = corners_array.reshape(
+        -1, 4, 4
+    )  # last dimension: track_id, time, x, y
+    expected_bboxes = corners_array[:, :, [0, 1, 3, 2]]  # swap x and y columns
+    return expected_bboxes
+
+
 @pytest.fixture
 def valid_poses_confidence_with_some_nan(valid_poses_dataset):
     """Return a valid poses dataset with some NaNs in confidence values."""
@@ -49,23 +86,26 @@ def valid_bboxes_confidence_with_all_nan(valid_bboxes_dataset):
 
 
 @pytest.mark.parametrize(
-    "ds_name, is_bboxes",
+    "ds_data_type",
+    ["poses", "bboxes"],
+)
+@pytest.mark.parametrize(
+    "ds_dataset",
     [
-        ("valid_poses_dataset", False),
-        ("valid_poses_dataset_with_nan", False),
-        ("valid_poses_confidence_with_some_nan", False),
-        ("valid_poses_confidence_with_all_nan", False),
-        ("valid_bboxes_dataset", True),
-        ("valid_bboxes_dataset_with_nan", True),
-        ("valid_bboxes_confidence_with_some_nan", True),
-        ("valid_bboxes_confidence_with_all_nan", True),
+        "dataset",
+        "dataset_with_nan",
+        "confidence_with_some_nan",
+        "confidence_with_all_nan",
     ],
 )
-def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
+def test_valid_dataset_to_napari_arrays(ds_data_type, ds_dataset, request):
     """Test that the conversion from movement dataset to napari
     tracks returns the expected data and properties.
     """
+    # Combine parametrized inputs into the name of the fixture to test
+    ds_name = f"valid_{ds_data_type}_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
+
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
     n_keypoints = ds.sizes.get("keypoints", 1)
@@ -79,9 +119,15 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
     # Assume values are extracted from the dataset in a specific way,
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence = [], [], []
+    # Prepare height, width of bounding boxes as well if the dataset is
+    # a bounding boxes dataset
+    if ds_data_type == "bboxes":
+        heights, widths = [], []
     for id in ds.individuals.values:
         positions = ds.position.sel(individuals=id)
         confidences = ds.confidence.sel(individuals=id)
+        if ds_data_type == "bboxes":
+            shapes = ds.shape.sel(individuals=id)
 
         if "keypoints" in ds:
             for kpt in ds.keypoints.values:
@@ -92,6 +138,9 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
             y_coords.extend(positions.sel(space="y").values)
             x_coords.extend(positions.sel(space="x").values)
             confidence.extend(confidences.values)
+        if ds_data_type == "bboxes":
+            heights.extend(shapes.sel(space="y").values)
+            widths.extend(shapes.sel(space="x").values)
 
     # Generate expected data array
     expected_track_ids = np.repeat(np.arange(n_tracks), n_frames)
@@ -102,52 +151,14 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
     )
 
     # Generate expected bboxes
-    if is_bboxes:
-        heights, widths = (
-            [],
-            [],
-        )
-        for id in ds.individuals.values:
-            positions = ds.position.sel(individuals=id)
-            dims = ds.shape.sel(individuals=id)
-            # Height and width are labeled "y" and "x" in the shape data array
-            heights.extend(dims.sel(space="y").values)
-            widths.extend(dims.sel(space="x").values)
-
+    if ds_data_type == "bboxes":
         expected_hw = np.column_stack((heights, widths))
-
-        # Compute corner position arrays
-        xmin_ymin = np.flip(expected_yx - (expected_hw / 2), axis=1)
-        xmax_ymax = np.flip(expected_yx + (expected_hw / 2), axis=1)
-
-        xmin_ymax = xmin_ymin.copy()
-        xmin_ymax[:, 1] = xmax_ymax[:, 1]
-        xmax_ymin = xmin_ymin.copy()
-        xmax_ymin[:, 0] = xmax_ymax[:, 0]
-
-        # Add expected time/track columns
-        corner_arrays_with_track_id_and_time = [
-            np.c_[
-                expected_track_ids,
-                expected_frame_ids,
-                corner,
-            ]
-            for corner in [xmin_ymin, xmin_ymax, xmax_ymax, xmax_ymin]
-        ]
-
-        # Concatenate corner arrays along columns
-        corners_array = np.concatenate(
-            corner_arrays_with_track_id_and_time, axis=1
+        expected_bboxes = _get_expected_bboxes_napari(
+            expected_track_ids,
+            expected_frame_ids,
+            expected_yx,
+            expected_hw,
         )
-
-        # reshape to correct format and order of vertices
-        corners_array = corners_array.reshape(
-            -1, 4, 4
-        )  # last dimension: track_id, time, x, y
-        expected_bboxes = corners_array[
-            :, :, [0, 1, 3, 2]
-        ]  # swap x and y columns
-
     else:
         expected_bboxes = None
 
@@ -172,7 +183,7 @@ def test_valid_dataset_to_napari_tracks(ds_name, is_bboxes, request):
 
     # Assert that the data array matches the expected data
     np.testing.assert_allclose(data, expected_data, equal_nan=True)
-    if is_bboxes:
+    if ds_data_type == "bboxes":
         np.testing.assert_allclose(bboxes, expected_bboxes, equal_nan=True)
     else:
         assert bboxes is None

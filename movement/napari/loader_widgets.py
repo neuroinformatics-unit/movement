@@ -22,7 +22,7 @@ from qtpy.QtWidgets import (
 
 from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_layers
-from movement.napari.layer_styles import PointsStyle, ShapesStyle, TracksStyle
+from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
 
 # Allowed file suffixes for each supported source software
@@ -50,10 +50,6 @@ class DataLoader(QWidget):
         super().__init__(parent=parent)
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
-
-        # Ensure bounding boxes data variable is initialized
-        # so we can check if it exists more cleanly later
-        self.bboxes = None
 
         # Create widgets
         self._create_source_software_widget()
@@ -171,7 +167,7 @@ class DataLoader(QWidget):
         self._add_points_layer()
         self._add_tracks_layer()
         if self.bboxes is not None:
-            self._add_shapes_layer()
+            self._add_boxes_layer()
 
         # Set the frame slider position
         self._set_initial_state()
@@ -277,19 +273,21 @@ class DataLoader(QWidget):
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
-    def _add_shapes_layer(self):
+    def _add_boxes_layer(self):
         """Add bounding boxes data to the viewer as a Shapes layer."""
-        shapes_style = ShapesStyle(
+        boxes_style = BoxesStyle(
             name=f"boxes: {self.file_name}",
         )
-        shapes_style.set_color_cycle(
-            properties_df=self.properties.iloc[self.data_not_nan, :],
+        boxes_style.set_text_by(property=self.text_property)
+        boxes_style.set_color_by(
+            property=self.color_property,
+            properties_df=self.properties,
         )
-        self.shapes_layer = self.viewer.add_shapes(
+        self.bboxes_layer = self.viewer.add_shapes(
             self.bboxes[self.data_not_nan, :, 1:],
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.bboxes[:, 0, 1])},
-            **shapes_style.as_kwargs(),
+            **boxes_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Shapes layer.")
 

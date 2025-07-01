@@ -281,6 +281,7 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
+    # Check that a Shapes layer was added to the viewer if the data is bboxes
     if source_software in SUPPORTED_BBOXES_FILES:
         assert data_loader_widget.bboxes is not None
     else:
@@ -301,8 +302,8 @@ def test_on_load_clicked_with_valid_file_path(
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
     if source_software in SUPPORTED_BBOXES_FILES:
-        shapes_layer = viewer.layers[2]
-        assert shapes_layer.name == f"bounds: {file_path.name}"
+        boxes_layer = viewer.layers[2]
+        assert boxes_layer.name == f"boxes: {file_path.name}"
 
     # Check that the points layer is set as active
     assert viewer.layers.selection.active == points_layer
@@ -548,6 +549,7 @@ def test_dimension_slider_with_deletion(
         Points,
         Image,
         Tracks,
+        Shapes,
     ],
 )
 def test_dimension_slider_with_layer_types(
@@ -559,9 +561,9 @@ def test_dimension_slider_with_layer_types(
     data_loader_widget = DataLoader(viewer)
 
     # Load a sample dataset as a points layer
-    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    file_path = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
-    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget.source_software_combo.setCurrentText("VIA-tracks")
     data_loader_widget._on_load_clicked()
 
     # Get number of frames in pose data
@@ -574,7 +576,6 @@ def test_dimension_slider_with_layer_types(
     )
     viewer.add_layer(mock_layer)
 
-    # Check mock data is defined for more frames than the pose data
     assert sample_layer_data["n_frames"] > n_frames_data
 
     # Check the frame slider is set to the max number of frames of the
@@ -648,8 +649,9 @@ def test_add_points_and_tracks_layer_style(
     expected_color_property,
     caplog,
 ):
-    """Test that the data is loaded as a Points and a Tracks layer
-    with the markers and text following the expected properties.
+    """Test that the data is loaded as a Points, Tracks, and
+    (if applicable) Shapes layer with the markers/edges and text
+    following the expected properties.
     """
     # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
@@ -668,21 +670,39 @@ def test_add_points_and_tracks_layer_style(
     # Get the layers
     points_layer = viewer.layers[0]
     tracks_layer = viewer.layers[1]
+    if source_software == "VIA-tracks":
+        bboxes_layer = viewer.layers[2]
 
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property
+    if source_software == "VIA-tracks":
+        assert bboxes_layer.text.string.feature == expected_text_property
 
-    # Check the color of the markers follows the expected property
-    # (we check there are as many unique colors as there are unique
-    # values in the expected property)
+    # Check the color of the point markers and shape edges follows
+    # the expected property (we check there are as many unique colors
+    # as there are unique values in the expected property)
     points_layer_colormap_sorted = np.unique(points_layer.face_color, axis=0)
     assert (
         points_layer_colormap_sorted.shape[0]
         == np.unique(points_layer.properties[expected_color_property]).shape[0]
     )
+    if source_software == "VIA-tracks":
+        bboxes_layer_colormap_sorted = np.unique(
+            bboxes_layer.edge_color, axis=0
+        )
+        assert (
+            bboxes_layer_colormap_sorted.shape[0]
+            == np.unique(
+                bboxes_layer.properties[
+                    expected_color_property + "_factorized"
+                ]
+            ).shape[0]
+        )
 
     # Check the color of the text follows the expected property
     assert points_layer.text.color.feature == expected_color_property
+    if source_software == "VIA-tracks":
+        assert bboxes_layer.text.color.feature == expected_color_property
 
     # Check the color of the tracks follows the expected property
     assert tracks_layer.color_by == expected_color_property + "_factorized"
@@ -690,6 +710,8 @@ def test_add_points_and_tracks_layer_style(
     # Check the colormap for markers, text and tracks is the same
     # name
     assert tracks_layer.colormap == points_layer.face_colormap.name
+    if source_software == "VIA-tracks":
+        assert tracks_layer.colormap == bboxes_layer.edge_colormap.name
     # values
     text_colormap_sorted = np.r_[
         [
@@ -700,6 +722,12 @@ def test_add_points_and_tracks_layer_style(
     text_colormap_sorted = text_colormap_sorted[
         text_colormap_sorted[:, 0].argsort()
     ]
-    np.testing.assert_array_equal(
-        points_layer_colormap_sorted, text_colormap_sorted
+    # Allclose instead of equal to prevent issues with
+    # precision/rounding error
+    np.testing.assert_allclose(
+        points_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
     )
+    if source_software == "VIA-tracks":
+        np.testing.assert_allclose(
+            bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
+        )
