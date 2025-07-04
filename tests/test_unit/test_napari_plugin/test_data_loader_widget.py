@@ -281,12 +281,11 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
-    # Check that a Shapes layer was added to the viewer if the data is bboxes
     if source_software in SUPPORTED_BBOXES_FILES:
-        assert data_loader_widget.bboxes is not None
+        assert data_loader_widget.data_bboxes is not None
     else:
-        # Only bounding boxes should create a shapes layer currently
-        assert data_loader_widget.bboxes is None
+        # Only bounding boxes datasets should add bboxes data
+        assert data_loader_widget.data_bboxes is None
 
     # Check the style attributes are set
     assert data_loader_widget.color_property is not None
@@ -301,6 +300,7 @@ def test_on_load_clicked_with_valid_file_path(
     tracks_layer = viewer.layers[1]
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
+    # Check that a Shapes layer was added to the viewer if the data is bboxes
     if source_software in SUPPORTED_BBOXES_FILES:
         boxes_layer = viewer.layers[2]
         assert boxes_layer.name == f"boxes: {file_path.name}"
@@ -552,8 +552,19 @@ def test_dimension_slider_with_deletion(
         Shapes,
     ],
 )
+@pytest.mark.parametrize(
+    "input_file, source_software",
+    [
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
+    ],
+)
 def test_dimension_slider_with_layer_types(
-    layer_type, sample_layer_data, make_napari_viewer_proxy
+    layer_type,
+    input_file,
+    source_software,
+    sample_layer_data,
+    make_napari_viewer_proxy,
 ):
     """Test the slider update attends to all the expected layer types."""
     # Create a mock napari viewer
@@ -561,9 +572,9 @@ def test_dimension_slider_with_layer_types(
     data_loader_widget = DataLoader(viewer)
 
     # Load a sample dataset as a points layer
-    file_path = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
+    file_path = pytest.DATA_PATHS.get(input_file)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
-    data_loader_widget.source_software_combo.setCurrentText("VIA-tracks")
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
     data_loader_widget._on_load_clicked()
 
     # Get number of frames in pose data
@@ -690,14 +701,11 @@ def test_add_points_and_tracks_layer_style(
         bboxes_layer_colormap_sorted = np.unique(
             bboxes_layer.edge_color, axis=0
         )
-        assert (
-            bboxes_layer_colormap_sorted.shape[0]
-            == np.unique(
-                bboxes_layer.properties[
-                    expected_color_property + "_factorized"
-                ]
-            ).shape[0]
-        )
+        n_colors_in_colormap = bboxes_layer_colormap_sorted.shape[0]
+        n_values_in_properties = np.unique(
+            bboxes_layer.properties[expected_color_property + "_factorized"]
+        ).shape[0]
+        assert n_colors_in_colormap == n_values_in_properties
 
     # Check the color of the text follows the expected property
     assert points_layer.text.color.feature == expected_color_property
@@ -722,8 +730,6 @@ def test_add_points_and_tracks_layer_style(
     text_colormap_sorted = text_colormap_sorted[
         text_colormap_sorted[:, 0].argsort()
     ]
-    # Allclose instead of equal to prevent issues with
-    # precision/rounding error
     np.testing.assert_allclose(
         points_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
     )

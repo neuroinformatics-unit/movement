@@ -206,7 +206,7 @@ def test_layer_style_set_text_by(
         or layer_style.text["string"] != property
     )
 
-    # Set text by the parametrized property
+    # Set text by the input property
     layer_style.set_text_by(property=property)
 
     # Check that the text properties are as expected
@@ -253,13 +253,18 @@ def test_tracks_style_color_by(
         assert tracks_style.colormap == set_color_by_kwargs["cmap"]
 
 
-@pytest.mark.parametrize("n_individuals", [3, 5])
-@pytest.mark.parametrize("color_property", ["individual", "category"])
+@pytest.mark.parametrize(
+    "color_property, n_unique_values",
+    [
+        ("property_1", 1),
+        ("property_2", 2),
+    ],
+)
 def test_shapes_style_set_color_by(
+    color_property,
+    n_unique_values,
     sample_layer_style,
     sample_properties_with_factorized,
-    n_individuals,
-    color_property,
 ):
     """Test that set_color_by updates the color and color cycle of
     the bounding boxes and the text.
@@ -267,28 +272,32 @@ def test_shapes_style_set_color_by(
     # Create a shapes style object with predefined properties
     boxes_style = sample_layer_style(BoxesStyle)
 
-    # Initialize text/edge color for sample bboxes layer
-    boxes_style.set_color_by(
-        property=color_property,
-        properties_df=sample_properties_with_factorized,
+    # Create a properties dataframe with the input property and a factorized
+    # version of the same property
+    properties_df = sample_properties_with_factorized(
+        color_property, n_unique_values
     )
 
-    # Generate the sample color cycle
-    color_cycle = _sample_colormap(
-        len(
-            sample_properties_with_factorized[
-                color_property + "_factorized"
-            ].unique()
-        ),
-        cmap_name=DEFAULT_COLORMAP,
+    # Set text and edge color to follow the input property
+    boxes_style.set_color_by(
+        property=color_property,
+        properties_df=properties_df,
     )
-    # Check that bboxes edges and text color cycles match the sample
+
+    # Generate the color cycle for the factorized property
+    color_property_factorized = color_property + "_factorized"
+    n_colors = len(properties_df[color_property_factorized].unique())
+    color_cycle = _sample_colormap(n_colors, cmap_name=DEFAULT_COLORMAP)
+
+    # Check that the bboxes edges and text colormaps match the computed
+    # color cycle
     assert boxes_style.edge_color_cycle == color_cycle
     assert boxes_style.text["color"]["colormap"] == color_cycle
 
-    # Check number of colors matches the number of individuals
-    assert len(boxes_style.edge_color_cycle) == n_individuals
-    assert len(boxes_style.text["color"]["colormap"]) == n_individuals
+    # Check that the number of colors matches the number of unique values
+    # in the input property
+    assert len(boxes_style.edge_color_cycle) == n_unique_values
+    assert len(boxes_style.text["color"]["colormap"]) == n_unique_values
 
     # Check that all colors are tuples of length 4 (RGBA)
     assert all(
