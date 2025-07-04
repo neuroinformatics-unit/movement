@@ -152,7 +152,7 @@ And for a bounding boxes dataset, you will see a view more like the one below:
 ![napari widget with shapes loaded](../_static/napari_bboxes_layer.png)
 
 
-You can toggle the visibility of each of these layers by clicking on the eye icon.
+Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
 
 
 ### The points layer
@@ -209,8 +209,7 @@ Remember that the current frame is determined by the position of the frame slide
 The trajectory made up of all positions of a keypoint on all frames before the current frame is called _tail_.
 Similarly, its trajectory on all frames after the current frame is called _head_.
 
-Both tail and head tracks are represented as lines connecting the keypoints
-of the same individual across frames. The colour of the tracks follows
+Both tail and head tracks are represented as lines connecting a single keypoint across frames. The colour of the tracks follows
 the colour of the markers, and the length of the tracks can be adjusted in the
 [tracks layer](napari:howtos/layers/tracks.html) controls panel, with the `tail length` and `head length` sliders.
 
@@ -250,11 +249,11 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 
 ### The boxes layer
 
-The boxes layer shows the bounding boxes for the data in the current frame, as rectangles color-coded by individual.
+The boxes layer is loaded for bounding boxes datasets only. It shows the bounding boxes for the current frame, as rectangles color-coded by individual.
 
-The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) and clicking the `display text` checkbox in the layer controls panel.
+The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) in the layer list and clicking the `display text` checkbox in the layer controls panel.
 
-As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset, updating the bounding boxes and the rest of the loaded data in sync.
+As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset. This will update the bounding boxes and the rest of the loaded data in sync.
 
 :::{admonition} Changing bounding box size, colour and shape
 :class: tip
