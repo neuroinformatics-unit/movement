@@ -23,6 +23,8 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from movement.napari.layer_styles import RoisColorManager, RoisStyle
+
 
 class RoisWidget(QWidget):
     """Widget for defining regions of interest (ROIs).
@@ -39,10 +41,25 @@ class RoisWidget(QWidget):
     column of the table view.
     """
 
-    def __init__(self, napari_viewer: Viewer, parent=None):
-        """Initialize the ROI widget."""
+    def __init__(self, napari_viewer: Viewer, cmap_name="tab10", parent=None):
+        """Initialise the ROI widget.
+
+        Parameters
+        ----------
+        napari_viewer : Viewer
+            The napari viewer instance.
+        cmap_name : str, optional
+            Name of the napari colormap to use for ROI colors.
+            Default is "tab10".
+        parent : QWidget, optional
+            The parent widget.
+
+        """
         super().__init__(parent=parent)
         self.viewer = napari_viewer
+        self.color_manager = RoisColorManager(
+            cmap_name=cmap_name, max_layers=10
+        )
         self.roi_table_model: RoisTableModel | None = None
         self.roi_table_view = RoisTableView(self)
 
@@ -184,8 +201,13 @@ class RoisWidget(QWidget):
         # Auto-assign names if the layer has shapes without names.
         self._auto_assign_roi_names(roi_layer)
 
+        # Apply a consistent style to all shapes in the layer
+        layer_color = self.color_manager.get_color_for_layer(roi_layer.name)
+        roi_style = RoisStyle(color=layer_color)
+        roi_style.color_all_shapes(roi_layer)
+
         # Create new model and link it to the table view
-        self.roi_table_model = RoisTableModel(roi_layer)
+        self.roi_table_model = RoisTableModel(roi_layer, roi_style)
         self.roi_table_view.setModel(self.roi_table_model)
 
         # The model will listen to napari layer removal events
@@ -204,7 +226,6 @@ class RoisWidget(QWidget):
         if len(roi_layer.data) > 0 and "name" not in roi_layer.properties:
             names = [f"ROI-{i + 1}" for i in range(len(roi_layer.data))]
             roi_layer.properties = {"name": names}
-            roi_layer.text = {"string": "{name}", "color": "white"}
 
     def _on_layer_renamed(self, event=None):
         """Handle layer renaming by updating the dropdown."""
@@ -273,10 +294,24 @@ class RoisTableView(QTableView):
 class RoisTableModel(QAbstractTableModel):
     """Table model for ROIs defined in a napari Shapes layer."""
 
-    def __init__(self, shapes_layer: Shapes, parent=None):
-        """Initialize the ROIs table model with a Shapes layer."""
+    def __init__(
+        self, shapes_layer: Shapes, roi_style: RoisStyle, parent=None
+    ):
+        """Initialize the ROIs table model with a Shapes layer and style.
+
+        Parameters
+        ----------
+        shapes_layer : Shapes
+            The napari Shapes layer containing the ROIs.
+        roi_style : RoiStyle
+            The style to apply to the ROIs.
+        parent : QWidget, optional
+            The parent widget.
+
+        """
         super().__init__(parent)
         self.layer = shapes_layer
+        self.roi_style = roi_style
         # The model will listen to napari layer data changes
         self.layer.events.data.connect(self._on_layer_data_changed)
 
@@ -364,33 +399,34 @@ class RoisTableModel(QAbstractTableModel):
 
     def _on_layer_data_changed(self, event=None):
         """Update the model when the ROIs Shapes layer data changes."""
-        if self.layer is None or event.action not in ["added", "removed"]:
+        if self.layer is None:
             return
 
-        # Note that this list includes the just added shapes (if any),
-        # but this could be a duplicate of an existing name.
-        current_names = [
-            n
-            for n in self.layer.properties.get("name", [])
-            if isinstance(n, str)
-        ]
+        if event.action in ["added", "removed"]:
+            # Current names include the just added shapes (if any),
+            # but this could be a duplicate of an existing name.
+            current_names = [
+                n
+                for n in self.layer.properties.get("name", [])
+                if isinstance(n, str)
+            ]
+            # So we update the names to ensure they are unique.
+            updated_names = (
+                self._update_roi_names(current_names)
+                if event.action == "added"
+                else current_names  # No need to update names on shape removal
+            )
+            self.layer.properties = {"name": updated_names}
 
-        # This ensures new ROIs are given unique names.
-        updated_names = (
-            self._update_roi_names(current_names)
-            if event.action == "added"
-            else current_names  # No need to update names on shape removal
-        )
+            # Reapply the style to all shapes in the layer
+            self.roi_style.color_all_shapes(self.layer)
 
-        self.layer.properties = {"name": updated_names}
-
-        self.layer.text = {
-            "string": "{name}",
-            "color": "white",
-        }
-
-        self.beginResetModel()
-        self.endResetModel()
+            # Update the model
+            self.beginResetModel()
+            self.endResetModel()
+        else:
+            # Ensure currently edited shape maintains the correct style
+            self.roi_style.color_current_shape(self.layer)
 
     def _on_layer_deleted(self, event=None):
         """Handle the deletion of the ROIs Shapes layer."""

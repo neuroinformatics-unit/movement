@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
+from napari.layers import Shapes
+from napari.utils.color import ColorValue
 from napari.utils.colormaps import ensure_colormap
 
 DEFAULT_COLORMAP = "turbo"
@@ -191,33 +193,113 @@ class BoxesStyle(LayerStyle):
 
 
 @dataclass
-class RoiStyle(LayerStyle):
-    """Style properties for napari Shapes layers containing ROIs."""
+class RoisStyle(LayerStyle):
+    """Style properties for napari Shapes layers containing ROIs.
+
+    The same ``color`` is applied to faces, edges, and text.
+    The face color opacity is hardcoded to 0.25, while edges and text
+    colors are opaque.
+    """
 
     name: str = "ROIs"
-    face_color: str | tuple = "red"
-    edge_color: str | tuple = "red"
-    edge_width: float = 3.0
-    opacity: float = 0.5
+    color: str | tuple = "red"
+    edge_width: float = 5.0
+    opacity: float = 1.0  # applies to the whole layer
     text: dict = field(
         default_factory=lambda: {
             "visible": True,
             "anchor": "center",
-            "color": "white",
         }
     )
 
-    def set_color(self, color: str | tuple) -> None:
-        """Set the color of the ROI layer.
+    @property
+    def face_color(self) -> ColorValue:
+        """Return the face color with transparency applied."""
+        color = ColorValue(self.color)
+        color[-1] = 0.25  # this is hardcoded for now
+        return color
+
+    @property
+    def edge_and_text_color(self) -> ColorValue:
+        """Return the opaque color for edges and text."""
+        color = ColorValue(self.color)
+        color[-1] = 1.0
+        return color
+
+    def color_current_shape(self, layer: Shapes) -> None:
+        """Color the current shape in a napari Shapes layer.
+
+        napari uses current_* for new shapes.
+        """
+        # Only proceed if there are valid selected shapes
+        if hasattr(layer, "selected_data") and layer.selected_data:
+            valid_selected = {
+                i for i in layer.selected_data if 0 <= i <= len(layer.data) - 1
+            }
+            if not valid_selected:
+                return
+
+        layer.current_face_color = self.face_color
+        layer.current_edge_color = self.edge_and_text_color
+        layer.current_edge_width = self.edge_width
+
+    def color_all_shapes(self, layer: Shapes) -> None:
+        """Color all shapes in a napari Shapes layer, including new ones."""
+        n_shapes = len(layer.data)
+        if n_shapes > 0:
+            layer.face_color = [self.face_color] * len(layer.data)
+            layer.edge_color = [self.edge_and_text_color] * len(layer.data)
+            layer.edge_width = [self.edge_width] * len(layer.data)
+
+            # Set text properties
+            layer.text = layer.text.dict().update(self.text)
+            layer.text.color = self.edge_and_text_color
+            layer.text.string = "{name}"
+
+        self.color_current_shape(layer)
+
+
+@dataclass
+class RoisColorManager:
+    """Manages colors for ROIs layers.
+
+    It makes sure that ROIs layers are each assigned a color cyclicly sampled
+    from a napari colormap.
+    """
+
+    cmap_name: str = "tab10"
+    max_layers: int = 10
+    layer_colors: dict = field(default_factory=dict)
+    next_color_index: int = 0
+    colors: list = field(init=False)
+
+    def __post_init__(self):
+        """Initialize the colors after the dataclass is created."""
+        self.colors = _sample_colormap(self.max_layers, self.cmap_name)
+
+    def get_color_for_layer(self, layer_name: str) -> tuple:
+        """Get or assign a color for a layer.
+
+        If the layer already has a color assigned, return it.
+        Otherwise, assign the next color from the cycle.
 
         Parameters
         ----------
-        color : str or tuple
-            The color to use for both fill and outline.
+        layer_name : str
+            The name of the layer.
+
+        Returns
+        -------
+        tuple
+            The RGBA color tuple for the layer.
 
         """
-        self.face_color = color
-        self.edge_color = color
+        if layer_name not in self.layer_colors:
+            color = self.colors[self.next_color_index % len(self.colors)]
+            self.layer_colors[layer_name] = color
+            self.next_color_index += 1
+
+        return self.layer_colors[layer_name]
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
