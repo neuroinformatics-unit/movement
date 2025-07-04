@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-# get logger
-
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
@@ -26,7 +24,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
 def _construct_track_and_time_cols(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Create required track ID/time columns from a ``movement`` dataset."""
+    """Compute napari track_id and time columns from a ``movement`` dataset."""
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
     n_keypoints = ds.sizes.get("keypoints", 1)
@@ -53,16 +51,16 @@ def ds_to_napari_layers(
     Returns
     -------
     points_as_napari : np.ndarray
-        napari Tracks array with shape (N, 4),
+        position data as a napari Tracks array with shape (N, 4),
         where N is n_keypoints * n_individuals * n_frames
         and the 4 columns are (track_id, frame_idx, y, x).
     bboxes_as_napari : np.ndarray | None
-        napari Shapes array with shape (N, 4, 4),
-        where N is n_individuals * n_frames
-        and each (4, 4) entry is a matrix of 4 rows
-        (1 per corner vertex, starting from upper left and progressing in
-        counterclockwise order) with the columns (track_id, frame, y, x).
-        Returns None when the input dataset doesn't have a "shape" variable.
+        bounding box data as a napari Shapes array with shape (N, 4, 4),
+        where N is n_individuals * n_frames and each (4, 4) entry is
+        a matrix of 4 rows (1 per corner vertex, starting from upper left
+        and progressing in counterclockwise order) with the columns
+        (track_id, frame, y, x). Returns None when the input dataset doesn't
+        have a "shape" variable.
     properties : pd.DataFrame
         DataFrame with properties (individual, keypoint, time, confidence)
         for use with napari layers.
@@ -94,8 +92,9 @@ def ds_to_napari_layers(
     points_as_napari = np.hstack((track_id_col, time_col, yx_cols))
     bboxes_as_napari = None
 
-    # Construct the napari Shapes array if requisite data is present
-    if "shape" in ds.data_vars:
+    # Construct the napari Shapes array if the input dataset is a
+    # bounding boxes one
+    if ds.ds_type == "bboxes":
         # Compute bbox corners
         xmin_ymin = ds.position - (ds.shape / 2)
         xmax_ymax = ds.position + (ds.shape / 2)
