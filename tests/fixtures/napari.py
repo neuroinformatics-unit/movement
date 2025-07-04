@@ -1,4 +1,7 @@
+import string
+
 import numpy as np
+import pandas as pd
 import pytest
 
 from movement.io import save_poses
@@ -139,7 +142,7 @@ def sample_layer_data(rng):
         )
     )
     sample_labels_data = rng.integers(0, 2, (200, 200))
-    sample_shapes_data = rng.random((4, 2))
+    sample_shapes_data = rng.random((n_frames, 4, 2))  # rectangles
     sample_surface_data = (
         rng.random((4, 2)),  # vertices
         np.array([[0, 1, 2], [1, 2, 3]]),  # faces
@@ -157,3 +160,33 @@ def sample_layer_data(rng):
         "Vectors": sample_vector_data,
         "n_frames": n_frames,
     }
+
+
+@pytest.fixture
+def sample_properties_with_factorized():
+    """Return a factory of properties dataframes with the specified property
+    column and a factorized version of the same property (with the suffix
+    "_factorized"). The maximum number of unique values for the property is 26.
+    """
+
+    def _sample_properties_with_factorized(property_name, n_unique_values):
+        """Return a properties dataframe with the specified property column,
+        some string values assigned to it and a factorized version of the same
+        property (with the suffix "_factorized"). The maximum number of unique
+        values is 26.
+        """
+        # Each unique value is repeated 3 times in the dataframe
+        n_repeats = 3
+
+        list_unique_properties = list(string.ascii_uppercase[:n_unique_values])
+        properties_df = pd.DataFrame(
+            {property_name: list_unique_properties * n_repeats}
+        )
+
+        # Factorize the color property
+        codes, _ = pd.factorize(properties_df[property_name])
+        properties_df[property_name + "_factorized"] = codes
+
+        return properties_df
+
+    return _sample_properties_with_factorized

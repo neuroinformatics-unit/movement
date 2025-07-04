@@ -121,6 +121,75 @@ class TracksStyle(LayerStyle):
             self.colormap = cmap
 
 
+@dataclass
+class BoxesStyle(LayerStyle):
+    """Style properties for a napari Shapes layer."""
+
+    edge_width: int = 3
+    opacity: float = 1.0
+    shape_type: str = "rectangle"
+    face_color: str = "#FFFFFF00"  # transparent face
+    edge_colormap: str = DEFAULT_COLORMAP
+    text: dict = field(
+        default_factory=lambda: {
+            "visible": True,  # default visible text for bboxes
+            "anchor": "lower_left",
+            "translation": 5,  # pixels
+        }
+    )
+
+    def set_color_by(
+        self,
+        property: str,
+        properties_df: pd.DataFrame,
+        cmap: str | None = None,
+    ) -> None:
+        """Color boxes and text by chosen column in the properties DataFrame.
+
+        Parameters
+        ----------
+        property : str
+            The column name in the properties DataFrame to color shape edges
+            and associated text by.
+        properties_df : pd.DataFrame
+            The properties DataFrame containing the data for generating the
+            colormap.
+        cmap : str, optional
+            The name of the colormap to use, otherwise use the edge_colormap.
+
+        Notes
+        -----
+        The input property is expected to be a column in the properties
+        dataframe and it is used to define the color of the text. A factorized
+        version of the property ("<property>_factorized") is used to define the
+        edges color, and is also expected to be present in the properties
+        dataframe.
+
+        """
+        # Compute color cycle based on property
+        if cmap is None:
+            cmap = self.edge_colormap
+        n_colors = len(properties_df[property].unique())
+        color_cycle = _sample_colormap(n_colors, cmap)
+
+        # Set color for edges and text
+        self.edge_color = property + "_factorized"
+        self.edge_color_cycle = color_cycle
+        self.text["color"] = {"feature": property}
+        self.text["color"].update({"colormap": color_cycle})
+
+    def set_text_by(self, property: str) -> None:
+        """Set the text property for the boxes layer.
+
+        Parameters
+        ----------
+        property : str
+            The column name in the properties DataFrame to use for text.
+
+        """
+        self.text["string"] = property
+
+
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
     """Sample n equally-spaced colors from a napari colormap.
 

@@ -23,9 +23,17 @@ from napari.layers import (
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
-from qtpy.QtWidgets import QComboBox, QDoubleSpinBox, QLineEdit, QPushButton
+from qtpy.QtWidgets import (
+    QComboBox,
+    QDoubleSpinBox,
+    QLineEdit,
+    QPushButton,
+)
 
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.loader_widgets import (
+    SUPPORTED_BBOXES_FILES,
+    DataLoader,
+)
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:.*Previous color_by key.*:UserWarning"
@@ -273,6 +281,11 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
+    if source_software in SUPPORTED_BBOXES_FILES:
+        assert data_loader_widget.data_bboxes is not None
+    else:
+        # Only bounding boxes datasets should add bboxes data
+        assert data_loader_widget.data_bboxes is None
 
     # Check the style attributes are set
     assert data_loader_widget.color_property is not None
@@ -287,6 +300,11 @@ def test_on_load_clicked_with_valid_file_path(
     tracks_layer = viewer.layers[1]
     assert tracks_layer.name == f"tracks: {file_path.name}"
 
+    # Check that a Shapes layer was added to the viewer if the data is bboxes
+    if source_software in SUPPORTED_BBOXES_FILES:
+        boxes_layer = viewer.layers[2]
+        assert boxes_layer.name == f"boxes: {file_path.name}"
+
     # Check that the points layer is set as active
     assert viewer.layers.selection.active == points_layer
 
@@ -300,6 +318,10 @@ def test_on_load_clicked_with_valid_file_path(
         "Added tracked dataset as a napari Points layer.",
         "Added tracked dataset as a napari Tracks layer.",
     }
+    if source_software in SUPPORTED_BBOXES_FILES:
+        expected_log_messages.add(
+            "Added tracked dataset as a napari Shapes layer."
+        )
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
 
@@ -527,10 +549,22 @@ def test_dimension_slider_with_deletion(
         Points,
         Image,
         Tracks,
+        Shapes,
+    ],
+)
+@pytest.mark.parametrize(
+    "input_file, source_software",
+    [
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
     ],
 )
 def test_dimension_slider_with_layer_types(
-    layer_type, sample_layer_data, make_napari_viewer_proxy
+    layer_type,
+    input_file,
+    source_software,
+    sample_layer_data,
+    make_napari_viewer_proxy,
 ):
     """Test the slider update attends to all the expected layer types."""
     # Create a mock napari viewer
@@ -538,9 +572,9 @@ def test_dimension_slider_with_layer_types(
     data_loader_widget = DataLoader(viewer)
 
     # Load a sample dataset as a points layer
-    file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    file_path = pytest.DATA_PATHS.get(input_file)
     data_loader_widget.file_path_edit.setText(file_path.as_posix())
-    data_loader_widget.source_software_combo.setCurrentText("DeepLabCut")
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
     data_loader_widget._on_load_clicked()
 
     # Get number of frames in pose data
@@ -553,7 +587,6 @@ def test_dimension_slider_with_layer_types(
     )
     viewer.add_layer(mock_layer)
 
-    # Check mock data is defined for more frames than the pose data
     assert sample_layer_data["n_frames"] > n_frames_data
 
     # Check the frame slider is set to the max number of frames of the
@@ -627,8 +660,9 @@ def test_add_points_and_tracks_layer_style(
     expected_color_property,
     caplog,
 ):
-    """Test that the data is loaded as a Points and a Tracks layer
-    with the markers and text following the expected properties.
+    """Test that the data is loaded as a Points, Tracks, and
+    (if applicable) Shapes layer with the markers/edges and text
+    following the expected properties.
     """
     # Instantiate the napari viewer and the data loader widget
     viewer = make_napari_viewer_proxy()
@@ -647,21 +681,36 @@ def test_add_points_and_tracks_layer_style(
     # Get the layers
     points_layer = viewer.layers[0]
     tracks_layer = viewer.layers[1]
+    if source_software == "VIA-tracks":
+        bboxes_layer = viewer.layers[2]
 
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property
+    if source_software == "VIA-tracks":
+        assert bboxes_layer.text.string.feature == expected_text_property
 
-    # Check the color of the markers follows the expected property
-    # (we check there are as many unique colors as there are unique
-    # values in the expected property)
+    # Check the color of the point markers and shape edges follows
+    # the expected property (we check there are as many unique colors
+    # as there are unique values in the expected property)
     points_layer_colormap_sorted = np.unique(points_layer.face_color, axis=0)
     assert (
         points_layer_colormap_sorted.shape[0]
         == np.unique(points_layer.properties[expected_color_property]).shape[0]
     )
+    if source_software == "VIA-tracks":
+        bboxes_layer_colormap_sorted = np.unique(
+            bboxes_layer.edge_color, axis=0
+        )
+        n_colors_in_colormap = bboxes_layer_colormap_sorted.shape[0]
+        n_values_in_properties = np.unique(
+            bboxes_layer.properties[expected_color_property + "_factorized"]
+        ).shape[0]
+        assert n_colors_in_colormap == n_values_in_properties
 
     # Check the color of the text follows the expected property
     assert points_layer.text.color.feature == expected_color_property
+    if source_software == "VIA-tracks":
+        assert bboxes_layer.text.color.feature == expected_color_property
 
     # Check the color of the tracks follows the expected property
     assert tracks_layer.color_by == expected_color_property + "_factorized"
@@ -669,6 +718,8 @@ def test_add_points_and_tracks_layer_style(
     # Check the colormap for markers, text and tracks is the same
     # name
     assert tracks_layer.colormap == points_layer.face_colormap.name
+    if source_software == "VIA-tracks":
+        assert tracks_layer.colormap == bboxes_layer.edge_colormap.name
     # values
     text_colormap_sorted = np.r_[
         [
@@ -679,6 +730,10 @@ def test_add_points_and_tracks_layer_style(
     text_colormap_sorted = text_colormap_sorted[
         text_colormap_sorted[:, 0].argsort()
     ]
-    np.testing.assert_array_equal(
-        points_layer_colormap_sorted, text_colormap_sorted
+    np.testing.assert_allclose(
+        points_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
     )
+    if source_software == "VIA-tracks":
+        np.testing.assert_allclose(
+            bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
+        )
