@@ -135,7 +135,6 @@ class BoxesStyle(LayerStyle):
             "visible": True,  # default visible text for bboxes
             "anchor": "lower_left",
             "translation": 5,  # pixels
-            # "string": "individual",
         }
     )
 
@@ -151,16 +150,20 @@ class BoxesStyle(LayerStyle):
         ----------
         property : str
             The column name in the properties DataFrame to color shape edges
-            and associated text by. The non-factorized version of the color
-            property should be supplied, but edges will be colored by the
-            factorized property.
+            and associated text by.
         properties_df : pd.DataFrame
             The properties DataFrame containing the data for generating the
-            colormap. It should contain a column with the same name as
-            property as well as a factorized version of this column with a
-            name equivalent to "property+'_factorized'".
+            colormap.
         cmap : str, optional
             The name of the colormap to use, otherwise use the edge_colormap.
+
+        Note
+        ----
+        The input property is expected to be a column in the properties
+        dataframe and it is used to define the color of the text. A factorized
+        version of the property ("<property>_factorized") is used to define the
+        edges color, and is also assumed to be present in the properties
+        dataframe.
 
         """
         # Compute color cycle based on property
