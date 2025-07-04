@@ -157,12 +157,12 @@ class BoxesStyle(LayerStyle):
         cmap : str, optional
             The name of the colormap to use, otherwise use the edge_colormap.
 
-        Note
-        ----
+        Notes
+        -----
         The input property is expected to be a column in the properties
         dataframe and it is used to define the color of the text. A factorized
         version of the property ("<property>_factorized") is used to define the
-        edges color, and is also assumed to be present in the properties
+        edges color, and is also expected to be present in the properties
         dataframe.
 
         """
