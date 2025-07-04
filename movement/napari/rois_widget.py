@@ -82,7 +82,7 @@ class RoisWidget(QWidget):
         layer_controls_group = QGroupBox("Layer to draw ROIs on")
         layer_controls_group.setToolTip(
             "Select an existing shapes layer to draw ROIs on, "
-            "or create a new one.\nOnly shapes layers that start with "
+            "or add a new one.\nOnly shapes layers that start with "
             "'ROI' are considered."
         )
         layer_controls_group.setLayout(self._setup_layer_controls_layout())
