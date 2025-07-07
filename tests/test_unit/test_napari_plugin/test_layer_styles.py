@@ -272,7 +272,7 @@ def test_tracks_style_color_by(
         ("property_2", 2),
     ],
 )
-def test_shapes_style_set_color_by(
+def test_boxes_style_set_color_by(
     color_property,
     n_unique_values,
     sample_layer_style,

@@ -125,7 +125,7 @@ class TracksStyle(LayerStyle):
 
 @dataclass
 class BoxesStyle(LayerStyle):
-    """Style properties for a napari Shapes layer."""
+    """Style properties for a napari Shapes layer containing bounding boxes."""
 
     edge_width: int = 3
     opacity: float = 1.0
@@ -194,7 +194,7 @@ class BoxesStyle(LayerStyle):
 
 @dataclass
 class RoisStyle(LayerStyle):
-    """Style properties for napari Shapes layers containing ROIs.
+    """Style properties for a napari Shapes layer containing ROIs.
 
     The same ``color`` is applied to faces, edges, and text.
     The face color opacity is hardcoded to 0.25, while edges and text
