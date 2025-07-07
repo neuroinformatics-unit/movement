@@ -45,6 +45,20 @@ jobs:
           use-make: true
           fetch-tags: true
 
+  viz_sphinx_docs:
+    name: HTML Preview
+    runs-on: ubuntu-latest
+    needs: build_sphinx_docs
+    steps:
+      - uses: pavi2410/html-preview-action@v4
+        id: html_preview
+        with:
+          html_file: 'docs/build/html/index.html'
+          job_summary: true
+      - name: Show preview URL
+        run: |
+          echo "Preview URL: ${{ steps.html_preview.outputs.url }}"
+
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
     needs: build_sphinx_docs
