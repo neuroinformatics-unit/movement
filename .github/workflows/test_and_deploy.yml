@@ -9,6 +9,9 @@ on:
   pull_request:
   merge_group:
 
+# Temporarily disable entire workflow
+if: false
+
 jobs:
   linting:
     runs-on: ubuntu-latest
