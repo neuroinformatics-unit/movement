@@ -44,6 +44,14 @@ jobs:
           python-version: 3.12
           use-make: true
           fetch-tags: true
+      - run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo 'Preview docs for this commit at: \
+          https://www.artifact.ci/artifact/view/neuroinformatics-unit/movement/sha/$SHORT_SHA/docs-build' \
+          >> $GITHUB_OUTPUT
+          echo 'Preview docs for this run attempt at: \
+          https://www.artifact.ci/artifact/view/neuroinformatics-unit/movement/run/${{ github.run_id }}.${{ github.run_attempt }}/docs-build' \
+          >> $GITHUB_OUTPUT
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
