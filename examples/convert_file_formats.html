@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -501,7 +509,7 @@ Coordinates:
   * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
   * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
   * keypoints    (keypoints) &lt;U9 216B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
-  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+  * individuals  (individuals) &lt;U4 16B &#39;id_0&#39;
 Data variables:
     position     (time, space, keypoints, individuals) float32 887kB nan ... ...
     confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
@@ -512,7 +520,7 @@ Attributes:
     time_unit:        seconds
     source_file:      /home/runner/.movement/data/poses/SLEAP_single-mouse_EP...
 
-Individuals: [&#39;individual_0&#39;]
+Individuals: [&#39;id_0&#39;]
 Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#39; &#39;tail_base&#39; &#39;tail_end&#39;]
 </pre></div>
 </div>
@@ -528,7 +536,7 @@ to explore the dataset interactively.</p>
 <p>We start with a dictionary that maps old keypoint names to new ones.
 Next, we define a function that takes that dictionary and a dataset
 as inputs, and returns a modified dataset. Notice that under the hood
-this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
+this function calls <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.assign_coords.html#xarray.Dataset.assign_coords" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.assign_coords()</span></code></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rename_dict</span></a> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;snout&quot;</span><span class="p">:</span> <span class="s2">&quot;nose&quot;</span><span class="p">,</span>
     <span class="s2">&quot;left_ear&quot;</span><span class="p">:</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span>
@@ -567,7 +575,7 @@ this function calls <a class="reference external" href="https://docs.xarray.dev/
 <p>Let’s create a list of keypoints to delete.
 In this case, we choose to get rid of the <code class="docutils literal notranslate"><span class="pre">tailend</span></code> keypoint,
 which is often hard to reliably track.
-We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
+We delete it using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.drop_sel.html#xarray.Dataset.drop_sel" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.drop_sel()</span></code></a>,
 wrapped in an appropriately named function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">keypoints_to_delete</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;tailend&quot;</span><span class="p">]</span>
 
@@ -593,7 +601,7 @@ wrapped in an appropriately named function.</p>
 <h2>Reorder keypoints<a class="headerlink" href="#reorder-keypoints" title="Link to this heading">#</a></h2>
 <p>We start with a list of keypoints in the desired order
 (in this case, we’ll just swap the order of the left and right ears).
-We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
+We then use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.reindex.html#xarray.Dataset.reindex" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.reindex()</span></code></a>, wrapped in yet another function.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ordered_keypoints</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nose&quot;</span><span class="p">,</span> <span class="s2">&quot;earR&quot;</span><span class="p">,</span> <span class="s2">&quot;earL&quot;</span><span class="p">,</span> <span class="s2">&quot;middle&quot;</span><span class="p">,</span> <span class="s2">&quot;tailbase&quot;</span><span class="p">]</span>
 
 
@@ -631,7 +639,7 @@ the <code class="docutils literal notranslate"><span class="pre">dest_path</span
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved modified dataset to </span><span class="si">{</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dest_path</span></a><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmps8t2ooe4/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Saved modified dataset to /tmp/tmpxp2sg5gu/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 </pre></div>
 </div>
 <div class="admonition note">

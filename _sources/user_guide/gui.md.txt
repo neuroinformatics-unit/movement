@@ -5,7 +5,7 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
-as points and tracks overlaid on video frames.
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
@@ -138,17 +138,21 @@ an expanded `Load tracked data` menu. To load tracked data in napari:
 
 The data will be loaded into the viewer as a
 [points layer](napari:howtos/layers/points.html) and as a [tracks layer](napari:howtos/layers/tracks.html).
+If the input file is a bounding boxes dataset, an additional napari [shapes layer](napari:howtos/layers/shapes.html) is loaded.
 By default, the data is added at the top of the layer list and the points layer is selected.
+
+For a poses dataset, you will see a view similar to this:
 
 (target-widget-screenshot)=
 
 ![napari widget with poses dataset loaded](../_static/napari_plugin_data_tracks.png)
 
+And for a bounding boxes dataset, you will see a view more like the one below:
 
-You will see a view similar to the one above. Notice the three
-layers on the left-hand side list: the
-image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer.
-You can toggle the visibility of each of these layers by clicking on the eye icon.
+![napari widget with shapes loaded](../_static/napari_bboxes_layer.png)
+
+
+Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
 
 
 ### The points layer
@@ -205,8 +209,7 @@ Remember that the current frame is determined by the position of the frame slide
 The trajectory made up of all positions of a keypoint on all frames before the current frame is called _tail_.
 Similarly, its trajectory on all frames after the current frame is called _head_.
 
-Both tail and head tracks are represented as lines connecting the keypoints
-of the same individual across frames. The colour of the tracks follows
+Both tail and head tracks are represented as lines connecting a single keypoint across frames. The colour of the tracks follows
 the colour of the markers, and the length of the tracks can be adjusted in the
 [tracks layer](napari:howtos/layers/tracks.html) controls panel, with the `tail length` and `head length` sliders.
 
@@ -242,4 +245,28 @@ working on a workaround, stay tuned!
 
 - Also note that currently the `show ID` checkbox in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.
+:::
+
+### The boxes layer
+
+The boxes layer is loaded for bounding boxes datasets only. It shows the bounding boxes for the current frame, as rectangles color-coded by individual.
+
+The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the [shapes layer](napari:howtos/layers/shapes.html) in the layer list and clicking the `display text` checkbox in the layer controls panel.
+
+As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset. This will update the bounding boxes and the rest of the loaded data in sync.
+
+:::{admonition} Changing bounding box size, colour and shape
+:class: tip
+
+You can change edge and face colour as well as the positions of a bounding box's corner vertices using the
+[shapes layer](napari:howtos/layers/shapes.html) controls panel.
+
+You can use the following keyboard shortcuts to toggle the bounding boxes selection:
+- To select all the bounding boxes in the current frame, enable the select shapes tool (`5` or `S`) and press `A`.
+- To deselect, click off of the bounding boxes.
+- Individual vertices can be selected instead of the entire rectangle using the select vertex tool: `4` or `D`.
+
+You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcuts) in the top menu of the
+`napari` window, under `Preferences > Shortcuts`.
+
 :::

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,8 +117,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -412,6 +420,7 @@
 <span class="sd">are used.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
@@ -576,7 +585,7 @@
 
 <span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
 <span class="sd">    local machine upon first use and are stored in a local cache directory.</span>
-<span class="sd">    The function returns the paths to the downloaded files.</span>
+<span class="sd">    The function stores the paths to the downloaded files in a dictionary.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -644,12 +653,18 @@
             <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
-    <span class="c1"># Add trajectory data</span>
+
     <span class="c1"># Assume &quot;poses&quot; if not of type &quot;bboxes&quot;</span>
     <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;bboxes&quot;</span> <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;bboxes&quot;</span> <span class="k">else</span> <span class="s2">&quot;poses&quot;</span>
-    <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
-        <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">):</span>
+        <span class="c1"># Store the path to the unzipped folder containing multiple files</span>
+        <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">_fetch_and_unzip</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Store the path to a single downloaded file</span>
+        <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">paths_dict</span></div>
 
 
@@ -699,6 +714,14 @@
 <span class="sd">    fetch_dataset_paths</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If the filename start with &quot;TRex&quot;, raise an NotImplementedError</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TRex&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;The loading of TRex datasets is not implemented yet.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
     <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="n">with_video</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">load_module</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
@@ -719,6 +742,69 @@
 
     <span class="k">return</span> <span class="n">ds</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_and_unzip</span><span class="p">(</span><span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and extract a zipped archive and return the folder path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_type : str</span>
+<span class="sd">        Type of data to fetch, e.g. &quot;poses&quot;, &quot;bboxes&quot;.</span>
+<span class="sd">    file_name : str</span>
+<span class="sd">        Name of the .zip file to fetch, e.g. &quot;TRex_five-locusts.zip&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to the folder containing the unarchived file(s),</span>
+<span class="sd">        e.g. &quot;/path/to/TRex_five-locusts/&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span> <span class="o">/</span> <span class="n">file_name</span>
+    <span class="n">raw_paths</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
+        <span class="n">processor</span><span class="o">=</span><span class="n">pooch</span><span class="o">.</span><span class="n">Unzip</span><span class="p">(),</span>
+        <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">raw_paths</span><span class="p">]</span>  <span class="c1"># convert to Path objects</span>
+
+    <span class="c1"># Filter data files</span>
+    <span class="n">UNWANTED_FILES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.DS_Store&quot;</span><span class="p">,</span> <span class="s2">&quot;Thumbs.db&quot;</span><span class="p">,</span> <span class="s2">&quot;desktop.ini&quot;</span><span class="p">}</span>
+    <span class="n">UNWANTED_DIRS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__MACOSX&quot;</span><span class="p">}</span>
+    <span class="n">valid_paths</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">path</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">UNWANTED_FILES</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span> <span class="ow">in</span> <span class="n">UNWANTED_DIRS</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">parts</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Copy files to a new destination directory</span>
+    <span class="n">extract_dir_name</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">extract_dir</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">data_type</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.unzip&quot;</span>
+    <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">data_type</span> <span class="o">/</span> <span class="n">extract_dir_name</span>
+    <span class="n">dest_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">valid_paths</span><span class="p">:</span>
+            <span class="n">rel_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">extract_dir</span> <span class="o">/</span> <span class="n">extract_dir_name</span><span class="p">)</span>
+            <span class="n">dest_path</span> <span class="o">=</span> <span class="n">dest_dir</span> <span class="o">/</span> <span class="n">rel_path</span>
+            <span class="n">dest_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">dest_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to copy files from </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Using the original path instead: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>  <span class="c1"># remove the dest_dir</span>
+        <span class="k">return</span> <span class="n">valid_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># return the original path</span>
+
+    <span class="c1"># Clean up the .unzip folder</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">extract_dir</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to remove unzip dir </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dest_dir</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

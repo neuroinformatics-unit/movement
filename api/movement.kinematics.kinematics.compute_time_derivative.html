@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -572,13 +581,13 @@
 <dt class="sig sig-object py" id="movement.kinematics.kinematics.compute_time_derivative">
 <span class="sig-prename descclassname"><span class="pre">movement.kinematics.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_time_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/kinematics.html#compute_time_derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.kinematics.compute_time_derivative" title="Link to this definition">#</a></dt>
 <dd><p>Compute the time-derivative of an array using numerical differentiation.</p>
-<p>This function uses <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a>,
+<p>This function uses <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a>,
 which differentiates the array with the second-order
 accurate central differences method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – The input data containing <code class="docutils literal notranslate"><span class="pre">time</span></code> as a required dimension.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – The input data containing <code class="docutils literal notranslate"><span class="pre">time</span></code> as a required dimension.</p></li>
 <li><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the time-derivative. For an input containing position
 data, use 1 to compute velocity, and 2 to compute acceleration. Value
 must be a positive integer.</p></li>
@@ -588,13 +597,13 @@ must be a positive integer.</p></li>
 <dd class="field-even"><p>An xarray DataArray containing the time-derivative of the input data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)">xarray.DataArray</a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a></dt><dd><p>The underlying method used.</p>
+<dt><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a></dt><dd><p>The underlying method used.</p>
 </dd>
 </dl>
 </div>

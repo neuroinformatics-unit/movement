@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,8 +117,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -514,8 +522,7 @@
 <span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
 <span class="sd">    individual_names : list of str, optional</span>
 <span class="sd">        List of unique names for the individuals in the video. If None</span>
-<span class="sd">        (default), the individuals will be named &quot;individual_0&quot;,</span>
-<span class="sd">        &quot;individual_1&quot;, etc.</span>
+<span class="sd">        (default), the individuals will be named &quot;id_0&quot;, &quot;id_1&quot;, etc.</span>
 <span class="sd">    keypoint_names : list of str, optional</span>
 <span class="sd">        List of unique names for the keypoints in the skeleton. If None</span>
 <span class="sd">        (default), the keypoints will be named &quot;keypoint_0&quot;, &quot;keypoint_1&quot;,</span>
@@ -625,7 +632,7 @@
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;individual_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Individual names were not provided. &quot;</span>

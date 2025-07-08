@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -429,7 +437,7 @@
 <a class="reference external" href="https://napari.org/dev/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
-as points and tracks overlaid on video frames.</p>
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The GUI is still in early stages of development but we are working on ironing
@@ -537,12 +545,13 @@ an expanded <code class="docutils literal notranslate"><span class="pre">Load</s
 </ol>
 <p>The data will be loaded into the viewer as a
 <a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> and as a <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a>.
+If the input file is a bounding boxes dataset, an additional napari <a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> is loaded.
 By default, the data is added at the top of the layer list and the points layer is selected.</p>
+<p>For a poses dataset, you will see a view similar to this:</p>
 <p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_data_tracks.png" /></p>
-<p>You will see a view similar to the one above. Notice the three
-layers on the left-hand side list: the
-image layer, that holds the background information (i.e., the loaded video or image), the points layer and the tracks layer.
-You can toggle the visibility of each of these layers by clicking on the eye icon.</p>
+<p>And for a bounding boxes dataset, you will see a view more like the one below:</p>
+<p><img alt="napari widget with shapes loaded" src="../_images/napari_bboxes_layer.png" /></p>
+<p>Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.</p>
 <section id="the-points-layer">
 <h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
 <p>The points layer shows the data for the current frame.</p>
@@ -584,8 +593,7 @@ in sync.</p>
 Remember that the current frame is determined by the position of the frame slider.</p>
 <p>The trajectory made up of all positions of a keypoint on all frames before the current frame is called <em>tail</em>.
 Similarly, its trajectory on all frames after the current frame is called <em>head</em>.</p>
-<p>Both tail and head tracks are represented as lines connecting the keypoints
-of the same individual across frames. The colour of the tracks follows
+<p>Both tail and head tracks are represented as lines connecting a single keypoint across frames. The colour of the tracks follows
 the colour of the markers, and the length of the tracks can be adjusted in the
 <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel, with the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> sliders.</p>
 <p>When the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> slider is at its maximum position, the tail track show the trajectory of the
@@ -613,6 +621,25 @@ not<span class="w"> </span>present<span class="w"> </span><span class="k">in</sp
 <li><p>Also note that currently the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">ID</span></code> checkbox in the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.</p></li>
 </ul>
+</div>
+</section>
+<section id="the-boxes-layer">
+<h3>The boxes layer<a class="headerlink" href="#the-boxes-layer" title="Link to this heading">#</a></h3>
+<p>The boxes layer is loaded for bounding boxes datasets only. It shows the bounding boxes for the current frame, as rectangles color-coded by individual.</p>
+<p>The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the <a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> in the layer list and clicking the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> checkbox in the layer controls panel.</p>
+<p>As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset. This will update the bounding boxes and the rest of the loaded data in sync.</p>
+<div class="tip admonition">
+<p class="admonition-title">Changing bounding box size, colour and shape</p>
+<p>You can change edge and face colour as well as the positions of a bounding box’s corner vertices using the
+<a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> controls panel.</p>
+<p>You can use the following keyboard shortcuts to toggle the bounding boxes selection:</p>
+<ul class="simple">
+<li><p>To select all the bounding boxes in the current frame, enable the select shapes tool (<code class="docutils literal notranslate"><span class="pre">5</span></code> or <code class="docutils literal notranslate"><span class="pre">S</span></code>) and press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p>To deselect, click off of the bounding boxes.</p></li>
+<li><p>Individual vertices can be selected instead of the entire rectangle using the select vertex tool: <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">D</span></code>.</p></li>
+</ul>
+<p>You can find all the <a class="reference external" href="https://napari.org/dev/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
 </section>
 </section>
@@ -677,6 +704,7 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-boxes-layer">The boxes layer</a></li>
 </ul>
 </li>
 </ul>

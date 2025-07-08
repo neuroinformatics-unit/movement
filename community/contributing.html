@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -454,14 +462,14 @@ These are especially suitable if you’re new to the project, and we recommend s
 <h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Link to this heading">#</a></h3>
 <p>It is recommended to use <a class="reference external" href="https://docs.conda.io/en/latest/">conda</a>
 or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/">mamba</a> to create a
-development environment for movement. In the following we assume you have
+development environment for <code class="docutils literal notranslate"><span class="pre">movement</span></code>. In the following we assume you have
 <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed, but the same commands will also work with <code class="docutils literal notranslate"><span class="pre">mamba</span></code>/<code class="docutils literal notranslate"><span class="pre">micromamba</span></code>.</p>
 <p>First, create and activate a <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment with some prerequisites:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>movement-dev<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.13<span class="w"> </span>pytables
 conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
 </pre></div>
 </div>
-<p>To install movement for development, clone the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">GitHub repository</a>,
+<p>To install <code class="docutils literal notranslate"><span class="pre">movement</span></code> for development, clone the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">GitHub repository</a>,
 and then run from within the repository:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span><span class="w">  </span><span class="c1"># works on most shells</span>
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span><span class="w">  </span><span class="c1"># works on zsh (the default shell on macOS)</span>
@@ -580,7 +588,7 @@ As these methods will return the logged Exception, you can log and raise the Exc
 In general:</p>
 <ul class="simple">
 <li><p>Use <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
-<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> number in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset" title="movement.validators.datasets.ValidPosesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a> that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. <a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a></p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.13)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for user input issues that are non-critical and can be addressed within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> number in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset" title="movement.validators.datasets.ValidPosesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a> that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. <a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a></p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.warning" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.warning()</span></code></a> for non-critical issues where default values are assigned to optional parameters, e.g. <code class="docutils literal notranslate"><span class="pre">individual_names</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint_names</span></code> in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesDataset.html#movement.validators.datasets.ValidPosesDataset" title="movement.validators.datasets.ValidPosesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesDataset</span></code></a>.</p></li>
 </ul>
 </section>
@@ -604,7 +612,7 @@ This will usually include linting, testing and deployment.</p>
 <li><p>MINOR = new feature</p></li>
 <li><p>MAJOR = breaking change</p></li>
 </ul>
-<p>We use <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/#">setuptools_scm</a> to automatically version movement.
+<p>We use <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/#">setuptools_scm</a> to automatically version <code class="docutils literal notranslate"><span class="pre">movement</span></code>.
 It has been pre-configured in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file.
 <code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> will automatically <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/usage#default-versioning-scheme">infer the version using git</a>.
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
@@ -632,9 +640,9 @@ Other <code class="docutils literal notranslate"><span class="pre">.md</span></c
 <p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/#">Sphinx</a> and the <a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
-The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
-The deployment job is only triggered whenever a tag is pushed to the <em>main</em> branch,
-ensuring that the documentation is published in sync with each PyPI release.</p>
+The build job runs on each PR, ensuring that the documentation build is not broken by new changes.
+The deployment job runs on tag pushes (for PyPI releases) or manual triggers on the <em>main</em> branch.
+This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.</p>
 <section id="editing-the-documentation">
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
 <p>To edit the documentation, first clone the repository, and install <code class="docutils literal notranslate"><span class="pre">movement</span></code> in a
@@ -689,7 +697,7 @@ The file should be structured as specified in the relevant
 <a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax#">sphinx-gallery documentation</a>.</p>
 <p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration#binder-links">integration with binder</a>
 to provide interactive versions of the examples.
-If your examples rely on packages that are not among movement’s dependencies,
+If your examples rely on packages that are not among <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s dependencies,
 you will need to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/environment.yml</span></code> file.
 That file is used by binder to create the conda environment in which the
 examples are run. See the relevant section of the
@@ -707,7 +715,7 @@ examples are run. See the relevant section of the
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 Markdown</label><div class="sd-tab-content docutils">
-<p>For referencing movement objects in <code class="docutils literal notranslate"><span class="pre">.md</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">{role}`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
+<p>For referencing <code class="docutils literal notranslate"><span class="pre">movement</span></code> objects in <code class="docutils literal notranslate"><span class="pre">.md</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">{role}`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
 <p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{mod}`movement.io.load_poses`
 </pre></div>
@@ -716,7 +724,7 @@ Markdown</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-1">
 RestructuredText</label><div class="sd-tab-content docutils">
-<p>For referencing movement objects in <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">:role:`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
+<p>For referencing <code class="docutils literal notranslate"><span class="pre">movement</span></code> objects in <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files, use the <code class="docutils literal notranslate"><span class="pre">:role:`target`</span></code> syntax with the appropriate <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/domains/python.html#cross-referencing-python-objects">Python object role</a>.</p>
 <p>For example, to reference the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:mod:</span><span class="nv">`movement.io.load_poses`</span>
 </pre></div>
@@ -733,7 +741,7 @@ Once the module is included in the mapping, use the same syntax as for <a class=
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 Markdown</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>{meth}`xarray.Dataset.update`
 </pre></div>
 </div>
@@ -741,7 +749,7 @@ Markdown</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-3">
 RestructuredText</label><div class="sd-tab-content docutils">
-<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
+<p>For example, to reference the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.7.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> method, use:</p>
 <div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="na">:meth:</span><span class="nv">`xarray.Dataset.update`</span>
 </pre></div>
 </div>
@@ -846,83 +854,63 @@ test visualisations, e.g. to overlay the data on video frames.
 The <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> file holds metadata for each sample dataset,
 including information on data provenance as well as the mapping between data files and related
 video/frame files.</p>
+<p>For most sample datasets, the tracking data lives in a single file under <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>.
+However, some tools—like <a class="reference external" href="https://trex.run/docs/">TRex</a>—may split their tracking outputs across multiple files.
+In those cases, the dataset is distributed as a ZIP archive containing every relevant file, and is automatically extracted when fetched.</p>
 <section id="fetching-data">
 <h3>Fetching data<a class="headerlink" href="#fetching-data" title="Link to this heading">#</a></h3>
 <p>To fetch the data from GIN, we use the <a class="reference external" href="https://www.fatiando.org/pooch/latest/index.html">pooch</a>
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
 like verification of sha256 hashes and decompression of archives.</p>
-<p>The relevant functionality is implemented in the <code class="docutils literal notranslate"><span class="pre">movement.sample_data.py</span></code> module.
+<p>The relevant functionality is implemented in the <a class="reference internal" href="../api/movement.sample_data.html#module-movement.sample_data" title="movement.sample_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.sample_data</span></code></a> module.
 The most important parts of this module are:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">SAMPLE_DATA</span></code> download manager object.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">list_datasets()</span></code> function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code> function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">video</span></code>. If the relevant files are not already cached locally, they will be downloaded.</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function, which downloads the files associated with a given sample dataset (same as <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code>) and additionally loads the pose or bounding box data into movement, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names <code class="docutils literal notranslate"><span class="pre">video_path</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_path</span></code>, respectively.</p></li>
+<li><p>The <a class="reference internal" href="../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets" title="movement.sample_data.list_datasets"><code class="xref py py-func docutils literal notranslate"><span class="pre">list_datasets()</span></code></a> function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).</p></li>
+<li><p>The <a class="reference internal" href="../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths" title="movement.sample_data.fetch_dataset_paths"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code></a> function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">video</span></code>. If the relevant files are not already cached locally, they will be downloaded.</p></li>
+<li><p>The <a class="reference internal" href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a> function, which downloads the files associated with a given sample dataset (same as <code class="docutils literal notranslate"><span class="pre">fetch_dataset_paths()</span></code>) and additionally loads the pose or bounding box data into <code class="docutils literal notranslate"><span class="pre">movement</span></code>, returning an <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code> object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names <code class="docutils literal notranslate"><span class="pre">video_path</span></code> and <code class="docutils literal notranslate"><span class="pre">frame_path</span></code>, respectively.</p></li>
 </ol>
 <p>By default, the downloaded files are stored in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> folder.
-This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">movement.sample_data.py</span></code> module.</p>
+This can be changed by setting the <code class="docutils literal notranslate"><span class="pre">DATA_DIR</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">sample_data.py</span></code> file.</p>
 </section>
 <section id="adding-new-data">
 <h3>Adding new data<a class="headerlink" href="#adding-new-data" title="Link to this heading">#</a></h3>
-<p>Only core movement developers may add new files to the external data repository.
+<p>Only core <code class="docutils literal notranslate"><span class="pre">movement</span></code> developers may add new files to the external data repository.
+Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:</p>
-<ol class="arabic">
-<li><p>Create a <a class="reference external" href="https://gin.g-node.org/#">GIN</a> account</p></li>
-<li><p>Ask to be added as a collaborator on the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a> (if not already)</p></li>
-<li><p>Download the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> and set it up with your GIN credentials, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal.</p></li>
-<li><p>Clone the movement data repository to your local machine, by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code> in a terminal.</p></li>
-<li><p>Add your new files to the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders as appropriate. Follow the existing file naming conventions as closely as possible.</p></li>
-<li><p>Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:</p>
-<div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
-Ubuntu</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sha256sum<span class="w"> </span>&lt;filename&gt;
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-7" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
-MacOS</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>&lt;filename&gt;
-</pre></div>
-</div>
-</div>
-<input id="sd-tab-item-8" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
-Windows</label><div class="sd-tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>certutil<span class="w"> </span>-hashfile<span class="w"> </span>&lt;filename&gt;<span class="w"> </span>SHA256
-</pre></div>
-</div>
-</div>
-</div>
-<p>For convenience, we’ve included a <code class="docutils literal notranslate"><span class="pre">get_sha256_hashes.py</span></code> script in the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. If you run this from the root of the data repository, within a Python environment with movement installed, it will calculate the sha256 hashes for all files in the <code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code> and <code class="docutils literal notranslate"><span class="pre">frames</span></code> folders and write them to files named <code class="docutils literal notranslate"><span class="pre">poses_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes_hashes.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">videos_hashes.txt</span></code>, and <code class="docutils literal notranslate"><span class="pre">frames_hashes.txt</span></code> respectively.</p>
-</li>
-<li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code>, including their sha256 hashes you’ve calculated. See the example entry below for guidance.</p></li>
-<li><p>Commit a specific file with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">.</span></code> to commit all changes.</p></li>
-<li><p>Upload the committed changes to the GIN repository by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Latest changes to the repository can be pulled via <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code>. <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> will synchronise the latest changes bidirectionally.</p></li>
+<ol class="arabic simple">
+<li><p>Create a <a class="reference external" href="https://gin.g-node.org/#">GIN</a> account.</p></li>
+<li><p>Request collaborator access to the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a> if you don’t already have it.</p></li>
+<li><p>Install and configure the <a class="reference external" href="https://gin.g-node.org/G-Node/Info/wiki/GIN+CLI+Setup#quickstart">GIN CLI</a> by running <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">login</span></code> in a terminal with your GIN credentials.</p></li>
+<li><p>Clone the <code class="docutils literal notranslate"><span class="pre">movement</span></code> data repository to your local machine using <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code>, then run <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span> <span class="pre">--content</span></code> to download all the files.</p></li>
+<li><p>Add your new files to the appropriate folders (<code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code>) following the existing file naming conventions.</p></li>
+<li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> using the example entry below as a template. You can leave all <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code> values as <code class="docutils literal notranslate"><span class="pre">null</span></code> for now.</p></li>
+<li><p>Update file hashes in <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> by running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">update_hashes.py</span></code> from the root of the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. This script computes SHA256 hashes for all data files and updates the corresponding <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code> values in the metadata file. Make sure you’re in a <a class="reference internal" href="#creating-a-development-environment">Python environment with <code class="docutils literal notranslate"><span class="pre">movement</span></code> installed</a>.</p></li>
+<li><p>Commit your changes using <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code> for specific files or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">.</span></code> for all changes.</p></li>
+<li><p>Upload your committed changes to the GIN repository with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Use <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code> to pull the latest changes or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> to synchronise changes bidirectionally.</p></li>
 </ol>
 </section>
 <section id="metadata-yaml-example-entry">
 <h3><code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> example entry<a class="headerlink" href="#metadata-yaml-example-entry" title="Link to this heading">#</a></h3>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="s">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">  </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a&quot;</span>
-<span class="w">  </span><span class="nt">source_software</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SLEAP&quot;</span>
-<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;poses&quot;</span><span class="w">  </span><span class="c1"># &quot;poses&quot; or &quot;bboxes&quot; depending on the type of tracked data</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">SLEAP_three-mice_Aeon_proofread.analysis.h5</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">source_software</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLEAP</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">poses</span>
 <span class="w">  </span><span class="nt">fps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
-<span class="w">  </span><span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mouse&quot;</span>
+<span class="w">  </span><span class="nt">species</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mouse</span>
 <span class="w">  </span><span class="nt">number_of_individuals</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">  </span><span class="nt">shared_by</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Chang</span><span class="nv"> </span><span class="s">Huan</span><span class="nv"> </span><span class="s">Lo&quot;</span>
-<span class="w">    </span><span class="nt">affiliation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Sainsbury</span><span class="nv"> </span><span class="s">Wellcome</span><span class="nv"> </span><span class="s">Centre,</span><span class="nv"> </span><span class="s">UCL&quot;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Chang Huan Lo</span>
+<span class="w">    </span><span class="nt">affiliation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sainsbury Wellcome Centre, UCL</span>
 <span class="w">  </span><span class="nt">frame</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three-mice_Aeon_frame-5sec.png&quot;</span>
-<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;889e1bbee6cb23eb6d52820748123579acbd0b2a7265cf72a903dabb7fcc3d1a&quot;</span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">three-mice_Aeon_frame-5sec.png</span>
+<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
 <span class="w">  </span><span class="nt">video</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;three-mice_Aeon_video.avi&quot;</span>
-<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bc7406442c90467f11a982fd6efd85258ec5ec7748228b245caf0358934f0e7d&quot;</span>
-<span class="w">  </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;All</span><span class="nv"> </span><span class="s">labels</span><span class="nv"> </span><span class="s">were</span><span class="nv"> </span><span class="s">proofread</span><span class="nv"> </span><span class="s">(user-defined)</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">considered</span><span class="nv"> </span><span class="s">ground</span><span class="nv"> </span><span class="s">truth.</span><span class="nv"> </span><span class="s">It</span><span class="nv"> </span><span class="s">was</span><span class="nv"> </span><span class="s">exported</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">.slp</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">same</span><span class="nv"> </span><span class="s">prefix.&quot;</span>
+<span class="w">    </span><span class="nt">file_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">three-mice_Aeon_video.avi</span>
+<span class="w">    </span><span class="nt">sha256sum</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">note</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">All labels were proofread (user-defined) and can be considered ground truth.</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">It was exported from the .slp file with the same prefix.</span>
 </pre></div>
 </div>
 </section>

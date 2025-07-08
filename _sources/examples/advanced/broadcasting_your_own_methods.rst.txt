@@ -154,7 +154,7 @@ distinct.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7fbe14badeb0>
+    <matplotlib.legend.Legend object at 0x7f6c04c02db0>
 
 
 
@@ -333,28 +333,76 @@ access the results in the same way that we did our original data.
      */
 
     :root {
-      --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-      --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-      --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-      --xr-border-color: var(--jp-border-color2, #e0e0e0);
-      --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-      --xr-background-color: var(--jp-layout-color0, white);
-      --xr-background-color-row-even: var(--jp-layout-color1, white);
-      --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base rgba(0, 0, 0, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, white)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+      );
     }
 
     html[theme="dark"],
     html[data-theme="dark"],
     body[data-theme="dark"],
     body.vscode-dark {
-      --xr-font-color0: rgba(255, 255, 255, 1);
-      --xr-font-color2: rgba(255, 255, 255, 0.54);
-      --xr-font-color3: rgba(255, 255, 255, 0.38);
-      --xr-border-color: #1f1f1f;
-      --xr-disabled-color: #515151;
-      --xr-background-color: #111111;
-      --xr-background-color-row-even: #111111;
-      --xr-background-color-row-odd: #313131;
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base, rgba(255, 255, 255, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, #111111)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+      );
     }
 
     .xr-wrap {
@@ -410,6 +458,7 @@ access the results in the same way that we did our original data.
 
     .xr-section-item input + label {
       color: var(--xr-disabled-color);
+      border: 2px solid transparent !important;
     }
 
     .xr-section-item input:enabled + label {
@@ -418,7 +467,7 @@ access the results in the same way that we did our original data.
     }
 
     .xr-section-item input:focus + label {
-      border: 2px solid var(--xr-font-color0);
+      border: 2px solid var(--xr-font-color0) !important;
     }
 
     .xr-section-item input:enabled + label:hover {
@@ -550,7 +599,9 @@ access the results in the same way that we did our original data.
     .xr-var-item label,
     .xr-var-item > .xr-var-name span {
       background-color: var(--xr-background-color-row-even);
+      border-color: var(--xr-background-color-row-odd);
       margin-bottom: 0;
+      padding-top: 2px;
     }
 
     .xr-var-item > .xr-var-name:hover span {
@@ -561,6 +612,7 @@ access the results in the same way that we did our original data.
     .xr-var-list > li:nth-child(odd) > label,
     .xr-var-list > li:nth-child(odd) > .xr-var-name span {
       background-color: var(--xr-background-color-row-odd);
+      border-color: var(--xr-background-color-row-even);
     }
 
     .xr-var-name {
@@ -610,8 +662,15 @@ access the results in the same way that we did our original data.
     .xr-var-data,
     .xr-index-data {
       display: none;
-      background-color: var(--xr-background-color) !important;
-      padding-bottom: 5px !important;
+      border-top: 2px dotted var(--xr-background-color);
+      padding-bottom: 20px !important;
+      padding-top: 10px !important;
+    }
+
+    .xr-var-attrs-in + label,
+    .xr-var-data-in + label,
+    .xr-index-data-in + label {
+      padding: 0 1px;
     }
 
     .xr-var-attrs-in:checked ~ .xr-var-attrs,
@@ -622,6 +681,12 @@ access the results in the same way that we did our original data.
 
     .xr-var-data > table {
       float: right;
+    }
+
+    .xr-var-data > pre,
+    .xr-index-data > pre,
+    .xr-var-data > table > tbody > tr {
+      background-color: transparent !important;
     }
 
     .xr-var-name span,
@@ -683,12 +748,20 @@ access the results in the same way that we did our original data.
       stroke: currentColor;
       fill: currentColor;
     }
+
+    .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+    .xr-var-data-in:checked + label > .xr-icon-database,
+    .xr-index-data-in:checked + label > .xr-icon-database {
+      color: var(--xr-font-color0);
+      filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+      stroke-width: 0.8px;
+    }
     </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray (time: 601, keypoints: 1, individuals: 3)&gt; Size: 2kB
     False False False False False False ... False False False False False False
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
       * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'></div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-0e777207-a31d-40f0-8f0d-f79d50d63567' class='xr-array-in' type='checkbox' ><label for='section-0e777207-a31d-40f0-8f0d-f79d50d63567' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'></div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-b53363b8-507a-401a-97f8-57e06ba35f48' class='xr-array-in' type='checkbox' ><label for='section-b53363b8-507a-401a-97f8-57e06ba35f48' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
            [[False, False, False]],
 
@@ -700,10 +773,10 @@ access the results in the same way that we did our original data.
 
            [[False, False, False]],
 
-           [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-de82df7e-1f0e-4fa8-94eb-d8d3abfdfd24' class='xr-section-summary-in' type='checkbox'  checked><label for='section-de82df7e-1f0e-4fa8-94eb-d8d3abfdfd24' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-20be33f3-b676-49de-a917-c0c501da7e69' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-20be33f3-b676-49de-a917-c0c501da7e69' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f80ed083-1441-491a-8388-9da3a1926769' class='xr-var-data-in' type='checkbox'><label for='data-f80ed083-1441-491a-8388-9da3a1926769' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-31800d8d-3be2-4b4d-9aa5-d451437c8fd0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-31800d8d-3be2-4b4d-9aa5-d451437c8fd0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b97be884-1c62-4ec5-ae5c-bb6f3bf20ed5' class='xr-var-data-in' type='checkbox'><label for='data-b97be884-1c62-4ec5-ae5c-bb6f3bf20ed5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-a62874c3-936d-4cf9-8429-e479d6ee3c57' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a62874c3-936d-4cf9-8429-e479d6ee3c57' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-81894b3a-9861-4adb-aa27-13cc57b10218' class='xr-var-data-in' type='checkbox'><label for='data-81894b3a-9861-4adb-aa27-13cc57b10218' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-eed7940b-73c1-421c-9647-2a494b14d610' class='xr-section-summary-in' type='checkbox'  ><label for='section-eed7940b-73c1-421c-9647-2a494b14d610' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-99f5a1bb-ff64-4892-a64c-5910461a76e4' class='xr-index-data-in' type='checkbox'/><label for='index-99f5a1bb-ff64-4892-a64c-5910461a76e4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
+           [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-3e405521-61e4-405a-809e-e82a521e4179' class='xr-section-summary-in' type='checkbox'  checked><label for='section-3e405521-61e4-405a-809e-e82a521e4179' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-5f126d1a-29ec-4564-a73f-39f7598ccb46' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-5f126d1a-29ec-4564-a73f-39f7598ccb46' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-38116fbd-917f-4307-9962-c610416b3197' class='xr-var-data-in' type='checkbox'><label for='data-38116fbd-917f-4307-9962-c610416b3197' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-f0d4096f-5f85-400e-8b61-318ba904c5be' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f0d4096f-5f85-400e-8b61-318ba904c5be' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0e254e7f-5f3b-41a9-8168-82f4d6007b7f' class='xr-var-data-in' type='checkbox'><label for='data-0e254e7f-5f3b-41a9-8168-82f4d6007b7f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-06dccb61-c483-463d-b776-67c672454d16' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-06dccb61-c483-463d-b776-67c672454d16' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d57b9597-5012-42b1-a5eb-eb768f36fb3e' class='xr-var-data-in' type='checkbox'><label for='data-d57b9597-5012-42b1-a5eb-eb768f36fb3e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-ab73b640-32a8-4064-ad5d-0ccbc1153d8d' class='xr-section-summary-in' type='checkbox'  ><label for='section-ab73b640-32a8-4064-ad5d-0ccbc1153d8d' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-ba0d7e33-81c0-4f1f-b1a9-e2e8512e0d2f' class='xr-index-data-in' type='checkbox'/><label for='index-ba0d7e33-81c0-4f1f-b1a9-e2e8512e0d2f' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
            ...
            11.82, 11.84, 11.86, 11.88,  11.9, 11.92, 11.94, 11.96, 11.98,  12.0],
-          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-16ca0c57-e22e-48eb-84a3-2b04f47ae578' class='xr-index-data-in' type='checkbox'/><label for='index-16ca0c57-e22e-48eb-84a3-2b04f47ae578' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-17eb09fa-04b7-4191-a656-08c30eabf877' class='xr-index-data-in' type='checkbox'/><label for='index-17eb09fa-04b7-4191-a656-08c30eabf877' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-0a453534-342c-4844-9458-01196d7971d4' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-0a453534-342c-4844-9458-01196d7971d4' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
+          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-6dd09efc-4d0a-4bca-a9a0-cc80228dbdc9' class='xr-index-data-in' type='checkbox'/><label for='index-6dd09efc-4d0a-4bca-a9a0-cc80228dbdc9' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-b9aedb46-afdb-4440-b44c-ce2e1a250547' class='xr-index-data-in' type='checkbox'/><label for='index-b9aedb46-afdb-4440-b44c-ce2e1a250547' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-f7c5d0ba-1800-4154-aa4d-9d52e795b3b9' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-f7c5d0ba-1800-4154-aa4d-9d52e795b3b9' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
@@ -882,28 +955,76 @@ input to ``in_slippery_region``.
      */
 
     :root {
-      --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-      --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-      --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-      --xr-border-color: var(--jp-border-color2, #e0e0e0);
-      --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-      --xr-background-color: var(--jp-layout-color0, white);
-      --xr-background-color-row-even: var(--jp-layout-color1, white);
-      --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base rgba(0, 0, 0, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, white)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+      );
     }
 
     html[theme="dark"],
     html[data-theme="dark"],
     body[data-theme="dark"],
     body.vscode-dark {
-      --xr-font-color0: rgba(255, 255, 255, 1);
-      --xr-font-color2: rgba(255, 255, 255, 0.54);
-      --xr-font-color3: rgba(255, 255, 255, 0.38);
-      --xr-border-color: #1f1f1f;
-      --xr-disabled-color: #515151;
-      --xr-background-color: #111111;
-      --xr-background-color-row-even: #111111;
-      --xr-background-color-row-odd: #313131;
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base, rgba(255, 255, 255, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, #111111)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+      );
     }
 
     .xr-wrap {
@@ -959,6 +1080,7 @@ input to ``in_slippery_region``.
 
     .xr-section-item input + label {
       color: var(--xr-disabled-color);
+      border: 2px solid transparent !important;
     }
 
     .xr-section-item input:enabled + label {
@@ -967,7 +1089,7 @@ input to ``in_slippery_region``.
     }
 
     .xr-section-item input:focus + label {
-      border: 2px solid var(--xr-font-color0);
+      border: 2px solid var(--xr-font-color0) !important;
     }
 
     .xr-section-item input:enabled + label:hover {
@@ -1099,7 +1221,9 @@ input to ``in_slippery_region``.
     .xr-var-item label,
     .xr-var-item > .xr-var-name span {
       background-color: var(--xr-background-color-row-even);
+      border-color: var(--xr-background-color-row-odd);
       margin-bottom: 0;
+      padding-top: 2px;
     }
 
     .xr-var-item > .xr-var-name:hover span {
@@ -1110,6 +1234,7 @@ input to ``in_slippery_region``.
     .xr-var-list > li:nth-child(odd) > label,
     .xr-var-list > li:nth-child(odd) > .xr-var-name span {
       background-color: var(--xr-background-color-row-odd);
+      border-color: var(--xr-background-color-row-even);
     }
 
     .xr-var-name {
@@ -1159,8 +1284,15 @@ input to ``in_slippery_region``.
     .xr-var-data,
     .xr-index-data {
       display: none;
-      background-color: var(--xr-background-color) !important;
-      padding-bottom: 5px !important;
+      border-top: 2px dotted var(--xr-background-color);
+      padding-bottom: 20px !important;
+      padding-top: 10px !important;
+    }
+
+    .xr-var-attrs-in + label,
+    .xr-var-data-in + label,
+    .xr-index-data-in + label {
+      padding: 0 1px;
     }
 
     .xr-var-attrs-in:checked ~ .xr-var-attrs,
@@ -1171,6 +1303,12 @@ input to ``in_slippery_region``.
 
     .xr-var-data > table {
       float: right;
+    }
+
+    .xr-var-data > pre,
+    .xr-index-data > pre,
+    .xr-var-data > table > tbody > tr {
+      background-color: transparent !important;
     }
 
     .xr-var-name span,
@@ -1232,12 +1370,20 @@ input to ``in_slippery_region``.
       stroke: currentColor;
       fill: currentColor;
     }
+
+    .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+    .xr-var-data-in:checked + label > .xr-icon-database,
+    .xr-index-data-in:checked + label > .xr-icon-database {
+      color: var(--xr-font-color0);
+      filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+      stroke-width: 0.8px;
+    }
     </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;position&#x27; (time: 601, keypoints: 1, individuals: 3)&gt; Size: 2kB
     False False False False False False ... False False False False False False
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
       * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-45efb40b-604b-47eb-a21b-f75a74036940' class='xr-array-in' type='checkbox' ><label for='section-45efb40b-604b-47eb-a21b-f75a74036940' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-6e95ae7e-cee7-4121-836f-22081a8e1cc8' class='xr-array-in' type='checkbox' ><label for='section-6e95ae7e-cee7-4121-836f-22081a8e1cc8' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
            [[False, False, False]],
 
@@ -1249,10 +1395,10 @@ input to ``in_slippery_region``.
 
            [[False, False, False]],
 
-           [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-4698496c-ff20-4922-95af-9c3614c73adb' class='xr-section-summary-in' type='checkbox'  checked><label for='section-4698496c-ff20-4922-95af-9c3614c73adb' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-133da95a-82e9-49d8-a9a9-089f2c70a2c5' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-133da95a-82e9-49d8-a9a9-089f2c70a2c5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ed928d84-1472-49e0-a8d8-419b489451fc' class='xr-var-data-in' type='checkbox'><label for='data-ed928d84-1472-49e0-a8d8-419b489451fc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-c040f775-bf06-43ea-9e20-83120b48b6e9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c040f775-bf06-43ea-9e20-83120b48b6e9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-478de1fa-ff6f-4921-b93f-79825e91a40a' class='xr-var-data-in' type='checkbox'><label for='data-478de1fa-ff6f-4921-b93f-79825e91a40a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-ce889134-5a54-4bed-885e-1e8be44e68c2' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ce889134-5a54-4bed-885e-1e8be44e68c2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8daf7d12-1674-4f53-b19f-9653483b2bef' class='xr-var-data-in' type='checkbox'><label for='data-8daf7d12-1674-4f53-b19f-9653483b2bef' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-3ed61fbe-47d0-4bb5-8e9f-917b66583ef3' class='xr-section-summary-in' type='checkbox'  ><label for='section-3ed61fbe-47d0-4bb5-8e9f-917b66583ef3' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-4b844fbe-af69-4e43-a602-d10ff7f80a40' class='xr-index-data-in' type='checkbox'/><label for='index-4b844fbe-af69-4e43-a602-d10ff7f80a40' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
+           [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-235c093b-aaf9-4d58-9bbc-34dd0e53758e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-235c093b-aaf9-4d58-9bbc-34dd0e53758e' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-42069de5-e1c9-48db-bb75-629c57718d3b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-42069de5-e1c9-48db-bb75-629c57718d3b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8f48bcf0-e285-4627-a891-6c05d96bd9c1' class='xr-var-data-in' type='checkbox'><label for='data-8f48bcf0-e285-4627-a891-6c05d96bd9c1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-ed67a388-ba79-40fc-a006-c8036d9b576e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ed67a388-ba79-40fc-a006-c8036d9b576e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-00782341-9afc-4068-a29e-8acfa384be56' class='xr-var-data-in' type='checkbox'><label for='data-00782341-9afc-4068-a29e-8acfa384be56' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-499b8fa0-3542-4311-b45a-61e9ee44510b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-499b8fa0-3542-4311-b45a-61e9ee44510b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c4b83827-ee8c-4699-9ec6-c297630481bc' class='xr-var-data-in' type='checkbox'><label for='data-c4b83827-ee8c-4699-9ec6-c297630481bc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-4932befc-8175-4c50-be0e-ee33c03fb205' class='xr-section-summary-in' type='checkbox'  ><label for='section-4932befc-8175-4c50-be0e-ee33c03fb205' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-f909e489-fc8f-447f-9c42-29f551791b30' class='xr-index-data-in' type='checkbox'/><label for='index-f909e489-fc8f-447f-9c42-29f551791b30' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
            ...
            11.82, 11.84, 11.86, 11.88,  11.9, 11.92, 11.94, 11.96, 11.98,  12.0],
-          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-3b55dbf5-82df-4b6d-b8e1-04f11cabca34' class='xr-index-data-in' type='checkbox'/><label for='index-3b55dbf5-82df-4b6d-b8e1-04f11cabca34' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-9bed52fe-1ac7-4687-8f5e-d6f7f63f6dad' class='xr-index-data-in' type='checkbox'/><label for='index-9bed52fe-1ac7-4687-8f5e-d6f7f63f6dad' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-57a182fd-3bb7-4749-b0c4-378de0dcdb84' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-57a182fd-3bb7-4749-b0c4-378de0dcdb84' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
+          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-218fc447-27ee-42fa-9ab6-4b972ef4ad61' class='xr-index-data-in' type='checkbox'/><label for='index-218fc447-27ee-42fa-9ab6-4b972ef4ad61' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-f0d4e1f0-775d-4526-ab6b-54550fc1d93d' class='xr-index-data-in' type='checkbox'/><label for='index-f0d4e1f0-775d-4526-ab6b-54550fc1d93d' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-9c6ce9d6-813b-4e10-a6d8-ca41a494f268' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-9c6ce9d6-813b-4e10-a6d8-ca41a494f268' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
@@ -1340,28 +1486,76 @@ For example, we could have pre-selected one of our individuals beforehand.
      */
 
     :root {
-      --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-      --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-      --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-      --xr-border-color: var(--jp-border-color2, #e0e0e0);
-      --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-      --xr-background-color: var(--jp-layout-color0, white);
-      --xr-background-color-row-even: var(--jp-layout-color1, white);
-      --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base rgba(0, 0, 0, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, white)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+      );
     }
 
     html[theme="dark"],
     html[data-theme="dark"],
     body[data-theme="dark"],
     body.vscode-dark {
-      --xr-font-color0: rgba(255, 255, 255, 1);
-      --xr-font-color2: rgba(255, 255, 255, 0.54);
-      --xr-font-color3: rgba(255, 255, 255, 0.38);
-      --xr-border-color: #1f1f1f;
-      --xr-disabled-color: #515151;
-      --xr-background-color: #111111;
-      --xr-background-color-row-even: #111111;
-      --xr-background-color-row-odd: #313131;
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base, rgba(255, 255, 255, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, #111111)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+      );
     }
 
     .xr-wrap {
@@ -1417,6 +1611,7 @@ For example, we could have pre-selected one of our individuals beforehand.
 
     .xr-section-item input + label {
       color: var(--xr-disabled-color);
+      border: 2px solid transparent !important;
     }
 
     .xr-section-item input:enabled + label {
@@ -1425,7 +1620,7 @@ For example, we could have pre-selected one of our individuals beforehand.
     }
 
     .xr-section-item input:focus + label {
-      border: 2px solid var(--xr-font-color0);
+      border: 2px solid var(--xr-font-color0) !important;
     }
 
     .xr-section-item input:enabled + label:hover {
@@ -1557,7 +1752,9 @@ For example, we could have pre-selected one of our individuals beforehand.
     .xr-var-item label,
     .xr-var-item > .xr-var-name span {
       background-color: var(--xr-background-color-row-even);
+      border-color: var(--xr-background-color-row-odd);
       margin-bottom: 0;
+      padding-top: 2px;
     }
 
     .xr-var-item > .xr-var-name:hover span {
@@ -1568,6 +1765,7 @@ For example, we could have pre-selected one of our individuals beforehand.
     .xr-var-list > li:nth-child(odd) > label,
     .xr-var-list > li:nth-child(odd) > .xr-var-name span {
       background-color: var(--xr-background-color-row-odd);
+      border-color: var(--xr-background-color-row-even);
     }
 
     .xr-var-name {
@@ -1617,8 +1815,15 @@ For example, we could have pre-selected one of our individuals beforehand.
     .xr-var-data,
     .xr-index-data {
       display: none;
-      background-color: var(--xr-background-color) !important;
-      padding-bottom: 5px !important;
+      border-top: 2px dotted var(--xr-background-color);
+      padding-bottom: 20px !important;
+      padding-top: 10px !important;
+    }
+
+    .xr-var-attrs-in + label,
+    .xr-var-data-in + label,
+    .xr-index-data-in + label {
+      padding: 0 1px;
     }
 
     .xr-var-attrs-in:checked ~ .xr-var-attrs,
@@ -1629,6 +1834,12 @@ For example, we could have pre-selected one of our individuals beforehand.
 
     .xr-var-data > table {
       float: right;
+    }
+
+    .xr-var-data > pre,
+    .xr-index-data > pre,
+    .xr-var-data > table > tbody > tr {
+      background-color: transparent !important;
     }
 
     .xr-var-name span,
@@ -1690,12 +1901,20 @@ For example, we could have pre-selected one of our individuals beforehand.
       stroke: currentColor;
       fill: currentColor;
     }
+
+    .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+    .xr-var-data-in:checked + label > .xr-icon-database,
+    .xr-index-data-in:checked + label > .xr-icon-database {
+      color: var(--xr-font-color0);
+      filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+      stroke-width: 0.8px;
+    }
     </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;position&#x27; (time: 601, keypoints: 1)&gt; Size: 601B
     False False False False False False ... False False False False False False
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
       * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-        individuals  &lt;U10 40B &#x27;AEON3B_NTP&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-17071b91-efe0-463e-8b1a-34569809acc4' class='xr-array-in' type='checkbox' ><label for='section-17071b91-efe0-463e-8b1a-34569809acc4' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[False],
+        individuals  &lt;U10 40B &#x27;AEON3B_NTP&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-c861709d-cbb9-4e7c-975f-26ee457d3032' class='xr-array-in' type='checkbox' ><label for='section-c861709d-cbb9-4e7c-975f-26ee457d3032' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[False],
            [False],
            [False],
            [False],
@@ -1735,10 +1954,10 @@ For example, we could have pre-selected one of our individuals beforehand.
            [False],
            [False],
            [False],
-           [False]])</pre></div></div></li><li class='xr-section-item'><input id='section-94637a70-8ee2-4022-93b4-695c50369b2a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-94637a70-8ee2-4022-93b4-695c50369b2a' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-14406ec5-fb95-41cd-939b-0a9e4bdcaf56' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-14406ec5-fb95-41cd-939b-0a9e4bdcaf56' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e614fbe6-f595-40db-8262-fb84f49c47c5' class='xr-var-data-in' type='checkbox'><label for='data-e614fbe6-f595-40db-8262-fb84f49c47c5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-457ac3b7-d21a-4120-b669-04b581ca65de' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-457ac3b7-d21a-4120-b669-04b581ca65de' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9ec877f5-710d-4c2a-9676-1fb825dbc108' class='xr-var-data-in' type='checkbox'><label for='data-9ec877f5-710d-4c2a-9676-1fb825dbc108' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>individuals</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27;</div><input id='attrs-4214e48d-a01c-46bd-a64c-c59e5e457347' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-4214e48d-a01c-46bd-a64c-c59e5e457347' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-91711c1d-ea00-45d2-acec-84c744c54d65' class='xr-var-data-in' type='checkbox'><label for='data-91711c1d-ea00-45d2-acec-84c744c54d65' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(&#x27;AEON3B_NTP&#x27;, dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-b570c166-b20a-416e-b9f2-2dc4842dd91d' class='xr-section-summary-in' type='checkbox'  ><label for='section-b570c166-b20a-416e-b9f2-2dc4842dd91d' class='xr-section-summary' >Indexes: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-9a128c90-d4f6-4bde-ba80-08d9d13683a0' class='xr-index-data-in' type='checkbox'/><label for='index-9a128c90-d4f6-4bde-ba80-08d9d13683a0' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
+           [False]])</pre></div></div></li><li class='xr-section-item'><input id='section-dc918ace-6cda-46a3-b21c-8305583078cb' class='xr-section-summary-in' type='checkbox'  checked><label for='section-dc918ace-6cda-46a3-b21c-8305583078cb' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-b239609c-188f-4749-8c4a-daea13c86d1e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b239609c-188f-4749-8c4a-daea13c86d1e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-56edf037-d8f5-499d-acd4-e00330ff44af' class='xr-var-data-in' type='checkbox'><label for='data-56edf037-d8f5-499d-acd4-e00330ff44af' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-5d7f9e79-47c0-43bb-94f2-75533c4afd26' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-5d7f9e79-47c0-43bb-94f2-75533c4afd26' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-78c0713b-8264-4df7-8110-afca94d6cd60' class='xr-var-data-in' type='checkbox'><label for='data-78c0713b-8264-4df7-8110-afca94d6cd60' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>individuals</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27;</div><input id='attrs-e1d4f308-a8de-4674-b167-9be0ea29fad9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-e1d4f308-a8de-4674-b167-9be0ea29fad9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9fa7fbf2-2f98-477a-bf0e-23f9fe27055a' class='xr-var-data-in' type='checkbox'><label for='data-9fa7fbf2-2f98-477a-bf0e-23f9fe27055a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(&#x27;AEON3B_NTP&#x27;, dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-266d91f3-6075-4888-9e9c-866d919a129a' class='xr-section-summary-in' type='checkbox'  ><label for='section-266d91f3-6075-4888-9e9c-866d919a129a' class='xr-section-summary' >Indexes: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-57740839-eec9-4dce-ba17-0466e4454232' class='xr-index-data-in' type='checkbox'/><label for='index-57740839-eec9-4dce-ba17-0466e4454232' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
            ...
            11.82, 11.84, 11.86, 11.88,  11.9, 11.92, 11.94, 11.96, 11.98,  12.0],
-          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-d3fc3a81-c755-40d2-b5f5-f16493c680d7' class='xr-index-data-in' type='checkbox'/><label for='index-d3fc3a81-c755-40d2-b5f5-f16493c680d7' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-c2414cc9-930d-4ebc-bc22-403df087c4ab' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-c2414cc9-930d-4ebc-bc22-403df087c4ab' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
+          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-dd0e5b95-fb17-44d8-8d2f-de2eafa6a36c' class='xr-index-data-in' type='checkbox'/><label for='index-dd0e5b95-fb17-44d8-8d2f-de2eafa6a36c' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-99b7e761-f270-4a58-9751-35fbdc2b12ec' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-99b7e761-f270-4a58-9751-35fbdc2b12ec' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
@@ -1846,28 +2065,76 @@ first argument to the function, that appears in the ``def`` statement.
      */
 
     :root {
-      --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-      --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-      --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-      --xr-border-color: var(--jp-border-color2, #e0e0e0);
-      --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-      --xr-background-color: var(--jp-layout-color0, white);
-      --xr-background-color-row-even: var(--jp-layout-color1, white);
-      --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base rgba(0, 0, 0, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, white)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+      );
     }
 
     html[theme="dark"],
     html[data-theme="dark"],
     body[data-theme="dark"],
     body.vscode-dark {
-      --xr-font-color0: rgba(255, 255, 255, 1);
-      --xr-font-color2: rgba(255, 255, 255, 0.54);
-      --xr-font-color3: rgba(255, 255, 255, 0.38);
-      --xr-border-color: #1f1f1f;
-      --xr-disabled-color: #515151;
-      --xr-background-color: #111111;
-      --xr-background-color-row-even: #111111;
-      --xr-background-color-row-odd: #313131;
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base, rgba(255, 255, 255, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, #111111)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+      );
     }
 
     .xr-wrap {
@@ -1923,6 +2190,7 @@ first argument to the function, that appears in the ``def`` statement.
 
     .xr-section-item input + label {
       color: var(--xr-disabled-color);
+      border: 2px solid transparent !important;
     }
 
     .xr-section-item input:enabled + label {
@@ -1931,7 +2199,7 @@ first argument to the function, that appears in the ``def`` statement.
     }
 
     .xr-section-item input:focus + label {
-      border: 2px solid var(--xr-font-color0);
+      border: 2px solid var(--xr-font-color0) !important;
     }
 
     .xr-section-item input:enabled + label:hover {
@@ -2063,7 +2331,9 @@ first argument to the function, that appears in the ``def`` statement.
     .xr-var-item label,
     .xr-var-item > .xr-var-name span {
       background-color: var(--xr-background-color-row-even);
+      border-color: var(--xr-background-color-row-odd);
       margin-bottom: 0;
+      padding-top: 2px;
     }
 
     .xr-var-item > .xr-var-name:hover span {
@@ -2074,6 +2344,7 @@ first argument to the function, that appears in the ``def`` statement.
     .xr-var-list > li:nth-child(odd) > label,
     .xr-var-list > li:nth-child(odd) > .xr-var-name span {
       background-color: var(--xr-background-color-row-odd);
+      border-color: var(--xr-background-color-row-even);
     }
 
     .xr-var-name {
@@ -2123,8 +2394,15 @@ first argument to the function, that appears in the ``def`` statement.
     .xr-var-data,
     .xr-index-data {
       display: none;
-      background-color: var(--xr-background-color) !important;
-      padding-bottom: 5px !important;
+      border-top: 2px dotted var(--xr-background-color);
+      padding-bottom: 20px !important;
+      padding-top: 10px !important;
+    }
+
+    .xr-var-attrs-in + label,
+    .xr-var-data-in + label,
+    .xr-index-data-in + label {
+      padding: 0 1px;
     }
 
     .xr-var-attrs-in:checked ~ .xr-var-attrs,
@@ -2135,6 +2413,12 @@ first argument to the function, that appears in the ``def`` statement.
 
     .xr-var-data > table {
       float: right;
+    }
+
+    .xr-var-data > pre,
+    .xr-index-data > pre,
+    .xr-var-data > table > tbody > tr {
+      background-color: transparent !important;
     }
 
     .xr-var-name span,
@@ -2196,12 +2480,20 @@ first argument to the function, that appears in the ``def`` statement.
       stroke: currentColor;
       fill: currentColor;
     }
+
+    .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+    .xr-var-data-in:checked + label > .xr-icon-database,
+    .xr-index-data-in:checked + label > .xr-icon-database {
+      color: var(--xr-font-color0);
+      filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+      stroke-width: 0.8px;
+    }
     </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;position&#x27; (time: 601, keypoints: 1, individuals: 3)&gt; Size: 2kB
     False False True False False True False ... True True False True True False
     Coordinates:
       * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
       * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-c34d9ffc-005e-45e0-ac62-b7ddbce4f98a' class='xr-array-in' type='checkbox' ><label for='section-c34d9ffc-005e-45e0-ac62-b7ddbce4f98a' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False True False False True ... True True False True True False</span></div><div class='xr-array-data'><pre>array([[[False, False,  True]],
+      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-311c437c-9a0c-402c-b366-59b41907284f' class='xr-array-in' type='checkbox' ><label for='section-311c437c-9a0c-402c-b366-59b41907284f' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False True False False True ... True True False True True False</span></div><div class='xr-array-data'><pre>array([[[False, False,  True]],
 
            [[False, False,  True]],
 
@@ -2213,10 +2505,10 @@ first argument to the function, that appears in the ``def`` statement.
 
            [[ True,  True, False]],
 
-           [[ True,  True, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-fa453eb9-9d18-463d-a8e5-e5fec23e5de4' class='xr-section-summary-in' type='checkbox'  checked><label for='section-fa453eb9-9d18-463d-a8e5-e5fec23e5de4' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-dca3c2a3-0cc1-4dc6-84e2-84ff6f9955aa' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-dca3c2a3-0cc1-4dc6-84e2-84ff6f9955aa' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1f103350-355d-497c-9109-74d656665bdb' class='xr-var-data-in' type='checkbox'><label for='data-1f103350-355d-497c-9109-74d656665bdb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-b308740d-12b3-44f9-a703-8cc6fd67bd2d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b308740d-12b3-44f9-a703-8cc6fd67bd2d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d8a1569b-4cdb-4cb5-a8b0-747444818c1b' class='xr-var-data-in' type='checkbox'><label for='data-d8a1569b-4cdb-4cb5-a8b0-747444818c1b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-31a8d339-037f-4a39-aac0-d3c363d81505' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-31a8d339-037f-4a39-aac0-d3c363d81505' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ecd5c532-a587-4868-a12f-af93efd789ee' class='xr-var-data-in' type='checkbox'><label for='data-ecd5c532-a587-4868-a12f-af93efd789ee' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-6254100c-8b24-4c91-8101-0c1b9a23ad3d' class='xr-section-summary-in' type='checkbox'  ><label for='section-6254100c-8b24-4c91-8101-0c1b9a23ad3d' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-3a644280-2996-499d-aa42-2c4480fb8bbc' class='xr-index-data-in' type='checkbox'/><label for='index-3a644280-2996-499d-aa42-2c4480fb8bbc' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
+           [[ True,  True, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-1a6d11ea-5cdf-42dd-a538-21d852afcd21' class='xr-section-summary-in' type='checkbox'  checked><label for='section-1a6d11ea-5cdf-42dd-a538-21d852afcd21' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-22ebd76f-adee-455a-9aae-eed7158255ab' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-22ebd76f-adee-455a-9aae-eed7158255ab' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f6f4a1e9-41c5-47ca-bbe3-1a9f5aafa915' class='xr-var-data-in' type='checkbox'><label for='data-f6f4a1e9-41c5-47ca-bbe3-1a9f5aafa915' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-6a61f781-95a5-4a0e-a4b9-b8bcf8649fc3' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6a61f781-95a5-4a0e-a4b9-b8bcf8649fc3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-51b9a4c0-7d9b-4919-806a-01495a35ba9c' class='xr-var-data-in' type='checkbox'><label for='data-51b9a4c0-7d9b-4919-806a-01495a35ba9c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-def37d76-87c5-4f4b-9cc5-f9538976fd0f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-def37d76-87c5-4f4b-9cc5-f9538976fd0f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9dfd2390-29b2-48f9-bc90-6d942ec50998' class='xr-var-data-in' type='checkbox'><label for='data-9dfd2390-29b2-48f9-bc90-6d942ec50998' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-52ed33ef-b7b2-4528-969c-94afc5b17070' class='xr-section-summary-in' type='checkbox'  ><label for='section-52ed33ef-b7b2-4528-969c-94afc5b17070' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-c79657a1-4c76-4609-bb2b-68cc3af1f74b' class='xr-index-data-in' type='checkbox'/><label for='index-c79657a1-4c76-4609-bb2b-68cc3af1f74b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([  0.0,  0.02,  0.04,  0.06,  0.08,   0.1,  0.12,  0.14,  0.16,  0.18,
            ...
            11.82, 11.84, 11.86, 11.88,  11.9, 11.92, 11.94, 11.96, 11.98,  12.0],
-          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-644fabfe-7c2a-4fe0-91be-07b69a22a612' class='xr-index-data-in' type='checkbox'/><label for='index-644fabfe-7c2a-4fe0-91be-07b69a22a612' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-6dd15733-8f4e-445c-acb9-3b70908ac4fc' class='xr-index-data-in' type='checkbox'/><label for='index-6dd15733-8f4e-445c-acb9-3b70908ac4fc' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-bd7b28e2-dee3-462c-b4e2-f0f5102a6271' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-bd7b28e2-dee3-462c-b4e2-f0f5102a6271' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
+          dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=601))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-43c58f0b-b3d8-47d4-a81a-3561473911be' class='xr-index-data-in' type='checkbox'/><label for='index-43c58f0b-b3d8-47d4-a81a-3561473911be' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-76eae52b-48af-4557-a96d-3ac153e49887' class='xr-index-data-in' type='checkbox'/><label for='index-76eae52b-48af-4557-a96d-3ac153e49887' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-f2072a55-6d3a-49e5-a537-6182022b8fc3' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-f2072a55-6d3a-49e5-a537-6182022b8fc3' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
@@ -2276,28 +2568,76 @@ analysis code from trying to broadcast along the wrong dimension.
      */
 
     :root {
-      --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-      --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-      --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-      --xr-border-color: var(--jp-border-color2, #e0e0e0);
-      --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-      --xr-background-color: var(--jp-layout-color0, white);
-      --xr-background-color-row-even: var(--jp-layout-color1, white);
-      --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base rgba(0, 0, 0, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, white)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+      );
     }
 
     html[theme="dark"],
     html[data-theme="dark"],
     body[data-theme="dark"],
     body.vscode-dark {
-      --xr-font-color0: rgba(255, 255, 255, 1);
-      --xr-font-color2: rgba(255, 255, 255, 0.54);
-      --xr-font-color3: rgba(255, 255, 255, 0.38);
-      --xr-border-color: #1f1f1f;
-      --xr-disabled-color: #515151;
-      --xr-background-color: #111111;
-      --xr-background-color-row-even: #111111;
-      --xr-background-color-row-odd: #313131;
+      --xr-font-color0: var(
+        --jp-content-font-color0,
+        var(--pst-color-text-base, rgba(255, 255, 255, 1))
+      );
+      --xr-font-color2: var(
+        --jp-content-font-color2,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+      );
+      --xr-font-color3: var(
+        --jp-content-font-color3,
+        var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+      );
+      --xr-border-color: var(
+        --jp-border-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+      );
+      --xr-disabled-color: var(
+        --jp-layout-color3,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+      );
+      --xr-background-color: var(
+        --jp-layout-color0,
+        var(--pst-color-on-background, #111111)
+      );
+      --xr-background-color-row-even: var(
+        --jp-layout-color1,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+      );
+      --xr-background-color-row-odd: var(
+        --jp-layout-color2,
+        hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+      );
     }
 
     .xr-wrap {
@@ -2353,6 +2693,7 @@ analysis code from trying to broadcast along the wrong dimension.
 
     .xr-section-item input + label {
       color: var(--xr-disabled-color);
+      border: 2px solid transparent !important;
     }
 
     .xr-section-item input:enabled + label {
@@ -2361,7 +2702,7 @@ analysis code from trying to broadcast along the wrong dimension.
     }
 
     .xr-section-item input:focus + label {
-      border: 2px solid var(--xr-font-color0);
+      border: 2px solid var(--xr-font-color0) !important;
     }
 
     .xr-section-item input:enabled + label:hover {
@@ -2493,7 +2834,9 @@ analysis code from trying to broadcast along the wrong dimension.
     .xr-var-item label,
     .xr-var-item > .xr-var-name span {
       background-color: var(--xr-background-color-row-even);
+      border-color: var(--xr-background-color-row-odd);
       margin-bottom: 0;
+      padding-top: 2px;
     }
 
     .xr-var-item > .xr-var-name:hover span {
@@ -2504,6 +2847,7 @@ analysis code from trying to broadcast along the wrong dimension.
     .xr-var-list > li:nth-child(odd) > label,
     .xr-var-list > li:nth-child(odd) > .xr-var-name span {
       background-color: var(--xr-background-color-row-odd);
+      border-color: var(--xr-background-color-row-even);
     }
 
     .xr-var-name {
@@ -2553,8 +2897,15 @@ analysis code from trying to broadcast along the wrong dimension.
     .xr-var-data,
     .xr-index-data {
       display: none;
-      background-color: var(--xr-background-color) !important;
-      padding-bottom: 5px !important;
+      border-top: 2px dotted var(--xr-background-color);
+      padding-bottom: 20px !important;
+      padding-top: 10px !important;
+    }
+
+    .xr-var-attrs-in + label,
+    .xr-var-data-in + label,
+    .xr-index-data-in + label {
+      padding: 0 1px;
     }
 
     .xr-var-attrs-in:checked ~ .xr-var-attrs,
@@ -2565,6 +2916,12 @@ analysis code from trying to broadcast along the wrong dimension.
 
     .xr-var-data > table {
       float: right;
+    }
+
+    .xr-var-data > pre,
+    .xr-index-data > pre,
+    .xr-var-data > table > tbody > tr {
+      background-color: transparent !important;
     }
 
     .xr-var-name span,
@@ -2626,14 +2983,22 @@ analysis code from trying to broadcast along the wrong dimension.
       stroke: currentColor;
       fill: currentColor;
     }
+
+    .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+    .xr-var-data-in:checked + label > .xr-icon-database,
+    .xr-index-data-in:checked + label > .xr-icon-database {
+      color: var(--xr-font-color0);
+      filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+      stroke-width: 0.8px;
+    }
     </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;position&#x27; (space: 2, keypoints: 1, individuals: 3)&gt; Size: 6B
     False False False False False False
     Coordinates:
       * space        (space) &lt;U1 8B &#x27;x&#x27; &#x27;y&#x27;
       * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-7bc1883c-fe4d-4614-a403-a612792b3cb2' class='xr-array-in' type='checkbox' ><label for='section-7bc1883c-fe4d-4614-a403-a612792b3cb2' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+      * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'position'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-2ce70de4-53f8-4331-8537-81a0c10c2d29' class='xr-array-in' type='checkbox' ><label for='section-2ce70de4-53f8-4331-8537-81a0c10c2d29' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
-           [[False, False, False]]])</pre></div></div></li><li class='xr-section-item'><input id='section-7e77f5b4-9306-4d33-a45d-c7910f870c72' class='xr-section-summary-in' type='checkbox'  checked><label for='section-7e77f5b4-9306-4d33-a45d-c7910f870c72' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-3c4b600b-9085-44ca-8378-fc8aa92e25a6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3c4b600b-9085-44ca-8378-fc8aa92e25a6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-aa413a16-4142-4c03-bf98-c31f75f8b84a' class='xr-var-data-in' type='checkbox'><label for='data-aa413a16-4142-4c03-bf98-c31f75f8b84a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-09ab1141-2ac4-495c-89ce-edde8e1cd64a' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-09ab1141-2ac4-495c-89ce-edde8e1cd64a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-500cadfa-89d2-4516-aa3b-a3311f8024ff' class='xr-var-data-in' type='checkbox'><label for='data-500cadfa-89d2-4516-aa3b-a3311f8024ff' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-d80c17a6-70b8-4ed1-9fcf-7737482c45cb' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d80c17a6-70b8-4ed1-9fcf-7737482c45cb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f197be55-4be6-49f5-8b8d-48d5cf90bf4d' class='xr-var-data-in' type='checkbox'><label for='data-f197be55-4be6-49f5-8b8d-48d5cf90bf4d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-17fdeb40-3e6a-4a4c-b581-a91a3fc00f74' class='xr-section-summary-in' type='checkbox'  ><label for='section-17fdeb40-3e6a-4a4c-b581-a91a3fc00f74' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>space</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-f80b05a4-cb18-4eb1-881b-5fd753994363' class='xr-index-data-in' type='checkbox'/><label for='index-f80b05a4-cb18-4eb1-881b-5fd753994363' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;object&#x27;, name=&#x27;space&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-06966fde-0238-41ad-9de7-54d2cb2cd079' class='xr-index-data-in' type='checkbox'/><label for='index-06966fde-0238-41ad-9de7-54d2cb2cd079' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-71e06824-a426-4a11-bd9a-dc5e211199b1' class='xr-index-data-in' type='checkbox'/><label for='index-71e06824-a426-4a11-bd9a-dc5e211199b1' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-abf6b7d1-a84c-4ac9-bd68-3fe06449c80d' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-abf6b7d1-a84c-4ac9-bd68-3fe06449c80d' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
+           [[False, False, False]]])</pre></div></div></li><li class='xr-section-item'><input id='section-ba079626-64b9-41d5-97cb-2c12bda70be5' class='xr-section-summary-in' type='checkbox'  checked><label for='section-ba079626-64b9-41d5-97cb-2c12bda70be5' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-ca1912e0-5c76-4a03-863e-5eb31affb34d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ca1912e0-5c76-4a03-863e-5eb31affb34d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ba5dab29-e1c2-4c33-8e9b-fad61031abfb' class='xr-var-data-in' type='checkbox'><label for='data-ba5dab29-e1c2-4c33-8e9b-fad61031abfb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-56a96b81-65a4-4080-8e4a-92b8c8b88126' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-56a96b81-65a4-4080-8e4a-92b8c8b88126' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-066c02c6-0a13-40d0-bdcd-d029e4fd5dce' class='xr-var-data-in' type='checkbox'><label for='data-066c02c6-0a13-40d0-bdcd-d029e4fd5dce' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-760c85c8-b61a-43d3-a333-9fd3c50245cc' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-760c85c8-b61a-43d3-a333-9fd3c50245cc' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f2d285bb-bcdc-4524-9504-1413ad1b0207' class='xr-var-data-in' type='checkbox'><label for='data-f2d285bb-bcdc-4524-9504-1413ad1b0207' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-a099a682-0b2f-4dc3-ad80-e005bfa27fcf' class='xr-section-summary-in' type='checkbox'  ><label for='section-a099a682-0b2f-4dc3-ad80-e005bfa27fcf' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>space</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-b649043b-212c-49b3-9bdc-d4448be50e54' class='xr-index-data-in' type='checkbox'/><label for='index-b649043b-212c-49b3-9bdc-d4448be50e54' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;object&#x27;, name=&#x27;space&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-fca95969-31fc-4bc4-a6bd-575464b94cdf' class='xr-index-data-in' type='checkbox'/><label for='index-fca95969-31fc-4bc4-a6bd-575464b94cdf' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;centroid&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-e572fc51-101f-4663-bcb5-14661f09936d' class='xr-index-data-in' type='checkbox'/><label for='index-e572fc51-101f-4663-bcb5-14661f09936d' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-d5bc7114-79cb-4593-bb9d-de90020ffd9b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-d5bc7114-79cb-4593-bb9d-de90020ffd9b' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div>
     </div>
     <br />
     <br />
@@ -2844,7 +3209,7 @@ decorator ourselves in some of these methods!
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.120 seconds)
+   **Total running time of the script:** (0 minutes 1.117 seconds)
 
 
 .. _sphx_glr_download_examples_advanced_broadcasting_your_own_methods.py:

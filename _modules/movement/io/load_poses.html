@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../../../_static/documentation_options.js?v=486e5634"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -117,8 +117,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -453,8 +461,7 @@
 <span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
 <span class="sd">    individual_names : list of str, optional</span>
 <span class="sd">        List of unique names for the individuals in the video. If None</span>
-<span class="sd">        (default), the individuals will be named &quot;individual_0&quot;,</span>
-<span class="sd">        &quot;individual_1&quot;, etc.</span>
+<span class="sd">        (default), the individuals will be named &quot;id_0&quot;, &quot;id_1&quot;, etc.</span>
 <span class="sd">    keypoint_names : list of str, optional</span>
 <span class="sd">        List of unique names for the keypoints in the skeleton. If None</span>
 <span class="sd">        (default), the keypoints will be named &quot;keypoint_0&quot;, &quot;keypoint_1&quot;,</span>
@@ -1163,7 +1170,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">from_anipose_style_df</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;id_0&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from an Anipose 3D dataframe.</span>
 
@@ -1175,7 +1182,7 @@
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame units.</span>
 <span class="sd">    individual_name : str, optional</span>
-<span class="sd">        Name of the individual, by default &quot;individual_0&quot;</span>
+<span class="sd">        Name of the individual, by default &quot;id_0&quot;</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1236,7 +1243,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">from_anipose_file</span><span class="p">(</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+    <span class="n">individual_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;id_0&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from an Anipose 3D .csv file.</span>
 
@@ -1248,7 +1255,7 @@
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame units.</span>
 <span class="sd">    individual_name : str, optional</span>
-<span class="sd">        Name of the individual, by default &quot;individual_0&quot;</span>
+<span class="sd">        Name of the individual, by default &quot;id_0&quot;</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1397,11 +1404,9 @@
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pes</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">position_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">pes</span><span class="o">.</span><span class="n">rate</span><span class="p">:</span>  <span class="c1"># in Hz</span>
-            <span class="n">fps</span> <span class="o">=</span> <span class="n">pes</span><span class="o">.</span><span class="n">rate</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Compute fps from the time differences between timestamps</span>
-            <span class="n">fps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">pes</span><span class="o">.</span><span class="n">timestamps</span><span class="p">))</span>
+        <span class="c1"># Compute fps from time differences between timestamps</span>
+        <span class="c1"># if rate is not available</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="n">pes</span><span class="o">.</span><span class="n">rate</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">pes</span><span class="o">.</span><span class="n">timestamps</span><span class="p">)))</span>
         <span class="n">single_keypoint_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="c1"># create movement dataset with 1 keypoint and 1 individual</span>
             <span class="n">from_numpy</span><span class="p">(</span>

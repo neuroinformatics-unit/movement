@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -574,7 +583,7 @@
 <dd><p>Get paths to sample dataset and any associated frames or videos.</p>
 <p>The data are downloaded from the <code class="docutils literal notranslate"><span class="pre">movement</span></code> data repository to the user’s
 local machine upon first use and are stored in a local cache directory.
-The function returns the paths to the downloaded files.</p>
+The function stores the paths to the downloaded files in a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

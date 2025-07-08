@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -582,7 +591,7 @@ correspond to the names of the given RoIs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – Spatial data to check for inclusion within the <code class="docutils literal notranslate"><span class="pre">regions</span></code>. Must be
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – Spatial data to check for inclusion within the <code class="docutils literal notranslate"><span class="pre">regions</span></code>. Must be
 compatible with the <code class="docutils literal notranslate"><span class="pre">data</span></code> argument to <a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.contains_point" title="movement.roi.base.BaseRegionOfInterest.contains_point"><code class="xref py py-func docutils literal notranslate"><span class="pre">contains_point</span></code></a>.</p></li>
 <li><p><strong>regions</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest"><em>BaseRegionOfInterest</em></a><em>]</em>) – Regions of Interest that the points in <code class="docutils literal notranslate"><span class="pre">data</span></code> will be checked
 against, to see if they lie inside.</p></li>
@@ -592,7 +601,7 @@ against, to see if they lie inside.</p></li>
 <dd class="field-even"><p>A boolean <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> providing occupancy information.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)">xarray.DataArray</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

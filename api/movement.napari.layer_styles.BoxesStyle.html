@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ds_to_napari_tracks &#8212; movement</title>
+    <title>BoxesStyle &#8212; movement</title>
   
   
   
@@ -44,19 +44,19 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert.ds_to_napari_tracks';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.layer_styles.BoxesStyle';</script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert.ds_to_napari_tracks.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.layer_styles.BoxesStyle.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.napari.layer_styles" href="movement.napari.layer_styles.html" />
-    <link rel="prev" title="movement.napari.convert" href="movement.napari.convert.html" /> 
+    <link rel="next" title="LayerStyle" href="movement.napari.layer_styles.LayerStyle.html" />
+    <link rel="prev" title="movement.napari.layer_styles" href="movement.napari.layer_styles.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -417,11 +425,12 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.orientation.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">ds_to_napari_tracks</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -548,9 +557,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.napari.convert.html" class="nav-link">movement.napari.convert</a></li>
+    <li class="breadcrumb-item"><a href="movement.napari.layer_styles.html" class="nav-link">movement.napari.layer_styles</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ds_to_napari_tracks</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">BoxesStyle</span></li>
   </ul>
 </nav>
 </div>
@@ -566,45 +575,79 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="ds-to-napari-tracks">
-<h1>ds_to_napari_tracks<a class="headerlink" href="#ds-to-napari-tracks" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="movement.napari.convert.ds_to_napari_tracks">
-<span class="sig-prename descclassname"><span class="pre">movement.napari.convert.</span></span><span class="sig-name descname"><span class="pre">ds_to_napari_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/convert.html#ds_to_napari_tracks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.convert.ds_to_napari_tracks" title="Link to this definition">#</a></dt>
-<dd><p>Convert <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to napari Tracks array and properties.</p>
+                   <section id="boxesstyle">
+<h1>BoxesStyle<a class="headerlink" href="#boxesstyle" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="movement.napari.layer_styles.BoxesStyle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.napari.layer_styles.</span></span><span class="sig-name descname"><span class="pre">BoxesStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blending='translucent'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_width=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_type='rectangle'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_color='#FFFFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_colormap='turbo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#BoxesStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.BoxesStyle" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle" title="movement.napari.layer_styles.LayerStyle"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerStyle</span></code></a></p>
+<p>Style properties for a napari Shapes layer.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.BoxesStyle.as_kwargs" title="movement.napari.layer_styles.BoxesStyle.as_kwargs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_kwargs</span></code></a>()</p></td>
+<td><p>Return the style properties as a dictionary of kwargs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.napari.layer_styles.BoxesStyle.set_color_by" title="movement.napari.layer_styles.BoxesStyle.set_color_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_color_by</span></code></a>(property, properties_df[, cmap])</p></td>
+<td><p>Color boxes and text by chosen column in the properties DataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.napari.layer_styles.BoxesStyle.set_text_by" title="movement.napari.layer_styles.BoxesStyle.set_text_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_text_by</span></code></a>(property)</p></td>
+<td><p>Set the text property for the boxes layer.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.napari.layer_styles.BoxesStyle.as_kwargs">
+<span class="sig-name descname"><span class="pre">as_kwargs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#movement.napari.layer_styles.BoxesStyle.as_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Return the style properties as a dictionary of kwargs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.napari.layer_styles.BoxesStyle.set_color_by">
+<span class="sig-name descname"><span class="pre">set_color_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#BoxesStyle.set_color_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.BoxesStyle.set_color_by" title="Link to this definition">#</a></dt>
+<dd><p>Color boxes and text by chosen column in the properties DataFrame.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ds</strong> (<em>xr.Dataset</em>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing pose or bounding box tracks,
-confidence scores, and associated metadata.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>property</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to color shape edges
+and associated text by.</p></li>
+<li><p><strong>properties_df</strong> (<em>pd.DataFrame</em>) – The properties DataFrame containing the data for generating the
+colormap.</p></li>
+<li><p><strong>cmap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the colormap to use, otherwise use the edge_colormap.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>data</strong> (<em>np.ndarray</em>) – napari Tracks array with shape (N, 4),
-where N is n_keypoints * n_individuals * n_frames
-and the 4 columns are (track_id, frame_idx, y, x).</p></li>
-<li><p><strong>properties</strong> (<em>pd.DataFrame</em>) – DataFrame with properties (individual, keypoint, time, confidence).</p></li>
-</ul>
-</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>A corresponding napari Points array can be derived from the Tracks array
-by taking its last 3 columns: (frame_idx, y, x). See the documentation
-on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>  and Points <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> layers.</p>
-<p class="rubric">References</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id3" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p><a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">https://napari.org/stable/howtos/layers/tracks.html</a></p>
-</aside>
-<aside class="footnote brackets" id="id4" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
-<p><a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">https://napari.org/stable/howtos/layers/points.html</a></p>
-</aside>
-</aside>
+<p>The input property is expected to be a column in the properties
+dataframe and it is used to define the color of the text. A factorized
+version of the property (“&lt;property&gt;_factorized”) is used to define the
+edges color, and is also expected to be present in the properties
+dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.napari.layer_styles.BoxesStyle.set_text_by">
+<span class="sig-name descname"><span class="pre">set_text_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_styles.html#BoxesStyle.set_text_by"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_styles.BoxesStyle.set_text_by" title="Link to this definition">#</a></dt>
+<dd><p>Set the text property for the boxes layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>property</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The column name in the properties DataFrame to use for text.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -623,20 +666,20 @@ on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1"
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.napari.convert.html"
+       href="movement.napari.layer_styles.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.napari.convert</p>
+        <p class="prev-next-title">movement.napari.layer_styles</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.napari.layer_styles.html"
+       href="movement.napari.layer_styles.LayerStyle.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.napari.layer_styles</p>
+        <p class="prev-next-title">LayerStyle</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -659,7 +702,12 @@ on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1"
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.convert.ds_to_napari_tracks"><code class="docutils literal notranslate"><span class="pre">ds_to_napari_tracks()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.BoxesStyle"><code class="docutils literal notranslate"><span class="pre">BoxesStyle</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.BoxesStyle.as_kwargs"><code class="docutils literal notranslate"><span class="pre">BoxesStyle.as_kwargs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.BoxesStyle.set_color_by"><code class="docutils literal notranslate"><span class="pre">BoxesStyle.set_color_by()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.layer_styles.BoxesStyle.set_text_by"><code class="docutils literal notranslate"><span class="pre">BoxesStyle.set_text_by()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -667,7 +715,7 @@ on the napari Tracks <a class="footnote-reference brackets" href="#id3" id="id1"
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.napari.convert.ds_to_napari_tracks.rst.txt"
+      <li><a href="../_sources/api/movement.napari.layer_styles.BoxesStyle.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

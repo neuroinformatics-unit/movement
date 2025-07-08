@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -570,7 +579,7 @@
 <h1>from_anipose_style_df<a class="headerlink" href="#from-anipose-style-df" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.load_poses.from_anipose_style_df">
-<span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_anipose_style_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'individual_0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_anipose_style_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_anipose_style_df" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_anipose_style_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'id_0'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_anipose_style_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_anipose_style_df" title="Link to this definition">#</a></dt>
 <dd><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset from an Anipose 3D dataframe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -578,7 +587,7 @@
 <li><p><strong>df</strong> (<em>pd.DataFrame</em>) – Anipose triangulation dataframe</p></li>
 <li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The number of frames per second in the video. If None (default),
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame units.</p></li>
-<li><p><strong>individual_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the individual, by default “individual_0”</p></li>
+<li><p><strong>individual_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the individual, by default “id_0”</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -586,7 +595,7 @@ the <code class="docutils literal notranslate"><span class="pre">time</span></co
 and associated metadata.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)">xarray.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.1)">xarray.Dataset</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>

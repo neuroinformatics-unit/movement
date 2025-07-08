@@ -49,11 +49,14 @@ print(ds_wasp)
 def plot_raw_and_smooth_timeseries_and_psd(
     ds_raw,
     ds_smooth,
-    individual="individual_0",
+    individual=None,
     keypoint="stinger",
     space="x",
     time_range=None,
 ):
+    # If no individual is specified, use the first one
+    if individual is None:
+        individual = ds_raw.individuals[0]
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])

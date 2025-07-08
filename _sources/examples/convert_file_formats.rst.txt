@@ -144,7 +144,7 @@ which we can then modify to our liking.
       * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
       * space        (space) <U1 8B 'x' 'y'
       * keypoints    (keypoints) <U9 216B 'snout' 'left_ear' ... 'tail_end'
-      * individuals  (individuals) <U12 48B 'individual_0'
+      * individuals  (individuals) <U4 16B 'id_0'
     Data variables:
         position     (time, space, keypoints, individuals) float32 887kB nan ... ...
         confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
@@ -155,7 +155,7 @@ which we can then modify to our liking.
         time_unit:        seconds
         source_file:      /home/runner/.movement/data/poses/SLEAP_single-mouse_EP... 
 
-    Individuals: ['individual_0']
+    Individuals: ['id_0']
     Keypoints: ['snout' 'left_ear' 'right_ear' 'centre' 'tail_base' 'tail_end']
 
 
@@ -355,7 +355,7 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmps8t2ooe4/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmpxp2sg5gu/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 

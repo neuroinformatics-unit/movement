@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -575,7 +584,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – The input data to be smoothed.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – The input data to be smoothed.</p></li>
 <li><p><strong>window</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The size of the smoothing window, representing the fixed number
 of observations used for each window.</p></li>
 <li><p><strong>polyorder</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The order of the polynomial used to fit the samples. Must be
@@ -584,7 +593,7 @@ less than <code class="docutils literal notranslate"><span class="pre">window</s
 <li><p><strong>print_report</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to print a report on the number of NaNs in the dataset
 before and after smoothing. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Additional keyword arguments are passed to
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.15.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a>.
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.16.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a>.
 Note that the <code class="docutils literal notranslate"><span class="pre">axis</span></code> keyword argument may not be overridden.</p></li>
 </ul>
 </dd>
@@ -593,11 +602,11 @@ Note that the <code class="docutils literal notranslate"><span class="pre">axis<
 provided parameters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)">xarray.DataArray</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.15.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a> function to apply a
+<p>Uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.16.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a> function to apply a
 Savitzky-Golay filter to the input data.
 See the SciPy documentation for more information on that function.
 Whenever one or more NaNs are present in a smoothing window of the

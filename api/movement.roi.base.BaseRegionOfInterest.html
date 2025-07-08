@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -120,8 +120,16 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
-    <p class="title logo__title">movement v0.7.1</p>
+  
+    <p class="title logo__title">movement v0.8.0</p>
   
 </a></div>
     
@@ -418,10 +426,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_tracks.html">ds_to_napari_tracks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_styles.html">movement.napari.layer_styles</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.BoxesStyle.html">BoxesStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.LayerStyle.html">LayerStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.PointsStyle.html">PointsStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_styles.TracksStyle.html">TracksStyle</a></li>
@@ -637,7 +646,7 @@ vector and a given reference vector.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> of spatial positions.</p></li>
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> of spatial positions.</p></li>
 <li><p><strong>boundary_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the allocentric angle to the closest boundary point of
 the region is computed. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>in_degrees</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
@@ -648,7 +657,7 @@ the argument of the same name that is passed to
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -736,9 +745,9 @@ a given individual, or the velocity vector of a given point).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – An array of vectors representing a given direction,
 e.g., the forward vector(s).</p></li>
-<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – <cite>DataArray</cite> of spatial positions, considered the origin of the
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><em>xarray.DataArray</em></a>) – <cite>DataArray</cite> of spatial positions, considered the origin of the
 <code class="docutils literal notranslate"><span class="pre">direction</span></code> vector.</p></li>
 <li><p><strong>boundary_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Passed to <code class="docutils literal notranslate"><span class="pre">compute_approach_vector</span></code> (see Notes). Default
 <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
@@ -747,7 +756,7 @@ returned in radians. Default <code class="docutils literal notranslate"><span cl
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">
