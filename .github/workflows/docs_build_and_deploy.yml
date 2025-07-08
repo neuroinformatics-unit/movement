@@ -40,15 +40,20 @@ jobs:
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@smg/docs-with-artifacts-ci
+        id: build-docs
         with:
           python-version: 3.12
           use-make: true
           fetch-tags: true
           use-artifactci: true
+      - name: Check step outputs
+        run: |
+          echo "Artifact CI run URL: ${{ steps.build-docs.outputs.artifactci_run_url }}"
+          echo "Artifact CI entrypoint 0: ${{ steps.build-docs.outputs.artifactci-entrypoint-0 }}"
       - name: Print preview URLs to step summary
         run: |
           echo "Preview docs for this run attempt at: " >> $GITHUB_STEP_SUMMARY
-          echo "https://www.artifact.ci/artifact/view/neuroinformatics-unit/movement/run/${{ github.run_id }}.${{ github.run_attempt }}/docs-build/html/index.html" \
+          echo "https://www.artifact.ci/artifact/view/neuroinformatics-unit/movement/run/${{ github.run_id }}.${{ github.run_attempt }}/docs-build/docs/build/html/index.html" \
           >> $GITHUB_STEP_SUMMARY
 
   deploy_sphinx_docs:
