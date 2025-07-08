@@ -318,3 +318,71 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+@pytest.fixture
+def valid_data_array_for_u_turn_detection():
+    """Return a position data array for an individual with 3 keypoints
+    (left ear, right ear, and nose), tracked for 4 frames, in x-y space.
+    """
+    time = [0, 1, 2, 3]
+    keypoints = ["left_ear", "right_ear", "nose"]
+    space = ["x", "y"]
+
+    ds = xr.DataArray(
+        [
+            [[-1, 0], [1, 0], [0, 1]],  # time 0
+            [[0, 2], [0, 0], [1, 1]],  # time 1
+            [[2, 1], [0, 1], [1, 0]],  # time 2
+            [[1, -1], [1, 1], [0, 0]],  # time 3
+        ],
+        dims=["time", "keypoints", "space"],
+        coords={
+            "time": time,
+            "keypoints": keypoints,
+            "space": space,
+        },
+    )
+    return ds
+
+
+def test_detect_u_turns(valid_data_array_for_u_turn_detection):
+    """Test that U-turn detection works correctly using a mock dataset."""
+    # Forward vector method
+    u_turn_forward_vector = kinematics.detect_u_turns(
+        valid_data_array_for_u_turn_detection, use_direction="forward_vector"
+    )
+    assert u_turn_forward_vector.item() is True
+
+    # Displacement method (nose-only)
+    nose_data = valid_data_array_for_u_turn_detection.sel(
+        keypoints="nose"
+    ).drop_vars("keypoints")
+    u_turn_displacement = kinematics.detect_u_turns(
+        nose_data, use_direction="displacement"
+    )
+    assert u_turn_displacement.item() is True
+
+    # Stricter threshold - displacement should return False
+    strict_displacement = kinematics.detect_u_turns(
+        nose_data, use_direction="displacement", u_turn_threshold=np.pi * 7 / 6
+    )
+    assert strict_displacement.item() is False
+
+    # Stricter threshold - forward vector still returns True
+    strict_forward_vector = kinematics.detect_u_turns(
+        valid_data_array_for_u_turn_detection,
+        use_direction="forward_vector",
+        u_turn_threshold=np.pi * 7 / 6,
+    )
+    assert strict_forward_vector.item() is True
+
+    # Invalid use_direction check
+    with pytest.raises(
+        ValueError,
+        match="must be one of `forward_vector`.*but got invalid_direction",
+    ):
+        kinematics.detect_u_turns(
+            valid_data_array_for_u_turn_detection,
+            use_direction="invalid_direction",
+        )
