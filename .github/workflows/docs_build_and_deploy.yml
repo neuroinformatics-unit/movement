@@ -46,10 +46,6 @@ jobs:
           use-make: true
           fetch-tags: true
           use-artifactci: true
-      - name: Check step outputs
-        run: |
-          echo "Artifact CI run URL: ${{ steps.build-docs.outputs.artifactci-run-url }}"
-          echo "Artifact CI entrypoint 0: ${{ steps.build-docs.outputs.artifactci-entrypoint-0 }}"
       - name: Print preview URLs to step summary
         run: |
           echo "Preview docs for this run attempt at: " >> $GITHUB_STEP_SUMMARY
