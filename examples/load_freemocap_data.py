@@ -1,7 +1,7 @@
 """Load and view FreeMoCap Data
 ==========================================
 
-Load the ``.npy`` files from FreeMoCap into movement and visualise them.
+Load the ``.csv`` files from FreeMoCap into movement and visualise them.
 """
 
 # %%
@@ -11,6 +11,8 @@ import os as os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import xarray as xr
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 from movement import sample_data
@@ -28,53 +30,63 @@ session_dir_path = sample_data.fetch_dataset_paths(
 
 path_hello = os.path.join(
     session_dir_path,
-    "recording_15_37_37_gmt+1/output_data/mediapipe_right_hand_3d_xyz.npy",
+    "recording_15_37_37_gmt+1/output_data",
 )
 path_world = os.path.join(
     session_dir_path,
-    "recording_15_45_49_gmt+1/output_data/mediapipe_right_hand_3d_xyz.npy",
+    "recording_15_45_49_gmt+1/output_data",
 )
 
-data_hello = np.load(path_hello)
-data_world = np.load(path_world)
 
-# Adding an extra dimension to represent the singular individual person
-data_hello = np.array([data_hello])
-data_world = np.array([data_world])
 # %%
-# Transposing to match the ``[TIME, SPACE, KEYPOINT, INDIVIDUAL]`` order
-print("Shape before transposing: ", data_hello.shape)
-data_transposed_hello = np.transpose(data_hello, [1, 3, 2, 0])
-data_transposed_world = np.transpose(data_world, [1, 3, 2, 0])
-print("Shape after transposing: ", data_transposed_hello.shape)
-# %%
-# Loading the data into movement.
-ds_hello = load_poses.from_numpy(
-    position_array=data_transposed_hello,
-    confidence_array=np.ones(np.delete(data_transposed_hello.shape, 1)),
-    individual_names=["person_0"],
-)
-ds_world = load_poses.from_numpy(
-    position_array=data_transposed_world,
-    confidence_array=np.ones(np.delete(data_transposed_world.shape, 1)),
-    individual_names=["person_0"],
-)
+# Load FreeMoCap data into movement
+# ---------------------------------
+# This function combines all FreeMoCap output
+# ``.csv`` files into one ``xarray Dataset``.
+def load_body_pose_FMC(folder_path, person_name="person_0"):
+    components = ["body", "left_hand", "right_hand", "face"]
+    full_data = xr.Dataset()
+    for c in components:
+        data_pd = pd.read_csv(
+            os.path.join(folder_path, f"mediapipe_{c}_3d_xyz.csv")
+        )
+        headers = data_pd.columns
+        data = data_pd.to_numpy()
+        data = np.array(
+            [data.reshape(data.shape[0], int(data.shape[1] / 3), 3)]
+        )
+        # Transpose to align with movement data shape
+        data_transposed = np.transpose(data, [1, 3, 2, 0])
+        ds = load_poses.from_numpy(
+            position_array=data_transposed,
+            confidence_array=np.ones(np.delete(data_transposed.shape, 1)),
+            individual_names=[person_name],
+            # Select and trim header names
+            keypoint_names=[a[:-2] for a in headers[::3]],
+        )
+        # Merge all of the Datasets into one, along the keypoints axis
+        full_data = full_data.merge(ds, 2)
+    return full_data
+
+
+ds_hello = load_body_pose_FMC(path_hello)
+ds_world = load_body_pose_FMC(path_world)
 # %%
 # Selecting and adjusting the data before plotting.
 
 # Trimming to the correct frames and selecting the individual
-ds_hello = ds_hello.sel(time=range(30, 190), individuals="person_0")
+ds_hello = ds_hello.sel(time=range(30, 180), individuals="person_0")
 ds_world = ds_world.sel(time=range(150), individuals="person_0")
 
-# Select the ``keypoint_8`` (in the finger)
-position_hello = ds_hello.position.sel(keypoints="keypoint_8")
-position_world = ds_world.position.sel(keypoints="keypoint_8")
+# Select the ``right_hand_0007`` (in the finger)
+position_hello = ds_hello.position.sel(keypoints="right_hand_0007")
+position_world = ds_world.position.sel(keypoints="right_hand_0007")
 
 x_hello = position_hello.sel(space="x")
 z_hello = position_hello.sel(space="z")
 y_hello = position_hello.sel(space="y")
 x_world = position_world.sel(space="x")
-# Separate from "hello" by translating on z axis
+# Separate "world" by translating on z axis
 z_world = position_world.sel(space="z") - 400
 y_world = position_world.sel(space="y")
 
