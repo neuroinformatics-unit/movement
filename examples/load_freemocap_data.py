@@ -48,7 +48,7 @@ data_transposed_hello = np.transpose(data_hello, [1, 3, 2, 0])
 data_transposed_world = np.transpose(data_world, [1, 3, 2, 0])
 print("Shape after transposing: ", data_transposed_hello.shape)
 # %%
-# Loading the data into movement
+# Loading the data into movement.
 ds_hello = load_poses.from_numpy(
     position_array=data_transposed_hello,
     confidence_array=np.ones(np.delete(data_transposed_hello.shape, 1)),
@@ -60,11 +60,14 @@ ds_world = load_poses.from_numpy(
     individual_names=["person_0"],
 )
 # %%
+# Selecting and adjusting the data before plotting.
+
 # Trimming to the correct frames and selecting the individual
 ds_hello = ds_hello.sel(time=range(30, 190), individuals="person_0")
 ds_world = ds_world.sel(time=range(150), individuals="person_0")
 
-position_hello = ds_hello.position.sel(keypoints="keypoint_9")
+# Select the ``keypoint_8`` (in the finger)
+position_hello = ds_hello.position.sel(keypoints="keypoint_8")
 position_world = ds_world.position.sel(keypoints="keypoint_8")
 
 x_hello = position_hello.sel(space="x")
@@ -79,7 +82,7 @@ y_world = position_world.sel(space="y")
 # %%
 # 3D coloured line function
 # -------------------------
-# This function acts to render a line with changing colours. Adapted from
+# This function acts to render a multi-coloured line. Adapted from
 # `Matplotlib segmented example <https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html>`_.
 def colored_line_3d(x, y, z, c, ax, **lc_kwargs):
     x, y, z = (np.asarray(arr).ravel() for arr in (x, y, z))
@@ -104,7 +107,9 @@ def colored_line_3d(x, y, z, c, ax, **lc_kwargs):
 
 
 # %%
-# Plot A: x,y,z where time determines colour
+# Plot A: Frame
+# -------------
+# ``x, y, z`` where time determines colour.
 fig_a = plt.figure()
 axes_a = fig_a.add_subplot(projection="3d")
 
@@ -132,7 +137,9 @@ colored_line_3d(
 # Change view orientation
 axes_a.view_init(elev=-20, azim=137, roll=0)
 # %%
-# Plot B: x,y,z where speed determines colour
+# Plot B: Speed
+# -------------
+# ``x, y, z`` where speed determines colour.
 fig_b = plt.figure()
 axes_b = fig_b.add_subplot(projection="3d")
 
@@ -159,6 +166,3 @@ colored_line_3d(
 
 # Change view orientation
 axes_b.view_init(elev=-20, azim=137, roll=0)
-
-
-# %%
