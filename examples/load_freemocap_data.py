@@ -6,10 +6,14 @@ Load the ..
 
 # %%
 # %matplotlib widget
+import os as os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 from movement.io import load_poses
+
+# %%
 
 path_hello = (
     "C:/Users/Max/Downloads/session_2025-07-08_15_35_19/"
@@ -42,24 +46,22 @@ ds_world = load_poses.from_numpy(
     confidence_array=np.ones(np.delete(data_transposed_world.shape, 1)),
     individual_names=["person_0"],
 )
+
+# %%
+
+
 # %%
 position_hello = ds_hello.position
 position_world = ds_world.position
-# %%
-# fig3d = plt.figure()
-# ax3d = fig3d.add_subplot(projection='3d')
-# for i in range(21):
-#     x=position_hello.sel(keypoints=f"keypoint_{i}", space="x")
-#     z=position_hello.sel(keypoints=f"keypoint_{i}", space="z")
-#     y=position_hello.sel(keypoints=f"keypoint_{i}", space="y")
-#     t=position_hello.time
-#     ax3d.plot(x,y,z,".-")
+
+
 fig3d = plt.figure()
 ax3d = fig3d.add_subplot(projection="3d")
-for i in range(2, 12):
-    x = position_world.sel(keypoints=f"keypoint_{i}", space="x")
-    z = position_world.sel(keypoints=f"keypoint_{i}", space="z")
-    y = position_world.sel(keypoints=f"keypoint_{i}", space="y")
-    t = position_world.time
-    ax3d.plot(x, y, z, ".-")
+x = position_world.sel(keypoints="keypoint_7", space="x")
+z = position_world.sel(keypoints="keypoint_7", space="z")
+y = position_world.sel(keypoints="keypoint_7", space="y")
+t = position_world.time
+ax3d.plot(x, y, z, ".-")
+
+
 # %%
