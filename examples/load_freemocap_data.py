@@ -74,8 +74,14 @@ def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
     return full_data
 
 
+# We can now use the helper function to read the files in each recording directory as a ``movement`` dataset
 ds_hello = load_body_pose_FMC(path_hello)
+print(ds_hello)
+
 ds_world = load_body_pose_FMC(path_world)
+print(ds_world)
+
+# Note that each ``movement`` dataset holds the data for all keypoints across all models used by FreeMoCap.
 # %%
 # Selecting and adjusting the data before plotting.
 
