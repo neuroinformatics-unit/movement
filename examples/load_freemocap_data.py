@@ -7,7 +7,7 @@ Load the ``.csv`` files from FreeMoCap into movement and visualise them.
 # %%
 # Imports
 # -------
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,24 +22,43 @@ from movement.kinematics import compute_speed
 # %%
 # Load sample dataset
 # -------------------
-# In this tutorial, we will show how we can import 3D data collected with [FreeMoCap](https://freemocap.org/) into ``movement``. 
+# In this tutorial, we will show how we can import 3D data
+# collected with
+# `FreeMoCap <https://freemocap.org>`_
+# into ``movement``.
 #
-# FreeMoCap organises the collected data into timestamped `session` directories, which will usually hold several `recording` directories each. For each recording, FreeMoCap produces several `.csv` files (under the `output_data` directory), each referring in its name to the model used to produce it (e.g. `face`, `body`, `left_hand`, `right_hand`). Each output `.csv` file will have 3xN columns, with N being the number of keypoints used by the model.
+# FreeMoCap organises the collected data into timestamped `session`
+# directories, which hold ``recordings``. For each recording,
+# FreeMoCap produces several ``.csv`` files
+# (under the ``output_data`` directory),
+# each referring to different models
+# (e.g. ``face``, ``body``, ``left_hand``, ``right_hand``).
+# The output ``.csv`` files will have 3xN columns, with N being the
+# number of keypoints used by the model.
 #
-# Here we will demonstrate how we can load all output files from a single recording as a single `movement` dataset.
+# Here we will demonstrate how we can load all output files from a single
+# recording into a unified ``movement`` dataset.
 #
-# To do this, we will use a FreeMoCap dataset of a single session folder with two recordings. In the first recording, a human writes the word "hello" in the air with their index finger ("recording_15_37_37_gmt+1"). In the second recording, they write the word "world" ("recording_15_45_49_gmt+1"). Let's first fetch the dataset using the `sample_data` module.
-session_dir_path = sample_data.fetch_dataset_paths(
-    "FreeMoCap_hello-world_session-folder.zip"
-)["poses"]
-
-path_hello = os.path.join(
-    session_dir_path,
-    "recording_15_37_37_gmt+1/output_data",
+# To do this, we will use a FreeMoCap dataset of a single
+# session folder with two recordings. In the first recording,
+# a human writes the word "hello" in the air
+# with their index finger ("recording_15_37_37_gmt+1").
+# In the second recording, they write the word "world"
+# ("recording_15_45_49_gmt+1"). Let's first fetch the
+# dataset using the ``sample_data`` module.
+session_dir_path = Path(
+    sample_data.fetch_dataset_paths(
+        "FreeMoCap_hello-world_session-folder.zip"
+    )["poses"]
 )
-path_world = os.path.join(
-    session_dir_path,
-    "recording_15_45_49_gmt+1/output_data",
+
+print("Path to recordings: ", session_dir_path)
+
+recording_dir_hello = session_dir_path.joinpath(
+    "recording_15_37_37_gmt+1/output_data"
+)
+recording_dir_world = session_dir_path.joinpath(
+    "recording_15_45_49_gmt+1/output_data"
 )
 
 
@@ -53,7 +72,7 @@ def load_body_pose_FMC(folder_path, person_name="person_0"):
     full_data = xr.Dataset()
     for c in components:
         data_pd = pd.read_csv(
-            os.path.join(folder_path, f"mediapipe_{c}_3d_xyz.csv")
+            folder_path.joinpath(f"mediapipe_{c}_3d_xyz.csv")
         )
         headers = data_pd.columns
         data = data_pd.to_numpy()
@@ -74,8 +93,8 @@ def load_body_pose_FMC(folder_path, person_name="person_0"):
     return full_data
 
 
-ds_hello = load_body_pose_FMC(path_hello)
-ds_world = load_body_pose_FMC(path_world)
+ds_hello = load_body_pose_FMC(recording_dir_hello)
+ds_world = load_body_pose_FMC(recording_dir_world)
 # %%
 # Selecting and adjusting the data before plotting.
 
