@@ -65,10 +65,10 @@ recording_dir_world = session_dir_path.joinpath(
 # %%
 # Load FreeMoCap output files as a single ``movement`` dataset
 # ---------------------------------
-# This function combines all FreeMoCap output
-# ``.csv`` files into one ``xarray Dataset``.
-def load_body_pose_FMC(folder_path, person_name="person_0"):
-    components = ["body", "left_hand", "right_hand", "face"]
+# We will use the helper function below to combine all FreeMoCap output
+# ``.csv`` files into one ``movement`` dataset.
+def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
+    model = ["body", "left_hand", "right_hand", "face"]
     full_data = xr.Dataset()
     for c in components:
         data_pd = pd.read_csv(
