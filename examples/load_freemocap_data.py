@@ -44,7 +44,7 @@ path_world = os.path.join(
 
 
 # %%
-# Load FreeMoCap data into movement
+# Load FreeMoCap output files as a single ``movement`` dataset
 # ---------------------------------
 # This function combines all FreeMoCap output
 # ``.csv`` files into one ``xarray Dataset``.
