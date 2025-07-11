@@ -7,6 +7,7 @@ Load the ``.csv`` files from FreeMoCap into movement and visualise them.
 # %%
 # Imports
 # -------
+import re
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -69,32 +70,40 @@ recording_dir_world = session_dir_path.joinpath(
 # ``.csv`` files into one ``movement`` dataset.
 def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
     model = ["body", "left_hand", "right_hand", "face"]
-    full_data = xr.Dataset()
-    for c in components:
-        data_pd = pd.read_csv(
-            folder_path.joinpath(f"mediapipe_{c}_3d_xyz.csv")
+    ds_unified = xr.Dataset()
+    for c in model:
+        df = pd.read_csv(
+            recording_dir_path.joinpath(f"mediapipe_{c}_3d_xyz.csv")
         )
-        headers = data_pd.columns
-        data = data_pd.to_numpy()
+        list_columns = list(df.columns)
+        data = df.to_numpy()
         data = np.array(
             [data.reshape(data.shape[0], int(data.shape[1] / 3), 3)]
         )
-        # Transpose to align with movement data shape
-        data_transposed = np.transpose(data, [1, 3, 2, 0])
+
+        # Split data array
+        data_split = np.split(data, int(data.shape[1] / 3), axis=1)
+        # returns a list of (M,3) arrays, one per keypoint
+
+        # Stack arrays along new "keypoint" dimension to get the position array
+        position_array = np.stack(data_split, axis=-1)[:, :, :, None]
+        # (n_frames, 3, n_keypoints, 1), for 3D coordinates and one individual
+
         ds = load_poses.from_numpy(
-            position_array=data_transposed,
-            confidence_array=np.ones(np.delete(data_transposed.shape, 1)),
-            individual_names=[person_name],
+            position_array,
+            individual_names=[individual_name],
             # Select and trim header names
-            keypoint_names=[a[:-2] for a in headers[::3]],
+            keypoint_names=[
+                re.sub(r"_[xyz]$", "", col) for col in set(list_columns)
+            ],
         )
         # Merge all of the Datasets into one, along the keypoints axis
-        full_data = full_data.merge(ds, 2)
-    return full_data
+        ds_unified = ds_unified.merge(ds, 2)
+    return ds_unified
 
 
-ds_hello = load_body_pose_FMC(recording_dir_hello)
-ds_world = load_body_pose_FMC(recording_dir_world)
+ds_hello = read_freemocap_as_ds(recording_dir_hello)
+ds_world = read_freemocap_as_ds(recording_dir_world)
 # %%
 # Selecting and adjusting the data before plotting.
 
