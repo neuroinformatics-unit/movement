@@ -7,7 +7,7 @@ Load the ``.csv`` files from FreeMoCap into movement and visualise them.
 # %%
 # Imports
 # -------
-import os as os
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
