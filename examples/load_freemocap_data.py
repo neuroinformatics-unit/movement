@@ -85,13 +85,9 @@ print(ds_world)
 # %%
 # Selecting and adjusting the data before plotting.
 
-# Trimming to the correct frames and selecting the individual
-ds_hello = ds_hello.sel(time=range(30, 180), individuals="person_0")
-ds_world = ds_world.sel(time=range(150), individuals="person_0")
-
-# Select the ``right_hand_0007`` (in the finger)
-position_hello = ds_hello.position.sel(keypoints="right_hand_0007")
-position_world = ds_world.position.sel(keypoints="right_hand_0007")
+# Select the relevant time window for each dataset to extract the trajectory of the ``right_hand_0007`` keypoint (a point in the finger)
+position_hello = ds_hello.position.sel(time=range(30, 180), keypoints="right_hand_0007", individuals="person_0")
+position_world = ds_world.position.sel(time=range(150), keypoints="right_hand_0007", individuals="person_0")
 
 x_hello = position_hello.sel(space="x")
 z_hello = position_hello.sel(space="z")
