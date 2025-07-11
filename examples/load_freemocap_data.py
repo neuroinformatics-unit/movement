@@ -22,8 +22,13 @@ from movement.kinematics import compute_speed
 # %%
 # Load sample dataset
 # -------------------
-# We will use two FreeMoCap 3D tracked videos of a person tracing
-# out "hello" and "world" with their finger.
+# In this tutorial, we will show how we can import 3D data collected with [FreeMoCap](https://freemocap.org/) into ``movement``. 
+#
+# FreeMoCap organises the collected data into timestamped `session` directories, which will usually hold several `recording` directories each. For each recording, FreeMoCap produces several `.csv` files (under the `output_data` directory), each referring in its name to the model used to produce it (e.g. `face`, `body`, `left_hand`, `right_hand`). Each output `.csv` file will have 3xN columns, with N being the number of keypoints used by the model.
+#
+# Here we will demonstrate how we can load all output files from a single recording as a single `movement` dataset.
+#
+# To do this, we will use a FreeMoCap dataset of a single session folder with two recordings. In the first recording, a human writes the word "hello" in the air with their index finger ("recording_15_37_37_gmt+1"). In the second recording, they write the word "world" ("recording_15_45_49_gmt+1"). Let's first fetch the dataset using the `sample_data` module.
 session_dir_path = sample_data.fetch_dataset_paths(
     "FreeMoCap_hello-world_session-folder.zip"
 )["poses"]
