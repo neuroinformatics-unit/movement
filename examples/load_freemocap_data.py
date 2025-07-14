@@ -77,10 +77,6 @@ def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
         )
         list_columns = list(df.columns)
         data = df.to_numpy()
-        data = np.array(
-            [data.reshape(data.shape[0], int(data.shape[1] / 3), 3)]
-        )
-
         # Split data array
         data_split = np.split(data, int(data.shape[1] / 3), axis=1)
         # returns a list of (M,3) arrays, one per keypoint
@@ -93,9 +89,9 @@ def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
             position_array,
             individual_names=[individual_name],
             # Select and trim header names
-            keypoint_names=[
-                re.sub(r"_[xyz]$", "", col) for col in set(list_columns)
-            ],
+            keypoint_names=set(
+                [re.sub(r"_[xyz]$", "", col) for col in list_columns]
+            ),
         )
         # Merge all of the Datasets into one, along the keypoints axis
         ds_unified = ds_unified.merge(ds, 2)
@@ -105,31 +101,29 @@ def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
 ds_hello = read_freemocap_as_ds(recording_dir_hello)
 ds_world = read_freemocap_as_ds(recording_dir_world)
 # %%
+# Visualising the data
+# --------------------
 # Selecting and adjusting the data before plotting.
 
-# Trimming to the correct frames and selecting the individual
+# We trim the data to select a specific time window
+# (when the desired movement is taking place)
+# and selecting the individual.
 ds_hello = ds_hello.sel(time=range(30, 180), individuals="person_0")
 ds_world = ds_world.sel(time=range(150), individuals="person_0")
 
-# Select the ``right_hand_0007`` (in the finger)
-position_hello = ds_hello.position.sel(keypoints="right_hand_0007")
-position_world = ds_world.position.sel(keypoints="right_hand_0007")
-
-x_hello = position_hello.sel(space="x")
-z_hello = position_hello.sel(space="z")
-y_hello = position_hello.sel(space="y")
-x_world = position_world.sel(space="x")
-# Separate "world" by translating on z axis
-z_world = position_world.sel(space="z") - 400
-y_world = position_world.sel(space="y")
+# Select the ``keypoint`` ``right_hand_0006`` (in the finger),
+# which is being used for writing.
+position_hello = ds_hello.position.sel(keypoints="right_hand_0006")
+position_world = ds_world.position.sel(keypoints="right_hand_0006")
 
 
 # %%
 # 3D coloured line function
-# -------------------------
 # This function acts to render a multi-coloured line. Adapted from
 # `Matplotlib segmented example <https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html>`_.
-def colored_line_3d(x, y, z, c, ax, **lc_kwargs):
+def colored_scatter_line_3d(x, y, z, c, s, ax, **lc_kwargs):
+    ax.scatter(x, y, z, c=frame_hello, s=s, cmap=colour_map_a)
+
     x, y, z = (np.asarray(arr).ravel() for arr in (x, y, z))
     default_kwargs = {"capstyle": "butt"}
     default_kwargs.update(lc_kwargs)
@@ -151,7 +145,6 @@ def colored_line_3d(x, y, z, c, ax, **lc_kwargs):
     return lc
 
 
-# %%
 # Plot A: Frame
 # -------------
 # ``x, y, z`` where time determines colour.
@@ -165,23 +158,31 @@ frame_hello = ds_hello.time
 frame_world = ds_world.time
 
 # Add "hello" scatter and line
-axes_a.scatter(
-    x_hello, y_hello, z_hello, c=frame_hello, s=5, cmap=colour_map_a
-)
-colored_line_3d(
-    x_hello, y_hello, z_hello, ax=axes_a, c=frame_hello, cmap=colour_map_a
+
+colored_scatter_line_3d(
+    position_hello.sel(space="x"),
+    position_hello.sel(space="y"),
+    position_hello.sel(space="z"),
+    ax=axes_a,
+    c=frame_hello,
+    s=5,
+    cmap=colour_map_a,
 )
 # Add "world" scatter and line
-axes_a.scatter(
-    x_world, y_world, z_world, c=frame_world, s=5, cmap=colour_map_a
-)
-colored_line_3d(
-    x_world, y_world, z_world, ax=axes_a, c=frame_world, cmap=colour_map_a
+
+colored_scatter_line_3d(
+    position_world.sel(space="x"),
+    position_world.sel(space="y"),
+    position_world.sel(space="z") - 400,
+    ax=axes_a,
+    c=frame_world,
+    s=5,
+    cmap=colour_map_a,
 )
 
 # Change view orientation
 axes_a.view_init(elev=-20, azim=137, roll=0)
-# %%
+
 # Plot B: Speed
 # -------------
 # ``x, y, z`` where speed determines colour.
@@ -195,19 +196,28 @@ speed_hello = compute_speed(position_hello)
 speed_world = compute_speed(position_world)
 
 # Add "hello" scatter and line
-axes_b.scatter(
-    x_hello, y_hello, z_hello, c=speed_hello, s=5, cmap=colour_map_b
-)
-colored_line_3d(
-    x_hello, y_hello, z_hello, ax=axes_b, c=speed_hello, cmap=colour_map_b
+colored_scatter_line_3d(
+    position_hello.sel(space="x"),
+    position_hello.sel(space="y"),
+    position_hello.sel(space="z"),
+    ax=axes_b,
+    c=speed_hello,
+    s=5,
+    cmap=colour_map_b,
 )
 # Add "world" scatter and line
-axes_b.scatter(
-    x_world, y_world, z_world, c=speed_world, s=5, cmap=colour_map_b
-)
-colored_line_3d(
-    x_world, y_world, z_world, ax=axes_b, c=speed_world, cmap=colour_map_b
+colored_scatter_line_3d(
+    position_world.sel(space="x"),
+    position_world.sel(space="y"),
+    position_world.sel(space="z") - 400,
+    ax=axes_b,
+    c=speed_world,
+    s=5,
+    cmap=colour_map_b,
 )
 
 # Change view orientation
 axes_b.view_init(elev=-20, azim=137, roll=0)
+
+
+# %%
