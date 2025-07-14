@@ -121,8 +121,8 @@ position_world = ds_world.position.sel(keypoints="right_hand_0006")
 # 3D coloured line function
 # This function acts to render a multi-coloured line. Adapted from
 # `Matplotlib segmented example <https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html>`_.
-def colored_scatter_line_3d(x, y, z, c, s, ax, **lc_kwargs):
-    ax.scatter(x, y, z, c=frame_hello, s=s, cmap=colour_map_a)
+def coloured_scatter_line_3d(x, y, z, c, s, ax, **lc_kwargs):
+    ax.scatter(x, y, z, c=c, s=s, **lc_kwargs)
 
     x, y, z = (np.asarray(arr).ravel() for arr in (x, y, z))
     default_kwargs = {"capstyle": "butt"}
@@ -159,7 +159,7 @@ frame_world = ds_world.time
 
 # Add "hello" scatter and line
 
-colored_scatter_line_3d(
+coloured_scatter_line_3d(
     position_hello.sel(space="x"),
     position_hello.sel(space="y"),
     position_hello.sel(space="z"),
@@ -170,7 +170,7 @@ colored_scatter_line_3d(
 )
 # Add "world" scatter and line
 
-colored_scatter_line_3d(
+coloured_scatter_line_3d(
     position_world.sel(space="x"),
     position_world.sel(space="y"),
     position_world.sel(space="z") - 400,
@@ -196,7 +196,7 @@ speed_hello = compute_speed(position_hello)
 speed_world = compute_speed(position_world)
 
 # Add "hello" scatter and line
-colored_scatter_line_3d(
+coloured_scatter_line_3d(
     position_hello.sel(space="x"),
     position_hello.sel(space="y"),
     position_hello.sel(space="z"),
@@ -206,7 +206,7 @@ colored_scatter_line_3d(
     cmap=colour_map_b,
 )
 # Add "world" scatter and line
-colored_scatter_line_3d(
+coloured_scatter_line_3d(
     position_world.sel(space="x"),
     position_world.sel(space="y"),
     position_world.sel(space="z") - 400,
