@@ -45,8 +45,8 @@ arena_ax.set_ylabel("y (pixels)")
 arena_fig.show()
 
 # %%
-# The `arena
-# <https://sainsburywellcomecentre.github.io/aeon_docs/user/aeon_modules/hardware/habitat.html>`_
+# The
+# `arena <https://sainsburywellcomecentre.github.io/aeon_docs/reference/hardware/habitat.html>`_
 # is divided up into three main sub-regions. The cuboidal structure
 # on the right-hand-side of the arena is the nest of the three individuals
 # taking part in the experiment. The majority of the arena is an open
