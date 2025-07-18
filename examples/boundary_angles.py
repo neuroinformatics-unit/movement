@@ -25,31 +25,32 @@ from movement.roi import PolygonOfInterest
 # Load sample dataset
 # -------------------
 # In this example, we will use the ``SLEAP_three-mice_Aeon_proofread`` example
-# dataset. We only need the ``position`` data array, so we store it in a
+# dataset collected using the `Aeon <https://aeon.swc.ucl.ac.uk/>`_ platform.
+# We only need the ``position`` data array, so we store it in a
 # separate variable.
 
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
 
 # %%
-# The data we have loaded used an arena setup that we have plotted below.
+# Below we plot the image of the
+# `Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat.html>`_
+# within which the dataset was recorded.
 
-arena_fig, arena_ax = plt.subplots(1, 1)
-# Overlay an image of the experimental arena
-arena_image = ds.frame_path
-arena_ax.imshow(plt.imread(arena_image))
+habitat_fig, habitat_ax = plt.subplots(1, 1)
+# Overlay an image of the habitat
+habitat_image = ds.frame_path
+habitat_ax.imshow(plt.imread(habitat_image))
 
-arena_ax.set_xlabel("x (pixels)")
-arena_ax.set_ylabel("y (pixels)")
+habitat_ax.set_xlabel("x (pixels)")
+habitat_ax.set_ylabel("y (pixels)")
 
-arena_fig.show()
+habitat_fig.show()
 
 # %%
-# The
-# `arena <https://sainsburywellcomecentre.github.io/aeon_docs/reference/hardware/habitat.html>`_
-# is divided up into three main sub-regions. The cuboidal structure
-# on the right-hand-side of the arena is the nest of the three individuals
-# taking part in the experiment. The majority of the arena is an open
+# The habitat is divided up into three main sub-regions. The cuboidal structure
+# on the right-hand-side of the habitat is the nest of the three individuals
+# taking part in the experiment. The majority of the habitat is an open
 # octadecagonal (18-sided) shape, which is the bright central region that
 # encompasses most of the image. This central region is surrounded by a
 # (comparatively thin) "ring", which links the central region to the nest.
@@ -60,8 +61,8 @@ arena_fig.show()
 # Define regions of interest
 # --------------------------
 # In order to ask questions about the behaviour of our individuals with respect
-# to the arena, we first need to define the RoIs to represent the separate
-# pieces of our arena programmatically. Since each part of our arena is
+# to the habitat, we first need to define the RoIs to represent the separate
+# pieces of the habitat programmatically. Since each part of the habitat is
 # two-dimensional, we will use a ``PolygonOfInterest`` to describe each of
 # them.
 #
@@ -72,7 +73,7 @@ arena_fig.show()
 # by specifying the points that make up the interior and exterior boundaries.
 # So first, let's define the boundary vertices of our various regions.
 
-# The centre of the arena is located roughly here
+# The centre of the habitat is located roughly here
 centre = np.array([712.5, 541])
 # The "width" (distance between the inner and outer octadecagonal rings) is 40
 # pixels wide
@@ -89,7 +90,7 @@ unit_shape = np.array(
     ],
     dtype=complex,
 )
-# Then stretch and translate the reference to match our arena
+# Then stretch and translate the reference to match the habitat
 ring_outer_boundary = ring_extent / 2.0 * unit_shape.copy()
 ring_outer_boundary = (
     np.array([ring_outer_boundary.real, ring_outer_boundary.imag]).transpose()
@@ -123,30 +124,30 @@ ring_region = PolygonOfInterest(
     ring_outer_boundary, holes=[core_boundary], name="Ring region"
 )
 
-arena_fig, arena_ax = plt.subplots(1, 1)
-# Overlay an image of the experimental arena
-arena_ax.imshow(plt.imread(arena_image))
+habitat_fig, habitat_ax = plt.subplots(1, 1)
+# Overlay an image of the habitat
+habitat_ax.imshow(plt.imread(habitat_image))
 
-central_region.plot(arena_ax, facecolor="lightblue", alpha=0.25)
-nest_region.plot(arena_ax, facecolor="green", alpha=0.25)
-ring_region.plot(arena_ax, facecolor="blue", alpha=0.25)
-arena_ax.legend()
+central_region.plot(habitat_ax, facecolor="lightblue", alpha=0.25)
+nest_region.plot(habitat_ax, facecolor="green", alpha=0.25)
+ring_region.plot(habitat_ax, facecolor="blue", alpha=0.25)
+habitat_ax.legend()
 # sphinx_gallery_thumbnail_number = 2
-arena_fig.show()
+habitat_fig.show()
 
 # %%
-# View individual paths inside the arena
-# --------------------------------------
+# View individual paths inside the habitat
+# ----------------------------------------
 # We can now overlay the paths that the individuals followed on top of our
-# image of the arena and the RoIs that we have defined.
+# image of the habitat and the RoIs that we have defined.
 
-arena_fig, arena_ax = plt.subplots(1, 1)
-# Overlay an image of the experimental arena
-arena_ax.imshow(plt.imread(arena_image))
+habitat_fig, habitat_ax = plt.subplots(1, 1)
+# Overlay an image of the habitat
+habitat_ax.imshow(plt.imread(habitat_image))
 
-central_region.plot(arena_ax, facecolor="lightblue", alpha=0.25)
-nest_region.plot(arena_ax, facecolor="green", alpha=0.25)
-ring_region.plot(arena_ax, facecolor="blue", alpha=0.25)
+central_region.plot(habitat_ax, facecolor="lightblue", alpha=0.25)
+nest_region.plot(habitat_ax, facecolor="green", alpha=0.25)
+ring_region.plot(habitat_ax, facecolor="blue", alpha=0.25)
 
 # Plot trajectories of the individuals
 mouse_names_and_colours = list(
@@ -156,17 +157,17 @@ for mouse_name, col in mouse_names_and_colours:
     plot_centroid_trajectory(
         positions,
         individual=mouse_name,
-        ax=arena_ax,
+        ax=habitat_ax,
         linestyle="-",
         marker=".",
         s=1,
         c=col,
         label=mouse_name,
     )
-arena_ax.set_title("Individual trajectories within the arena")
-arena_ax.legend()
+habitat_ax.set_title("Individual trajectories within the habitat")
+habitat_ax.legend()
 
-arena_fig.show()
+habitat_fig.show()
 
 # %%
 # At a glance, it looks like all the individuals remained inside the
@@ -358,8 +359,8 @@ distances_exterior_fig.show()
 #
 # Note that egocentric angles are generally computed with changing frames of
 # reference in mind - the forward vector may be varying in time as the
-# individual moves around the arena. By contrast, allocentric angles are always
-# computed with respect to some fixed reference frame.
+# individual moves around the habitat. By contrast, allocentric angles are
+# always computed with respect to some fixed reference frame.
 #
 # For the purposes of our example, we will define our "forward vector" as the
 # velocity vector between successive time-points, for each individual - we can
