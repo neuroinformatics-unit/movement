@@ -407,7 +407,7 @@ make clean html linkcheck
 ```
 :::
 
-## Previewing the documentation in continuous integration (CI)
+### Previewing the documentation in continuous integration (CI)
 We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
 1. Go to the "Checks" tab in the GitHub PR.
 2. Click on the "Docs" tab.
