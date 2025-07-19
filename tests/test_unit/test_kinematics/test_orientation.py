@@ -431,3 +431,25 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(pass_numpy, pass_tuple)
         xr.testing.assert_allclose(pass_numpy, pass_list)
+
+    def test_nan_handling(self, spinning_on_the_spot: xr.DataArray) -> None:
+        """Ensure NaNs don't crash the angle computation."""
+        data = spinning_on_the_spot.copy()
+        data[1, :, :] = np.nan
+        result = kinematics.compute_forward_vector_angle(
+            data, "left", "right", self.x_axis
+        )
+        # NaN at index 1
+        assert np.isnan(result[1])
+        # Valid elsewhere
+        assert not np.isnan(result[0])
+
+    def test_invalid_dimensionality_raises(self) -> None:
+        """Invalid space dimension should raise a ValueError."""
+        data = xr.DataArray(
+            np.zeros((5, 2, 3)),  # 3D space is invalid
+            dims=["time", "keypoints", "space"],
+            coords={"space": ["x", "y", "z"], "keypoints": ["left", "right"]},
+        )
+        with pytest.raises(ValueError, match="2 spatial dimensions"):
+            kinematics.compute_forward_vector_angle(data, "left", "right")
