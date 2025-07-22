@@ -1,0 +1,6 @@
+scale
+=====
+
+.. currentmodule:: movement.transforms
+
+.. autofunction:: scale

@@ -1,0 +1,6 @@
+from\_multiview\_files
+======================
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_multiview_files

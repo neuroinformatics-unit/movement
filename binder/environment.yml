@@ -1,0 +1,9 @@
+# Requirements for Binder
+# i.e. what is needed to run the example notebooks
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pytables
+  - pip:
+    - movement

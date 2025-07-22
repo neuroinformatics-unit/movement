@@ -1,0 +1,21 @@
+﻿movement.roi.line
+=================
+
+.. rubric:: Description
+
+.. automodule:: movement.roi.line
+
+.. currentmodule:: movement.roi.line
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    LineOfInterest
+    
+
+
+

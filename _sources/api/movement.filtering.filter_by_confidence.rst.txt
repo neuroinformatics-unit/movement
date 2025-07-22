@@ -1,0 +1,6 @@
+filter\_by\_confidence
+======================
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: filter_by_confidence

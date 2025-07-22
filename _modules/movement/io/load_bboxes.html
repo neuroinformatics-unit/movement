@@ -1,0 +1,1213 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.io.load_bboxes &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=cc607f43"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/load_bboxes';</script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/load_bboxes.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.8.2.dev2</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.load_bboxes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes tracking data into ``movement``.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
+    <span class="n">ValidFile</span><span class="p">,</span>
+    <span class="n">ValidVIATracksCSV</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="from_numpy">
+<a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_numpy</span><span class="p">(</span>
+    <span class="n">position_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">shape_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">confidence_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from NumPy arrays.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position_array : np.ndarray</span>
+<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
+<span class="sd">        containing the tracks of the bounding box centroids.</span>
+<span class="sd">        It will be converted to a :class:`xarray.DataArray` object</span>
+<span class="sd">        named &quot;position&quot;.</span>
+<span class="sd">    shape_array : np.ndarray</span>
+<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
+<span class="sd">        containing the shape of the bounding boxes. The shape of a bounding</span>
+<span class="sd">        box is its width (extent along the x-axis of the image) and height</span>
+<span class="sd">        (extent along the y-axis of the image). It will be converted to a</span>
+<span class="sd">        :class:`xarray.DataArray` object named &quot;shape&quot;.</span>
+<span class="sd">    confidence_array : np.ndarray, optional</span>
+<span class="sd">        Array of shape (n_frames, n_individuals) containing</span>
+<span class="sd">        the confidence scores of the bounding boxes. If None (default), the</span>
+<span class="sd">        confidence scores are set to an array of NaNs. It will be converted</span>
+<span class="sd">        to a :class:`xarray.DataArray` object named &quot;confidence&quot;.</span>
+<span class="sd">    individual_names : list of str, optional</span>
+<span class="sd">        List of individual names for the tracked bounding boxes in the video.</span>
+<span class="sd">        If None (default), bounding boxes are assigned names based on the size</span>
+<span class="sd">        of the ``position_array``. The names will be in the format of</span>
+<span class="sd">        ``id_&lt;N&gt;``, where &lt;N&gt;  is an integer from 0 to</span>
+<span class="sd">        ``position_array.shape[-1]-1`` (i.e., &quot;id_0&quot;, &quot;id_1&quot;...).</span>
+<span class="sd">    frame_array : np.ndarray, optional</span>
+<span class="sd">        Array of shape (n_frames, 1) containing the frame numbers for which</span>
+<span class="sd">        bounding boxes are defined. If None (default), frame numbers will</span>
+<span class="sd">        be assigned based on the first dimension of the ``position_array``,</span>
+<span class="sd">        starting from 0. If a specific array of frame numbers is provided,</span>
+<span class="sd">        these need to be integers sorted in increasing order.</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
+<span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
+<span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
+<span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
+<span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
+<span class="sd">        0).</span>
+<span class="sd">    source_software : str, optional</span>
+<span class="sd">        Name of the software that generated the data. Defaults to None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the position, shape, and confidence</span>
+<span class="sd">        scores of the tracked bounding boxes, and any associated metadata.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create random position data for two bounding boxes, ``id_0`` and ``id_1``,</span>
+<span class="sd">    with the same width (40 pixels) and height (30 pixels). These are tracked</span>
+<span class="sd">    in 2D space for 100 frames, which are numbered from the start frame 1200</span>
+<span class="sd">    to the end frame 1299. The confidence score for all bounding boxes is set</span>
+<span class="sd">    to 0.5.</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; rng = np.random.default_rng(seed=42)</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
+<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but with the time</span>
+<span class="sd">    coordinates in seconds. We use a video sampling rate of 60 fps. The time</span>
+<span class="sd">    coordinates in the resulting dataset will indicate the elapsed time from</span>
+<span class="sd">    the capture of the 0th frame. So for the frames 1200, 1201, 1203,... 1299</span>
+<span class="sd">    the corresponding time coordinates in seconds will be 20, 20.0167,</span>
+<span class="sd">    20.033,... 21.65 s.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
+<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
+<span class="sd">    ...     fps=60,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but express the time</span>
+<span class="sd">    coordinate in frames, and assume the first tracked frame is frame 0.</span>
+<span class="sd">    To do this, we simply omit the ``frame_array`` input argument.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
+<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but express the time</span>
+<span class="sd">    coordinate in seconds, and assume the first tracked frame is captured</span>
+<span class="sd">    at time = 0 seconds. To do this, we omit the ``frame_array`` input argument</span>
+<span class="sd">    and pass an ``fps`` value.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
+<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     fps=60,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">valid_bboxes_data</span> <span class="o">=</span> <span class="n">ValidBboxesDataset</span><span class="p">(</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">position_array</span><span class="p">,</span>
+        <span class="n">shape_array</span><span class="o">=</span><span class="n">shape_array</span><span class="p">,</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">confidence_array</span><span class="p">,</span>
+        <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
+        <span class="n">frame_array</span><span class="o">=</span><span class="n">frame_array</span><span class="p">,</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_ds_from_valid_data</span><span class="p">(</span><span class="n">valid_bboxes_data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="from_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">],</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from a supported file.</span>
+
+<span class="sd">    At the moment, we only support VIA-tracks .csv files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the file containing the tracked bounding boxes. Currently</span>
+<span class="sd">        only VIA-tracks .csv files are supported.</span>
+<span class="sd">    source_software : &quot;VIA-tracks&quot;.</span>
+<span class="sd">        The source software of the file. Currently only files from the</span>
+<span class="sd">        VIA 2.0.12 annotator [1]_ (&quot;VIA-tracks&quot;) are supported.</span>
+<span class="sd">        See .</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
+<span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
+<span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
+<span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
+<span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
+<span class="sd">        0).</span>
+<span class="sd">    use_frame_numbers_from_file : bool, optional</span>
+<span class="sd">        If True, the frame numbers in the resulting dataset are</span>
+<span class="sd">        the same as the ones specified for each tracked bounding box in the</span>
+<span class="sd">        input file. This may be useful if the bounding boxes are tracked for a</span>
+<span class="sd">        subset of frames in a video, but you want to maintain the start of the</span>
+<span class="sd">        full video as the time origin. If False (default), the frame numbers</span>
+<span class="sd">        in the VIA tracks .csv file are instead mapped to a 0-based sequence of</span>
+<span class="sd">        consecutive integers.</span>
+<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
+<span class="sd">        True.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the position, shape, and confidence</span>
+<span class="sd">        scores of the tracked bounding boxes, and any associated metadata.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.load_bboxes.from_via_tracks_file</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
+<span class="sd">    the first tracked frame in the file.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_file(</span>
+<span class="sd">    &gt;&gt;&gt;     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     source_software=&quot;VIA-tracks&quot;,</span>
+<span class="sd">    &gt;&gt;&gt;     fps=30,</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;VIA-tracks&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">from_via_tracks_file</span><span class="p">(</span>
+            <span class="n">file_path</span><span class="p">,</span>
+            <span class="n">fps</span><span class="p">,</span>
+            <span class="n">use_frame_numbers_from_file</span><span class="o">=</span><span class="n">use_frame_numbers_from_file</span><span class="p">,</span>
+            <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="from_via_tracks_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_via_tracks_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` dataset from a VIA tracks .csv file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the VIA tracks .csv file with the tracked bounding boxes.</span>
+<span class="sd">        For more information on the VIA tracks .csv file format, see the VIA</span>
+<span class="sd">        tutorial for tracking [1]_.</span>
+<span class="sd">    fps : float, optional</span>
+<span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
+<span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
+<span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
+<span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
+<span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
+<span class="sd">        0).</span>
+<span class="sd">    use_frame_numbers_from_file : bool, optional</span>
+<span class="sd">        If True, the frame numbers in the resulting dataset are</span>
+<span class="sd">        the same as the ones in the VIA tracks .csv file. This may be useful if</span>
+<span class="sd">        the bounding boxes are tracked for a subset of frames in a video,</span>
+<span class="sd">        but you want to maintain the start of the full video as the time</span>
+<span class="sd">        origin. If False (default), the frame numbers in the VIA tracks .csv</span>
+<span class="sd">        file are instead mapped to a 0-based sequence of consecutive integers.</span>
+<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
+<span class="sd">        True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing the position, shape, and confidence</span>
+<span class="sd">        scores of the tracked bounding boxes, and any associated metadata.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Note that the x,y coordinates in the input VIA tracks .csv file</span>
+<span class="sd">    represent the the top-left corner of each bounding box. Instead the</span>
+<span class="sd">    corresponding ``movement`` dataset holds in its ``position`` array the</span>
+<span class="sd">    centroid of each bounding box.</span>
+
+<span class="sd">    Additionally, the bounding boxes IDs specified in the &quot;track&quot; field of</span>
+<span class="sd">    the VIA tracks .csv file are mapped to the ``individuals`` dimension in the</span>
+<span class="sd">    ``movement`` dataset. The individual names follow the format ``id_&lt;N&gt;``,</span>
+<span class="sd">    with N being the bounding box ID.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    the time coordinates in frames, and setting the first tracked frame in the</span>
+<span class="sd">    file as frame 0.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
+<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
+<span class="sd">    the first tracked frame in the file.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
+<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     fps=30,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    the time coordinates in frames, and using the same frame numbers as</span>
+<span class="sd">    in the VIA tracks .csv file.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
+<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     use_frame_numbers_from_file=True.</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
+<span class="sd">    the 0th frame in the full video.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
+<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     fps=30,</span>
+<span class="sd">    ...     use_frame_numbers_from_file=True,</span>
+<span class="sd">    ... )</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># General file validation</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">ValidFile</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Specific VIA-tracks .csv file validation</span>
+    <span class="n">via_file</span> <span class="o">=</span> <span class="n">ValidVIATracksCSV</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validated VIA tracks .csv file </span><span class="si">{</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create an xarray.Dataset from the data</span>
+    <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
+        <span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">via_file</span><span class="o">.</span><span class="n">frame_regexp</span>
+    <span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">],</span>
+        <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">],</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;confidence_array&quot;</span><span class="p">],</span>
+        <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="nb">id</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span>
+        <span class="p">],</span>
+        <span class="n">frame_array</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;frame_array&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">use_frame_numbers_from_file</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span>
+    <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesDataset</span>
+
+    <span class="c1"># Add metadata as attributes</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;VIA-tracks&quot;</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded bounding boxes tracks from </span><span class="si">{</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract numpy arrays from the input VIA tracks .csv file.</span>
+
+<span class="sd">    The extracted numpy arrays are returned in a dictionary with the following</span>
+<span class="sd">    keys:</span>
+
+<span class="sd">    - position_array (n_frames, n_space, n_individuals):</span>
+<span class="sd">        contains the trajectories of the bounding box centroids.</span>
+<span class="sd">    - shape_array (n_frames, n_space, n_individuals):</span>
+<span class="sd">        contains the shape of the bounding boxes (width and height).</span>
+<span class="sd">    - confidence_array (n_frames, n_individuals):</span>
+<span class="sd">        contains the confidence score of each bounding box.</span>
+<span class="sd">        If no confidence scores are provided, they are set to an array of NaNs.</span>
+<span class="sd">    - ID_array (n_individuals, 1):</span>
+<span class="sd">        contains the integer IDs of the tracked bounding boxes.</span>
+<span class="sd">    - frame_array (n_frames, 1):</span>
+<span class="sd">        contains the frame numbers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : pathlib.Path</span>
+<span class="sd">        Path to the VIA tracks .csv file containing the bounding box tracks.</span>
+
+<span class="sd">    frame_regexp : str</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">        by the file extension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        The validated bounding boxes arrays.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract 2D dataframe from input data</span>
+    <span class="c1"># (sort data by ID and frame number, and</span>
+    <span class="c1"># fill empty frame-ID pairs with nans)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">)</span>
+
+    <span class="c1"># Compute indices of the rows where the IDs switch</span>
+    <span class="n">bool_id_diff_from_prev</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ne</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span>  <span class="c1"># pandas series</span>
+    <span class="n">indices_id_switch</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">bool_id_diff_from_prev</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Stack position, shape and confidence arrays along ID axis</span>
+    <span class="n">map_key_to_columns</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;position_array&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;shape_array&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;confidence_array&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">array_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">map_key_to_columns</span><span class="p">:</span>
+        <span class="n">list_arrays</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">map_key_to_columns</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+            <span class="n">indices_id_switch</span><span class="p">,</span>  <span class="c1"># indices along axis=0</span>
+        <span class="p">)</span>
+        <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">list_arrays</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># squeeze only last dimension if it is 1</span>
+        <span class="k">if</span> <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Transform position_array to represent centroid of bbox,</span>
+    <span class="c1"># rather than top-left corner</span>
+    <span class="c1"># (top left corner: corner of the bbox with minimum x and y coordinates)</span>
+    <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="c1"># Add remaining arrays to dict</span>
+    <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">array_dict</span><span class="p">[</span><span class="s2">&quot;frame_array&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;frame_number&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">array_dict</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_df_from_via_tracks_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load VIA tracks .csv file as a dataframe.</span>
+
+<span class="sd">    Read the VIA tracks .csv file as a pandas dataframe with columns:</span>
+<span class="sd">    - ID: the integer ID of the tracked bounding box.</span>
+<span class="sd">    - frame_number: the frame number of the tracked bounding box.</span>
+<span class="sd">    - x: the x-coordinate of the tracked bounding box&#39;s top-left corner.</span>
+<span class="sd">    - y: the y-coordinate of the tracked bounding box&#39;s top-left corner.</span>
+<span class="sd">    - w: the width of the tracked bounding box.</span>
+<span class="sd">    - h: the height of the tracked bounding box.</span>
+<span class="sd">    - confidence: the confidence score of the tracked bounding box.</span>
+
+<span class="sd">    The dataframe is sorted by ID and frame number, and for each ID,</span>
+<span class="sd">    empty frames are filled in with NaNs. The coordinates of the bboxes</span>
+<span class="sd">    are assumed to be in the image coordinate system (i.e., the top-left</span>
+<span class="sd">    corner of a bbox is its corner with minimum x and y coordinates).</span>
+
+<span class="sd">    The frame number is extracted from the filename using the provided</span>
+<span class="sd">    regexp if it is not defined as a &#39;file_attribute&#39; in the VIA tracks .csv</span>
+<span class="sd">    file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read VIA tracks .csv file as a pandas dataframe</span>
+    <span class="n">df_file</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Format to a 2D dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">],</span> <span class="nb">int</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;frame_number&quot;</span><span class="p">:</span> <span class="n">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="n">frame_regexp</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="nb">float</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="nb">float</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="nb">float</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+                <span class="n">df_file</span><span class="p">,</span> <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="nb">float</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">_extract_confidence_from_via_tracks_df</span><span class="p">(</span><span class="n">df_file</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Define desired index: all combinations of ID and frame number</span>
+    <span class="n">multi_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;frame_number&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()],</span>
+        <span class="c1"># these unique lists may not be sorted!</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Set index to (ID, frame number), fill in values with nans,</span>
+    <span class="c1"># sort by ID and frame_number and reset to new index</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">multi_index</span><span class="p">)</span>  <span class="c1"># fill in empty frame-ID pairs with nans</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">,</span> <span class="s2">&quot;frame_number&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sort by ID and frame</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_confidence_from_via_tracks_df</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract confidence scores from the VIA tracks input dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The VIA tracks input dataframe is the one obtained from</span>
+<span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A numpy array of size (n_bboxes, ) containing the bounding boxes</span>
+<span class="sd">        confidence scores.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">region_attributes_dicts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">region_attributes</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Check if confidence is defined as a region attribute, else set to NaN</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="s2">&quot;confidence&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">region_attributes_dicts</span><span class="p">]):</span>
+        <span class="n">bbox_confidence</span> <span class="o">=</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="s2">&quot;region_attributes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">],</span> <span class="nb">float</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">bbox_confidence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bbox_confidence</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_number_from_via_tracks_df</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract frame numbers from the VIA tracks input dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The VIA tracks input dataframe is the one obtained from</span>
+<span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
+
+<span class="sd">    frame_regexp : str</span>
+<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
+<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">        the filename as an integer number led by at least one zero, followed by</span>
+<span class="sd">        the file extension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A numpy array of size (n_frames, ) containing the frame numbers.</span>
+<span class="sd">        In the VIA tracks .csv file, the frame number is expected to be</span>
+<span class="sd">        defined as a &#39;file_attribute&#39; , or encoded in the filename as an</span>
+<span class="sd">        integer number led by at least one zero, followed by the file</span>
+<span class="sd">        extension.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract frame number from file_attributes if exists</span>
+    <span class="n">file_attributes_dicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">file_attributes</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="s2">&quot;frame&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">file_attributes_dicts</span><span class="p">]):</span>
+        <span class="n">frame_array</span> <span class="o">=</span> <span class="n">_via_attribute_column_to_numpy</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span>
+            <span class="n">via_column_name</span><span class="o">=</span><span class="s2">&quot;file_attributes&quot;</span><span class="p">,</span>
+            <span class="n">list_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">],</span>
+            <span class="n">cast_fn</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># Else extract from filename</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="n">frame_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_frame_numbers</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">frame_array</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_via_attribute_column_to_numpy</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">via_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">list_keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">cast_fn</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert values from VIA attribute-type column to a numpy array.</span>
+
+<span class="sd">    In the VIA tracks .csv file, the attribute-type columns are the columns</span>
+<span class="sd">    whose name includes the word ``attributes`` (i.e. ``file_attributes``,</span>
+<span class="sd">    ``region_shape_attributes`` or ``region_attributes``). These columns hold</span>
+<span class="sd">    dictionary data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        The pandas DataFrame containing the data from the VIA tracks .csv file.</span>
+<span class="sd">        This is the dataframe obtained from running</span>
+<span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
+<span class="sd">    via_column_name : str</span>
+<span class="sd">        The name of a column in the VIA tracks .csv file whose values are</span>
+<span class="sd">        literal dictionaries (i.e. ``file_attributes``,</span>
+<span class="sd">        ``region_shape_attributes`` or ``region_attributes``).</span>
+<span class="sd">    list_keys : list[str]</span>
+<span class="sd">        The list of keys whose values we want to extract from the literal</span>
+<span class="sd">        dictionaries in the ``via_column_name`` column.</span>
+<span class="sd">    cast_fn : type, optional</span>
+<span class="sd">        The type function to cast the values to. By default ``float``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A numpy array holding the extracted values. If ``len(list_keys) &gt; 1``</span>
+<span class="sd">        the array is two-dimensional with shape ``(N, len(list_keys))``, where</span>
+<span class="sd">        ``N`` is the number of rows in the input dataframe ``df``. If</span>
+<span class="sd">        ``len(list_keys) == 1``, the resulting array will be one-dimensional,</span>
+<span class="sd">        with shape (N, ). Note that the computed array is squeezed before</span>
+<span class="sd">        returning.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">list_bbox_attr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">row_dict_data</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">via_column_name</span><span class="p">])</span>
+        <span class="n">list_bbox_attr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">cast_fn</span><span class="p">(</span><span class="n">row_dict_data</span><span class="p">[</span><span class="n">reg</span><span class="p">])</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">list_keys</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">bbox_attr_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_bbox_attr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bbox_attr_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_valid_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">ValidBboxesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a validated bounding boxes dataset to an xarray Dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : movement.validators.datasets.ValidBboxesDataset</span>
+<span class="sd">        The validated bounding boxes dataset object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bounding boxes dataset containing the boxes tracks,</span>
+<span class="sd">        boxes shapes, confidence scores and associated metadata.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create the time coordinate</span>
+    <span class="n">time_coords</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+    <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
+
+    <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+        <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># if fps is provided:</span>
+    <span class="c1"># time_coords is expressed in seconds, with the time origin</span>
+    <span class="c1"># set as frame 0 == time 0 seconds</span>
+    <span class="c1"># Store fps as a dataset attribute</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">:</span>
+        <span class="c1"># Compute elapsed time from frame 0.</span>
+        <span class="c1"># Ignoring type error because `data.frame_array` is not None after</span>
+        <span class="c1"># ValidBboxesDataset.__attrs_post_init__()  # type: ignore</span>
+        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">frame</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>  <span class="c1"># type: ignore</span>
+        <span class="p">)</span>
+        <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
+
+    <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+    <span class="c1"># Convert data to an xarray.Dataset</span>
+    <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individuals&#39;)</span>
+    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidBboxesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
+    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
+            <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="n">dataset_attrs</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

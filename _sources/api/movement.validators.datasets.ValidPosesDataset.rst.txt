@@ -1,0 +1,20 @@
+ValidPosesDataset
+=================
+
+.. currentmodule:: movement.validators.datasets
+
+.. autoclass:: ValidPosesDataset
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   

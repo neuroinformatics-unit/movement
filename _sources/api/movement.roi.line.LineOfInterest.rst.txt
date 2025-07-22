@@ -1,0 +1,80 @@
+LineOfInterest
+==============
+
+.. currentmodule:: movement.roi.line
+
+.. autoclass:: LineOfInterest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~LineOfInterest.compute_allocentric_angle_to_nearest_point
+   
+   
+      ~LineOfInterest.compute_angle_to_normal
+   
+   
+      ~LineOfInterest.compute_approach_vector
+   
+   
+      ~LineOfInterest.compute_distance_to
+   
+   
+      ~LineOfInterest.compute_egocentric_angle_to_nearest_point
+   
+   
+      ~LineOfInterest.compute_nearest_point_to
+   
+   
+      ~LineOfInterest.contains_point
+   
+   
+      ~LineOfInterest.normal
+   
+   
+      ~LineOfInterest.plot
+   
+   
+   

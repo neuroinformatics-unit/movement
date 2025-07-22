@@ -1,0 +1,6 @@
+list\_datasets
+==============
+
+.. currentmodule:: movement.sample_data
+
+.. autofunction:: list_datasets

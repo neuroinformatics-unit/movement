@@ -1,0 +1,6 @@
+savgol\_filter
+==============
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: savgol_filter

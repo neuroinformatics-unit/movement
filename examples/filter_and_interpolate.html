@@ -1,0 +1,2543 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Drop outliers and interpolate &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=cc607f43"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/filter_and_interpolate';</script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/filter_and_interpolate.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Convert pose tracks between file formats" href="convert_file_formats.html" />
+    <link rel="prev" title="Load and explore pose tracks" href="load_and_explore_poses.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.8.2.dev2</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="load_and_explore_poses.html">Load and explore pose tracks</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Drop outliers and interpolate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Drop outliers and interpolate</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-filter-and-interpolate-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code. or to run this example in your browser via Binder</p>
+</div>
+<section class="sphx-glr-example-title" id="drop-outliers-and-interpolate">
+<span id="sphx-glr-examples-filter-and-interpolate-py"></span><h1>Drop outliers and interpolate<a class="headerlink" href="#drop-outliers-and-interpolate" title="Link to this heading">#</a></h1>
+<p>Filter out points with low confidence scores and interpolate over
+missing values.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">,</span> <a href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">interpolate_over_time</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_velocity</span>
+</pre></div>
+</div>
+</section>
+<section id="load-a-sample-dataset">
+<h2>Load a sample dataset<a class="headerlink" href="#load-a-sample-dataset" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span></a><span class="p">(</span><span class="s2">&quot;DLC_single-wasp.predictions.h5&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 61kB
+Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+Coordinates:
+  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoints    (keypoints) &lt;U7 56B &#39;head&#39; &#39;stinger&#39;
+  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 35kB 1.086e+03...
+    confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              40.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+    frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...
+</pre></div>
+</div>
+<p>We see that the dataset contains the 2D pose tracks and confidence scores
+for a single wasp, generated with DeepLabCut. The wasp is tracked at two
+keypoints: “head” and “stinger” in a video that was recorded at 40 fps and
+lasts for approximately 27 seconds.</p>
+</section>
+<section id="visualise-the-pose-tracks">
+<h2>Visualise the pose tracks<a class="headerlink" href="#visualise-the-pose-tracks" title="Link to this heading">#</a></h2>
+<p>Since the data contains only a single wasp, we use
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove
+the dimension of length 1 from the data (the <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fc188753f50&gt;
+</pre></div>
+</div>
+<p>We can see that the pose tracks contain some implausible “jumps”, such
+as the big shift in the final second, and the “spikes” of the stinger
+near the 14th second. Perhaps we can get rid of those based on the model’s
+reported confidence scores?</p>
+</section>
+<section id="visualise-confidence-scores">
+<h2>Visualise confidence scores<a class="headerlink" href="#visualise-confidence-scores" title="Link to this heading">#</a></h2>
+<p>The confidence scores are stored in the <code class="docutils literal notranslate"><span class="pre">confidence</span></code> data variable.
+Since the predicted poses in this example have been generated by DeepLabCut,
+the confidence scores should be likelihood values between 0 and 1.
+That said, confidence scores are not standardised across pose
+estimation frameworks, and their ranges can vary. Therefore,
+it’s always a good idea to inspect the actual confidence values in the data.</p>
+<p>Let’s first look at a histogram of the confidence scores. As before, we use
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove the <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension
+from the data.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_filter_and_interpolate_002.png" srcset="../_images/sphx_glr_filter_and_interpolate_002.png" alt="individuals = individual_0" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(array([  61.,   13.,   16.,   10.,   10.,    8.,   21.,   11.,   14.,
+         11.,   26.,   13.,   28.,   19.,   39.,   44.,   79.,   84.,
+        149., 1514.]), array([0.        , 0.04999823, 0.09999646, 0.14999469, 0.19999292,
+       0.24999115, 0.29998938, 0.34998761, 0.39998584, 0.44998407,
+       0.4999823 , 0.54998053, 0.59997876, 0.64997699, 0.69997522,
+       0.74997345, 0.79997168, 0.84996991, 0.89996814, 0.94996637,
+       0.99996459]), &lt;BarContainer object of 20 artists&gt;)
+</pre></div>
+</div>
+<p>Based on the above histogram, we can confirm that the confidence scores
+indeed range between 0 and 1, with most values closer to 1. Now let’s see how
+they evolve over time.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fc190c937a0&gt;
+</pre></div>
+</div>
+<p>Encouragingly, some of the drops in confidence scores do seem to correspond
+to the implausible jumps and spikes we had seen in the position.
+We can use that to our advantage, by leveraging functions from the
+<a class="reference internal" href="../api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.filtering</span></code></a> module.</p>
+</section>
+<section id="filter-out-points-with-low-confidence">
+<h2>Filter out points with low confidence<a class="headerlink" href="#filter-out-points-with-low-confidence" title="Link to this heading">#</a></h2>
+<p>Using <a class="reference internal" href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.filter_by_confidence()</span></code></a>,
+we can filter out points with confidence scores below a certain threshold.
+This function takes <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code> as required arguments,
+and accepts an optional <code class="docutils literal notranslate"><span class="pre">threshold</span></code> parameter,
+which defaults to <code class="docutils literal notranslate"><span class="pre">threshold=0.6</span></code> unless specified otherwise.
+Setting <code class="docutils literal notranslate"><span class="pre">print_report=True</span></code>, will make the function print a report
+on the number of NaN values before and after the filtering operation.
+This is <code class="docutils literal notranslate"><span class="pre">False</span></code> by default, but can be useful for understanding
+and debugging the impact of filtering on the data.</p>
+<p>We will use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a> to update <code class="docutils literal notranslate"><span class="pre">ds</span></code> in-place
+with the filtered <code class="docutils literal notranslate"><span class="pre">position</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">(</span>
+            <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span></a><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>No missing points (marked as NaN) in input.
+Missing points (marked as NaN) in output:
+
+keypoints                  head          stinger
+individuals
+individual_0  121/1085 (11.15%)  93/1085 (8.57%)
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base rgba(0, 0, 0, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, white)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+  );
+}
+
+html[theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base, rgba(255, 255, 255, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, #111111)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+  );
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: inline-block;
+  opacity: 0;
+  height: 0;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+  border: 2px solid transparent !important;
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:focus + label {
+  border: 2px solid var(--xr-font-color0) !important;
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: "►";
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: "▼";
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: "(";
+}
+
+.xr-dim-list:after {
+  content: ")";
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ",";
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  border-color: var(--xr-background-color-row-odd);
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+  border-color: var(--xr-background-color-row-even);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  border-top: 2px dotted var(--xr-background-color);
+  padding-bottom: 20px !important;
+  padding-top: 10px !important;
+}
+
+.xr-var-attrs-in + label,
+.xr-var-data-in + label,
+.xr-index-data-in + label {
+  padding: 0 1px;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-data > pre,
+.xr-index-data > pre,
+.xr-var-data > table > tbody > tr {
+  background-color: transparent !important;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+.xr-var-data-in:checked + label > .xr-icon-database,
+.xr-index-data-in:checked + label > .xr-icon-database {
+  color: var(--xr-font-color0);
+  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+  stroke-width: 0.8px;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 61kB
+Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+Coordinates:
+  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+  * space        (space) &lt;U1 8B &#x27;x&#x27; &#x27;y&#x27;
+  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;
+  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 35kB nan ... nan
+    confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              40.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+    frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-88e69be1-42d8-4f9d-8ec9-a34c86577eac' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-88e69be1-42d8-4f9d-8ec9-a34c86577eac' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 1085</li><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 2</li><li><span class='xr-has-index'>individuals</span>: 1</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-bff90f9b-8e0c-4902-9f48-79aa4b9e21d8' class='xr-section-summary-in' type='checkbox'  checked><label for='section-bff90f9b-8e0c-4902-9f48-79aa4b9e21d8' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.025 0.05 ... 27.05 27.07 27.1</div><input id='attrs-e9c48061-592f-478a-91eb-754a83558c03' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-e9c48061-592f-478a-91eb-754a83558c03' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-177c4994-69da-4061-bf8a-3b9254c94dfa' class='xr-var-data-in' type='checkbox'><label for='data-177c4994-69da-4061-bf8a-3b9254c94dfa' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.0000e+00, 2.5000e-02, 5.0000e-02, ..., 2.7050e+01, 2.7075e+01,
+       2.7100e+01], shape=(1085,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-d5a60491-5ade-41ad-b253-a225bb0a2f37' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d5a60491-5ade-41ad-b253-a225bb0a2f37' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e642ac68-f3a4-43b0-8021-01dce148a77c' class='xr-var-data-in' type='checkbox'><label for='data-e642ac68-f3a4-43b0-8021-01dce148a77c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U7</div><div class='xr-var-preview xr-preview'>&#x27;head&#x27; &#x27;stinger&#x27;</div><input id='attrs-9cea3825-3390-446a-b797-d83649cd6582' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9cea3825-3390-446a-b797-d83649cd6582' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-620d3e9f-0e38-421d-8549-ebbf8aa70cf0' class='xr-var-data-in' type='checkbox'><label for='data-620d3e9f-0e38-421d-8549-ebbf8aa70cf0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;&lt;U7&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U12</div><div class='xr-var-preview xr-preview'>&#x27;individual_0&#x27;</div><input id='attrs-6c5b076c-8b83-4fbd-aa66-3d9a5e676b67' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6c5b076c-8b83-4fbd-aa66-3d9a5e676b67' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9b5a6b24-12cc-42f1-aa91-125086b0f010' class='xr-var-data-in' type='checkbox'><label for='data-9b5a6b24-12cc-42f1-aa91-125086b0f010' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;individual_0&#x27;], dtype=&#x27;&lt;U12&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-559f7850-453f-40ae-835a-8752a60c318e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-559f7850-453f-40ae-835a-8752a60c318e' class='xr-section-summary' >Data variables: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>position</span></div><div class='xr-var-dims'>(time, space, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-eb38ca98-cc93-4082-bdb6-acb43e78f00f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-eb38ca98-cc93-4082-bdb6-acb43e78f00f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6bc0e0c3-ea3f-4369-b323-cbf72e6331a9' class='xr-var-data-in' type='checkbox'><label for='data-6bc0e0c3-ea3f-4369-b323-cbf72e6331a9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>log :</span></dt><dd>[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:29.867024&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#x27;confidence&#x27; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;\n  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  }
+]</dd></dl></div><div class='xr-var-data'><pre>array([[[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+...
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]]], shape=(1085, 2, 2, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>confidence</span></div><div class='xr-var-dims'>(time, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.05305 0.07366 0.03532 ... 0.0 0.0</div><input id='attrs-0d04c4fe-7cc7-4392-94cb-98649bd06eb9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-0d04c4fe-7cc7-4392-94cb-98649bd06eb9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e00e6878-e3d8-43c3-9e4d-debdf9ff3da6' class='xr-var-data-in' type='checkbox'><label for='data-e00e6878-e3d8-43c3-9e4d-debdf9ff3da6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[[0.05305099],
+        [0.07366323]],
+
+       [[0.03531652],
+        [0.03293059]],
+
+       [[0.01706707],
+        [0.01022208]],
+
+       ...,
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]]], shape=(1085, 2, 1))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-864abed1-99df-420e-b142-4f3f7925d26b' class='xr-section-summary-in' type='checkbox'  ><label for='section-864abed1-99df-420e-b142-4f3f7925d26b' class='xr-section-summary' >Indexes: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-ceaa7bad-10f2-46e0-857b-7fa9a6d21417' class='xr-index-data-in' type='checkbox'/><label for='index-ceaa7bad-10f2-46e0-857b-7fa9a6d21417' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0.0,  0.025,   0.05,  0.075,    0.1,  0.125,   0.15,  0.175,    0.2,
+        0.225,
+       ...
+       26.875,   26.9, 26.925,  26.95, 26.975,   27.0, 27.025,  27.05, 27.075,
+         27.1],
+      dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=1085))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>space</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-e9a20b45-a310-4e91-aca3-f0a60ec6d807' class='xr-index-data-in' type='checkbox'/><label for='index-e9a20b45-a310-4e91-aca3-f0a60ec6d807' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;object&#x27;, name=&#x27;space&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-e921ad13-c3f9-4b1f-b927-cf0c0aa06bed' class='xr-index-data-in' type='checkbox'/><label for='index-e921ad13-c3f9-4b1f-b927-cf0c0aa06bed' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-5e15c0f5-0bf9-4d6c-8342-5c45169ceb3a' class='xr-index-data-in' type='checkbox'/><label for='index-5e15c0f5-0bf9-4d6c-8342-5c45169ceb3a' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;individual_0&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-cd90eeb7-7576-4748-a7f3-05a48cf36274' class='xr-section-summary-in' type='checkbox'  checked><label for='section-cd90eeb7-7576-4748-a7f3-05a48cf36274' class='xr-section-summary' >Attributes: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>source_software :</span></dt><dd>DeepLabCut</dd><dt><span>ds_type :</span></dt><dd>poses</dd><dt><span>fps :</span></dt><dd>40.0</dd><dt><span>time_unit :</span></dt><dd>seconds</dd><dt><span>source_file :</span></dt><dd>/home/runner/.movement/data/poses/DLC_single-wasp.predictions.h5</dd><dt><span>frame_path :</span></dt><dd>/home/runner/.movement/data/frames/single-wasp_frame-10sec.png</dd></dl></div></li></ul></div></div>
+</div>
+<br />
+<br /><p>We can see that the filtering operation has introduced NaN values in the
+<code class="docutils literal notranslate"><span class="pre">position</span></code> data variable. Let’s visualise the filtered data.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fc190c92750&gt;
+</pre></div>
+</div>
+<p>Here we can see that gaps (consecutive NaNs) have appeared in the
+pose tracks, some of which are over the implausible jumps and spikes we had
+seen earlier. Moreover, most gaps seem to be brief,
+lasting &lt; 1 second (or 40 frames).</p>
+</section>
+<section id="interpolate-over-missing-values">
+<h2>Interpolate over missing values<a class="headerlink" href="#interpolate-over-missing-values" title="Link to this heading">#</a></h2>
+<p>Using  <a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.interpolate_over_time()</span></code></a>, we can
+interpolate over gaps we’ve introduced in the pose tracks.
+Here we use the default linear interpolation method (<code class="docutils literal notranslate"><span class="pre">method=&quot;linear&quot;</span></code>)
+and interpolate over gaps of 40 frames or less (<code class="docutils literal notranslate"><span class="pre">max_gap=40</span></code>).
+The default <code class="docutils literal notranslate"><span class="pre">max_gap=None</span></code> would interpolate over all gaps, regardless of
+their length, but this should be used with caution as it can introduce
+spurious data. The <code class="docutils literal notranslate"><span class="pre">print_report</span></code> argument acts as described above.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">interpolate_over_time</span></a><span class="p">(</span>
+            <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
+
+keypoints                  head          stinger
+individuals
+individual_0  121/1085 (11.15%)  93/1085 (8.57%)
+Missing points (marked as NaN) in output:
+
+keypoints                head          stinger
+individuals
+individual_0  15/1085 (1.38%)  15/1085 (1.38%)
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base rgba(0, 0, 0, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, white)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+  );
+}
+
+html[theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base, rgba(255, 255, 255, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, #111111)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+  );
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: inline-block;
+  opacity: 0;
+  height: 0;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+  border: 2px solid transparent !important;
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:focus + label {
+  border: 2px solid var(--xr-font-color0) !important;
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: "►";
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: "▼";
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: "(";
+}
+
+.xr-dim-list:after {
+  content: ")";
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ",";
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  border-color: var(--xr-background-color-row-odd);
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+  border-color: var(--xr-background-color-row-even);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  border-top: 2px dotted var(--xr-background-color);
+  padding-bottom: 20px !important;
+  padding-top: 10px !important;
+}
+
+.xr-var-attrs-in + label,
+.xr-var-data-in + label,
+.xr-index-data-in + label {
+  padding: 0 1px;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-data > pre,
+.xr-index-data > pre,
+.xr-var-data > table > tbody > tr {
+  background-color: transparent !important;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+.xr-var-data-in:checked + label > .xr-icon-database,
+.xr-index-data-in:checked + label > .xr-icon-database {
+  color: var(--xr-font-color0);
+  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+  stroke-width: 0.8px;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 61kB
+Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+Coordinates:
+  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+  * space        (space) &lt;U1 8B &#x27;x&#x27; &#x27;y&#x27;
+  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;
+  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 35kB nan ... nan
+    confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              40.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+    frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-98a988db-0d55-40de-aac5-4069ce70a34a' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-98a988db-0d55-40de-aac5-4069ce70a34a' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 1085</li><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 2</li><li><span class='xr-has-index'>individuals</span>: 1</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-e3f29901-a971-4bc5-b254-f52547fe5d5d' class='xr-section-summary-in' type='checkbox'  checked><label for='section-e3f29901-a971-4bc5-b254-f52547fe5d5d' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.025 0.05 ... 27.05 27.07 27.1</div><input id='attrs-bc646b8f-7cc2-41d6-8693-e17a4e9c316c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-bc646b8f-7cc2-41d6-8693-e17a4e9c316c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-067e7ce8-ef55-440d-a39d-27a8058ce3b2' class='xr-var-data-in' type='checkbox'><label for='data-067e7ce8-ef55-440d-a39d-27a8058ce3b2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.0000e+00, 2.5000e-02, 5.0000e-02, ..., 2.7050e+01, 2.7075e+01,
+       2.7100e+01], shape=(1085,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-f3d1d0cf-04fd-4c15-b0c6-f9ab98e9280e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f3d1d0cf-04fd-4c15-b0c6-f9ab98e9280e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-01cab228-3302-44d6-9ee6-e9ca98d5e3c3' class='xr-var-data-in' type='checkbox'><label for='data-01cab228-3302-44d6-9ee6-e9ca98d5e3c3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U7</div><div class='xr-var-preview xr-preview'>&#x27;head&#x27; &#x27;stinger&#x27;</div><input id='attrs-938204fc-1792-450d-8d6e-db5882b11b0b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-938204fc-1792-450d-8d6e-db5882b11b0b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b74b5ef1-1bea-4f8f-acb3-5bf8de7c1525' class='xr-var-data-in' type='checkbox'><label for='data-b74b5ef1-1bea-4f8f-acb3-5bf8de7c1525' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;&lt;U7&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U12</div><div class='xr-var-preview xr-preview'>&#x27;individual_0&#x27;</div><input id='attrs-cc7cfbff-df03-472a-a03f-2c47008c32e7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-cc7cfbff-df03-472a-a03f-2c47008c32e7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2d01a617-2ff7-4f3d-999c-a77e069d20b7' class='xr-var-data-in' type='checkbox'><label for='data-2d01a617-2ff7-4f3d-999c-a77e069d20b7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;individual_0&#x27;], dtype=&#x27;&lt;U12&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-498abfb2-be9c-45e3-8dac-7d5568598e71' class='xr-section-summary-in' type='checkbox'  checked><label for='section-498abfb2-be9c-45e3-8dac-7d5568598e71' class='xr-section-summary' >Data variables: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>position</span></div><div class='xr-var-dims'>(time, space, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-9abdbcd0-5dd4-4e9b-abe4-5985e73a7c81' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9abdbcd0-5dd4-4e9b-abe4-5985e73a7c81' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d0c6a4c1-2064-457a-a805-380225036899' class='xr-var-data-in' type='checkbox'><label for='data-d0c6a4c1-2064-457a-a805-380225036899' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>log :</span></dt><dd>[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:29.867024&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#x27;confidence&#x27; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;\n  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;interpolate_over_time&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:30.972978&quot;,
+    &quot;method&quot;: &quot;&#x27;linear&#x27;&quot;,
+    &quot;max_gap&quot;: &quot;40&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  }
+]</dd></dl></div><div class='xr-var-data'><pre>array([[[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+...
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]]], shape=(1085, 2, 2, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>confidence</span></div><div class='xr-var-dims'>(time, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.05305 0.07366 0.03532 ... 0.0 0.0</div><input id='attrs-3de075d0-decd-47e5-87d7-97fe00a11141' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3de075d0-decd-47e5-87d7-97fe00a11141' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bbd0e5ea-715d-457b-b3a0-aec946e17191' class='xr-var-data-in' type='checkbox'><label for='data-bbd0e5ea-715d-457b-b3a0-aec946e17191' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[[0.05305099],
+        [0.07366323]],
+
+       [[0.03531652],
+        [0.03293059]],
+
+       [[0.01706707],
+        [0.01022208]],
+
+       ...,
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]]], shape=(1085, 2, 1))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-b17e4567-cd29-4a04-8ba8-f602664e654f' class='xr-section-summary-in' type='checkbox'  ><label for='section-b17e4567-cd29-4a04-8ba8-f602664e654f' class='xr-section-summary' >Indexes: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-e0b12ff9-e511-404d-a6e7-f0e0bed02376' class='xr-index-data-in' type='checkbox'/><label for='index-e0b12ff9-e511-404d-a6e7-f0e0bed02376' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0.0,  0.025,   0.05,  0.075,    0.1,  0.125,   0.15,  0.175,    0.2,
+        0.225,
+       ...
+       26.875,   26.9, 26.925,  26.95, 26.975,   27.0, 27.025,  27.05, 27.075,
+         27.1],
+      dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=1085))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>space</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-da4f7aed-cec0-4fcc-8599-79f3618dbb2e' class='xr-index-data-in' type='checkbox'/><label for='index-da4f7aed-cec0-4fcc-8599-79f3618dbb2e' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;object&#x27;, name=&#x27;space&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-a9308ba2-c74f-4878-804c-f7be8a43105b' class='xr-index-data-in' type='checkbox'/><label for='index-a9308ba2-c74f-4878-804c-f7be8a43105b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-a2c27382-1cbb-4e88-b23f-7f67fe7c126f' class='xr-index-data-in' type='checkbox'/><label for='index-a2c27382-1cbb-4e88-b23f-7f67fe7c126f' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;individual_0&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-ec3ee1e9-7da4-43fb-883e-f5ccb5afb8e7' class='xr-section-summary-in' type='checkbox'  checked><label for='section-ec3ee1e9-7da4-43fb-883e-f5ccb5afb8e7' class='xr-section-summary' >Attributes: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>source_software :</span></dt><dd>DeepLabCut</dd><dt><span>ds_type :</span></dt><dd>poses</dd><dt><span>fps :</span></dt><dd>40.0</dd><dt><span>time_unit :</span></dt><dd>seconds</dd><dt><span>source_file :</span></dt><dd>/home/runner/.movement/data/poses/DLC_single-wasp.predictions.h5</dd><dt><span>frame_path :</span></dt><dd>/home/runner/.movement/data/frames/single-wasp_frame-10sec.png</dd></dl></div></li></ul></div></div>
+</div>
+<br />
+<br /><p>We see that most, but not all, NaN values have disappeared, meaning that
+most gaps were indeed shorter than 40 frames.
+Let’s visualise the interpolated pose tracks.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoints = head, keypoints = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fc18a37afc0&gt;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, interpolation does not apply to gaps at either end of the time
+series. In our case, the last few frames removed by filtering were not
+replaced by interpolation. Passing <code class="docutils literal notranslate"><span class="pre">fill_value=&quot;extrapolate&quot;</span></code> to the
+<a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a>
+function would extrapolate the data to also fill the gaps at either end.</p>
+<p>In general, you may pass any keyword arguments that are acceptable as
+<code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> by <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>, which in turn
+passes them to its underlying interpolation methods.</p>
+</div>
+</section>
+<section id="log-of-processing-steps">
+<h2>Log of processing steps<a class="headerlink" href="#log-of-processing-steps" title="Link to this heading">#</a></h2>
+<p>So, far we’ve processed the pose tracks first by filtering out points with
+low confidence scores, and then by interpolating over missing values.
+The order of these operations and the parameters with which they were
+performed are saved in the <code class="docutils literal notranslate"><span class="pre">log</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">position</span></code> data array.
+This is useful for keeping track of the processing steps that have been
+applied to the data. Let’s inspect the log:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:29.867024&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#39;head&#39; &#39;stinger&#39;\n  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;interpolate_over_time&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:30.972978&quot;,
+    &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
+    &quot;max_gap&quot;: &quot;40&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  }
+]
+</pre></div>
+</div>
+<p>If you want to retrieve a certain parameter from the log, you can use
+<code class="docutils literal notranslate"><span class="pre">json.loads()</span></code> to parse the log string into a list of dictionaries.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/json.html#json.loads" title="json.loads" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">loads</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>  <span class="c1"># A list of dictionaries</span>
+
+<span class="c1"># Print the &#39;max_gap&#39; parameter from the last log entry</span>
+<span class="nb">print</span><span class="p">(</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_gap&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># None if &quot;max_gap&quot; is not present</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>40
+</pre></div>
+</div>
+</section>
+<section id="filtering-multiple-data-variables">
+<h2>Filtering multiple data variables<a class="headerlink" href="#filtering-multiple-data-variables" title="Link to this heading">#</a></h2>
+<p>We can also apply the same filtering operation to
+multiple data variables in <code class="docutils literal notranslate"><span class="pre">ds</span></code> at the same time.</p>
+<p>For instance, to filter both <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">velocity</span></code> data variables
+in <code class="docutils literal notranslate"><span class="pre">ds</span></code>, based on the confidence scores, we can specify a dictionary
+with the data variable names as keys and the corresponding filtered
+DataArrays as values. Then we can once again use
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>  to update <code class="docutils literal notranslate"><span class="pre">ds</span></code> in-place
+with the filtered data variables.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add velocity data variable to the dataset</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="p">)</span>
+
+<span class="c1"># Create a dictionary mapping data variable names to filtered DataArrays</span>
+<span class="c1"># We disable report printing for brevity</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">var</span><span class="p">:</span> <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">[</span><span class="n">var</span><span class="p">],</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span></a><span class="p">)</span>
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;velocity&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># Use the dictionary to update the dataset in-place</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base rgba(0, 0, 0, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, white)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
+  );
+}
+
+html[theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --xr-font-color0: var(
+    --jp-content-font-color0,
+    var(--pst-color-text-base, rgba(255, 255, 255, 1))
+  );
+  --xr-font-color2: var(
+    --jp-content-font-color2,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
+  );
+  --xr-font-color3: var(
+    --jp-content-font-color3,
+    var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
+  );
+  --xr-border-color: var(
+    --jp-border-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
+  );
+  --xr-disabled-color: var(
+    --jp-layout-color3,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
+  );
+  --xr-background-color: var(
+    --jp-layout-color0,
+    var(--pst-color-on-background, #111111)
+  );
+  --xr-background-color-row-even: var(
+    --jp-layout-color1,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
+  );
+  --xr-background-color-row-odd: var(
+    --jp-layout-color2,
+    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
+  );
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: inline-block;
+  opacity: 0;
+  height: 0;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+  border: 2px solid transparent !important;
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:focus + label {
+  border: 2px solid var(--xr-font-color0) !important;
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: "►";
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: "▼";
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: "(";
+}
+
+.xr-dim-list:after {
+  content: ")";
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ",";
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  border-color: var(--xr-background-color-row-odd);
+  margin-bottom: 0;
+  padding-top: 2px;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+  border-color: var(--xr-background-color-row-even);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  border-top: 2px dotted var(--xr-background-color);
+  padding-bottom: 20px !important;
+  padding-top: 10px !important;
+}
+
+.xr-var-attrs-in + label,
+.xr-var-data-in + label,
+.xr-index-data-in + label {
+  padding: 0 1px;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-data > pre,
+.xr-index-data > pre,
+.xr-var-data > table > tbody > tr {
+  background-color: transparent !important;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+.xr-var-data-in:checked + label > .xr-icon-database,
+.xr-index-data-in:checked + label > .xr-icon-database {
+  color: var(--xr-font-color0);
+  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
+  stroke-width: 0.8px;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 96kB
+Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+Coordinates:
+  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+  * space        (space) &lt;U1 8B &#x27;x&#x27; &#x27;y&#x27;
+  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;
+  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 35kB nan ... nan
+    confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+    velocity     (time, space, keypoints, individuals) float64 35kB nan ... nan
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              40.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
+    frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-0c45b927-2d03-4fa6-bece-5dbbe34cb524' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-0c45b927-2d03-4fa6-bece-5dbbe34cb524' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 1085</li><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 2</li><li><span class='xr-has-index'>individuals</span>: 1</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-5f5499f5-4cbc-4668-8cb5-fe288128d596' class='xr-section-summary-in' type='checkbox'  checked><label for='section-5f5499f5-4cbc-4668-8cb5-fe288128d596' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.025 0.05 ... 27.05 27.07 27.1</div><input id='attrs-78fbe10f-d5dc-4f61-9b62-091e291d3456' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-78fbe10f-d5dc-4f61-9b62-091e291d3456' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-59da25c5-7528-4ddf-902f-b62a46d1211f' class='xr-var-data-in' type='checkbox'><label for='data-59da25c5-7528-4ddf-902f-b62a46d1211f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.0000e+00, 2.5000e-02, 5.0000e-02, ..., 2.7050e+01, 2.7075e+01,
+       2.7100e+01], shape=(1085,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-6a75f5b8-cda6-42d4-96c8-771a99819ed6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6a75f5b8-cda6-42d4-96c8-771a99819ed6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-726ae598-1ddd-45ef-a61f-07c955d004cd' class='xr-var-data-in' type='checkbox'><label for='data-726ae598-1ddd-45ef-a61f-07c955d004cd' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U7</div><div class='xr-var-preview xr-preview'>&#x27;head&#x27; &#x27;stinger&#x27;</div><input id='attrs-3666d10a-80ed-47fc-805d-8df4a94757c6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3666d10a-80ed-47fc-805d-8df4a94757c6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-da53b99a-317b-4b4a-b972-c29302d01931' class='xr-var-data-in' type='checkbox'><label for='data-da53b99a-317b-4b4a-b972-c29302d01931' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;&lt;U7&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U12</div><div class='xr-var-preview xr-preview'>&#x27;individual_0&#x27;</div><input id='attrs-d99c3198-f156-459a-a304-82278a483bae' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d99c3198-f156-459a-a304-82278a483bae' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ede7149a-5f64-4052-82dc-1da7ddcf8e1b' class='xr-var-data-in' type='checkbox'><label for='data-ede7149a-5f64-4052-82dc-1da7ddcf8e1b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;individual_0&#x27;], dtype=&#x27;&lt;U12&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-b97164c1-a2e4-473f-a059-d0a0ad9660e9' class='xr-section-summary-in' type='checkbox'  checked><label for='section-b97164c1-a2e4-473f-a059-d0a0ad9660e9' class='xr-section-summary' >Data variables: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>position</span></div><div class='xr-var-dims'>(time, space, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-01ae142a-1240-4072-a9a5-1f7f53977716' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-01ae142a-1240-4072-a9a5-1f7f53977716' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bc3b513c-04ae-4ac2-9c2a-70bea6aa432e' class='xr-var-data-in' type='checkbox'><label for='data-bc3b513c-04ae-4ac2-9c2a-70bea6aa432e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>log :</span></dt><dd>[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:29.867024&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#x27;confidence&#x27; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;\n  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;interpolate_over_time&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:30.972978&quot;,
+    &quot;method&quot;: &quot;&#x27;linear&#x27;&quot;,
+    &quot;max_gap&quot;: &quot;40&quot;,
+    &quot;print_report&quot;: &quot;True&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:31.228364&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#x27;confidence&#x27; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;\n  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;False&quot;
+  }
+]</dd></dl></div><div class='xr-var-data'><pre>array([[[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+...
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]]], shape=(1085, 2, 2, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>confidence</span></div><div class='xr-var-dims'>(time, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.05305 0.07366 0.03532 ... 0.0 0.0</div><input id='attrs-78e904bb-f6db-4416-9eee-2be0d455b50e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-78e904bb-f6db-4416-9eee-2be0d455b50e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0e186c3b-b000-48a6-96ff-68762743b884' class='xr-var-data-in' type='checkbox'><label for='data-0e186c3b-b000-48a6-96ff-68762743b884' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[[0.05305099],
+        [0.07366323]],
+
+       [[0.03531652],
+        [0.03293059]],
+
+       [[0.01706707],
+        [0.01022208]],
+
+       ...,
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]],
+
+       [[0.        ],
+        [0.        ]]], shape=(1085, 2, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>velocity</span></div><div class='xr-var-dims'>(time, space, keypoints, individuals)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-2c0f4848-a685-4c5c-9ba6-2d96e2ffb3a2' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2c0f4848-a685-4c5c-9ba6-2d96e2ffb3a2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1b81415b-05b8-4363-96d0-835a6c82ba3e' class='xr-var-data-in' type='checkbox'><label for='data-1b81415b-05b8-4363-96d0-835a6c82ba3e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>log :</span></dt><dd>[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2025-07-22 16:42:31.230759&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#x27;confidence&#x27; (time: 1085, keypoints: 2, individuals: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) &lt;U7 56B &#x27;head&#x27; &#x27;stinger&#x27;\n  * individuals  (individuals) &lt;U12 48B &#x27;individual_0&#x27;&quot;,
+    &quot;threshold&quot;: &quot;0.6&quot;,
+    &quot;print_report&quot;: &quot;False&quot;
+  }
+]</dd></dl></div><div class='xr-var-data'><pre>array([[[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+...
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]],
+
+
+       [[[nan],
+         [nan]],
+
+        [[nan],
+         [nan]]]], shape=(1085, 2, 2, 1))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-48028687-c2cc-41a5-b20d-06e38b6707ca' class='xr-section-summary-in' type='checkbox'  ><label for='section-48028687-c2cc-41a5-b20d-06e38b6707ca' class='xr-section-summary' >Indexes: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-a069166d-b49b-440a-9036-7b6a4dfa703e' class='xr-index-data-in' type='checkbox'/><label for='index-a069166d-b49b-440a-9036-7b6a4dfa703e' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0.0,  0.025,   0.05,  0.075,    0.1,  0.125,   0.15,  0.175,    0.2,
+        0.225,
+       ...
+       26.875,   26.9, 26.925,  26.95, 26.975,   27.0, 27.025,  27.05, 27.075,
+         27.1],
+      dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=1085))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>space</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-d5b94502-75aa-4d52-8b81-9d10beff45a4' class='xr-index-data-in' type='checkbox'/><label for='index-d5b94502-75aa-4d52-8b81-9d10beff45a4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;object&#x27;, name=&#x27;space&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>keypoints</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-8f694f7d-0de2-4d03-a20b-95d282740d9c' class='xr-index-data-in' type='checkbox'/><label for='index-8f694f7d-0de2-4d03-a20b-95d282740d9c' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;head&#x27;, &#x27;stinger&#x27;], dtype=&#x27;object&#x27;, name=&#x27;keypoints&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>individuals</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-b732afec-bf71-48f7-89b8-7d214575b22f' class='xr-index-data-in' type='checkbox'/><label for='index-b732afec-bf71-48f7-89b8-7d214575b22f' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;individual_0&#x27;], dtype=&#x27;object&#x27;, name=&#x27;individuals&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-02c779a0-7a2e-4df3-850e-05b10c4573f7' class='xr-section-summary-in' type='checkbox'  checked><label for='section-02c779a0-7a2e-4df3-850e-05b10c4573f7' class='xr-section-summary' >Attributes: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>source_software :</span></dt><dd>DeepLabCut</dd><dt><span>ds_type :</span></dt><dd>poses</dd><dt><span>fps :</span></dt><dd>40.0</dd><dt><span>time_unit :</span></dt><dd>seconds</dd><dt><span>source_file :</span></dt><dd>/home/runner/.movement/data/poses/DLC_single-wasp.predictions.h5</dd><dt><span>frame_path :</span></dt><dd>/home/runner/.movement/data/frames/single-wasp_frame-10sec.png</dd></dl></div></li></ul></div></div>
+</div>
+<br />
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.905 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-filter-and-interpolate-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/filter_and_interpolate.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/122338c6db2328ed9eeb5e9961344704/filter_and_interpolate.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">filter_and_interpolate.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/8616797cd8df925412b19674f364ffea/filter_and_interpolate.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">filter_and_interpolate.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/441eab1669614b55b79b26c34c5789c0/filter_and_interpolate.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">filter_and_interpolate.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="load_and_explore_poses.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Load and explore pose tracks</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="convert_file_formats.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Convert pose tracks between file formats</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-sample-dataset">Load a sample dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-the-pose-tracks">Visualise the pose tracks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-confidence-scores">Visualise confidence scores</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-out-points-with-low-confidence">Filter out points with low confidence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpolate-over-missing-values">Interpolate over missing values</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#log-of-processing-steps">Log of processing steps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filtering-multiple-data-variables">Filtering multiple data variables</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/filter_and_interpolate.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

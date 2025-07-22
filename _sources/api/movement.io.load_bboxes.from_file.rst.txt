@@ -1,0 +1,6 @@
+from\_file
+==========
+
+.. currentmodule:: movement.io.load_bboxes
+
+.. autofunction:: from_file

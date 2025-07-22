@@ -1,0 +1,25 @@
+﻿movement.kinematics.orientation
+===============================
+
+.. rubric:: Description
+
+.. automodule:: movement.kinematics.orientation
+
+.. currentmodule:: movement.kinematics.orientation
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    compute_forward_vector
+    
+    compute_forward_vector_angle
+    
+    compute_head_direction_vector
+    
+
