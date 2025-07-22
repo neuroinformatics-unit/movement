@@ -1,6 +1,0 @@
-from\_anipose\_file
-===================
-
-.. currentmodule:: movement.io.load_poses
-
-.. autofunction:: from_anipose_file

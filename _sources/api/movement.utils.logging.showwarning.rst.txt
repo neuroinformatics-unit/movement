@@ -1,6 +1,0 @@
-showwarning
-===========
-
-.. currentmodule:: movement.utils.logging
-
-.. autofunction:: showwarning

@@ -1,6 +1,0 @@
-compute\_speed
-==============
-
-.. currentmodule:: movement.kinematics.kinematics
-
-.. autofunction:: compute_speed

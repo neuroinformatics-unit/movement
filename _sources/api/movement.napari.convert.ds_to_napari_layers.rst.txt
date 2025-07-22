@@ -1,6 +1,0 @@
-ds\_to\_napari\_layers
-======================
-
-.. currentmodule:: movement.napari.convert
-
-.. autofunction:: ds_to_napari_layers

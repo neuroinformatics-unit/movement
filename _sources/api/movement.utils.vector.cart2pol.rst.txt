@@ -1,6 +1,0 @@
-cart2pol
-========
-
-.. currentmodule:: movement.utils.vector
-
-.. autofunction:: cart2pol

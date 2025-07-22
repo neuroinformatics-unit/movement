@@ -1,6 +1,0 @@
-compute\_norm
-=============
-
-.. currentmodule:: movement.utils.vector
-
-.. autofunction:: compute_norm

@@ -1,6 +1,0 @@
-from\_via\_tracks\_file
-=======================
-
-.. currentmodule:: movement.io.load_bboxes
-
-.. autofunction:: from_via_tracks_file

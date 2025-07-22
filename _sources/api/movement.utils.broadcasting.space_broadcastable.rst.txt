@@ -1,6 +1,0 @@
-space\_broadcastable
-====================
-
-.. currentmodule:: movement.utils.broadcasting
-
-.. autofunction:: space_broadcastable

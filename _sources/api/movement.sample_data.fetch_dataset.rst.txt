@@ -1,6 +1,0 @@
-fetch\_dataset
-==============
-
-.. currentmodule:: movement.sample_data
-
-.. autofunction:: fetch_dataset

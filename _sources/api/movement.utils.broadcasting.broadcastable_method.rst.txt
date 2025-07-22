@@ -1,6 +1,0 @@
-broadcastable\_method
-=====================
-
-.. currentmodule:: movement.utils.broadcasting
-
-.. autofunction:: broadcastable_method

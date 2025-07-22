@@ -1,6 +1,0 @@
-log\_to\_attrs
-==============
-
-.. currentmodule:: movement.utils.logging
-
-.. autofunction:: log_to_attrs

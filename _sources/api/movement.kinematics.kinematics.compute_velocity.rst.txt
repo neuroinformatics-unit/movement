@@ -1,6 +1,0 @@
-compute\_velocity
-=================
-
-.. currentmodule:: movement.kinematics.kinematics
-
-.. autofunction:: compute_velocity

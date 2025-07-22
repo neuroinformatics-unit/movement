@@ -1,6 +1,0 @@
-to\_nwb\_file
-=============
-
-.. currentmodule:: movement.io.save_poses
-
-.. autofunction:: to_nwb_file

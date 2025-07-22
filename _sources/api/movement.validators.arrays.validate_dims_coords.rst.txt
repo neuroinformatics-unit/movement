@@ -1,6 +1,0 @@
-validate\_dims\_coords
-======================
-
-.. currentmodule:: movement.validators.arrays
-
-.. autofunction:: validate_dims_coords
