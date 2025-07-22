@@ -115,8 +115,11 @@ sphinx_gallery_conf = {
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
+    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
     "remove_config_comments": True,
-    # do not render config params set as # sphinx_gallery_config [= value]
+    # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
+    "backreferences_dir": "gen_modules/backreferences",  # directory where function/class granular galleries are stored
+    "doc_module": ("movement",),  # module for which to generate mini-galleries
 }
 
 
