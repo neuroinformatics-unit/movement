@@ -407,6 +407,15 @@ make clean html linkcheck
 ```
 :::
 
+### Previewing the documentation in continuous integration
+We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
+1. Go to the "Checks" tab in the GitHub PR.
+2. Click on the "Docs" section on the left.
+3. If the "Build Sphinx Docs" action is successful, a summary section will appear under the block diagram with a link to preview the built documentation.
+4. Click on the link and wait for the files to be uploaded (it may take a while the first time). You may be asked to sign in to GitHub.
+5. Once the upload is complete, look for `docs/build/html/index.html` under the "Detected Entrypoints" section.
+
+
 ## Sample data
 We maintain some sample datasets to be used for testing, examples and tutorials on an
 [external data repository](gin:neuroinformatics/movement-test-data).
