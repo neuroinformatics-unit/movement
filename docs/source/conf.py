@@ -118,7 +118,7 @@ sphinx_gallery_conf = {
     # Do not render config comments with the pattern # sphinx_gallery_config [= value]
     "remove_config_comments": True,
     # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
-    "backreferences_dir": "gen_modules/backreferences",  # directory where function/class granular galleries are stored
+    "backreferences_dir": "api/backreferences",  # directory where function/class granular galleries are stored
     "doc_module": ("movement",),  # module for which to generate mini-galleries
 }
 
