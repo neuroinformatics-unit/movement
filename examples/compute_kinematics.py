@@ -276,8 +276,8 @@ print(
 velocity = kin.compute_velocity(position)
 
 # %%
-# The :func:`movement.kinematics.compute_velocity`
-# function will return a data array equivalent to
+# The :func:`movement.kinematics.compute_velocity<movement.kinematics.\
+# kinematics.compute_velocity>` function will return a data array equivalent to
 # the ``position`` one, but holding velocity data along the ``space`` axis,
 # rather than position data. Notice how ``xarray`` nicely deals with the
 # different individuals and spatial dimensions for us! ✨
