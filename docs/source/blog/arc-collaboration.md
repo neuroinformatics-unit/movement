@@ -57,7 +57,7 @@ Currently, the submodule has two wrappers to use:
 - `plot_occupancy`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](movement-github:pull/403).
 
 Examples to showcase the use of these plotting functions are currently [being produced](movement-github:issues/415).
-[Our other examples](https://movement.neuroinformatics.dev/examples/index.html) have also been updated to use these functions where possible.
+[Our other examples](target-examples) have also been updated to use these functions where possible.
 
 ### Broadcasting Methods
 
