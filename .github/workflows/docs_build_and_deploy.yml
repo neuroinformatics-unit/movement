@@ -39,17 +39,12 @@ jobs:
             ~/.movement/*
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
-      - uses: neuroinformatics-unit/actions/build_sphinx_docs@eager-mode-on-deploy
+      - uses: neuroinformatics-unit/actions/build_sphinx_docs@ch-artifactci-fork
         with:
           python-version: 3.12
           use-make: true
           fetch-tags: true
-          use-artifactci: >-
-            ${{ (
-              github.event_name == 'push' && github.ref_type == 'tag'
-            ) || (
-              github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-            ) && 'eager' || 'lazy' }}
+          use-artifactci: ${{ (github.event_name == 'workflow_dispatch') && 'eager' || 'lazy' }}
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
