@@ -8,6 +8,7 @@ from movement.kinematics.kinematics import (
     compute_speed,
     compute_time_derivative,
     compute_velocity,
+    detect_u_turns,
 )
 from movement.kinematics.orientation import (
     compute_forward_vector,
@@ -26,4 +27,5 @@ __all__ = [
     "compute_forward_vector",
     "compute_head_direction_vector",
     "compute_forward_vector_angle",
+    "detect_u_turns",
 ]
