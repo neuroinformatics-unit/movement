@@ -226,8 +226,8 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
 }
-
 
 # What to show on the 404 page
 notfound_context = {
