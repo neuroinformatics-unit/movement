@@ -167,7 +167,7 @@ print(ds.position.log)
 
 # %%
 # If you want to retrieve a certain parameter from the log, you can use
-# ``json.loads()`` to parse the log string into a list of dictionaries.
+# :func:`json.loads` to parse the log string into a list of dictionaries.
 
 log_entries = json.loads(ds.position.log)  # A list of dictionaries
 
