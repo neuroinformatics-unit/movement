@@ -30,5 +30,5 @@
    {% endif %}
    {% endblock %}
 
-   .. minigallery:: {{ module }}.{{ objname }}
-      :add-heading: Examples using ``{{ objname }}``
+.. minigallery:: {{ module }}.{{ objname }}
+   :add-heading: Examples using ``{{ objname }}``
