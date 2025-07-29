@@ -9,8 +9,8 @@ from pathlib import Path
 # Modules to exclude from the API index
 exclude_modules = [
     "movement.cli_entrypoint",
-    "movement.loader_widgets",
-    "movement.meta_widget",
+    "movement.napari.loader_widgets",
+    "movement.napari.meta_widget",
 ]
 
 # Modules with submodules imported in __init__.py
