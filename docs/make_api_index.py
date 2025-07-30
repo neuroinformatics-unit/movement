@@ -6,6 +6,11 @@ import os
 import sys
 from pathlib import Path
 
+from jinja2 import FileSystemLoader
+from jinja2.sandbox import SandboxedEnvironment
+from sphinx.ext.autosummary.generate import _underline
+from sphinx.util import rst
+
 # Modules to exclude from the API index
 exclude_modules = [
     "movement.cli_entrypoint",
@@ -21,6 +26,8 @@ script_dir = Path(__file__).resolve().parent
 os.chdir(script_dir)
 movement_root = script_dir.parent  # Go up one level from docs/ to movement/
 sys.path.insert(0, str(movement_root))
+source_path = Path("source")
+templates_path = source_path / "_templates"
 
 
 def get_members(module_name):
@@ -42,51 +49,18 @@ def get_members(module_name):
 def write_autosummary_module_page(module_name, output_path):
     """Generate an .rst file with autosummary listing for the given module."""
     functions, classes = get_members(module_name)
-
-    title = module_name
-    underline = "=" * len(title)
-
-    lines = [
-        f"{title}",
-        f"{underline}",
-        "",
-        ".. rubric:: Description",
-        "",
-        f".. automodule:: {module_name}",
-        "",
-        f".. currentmodule:: {module_name}",
-        "",
-    ]
-
-    if classes:
-        lines += [
-            ".. rubric:: Classes",
-            "",
-            ".. autosummary::",
-            "    :toctree: .",
-            "    :nosignatures:",
-            "",
-        ]
-        for cls in classes:
-            lines.append(f"    {cls}")
-
-        lines.append("")
-
-    if functions:
-        lines += [
-            ".. rubric:: Functions",
-            "",
-            ".. autosummary::",
-            "    :toctree: .",
-            "    :nosignatures:",
-            "",
-        ]
-        for func in functions:
-            lines.append(f"    {func}")
-
-        lines.append("")
+    env = SandboxedEnvironment(loader=FileSystemLoader(templates_path))
+    env.filters["escape"] = rst.escape
+    env.filters["underline"] = _underline
+    template = env.get_template("autosummary/module.rst")
+    content = template.render(
+        fullname=module_name,
+        underline="=" * len(module_name),
+        classes=classes,
+        functions=functions,
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("\n".join(lines))
+    output_path.write_text(content)
 
 
 def make_api_index():
@@ -109,10 +83,10 @@ def make_api_index():
         if module_name not in exclude_modules:
             doctree += f"    {module_name}\n"
     # Get the header
-    api_head_path = Path("source") / "_templates" / "api_index_head.rst"
+    api_head_path = templates_path / "api_index_head.rst"
     api_head = api_head_path.read_text()
     # Write api_index.rst with header + doctree
-    output_path = Path("source") / "api_index.rst"
+    output_path = source_path / "api_index.rst"
     with output_path.open("w") as f:
         f.write(api_head)
         f.write(doctree)
@@ -133,7 +107,7 @@ if __name__ == "__main__":
                             )
                         ).replace(os.sep, ".")
                     )
-        output_path = Path("source") / "api" / f"{module_name}.rst"
+        output_path = source_path / "api" / f"{module_name}.rst"
         write_autosummary_module_page(module_name, output_path)
     # Generate the API index
     make_api_index()
