@@ -4,7 +4,8 @@ This script generates the top-level API index file (``api_index.rst``)
 for all modules in the `movement` package, except for those specified
 in ``EXCLUDE_MODULES``.
 This script also allows "package modules" that aggregate submodules
-via their ``__init__.py`` files to be added to the API index.
+via their ``__init__.py`` files (e.g. ``movement.kinematics``) to be added
+to the API index, rather than listing each submodule separately.
 These modules are specified in ``PACKAGE_MODULES`` and will have their
 autosummary pages generated.
 """
