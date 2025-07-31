@@ -77,6 +77,7 @@ templates_path = ["_templates"]
 
 # Automatically generate stub pages for API
 autosummary_generate = True
+autosummary_generate_overwrite = False
 autodoc_default_flags = ["members", "inherited-members"]
 
 # Prefix section labels with the document name

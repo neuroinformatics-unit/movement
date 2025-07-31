@@ -1,4 +1,4 @@
-"""Helpers to convert between movement poses datasets and NWB files.
+"""Helpers to convert between ``movement`` poses datasets and NWB files.
 
 The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.

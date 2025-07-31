@@ -1,4 +1,4 @@
-"""Transform and add unit attributes to xarray.DataArray datasets."""
+"""Transform and add unit attributes to ``xarray.DataArray`` datasets."""
 
 import numpy as np
 import xarray as xr
