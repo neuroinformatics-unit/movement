@@ -72,8 +72,8 @@ plt.show()
 # %%
 # Pupil trajectory
 # ----------------
-# A quick plot of the trajectory of the centre of the pupil using the
-# ``plot_centroid_trajectory`` function from ``movement.plots``.
+# A quick plot of the trajectory of the centre of the pupil using
+# :func:`movement.plots.plot_centroid_trajectory`.
 time_window = slice(1, 24)  # seconds
 position_black = ds_black.position.sel(time=time_window)  # data array to plot
 fig, ax = plot_centroid_trajectory(
@@ -128,7 +128,7 @@ plt.show()
 # %%
 # Normalised keypoint positions over time
 # ---------------------------------------
-# Normalizing the pupil's position relative to the midpoint of the eye reduces
+# Normalising the pupil's position relative to the midpoint of the eye reduces
 # the impact of head movements or artefacts caused by camera movement. By
 # subtracting the position of the eye's midpoint, we effectively transform the
 # data into a moving coordinate system, with the eye's midpoint as the origin.
@@ -146,7 +146,7 @@ plt.show()
 # To look at pupil position—and later also velocity—over time, we use the
 # pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 # ``pupil-R``). The keypoint ``pupil-C`` is assigned using
-# ``xarray.DataArray.assign_coords``.
+# :meth:`xarray.DataArray.assign_coords`.
 
 pupil_centroid = (
     positions_norm.sel(keypoints=["pupil-L", "pupil-R"])
@@ -155,7 +155,7 @@ pupil_centroid = (
 )
 # %%
 # The pupil centroid keypoint ``pupil-C`` is be added to the ``positions_norm``
-# using ``xarray.concat``.
+# using :func:`xarray.concat`.
 positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoints")
 # %%
 # Now the position of the pupil centroid ``pupil-C`` can be plotted.
@@ -176,9 +176,9 @@ plt.show()
 # can compensate for, a quick, ballistic eye movement is triggered to
 # shift gaze to a new fixation point. These fast eye movements are seen in the
 # previous plot but become even more obvious when the velocity of the pupil
-# centroid is plotted. To do this, we use ``compute_velocity`` from the
-# ``movement.kinematics`` module to calculate the velocity of the eye
-# movements.
+# centroid is plotted. To do this, we use
+# :func:`movement.kinematics.compute_velocity`
+# to calculate the velocity of the eye movements.
 pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoints="pupil-C"))
 pupil_velocity.name = "pupil velocity"
 pupil_velocity.sel(**sel).squeeze().plot.line(
@@ -193,7 +193,7 @@ plt.show()
 # Pupil diameter
 # --------------
 # Here we define the pupil diameter as the distance between the two pupil
-# keypoints. We use ``compute_pairwise_distances`` from ``movement.kinematics``
+# keypoints. We use :func:`movement.kinematics.compute_pairwise_distances`
 # to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 pupil_diameter: xr.DataArray = kin.compute_pairwise_distances(
     positions_norm, dim="keypoints", pairs={"pupil-L": "pupil-R"}
@@ -245,8 +245,8 @@ plt.show()
 # ---------------------
 # A rolling mean (moving average) filter is used here to smooth the data by
 # averaging a specified number of data points (``window_len``).
-# We achieve this by calling the :func:`movement.filtering.rolling_filter`
-# function with the ``statistic="mean"`` option.
+# We achieve this by calling :func:`movement.filtering.rolling_filter`
+# with the ``statistic="mean"`` option.
 
 window_len = 80
 mean_filter = rolling_filter(
