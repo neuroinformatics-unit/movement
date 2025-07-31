@@ -76,7 +76,7 @@ def get_members(module_name):
             functions.append(f"{name}")
         elif inspect.isclass(obj):
             classes.append(f"{name}")
-    return functions, classes
+    return sorted(functions), sorted(classes)
 
 
 def write_autosummary_module_page(module_name, output_path):
