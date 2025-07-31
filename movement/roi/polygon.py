@@ -61,7 +61,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         See Also
         --------
-        movement.roi.base.BaseRegionOfInterest : The base class that
+        movement.roi.BaseRegionOfInterest : The base class that
             constructor arguments are passed to, and defaults are inherited
             from.
 
