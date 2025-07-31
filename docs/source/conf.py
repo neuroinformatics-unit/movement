@@ -227,6 +227,7 @@ intersphinx_mapping = {
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 # What to show on the 404 page
