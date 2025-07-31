@@ -261,7 +261,7 @@ ds["velocity"] = compute_velocity(ds.position)
 ds.velocity
 ```
 
-The output of {func}`compute_velocity<movement.kinematics.kinematics.compute_velocity>` is an {class}`xarray.DataArray` object,
+The output of {func}`movement.kinematics.compute_velocity` is an {class}`xarray.DataArray` object,
 with the same **dimensions** as the original `position` **data variable**,
 so adding it to the existing `ds` makes sense and works seamlessly.
 
