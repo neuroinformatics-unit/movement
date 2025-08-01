@@ -13,18 +13,18 @@ def compute_kinetic_energy(
     keypoints: list | None = None,
     masses: dict | None = None,
 ) -> xr.DataArray:
-    """Compute translational and rotational kinetic energy per individual.
+    r"""Compute translational and internal kinetic energy per individual.
 
     We consider each individual's set of keypoints (pose) as a classical
     system of bodies in physics. This function requires at least two
     keypoints per individual, but more would be desirable for a meaningful
-    decomposition into translational and rotational components.
+    decomposition into translational and internal components.
 
     Parameters
     ----------
     position : xr.DataArray
-        The position data array with dimensions
-        ('time', 'individuals', 'keypoints', 'space').
+        The input data containing position information, with ``time``,
+        ``space`` and ``keypoints`` as required dimensions.
 
     keypoints : list, optional
         A list of keypoint names to include in the computation.
@@ -38,44 +38,76 @@ def compute_kinetic_energy(
     Returns
     -------
     xr.DataArray
-        A DataArray with dimensions ('time', 'individuals', 'energy'),
-        where energy = ['translational', 'rotational'].
+        A data array containing the kinetic energy per individual, for every
+        time point. Note that the output array lacks ``space`` and
+        ``keypoints`` dimensions, but has an extra ``energy`` dimension
+        with coordinates ``translational`` and ``internal``.
+
+    Notes
+    -----
+    The total kinetic energy :math:`K_{total}` of a given individual
+    at a single time point :math:`t` is given by:
+
+    .. math::  K_{total} = \sum_{i} \frac{1}{2} m_i \| \mathbf{v}_i(t) \|^2
+
+    where :math:`m_i` is the mass of the :math:`i`-th keypoint and
+    :math:`\mathbf{v}_i(t)` is its velocity at time :math:`t`.
+
+    Translational kinetic energy is computed based on the motion of the
+    individual's center of mass:
+
+    .. math:: K_{trans} = \frac{1}{2} M \| \mathbf{v}_{cm}(t) \|^2
+
+    where :math:`M = \sum_{i} m_i` is the total mass of the individual
+    and :math:`\mathbf{v}_{cm}(t) = \frac{1}{M} \sum_{i} m_i \mathbf{v}_i(t)`
+    is the velocity of the center of mass at time :math:`t`.
+
+    We define internal kinetic energy :math:`K_{int}` as the difference
+    between the total kinetic energy and the translational kinetic energy:
+
+    .. math:: K_{int} = K_{total} - K_{trans}
+
+    This means that internal kinetic energy captures the motion of
+    keypoints relative to the individual's center of mass.
 
     Examples
     --------
-    >>> from movement.kinematics.kinetic_energy import compute_kinetic_energy
+    >>> from movement.kinematics import compute_kinetic_energy
 
-    Compute translational and rotational kinetic energy from positions:
+    Compute translational and internal kinetic energy from positions:
 
     >>> position = xr.DataArray(
     ...     np.random.rand(3, 2, 4, 2),
     ...     coords={
     ...         "time": [0, 1, 2],
-    ...         "individuals": ["id0", "id1"],
-    ...         "keypoints": ["snout", "spine", "tail_base", "tail_tip"],
     ...         "space": ["x", "y"],
+    ...         "keypoints": ["snout", "spine", "tail_base", "tail_tip"],
+    ...         "individuals": ["id0", "id1"],
     ...     },
-    ...     dims=["time", "individuals", "keypoints", "space"],
+    ...     dims=["time", "space", "keypoints", "individuals"],
     ... )
-    >>> energy = compute_kinetic_energy(position)
-    >>> energy
+    >>> kinetic_energy = compute_kinetic_energy(position)
+    >>> kinetic_energy
     <xarray.DataArray (time: 3, individuals: 2, energy: 2)>
     Coordinates:
       * time        (time) int64 0 1 2
       * individuals (individuals) <U3 'id0' 'id1'
-      * energy      (energy) <U13 'translational' 'rotational'
+      * energy      (energy) <U13 'translational' 'internal'
 
     Compute total kinetic energy:
-    >>> total_ke = energy.sum(dim="energy")
+
+    >>> total_ke = kinetic_energy.sum(dim="energy")
 
     Exclude an unreliable keypoint (e.g. "tail_tip"):
-    >>> energy = compute_kinetic_energy(
+
+    >>> kinetic_energy = compute_kinetic_energy(
     ...     position, keypoints=["snout", "spine", "tail_base"]
     ... )
 
-    Use custom keypoint masses:
+    Use unequal keypoint masses:
+
     >>> masses = {"snout": 1.2, "spine": 0.8, "tail_base": 1.0}
-    >>> energy = compute_kinetic_energy(position, masses=masses)
+    >>> kinetic_energy = compute_kinetic_energy(position, masses=masses)
 
     """
     # Validate required dimensions and coordinate labels
@@ -110,29 +142,21 @@ def compute_kinetic_energy(
             np.ones(position.sizes["keypoints"]), dims=["keypoints"]
         )
 
-    # Compute per-keypoint kinetic energy
-    vel_squared = (
-        compute_norm(velocity) ** 2
-    )  # shape: (time, individuals, keypoints)
-    weighted_ke = 0.5 * vel_squared * weights
+    # Compute total KE
+    weighted_ke = 0.5 * weights * (compute_norm(velocity) ** 2)
+    ke_total = weighted_ke.sum(dim="keypoints")
 
-    # Total kinetic energy
-    K_total = weighted_ke.sum(dim="keypoints")
-
-    # Compute center of mass velocity
-    mass_sum = weights.sum()
+    # Compute translational KE based on center of mass velocity
     v_cm = (velocity * weights.expand_dims(space=["x", "y"])).sum(
         dim="keypoints"
-    ) / mass_sum
-
-    # Compute translational KE
-    K_trans = 0.5 * compute_norm(v_cm) ** 2  # shape: (time, individuals)
+    ) / weights.sum()
+    ke_trans = 0.5 * weights.sum() * compute_norm(v_cm) ** 2
 
     # Rotational KE
-    K_rot = K_total - K_trans
+    ke_int = ke_total - ke_trans
 
     # Format output
-    energy = xr.concat([K_trans, K_rot], dim="energy")
-    energy = energy.assign_coords(energy=["translational", "rotational"])
-    energy = energy.transpose("time", "individuals", "energy")
-    return energy
+    ke = xr.concat([ke_trans, ke_int], dim="energy")
+    ke = ke.assign_coords(energy=["translational", "internal"])
+    ke = ke.transpose("time", ..., "energy")
+    return ke
