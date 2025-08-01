@@ -535,8 +535,8 @@ class BaseRegionOfInterest:
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
         boundary_only : bool
-            Passed to ``compute_approach_vector`` (see Notes). Default
-            ``False``.
+            Passed to :func:`compute_approach_vector`
+            (see Notes). Default ``False``.
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
@@ -576,7 +576,7 @@ class BaseRegionOfInterest:
             ``matplotlib.pyplot.Axes`` object to draw the region on. A new
             ``Figure`` and ``Axes`` will be created if not provided.
         matplotlib_kwargs : Any
-            Keyword arguments passed to the ``matplotlib.pyplot`` plotting
+            Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting
             function.
 
         """

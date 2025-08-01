@@ -49,11 +49,11 @@ position = ds.position
 # Visualise the data
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
-# colouring them by individual. We use the ``plot_centroid_trajectory``
-# function from ``movement.plots`` which is a wrapper around
-# ``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
-# individuals in the dataset. The fig and ax objects returned can be used to
-# further customise the plot.
+# colouring them by individual.
+# We use :func:`movement.plots.plot_centroid_trajectory` which is a wrapper
+# around :func:`matplotlib.pyplot.scatter` that simplifies plotting the
+# trajectories of individuals in the dataset.
+# The fig and ax objects returned can be used to further customise the plot.
 
 # Create a single figure and axes
 fig, ax = plt.subplots(1, 1)
@@ -86,8 +86,8 @@ fig.show()
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# By default the ``plot_centroid_trajectory`` function in ``movement.plots``
-# colours data points based on their timestamps:
+# By default :func:`plot_centroid_trajectory()<movement.plots.\
+# plot_centroid_trajectory>` colours data points based on their timestamps:
 fig, axes = plt.subplots(3, 1, sharey=True)
 for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
     ax.invert_yaxis()
@@ -126,8 +126,8 @@ plt.gcf().show()
 # %%
 # Compute displacement
 # ---------------------
-# The :mod:`movement.kinematics` module provides functions to compute
-# various kinematic quantities,
+# The :mod:`movement.kinematics` module
+# provides functions to compute various kinematic quantities,
 # such as displacement, velocity, and acceleration.
 # We can start off by computing the distance travelled by the mice along
 # their trajectories:

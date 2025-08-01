@@ -63,8 +63,8 @@ habitat_fig.show()
 # In order to ask questions about the behaviour of our individuals with respect
 # to the habitat, we first need to define the RoIs to represent the separate
 # pieces of the habitat programmatically. Since each part of the habitat is
-# two-dimensional, we will use a ``PolygonOfInterest`` to describe each of
-# them.
+# two-dimensional, we will use :class:`movement.roi.PolygonOfInterest`
+# to describe each of them.
 #
 # In the future, the
 # `movement plugin for napari <../user_guide/gui.md>`_
@@ -117,9 +117,9 @@ nest_region = PolygonOfInterest(nest_corners, name="Nest region")
 # %%
 # To create an RoI representing the ring region, we need to provide an interior
 # boundary so that ``movement`` knows our ring region has a "hole".
-# ``movement``'s ``PolygonsOfInterest`` can actually support multiple
-# (non-overlapping) holes, which is why the ``holes`` argument takes a
-# ``list``.
+# :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`
+# can actually support multiple (non-overlapping) holes, which is why the
+# ``holes`` argument takes a ``list``.
 ring_region = PolygonOfInterest(
     ring_outer_boundary, holes=[core_boundary], name="Ring region"
 )
@@ -220,17 +220,22 @@ distances_fig.show()
 # is when the individuals meet in the ``ring_region``, and remain largely
 # stationary in a group until they can pass each other.
 #
-# One other thing to note is that ``compute_distance_to`` is returning the
-# distance "as the crow flies" to the ``nest_region``. This means that
-# structures potentially in the way (such as the ``ring_region`` walls) are not
-# accounted for in this distance calculation. Further to this, the "distance to
-# a RoI" should always be understood as "the distance from a point to the
-# closest point within an RoI".
+# One other thing to note is that
+# :meth:`PolygonOfInterest.compute_distance_to()<movement.roi.\
+# PolygonOfInterest.compute_distance_to>`
+# is returning the distance "as the crow flies" to the ``nest_region``.
+# This means that structures potentially in the way
+# (such as the ``ring_region`` walls) are not accounted for in this distance
+# calculation. Further to this, the "distance to a RoI" should always be
+# understood as "the distance from a point to the closest point within an RoI".
 #
 # If we wanted to check the direction of closest approach to a region, referred
-# to as the **approach vector**, we can use the ``compute_approach_vector``
-# method.
-# The distances that we computed via ``compute_distance_to`` are just the
+# to as the **approach vector**, we can use
+# :meth:`PolygonOfInterest.compute_approach_vector()<movement.roi.\
+# PolygonOfInterest.compute_approach_vector>`.
+# The distances that we computed via
+# :meth:`PolygonOfInterest.compute_distance_to()<movement.roi.\
+# PolygonOfInterest.compute_distance_to>` are just the
 # magnitudes of the approach vectors.
 
 approach_vectors = nest_region.compute_approach_vector(positions)
@@ -273,8 +278,8 @@ distances_fig.show()
 # To find distances to the ring's walls instead, we can use
 # ``boundary_only=True``, which tells ``movement`` to only look at points on
 # the boundary of the region, not inside it.
-# Note that for 1D regions (``LineOfInterest``), the "boundary" is just the
-# endpoints of the line.
+# Note that for 1D regions (:class:`movement.roi.LineOfInterest`),
+# the "boundary" is just the endpoints of the line.
 #
 # Let's try again with ``boundary_only=True``:
 
@@ -364,8 +369,8 @@ distances_exterior_fig.show()
 #
 # For the purposes of our example, we will define our "forward vector" as the
 # velocity vector between successive time-points, for each individual - we can
-# compute this from ``positions`` using the ``compute_velocity`` function in
-# ``movement.kinematics``.
+# compute this from ``positions`` using
+# :func:`movement.kinematics.compute_velocity`.
 # We will also define our reference frame, or "global north" direction, to be
 # the direction of the positive x-axis.
 

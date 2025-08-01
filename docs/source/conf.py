@@ -115,8 +115,11 @@ sphinx_gallery_conf = {
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
+    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
     "remove_config_comments": True,
-    # do not render config params set as # sphinx_gallery_config [= value]
+    # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
+    "backreferences_dir": "api/backreferences",  # directory where function/class granular galleries are stored
+    "doc_module": ("movement",),  # module for which to generate mini-galleries
 }
 
 
@@ -223,8 +226,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
-
 
 # What to show on the 404 page
 notfound_context = {

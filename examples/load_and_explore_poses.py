@@ -47,7 +47,8 @@ position = ds.position
 # %%
 # Select and plot data with xarray
 # --------------------------------
-# You can use the ``sel`` method to index into ``xarray`` objects.
+# You can use :meth:`xarray.DataArray.sel` or :meth:`xarray.Dataset.sel` to
+# index into ``xarray`` data arrays and datasets.
 # For example, we can get a ``DataArray`` containing only data
 # for a single keypoint of the first individual:
 
@@ -70,9 +71,9 @@ da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
 # Trajectory plots
 # ----------------
 # We are not limited to ``xarray``'s built-in plots.
-# The ``movement.plots`` module provides some additional
-# visualisations, like ``plot_centroid_trajectory()``.
-
+# The :mod:`movement.plots` module provides some additional
+# visualisations, like :func:`plot_centroid_trajectory()\
+# <movement.plots.plot_centroid_trajectory>`.
 
 mouse_name = "AEON3B_TP1"
 fig, ax = plot_centroid_trajectory(position, individual=mouse_name)
