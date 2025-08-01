@@ -104,6 +104,7 @@ def test_weighted_kinetic_energy(valid_poses_dataset):
 def test_insufficient_keypoints(valid_poses_dataset):
     """Function should raise error if fewer than 2 keypoints."""
     with pytest.raises(
-        ValueError, match="Position array must contain at least two keypoints"
+        ValueError,
+        match="At least 2 keypoints are required to compute kinetic energy.",
     ):
         compute_kinetic_energy(valid_poses_dataset["position"])

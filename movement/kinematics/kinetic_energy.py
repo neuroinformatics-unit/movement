@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 
 from movement.kinematics.kinematics import compute_velocity
+from movement.utils.logging import logger
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
 
@@ -114,19 +115,16 @@ def compute_kinetic_energy(
     validate_dims_coords(
         position, {"time": [], "space": ["x", "y"], "keypoints": []}
     )
-
-    # Validate that at least 2 keypoints exist
-    if keypoints is not None:
-        if len(keypoints) < 2:
-            raise ValueError(
-                "At least two keypoints are required for KE decomposition."
-            )
-    elif position.sizes["keypoints"] < 2:
-        raise ValueError("Position array must contain at least two keypoints.")
-
     # Subset keypoints if requested
     if keypoints is not None:
         position = position.sel(keypoints=keypoints)
+    # Validate that at least 2 keypoints exist
+    if position.sizes["keypoints"] < 2:
+        raise logger.error(
+            ValueError(
+                "At least 2 keypoints are required to compute kinetic energy."
+            )
+        )
 
     # Compute velocity from position
     velocity = compute_velocity(position)
