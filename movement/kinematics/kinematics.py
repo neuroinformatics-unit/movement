@@ -13,11 +13,13 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
+from movement.kinematics.orientation import compute_forward_vector
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
-from movement.utils.vector import compute_norm
+from movement.utils.vector import compute_norm, compute_signed_angle_2d
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -379,3 +381,68 @@ def _compute_scaled_path_length(
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def detect_u_turns(
+    data: xr.DataArray,
+    use_direction: Literal["forward_vector", "displacement"] = "displacement",
+    u_turn_threshold: float = np.pi * 5 / 6,  # 150 degrees in radians
+    camera_view: Literal["top_down", "bottom_up"] = "bottom_up",
+) -> xr.DataArray:
+    """Detect U-turn behavior in a trajectory.
+
+    This function computes the directional change between consecutive time
+    frames and accumulates the rotation angles. If the accumulated angle
+    exceeds a specified threshold, a U-turn is detected.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The trajectory data, which must contain the 'time' and 'space' (x, y).
+    use_direction : Literal["forward_vector", "displacement"], optional
+        Method to compute direction vectors, default is `"displacement"`:
+        - `"forward_vector"`: Computes the forward direction vector.
+        - `"displacement"`: Computes displacement vectors.
+    u_turn_threshold : float, optional
+        The angle threshold (in radians) to detect U-turn. Default is (`5π/6`).
+    camera_view : Literal["top_down", "bottom_up"], optional
+        Specifies the camera perspective used for computing direction vectors.
+
+    Returns
+    -------
+    xarray.DataArray
+        A boolean scalar DataArray indicating whether a U-turn has occurred.
+
+    """
+    # Compute direction vectors
+    if use_direction == "forward_vector":
+        direction_vectors = compute_forward_vector(
+            data, "left_ear", "right_ear", camera_view=camera_view
+        )
+    elif use_direction == "displacement":
+        if "keypoints" in data.dims:
+            raise ValueError(
+                "Displacement expects single keypoint data "
+                "and must not include the 'keypoints' dimension."
+            )
+        direction_vectors = compute_displacement(data)
+    else:
+        raise ValueError(
+            "The parameter `use_direction` must be one of `forward_vector` "
+            f" or `displacement`, but got {use_direction}."
+        )
+
+    # Compute angle between vectors
+    angles = compute_signed_angle_2d(
+        direction_vectors.shift(time=1), direction_vectors
+    )
+    angles = angles.fillna(0)
+
+    # Accumulate angles over time and compute range
+    cumulative_rotation = angles.cumsum(dim="time")
+    rotation_range = cumulative_rotation.max(
+        dim="time"
+    ) - cumulative_rotation.min(dim="time")
+
+    # Return scalar boolean as xarray.DataArray
+    return xr.DataArray(rotation_range >= u_turn_threshold)
