@@ -89,9 +89,9 @@ def compute_kinetic_energy(
     Compute total kinetic energy:
 
     >>> position = xr.DataArray(
-    ...     np.random.rand(10, 2, 4, 2),
+    ...     np.random.rand(3, 2, 4, 2),
     ...     coords={
-    ...         "time": np.arange(10),
+    ...         "time": np.arange(3),
     ...         "individuals": ["id0", "id1"],
     ...         "keypoints": ["snout", "spine", "tail_base", "tail_tip"],
     ...         "space": ["x", "y"],
@@ -113,11 +113,13 @@ def compute_kinetic_energy(
 
     >>> kinetic_energy = compute_kinetic_energy(position, decompose=True)
 
-    >>> kinetic_energy.shape
-    (10, 2, 2)
-
-    >>> kinetic_energy.coords["energy"].values
-    array(['translational', 'internal'], dtype='<U13')
+    >>> kinetic_energy
+    <xarray.DataArray (time: 3, individuals: 2, energy: 2)> Size: 96B
+    0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857
+    Coordinates:
+    * time         (time) int64 24B 0 1 2
+    * individuals  (individuals) <U3 24B 'id0' 'id1'
+    * energy       (energy) <U13 104B 'translational' 'internal'
 
     Select the 'internal' component:
 
