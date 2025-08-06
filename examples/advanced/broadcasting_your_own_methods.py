@@ -1,8 +1,7 @@
 """Broadcast functions across multi-dimensional data
 =====================================================
 
-Use the :func:`movement.utils.broadcasting.make_broadcastable` decorator
-(:func:`@make_broadcastable()<movement.utils.broadcasting.make_broadcastable>`)
+Use the @make_broadcastable decorator
 to efficiently apply functions across any data dimension.
 """
 
