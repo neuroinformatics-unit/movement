@@ -54,7 +54,7 @@ The pose tracks loading functionalities are provided by the
 from movement.io import load_poses
 ```
 
-To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general `from_numpy()` method, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general {func}`from_numpy()<movement.io.load_poses.from_numpy>` function, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 
@@ -225,7 +225,7 @@ To load bounding box tracks into a [movement bounding boxes dataset](target-pose
 from movement.io import load_bboxes
 ```
 
-We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a `from_numpy()` method, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a {func}`from_numpy()<movement.io.load_bboxes.from_numpy>` function, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 ::::{tab-set}
 :::{tab-item} VGG Image Annotator

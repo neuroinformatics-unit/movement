@@ -125,8 +125,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
 #
 # Here we use the default ``statistic="median"`` option, which is a sensible
 # choice for smoothing time-series data while being robust to outliers.
-# You can also use the ``rolling_filter`` function to compute the rolling
-# mean, maximum, and minimum values (instead of the median), by
+# You can also use
+# :func:`rolling_filter()<movement.filtering.rolling_filter>` to compute
+# the rolling mean, maximum, and minimum values (instead of the median), by
 # setting ``statistic`` to ``"mean"``, ``"max"``, or ``"min"``, respectively.
 
 window = int(0.1 * ds_wasp.fps)
