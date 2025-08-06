@@ -44,7 +44,6 @@ jobs:
           python-version: 3.12
           use-make: true
           fetch-tags: true
-          use-artifactci: eager
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
