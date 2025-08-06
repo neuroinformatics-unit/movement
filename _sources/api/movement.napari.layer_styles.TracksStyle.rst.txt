@@ -36,3 +36,6 @@ TracksStyle
    
    
    
+
+.. minigallery:: movement.napari.layer_styles.TracksStyle
+   :add-heading: Examples using ``TracksStyle``

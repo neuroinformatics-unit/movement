@@ -18,3 +18,6 @@ ValidAniposeCSV
 
    
    
+
+.. minigallery:: movement.validators.files.ValidAniposeCSV
+   :add-heading: Examples using ``ValidAniposeCSV``

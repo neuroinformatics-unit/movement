@@ -154,15 +154,16 @@ To get the position data:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-53
+.. GENERATED FROM PYTHON SOURCE LINES 48-54
 
 Select and plot data with xarray
 --------------------------------
-You can use the ``sel`` method to index into ``xarray`` objects.
+You can use :meth:`xarray.DataArray.sel` or :meth:`xarray.Dataset.sel` to
+index into ``xarray`` data arrays and datasets.
 For example, we can get a ``DataArray`` containing only data
 for a single keypoint of the first individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-57
+.. GENERATED FROM PYTHON SOURCE LINES 54-58
 
 .. code-block:: Python
 
@@ -189,12 +190,12 @@ for a single keypoint of the first individual:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 59-61
 
 We could plot the x, y coordinates of this keypoint over time,
 using ``xarray``'s built-in plotting methods:
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-62
+.. GENERATED FROM PYTHON SOURCE LINES 61-63
 
 .. code-block:: Python
 
@@ -214,16 +215,16 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f5a5c8f0560>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fa4bcaf7b30>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 63-65
+.. GENERATED FROM PYTHON SOURCE LINES 64-66
 
 Similarly we could plot the same keypoint's x, y coordinates
 for all individuals:
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-69
+.. GENERATED FROM PYTHON SOURCE LINES 66-70
 
 .. code-block:: Python
 
@@ -245,22 +246,22 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f5a5c4c14c0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fa4bcfc9c70>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-75
+.. GENERATED FROM PYTHON SOURCE LINES 71-77
 
 Trajectory plots
 ----------------
 We are not limited to ``xarray``'s built-in plots.
-The ``movement.plots`` module provides some additional
-visualisations, like ``plot_centroid_trajectory()``.
+The :mod:`movement.plots` module provides some additional
+visualisations, like :func:`plot_centroid_trajectory()\
+<movement.plots.plot_centroid_trajectory>`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-80
+.. GENERATED FROM PYTHON SOURCE LINES 77-81
 
 .. code-block:: Python
-
 
 
     mouse_name = "AEON3B_TP1"
@@ -281,7 +282,7 @@ visualisations, like ``plot_centroid_trajectory()``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.715 seconds)
+   **Total running time of the script:** (0 minutes 0.704 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

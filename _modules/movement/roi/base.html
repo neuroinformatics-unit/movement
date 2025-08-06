@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -438,7 +438,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseRegionOfInterest</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for regions of interest (RoIs).</span>
 
@@ -703,7 +703,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;_plot must be implemented by subclass.&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseRegionOfInterest.contains_point">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.contains_point">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.contains_point">[docs]</a>
     <span class="nd">@broadcastable_method</span><span class="p">(</span><span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains_point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -746,7 +746,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_distance_to">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_distance_to">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_distance_to">[docs]</a>
     <span class="nd">@broadcastable_method</span><span class="p">(</span><span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_distance_to</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -777,7 +777,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_nearest_point_to">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_nearest_point_to">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_nearest_point_to">[docs]</a>
     <span class="nd">@broadcastable_method</span><span class="p">(</span>
         <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;nearest point&quot;</span>
     <span class="p">)</span>
@@ -817,7 +817,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_approach_vector">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_approach_vector">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_approach_vector">[docs]</a>
     <span class="nd">@broadcastable_method</span><span class="p">(</span>
         <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;vector to&quot;</span>
     <span class="p">)</span>
@@ -878,7 +878,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_allocentric_angle_to_nearest_point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -941,7 +941,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_egocentric_angle_to_nearest_point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">direction</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -968,8 +968,8 @@
 <span class="sd">            `DataArray` of spatial positions, considered the origin of the</span>
 <span class="sd">            ``direction`` vector.</span>
 <span class="sd">        boundary_only : bool</span>
-<span class="sd">            Passed to ``compute_approach_vector`` (see Notes). Default</span>
-<span class="sd">            ``False``.</span>
+<span class="sd">            Passed to :func:`compute_approach_vector`</span>
+<span class="sd">            (see Notes). Default ``False``.</span>
 <span class="sd">        in_degrees : bool</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
@@ -1000,7 +1000,7 @@
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.plot">
-<a class="viewcode-back" href="../../../api/movement.roi.base.BaseRegionOfInterest.html#movement.roi.base.BaseRegionOfInterest.plot">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.plot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
@@ -1012,7 +1012,7 @@
 <span class="sd">            ``matplotlib.pyplot.Axes`` object to draw the region on. A new</span>
 <span class="sd">            ``Figure`` and ``Axes`` will be created if not provided.</span>
 <span class="sd">        matplotlib_kwargs : Any</span>
-<span class="sd">            Keyword arguments passed to the ``matplotlib.pyplot`` plotting</span>
+<span class="sd">            Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting</span>
 <span class="sd">            function.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -429,7 +429,7 @@
 
 
 <div class="viewcode-block" id="PolygonOfInterest">
-<a class="viewcode-back" href="../../../api/movement.roi.polygon.PolygonOfInterest.html#movement.roi.polygon.PolygonOfInterest">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PolygonOfInterest</span><span class="p">(</span><span class="n">BaseRegionOfInterest</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Representation of a two-dimensional region in the x-y plane.</span>
 
@@ -444,7 +444,8 @@
 <span class="sd">    joined (in sequence) by straight lines between consecutive pairs of points,</span>
 <span class="sd">    to form the exterior boundary of the RoI. Note that the exterior boundary</span>
 <span class="sd">    (accessible as via the ``.exterior`` property) is a (closed)</span>
-<span class="sd">    ``LineOfInterest``, and may be treated accordingly.</span>
+<span class="sd">    :class:`LineOfInterest&lt;movement.roi.LineOfInterest&gt;`, and may be treated</span>
+<span class="sd">    accordingly.</span>
 
 <span class="sd">    The class also supports holes - subregions properly contained inside the</span>
 <span class="sd">    region that are not part of the region itself. These can be specified by</span>
@@ -477,7 +478,7 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        movement.roi.base.BaseRegionOfInterest : The base class that</span>
+<span class="sd">        movement.roi.BaseRegionOfInterest : The base class that</span>
 <span class="sd">            constructor arguments are passed to, and defaults are inherited</span>
 <span class="sd">            from.</span>
 
@@ -541,7 +542,7 @@
 
 <span class="sd">        In addition, ``matplotlib`` requires hole coordinates to be listed in</span>
 <span class="sd">        the reverse orientation to the exterior boundary. Running</span>
-<span class="sd">        ``numpy.flip`` on the exterior coordinates is a cheap way to ensure</span>
+<span class="sd">        :func:`numpy.flip` on the exterior coordinates is a cheap way to ensure</span>
 <span class="sd">        that we adhere to this convention, since our geometry is normalised</span>
 <span class="sd">        upon creation, so this amounts to reversing the order of the</span>
 <span class="sd">        coordinates.</span>

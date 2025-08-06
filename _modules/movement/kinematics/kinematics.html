@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -436,7 +436,7 @@
 
 
 <div class="viewcode-block" id="compute_time_derivative">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_time_derivative.html#movement.kinematics.kinematics.compute_time_derivative">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the time-derivative of an array using numerical differentiation.</span>
 
@@ -478,7 +478,7 @@
 
 
 <div class="viewcode-block" id="compute_displacement">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_displacement.html#movement.kinematics.kinematics.compute_displacement">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_displacement.html#movement.kinematics.compute_displacement">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute displacement array in cartesian coordinates.</span>
 
@@ -525,7 +525,7 @@
 
 
 <div class="viewcode-block" id="compute_velocity">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_velocity.html#movement.kinematics.kinematics.compute_velocity">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity array in cartesian coordinates.</span>
 
@@ -569,7 +569,7 @@
 
 
 <div class="viewcode-block" id="compute_acceleration">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_acceleration.html#movement.kinematics.kinematics.compute_acceleration">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration array in cartesian coordinates.</span>
 
@@ -614,7 +614,7 @@
 
 
 <div class="viewcode-block" id="compute_speed">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_speed.html#movement.kinematics.kinematics.compute_speed">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_speed.html#movement.kinematics.compute_speed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_speed</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute instantaneous speed at each time point.</span>
 
@@ -643,7 +643,7 @@
 
 
 <div class="viewcode-block" id="compute_path_length">
-<a class="viewcode-back" href="../../../api/movement.kinematics.kinematics.compute_path_length.html#movement.kinematics.kinematics.compute_path_length">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_path_length</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

@@ -130,11 +130,11 @@ To compute displacement, velocity and acceleration, we will need the
 Visualise the data
 ---------------------------
 First, let's visualise the trajectories of the mice in the XY plane,
-colouring them by individual. We use the ``plot_centroid_trajectory``
-function from ``movement.plots`` which is a wrapper around
-``matplotlib.pyplot.scatter`` that simplifies plotting the trajectories of
-individuals in the dataset. The fig and ax objects returned can be used to
-further customise the plot.
+colouring them by individual.
+We use :func:`movement.plots.plot_centroid_trajectory` which is a wrapper
+around :func:`matplotlib.pyplot.scatter` that simplifies plotting the
+trajectories of individuals in the dataset.
+The fig and ax objects returned can be used to further customise the plot.
 
 .. GENERATED FROM PYTHON SOURCE LINES 57-82
 
@@ -186,8 +186,8 @@ follows the convention for SLEAP and most image processing tools.
 
 .. GENERATED FROM PYTHON SOURCE LINES 89-91
 
-By default the ``plot_centroid_trajectory`` function in ``movement.plots``
-colours data points based on their timestamps:
+By default :func:`plot_centroid_trajectory()<movement.plots.\
+plot_centroid_trajectory>` colours data points based on their timestamps:
 
 .. GENERATED FROM PYTHON SOURCE LINES 91-107
 
@@ -264,8 +264,8 @@ and the ``x`` and ``y`` coordinates of the ``position`` are in pixels.
 
 Compute displacement
 ---------------------
-The :mod:`movement.kinematics` module provides functions to compute
-various kinematic quantities,
+The :mod:`movement.kinematics` module
+provides functions to compute various kinematic quantities,
 such as displacement, velocity, and acceleration.
 We can start off by computing the distance travelled by the mice along
 their trajectories:
@@ -383,7 +383,7 @@ we focus on the mouse ``AEON3B_TP2``:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f5a4eed7710>
+    <matplotlib.colorbar.Colorbar object at 0x7fa4b949fe00>
 
 
 
@@ -464,7 +464,7 @@ the plot above:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f5a4e10fa10>
+    <matplotlib.colorbar.Colorbar object at 0x7fa4b8a8e030>
 
 
 
@@ -755,7 +755,7 @@ acceleration vector for each individual:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.043 seconds)
+   **Total running time of the script:** (0 minutes 2.070 seconds)
 
 
 .. _sphx_glr_download_examples_compute_kinematics.py:

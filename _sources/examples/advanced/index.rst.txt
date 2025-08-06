@@ -20,7 +20,7 @@ full power of ``movement``.
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Use the make_broadcastable decorator to efficiently apply functions across any data dimension.">
+    <div class="sphx-glr-thumbcontainer" tooltip="Use the @make_broadcastable decorator to efficiently apply functions across any data dimension.">
 
 .. only:: html
 

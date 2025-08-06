@@ -20,17 +20,11 @@ Information on specific functions, classes, and methods.
     movement.io.load_poses
     movement.io.nwb
     movement.io.save_poses
-    movement.kinematics.distances
-    movement.kinematics.kinematics
-    movement.kinematics.orientation
+    movement.kinematics
     movement.napari.convert
     movement.napari.layer_styles
-    movement.plots.occupancy
-    movement.plots.trajectory
-    movement.roi.base
-    movement.roi.conditions
-    movement.roi.line
-    movement.roi.polygon
+    movement.plots
+    movement.roi
     movement.sample_data
     movement.transforms
     movement.utils.broadcasting

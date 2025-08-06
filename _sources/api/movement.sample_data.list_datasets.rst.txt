@@ -4,3 +4,6 @@ list\_datasets
 .. currentmodule:: movement.sample_data
 
 .. autofunction:: list_datasets
+
+.. minigallery:: movement.sample_data.list_datasets
+   :add-heading: Examples using ``list_datasets``

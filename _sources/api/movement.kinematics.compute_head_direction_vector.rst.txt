@@ -1,0 +1,9 @@
+﻿compute\_head\_direction\_vector
+================================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_head_direction_vector
+
+.. minigallery:: movement.kinematics.compute_head_direction_vector
+   :add-heading: Examples using ``compute_head_direction_vector``

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -435,7 +435,7 @@
 <span id="target-poses-and-bboxes-dataset"></span><h1>The movement datasets<a class="headerlink" href="#the-movement-datasets" title="Link to this heading">#</a></h1>
 <p>In <code class="docutils literal notranslate"><span class="pre">movement</span></code>, poses or bounding box tracks are represented
 as an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object.</p>
-<p>An <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object is a container for multiple arrays. Each array is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object holding different aspects of the collected data (position, time, confidence scores…). You can think of a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object as a multi-dimensional <code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>
+<p>An <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object is a container for multiple arrays. Each array is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object holding different aspects of the collected data (position, time, confidence scores…). You can think of a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object as a multi-dimensional <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>
 with pandas-style indexing and labelling.</p>
 <p>So a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset is simply an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> with a specific
 structure to represent pose tracks or bounding box tracks. Because pose data and bounding box data are somewhat different, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides two types of datasets: <code class="docutils literal notranslate"><span class="pre">poses</span></code> datasets and <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> datasets.</p>
@@ -690,7 +690,7 @@ points and store the results within the same dataset, for convenience.</p>
 <span class="n">ds</span><span class="o">.</span><span class="n">velocity</span>
 </pre></div>
 </div>
-<p>The output of <a class="reference internal" href="../api/movement.kinematics.kinematics.compute_velocity.html#movement.kinematics.kinematics.compute_velocity" title="movement.kinematics.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_velocity</span></code></a> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
+<p>The output of <a class="reference internal" href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code></a> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
 with the same <strong>dimensions</strong> as the original <code class="docutils literal notranslate"><span class="pre">position</span></code> <strong>data variable</strong>,
 so adding it to the existing <code class="docutils literal notranslate"><span class="pre">ds</span></code> makes sense and works seamlessly.</p>
 <p>We can also update existing <strong>data variables</strong> in-place, using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>. For example, if we wanted to update the <code class="docutils literal notranslate"><span class="pre">position</span></code>

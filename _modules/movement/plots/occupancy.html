@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -427,7 +427,7 @@
 
 
 <div class="viewcode-block" id="plot_occupancy">
-<a class="viewcode-back" href="../../../api/movement.plots.occupancy.plot_occupancy.html#movement.plots.occupancy.plot_occupancy">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.plots.plot_occupancy.html#movement.plots.plot_occupancy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_occupancy</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">individuals</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Hashable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -438,9 +438,9 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D occupancy histogram.</span>
 
 <span class="sd">    - If there are multiple keypoints selected, the occupancy of the centroid</span>
-<span class="sd">        of these keypoints is computed.</span>
-<span class="sd">    - If there are multiple individuals selected, the their occupancies are</span>
-<span class="sd">        aggregated.</span>
+<span class="sd">      of these keypoints is computed.</span>
+<span class="sd">    - If there are multiple individuals selected, their occupancies are</span>
+<span class="sd">      aggregated.</span>
 
 <span class="sd">    Points whose corresponding spatial coordinates have NaN values</span>
 <span class="sd">    are ignored.</span>
@@ -461,7 +461,7 @@
 <span class="sd">        Axes object on which to draw the histogram. If not provided, a new</span>
 <span class="sd">        figure and axes are created and returned.</span>
 <span class="sd">    kwargs : Any</span>
-<span class="sd">        Keyword arguments passed to ``matplotlib.pyplot.hist2d``</span>
+<span class="sd">        Keyword arguments passed to :meth:`matplotlib.axes.Axes.hist2d`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -477,9 +477,9 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The third return value of this method exposes the outputs from</span>
-<span class="sd">    ``matplotlib.pyplot.hist2d`` that would otherwise be lost if only the</span>
-<span class="sd">    figure and axes handles were returned. This information is returned as a</span>
-<span class="sd">    dictionary.</span>
+<span class="sd">    :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost if only</span>
+<span class="sd">    the figure and axes handles were returned. This information is returned</span>
+<span class="sd">    as a dictionary.</span>
 
 <span class="sd">    For data with ``Nx`` bins in the 1st spatial dimension, and ``Ny`` bins in</span>
 <span class="sd">    the 2nd spatial dimension, the dictionary output has key-value pairs;</span>
@@ -491,7 +491,7 @@
 
 <span class="sd">    ``counts[x, y]`` is the number of datapoints in the</span>
 <span class="sd">    ``(xedges[x], xedges[x+1]), (yedges[y], yedges[y+1])`` bin. These values</span>
-<span class="sd">    are those returned from ``matplotlib.pyplot.Axes.hist2d``.</span>
+<span class="sd">    are those returned from :meth:`matplotlib.axes.Axes.hist2d`.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -538,7 +538,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    matplotlib.pyplot.Axes.hist2d : The underlying plotting function.</span>
+<span class="sd">    :meth:`matplotlib.axes.Axes.hist2d` : The underlying plotting function.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Collapse dimensions if necessary</span>

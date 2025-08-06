@@ -109,7 +109,7 @@ In this tutorial, we will use a sample dataset with a single individual
 
 The loaded dataset ``ds`` contains two data arrays:``position`` and
 ``confidence``. In this tutorial, we will only use the ``position`` data
-array. We use the ``squeeze()`` method to remove
+array. We use :meth:`xarray.DataArray.squeeze` to remove
 the redundant ``individuals`` dimension, as there is only one individual
 in this dataset.
 
@@ -137,7 +137,7 @@ We will overlay that on a single video frame that comes
 as part of the sample dataset.
 
 The :func:`plot_centroid_trajectory()\
-<movement.plots.trajectory.plot_centroid_trajectory>`
+<movement.plots.plot_centroid_trajectory>`
 function can help you visualise the trajectory of any keypoint in the data.
 Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
 will plot the centroid (midpoint) of the selected keypoints.
@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7f5a4e900a40>
+    <matplotlib.legend.Legend object at 0x7fa4b8717740>
 
 
 
@@ -383,14 +383,15 @@ head vector.
     :width: 600
     :alt: Schematic comparing cartesian and polar coordinates
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-226
+.. GENERATED FROM PYTHON SOURCE LINES 222-227
 
-``movement`` also provides a ``pol2cart`` function to transform
-data in polar coordinates to cartesian.
+``movement`` also provides a
+:func:`pol2cart()<movement.utils.vector.pol2cart>` function
+to transform data in polar coordinates to cartesian.
 Note that the resulting ``head_to_snout_cart`` array has a ``space``
 dimension with two coordinates: ``x`` and ``y``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 226-230
+.. GENERATED FROM PYTHON SOURCE LINES 227-231
 
 .. code-block:: Python
 
@@ -416,7 +417,7 @@ dimension with two coordinates: ``x`` and ``y``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 231-243
+.. GENERATED FROM PYTHON SOURCE LINES 232-244
 
 Compute the "forward" vector
 ----------------------------
@@ -431,7 +432,7 @@ Here we will use the two ears to find the head direction vector.
 We may prefer this method if we expect the snout detection to be
 unreliable (e.g., because it's often occluded in a top-down camera view).
 
-.. GENERATED FROM PYTHON SOURCE LINES 243-252
+.. GENERATED FROM PYTHON SOURCE LINES 244-253
 
 .. code-block:: Python
 
@@ -462,7 +463,7 @@ unreliable (e.g., because it's often occluded in a top-down camera view).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 253-267
+.. GENERATED FROM PYTHON SOURCE LINES 254-268
 
 .. admonition:: Why do we need to specify the camera view?
   :class: note
@@ -479,10 +480,12 @@ unreliable (e.g., because it's often occluded in a top-down camera view).
     :width: 600
     :alt: Schematic showing forward vector in top-down and bottom-up views
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-279
+.. GENERATED FROM PYTHON SOURCE LINES 271-282
 
-You can use ``compute_forward_vector`` to compute the perpendicular
-vector to any line connecting two bilaterally symmetric keypoints.
+You can use
+:func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
+to compute the perpendicular vector to any line connecting two bilaterally
+symmetric keypoints.
 For example, you could estimate the forward direction for the pelvis given
 two keypoints at the hips.
 
@@ -491,7 +494,7 @@ Specifically for the head direction vector, you may also use the alias
 <movement.kinematics.compute_head_direction_vector>`,
 which makes the intent of the function clearer.
 
-.. GENERATED FROM PYTHON SOURCE LINES 281-291
+.. GENERATED FROM PYTHON SOURCE LINES 284-294
 
 Compute head direction angle
 ----------------------------
@@ -504,7 +507,7 @@ more convenient to use the :func:`compute_forward_vector_angle()\
 <movement.kinematics.compute_forward_vector_angle>` function, which
 by default would return the same ``phi`` angle.
 
-.. GENERATED FROM PYTHON SOURCE LINES 291-303
+.. GENERATED FROM PYTHON SOURCE LINES 294-306
 
 .. code-block:: Python
 
@@ -537,7 +540,7 @@ by default would return the same ``phi`` angle.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 304-310
+.. GENERATED FROM PYTHON SOURCE LINES 307-313
 
 The resulting ``forward_vector_angle`` array contains the head direction
 angle in radians, with respect to the positive x-axis. This means that
@@ -546,7 +549,7 @@ We could have also used an alternative reference vector, such as the
 negative y-axis (pointing to the top edge of the frame) by setting
 ``reference_vector=(0, -1)``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 312-318
+.. GENERATED FROM PYTHON SOURCE LINES 315-321
 
 Visualise head direction angles
 -------------------------------
@@ -555,7 +558,7 @@ i.e. the polar angle ``phi`` of the head-to-snout vector and the polar angle
 of the forward vector, by plotting their histograms in polar coordinates.
 First, let's define a custom plotting function that will help us with this.
 
-.. GENERATED FROM PYTHON SOURCE LINES 318-363
+.. GENERATED FROM PYTHON SOURCE LINES 321-366
 
 .. code-block:: Python
 
@@ -611,12 +614,12 @@ First, let's define a custom plotting function that will help us with this.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 364-366
+.. GENERATED FROM PYTHON SOURCE LINES 367-369
 
 Now we can visualise the polar ``phi`` angles of the ``head_to_snout_polar``
 array alongside the values of the ``forward_vector_angle`` array.
 
-.. GENERATED FROM PYTHON SOURCE LINES 366-382
+.. GENERATED FROM PYTHON SOURCE LINES 369-385
 
 .. code-block:: Python
 
@@ -648,7 +651,7 @@ array alongside the values of the ``forward_vector_angle`` array.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 384-389
+.. GENERATED FROM PYTHON SOURCE LINES 387-392
 
 We see that the angle histograms are not identical,
 i.e. the two methods of computing head angle do not always yield
@@ -656,7 +659,7 @@ the same results.
 How large are the differences between the two methods?
 We could check that by plotting a histogram of the differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 389-394
+.. GENERATED FROM PYTHON SOURCE LINES 392-397
 
 .. code-block:: Python
 
@@ -683,7 +686,7 @@ We could check that by plotting a histogram of the differences.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 395-397
+.. GENERATED FROM PYTHON SOURCE LINES 398-400
 
 For the majority of the time, the two methods
 differ less than 20 degrees (2 histogram bins).
@@ -691,7 +694,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.813 seconds)
+   **Total running time of the script:** (0 minutes 0.827 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:

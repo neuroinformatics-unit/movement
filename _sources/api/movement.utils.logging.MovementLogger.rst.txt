@@ -42,3 +42,6 @@ MovementLogger
    
    
    
+
+.. minigallery:: movement.utils.logging.MovementLogger
+   :add-heading: Examples using ``MovementLogger``

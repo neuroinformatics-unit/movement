@@ -30,3 +30,6 @@ LayerStyle
    
    
    
+
+.. minigallery:: movement.napari.layer_styles.LayerStyle
+   :add-heading: Examples using ``LayerStyle``

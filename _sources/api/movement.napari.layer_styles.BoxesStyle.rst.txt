@@ -42,3 +42,6 @@ BoxesStyle
    
    
    
+
+.. minigallery:: movement.napari.layer_styles.BoxesStyle
+   :add-heading: Examples using ``BoxesStyle``

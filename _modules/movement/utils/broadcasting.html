@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -415,7 +415,7 @@
 <span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Broadcasting operations across ``xarray.DataArray`` dimensions.</span>
 
 <span class="sd">This module essentially provides an equivalent functionality to</span>
-<span class="sd">``numpy.apply_along_axis``, but for ``xarray.DataArray`` objects.</span>
+<span class="sd">:func:`numpy.apply_along_axis`, but for ``xarray.DataArray`` objects.</span>
 <span class="sd">This functionality is provided as a decorator, so it can be applied to both</span>
 <span class="sd">functions within the package and be available to users who would like to use it</span>
 <span class="sd">in their analysis.</span>
@@ -426,10 +426,11 @@
 <span class="sd">need to be examined, or re-write the function to be able to broadcast along the</span>
 <span class="sd">necessary dimension of the data structure.</span>
 
-<span class="sd">The ``make_broadcastable`` decorator takes care of the latter piece of work,</span>
-<span class="sd">allowing us to write functions that operate on 1D slices, then apply this</span>
-<span class="sd">decorator to have them work across ``xarray.DataArray`` dimensions. The</span>
-<span class="sd">function</span>
+<span class="sd">The :func:`make_broadcastable()\</span>
+<span class="sd">&lt;movement.utils.broadcasting.make_broadcastable&gt;` decorator takes care of the</span>
+<span class="sd">latter piece of work, allowing us to write functions that operate on 1D slices,</span>
+<span class="sd">then apply this decorator to have them work across ``xarray.DataArray``</span>
+<span class="sd">dimensions. The function</span>
 
 <span class="sd">&gt;&gt;&gt; def my_function(input_1d, *args, **kwargs):</span>
 <span class="sd">...     # do something</span>
@@ -490,9 +491,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a function ``f`` across ``dimension`` of ``data``.</span>
 
-<span class="sd">    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a one-</span>
-<span class="sd">    dimensional ``numpy.typing.ArrayLike`` object. It should return either a</span>
-<span class="sd">    scalar or one-dimensional ``numpy.typing.ArrayLike`` object.</span>
+<span class="sd">    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a</span>
+<span class="sd">    one-dimensional :data:`numpy.typing.ArrayLike` object. It should return</span>
+<span class="sd">    either a scalar or one-dimensional :data:`numpy.typing.ArrayLike` object.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -621,7 +622,7 @@
 <span class="sd">    ... my_function(data_array, *args, **kwargs)</span>
 <span class="sd">    ```</span>
 
-<span class="sd">    Make a class method broadcast along any axis of an `xarray.DataArray`.</span>
+<span class="sd">    Make a class method broadcast along any axis of an ``xarray.DataArray``.</span>
 
 <span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
 <span class="sd">    &gt;&gt;&gt;</span>

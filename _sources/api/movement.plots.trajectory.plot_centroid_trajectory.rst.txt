@@ -1,6 +1,0 @@
-plot\_centroid\_trajectory
-==========================
-
-.. currentmodule:: movement.plots.trajectory
-
-.. autofunction:: plot_centroid_trajectory

@@ -42,3 +42,6 @@ PointsStyle
    
    
    
+
+.. minigallery:: movement.napari.layer_styles.PointsStyle
+   :add-heading: Examples using ``PointsStyle``

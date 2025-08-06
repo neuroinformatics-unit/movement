@@ -18,3 +18,6 @@ NWBFileSaveConfig
 
    
    
+
+.. minigallery:: movement.io.nwb.NWBFileSaveConfig
+   :add-heading: Examples using ``NWBFileSaveConfig``

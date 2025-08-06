@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=dbee5847"></script>
+    <script src="../../../_static/documentation_options.js?v=39bb1c6d"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -126,7 +126,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.8.2</p>
+    <p class="title logo__title">movement v0.9.0</p>
   
 </a></div>
     
@@ -424,7 +424,7 @@
 
 
 <div class="viewcode-block" id="compute_region_occupancy">
-<a class="viewcode-back" href="../../../api/movement.roi.conditions.compute_region_occupancy.html#movement.roi.conditions.compute_region_occupancy">[docs]</a>
+<a class="viewcode-back" href="../../../api/movement.roi.compute_region_occupancy.html#movement.roi.compute_region_occupancy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_region_occupancy</span><span class="p">(</span>
     <span class="n">data</span><span class="p">,</span>
     <span class="n">regions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">BaseRegionOfInterest</span><span class="p">],</span>
@@ -443,8 +443,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
 <span class="sd">        Spatial data to check for inclusion within the ``regions``. Must be</span>
-<span class="sd">        compatible with the ``data`` argument to :func:`contains_point\</span>
-<span class="sd">        &lt;movement.roi.base.BaseRegionOfInterest.contains_point&gt;`.</span>
+<span class="sd">        compatible with the ``position`` argument to :func:`contains_point()\</span>
+<span class="sd">        &lt;movement.roi.BaseRegionOfInterest.contains_point&gt;`.</span>
 <span class="sd">    regions : Sequence[BaseRegionOfInterest]</span>
 <span class="sd">        Regions of Interest that the points in ``data`` will be checked</span>
 <span class="sd">        against, to see if they lie inside.</span>

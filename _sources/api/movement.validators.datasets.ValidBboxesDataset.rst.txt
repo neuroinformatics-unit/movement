@@ -18,3 +18,6 @@ ValidBboxesDataset
 
    
    
+
+.. minigallery:: movement.validators.datasets.ValidBboxesDataset
+   :add-heading: Examples using ``ValidBboxesDataset``

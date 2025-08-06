@@ -199,8 +199,8 @@ Plot first frame with keypoints
 
 Pupil trajectory
 ----------------
-A quick plot of the trajectory of the centre of the pupil using the
-``plot_centroid_trajectory`` function from ``movement.plots``.
+A quick plot of the trajectory of the centre of the pupil using
+:func:`movement.plots.plot_centroid_trajectory`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 77-84
 
@@ -335,7 +335,7 @@ Plot the keypoint positions over time.
 
 Normalised keypoint positions over time
 ---------------------------------------
-Normalizing the pupil's position relative to the midpoint of the eye reduces
+Normalising the pupil's position relative to the midpoint of the eye reduces
 the impact of head movements or artefacts caused by camera movement. By
 subtracting the position of the eye's midpoint, we effectively transform the
 data into a moving coordinate system, with the eye's midpoint as the origin.
@@ -384,7 +384,7 @@ Pupil position over time
 To look at pupil position—and later also velocity—over time, we use the
 pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 ``pupil-R``). The keypoint ``pupil-C`` is assigned using
-``xarray.DataArray.assign_coords``.
+:meth:`xarray.DataArray.assign_coords`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 150-156
 
@@ -406,7 +406,7 @@ pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 .. GENERATED FROM PYTHON SOURCE LINES 157-159
 
 The pupil centroid keypoint ``pupil-C`` is be added to the ``positions_norm``
-using ``xarray.concat``.
+using :func:`xarray.concat`.
 
 .. GENERATED FROM PYTHON SOURCE LINES 159-160
 
@@ -459,9 +459,9 @@ When the head turns beyond the range that the vestibulo-ocular reflex
 can compensate for, a quick, ballistic eye movement is triggered to
 shift gaze to a new fixation point. These fast eye movements are seen in the
 previous plot but become even more obvious when the velocity of the pupil
-centroid is plotted. To do this, we use ``compute_velocity`` from the
-``movement.kinematics`` module to calculate the velocity of the eye
-movements.
+centroid is plotted. To do this, we use
+:func:`movement.kinematics.compute_velocity`
+to calculate the velocity of the eye movements.
 
 .. GENERATED FROM PYTHON SOURCE LINES 182-188
 
@@ -495,7 +495,7 @@ negative peaks correspond to rapid eye movements to the left.
 Pupil diameter
 --------------
 Here we define the pupil diameter as the distance between the two pupil
-keypoints. We use ``compute_pairwise_distances`` from ``movement.kinematics``
+keypoints. We use :func:`movement.kinematics.compute_pairwise_distances`
 to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 
 .. GENERATED FROM PYTHON SOURCE LINES 198-202
@@ -597,8 +597,8 @@ Smooth pupil diameter
 ---------------------
 A rolling mean (moving average) filter is used here to smooth the data by
 averaging a specified number of data points (``window_len``).
-We achieve this by calling the :func:`movement.filtering.rolling_filter`
-function with the ``statistic="mean"`` option.
+We achieve this by calling :func:`movement.filtering.rolling_filter`
+with the ``statistic="mean"`` option.
 
 .. GENERATED FROM PYTHON SOURCE LINES 250-256
 
@@ -674,7 +674,7 @@ option for the ``statistic`` argument, and should be more robust to outliers.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.807 seconds)
+   **Total running time of the script:** (0 minutes 3.674 seconds)
 
 
 .. _sphx_glr_download_examples_mouse_eye_movements.py:
