@@ -1,8 +1,8 @@
 """Compute core kinematic variables such as time derivatives of ``position``.
 
 This module provides functions for computing fundamental kinematic properties
-such as displacement, velocity, acceleration, speed, and path length
-(distance travelled between two time points).
+such as forward & backward displacement, velocity, acceleration, speed, and
+path length (distance travelled between two time points).
 The ``movement.kinematics`` subpackage encompasses a broader range of
 functionality (e.g., orientations and distances ), but this file is
 intended to isolate 'true' kinematics for clarity. In a future release, the
@@ -61,14 +61,14 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 
 
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute displacement array in cartesian coordinates.
+    """Compute displacement array in Cartesian coordinates.
 
     The displacement array is defined as the difference between the position
     array at time point ``t`` and the position array at time point ``t-1``.
 
     As a result, for a given individual and keypoint, the displacement vector
     at time point ``t``, is the vector pointing from the previous
-    ``(t-1)`` to the current ``(t)`` position, in cartesian coordinates.
+    ``(t-1)`` to the current ``(t)`` position, in Cartesian coordinates.
 
     Parameters
     ----------
@@ -79,7 +79,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing displacement vectors in cartesian
+        An xarray DataArray containing displacement vectors in Cartesian
         coordinates.
 
     Notes
@@ -96,7 +96,20 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     ``displacement`` array will hold vectors with the change in width and
     height per bounding box, between consecutive time points.
 
+    .. deprecated:: 0.9.1
+       This function is deprecated and will be removed in a future release.
+       Use :func:`compute_forward_displacement` or
+       :func:`compute_backward_displacement` instead.
+
     """
+    warnings.warn(
+        "The function `movement.kinematics.compute_displacement` is deprecated"
+        " and will be removed in a future release. "
+        "Please use `movement.kinematics.compute_forward_displacement` or "
+        "`movement.kinematics.compute_backward_displacement` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
     result = result.reindex(data.coords, fill_value=0)
@@ -104,8 +117,108 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     return result
 
 
+def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute forward displacement vectors in Cartesian coordinates.
+
+    The displacement vectors have origin at the position at time t,
+    pointing to the position at time t+1.
+    The last vector is of magnitude=0.
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    result = data.diff(dim="time", label="lower")
+    result = result.reindex(data.coords, fill_value=0)
+    return result
+
+
+def compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute forward displacement array in Cartesian coordinates.
+
+    The forward displacement array is defined as the difference between the
+    position array at time point ``t+1`` and the position array at time point
+    ``t``.
+
+    As a result, for a given individual and keypoint, the forward displacement
+    vector at time point ``t``, is the vector pointing from the current ``t`
+    position to the next ``(t+1)``, in Cartesian coordinates.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing forward displacement vectors in
+        Cartesian coordinates.
+
+    Notes
+    -----
+    For the ``position`` array of a ``poses`` dataset, the
+    ``forward_displacement`` array will hold the forward displacement vectors
+    for every keypoint and every individual.
+
+    For the ``position`` array of a ``bboxes`` dataset, the
+    ``forward_displacement`` array will hold the forward displacement vectors
+    for the centroid of every individual bounding box.
+
+    For the ``shape`` array of a ``bboxes`` dataset, the
+    ``forward_displacement`` array will hold vectors with the change in width
+    and height per bounding box, between consecutive time points.
+
+    """
+    result = _compute_forward_displacement(data)
+    result.name = "forward_displacement"
+    return result
+
+
+def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute backward displacement array in Cartesian coordinates.
+
+    The backward displacement array is defined as the difference between the
+    position array at time point ``t-1`` and the position array at time point
+    ``t``.
+
+    As a result, for a given individual and keypoint, the backward displacement
+    vector at time point ``t``, is the vector pointing from the current ``t`
+    position to the previous ``(t-1)`` in Cartesian coordinates.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing backward displacement vectors in
+        Cartesian coordinates.
+
+    Notes
+    -----
+    For the ``position`` array of a ``poses`` dataset, the
+    ``backward_displacement`` array will hold the backward displacement vectors
+    for every keypoint and every individual.
+
+    For the ``position`` array of a ``bboxes`` dataset, the
+    ``backward_displacement`` array will hold the backward displacement vectors
+    for the centroid of every individual bounding box.
+
+    For the ``shape`` array of a ``bboxes`` dataset, the
+    ``backward_displacement`` array will hold vectors with the change in width
+    and height per bounding box, between consecutive time points.
+
+    """
+    fwd_displacement = _compute_forward_displacement(data)
+    backward_displacement = -fwd_displacement.roll(time=1)
+    backward_displacement.name = "backward_displacement"
+    return backward_displacement
+
+
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
-    """Compute velocity array in cartesian coordinates.
+    """Compute velocity array in Cartesian coordinates.
 
     The velocity array is the first time-derivative of the position
     array. It is computed by applying the second-order accurate central
@@ -120,7 +233,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing velocity vectors in cartesian
+        An xarray DataArray containing velocity vectors in Cartesian
         coordinates.
 
     Notes
@@ -146,7 +259,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
 
 def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
-    """Compute acceleration array in cartesian coordinates.
+    """Compute acceleration array in Cartesian coordinates.
 
     The acceleration array is the second time-derivative of the
     position array. It is computed by applying the second-order accurate
@@ -161,7 +274,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing acceleration vectors in cartesian
+        An xarray DataArray containing acceleration vectors in Cartesian
         coordinates.
 
     Notes
@@ -290,7 +403,7 @@ def compute_path_length(
 
     if nan_policy == "ffill":
         result = compute_norm(
-            compute_displacement(data.ffill(dim="time")).isel(
+            compute_backward_displacement(data.ffill(dim="time")).isel(
                 time=slice(1, None)
             )  # skip first displacement (always 0)
         ).sum(dim="time", min_count=1)  # return NaN if no valid segment
@@ -372,7 +485,9 @@ def _compute_scaled_path_length(
 
     """
     # Skip first displacement segment (always 0) to not mess up the scaling
-    displacement = compute_displacement(data).isel(time=slice(1, None))
+    displacement = compute_backward_displacement(data).isel(
+        time=slice(1, None)
+    )
     # count number of valid displacement segments per point track
     valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
     # compute proportion of valid segments per point track
