@@ -132,25 +132,25 @@ plt.gcf().show()
 # We can start off by computing the distance travelled by the mice along
 # their trajectories:
 
-displacement = kin.compute_displacement(position)
+displacement_forward = kin.compute_forward_displacement(position)
 
 # %%
-# The :func:`movement.kinematics.compute_displacement`
+# The :func:`movement.kinematics.compute_forward_displacement`
 # function will return a data array equivalent to the ``position`` one,
 # but holding displacement data along the ``space`` axis, rather than
 # position data.
 #
-# The ``displacement`` data array holds, for a given individual and keypoint
-# at timestep ``t``, the vector that goes from its previous position at time
-# ``t-1`` to its current position at time ``t``.
+# The ``displacement_forward`` data array holds, for a given individual and
+# keypoint at timestep ``t``, the vector that goes from its current position
+# at time ``t`` to its next position at time ``t+1``.
 
 # %%
-# And what happens at ``t=0``, since there is no previous timestep?
-# We define the displacement vector at time ``t=0`` to be the zero vector.
+# And what happens at the last timestep, since there is no next timepoint?
+# We define the displacement vector at the last timestep to be the zero vector.
 # This way the shape of the ``displacement`` data array is the
 # same as the  ``position`` array:
 print(f"Shape of position: {position.shape}")
-print(f"Shape of displacement: {displacement.shape}")
+print(f"Shape of displacement: {displacement_forward.shape}")
 
 # %%
 # We can visualise these displacement vectors with a quiver plot. In this case
@@ -169,12 +169,12 @@ sc = ax.scatter(
     cmap="viridis",
 )
 
-# plot displacement vectors: at t, vector from t-1 to t
+# plot displacement vectors: at t, vector from t to t+1
 ax.quiver(
     position.sel(individuals=mouse_name, space="x"),
     position.sel(individuals=mouse_name, space="y"),
-    displacement.sel(individuals=mouse_name, space="x"),
-    displacement.sel(individuals=mouse_name, space="y"),
+    displacement_forward.sel(individuals=mouse_name, space="x"),
+    displacement_forward.sel(individuals=mouse_name, space="y"),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -183,60 +183,6 @@ ax.quiver(
     headaxislength=9,
 )
 
-ax.axis("equal")
-ax.set_xlim(450, 575)
-ax.set_ylim(950, 1075)
-ax.set_xlabel("x (pixels)")
-ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in trajectory of {mouse_name}")
-ax.invert_yaxis()
-fig.colorbar(sc, ax=ax, label="time (s)")
-
-# %%
-# Notice that this figure is not very useful as a visual check:
-# we can see that there are vectors defined for each point in
-# the trajectory, but we have no easy way to verify they are indeed
-# the displacement vectors from ``t-1`` to ``t``.
-
-# %%
-# If instead we plot
-# the opposite of the displacement vector, we will see that at every time
-# ``t``, the vectors point to the position at ``t-1``.
-# Remember that the displacement vector is defined as the vector at
-# time ``t``, that goes from the previous position ``t-1`` to the
-# current position at ``t``. Therefore, the opposite vector will point
-# from the position point at ``t``, to the position point at ``t-1``.
-
-# %%
-# We can easily do this by flipping the sign of the displacement vector in
-# the plot above:
-mouse_name = "AEON3B_TP2"
-
-fig = plt.figure()
-ax = fig.add_subplot()
-
-# plot position data
-sc = ax.scatter(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
-    s=15,
-    c=position.time,
-    cmap="viridis",
-)
-
-# plot displacement vectors: at t, vector from t-1 to t
-ax.quiver(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
-    -displacement.sel(individuals=mouse_name, space="x"),  # flipped sign
-    -displacement.sel(individuals=mouse_name, space="y"),  # flipped sign
-    angles="xy",
-    scale=1,
-    scale_units="xy",
-    headwidth=7,
-    headlength=9,
-    headaxislength=9,
-)
 ax.axis("equal")
 ax.set_xlim(450, 575)
 ax.set_ylim(950, 1075)
@@ -257,7 +203,7 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 
 # length of each displacement vector
 displacement_vectors_lengths = compute_norm(
-    displacement.sel(individuals=mouse_name)
+    displacement_forward.sel(individuals=mouse_name)
 )
 
 # sum the lengths of all displacement vectors (in pixels)
