@@ -87,7 +87,6 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 In movement, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning different keypoints to different individuals (see the [DeepLabCut documentation for multi-animal project](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in movement.
 :::
 
-::::
 
 :::{tab-item} SLEAP
 To load [SLEAP analysis files](sleap-docs:learnings/export-analysis/) in .h5 format (recommended):
