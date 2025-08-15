@@ -215,6 +215,10 @@ print(
 )
 
 # %%
+# Internally, that's what :func:`movement.kinematics.compute_path_length` does.
+kin.compute_path_length(ds.position).sel(individuals=mouse_name).values[0]
+
+# %%
 # Compute velocity
 # ----------------
 # We can easily compute the velocity vectors for all individuals in our data
