@@ -6,7 +6,7 @@ try:
     __version__ = version("movement")
 except PackageNotFoundError:
     # package is not installed
-    pass
+    __version__ = "0.0.0"
 
 # set xarray global options
 import xarray as xr

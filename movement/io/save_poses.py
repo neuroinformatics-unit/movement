@@ -216,7 +216,7 @@ def to_dlc_file(
             filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)

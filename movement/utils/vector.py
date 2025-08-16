@@ -237,8 +237,20 @@ def compute_signed_angle_2d(
         v = v.squeeze()
         if v.ndim == 1:
             v_dims = ["space"]
+            v_coords = {"space": u.coords["space"]}
         elif v.ndim == 2:
-            v_dims = ["time", "space"]
+            # If a single time point is provided, treat as a 1D space vector
+            # so it can broadcast across the time dimension of ``u``
+            if v.shape[0] == 1:
+                v = v.squeeze(0)
+                v_dims = ["space"]
+                v_coords = {"space": u.coords["space"]}
+            else:
+                v_dims = ["time", "space"]
+                v_coords = {
+                    "time": u.coords["time"],
+                    "space": u.coords["space"],
+                }
         else:
             raise log_error(
                 ValueError,
@@ -247,7 +259,7 @@ def compute_signed_angle_2d(
         v = xr.DataArray(
             v,
             dims=v_dims,
-            coords={d: u.coords[d] for d in v_dims},
+            coords=v_coords,
         )
     elif not isinstance(v, xr.DataArray):
         raise log_error(
