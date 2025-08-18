@@ -35,8 +35,8 @@ if "%1" == "clean" (
 	rmdir /S /Q %SOURCEDIR%\examples\
     del /Q %SOURCEDIR%\snippets\admonitions.md
 ) else (
-	echo Generating API index...
-	python make_api_index.py
+	echo Generating API documentation...
+	python make_api.py
 
 	echo Converting admonitions...
     python convert_admonitions.py

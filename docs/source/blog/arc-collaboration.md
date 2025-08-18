@@ -49,15 +49,15 @@ It is early days currently, but you can join in the conversation for what's plan
 
 ### Plotting Made Easier
 
-The `movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
-These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate `matplotlib.pyplot`.
+The {mod}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
+These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate {mod}`matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use:
 
-- `plot_centroid_trajectory`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](movement-github:pull/394).
-- `plot_occupancy`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](movement-github:pull/403).
+- {func}`plot_centroid_trajectory<movement.plots.plot_centroid_trajectory>`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](movement-github:pull/394).
+- {func}`plot_occupancy<movement.plots.plot_occupancy>`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](movement-github:pull/403).
 
 Examples to showcase the use of these plotting functions are currently [being produced](movement-github:issues/415).
-[Our other examples](https://movement.neuroinformatics.dev/examples/index.html) have also been updated to use these functions where possible.
+[Our other examples](target-examples) have also been updated to use these functions where possible.
 
 ### Broadcasting Methods
 
@@ -73,20 +73,20 @@ You can find a new {ref}`example <sphx_glr_examples_advanced_broadcasting_your_o
 
 One of the biggest feature introductions to `movement` during this period is support for RoIs.
 We now support one-dimensional regions of interest (segments, or piecewise-linear structures formed of multiple segments) as well as two-dimensional polygonal regions.
-You can create RoIs using the {class}`LineOfInterest <movement.roi.line.LineOfInterest>` and {class}`PolygonOfInterest <movement.roi.polygon.PolygonOfInterest>` classes respectively.
-There are more details about how the class is implemented on top of [`shapely`](https://shapely.readthedocs.io/en/stable/) in the {class}`docstring <movement.roi.base.BaseRegionOfInterest>`, and a note about how the interior of 2D shapes is handled.
+You can create RoIs using the {class}`LineOfInterest <movement.roi.LineOfInterest>` and {class}`PolygonOfInterest <movement.roi.PolygonOfInterest>` classes respectively.
+There are more details about how the base class is implemented on top of [`shapely`](https://shapely.readthedocs.io/en/stable/) in the {class}`docstring <movement.roi.BaseRegionOfInterest>`, and a note about how the interior of 2D shapes is handled.
 
 RoIs support the calculation of certain quantities from experimental data.
 Highlights include:
 
-- Determining if a given point(s) is inside the RoI, {func}`contains_point <movement.roi.base.BaseRegionOfInterest.contains_point>`.
-- Determining the distance from a given point(s) to the closest point on the RoI, {func}`compute_distance_to <movement.roi.base.BaseRegionOfInterest.compute_distance_to>`.
-- Determining the approach vector from a given point(s) to the RoI, {func}`compute_approach_vector <movement.roi.base.BaseRegionOfInterest.compute_approach_vector>`.
-- Determining egocentric and allocentric boundary angles, relative to a given RoI. See {func}`compute_allocentric_angle_to_nearest_point <movement.roi.base.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point>` and {func}`compute_egocentric_angle_to_nearest_point <movement.roi.base.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point>` for more information.
+- Determining if a given point(s) is inside the RoI, {func}`contains_point()<movement.roi.BaseRegionOfInterest.contains_point>`.
+- Determining the distance from a given point(s) to the closest point on the RoI, {func}`compute_distance_to()<movement.roi.BaseRegionOfInterest.compute_distance_to>`.
+- Determining the approach vector from a given point(s) to the RoI, {func}`compute_approach_vector()<movement.roi.BaseRegionOfInterest.compute_approach_vector>`.
+- Determining egocentric and allocentric boundary angles, relative to a given RoI. See {func}`compute_allocentric_angle_to_nearest_point()<movement.roi.BaseRegionOfInterest.compute_allocentric_angle_to_nearest_point>` and {func}`compute_egocentric_angle_to_nearest_point()<movement.roi.BaseRegionOfInterest.compute_egocentric_angle_to_nearest_point>` for more information.
 
 ### What's next?
 
 We have [an example underway](movement-github:issues/415) that will demonstrate how to load in a dataset, define a region of interest, and query the loaded trajectories for the time periods when they were inside or outside the defined region.
 We also have [another example in the works](movement-github:pull/440) that will go through the boundary-angle methods.
 
-Looking forward, [we will be aiming to](movement-github:issues/378) extend the `napari` plugin's [capabilities](../user_guide/gui.md) to allow users to define RoIs graphically, from within the `napari` GUI, by clicking points to define regions.
+Looking forward, [we will be aiming to](movement-github:issues/378) extend the `napari` plugin's [capabilities](target-gui) to allow users to define RoIs graphically, from within the `napari` GUI, by clicking points to define regions.

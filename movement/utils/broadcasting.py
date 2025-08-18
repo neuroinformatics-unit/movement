@@ -1,7 +1,7 @@
 r"""Broadcasting operations across ``xarray.DataArray`` dimensions.
 
 This module essentially provides an equivalent functionality to
-``numpy.apply_along_axis``, but for ``xarray.DataArray`` objects.
+:func:`numpy.apply_along_axis`, but for ``xarray.DataArray`` objects.
 This functionality is provided as a decorator, so it can be applied to both
 functions within the package and be available to users who would like to use it
 in their analysis.
@@ -12,10 +12,11 @@ Typically, one would either have to call this function successively in a
 need to be examined, or re-write the function to be able to broadcast along the
 necessary dimension of the data structure.
 
-The ``make_broadcastable`` decorator takes care of the latter piece of work,
-allowing us to write functions that operate on 1D slices, then apply this
-decorator to have them work across ``xarray.DataArray`` dimensions. The
-function
+The :func:`make_broadcastable()\
+<movement.utils.broadcasting.make_broadcastable>` decorator takes care of the
+latter piece of work, allowing us to write functions that operate on 1D slices,
+then apply this decorator to have them work across ``xarray.DataArray``
+dimensions. The function
 
 >>> def my_function(input_1d, *args, **kwargs):
 ...     # do something
@@ -74,9 +75,9 @@ def apply_along_da_axis(
 ) -> xr.DataArray:
     """Apply a function ``f`` across ``dimension`` of ``data``.
 
-    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a one-
-    dimensional ``numpy.typing.ArrayLike`` object. It should return either a
-    scalar or one-dimensional ``numpy.typing.ArrayLike`` object.
+    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a
+    one-dimensional :data:`numpy.typing.ArrayLike` object. It should return
+    either a scalar or one-dimensional :data:`numpy.typing.ArrayLike` object.
 
     Parameters
     ----------
@@ -202,7 +203,7 @@ def make_broadcastable(  # noqa: C901
     ... my_function(data_array, *args, **kwargs)
     ```
 
-    Make a class method broadcast along any axis of an `xarray.DataArray`.
+    Make a class method broadcast along any axis of an ``xarray.DataArray``.
 
     >>> from dataclasses import dataclass
     >>>

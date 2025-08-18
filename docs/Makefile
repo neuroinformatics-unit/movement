@@ -15,9 +15,9 @@ help:
 
 .PHONY: help Makefile
 
-# Generate the API index file
+# Generate the API documentation
 api_index.rst:
-	python make_api_index.py
+	python make_api.py
 
 # Generate the snippets/admonitions.md file
 # by converting the admonitions in the repo's README.md to MyST format

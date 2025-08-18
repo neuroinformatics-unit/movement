@@ -1,14 +1,15 @@
 """Broadcast functions across multi-dimensional data
 =====================================================
 
-Use the ``make_broadcastable`` decorator to efficiently
-apply functions across any data dimension.
+Use the @make_broadcastable decorator
+to efficiently apply functions across any data dimension.
 """
 
 # %%
 # Summary
 # -------
-# The ``make_broadcastable`` decorator is particularly useful when you need to
+# :func:`@make_broadcastable()<movement.utils.broadcasting.\
+# make_broadcastable>` is particularly useful when you need to
 # apply the same operation to multiple individuals or time points
 # while avoiding the need to write complex loops.
 #
@@ -183,7 +184,7 @@ was_in_slippery_region
 
 # %%
 # We could get the first and last time that an individual was inside the
-# slippery region now, by examining this DataArray
+# slippery region now, by examining this ``DataArray``.
 i_id = "AEON3B_NTP"
 individual_0_centroid = was_in_slippery_region.sel(
     individuals=i_id, keypoints="centroid"
@@ -215,11 +216,12 @@ print(
 # ---------------------------------
 # To combat this problem, we can make the observation that given any
 # ``DataArray``, we always want to broadcast our ``in_slippery_region``
-# function
-# along the ``"space"`` dimension. By "broadcast", we mean that we always want
-# to run our function for each 1D-slice in the ``"space"`` dimension, since
-# these are the (x, y) coordinates. As such, we can decorate our function with
-# the ``make_broadcastable`` decorator:
+# function along the ``"space"`` dimension. By "broadcast", we mean that
+# we always want to run our function for each 1D-slice in the ``"space"``
+# dimension, since these are the (x, y) coordinates.
+# As such, we can decorate our function with
+# :func:`@make_broadcastable()\
+# <movement.utils.broadcasting.make_broadcastable>`:
 
 
 @make_broadcastable()
@@ -230,7 +232,8 @@ def in_slippery_region_broadcastable(xy_position) -> float:
 # %%
 # Note that when writing your own methods, there is no need to have both
 # ``in_slippery_region`` and ``in_slippery_region_broadcastable``, simply apply
-# the ``make_broadcastable`` decorator to ``in_slippery_region`` directly.
+# :func:`@make_broadcastable()<movement.utils.broadcasting.make_broadcastable>`
+# to ``in_slippery_region`` directly.
 # We've made two separate functions here to illustrate what's going on.
 
 # %%
@@ -326,7 +329,8 @@ print(in_slippery_region_general((0.5, 0.5), (0.0, 0.0), (1.0, 1.0)))
 print(in_slippery_region_general((0.5, 0.5), (1.0, 1.0), (2.0, 2.0)))
 
 # %%
-# We will find that ``make_broadcastable`` retains the additional arguments to
+# We will find that :func:`@make_broadcastable()<movement.utils.broadcasting.\
+# make_broadcastable>` retains the additional arguments to
 # the function we define, however the ``xy_position`` argument has to be the
 # first argument to the function, that appears in the ``def`` statement.
 
@@ -341,7 +345,8 @@ in_slippery_region_general(positions, xy_min=(100, 0), xy_max=(400, 1000))
 # %%
 # Only Broadcast Along Select Dimensions
 # --------------------------------------
-# The ``make_broadcastable`` decorator has some flexibility with its input
+# :func:`@make_broadcastable()<movement.utils.broadcasting.\
+# make_broadcastable>` has some flexibility with its input
 # arguments, to help you avoid unintentional behaviour. You may have noticed,
 # for example, that there is nothing stopping someone who wants to use your
 # analysis code from trying to broadcast along the wrong dimension.
@@ -362,7 +367,8 @@ silly_broadcast
 # our function to be used.
 #
 # We can pass the ``only_broadcastable_along`` keyword argument to
-# ``make_broadcastable`` to prevent these kinds of mistakes, and make our
+# :func:`@make_broadcastable()<movement.utils.broadcasting.\
+# make_broadcastable>` to prevent these kinds of mistakes, and make our
 # intentions clearer.
 
 
@@ -400,14 +406,18 @@ xr.testing.assert_equal(
 
 # %%
 # It is worth noting that there is a "helper" decorator,
-# ``space_broadcastable``, that essentially does the same thing as
-# ``make_broadcastable(only_broadcastable_along="space")``.
+# :func:`@space_broadcastable()\
+# <movement.utils.broadcasting.space_broadcastable>`,
+# that essentially does the same thing as
+# :func:`@make_broadcastable(only_broadcastable_along="space")\
+# <movement.utils.broadcasting.make_broadcastable>`.
 # You can use this decorator for your own convenience.
 
 # %%
 # Extending to Class Methods
 # --------------------------
-# ``make_broadcastable`` can also be applied to class methods, though it needs
+# :func:`@make_broadcastable()<movement.utils.broadcasting.make_broadcastable>`
+# can also be applied to class methods, though it needs
 # to be told that you are doing so via the ``is_classmethod`` parameter.
 
 
@@ -440,9 +450,12 @@ xr.testing.assert_equal(
 )
 
 # %%
-# The ``broadcastable_method`` decorator is provided as a helpful alias for
-# ``make_broadcastable(is_classmethod=True)``, and otherwise works in the same
-# way (and accepts the same parameters).
+# :func:`@broadcastable_method()\
+# <movement.utils.broadcasting.broadcastable_method>` is
+# provided as a helpful alias for
+# :func:`@make_broadcastable(is_classmethod=True)\
+# <movement.utils.broadcasting.make_broadcastable>`,
+# and otherwise works in the same way (and accepts the same parameters).
 
 
 class RectangleAlternative:
@@ -478,8 +491,8 @@ xr.testing.assert_equal(
 xr.testing.assert_equal(was_in_region_clsmethod_alt, was_in_region_clsmethod)
 
 # %%
-# In fact, if you look at the Regions of Interest submodule, and in particular
-# the classes inside it, you'll notice that we use the ``broadcastable_method``
-# decorator ourselves in some of these methods!
-
-# %%
+# In fact, if you look at the :mod:`movement.roi` module, and in particular
+# the classes inside it, you'll notice that we use
+# :func:`@broadcastable_method()\
+# <movement.utils.broadcasting.broadcastable_method>`
+# ourselves in some of these methods!
