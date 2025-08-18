@@ -13,7 +13,7 @@ dynamic = ["version"]
 license = { text = "BSD-3-Clause" }
 
 dependencies = [
-  "numpy",
+  "numpy>=2.0.0,<2.3.0",  # Upper pin is because of numba incompatibility
   "pandas",
   "h5py",
   "attrs",
@@ -21,12 +21,14 @@ dependencies = [
   "tqdm",
   "shapely",
   "sleap-io",
-  "xarray[accel,viz]",
+  "xarray[accel,io,viz]",
   "PyYAML",
   "napari-video",
-  "pyvideoreader>=0.5.3",  # since switching to depend on openCV-headless
-  "qt-niu",  # needed for collapsible widgets
+  "pyvideoreader>=0.5.3", # since switching to depend on openCV-headless
+  "qt-niu",               # needed for collapsible widgets
   "loguru",
+  "pynwb",
+  "ndx-pose>=0.2.1",
 ]
 
 classifiers = [
@@ -52,9 +54,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 "User Support" = "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement"
 
 [project.optional-dependencies]
-napari = [
-  "napari[all]>=0.6.0",
-]
+napari = ["napari[all]>=0.6.0"]
 dev = [
   "pytest",
   "pytest-cov",

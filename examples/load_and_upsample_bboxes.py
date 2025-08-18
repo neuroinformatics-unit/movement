@@ -152,7 +152,7 @@ for i, frame_idx in enumerate(list_frames):
 fig.tight_layout()
 
 # %%
-# We used ``xarray``'s ``.sel()`` method to select the data for the
+# We used :meth:`xarray.DataArray.sel` to select the data for the
 # relevant frames directly.
 #
 # The centroid at each frame is marked with a red marker. The past centroid
@@ -271,8 +271,8 @@ print(ds_nan.shape.isel(time=slice(0, 10), individuals=0).data)
 # between the two annotated values, and its width and height change linearly
 # as well.
 #
-# We use the dataset with NaN values as an input to the
-# ``interpolate_over_time`` function.
+# We use the dataset with NaN values as an input to
+# :func:`movement.filtering.interpolate_over_time`.
 ds_interp = ds_nan.copy()
 
 for data_array_str in ["position", "shape"]:
@@ -367,8 +367,8 @@ fig.tight_layout()
 #
 # Note that currently we do not provide explicit methods to export a
 # ``movement`` bounding boxes dataset in a specific format. However, we can
-# easily save the bounding boxes’ trajectories to a .csv file using the
-# standard Python library ``csv``.
+# save the bounding boxes’ trajectories to a .csv file using the
+# standard Python library :mod:`csv`.
 
 # define name for output csv file
 filepath = "tracking_output.csv"

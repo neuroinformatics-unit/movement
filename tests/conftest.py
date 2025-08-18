@@ -2,6 +2,7 @@
 
 from glob import glob
 
+import numpy as np
 import pytest
 from _pytest.logging import LogCaptureFixture
 
@@ -52,3 +53,9 @@ def caplog(caplog: LogCaptureFixture):
     )
     yield caplog
     logger.remove(handler_id)
+
+
+@pytest.fixture(scope="session")
+def rng():
+    """Return a random number generator with a fixed seed."""
+    return np.random.default_rng(seed=42)

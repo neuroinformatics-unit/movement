@@ -49,11 +49,14 @@ print(ds_wasp)
 def plot_raw_and_smooth_timeseries_and_psd(
     ds_raw,
     ds_smooth,
-    individual="individual_0",
+    individual=None,
     keypoint="stinger",
     space="x",
     time_range=None,
 ):
+    # If no individual is specified, use the first one
+    if individual is None:
+        individual = ds_raw.individuals[0]
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
@@ -122,8 +125,9 @@ def plot_raw_and_smooth_timeseries_and_psd(
 #
 # Here we use the default ``statistic="median"`` option, which is a sensible
 # choice for smoothing time-series data while being robust to outliers.
-# You can also use the ``rolling_filter`` function to compute the rolling
-# mean, maximum, and minimum values (instead of the median), by
+# You can also use
+# :func:`rolling_filter()<movement.filtering.rolling_filter>` to compute
+# the rolling mean, maximum, and minimum values (instead of the median), by
 # setting ``statistic`` to ``"mean"``, ``"max"``, or ``"min"``, respectively.
 
 window = int(0.1 * ds_wasp.fps)
@@ -362,8 +366,7 @@ ds_mouse_smooth.update(
 # ``ds_mouse_smooth.position`` data array. Let's inspect it to summarise
 # what we've done.
 
-for entry in ds_mouse_smooth.position.log:
-    print(entry)
+print(ds_mouse_smooth.position.log)
 
 # %%
 # Now let's visualise the difference between the raw data and the final

@@ -6,7 +6,6 @@ import xarray as xr
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
-    median_filter,
     rolling_filter,
     savgol_filter,
 )
@@ -243,26 +242,3 @@ def test_filter_by_confidence_on_position(
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
-
-
-def test_median_filter_deprecation(valid_poses_dataset):
-    """Test that calling median_filter raises a DeprecationWarning.
-
-    And that it forwards to rolling_filter with statistic='median'.
-    """
-    test_args = (valid_poses_dataset.position, 3)  # data array, window
-    test_kwargs = {"min_periods": None, "print_report": False}
-
-    with pytest.warns(
-        DeprecationWarning, match="median_filter.*deprecated.*rolling_filter"
-    ):
-        result = median_filter(*test_args, **test_kwargs)
-
-    # Ensure that median_filter correctly forwards to rolling_filter
-    expected_result = rolling_filter(
-        *test_args, statistic="median", **test_kwargs
-    )
-    assert result.equals(expected_result), (
-        "median_filter should produce the same output as "
-        "rolling_filter with statistic='median'"
-    )

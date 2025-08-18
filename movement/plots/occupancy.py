@@ -22,9 +22,9 @@ def plot_occupancy(
     """Create a 2D occupancy histogram.
 
     - If there are multiple keypoints selected, the occupancy of the centroid
-        of these keypoints is computed.
-    - If there are multiple individuals selected, the their occupancies are
-        aggregated.
+      of these keypoints is computed.
+    - If there are multiple individuals selected, their occupancies are
+      aggregated.
 
     Points whose corresponding spatial coordinates have NaN values
     are ignored.
@@ -45,7 +45,7 @@ def plot_occupancy(
         Axes object on which to draw the histogram. If not provided, a new
         figure and axes are created and returned.
     kwargs : Any
-        Keyword arguments passed to ``matplotlib.pyplot.hist2d``
+        Keyword arguments passed to :meth:`matplotlib.axes.Axes.hist2d`.
 
     Returns
     -------
@@ -61,9 +61,9 @@ def plot_occupancy(
     Notes
     -----
     The third return value of this method exposes the outputs from
-    ``matplotlib.pyplot.hist2d`` that would otherwise be lost if only the
-    figure and axes handles were returned. This information is returned as a
-    dictionary.
+    :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost if only
+    the figure and axes handles were returned. This information is returned
+    as a dictionary.
 
     For data with ``Nx`` bins in the 1st spatial dimension, and ``Ny`` bins in
     the 2nd spatial dimension, the dictionary output has key-value pairs;
@@ -75,7 +75,7 @@ def plot_occupancy(
 
     ``counts[x, y]`` is the number of datapoints in the
     ``(xedges[x], xedges[x+1]), (yedges[y], yedges[y+1])`` bin. These values
-    are those returned from ``matplotlib.pyplot.Axes.hist2d``.
+    are those returned from :meth:`matplotlib.axes.Axes.hist2d`.
 
     Examples
     --------
@@ -122,7 +122,7 @@ def plot_occupancy(
 
     See Also
     --------
-    matplotlib.pyplot.Axes.hist2d : The underlying plotting function.
+    :meth:`matplotlib.axes.Axes.hist2d` : The underlying plotting function.
 
     """
     # Collapse dimensions if necessary

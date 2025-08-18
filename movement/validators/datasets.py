@@ -106,8 +106,7 @@ class ValidPosesDataset:
         If None (default), the scores will be set to an array of NaNs.
     individual_names : list of str, optional
         List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "individual_0",
-        "individual_1", etc.
+        (default), the individuals will be named "id_0", "id_1", etc.
     keypoint_names : list of str, optional
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
@@ -217,7 +216,7 @@ class ValidPosesDataset:
             )
         if self.individual_names is None:
             self.individual_names = [
-                f"individual_{i}" for i in range(position_array_shape[-1])
+                f"id_{i}" for i in range(position_array_shape[-1])
             ]
             logger.warning(
                 "Individual names were not provided. "

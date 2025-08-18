@@ -6,6 +6,7 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
+import shutil
 from pathlib import Path
 
 import pooch
@@ -165,7 +166,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     The data are downloaded from the ``movement`` data repository to the user's
     local machine upon first use and are stored in a local cache directory.
-    The function returns the paths to the downloaded files.
+    The function stores the paths to the downloaded files in a dictionary.
 
     Parameters
     ----------
@@ -233,12 +234,18 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
             SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
         ),
     }
-    # Add trajectory data
+
     # Assume "poses" if not of type "bboxes"
     data_type = "bboxes" if metadata[filename]["type"] == "bboxes" else "poses"
-    paths_dict[data_type] = Path(
-        SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
-    )
+
+    if filename.endswith(".zip"):
+        # Store the path to the unzipped folder containing multiple files
+        paths_dict[data_type] = _fetch_and_unzip(data_type, filename)
+    else:
+        # Store the path to a single downloaded file
+        paths_dict[data_type] = Path(
+            SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
+        )
     return paths_dict
 
 
@@ -285,6 +292,14 @@ def fetch_dataset(
     fetch_dataset_paths
 
     """
+    # If the filename start with "TRex", raise an NotImplementedError
+    if filename.startswith("TRex"):
+        raise logger.error(
+            NotImplementedError(
+                "The loading of TRex datasets is not implemented yet."
+            )
+        )
+
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
     for key, load_module in zip(
@@ -304,3 +319,66 @@ def fetch_dataset(
         ds.attrs["video_path"] = file_paths["video"].as_posix()
 
     return ds
+
+
+def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
+    """Download and extract a zipped archive and return the folder path.
+
+    Parameters
+    ----------
+    data_type : str
+        Type of data to fetch, e.g. "poses", "bboxes".
+    file_name : str
+        Name of the .zip file to fetch, e.g. "TRex_five-locusts.zip"
+
+    Returns
+    -------
+    Path
+        Path to the folder containing the unarchived file(s),
+        e.g. "/path/to/TRex_five-locusts/"
+
+    """
+    file_path = Path(data_type) / file_name
+    raw_paths = SAMPLE_DATA.fetch(
+        file_path.as_posix(),
+        processor=pooch.Unzip(),
+        progressbar=True,
+    )
+    paths = [Path(p) for p in raw_paths]  # convert to Path objects
+
+    # Filter data files
+    UNWANTED_FILES = {".DS_Store", "Thumbs.db", "desktop.ini"}
+    UNWANTED_DIRS = {"__MACOSX"}
+    valid_paths = [
+        path
+        for path in paths
+        if path.name not in UNWANTED_FILES
+        and not any(part in UNWANTED_DIRS for part in path.parts)
+    ]
+
+    # Copy files to a new destination directory
+    extract_dir_name = file_path.with_suffix("").name
+    extract_dir = SAMPLE_DATA.path / data_type / f"{file_name}.unzip"
+    dest_dir = SAMPLE_DATA.path / data_type / extract_dir_name
+    dest_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        for path in valid_paths:
+            rel_path = path.relative_to(extract_dir / extract_dir_name)
+            dest_path = dest_dir / rel_path
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path.as_posix(), dest_path.as_posix())
+    except Exception as e:
+        logger.warning(
+            f"Failed to copy files from {extract_dir} to {dest_dir}. "
+            f"Using the original path instead: {e}"
+        )
+        shutil.rmtree(dest_dir)  # remove the dest_dir
+        return valid_paths[0].parent  # return the original path
+
+    # Clean up the .unzip folder
+    try:
+        shutil.rmtree(extract_dir)
+    except Exception as e:
+        logger.warning(f"Failed to remove unzip dir {extract_dir}: {e}")
+    return dest_dir

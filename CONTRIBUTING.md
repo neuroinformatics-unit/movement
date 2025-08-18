@@ -1,21 +1,45 @@
 # How to Contribute
 
+## Before you start
+
+Before starting work on a contribution, please check the [issue tracker](movement-github:issues) to see if there's already an issue describing what you have in mind.
+
+- If there is, add a comment to let others know you're willing to work on it.
+- If there isn't, please create a new issue to describe your idea.
+
+We strongly encourage discussing your plans before you start coding—either in the issue itself or on our [Zulip chat](movement-zulip:).
+This helps avoid duplicated effort and ensures your work aligns with the project's [scope](target-mission) and [roadmap](target-roadmaps).
+
+Keep in mind that we use issues liberally to track development.
+Some may be vague or aspirational, serving as reminders for future work rather than tasks ready to be tackled.
+There are a few reasons an issue might not be actionable yet:
+
+- It depends on other issues being resolved first.
+- It hasn't been clearly scoped. In such cases, helping to clarify the scope or breaking the issue into smaller parts can be a valuable contribution. Maintainers typically lead this process, but you're welcome to participate in the discussion.
+- It doesn't currently fit into the roadmap or the maintainers' priorities, meaning we may be unable to commit to timely guidance and prompt code reviews.
+
+If you're unsure whether an issue is ready to work on, just ask!
+
+Some issues are labelled as ``good first issue``.
+These are especially suitable if you're new to the project, and we recommend starting there.
+
 ## Contributing code
+
 
 ### Creating a development environment
 It is recommended to use [conda](conda:)
 or [mamba](mamba:) to create a
-development environment for movement. In the following we assume you have
+development environment for `movement`. In the following we assume you have
 `conda` installed, but the same commands will also work with `mamba`/`micromamba`.
 
 First, create and activate a `conda` environment with some prerequisites:
 
 ```sh
-conda create -n movement-dev -c conda-forge python=3.11 pytables
+conda create -n movement-dev -c conda-forge python=3.13 pytables
 conda activate movement-dev
 ```
 
-To install movement for development, clone the [GitHub repository](movement-github:),
+To install `movement` for development, clone the [GitHub repository](movement-github:),
 and then run from within the repository:
 
 ```sh
@@ -39,9 +63,11 @@ We recommend, and adhere, to the following conventions:
 - Please submit _draft_ PRs as early as possible to allow for discussion.
 - The PR title should be descriptive e.g. "Add new function to do X" or "Fix bug in Y".
 - The PR description should be used to provide context and motivation for the changes.
-- One approval of a PR (by a repo owner) is enough for it to be merged.
+  - If the PR is solving an issue, please add the issue number to the PR description, e.g. "Fixes #123" or "Closes #123".
+  - Make sure to include cross-links to other relevant issues, PRs and Zulip threads, for context.
+- The maintainers triage PRs and assign suitable reviewers using the GitHub review system.
+- One approval of a PR (by a maintainer) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
-- Ask for a review from someone specific if you think they would be a particularly suited reviewer.
 - PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
@@ -66,15 +92,7 @@ Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.c
 * [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
 * [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
-These will prevent code from being committed if any of these hooks fail. To run them individually (from the root of the repository), you can use:
-
-```sh
-ruff .
-mypy -p movement
-check-manifest
-codespell
-```
-
+These will prevent code from being committed if any of these hooks fail.
 To run all the hooks before committing:
 
 ```sh
@@ -106,15 +124,17 @@ Make sure to provide docstrings for all public functions, classes, and methods.
 This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
 
 ### Testing
-We use [pytest](https://docs.pytest.org/en/latest/) for testing and aim for
-~100% test coverage (as far as is reasonable).
-All new features should be tested.
-Write your test methods and classes in the _tests_ folder.
+We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.
 
-For some tests, you will need to use real experimental data.
-Do not include these data in the repository, especially if they are large.
-We store several sample datasets in an external data repository.
-See [sample data](#sample-data) for more information.
+Tests are stored in the `tests` directory, structured as follows:
+
+- `test_unit/`: Contains unit tests that closely follow the `movement` package structure.
+- `test_integration/`: Includes tests for interactions between different modules.
+- `fixtures/`: Holds reusable test data fixtures, automatically imported via `conftest.py`. Check for existing fixtures before adding new ones, to avoid duplication.
+
+For tests requiring experimental data, you can use [sample data](#sample-data) from our external data repository.
+These datasets are accessible through the `pytest.DATA_PATHS` dictionary, populated in `conftest.py`.
+Avoid including large data files directly in the GitHub repository.
 
 ### Logging
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
@@ -139,7 +159,7 @@ raise logger.exception(ValueError("message")) # with traceback
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
 * Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`.
 
 ### Continuous integration
@@ -158,7 +178,7 @@ We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR
 * MINOR = new feature
 * MAJOR = breaking change
 
-We use [setuptools_scm](setuptools-scm:) to automatically version movement.
+We use [setuptools_scm](setuptools-scm:) to automatically version `movement`.
 It has been pre-configured in the `pyproject.toml` file.
 `setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme).
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
@@ -187,10 +207,9 @@ Other `.md`  or `.rst` files are linked to the homepage via the `toctree` direct
 We use [Sphinx](sphinx-doc:) and the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html)
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (`.github/workflows/docs_build_and_deploy.yml`).
-The build job is triggered on each PR, ensuring that the documentation build is not broken by new changes.
-The deployment job is only triggered whenever a tag is pushed to the _main_ branch,
-ensuring that the documentation is published in sync with each PyPI release.
-
+The build job runs on each PR, ensuring that the documentation build is not broken by new changes.
+The deployment job runs on tag pushes (for PyPI releases) or manual triggers on the _main_ branch.
+This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.
 
 ### Editing the documentation
 To edit the documentation, first clone the repository, and install `movement` in a
@@ -229,13 +248,18 @@ If you are adding references to an external URL (e.g. `https://github.com/neuroi
 If it is not yet defined and you have multiple external URLs pointing to the same base URL, you will need to [add the URL scheme](myst-parser:syntax/cross-referencing.html#customising-external-url-resolution) to `myst_url_schemes` in `docs/source/conf.py`.
 
 ### Updating the API reference
-The [API reference](target-api) is auto-generated by the `docs/make_api_index.py` script, and the [sphinx-autodoc](sphinx-doc:extensions/autodoc.html) and [sphinx-autosummary](sphinx-doc:extensions/autosummary.html) extensions.
-The script generates the `docs/source/api_index.rst` file containing the list of modules to be included in the [API reference](target-api).
-The plugins then generate the API reference pages for each module listed in `api_index.rst`, based on the docstrings in the source code.
+The [API reference](target-api) is auto-generated by the `docs/make_api.py` script, and the [sphinx-autodoc](sphinx-doc:extensions/autodoc.html) and [sphinx-autosummary](sphinx-doc:extensions/autosummary.html) extensions.
+The script inspects the source tree and generates the `docs/source/api_index.rst` file, which lists the modules to be included in the [API reference](target-api), skipping those listed in `EXCLUDE_MODULES`.
+
+For each _package module_ listed in `PACKAGE_MODULES`&mdash;a module that re-exports selected classes and functions from its submodules via `__init__.py` (e.g. {mod}`movement.kinematics`)&mdash;the script also generates a `.rst` file in `docs/source/api/` with autosummary entries for the top-level objects exposed by the module.
+
+The Sphinx extensions then generate the API reference pages for each module listed in `api_index.rst`, based on their docstrings.
 So make sure that all your public functions/classes/methods have valid docstrings following the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 Our `pre-commit` hooks include some checks (`ruff` rules) that ensure the docstrings are formatted consistently.
 
-If your PR introduces new modules that should *not* be documented in the [API reference](target-api), or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update the `exclude_modules` list within the `docs/make_api_index.py` script to reflect these exclusions.
+If your PR introduces new modules that should *not* be documented in the [API reference](target-api), or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update `EXCLUDE_MODULES` in `docs/make_api.py` accordingly.
+
+Likewise, if you want to document a module that exposes its public API via its `__init__.py`, rather than through its submodules individually, make sure to add it to `PACKAGE_MODULES` in `docs/make_api.py`.
 
 ### Updating the examples
 We use [sphinx-gallery](sphinx-gallery:)
@@ -247,7 +271,7 @@ The file should be structured as specified in the relevant
 
 We are using sphinx-gallery's [integration with binder](sphinx-gallery:configuration#binder-links)
 to provide interactive versions of the examples.
-If your examples rely on packages that are not among movement's dependencies,
+If your examples rely on packages that are not among `movement`'s dependencies,
 you will need to add them to the `docs/source/environment.yml` file.
 That file is used by binder to create the conda environment in which the
 examples are run. See the relevant section of the
@@ -261,7 +285,7 @@ Docstrings in the `.py` files for the [API reference](target-api) and the [examp
 #### Internal references
 ::::{tab-set}
 :::{tab-item} Markdown
-For referencing movement objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing `movement` objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```markdown
@@ -269,7 +293,7 @@ For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```
 :::
 :::{tab-item} RestructuredText
-For referencing movement objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing `movement` objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```rst
@@ -388,6 +412,15 @@ make clean html linkcheck
 ```
 :::
 
+### Previewing the documentation in continuous integration
+We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
+1. Go to the "Checks" tab in the GitHub PR.
+2. Click on the "Docs" section on the left.
+3. If the "Build Sphinx Docs" action is successful, a summary section will appear under the block diagram with a link to preview the built documentation.
+4. Click on the link and wait for the files to be uploaded (it may take a while the first time). You may be asked to sign in to GitHub.
+5. Once the upload is complete, look for `docs/build/html/index.html` under the "Detected Entrypoints" section.
+
+
 ## Sample data
 We maintain some sample datasets to be used for testing, examples and tutorials on an
 [external data repository](gin:neuroinformatics/movement-test-data).
@@ -405,77 +438,60 @@ The `metadata.yaml` file holds metadata for each sample dataset,
 including information on data provenance as well as the mapping between data files and related
 video/frame files.
 
+For most sample datasets, the tracking data lives in a single file under `poses` or `bboxes`.
+However, some tools—like [TRex](TRex:)—may split their tracking outputs across multiple files.
+In those cases, the dataset is distributed as a ZIP archive containing every relevant file, and is automatically extracted when fetched.
+
 ### Fetching data
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
 like verification of sha256 hashes and decompression of archives.
 
-The relevant functionality is implemented in the `movement.sample_data.py` module.
+The relevant functionality is implemented in the {mod}`movement.sample_data` module.
 The most important parts of this module are:
 
 1. The `SAMPLE_DATA` download manager object.
-2. The `list_datasets()` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
-3. The `fetch_dataset_paths()` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
-4. The `fetch_dataset()` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into movement, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
+2. The {func}`list_datasets()<movement.sample_data.list_datasets>` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
+3. The {func}`fetch_dataset_paths()<movement.sample_data.fetch_dataset_paths>` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
+4. The {func}`fetch_dataset()<movement.sample_data.fetch_dataset>` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
-This can be changed by setting the `DATA_DIR` variable in the `movement.sample_data.py` module.
+This can be changed by setting the `DATA_DIR` variable in the `sample_data.py` file.
 
 ### Adding new data
-Only core movement developers may add new files to the external data repository.
+Only core `movement` developers may add new files to the external data repository.
+Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
 
-1. Create a [GIN](gin:) account
-2. Ask to be added as a collaborator on the [movement data repository](gin:neuroinformatics/movement-test-data) (if not already)
-3. Download the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) and set it up with your GIN credentials, by running `gin login` in a terminal.
-4. Clone the movement data repository to your local machine, by running `gin get neuroinformatics/movement-test-data` in a terminal.
-5. Add your new files to the `poses`, `bboxes`, `videos` and/or `frames` folders as appropriate. Follow the existing file naming conventions as closely as possible.
-6. Determine the sha256 checksum hash of each new file. You can do this in a terminal by running:
-    ::::{tab-set}
-    :::{tab-item} Ubuntu
-    ```bash
-    sha256sum <filename>
-    ```
-    :::
-
-    :::{tab-item} MacOS
-    ```bash
-    shasum -a 256 <filename>
-    ```
-    :::
-
-    :::{tab-item} Windows
-    ```bash
-    certutil -hashfile <filename> SHA256
-    ```
-    :::
-    ::::
-    For convenience, we've included a `get_sha256_hashes.py` script in the [movement data repository](gin:neuroinformatics/movement-test-data). If you run this from the root of the data repository, within a Python environment with movement installed, it will calculate the sha256 hashes for all files in the `poses`, `bboxes`, `videos` and `frames` folders and write them to files named `poses_hashes.txt`, `bboxes_hashes.txt`, `videos_hashes.txt`, and `frames_hashes.txt` respectively.
-
-7. Add metadata for your new files to `metadata.yaml`, including their sha256 hashes you've calculated. See the example entry below for guidance.
-
-8. Commit a specific file with `gin commit -m <message> <filename>`, or `gin commit -m <message> .` to commit all changes.
-
-9. Upload the committed changes to the GIN repository by running `gin upload`. Latest changes to the repository can be pulled via `gin download`. `gin sync` will synchronise the latest changes bidirectionally.
+1. Create a [GIN](gin:) account.
+2. Request collaborator access to the [movement data repository](gin:neuroinformatics/movement-test-data) if you don't already have it.
+3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
+4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
+5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
+6. Add metadata for your new files to `metadata.yaml` using the example entry below as a template. You can leave all `sha256sum` values as `null` for now.
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
+9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 
 ### `metadata.yaml` example entry
 ```yaml
-"SLEAP_three-mice_Aeon_proofread.analysis.h5":
-  sha256sum: "82ebd281c406a61536092863bc51d1a5c7c10316275119f7daf01c1ff33eac2a"
-  source_software: "SLEAP"
-  type: "poses"  # "poses" or "bboxes" depending on the type of tracked data
+SLEAP_three-mice_Aeon_proofread.analysis.h5:
+  sha256sum: null
+  source_software: SLEAP
+  type: poses
   fps: 50
-  species: "mouse"
+  species: mouse
   number_of_individuals: 3
   shared_by:
-    name: "Chang Huan Lo"
-    affiliation: "Sainsbury Wellcome Centre, UCL"
+    name: Chang Huan Lo
+    affiliation: Sainsbury Wellcome Centre, UCL
   frame:
-    file_name: "three-mice_Aeon_frame-5sec.png"
-    sha256sum: "889e1bbee6cb23eb6d52820748123579acbd0b2a7265cf72a903dabb7fcc3d1a"
+    file_name: three-mice_Aeon_frame-5sec.png
+    sha256sum: null
   video:
-    file_name: "three-mice_Aeon_video.avi"
-    sha256sum: "bc7406442c90467f11a982fd6efd85258ec5ec7748228b245caf0358934f0e7d"
-  note: "All labels were proofread (user-defined) and can be considered ground truth. It was exported from the .slp file with the same prefix."
+    file_name: three-mice_Aeon_video.avi
+    sha256sum: null
+  note: All labels were proofread (user-defined) and can be considered ground truth.
+    It was exported from the .slp file with the same prefix.
 ```

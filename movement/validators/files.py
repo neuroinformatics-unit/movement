@@ -9,6 +9,7 @@ from typing import Literal
 import h5py
 import pandas as pd
 from attrs import define, field, validators
+from pynwb import NWBFile
 
 from movement.utils.logging import logger
 
@@ -582,3 +583,32 @@ class ValidVIATracksCSV:
                         "Please review the VIA tracks .csv file."
                     )
                 )
+
+
+@define
+class ValidNWBFile:
+    """Class for validating NWB files.
+
+    The validator ensures that the file is either:
+
+    - a valid NWB file (.nwb) path, or
+    - an :class:`NWBFile<pynwb.file.NWBFile>` object.
+
+    Attributes
+    ----------
+    file : str | Path | pynwb.file.NWBFile
+        Path to the NWB file on disk (ending in ".nwb"),
+        or an NWBFile object.
+
+    """
+
+    file: str | Path | NWBFile = field(
+        converter=lambda f: Path(f) if isinstance(f, str | Path) else f,
+        validator=validators.instance_of((Path, NWBFile)),
+    )
+
+    @file.validator
+    def _file_is_valid_nwb(self, attribute, value):
+        """Ensure the file path has read permission and .nwb suffix."""
+        if isinstance(value, Path):
+            ValidFile(value, expected_permission="r", expected_suffix=[".nwb"])

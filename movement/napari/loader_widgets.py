@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from napari.components.dims import RangeTuple
-from napari.layers import Image, Points, Tracks
+from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
 from napari.utils.notifications import show_warning
 from napari.viewer import Viewer
@@ -21,8 +21,8 @@ from qtpy.QtWidgets import (
 )
 
 from movement.io import load_bboxes, load_poses
-from movement.napari.convert import ds_to_napari_tracks
-from movement.napari.layer_styles import PointsStyle, TracksStyle
+from movement.napari.convert import ds_to_napari_layers
+from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
 
 # Allowed file suffixes for each supported source software
@@ -156,16 +156,21 @@ class DataLoader(QWidget):
         self._format_data_for_layers()
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
+        if self.data_bboxes is not None:
+            logger.debug(f"Shapes array shape: {self.data_bboxes.shape}")
 
-        # Set property to color points and tracks by
+        # Set property to color points, tracks and boxes by
         self._set_common_color_property()
 
         # Set text property for points layer
         self._set_text_property()
 
-        # Add the data as a points and a tracks layers
+        # Add the data as a points and a tracks layers,
+        # and a boxes layer if the dataset is a bounding boxes one
         self._add_points_layer()
         self._add_tracks_layer()
+        if self.data_bboxes is not None:
+            self._add_boxes_layer()
 
         # Set the frame slider position
         self._set_initial_state()
@@ -180,8 +185,8 @@ class DataLoader(QWidget):
         )
         ds = loader.from_file(self.file_path, self.source_software, self.fps)
 
-        # Convert to napari Tracks array
-        self.data, self.properties = ds_to_napari_tracks(ds)
+        # Convert to napari arrays
+        self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -200,7 +205,7 @@ class DataLoader(QWidget):
         self.color_property = color_property
 
         # Factorize the color property in the dataframe
-        # (required for Tracks layer)
+        # (required for Tracks and Shapes layer)
         codes, _ = pd.factorize(self.properties[self.color_property])
         self.color_property_factorized = self.color_property + "_factorized"
         self.properties[self.color_property_factorized] = codes
@@ -259,6 +264,7 @@ class DataLoader(QWidget):
             # tail_length in the slider to the value passed.
             # It also affects the head_length slider.
         )
+
         tracks_style.set_color_by(property=self.color_property_factorized)
 
         # Add data as a tracks layer
@@ -270,6 +276,27 @@ class DataLoader(QWidget):
         )
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
+    def _add_boxes_layer(self):
+        """Add bounding boxes data to the viewer as a Shapes layer."""
+        # Define style for boxes layer
+        bboxes_style = BoxesStyle(
+            name=f"boxes: {self.file_name}",
+        )
+        bboxes_style.set_text_by(property=self.text_property)
+        bboxes_style.set_color_by(
+            property=self.color_property,
+            properties_df=self.properties,
+        )
+
+        # Add bounding boxes data as a shapes layer
+        self.bboxes_layer = self.viewer.add_shapes(
+            self.data_bboxes[self.data_not_nan, :, 1:],
+            properties=self.properties.iloc[self.data_not_nan, :],
+            metadata={"max_frame_idx": max(self.data_bboxes[:, 0, 1])},
+            **bboxes_style.as_kwargs(),
+        )
+        logger.info("Added tracked dataset as a napari Shapes layer.")
+
     def _update_frame_slider_range(self):
         """Check the frame slider range and update it if necessary.
 
@@ -278,11 +305,11 @@ class DataLoader(QWidget):
         the full range of frames.
         """
         # Only update the frame slider range if there are layers
-        # that are Points, Tracks or Image
+        # that are Points, Tracks, Image or Shapes
         list_layers = [
             ly
             for ly in self.viewer.layers
-            if isinstance(ly, Points | Tracks | Image)
+            if isinstance(ly, Points | Tracks | Image | Shapes)
         ]
         if len(list_layers) > 0:
             # Get the maximum frame index from all candidate layers
@@ -292,6 +319,12 @@ class DataLoader(QWidget):
                 [
                     getattr(ly, "metadata", {}).get(
                         "max_frame_idx", ly.data.shape[0] - 1
+                    )
+                    if not isinstance(ly, Shapes)
+                    # Napari stores shapes layer data as a list of 2D arrays
+                    # instead of a 3D array, so we can't use data.shape here
+                    else getattr(ly, "metadata", {}).get(
+                        "max_frame_idx", len(ly.data) - 1
                     )
                     for ly in list_layers
                 ]

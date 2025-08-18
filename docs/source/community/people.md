@@ -100,12 +100,21 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/DPWebster">
+                    <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
+                    <br />
+                    <sub><b>DPWebster</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/harsh-bhanushali-05">
                     <img src="https://avatars.githubusercontent.com/u/109029538?v=4" width="100;" alt="harsh-bhanushali-05"/>
                     <br />
                     <sub><b>Harsh Bhanushali </b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/IgorTatarnikov">
                     <img src="https://avatars.githubusercontent.com/u/61896994?v=4" width="100;" alt="IgorTatarnikov"/>
@@ -113,8 +122,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Igor Tatarnikov</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Kasra-Shirvanian">
                     <img src="https://avatars.githubusercontent.com/u/164632798?v=4" width="100;" alt="Kasra-Shirvanian"/>
@@ -136,6 +143,22 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Lauraschwarz</b></sub>
                 </a>
             </td>
+            <td align="center">
+                <a href="https://github.com/vtushar06">
+                    <img src="https://avatars.githubusercontent.com/u/180023952?v=4" width="100;" alt="vtushar06"/>
+                    <br />
+                    <sub><b>Tushar-Verma</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/yarikoptic">
+                    <img src="https://avatars.githubusercontent.com/u/39889?v=4" width="100;" alt="yarikoptic"/>
+                    <br />
+                    <sub><b>Yaroslav Halchenko</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/angkul07">
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
@@ -160,7 +183,7 @@ This section contains other manually added contributors (on GitHub) who have not
 contributed to the movement repository, but have contributed in other ways (e.g. by
 providing sample data, or by actively participating in discussions).
 =============================================================================== -->
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS -start -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela -start -->
 <table>
 	<tbody>
 		<tr>
@@ -243,10 +266,17 @@ providing sample data, or by actively participating in discussions).
                     <sub><b>shigrafs</b></sub>
                 </a>
             </td>
+            <td align="center">
+                <a href="https://github.com/albiangela">
+                    <img src="https://avatars.githubusercontent.com/u/26546014?v=4" width="100;" alt="albiangela"/>
+                    <br />
+                    <sub><b>Angela Albi</b></sub>
+                </a>
+            </td>
 		</tr>
 	<tbody>
 </table>
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS -end -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela -end -->
 
 <!-- =================== MANUAL: OTHER NON-GITHUB CONTRIBUTORS ===================
 This section contains other manually added contributors (not on GitHub) who have not

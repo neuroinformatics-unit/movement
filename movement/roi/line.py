@@ -5,10 +5,7 @@ import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
-from movement.roi.base import (
-    BaseRegionOfInterest,
-    PointLikeList,
-)
+from movement.roi.base import BaseRegionOfInterest, PointLikeList
 from movement.utils.broadcasting import broadcastable_method
 
 
@@ -55,12 +52,13 @@ class LineOfInterest(BaseRegionOfInterest):
         -----
         The constructor supports 'rings' or 'closed loops' via the ``loop``
         argument. However, if you want to define an enclosed region for your
-        analysis, we recommend you create a ``PolygonOfInterest`` and use
-        its ``boundary`` property instead.
+        analysis, we recommend you create a
+        :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`
+        and use its ``boundary`` property instead.
 
         See Also
         --------
-        movement.roi.base.BaseRegionOfInterest
+        movement.roi.BaseRegionOfInterest
             The base class that constructor arguments are passed to.
 
         """

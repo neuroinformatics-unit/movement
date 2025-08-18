@@ -77,6 +77,7 @@ templates_path = ["_templates"]
 
 # Automatically generate stub pages for API
 autosummary_generate = True
+autosummary_generate_overwrite = False
 autodoc_default_flags = ["members", "inherited-members"]
 
 # Prefix section labels with the document name
@@ -114,8 +115,11 @@ sphinx_gallery_conf = {
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
+    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
     "remove_config_comments": True,
-    # do not render config params set as # sphinx_gallery_config [= value]
+    # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
+    "backreferences_dir": "api/backreferences",  # directory where function/class granular galleries are stored
+    "doc_module": ("movement",),  # module for which to generate mini-galleries
 }
 
 
@@ -123,15 +127,10 @@ sphinx_gallery_conf = {
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "pydata_sphinx_theme"
 html_title = "movement"
-
+html_logo = "_static/movement_favicon_512px.png"
+html_favicon = "_static/movement_favicon_64px.png"
 # Customize the theme
 html_theme_options = {
-    "announcement": (
-        "Get some hands-on training on movement and other open-source tools "
-        "for animal behaviour at the Neuroinformatics Unit "
-        "<a href='https://neuroinformatics.dev/open-software-week/index.html'>Open Software Week</a> "
-        ", 11th-15th August 2025 in London! "
-    ),
     "icon_links": [
         {
             # Label for this link
@@ -175,7 +174,7 @@ html_css_files = [
     ("css/custom.css", {"priority": 100}),
 ]
 html_js_files = [
-    "js/contributors.js", # javascript for contributors table
+    "js/contributors.js",  # javascript for contributors table
 ]
 html_favicon = "_static/light-logo-niu.png"
 
@@ -190,6 +189,7 @@ linkcheck_anchors_ignore_for_url = [
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
+    "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
 ]
 
 
@@ -216,6 +216,7 @@ myst_url_schemes = {
     "lp": "https://lightning-pose.readthedocs.io/en/stable/{{path}}#{{fragment}}",
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
     "anipose": "https://anipose.readthedocs.io/en/latest/",
+    "TRex": "https://trex.run/docs/",
 }
 
 intersphinx_mapping = {
@@ -224,8 +225,10 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
+    "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
-
 
 # What to show on the 404 page
 notfound_context = {

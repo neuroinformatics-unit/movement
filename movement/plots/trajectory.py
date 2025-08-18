@@ -43,7 +43,7 @@ def plot_centroid_trajectory(
         figure and axes are created.
     **kwargs : dict
         Additional keyword arguments passed to
-        ``matplotlib.axes.Axes.scatter()``.
+        :meth:`matplotlib.axes.Axes.scatter`.
 
     Returns
     -------
