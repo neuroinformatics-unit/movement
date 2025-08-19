@@ -14,9 +14,9 @@ from movement.io.nwb import (
     _ds_to_pose_and_skeletons,
     _write_processing_module,
 )
-from movement.io.utils import _validate_file_path
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesDataset
+from movement.validators.files import _validate_file_path
 
 
 def _ds_to_dlc_style_df(

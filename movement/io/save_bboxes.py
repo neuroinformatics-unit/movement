@@ -8,9 +8,9 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-from movement.io.utils import _validate_file_path
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset
+from movement.validators.files import _validate_file_path
 
 
 def to_via_tracks_file(

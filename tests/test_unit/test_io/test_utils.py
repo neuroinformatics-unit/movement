@@ -5,8 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from movement.io.utils import _validate_file_path
-from movement.validators.files import ValidFile
+from movement.validators.files import ValidFile, _validate_file_path
 
 
 @pytest.fixture
