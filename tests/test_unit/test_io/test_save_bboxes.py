@@ -499,6 +499,7 @@ def test_get_min_required_digits_in_ds_error(
         (["id_1", "id_2", "id_3"], [1, 2, 3]),
         (["id101", "id2", "id333"], [101, 2, 333]),
         (["mouse_0_id1", "mouse_0_id2"], [1, 2]),
+        (["mouse_1abc", "mouse_2abc"], [1, 2]),
     ],
     ids=[
         "sorted",
@@ -507,6 +508,7 @@ def test_get_min_required_digits_in_ds_error(
         "underscores",
         "multiple_digits",
         "middle_and_end_digits",
+        "non_digits_after_trailing_numbers",
     ],
 )
 def test_individuals_to_track_ids_map_from_individuals_names(

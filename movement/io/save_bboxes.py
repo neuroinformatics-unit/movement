@@ -3,6 +3,7 @@
 import _csv
 import csv
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -305,18 +306,10 @@ def _get_track_id_from_individuals(
     map_individual_to_track_id = {}
 
     for individual in list_individuals:
-        # Find the first non-digit character starting from the end
-        last_idx = len(individual) - 1
-        first_non_digit_idx = last_idx
-        while (
-            first_non_digit_idx >= 0
-            and individual[first_non_digit_idx].isdigit()
-        ):
-            first_non_digit_idx -= 1
-
-        # Extract track ID from (first_non_digit_idx+1) until the end
-        if first_non_digit_idx < last_idx:
-            track_id = int(individual[first_non_digit_idx + 1 :])
+        pattern = r"(\d+)(?=\D*$)"
+        match = re.search(pattern, individual)
+        if match:
+            track_id = int(match.group(1))
             map_individual_to_track_id[individual] = track_id
         else:
             raise logger.error(
