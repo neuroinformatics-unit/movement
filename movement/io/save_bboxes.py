@@ -9,7 +9,10 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesDataset
+from movement.validators.datasets import (
+    ValidBboxesDataset,
+    _validate_dataset,
+)
 from movement.validators.files import _validate_file_path
 
 
@@ -109,7 +112,7 @@ def to_via_tracks_file(
     """
     # Validate file path and dataset
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
-    _validate_bboxes_dataset(ds)
+    _validate_dataset(ds, ValidBboxesDataset)
 
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
@@ -139,43 +142,6 @@ def to_via_tracks_file(
 
     logger.info(f"Saved bounding boxes dataset to {file.path}.")
     return file.path
-
-
-def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
-    """Verify the input dataset is a valid ``movement`` bboxes dataset.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to validate.
-
-    Raises
-    ------
-    TypeError
-        If the input is not an xarray Dataset.
-    ValueError
-        If the dataset is missing required data variables or dimensions
-        for a valid ``movement`` bboxes dataset.
-
-    """
-    if not isinstance(ds, xr.Dataset):
-        raise logger.error(
-            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-        )
-
-    missing_vars = set(ValidBboxesDataset.VAR_NAMES) - set(ds.data_vars)
-    if missing_vars:
-        raise logger.error(
-            ValueError(
-                f"Missing required data variables: {sorted(missing_vars)}"
-            )
-        )  # sort for a reproducible error message
-
-    missing_dims = set(ValidBboxesDataset.DIM_NAMES) - set(ds.dims)
-    if missing_dims:
-        raise logger.error(
-            ValueError(f"Missing required dimensions: {sorted(missing_dims)}")
-        )  # sort for a reproducible error message
 
 
 def _get_image_filename_template(

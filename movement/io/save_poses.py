@@ -15,7 +15,7 @@ from movement.io.nwb import (
     _write_processing_module,
 )
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import ValidPosesDataset, _validate_dataset
 from movement.validators.files import _validate_file_path
 
 
@@ -118,7 +118,7 @@ def to_dlc_style_df(
     to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.
 
     """
-    _validate_poses_dataset(ds)
+    _validate_dataset(ds, ValidPosesDataset)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
     coords = ds.coords["space"].data.tolist() + ["likelihood"]
@@ -259,7 +259,7 @@ def to_lp_file(
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
-    _validate_poses_dataset(ds)
+    _validate_dataset(ds, ValidPosesDataset)
     to_dlc_file(ds, file.path, split_individuals=True)
 
 
@@ -303,7 +303,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
-    _validate_poses_dataset(ds)
+    _validate_dataset(ds, ValidPosesDataset)
 
     ds = _remove_unoccupied_tracks(ds)
 
@@ -527,38 +527,3 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
-
-
-def _validate_poses_dataset(ds: xr.Dataset) -> None:
-    """Validate the input as a proper ``movement`` poses dataset.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to validate.
-
-    Raises
-    ------
-    TypeError
-        If the input is not an xarray Dataset.
-    ValueError
-        If the dataset is missing required data variables or dimensions
-        for a valid ``movement`` poses dataset.
-
-    """
-    if not isinstance(ds, xr.Dataset):
-        raise logger.error(
-            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-        )
-
-    missing_vars = set(ValidPosesDataset.VAR_NAMES) - set(ds.data_vars)
-    if missing_vars:
-        raise ValueError(
-            f"Missing required data variables: {sorted(missing_vars)}"
-        )  # sort for a reproducible error message
-
-    missing_dims = set(ValidPosesDataset.DIM_NAMES) - set(ds.dims)
-    if missing_dims:
-        raise ValueError(
-            f"Missing required dimensions: {sorted(missing_dims)}"
-        )  # sort for a reproducible error message
