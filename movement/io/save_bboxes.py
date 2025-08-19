@@ -254,8 +254,9 @@ def _compute_individuals_to_track_ids_map(
         List of individuals' names.
     use_trailing_numbers_as_track_ids : bool
         If True, extract track ID from the last consecutive digits in
-        the individuals' names. If False, the track IDs will be factorised
-        from the sorted list of individuals' names.
+        the individuals' names. If False, the track IDs will be assigned
+        sequentially (0, 1, 2, ...) based on the alphabetically
+        sorted list of individuals' names.
 
     Returns
     -------
