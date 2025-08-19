@@ -117,7 +117,7 @@ def to_via_tracks_file(
     )
 
     # Map individuals' names to track IDs
-    map_individual_to_track_id = _get_map_individuals_to_track_ids(
+    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         ds.coords["individuals"].values,
         extract_track_id_from_individuals,
     )
@@ -264,11 +264,11 @@ def _check_frame_required_digits(
         return frame_n_digits
 
 
-def _get_map_individuals_to_track_ids(
+def _compute_individuals_to_track_ids_map(
     list_individuals: list[str],
     extract_track_id_from_individuals: bool,
 ) -> dict[str, int]:
-    """Compute a mapping of individuals' names to track IDs.
+    """Compute the map from individuals' names to track IDs.
 
     Parameters
     ----------

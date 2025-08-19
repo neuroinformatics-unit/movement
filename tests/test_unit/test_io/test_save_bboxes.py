@@ -8,7 +8,7 @@ import xarray as xr
 
 from movement.io import load_bboxes, save_bboxes
 from movement.io.save_bboxes import (
-    _get_map_individuals_to_track_ids,
+    _compute_individuals_to_track_ids_map,
     _write_single_row,
 )
 
@@ -509,14 +509,14 @@ def test_get_min_required_digits_in_ds_error(
         "middle_and_end_digits",
     ],
 )
-def test_get_map_individuals_to_track_ids_from_individuals_names(
+def test_individuals_to_track_ids_map_from_individuals_names(
     list_individuals, expected_track_id
 ):
     """Test the mapping individuals to track IDs if the track ID is
     extracted from the individuals' names.
     """
     # Map individuals to track IDs
-    map_individual_to_track_id = _get_map_individuals_to_track_ids(
+    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         list_individuals, extract_track_id_from_individuals=True
     )
 
@@ -536,14 +536,14 @@ def test_get_map_individuals_to_track_ids_from_individuals_names(
     ],
     ids=["sorted", "unsorted", "should_ignore_digits"],
 )
-def test_get_map_individuals_to_track_ids_factorised(
+def test_individuals_to_track_ids_map_factorised(
     list_individuals, expected_track_id
 ):
     """Test the mapping individuals to track IDs if the track ID is
     factorised from the sorted individuals' names.
     """
     # Map individuals to track IDs
-    map_individual_to_track_id = _get_map_individuals_to_track_ids(
+    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         list_individuals, extract_track_id_from_individuals=False
     )
 
@@ -575,14 +575,14 @@ def test_get_map_individuals_to_track_ids_factorised(
     ],
     ids=["id_clash_1", "id_clash_2", "individuals_without_digits"],
 )
-def test_get_map_individuals_to_track_ids_error(
+def test_individuals_to_track_ids_map_error(
     list_individuals, expected_error_message
 ):
     """Test that the appropriate error is raised if extracting track IDs
     from the individuals' names fails.
     """
     with pytest.raises(ValueError) as error:
-        _get_map_individuals_to_track_ids(
+        _compute_individuals_to_track_ids_map(
             list_individuals,
             extract_track_id_from_individuals=True,
         )
