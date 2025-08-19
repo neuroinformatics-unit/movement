@@ -165,14 +165,16 @@ def _validate_bboxes_dataset(ds: xr.Dataset) -> None:
 
     missing_vars = set(ValidBboxesDataset.VAR_NAMES) - set(ds.data_vars)
     if missing_vars:
-        raise ValueError(
-            f"Missing required data variables: {sorted(missing_vars)}"
+        raise logger.error(
+            ValueError(
+                f"Missing required data variables: {sorted(missing_vars)}"
+            )
         )  # sort for a reproducible error message
 
     missing_dims = set(ValidBboxesDataset.DIM_NAMES) - set(ds.dims)
     if missing_dims:
-        raise ValueError(
-            f"Missing required dimensions: {sorted(missing_dims)}"
+        raise logger.error(
+            ValueError(f"Missing required dimensions: {sorted(missing_dims)}")
         )  # sort for a reproducible error message
 
 
@@ -261,11 +263,13 @@ def _check_frame_required_digits(
     if frame_n_digits is None:
         return min_required_digits + 1  # pad with at least one zero
     elif frame_n_digits < min_required_digits:
-        raise ValueError(
-            "The requested number of digits to represent the frame "
-            "number cannot be used to represent all the frame numbers."
-            f"Got {frame_n_digits}, but the maximum frame number has "
-            f"{min_required_digits} digits"
+        raise logger.error(
+            ValueError(
+                "The requested number of digits to represent the frame "
+                "number cannot be used to represent all the frame numbers."
+                f"Got {frame_n_digits}, but the maximum frame number has "
+                f"{min_required_digits} digits"
+            )
         )
     else:
         return frame_n_digits
@@ -347,16 +351,20 @@ def _get_track_id_from_individuals(
             track_id = int(individual[first_non_digit_idx + 1 :])
             map_individual_to_track_id[individual] = track_id
         else:
-            raise ValueError(f"Could not extract track ID from {individual}.")
+            raise logger.error(
+                ValueError(f"Could not extract track ID from {individual}.")
+            )
 
     # Check that all individuals have a unique track ID
     if len(set(map_individual_to_track_id.values())) != len(
         set(list_individuals)
     ):
-        raise ValueError(
-            "Could not extract a unique track ID for all individuals. "
-            f"Expected {len(set(list_individuals))} unique track IDs, "
-            f"but got {len(set(map_individual_to_track_id.values()))}."
+        raise logger.error(
+            ValueError(
+                "Could not extract a unique track ID for all individuals. "
+                f"Expected {len(set(list_individuals))} unique track IDs, "
+                f"but got {len(set(map_individual_to_track_id.values()))}."
+            )
         )
 
     return map_individual_to_track_id
