@@ -233,10 +233,9 @@ def _check_frame_required_digits(
     elif frame_n_digits < min_required_digits:
         raise logger.error(
             ValueError(
-                "The requested number of digits to represent the frame "
-                "number cannot be used to represent all the frame numbers."
-                f"Got {frame_n_digits}, but the maximum frame number has "
-                f"{min_required_digits} digits"
+                "The requested number of digits cannot be used to represent "
+                f"all the frame numbers. Got {frame_n_digits}, but the "
+                f"maximum frame number has {min_required_digits} digits."
             )
         )
     else:
