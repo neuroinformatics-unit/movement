@@ -21,12 +21,12 @@ def to_via_tracks_file(
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
 ) -> Path:
-    """Save a movement bounding boxes dataset to a VIA tracks .csv file.
+    """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        The movement bounding boxes dataset to export.
+        The ``movement`` bounding boxes dataset to export.
     file_path : str or pathlib.Path
         Path where the VIA tracks .csv file [1]_ will be saved.
     extract_track_id_from_individuals : bool, optional
