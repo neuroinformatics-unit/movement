@@ -52,6 +52,13 @@ def to_via_tracks_file(
     pathlib.Path
         Path to the saved file.
 
+    Notes
+    -----
+    The input arguments that define how the image filenames are formatted
+    (`frame_n_digits`, `image_file_prefix`, and `image_file_suffix`) are useful
+    to ensure the exported VIA tracks .csv file can be loaded in the VIA
+    software alongside the image files the tracks refer to.
+
     References
     ----------
     .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html
