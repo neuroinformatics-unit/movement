@@ -384,7 +384,7 @@ Then you can save it as a VIA tracks .csv file:
 save_bboxes.to_via_tracks_file(ds, "/path/to/output/file.csv")
 ```
 
-By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to derive the track IDs from the trailing numbers in the individuals' names, but you can also set `use_trailing_numbers_as_track_ids=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
+By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to derive the track IDs from the trailing numbers in the individuals' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
 
 ::::
 

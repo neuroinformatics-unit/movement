@@ -246,12 +246,12 @@ def test_to_via_tracks_file_confidence(
     ],
 )
 @pytest.mark.parametrize(
-    "use_trailing_numbers_as_track_ids",
+    "track_ids_from_trailing_numbers",
     [True, False],
 )
-def test_to_via_tracks_file_use_trailing_numbers_as_track_ids(
+def test_to_via_tracks_file_track_ids_from_trailing_numbers(
     valid_dataset,
-    use_trailing_numbers_as_track_ids,
+    track_ids_from_trailing_numbers,
     tmp_path,
     request,
 ):
@@ -264,7 +264,7 @@ def test_to_via_tracks_file_use_trailing_numbers_as_track_ids(
     save_bboxes.to_via_tracks_file(
         input_dataset,
         output_path,
-        use_trailing_numbers_as_track_ids=use_trailing_numbers_as_track_ids,
+        track_ids_from_trailing_numbers=track_ids_from_trailing_numbers,
     )
 
     # Check track ID in relation to individuals' names
@@ -277,7 +277,7 @@ def test_to_via_tracks_file_use_trailing_numbers_as_track_ids(
     )
 
     # Note: we check if the sets of IDs is as expected, regardless of the order
-    if use_trailing_numbers_as_track_ids:
+    if track_ids_from_trailing_numbers:
         assert set_unique_track_ids == set(
             [
                 int(indiv.split("_")[1])
@@ -518,7 +518,7 @@ def test_individuals_to_track_ids_map_from_individuals_names(
     """
     # Map individuals to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        list_individuals, use_trailing_numbers_as_track_ids=True
+        list_individuals, track_ids_from_trailing_numbers=True
     )
 
     # Check values are as expected
@@ -545,7 +545,7 @@ def test_individuals_to_track_ids_map_factorised(
     """
     # Map individuals to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        list_individuals, use_trailing_numbers_as_track_ids=False
+        list_individuals, track_ids_from_trailing_numbers=False
     )
 
     # Check values are as expected
@@ -585,7 +585,7 @@ def test_individuals_to_track_ids_map_error(
     with pytest.raises(ValueError) as error:
         _compute_individuals_to_track_ids_map(
             list_individuals,
-            use_trailing_numbers_as_track_ids=True,
+            track_ids_from_trailing_numbers=True,
         )
 
     # Check that the error message is as expected
@@ -740,7 +740,7 @@ def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
     save_bboxes.to_via_tracks_file(
         original_ds,
         output_path,
-        use_trailing_numbers_as_track_ids=True,
+        track_ids_from_trailing_numbers=True,
     )
 
     # Load the exported file

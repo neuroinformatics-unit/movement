@@ -17,7 +17,7 @@ from movement.validators.files import _validate_file_path
 def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
-    use_trailing_numbers_as_track_ids: bool = True,
+    track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
@@ -30,7 +30,7 @@ def to_via_tracks_file(
         The ``movement`` bounding boxes dataset to export.
     file_path : str or pathlib.Path
         Path where the VIA tracks .csv file [1]_ will be saved.
-    use_trailing_numbers_as_track_ids : bool, optional
+    track_ids_from_trailing_numbers : bool, optional
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be assigned sequentially (0, 1, 2, ...) based on
@@ -56,9 +56,9 @@ def to_via_tracks_file(
     Notes
     -----
     The input arguments that define how the image filenames are formatted
-    (`frame_n_digits`, `image_file_prefix`, and `image_file_suffix`) are useful
-    to ensure the exported VIA tracks .csv file can be loaded in the VIA
-    software alongside the image files the tracks refer to.
+    (``frame_n_digits``, ``image_file_prefix``, and ``image_file_suffix``)
+    are useful to ensure the exported VIA tracks .csv file can be loaded in
+    the VIA software alongside the image files the tracks refer to.
 
     References
     ----------
@@ -81,7 +81,7 @@ def to_via_tracks_file(
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
-    ...     use_trailing_numbers_as_track_ids=False,
+    ...     track_ids_from_trailing_numbers=False,
     ...     image_file_suffix=".jpg",
     ... )
 
@@ -131,7 +131,7 @@ def to_via_tracks_file(
     # Map individuals' names to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         ds.coords["individuals"].values,
-        use_trailing_numbers_as_track_ids,
+        track_ids_from_trailing_numbers,
     )
 
     # Write file
@@ -244,7 +244,7 @@ def _check_frame_required_digits(
 
 def _compute_individuals_to_track_ids_map(
     list_individuals: list[str],
-    use_trailing_numbers_as_track_ids: bool,
+    track_ids_from_trailing_numbers: bool,
 ) -> dict[str, int]:
     """Compute the map from individuals' names to track IDs.
 
@@ -252,7 +252,7 @@ def _compute_individuals_to_track_ids_map(
     ----------
     list_individuals : list[str]
         List of individuals' names.
-    use_trailing_numbers_as_track_ids : bool
+    track_ids_from_trailing_numbers : bool
         If True, extract track ID from the last consecutive digits in
         the individuals' names. If False, the track IDs will be assigned
         sequentially (0, 1, 2, ...) based on the alphabetically
@@ -264,7 +264,7 @@ def _compute_individuals_to_track_ids_map(
         A dictionary mapping individuals' names to track IDs.
 
     """
-    if use_trailing_numbers_as_track_ids:
+    if track_ids_from_trailing_numbers:
         # Extract track IDs from the trailing numbers in the individuals' names
         map_individual_to_track_id = _extract_track_ids_from_individuals_names(
             list_individuals
