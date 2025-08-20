@@ -84,8 +84,10 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
     linear motion, with 5 frames with low confidence values and time in frames.
 
     It represents 2 individuals for 10 frames, in 2D space.
-    - Individual 0 moves along the x=y line from the origin.
-    - Individual 1 moves along the x=-y line line from the origin.
+    - Individual 0 moves along the x=y line from the origin,
+      in the x positive, y positive quadrant.
+    - Individual 1 moves along the x=-y line line from the origin,
+      in the x positive, y negative quadrant.
 
     All confidence values are set to 0.9 except the following which are set
     to 0.1:
