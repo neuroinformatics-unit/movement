@@ -225,10 +225,10 @@ To load bounding box tracks into a [movement bounding boxes dataset](target-pose
 from movement.io import load_bboxes
 ```
 
-We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a {func}`from_numpy()<movement.io.load_bboxes.from_numpy>` function, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+We currently support loading bounding box tracks in the [VGG Image Annotator (VIA)](https://www.robots.ox.ac.uk/~vgg/software/via/) format only. However, like in the poses datasets, we additionally provide a {func}`from_numpy()<movement.io.load_bboxes.from_numpy>` function, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
-::::{tab-set}
-:::{tab-item} VGG Image Annotator
+:::::{tab-set}
+::::{tab-item} VIA tracks .csv file
 To load a VIA tracks .csv file:
 
 ```python
@@ -242,10 +242,14 @@ ds = load_bboxes.from_file(
 )
 ```
 
+:::{admonition} Bounding boxes format
+:class: note
 Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding `movement` dataset `ds` will hold in its `position` array the centroid of each bounding box.
 :::
 
-:::{tab-item} From NumPy
+::::
+
+::::{tab-item} From NumPy
 In the example below, we create random position data for two bounding boxes, `id_0` and `id_1`,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.
 
@@ -261,9 +265,9 @@ ds = load_bboxes.from_numpy(
 )
 ```
 
-:::
-
 ::::
+
+:::::
 
 The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
 
@@ -363,10 +367,30 @@ for file in nwb_files:
 
 ### Saving bounding box tracks
 
-We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can save the bounding box tracks to a .csv file using the standard Python library `csv`.
+We currently support exporting a [movement bboxes datasets](target-poses-and-bboxes-dataset) as a [VIA tracks .csv file](via:docs/face_track_annotation.html), so that you can visualise and correct your bounding box tracks with the [VGG Image Annotator (VIA-2) software](via:via.html). Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library `csv`.
 
-Here is an example of how you can save a bounding boxes dataset to a .csv file:
 
+:::::{tab-set}
+::::{tab-item} VIA tracks .csv file
+
+To export your bounding boxes dataset `ds`, you will need to import the {mod}`movement.io.save_bboxes` module:
+
+```python
+from movement.io import save_bboxes
+```
+
+Then you can save it as a VIA tracks .csv file:
+```python
+save_bboxes.to_via_tracks_file(ds, "/path/to/output/file.csv")
+```
+
+By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to derive the track IDs from the trailing numbers in the individuals' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
+
+::::
+
+
+::::{tab-item} Custom .csv file
+Below is an example of how you can export a `movement` bounding boxes dataset as a .csv file with a custom header:
 ```python
 # define name for output csv file
 filepath = "tracking_output.csv"
@@ -388,7 +412,16 @@ with open(filepath, mode="w", newline="") as file:
 
 ```
 
-Alternatively, we can convert the `movement` bounding boxes dataset to a pandas DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+:::{admonition} Using `pandas`
+:class: note
+If you prefer to work with `pandas`, you can alternatively convert the `movement` bounding boxes dataset to a `pandas` DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+:::
+
+::::
+
+:::::
+
+
 
 (target-netcdf)=
 
