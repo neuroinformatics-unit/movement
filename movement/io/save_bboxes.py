@@ -265,12 +265,13 @@ def _compute_individuals_to_track_ids_map(
 
     """
     if use_trailing_numbers_as_track_ids:
-        # Extract track IDs from the individuals' names
-        map_individual_to_track_id = _get_track_id_from_individuals(
+        # Extract track IDs from the trailing numbers in the individuals' names
+        map_individual_to_track_id = _extract_track_ids_from_individuals_names(
             list_individuals
         )
     else:
-        # Factorise track IDs from sorted individuals' names
+        # Assign track IDs sequentially based on the alphabetically sorted
+        # list of individuals' names
         list_individuals = sorted(list_individuals)
         map_individual_to_track_id = {
             individual: i for i, individual in enumerate(list_individuals)
@@ -279,7 +280,7 @@ def _compute_individuals_to_track_ids_map(
     return map_individual_to_track_id
 
 
-def _get_track_id_from_individuals(
+def _extract_track_ids_from_individuals_names(
     list_individuals: list[str],
 ) -> dict[str, int]:
     """Extract track IDs as the last digits in the individuals' names.
@@ -305,6 +306,8 @@ def _get_track_id_from_individuals(
     map_individual_to_track_id = {}
 
     for individual in list_individuals:
+        # Match the last consecutive digits in the individual's name
+        # even if they are not at the end of the string
         pattern = r"(\d+)(?=\D*$)"
         match = re.search(pattern, individual)
         if match:
