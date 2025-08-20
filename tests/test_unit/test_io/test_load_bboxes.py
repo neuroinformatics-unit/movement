@@ -529,7 +529,7 @@ def test_extract_frame_number_from_via_tracks_df_filenames(
     # the VIA tracks .csv files have no frames defined under the
     # "file_attributes" so the frame numbers should be extracted
     # from the filenames
-    assert not all(["frame" in row for row in df["file_attributes"]])
+    assert not all("frame" in row for row in df["file_attributes"])
     # extract frame number from df
     frame_array = load_bboxes._extract_frame_number_from_via_tracks_df(df)
     assert np.array_equal(frame_array, expected_frame_array)

@@ -272,18 +272,16 @@ def test_to_via_tracks_file_track_ids_from_trailing_numbers(
     df["region_attributes"] = [
         json.loads(el) for el in df["region_attributes"]
     ]
-    set_unique_track_ids = set(
-        [int(row["track"]) for row in df["region_attributes"]]
-    )
+    set_unique_track_ids = {
+        int(row["track"]) for row in df["region_attributes"]
+    }
 
     # Note: we check if the sets of IDs is as expected, regardless of the order
     if track_ids_from_trailing_numbers:
-        assert set_unique_track_ids == set(
-            [
-                int(indiv.split("_")[1])
-                for indiv in input_dataset.individuals.values
-            ]
-        )
+        assert set_unique_track_ids == {
+            int(indiv.split("_")[1])
+            for indiv in input_dataset.individuals.values
+        }
     else:
         assert set_unique_track_ids == {0, 1}
 
@@ -311,14 +309,9 @@ def test_to_via_tracks_file_region_count_and_id(
     # Check that the region count matches the number of annotations
     # per filename
     df_bboxes_count = df["filename"].value_counts(sort=False)
-    map_filename_to_bboxes_count = {
-        filename: count
-        for filename, count in zip(
-            df_bboxes_count.index,
-            df_bboxes_count,
-            strict=True,
-        )
-    }
+    map_filename_to_bboxes_count = dict(
+        zip(df_bboxes_count.index, df_bboxes_count, strict=True)
+    )
     assert all(
         df["region_count"].values
         == [map_filename_to_bboxes_count[fn] for fn in df["filename"]]
