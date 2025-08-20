@@ -68,20 +68,31 @@ def to_via_tracks_file(
     --------
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
-    names and assuming the image files are PNG files:
+    names and assuming the image files are PNG files. The frame numbers in the
+    image filenames are padded with at least one leading zero by default:
 
     >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(ds, "/path/to/output.csv")
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     assigning the track IDs sequentially based on the alphabetically sorted
-    list of individuals' names, and assuming the image files are JPG files:
+    list of individuals' names, and assuming the image files are PNG files:
 
     >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(
     ...     ds,
     ...     "/path/to/output.csv",
     ...     track_ids_from_trailing_numbers=False,
+    ... )
+
+    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    deriving the track IDs from the numbers at the end of the individuals'
+    names, and assuming the image files are JPG files:
+
+    >>> from movement.io import save_boxes
+    >>> save_boxes.to_via_tracks_file(
+    ...     ds,
+    ...     "/path/to/output.csv",
     ...     image_file_suffix=".jpg",
     ... )
 
@@ -100,9 +111,8 @@ def to_via_tracks_file(
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
-    names and with frame numbers in the image filenames represented using 4
-    digits, padded with leading zeros (i.e., image filenames would be
-    ``0000.png``, ``0001.png``, etc.):
+    names, and with frame numbers in the image filenames represented using 4
+    digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
 
     >>> from movement.io import save_boxes
     >>> save_boxes.to_via_tracks_file(
