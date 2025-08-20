@@ -23,7 +23,7 @@ dependencies = [
   "sleap-io",
   "xarray[accel,io,viz]",
   "PyYAML",
-  "napari-video",
+  "napari-video>=0.2.13",
   "pyvideoreader>=0.5.3", # since switching to depend on openCV-headless
   "qt-niu",               # needed for collapsible widgets
   "loguru",
