@@ -1,4 +1,4 @@
-"""Compute and visualise kinematics.
+"""Compute and visualise kinematics
 ====================================
 
 Compute displacement, velocity and acceleration, and
@@ -12,6 +12,7 @@ visualise the results.
 # For interactive plots: install ipympl with `pip install ipympl` and uncomment
 # the following line in your notebook
 # %matplotlib widget
+import numpy as np
 from matplotlib import pyplot as plt
 
 import movement.kinematics as kin
@@ -50,9 +51,8 @@ position = ds.position
 # ---------------------------
 # First, let's visualise the trajectories of the mice in the XY plane,
 # colouring them by individual.
-# We use :func:`movement.plots.plot_centroid_trajectory` which is a wrapper
-# around :func:`matplotlib.pyplot.scatter` that simplifies plotting the
-# trajectories of individuals in the dataset.
+# For this we can use :func:`movement.plots.plot_centroid_trajectory`
+# which is a wrapper around :func:`matplotlib.pyplot.scatter`.
 # The fig and ax objects returned can be used to further customise the plot.
 
 # Create a single figure and axes
@@ -77,6 +77,8 @@ for mouse_name, col in zip(
         label=mouse_name,
     )
     ax.legend().set_alpha(1)
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
 fig.show()
 
 # %%
@@ -86,10 +88,15 @@ fig.show()
 # follows the convention for SLEAP and most image processing tools.
 
 # %%
-# By default :func:`plot_centroid_trajectory()<movement.plots.\
-# plot_centroid_trajectory>` colours data points based on their timestamps:
-fig, axes = plt.subplots(3, 1, sharey=True)
-for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
+# We can also plot the trajectories of the mice in the XY plane independently,
+# colouring the data points based on their timestamps. This is the default
+# behaviour of
+# :func:`plot_centroid_trajectory()<movement.plots.plot_centroid_trajectory>`
+# when the ``c`` argument is not provided:
+fig, axes = plt.subplots(2, 2, sharey=True)
+for mouse_name, ax in zip(
+    position.individuals.values, axes.flat, strict=False
+):
     ax.invert_yaxis()
     fig, ax = plot_centroid_trajectory(
         position,
@@ -97,10 +104,15 @@ for mouse_name, ax in zip(position.individuals.values, axes, strict=False):
         ax=ax,
         s=2,
     )
+    ax.set_aspect("equal")
+    ax.set_xlim(150, 1250)
+    ax.set_ylim(500, 1100)
     ax.set_title(f"Trajectory {mouse_name}")
     ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
     ax.collections[0].colorbar.set_label("Time (frames)")
+# Hide the unused subplot (4th one)
+axes[1, 1].set_visible(False)
 fig.tight_layout()
 fig.show()
 
@@ -111,7 +123,7 @@ fig.show()
 # the third mouse (``AEON3B_TP2``) followed an anti-clockwise direction.
 
 # %%
-# We can also easily plot the components of the position vector against time
+# We can also inspect the components of the position vector against time
 # using ``xarray``'s built-in plotting methods. We use
 # :meth:`xarray.DataArray.squeeze` to
 # remove the dimension of length 1 from the data (the ``keypoints`` dimension).
@@ -124,37 +136,36 @@ plt.gcf().show()
 # and the ``x`` and ``y`` coordinates of the ``position`` are in pixels.
 
 # %%
-# Compute displacement
-# ---------------------
+# Compute displacement vectors
+# ----------------------------
 # The :mod:`movement.kinematics` module
-# provides functions to compute various kinematic quantities,
-# such as displacement, velocity, and acceleration.
-# We can start off by computing the distance travelled by the mice along
-# their trajectories:
-
-displacement_forward = kin.compute_forward_displacement(position)
+# provides functions to compute various kinematic variables,
+# such as displacement, velocity, and acceleration. Below we showcase
+# how these functions can be used.
+#
+# We can compute the forward displacement vectors as follows:
+forward_displacement = kin.compute_forward_displacement(position)
 
 # %%
 # The :func:`movement.kinematics.compute_forward_displacement`
 # function will return a data array equivalent to the ``position`` one,
-# but holding displacement data along the ``space`` axis, rather than
-# position data.
+# but holding displacement data along the ``space`` axis.
 #
-# The ``displacement_forward`` data array holds, for a given individual and
+# The ``forward_displacement`` data array holds, for a given individual and
 # keypoint at timestep ``t``, the vector that goes from its current position
 # at time ``t`` to its next position at time ``t+1``.
 
 # %%
-# And what happens at the last timestep, since there is no next timepoint?
-# We define the displacement vector at the last timestep to be the zero vector.
-# This way the shape of the ``displacement`` data array is the
-# same as the  ``position`` array:
+# And what happens in the last timestep, when there is no next timepoint?
+# We define the forward displacement vector then to be the
+# zero vector. This way the shape of the ``forward_displacement`` data array
+# is the same as the ``position`` array:
 print(f"Shape of position: {position.shape}")
-print(f"Shape of displacement: {displacement_forward.shape}")
+print(f"Shape of displacement: {forward_displacement.shape}")
 
 # %%
-# We can visualise these displacement vectors with a quiver plot. In this case
-# we focus on the mouse ``AEON3B_TP2``:
+# We can visualise the forward displacement vectors with a quiver plot. In
+# this case we focus on the mouse ``AEON3B_TP2``:
 mouse_name = "AEON3B_TP2"
 
 fig = plt.figure()
@@ -169,12 +180,12 @@ sc = ax.scatter(
     cmap="viridis",
 )
 
-# plot displacement vectors: at t, vector from t to t+1
+# plot forward displacement vectors: at t, vector from t to t+1
 ax.quiver(
     position.sel(individuals=mouse_name, space="x"),
     position.sel(individuals=mouse_name, space="y"),
-    displacement_forward.sel(individuals=mouse_name, space="x"),
-    displacement_forward.sel(individuals=mouse_name, space="y"),
+    forward_displacement.sel(individuals=mouse_name, space="x"),
+    forward_displacement.sel(individuals=mouse_name, space="y"),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -183,9 +194,8 @@ ax.quiver(
     headaxislength=9,
 )
 
-ax.axis("equal")
-ax.set_xlim(450, 575)
-ax.set_ylim(950, 1075)
+ax.set_xlim(480, 600)
+ax.set_ylim(980, 1080)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
 ax.set_title(f"Zoomed in trajectory of {mouse_name}")
@@ -194,34 +204,116 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 
 
 # %%
-# Now we can visually verify that indeed the displacement vector
+# We can visually verify that indeed the forward displacement vector
 # connects the previous and current positions as expected.
 
 # %%
-# With the displacement data we can compute the distance travelled by the
-# mouse along its trajectory.
+# Similarly, with :func:`movement.kinematics.compute_backward_displacement`
+# we can compute the backward displacement vectors, which connect the current
+# position to the previous one:
+backward_displacement = kin.compute_backward_displacement(position)
 
-# length of each displacement vector
-displacement_vectors_lengths = compute_norm(
-    displacement_forward.sel(individuals=mouse_name)
+# In this case, the backward displacement vector at the first timestep
+# is defined as the zero vector, since there is no previous position.
+
+# %%
+# Adapting the code snippet from above, we can visually check that the
+# backward displacement vector is indeed the reverse of the forward
+# displacement vector.
+
+fig = plt.figure()
+ax = fig.add_subplot()
+
+sc = ax.scatter(
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
+    s=15,
+    c=position.time,
+    cmap="viridis",
+)
+
+ax.quiver(
+    position.sel(individuals=mouse_name, space="x"),
+    position.sel(individuals=mouse_name, space="y"),
+    backward_displacement.sel(individuals=mouse_name, space="x"),
+    backward_displacement.sel(individuals=mouse_name, space="y"),
+    angles="xy",
+    scale=1,
+    scale_units="xy",
+    headwidth=7,
+    headlength=9,
+    headaxislength=9,
+)
+
+ax.set_xlim(480, 600)
+ax.set_ylim(980, 1080)
+ax.set_xlabel("x (pixels)")
+ax.set_ylabel("y (pixels)")
+ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+ax.invert_yaxis()
+fig.colorbar(sc, ax=ax, label="time (s)")
+
+
+# %%
+# Compute path length
+# --------------------
+# We can compute the distance travelled by the
+# mouse as the sum of the lengths of all
+# displacement vectors along its trajectory.
+# Both backward and forward displacement vectors
+# should give the same result:
+
+# length of each forward displacement vector
+forward_displacement_lengths = compute_norm(
+    forward_displacement.sel(individuals=mouse_name)
+)
+
+# length of each backward displacement vector
+backward_displacement_lengths = compute_norm(
+    backward_displacement.sel(individuals=mouse_name)
+)
+
+# check their lengths are the same
+np.testing.assert_almost_equal(
+    forward_displacement_lengths.values[:-1],  # exclude last timestep
+    backward_displacement_lengths.values[1:],  # exclude first timestep
 )
 
 # sum the lengths of all displacement vectors (in pixels)
-total_displacement = displacement_vectors_lengths.sum(dim="time").values[0]
+total_displacement_fwd = forward_displacement_lengths.sum(dim="time").values[0]
+total_displacement_bwd = backward_displacement_lengths.sum(dim="time").values[
+    0
+]
 
 print(
-    f"The mouse {mouse_name}'s trajectory is {total_displacement:.2f} "
-    "pixels long"
+    f"The mouse {mouse_name}'s path length is {total_displacement_fwd:.2f} "
+    "pixels long (using forward displacement)"
+)
+print(
+    f"The mouse {mouse_name}'s path length is {total_displacement_bwd:.2f} "
+    "pixels long (using backward displacement)"
 )
 
+
 # %%
-# Internally, that's what :func:`movement.kinematics.compute_path_length` does.
-kin.compute_path_length(ds.position).sel(individuals=mouse_name).values[0]
+# We provide a convenience function
+# :func:`movement.kinematics.compute_path_length`
+# to compute the path length for all individuals and keypoints in a position
+# data array. We can verify that using this function gives the same result
+# as before for the ``AEON3B_TP2`` mouse:
+
+path_lengths = kin.compute_path_length(ds.position)
+
+for mouse_name in path_lengths.individuals.values:
+    print(
+        f"Path length for {mouse_name}: "
+        f"{path_lengths.sel(individuals=mouse_name).values[0]:.2f} pixels"
+    )
 
 # %%
 # Compute velocity
 # ----------------
-# We can easily compute the velocity vectors for all individuals in our data
+# We can also compute the velocity vectors for all individuals in our data
 # array:
 velocity = kin.compute_velocity(position)
 
@@ -244,9 +336,9 @@ plt.gcf().show()
 # %%
 # The components of the velocity vector seem noisier than the components of
 # the position vector.
-# This is expected, since we are deriving the velocity using differences in
+# This is expected, since we are estimating the velocity using differences in
 # position (which is somewhat noisy), over small stepsizes.
-# More specifically, we use numpy's gradient implementation, which
+# More specifically, we use :func:`numpy.gradient` internally, which
 # uses second order central differences.
 
 # %%
@@ -265,7 +357,7 @@ fig.tight_layout()
 
 # %%
 # To visualise the direction of the velocity vector at each timestep, we can
-# use a quiver plot:
+# again use a quiver plot:
 mouse_name = "AEON3B_TP2"
 fig = plt.figure()
 ax = fig.add_subplot()
