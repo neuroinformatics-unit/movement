@@ -65,7 +65,7 @@ recording_dir_world = session_dir_path.joinpath(
 
 # %%
 # Load FreeMoCap output files as a single ``movement`` dataset
-# ---------------------------------
+# ------------------------------------------------------------
 # We will use the helper function below to combine all FreeMoCap output
 # ``.csv`` files into one ``movement`` dataset.
 def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
@@ -310,7 +310,7 @@ ax_b.set_xlabel("x (mm)")
 ax_b.set_ylabel("y (mm)")
 ax_b.set_zlabel("z (mm)")
 ax_b.set_title("Visualising frame-index", pad=40)
-fig_b.colorbar(
+cb_b = fig_b.colorbar(
     ax_b.collections[0],
     ax=ax_b,
     label="Frame Index",
@@ -319,7 +319,7 @@ fig_b.colorbar(
     pad=-0.05,
 )
 
-
+# %%
 # Next, visualising the current writing speed
 # ``x, y, z`` where speed determines colour.
 # Using :func:`compute_speed()\
@@ -363,7 +363,7 @@ ax_c.set_xlabel("x (mm)")
 ax_c.set_ylabel("y (mm)")
 ax_c.set_zlabel("z (mm)")
 ax_c.set_title("Visualising writing speed", pad=40)
-fig_c.colorbar(
+cb_c = fig_c.colorbar(
     ax_c.collections[0],
     ax=ax_c,
     label="Speed (mm/s)",
