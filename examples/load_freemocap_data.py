@@ -259,16 +259,19 @@ ax_a.set_aspect("equal")
 ax_a.set_xlabel("x (mm, inverted)")
 ax_a.set_ylabel("y (mm)")
 ax_a.set_zlabel("z (mm)")
+ax_a.set_title("Visualising the skeleton", pad=10)
 
 # Invert ``x-axis`` to make traced text readable
 ax_a.invert_xaxis()
 
 
 # %%
-# Displaying speed and time as colours
+# Displaying time and speed as colours
 # ------------------------------------
 # Visualising the frame-index
 # ``x, y, z`` where time determines colour.
+# The line colour progresses through the ``turbo`` colormap as the
+# individual writes more letters.
 fig_b = plt.figure()
 ax_b = fig_b.add_subplot(projection="3d")
 
@@ -307,9 +310,22 @@ ax_b.set_xlabel("x (mm)")
 ax_b.set_ylabel("y (mm)")
 ax_b.set_zlabel("z (mm)")
 ax_b.set_title("Visualising frame-index", pad=40)
+fig_b.colorbar(
+    ax_b.collections[0],
+    ax=ax_b,
+    label="Frame Index",
+    fraction=0.06,
+    orientation="horizontal",
+    pad=-0.05,
+)
+
 
 # Next, visualising the current writing speed
 # ``x, y, z`` where speed determines colour.
+# Using :func:`compute_speed()\
+# <movement.kinematics.compute_speed>` to compute the speed
+# of the writing movement, and mapping the line colour to the
+# ``inferno`` colormap.
 fig_c = plt.figure()
 ax_c = fig_c.add_subplot(projection="3d")
 
@@ -347,4 +363,15 @@ ax_c.set_xlabel("x (mm)")
 ax_c.set_ylabel("y (mm)")
 ax_c.set_zlabel("z (mm)")
 ax_c.set_title("Visualising writing speed", pad=40)
+fig_c.colorbar(
+    ax_c.collections[0],
+    ax=ax_c,
+    label="Speed (mm/s)",
+    fraction=0.06,
+    orientation="horizontal",
+    pad=-0.05,
+)
+
+# We can see that the speed is highest on long, straight
+# strokes and lowest around kinks.
 # %%
