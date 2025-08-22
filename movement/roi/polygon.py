@@ -28,7 +28,8 @@ class PolygonOfInterest(BaseRegionOfInterest):
     joined (in sequence) by straight lines between consecutive pairs of points,
     to form the exterior boundary of the RoI. Note that the exterior boundary
     (accessible as via the ``.exterior`` property) is a (closed)
-    ``LineOfInterest``, and may be treated accordingly.
+    :class:`LineOfInterest<movement.roi.LineOfInterest>`, and may be treated
+    accordingly.
 
     The class also supports holes - subregions properly contained inside the
     region that are not part of the region itself. These can be specified by
@@ -61,7 +62,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         See Also
         --------
-        movement.roi.base.BaseRegionOfInterest : The base class that
+        movement.roi.BaseRegionOfInterest : The base class that
             constructor arguments are passed to, and defaults are inherited
             from.
 
@@ -125,7 +126,7 @@ class PolygonOfInterest(BaseRegionOfInterest):
 
         In addition, ``matplotlib`` requires hole coordinates to be listed in
         the reverse orientation to the exterior boundary. Running
-        ``numpy.flip`` on the exterior coordinates is a cheap way to ensure
+        :func:`numpy.flip` on the exterior coordinates is a cheap way to ensure
         that we adhere to this convention, since our geometry is normalised
         upon creation, so this amounts to reversing the order of the
         coordinates.

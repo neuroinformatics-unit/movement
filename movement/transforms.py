@@ -1,4 +1,4 @@
-"""Transform and add unit attributes to xarray.DataArray datasets."""
+"""Transform and add unit attributes to ``xarray.DataArray`` datasets."""
 
 import numpy as np
 import xarray as xr
@@ -40,7 +40,7 @@ def scale(
     Notes
     -----
     This function makes two changes to the resulting data array's attributes
-    (``xarray.DataArray.attrs``) each time it is called:
+    (:attr:`xarray.DataArray.attrs`) each time it is called:
 
     - It sets the ``space_unit`` attribute to the value of the parameter
       with the same name, or removes it if ``space_unit=None``.

@@ -38,7 +38,7 @@ print(f"Keypoints: {ds.keypoints.values}")
 # %%
 # The loaded dataset ``ds`` contains two data arrays:``position`` and
 # ``confidence``. In this tutorial, we will only use the ``position`` data
-# array. We use the ``squeeze()`` method to remove
+# array. We use :meth:`xarray.DataArray.squeeze` to remove
 # the redundant ``individuals`` dimension, as there is only one individual
 # in this dataset.
 
@@ -53,7 +53,7 @@ position = ds.position.squeeze()
 # as part of the sample dataset.
 #
 # The :func:`plot_centroid_trajectory()\
-# <movement.plots.trajectory.plot_centroid_trajectory>`
+# <movement.plots.plot_centroid_trajectory>`
 # function can help you visualise the trajectory of any keypoint in the data.
 # Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
 # will plot the centroid (midpoint) of the selected keypoints.
@@ -219,8 +219,9 @@ print(head_to_snout_polar)
 #     :alt: Schematic comparing cartesian and polar coordinates
 
 # %%
-# ``movement`` also provides a ``pol2cart`` function to transform
-# data in polar coordinates to cartesian.
+# ``movement`` also provides a
+# :func:`pol2cart()<movement.utils.vector.pol2cart>` function
+# to transform data in polar coordinates to cartesian.
 # Note that the resulting ``head_to_snout_cart`` array has a ``space``
 # dimension with two coordinates: ``x`` and ``y``.
 
@@ -267,8 +268,10 @@ print(forward_vector)
 
 
 # %%
-# You can use ``compute_forward_vector`` to compute the perpendicular
-# vector to any line connecting two bilaterally symmetric keypoints.
+# You can use
+# :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
+# to compute the perpendicular vector to any line connecting two bilaterally
+# symmetric keypoints.
 # For example, you could estimate the forward direction for the pelvis given
 # two keypoints at the hips.
 #

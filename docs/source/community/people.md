@@ -100,12 +100,21 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/DPWebster">
+                    <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
+                    <br />
+                    <sub><b>DPWebster</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/harsh-bhanushali-05">
                     <img src="https://avatars.githubusercontent.com/u/109029538?v=4" width="100;" alt="harsh-bhanushali-05"/>
                     <br />
                     <sub><b>Harsh Bhanushali </b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/IgorTatarnikov">
                     <img src="https://avatars.githubusercontent.com/u/61896994?v=4" width="100;" alt="IgorTatarnikov"/>
@@ -113,8 +122,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Igor Tatarnikov</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Kasra-Shirvanian">
                     <img src="https://avatars.githubusercontent.com/u/164632798?v=4" width="100;" alt="Kasra-Shirvanian"/>
@@ -150,6 +157,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Yaroslav Halchenko</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/angkul07">
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
@@ -157,8 +166,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>angkul</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/ivanvrlg">
                     <img src="https://avatars.githubusercontent.com/u/131998802?v=4" width="100;" alt="ivanvrlg"/>
