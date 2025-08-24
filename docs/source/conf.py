@@ -150,9 +150,14 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
+    "switcher": {
+        "json_url": "https://movement.neuroinformatics.dev/latest/_static/switcher.json",
+        "version_match": release,
+    },
     "logo": {
         "text": f"{project} v{release}",
     },
+    "navbar_end": ["version-switcher", "navbar-icon-links"],
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
