@@ -3,6 +3,7 @@ ablog
 linkify-it-py
 myst-parser
 nbsphinx
+networkx
 pydata-sphinx-theme
 setuptools-scm
 sphinx
