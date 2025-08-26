@@ -10,7 +10,9 @@ Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
 # -------
 # To run this example, you will need to install the ``networkx`` package.
 # You can do this by running ``pip install networkx`` in your active
-# virtual environment.
+# virtual environment (see `NetworkX's documentation
+# <https://networkx.org/documentation/stable/install.html>`_
+# for more details).
 
 # %%
 import matplotlib.pyplot as plt
