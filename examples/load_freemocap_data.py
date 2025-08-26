@@ -1,14 +1,18 @@
-"""Load and view FreeMoCap Data
+"""Load and visualise FreeMoCap 3D data
 ==========================================
 
-Load the ``.csv`` files from FreeMoCap into movement and visualise them.
+Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
+``movement`` and visualise them in 3D.
 """
 
 # %%
 # Imports
 # -------
-from pathlib import Path
+# To run this example, you will need to install the ``networkx`` package.
+# You can do this by running ``pip install networkx`` in your active
+# virtual environment.
 
+# %%
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -22,109 +26,188 @@ from movement.kinematics import compute_speed
 
 # %%
 # Load sample dataset
-# -------------------
-# In this tutorial, we will show how we can import 3D data
+# -----------------------
+# In this tutorial we demonstrate how to import 3D data
 # collected with
 # `FreeMoCap <https://freemocap.org>`_
 # into ``movement``.
 #
-# FreeMoCap organises the collected data into timestamped `session`
-# directories, which hold ``recordings``. For each recording,
-# FreeMoCap produces several ``.csv`` files
-# (under the ``output_data`` directory),
-# each referring to different models
-# (e.g. ``face``, ``body``, ``left_hand``, ``right_hand``).
-# The output ``.csv`` files will have 3xN columns, with N being the
-# number of keypoints used by the model.
+# FreeMoCap organises the collected data into timestamped ``session``
+# directories. Each session directory will typically hold several
+# ``recording`` subdirectories, which themselves contain an ``output_data``
+# subdirectory. Upon completing a recording, FreeMoCap saves a set of
+# ``.csv`` files to the relevant ``output_data`` subdirectory. Each file is
+# named after the model used to produce the data (e.g. ``face``, ``body``,
+# ``left_hand``, ``right_hand``).
+# Each ``.csv`` file has 3N columns, with N being the number of keypoints
+# used by the relevant model and 3 being the number of spatial dimensions
+# (x, y, z).
 #
-# Here we will demonstrate how we can load all output files from a single
+# Here, we show how to load all output files from a single FreeMoCap
 # recording into a unified ``movement`` dataset.
 #
-# To do this, we will use a FreeMoCap dataset of a single
-# session folder with two recordings. In the first recording,
-# a human writes the word "hello" in the air
-# with their index finger ("recording_15_37_37_gmt+1").
+# To do this, we use a sample FreeMoCap session folder with two
+# recordings. In the first recording, a human writes the word "hello" in the
+# air with their index finger (``recording_15_37_37_gmt+1``).
 # In the second recording, they write the word "world"
-# ("recording_15_45_49_gmt+1"). Let's first fetch the
-# dataset using the ``sample_data`` module.
-session_dir_path = Path(
-    sample_data.fetch_dataset_paths(
-        "FreeMoCap_hello-world_session-folder.zip"
-    )["poses"]
-)
+# (``recording_15_45_49_gmt+1``).
+#
+# Let's first fetch the dataset using the ``sample_data`` module and verify
+# the folder structure.
 
-print("Path to recordings: ", session_dir_path)
+session_dir_path = sample_data.fetch_dataset_paths(
+    "FreeMoCap_hello-world_session-folder.zip"
+)["poses"]
 
-recording_dir_hello = session_dir_path.joinpath(
+# path to output data directory for "hello" recording
+output_data_dir_hello = session_dir_path.joinpath(
     "recording_15_37_37_gmt+1/output_data"
 )
-recording_dir_world = session_dir_path.joinpath(
+
+# path to output data directory for "world" recording
+output_data_dir_world = session_dir_path.joinpath(
     "recording_15_45_49_gmt+1/output_data"
 )
 
+print("Path to session folder: ", session_dir_path)
+print(
+    "Path to output data directory for 'hello' recording: ",
+    output_data_dir_hello,
+)
+print(
+    "Path to output data directory for 'world' recording: ",
+    output_data_dir_world,
+)
+
 
 # %%
-# Load FreeMoCap output files as a single ``movement`` dataset
-# ------------------------------------------------------------
-# We will use the helper function below to combine all FreeMoCap output
-# ``.csv`` files into one ``movement`` dataset.
-def read_freemocap_as_ds(recording_dir_path, individual_name="person_0"):
-    model = ["body", "left_hand", "right_hand", "face"]
-    full_data = xr.Dataset()
-    for c in model:
+# Read FreeMoCap output files as a single ``movement`` dataset
+# -------------------------------------------------------------
+# We use the helper function below to combine all FreeMoCap output
+# ``.csv`` files into one ``movement`` dataset. Since there is no confidence
+# data available in the output files, we set the confidence of all
+# keypoints to the default NaN value. We also use the default individual
+# name ``id_0``.
+
+
+def read_freemocap_as_ds(output_data_dir):
+    """Read FreeMoCap output files as a single ``movement`` dataset.
+
+    Parameters
+    ----------
+    output_data_dir : pathlib.Path
+        Path to the recording's output data directory holding the relevant
+        ``.csv`` files.
+
+    Returns
+    -------
+    xarray.Dataset
+        A ``movement`` dataset containing the data from all FreeMoCap output
+        files. The ``keypoints`` dimension will have the full set of keypoints
+        as coordinates. The ``individuals`` dimension will have a single
+        coordinate, ``id_0``. The confidence of all keypoints is set to
+        the default NaN value.
+
+    """
+    list_models = ["body", "left_hand", "right_hand", "face"]
+    list_datasets = []
+    for m in list_models:
+        # Read .csv file as a pandas DataFrame
         data_pd = pd.read_csv(
-            recording_dir_path.joinpath(f"mediapipe_{c}_3d_xyz.csv")
+            output_data_dir.joinpath(f"mediapipe_{m}_3d_xyz.csv")
         )
-        headers = data_pd.columns
+
+        # Get list of keypoints from the dataframe, preserving the order
+        # they appear in the file.
+        list_keypoints = [h[:-2] for h in data_pd.columns[::3]]
+
+        # Format data as numpy array
         data = data_pd.to_numpy()
-        data = np.array(
-            [data.reshape(data.shape[0], int(data.shape[1] / 3), 3)]
-        )
-        # Transpose to align with movement data shape
-        data_transposed = np.transpose(data, [1, 3, 2, 0])
+        data = data.reshape(
+            data.shape[0], int(data.shape[1] / 3), 3
+        )  # time, keypoint, space
+
+        # Transpose to align with movement dimensions
+        # and add individuals dimension at the end
+        data = np.transpose(data, [0, 2, 1])[..., None]
+
+        # Read as a movement dataset
         ds = load_poses.from_numpy(
-            position_array=data_transposed,
-            confidence_array=np.ones(np.delete(data_transposed.shape, 1)),
-            individual_names=[individual_name],
-            # Select and trim header names
-            keypoint_names=[a[:-2] for a in headers[::3]],
+            position_array=data,  # time, space, keypoint, individual
+            keypoint_names=list_keypoints,
         )
-        # Merge all of the Datasets into one, along the keypoints axis
-        full_data = full_data.merge(ds, 2)
-    return full_data
+        list_datasets.append(ds)
+
+    # Merge all datasets along keypoint dimension
+    ds_all_keypoints = xr.merge(list_datasets)
+    return ds_all_keypoints
 
 
+# %%
 # We can now use the helper function to read the files
-# in each recording directory as a ``movement`` dataset
+# in each output directory as a ``movement`` dataset.
 
-ds_hello = read_freemocap_as_ds(recording_dir_hello)
-ds_world = read_freemocap_as_ds(recording_dir_world)
+ds_hello = read_freemocap_as_ds(output_data_dir_hello)
+ds_world = read_freemocap_as_ds(output_data_dir_world)
 
+# %%
 # Note that each ``movement`` dataset holds the data for
 # all keypoints across all models used by FreeMoCap.
 
-# %%
-# Visualising the data
-# --------------------
-# Selecting and adjusting the data before plotting.
-
-# We trim the data to select a specific time window
-# (when the desired movement is taking place)
-# and selecting the individual.
-ds_hello = ds_hello.sel(time=range(30, 180), individuals="person_0")
-ds_world = ds_world.sel(time=range(150), individuals="person_0")
-
-# Select the ``keypoint`` ``right_hand_0006`` (in the finger),
-# which is being used for writing.
-position_hello = ds_hello.position.sel(keypoints="right_hand_0006")
-position_world = ds_world.position.sel(keypoints="right_hand_0006")
+print(f"Number of keypoints in 'hello' dataset: {len(ds_hello.keypoints)}")
+print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoints)}")
 
 
 # %%
-# 3D coloured line function
-# This function acts to render a multi-coloured line. Adapted from
-# `Matplotlib segmented example <https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html>`_.
+# Visualise a subset of the data
+# ----------------------------------
+# We would now like to visually inspect the loaded data. For clarity, we
+# focus on the specific time window when the motion takes place, and extract
+# the data for the single individual we have recorded and their
+# ``right_hand_0006`` keypoint. This keypoint tracks the right index finger
+# used for writing in the air.  Note that at the moment, FreeMoCap can only
+# track `one individual at a time
+# <https://freemocap.github.io/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
+
+right_index_position_hello = ds_hello.position.sel(time=range(30, 180)).sel(
+    keypoints="right_hand_0006", individuals="id_0"
+)
+right_index_position_world = ds_world.position.sel(time=range(150)).sel(
+    keypoints="right_hand_0006", individuals="id_0"
+)
+
+# %%
+# We use the following helper function for plotting.
+# This function is adapted from
+# `matplotlib's multi-coloured line example
+# <https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html>`_.
+# You don't need to understand how this function works in detail, for now it
+# is enough to know that we will use it to plot 3D lines with a colour
+# determined by a scalar.
+
+
 def coloured_scatter_line_3d(x, y, z, c, s, ax, **lc_kwargs):
+    """Plot a 3D line and colour by a scalar.
+
+    Parameters
+    ----------
+    x, y, z : array-like
+        x, y, z-coordinates of the line to plot.
+    c : array-like
+        Scalar valuesto colour the line by.
+    s : float
+        Size of the markers on the line.
+    ax : matplotlib.axes.Axes
+        Axes to plot the line on.
+    **lc_kwargs : dict
+        Keyword arguments to pass to ``Line3DCollection``.
+
+    Returns
+    -------
+    lc : matplotlib.collections.Line3DCollection
+        The line collection.
+
+    """
     ax.scatter(x, y, z, c=c, s=s, **lc_kwargs)
 
     x, y, z = (np.asarray(arr).ravel() for arr in (x, y, z))
@@ -149,14 +232,117 @@ def coloured_scatter_line_3d(x, y, z, c, s, ax, **lc_kwargs):
 
 
 # %%
-# Visualising the skeleton
-# ------------------------
-# Using
-# `NetworkX <https://networkx.org/>`_
-# to join some keypoints and construct a skeleton
-# of the upper-half of the individual.
+# We can use the above function to plot the trajectory of the right index
+# finger as it writes the words "hello" and "world". We colour each
+# point by the frame index of each recording within the time window of
+# interest.
 
-# Select some keypoints from the `body` model
+fig = plt.figure()
+ax = fig.add_subplot(projection="3d")
+colour_map = "turbo"
+
+# plot right index finger for "hello" recording
+coloured_scatter_line_3d(
+    right_index_position_hello.sel(space="x"),
+    right_index_position_hello.sel(space="y"),
+    right_index_position_hello.sel(space="z"),
+    ax=ax,
+    c=right_index_position_world.time,
+    s=5,
+    cmap=colour_map,
+)
+
+# plot right index finger for "world" recording
+# (shifted down by 400 mm in the z-axis to avoid overlap with the "hello" data)
+coloured_scatter_line_3d(
+    right_index_position_world.sel(space="x"),
+    right_index_position_world.sel(space="y"),
+    right_index_position_world.sel(space="z") - 400,
+    ax=ax,
+    c=right_index_position_world.time,
+    s=5,
+    cmap=colour_map,
+)
+
+ax.view_init(elev=-20, azim=137, roll=0)
+ax.set_aspect("equal")
+ax.set_xlabel("x (mm)")
+ax.set_ylabel("y (mm)")
+ax.set_zlabel("z (mm)")
+cb = fig.colorbar(
+    ax.collections[0],
+    ax=ax,
+    label="Frame index",
+    orientation="horizontal",
+    pad=-0.05,
+    fraction=0.06,
+)
+
+# %%
+# We can also visualise how the writing speed changes along the trajectory,
+# using the above plotting function and the
+# :func:`movement.kinematics.compute_speed` function.
+
+fig = plt.figure()
+ax = fig.add_subplot(projection="3d")
+colour_map = "inferno"
+
+# Use movement helpers to compute speed
+speed_hello = compute_speed(right_index_position_hello)
+speed_world = compute_speed(right_index_position_world)
+
+# plot right index finger for "hello" recording
+coloured_scatter_line_3d(
+    right_index_position_hello.sel(space="x"),
+    right_index_position_hello.sel(space="y"),
+    right_index_position_hello.sel(space="z"),
+    ax=ax,
+    c=speed_hello,
+    s=5,
+    cmap=colour_map,
+)
+
+# plot right index finger for "world" recording
+# (shifted down by 400 mm in the z-axis to avoid overlap with the "hello" data)
+coloured_scatter_line_3d(
+    right_index_position_world.sel(space="x"),
+    right_index_position_world.sel(space="y"),
+    right_index_position_world.sel(space="z") - 400,
+    ax=ax,
+    c=speed_world,
+    s=5,
+    cmap=colour_map,
+)
+
+ax.view_init(elev=-20, azim=137, roll=0)
+ax.set_aspect("equal")
+ax.set_xlabel("x (mm)")
+ax.set_ylabel("y (mm)")
+ax.set_zlabel("z (mm)")
+cb = fig.colorbar(
+    ax.collections[0],
+    ax=ax,
+    label="Speed (mm/s)",
+    orientation="horizontal",
+    pad=-0.05,
+    fraction=0.06,
+)
+
+# %%
+# From the above plot, we can see that the speed is highest on long, straight
+# strokes and lowest around kinks.
+
+
+# %%
+# Visualise the skeleton
+# -----------------------
+# Next, we use the ``networkx`` package to define a graph based on a
+# subset of keypoints. This allows us to more easily plot a skeleton of
+# the upper-half of the individual.
+
+# %%
+
+# Select some keypoints from the "body" model
 selected_body_kpts = [
     "body_nose",
     "body_left_eye",
@@ -181,34 +367,31 @@ selected_body_kpts = [
     "body_mouth_right",
 ]
 
-# Choose a frame index to create the body from
+# Select a frame index to extract the positions of the keypoints
 body_frame = 130
 
-# Initialize graph
+# Initialize a graph
 G = nx.Graph()
 
-# Add nodes
+# Add nodes to the graph.
 for kpt in selected_body_kpts:
     G.add_node(
         kpt,
-        position=ds_hello.position.sel(
-            time=body_frame, keypoints=kpt
-        ).values,  # (n_frames, 3)
+        position=ds_hello.position.sel(time=body_frame, keypoints=kpt).values,
     )
 
 # Add midpoint between the shoulders as node
 G.add_node(
     "body_shoulders_midpoint",
-    position=np.mean(
-        ds_hello.position.sel(
-            time=body_frame,
-            keypoints=["body_left_shoulder", "body_right_shoulder"],
-        ).values,
-        axis=1,
-    ),
+    position=ds_hello.position.sel(
+        time=body_frame,
+        keypoints=["body_left_shoulder", "body_right_shoulder"],
+    )
+    .mean(dim="keypoints")
+    .values,
 )
 
-# Add edges
+# Add edges to the graph.
 G.add_edge("body_right_shoulder", "body_left_shoulder")
 for side_str in ["left", "right"]:
     G.add_edge(f"body_{side_str}_shoulder", f"body_{side_str}_elbow")
@@ -228,150 +411,49 @@ G.add_edge("body_left_ear", "body_right_ear")
 # Add edge across the mouth
 G.add_edge("body_mouth_left", "body_mouth_right")
 
-fig_a = plt.figure()
-ax_a = fig_a.add_subplot(111, projection="3d")
 
-# Get positions dictionary (key: node, value: (x, y, z))
+# %%
+# We can now use the above graph to plot the skeleton.
+
+# %%
+
+# sphinx_gallery_thumbnail_number = 3
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+# Get dictionary of node positions
+# (key: node, value: (x, y, z))
 positions_dict = nx.get_node_attributes(G, "position")
 
-# Plot nodes
+# Plot nodes of skeleton in green
 for _node, (x, y, z) in positions_dict.items():
-    ax_a.scatter(x, y, z, s=10, color="green")
+    ax.scatter(x, y, z, s=10, color="green")
 
-# Plot edges
+# Plot edges of skeleton in blue
 for edge in G.edges():
     node_1, node_2 = edge
     x1, y1, z1 = positions_dict[node_1]
     x2, y2, z2 = positions_dict[node_2]
-    ax_a.plot([x1, x2], [y1, y2], [z1, z2], "b-")
+    ax.plot([x1, x2], [y1, y2], [z1, z2], "b-")
 
-# Plot the text keypoints for all frames
-ax_a.plot(
-    position_hello.sel(space="x"),
-    position_hello.sel(space="y"),
-    position_hello.sel(space="z"),
+# Plot the right index finger keypoint for the selected time window
+# in magenta
+ax.plot(
+    right_index_position_hello.sel(space="x"),
+    right_index_position_hello.sel(space="y"),
+    right_index_position_hello.sel(space="z"),
     alpha=0.35,
     color="magenta",
 )
 
-ax_a.view_init(elev=25, azim=-120, roll=0)
-ax_a.set_aspect("equal")
-ax_a.set_xlabel("x (mm, inverted)")
-ax_a.set_ylabel("y (mm)")
-ax_a.set_zlabel("z (mm)")
-ax_a.set_title("Visualising the skeleton", pad=10)
+ax.view_init(elev=25, azim=-120, roll=0)
+ax.set_aspect("equal")
+ax.set_xlabel("x (mm)")
+ax.set_ylabel("y (mm)")
+ax.set_zlabel("z (mm)")
 
-# Invert ``x-axis`` to make traced text readable
-ax_a.invert_xaxis()
+# Invert x-axis to make traced text readable
+ax.invert_xaxis()
 
-
-# %%
-# Displaying time and speed as colours
-# ------------------------------------
-# Visualising the frame-index
-# ``x, y, z`` where time determines colour.
-# The line colour progresses through the ``turbo`` colormap as the
-# individual writes more letters.
-fig_b = plt.figure()
-ax_b = fig_b.add_subplot(projection="3d")
-
-colour_map_b = "turbo"
-# Use time component of Dataset
-frame_hello = ds_hello.time
-frame_world = ds_world.time
-
-# Add "hello" scatter and line
-
-coloured_scatter_line_3d(
-    position_hello.sel(space="x"),
-    position_hello.sel(space="y"),
-    position_hello.sel(space="z"),
-    ax=ax_b,
-    c=frame_hello,
-    s=5,
-    cmap=colour_map_b,
-)
-# Add "world" scatter and line
-
-coloured_scatter_line_3d(
-    position_world.sel(space="x"),
-    position_world.sel(space="y"),
-    position_world.sel(space="z") - 400,
-    ax=ax_b,
-    c=frame_world,
-    s=5,
-    cmap=colour_map_b,
-)
-
-# Change view orientation
-ax_b.view_init(elev=-20, azim=137, roll=0)
-ax_b.set_aspect("equal")
-ax_b.set_xlabel("x (mm)")
-ax_b.set_ylabel("y (mm)")
-ax_b.set_zlabel("z (mm)")
-ax_b.set_title("Visualising frame-index", pad=40)
-cb_b = fig_b.colorbar(
-    ax_b.collections[0],
-    ax=ax_b,
-    label="Frame Index",
-    fraction=0.06,
-    orientation="horizontal",
-    pad=-0.05,
-)
-
-# %%
-# Next, visualising the current writing speed
-# ``x, y, z`` where speed determines colour.
-# Using :func:`compute_speed()\
-# <movement.kinematics.compute_speed>` to compute the speed
-# of the writing movement, and mapping the line colour to the
-# ``inferno`` colormap.
-fig_c = plt.figure()
-ax_c = fig_c.add_subplot(projection="3d")
-
-colour_map_c = "inferno"
-
-# Use movement helpers to compute speed
-speed_hello = compute_speed(position_hello)
-speed_world = compute_speed(position_world)
-
-# Add "hello" scatter and line
-coloured_scatter_line_3d(
-    position_hello.sel(space="x"),
-    position_hello.sel(space="y"),
-    position_hello.sel(space="z"),
-    ax=ax_c,
-    c=speed_hello,
-    s=5,
-    cmap=colour_map_c,
-)
-# Add "world" scatter and line
-coloured_scatter_line_3d(
-    position_world.sel(space="x"),
-    position_world.sel(space="y"),
-    position_world.sel(space="z") - 400,
-    ax=ax_c,
-    c=speed_world,
-    s=5,
-    cmap=colour_map_c,
-)
-
-# Change view orientation
-ax_c.view_init(elev=-20, azim=137, roll=0)
-ax_c.set_aspect("equal")
-ax_c.set_xlabel("x (mm)")
-ax_c.set_ylabel("y (mm)")
-ax_c.set_zlabel("z (mm)")
-ax_c.set_title("Visualising writing speed", pad=40)
-cb_c = fig_c.colorbar(
-    ax_c.collections[0],
-    ax=ax_c,
-    label="Speed (mm/s)",
-    fraction=0.06,
-    orientation="horizontal",
-    pad=-0.05,
-)
-
-# We can see that the speed is highest on long, straight
-# strokes and lowest around kinks.
 # %%
