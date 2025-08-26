@@ -157,13 +157,13 @@ def from_file(
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
-    At the moment, we only support VIA-tracks .csv files.
+    At the moment, we only support VIA tracks .csv files.
 
     Parameters
     ----------
     file_path : pathlib.Path or str
         Path to the file containing the tracked bounding boxes. Currently
-        only VIA-tracks .csv files are supported.
+        only VIA tracks .csv files are supported.
     source_software : "VIA-tracks".
         The source software of the file. Currently only files from the
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
