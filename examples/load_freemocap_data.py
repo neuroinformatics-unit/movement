@@ -35,17 +35,16 @@ from movement.kinematics import compute_speed
 # into ``movement``.
 #
 # FreeMoCap organises the collected data into timestamped ``session``
-# directories. Each session directory will typically hold several
-# ``recording`` subdirectories, which themselves contain an ``output_data``
-# subdirectory. Upon completing a recording, FreeMoCap saves a set of
-# ``.csv`` files to the relevant ``output_data`` subdirectory. Each file is
-# named after the model used to produce the data (e.g. ``face``, ``body``,
-# ``left_hand``, ``right_hand``).
-# Each ``.csv`` file has 3N columns, with N being the number of keypoints
-# used by the relevant model and 3 being the number of spatial dimensions
-# (x, y, z).
+# directories. Each ``session`` directory typically holds multiple
+# ``recording`` subdirectories, each containing an ``output_data``
+# subdirectory. It is in this ``output_data`` subdirectory where FreeMoCap
+# saves the ``.csv`` files after each recording. Each file is named after
+# the model used to produce the data (e.g. ``face``, ``body``,
+# ``left_hand``, ``right_hand``). Each ``.csv`` file has 3N columns, with N
+# being the number of keypoints used by the relevant model and 3 being the
+# number of spatial dimensions (x, y, z).
 #
-# Here, we show how to load all output files from a single FreeMoCap
+# Here, we show how to load all output ``.csv`` files from a single FreeMoCap
 # recording into a unified ``movement`` dataset.
 #
 # To do this, we use a sample FreeMoCap session folder with two
