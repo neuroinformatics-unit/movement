@@ -101,6 +101,7 @@ def from_file(
         "LightningPose",
         "Anipose",
         "NWB",
+        "EKS",
     ],
     fps: float | None = None,
     **kwargs,
@@ -112,11 +113,11 @@ def from_file(
     file_path : pathlib.Path or str
         Path to the file containing predicted poses. The file format must
         be among those supported by the ``from_dlc_file()``,
-        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
-        these functions will be called internally, based on
+        ``from_slp_file()``, ``from_lp_file()``, ``from_eks_file()`` functions.
+        One of these functions will be called internally, based on
         the value of ``source_software``.
     source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
-        "NWB"}
+        "NWB", "EKS"}
         The source software of the file.
     fps : float, optional
         The number of frames per second in the video. If None (default),
@@ -141,6 +142,7 @@ def from_file(
     movement.io.load_poses.from_lp_file
     movement.io.load_poses.from_anipose_file
     movement.io.load_poses.from_nwb_file
+    movement.io.load_poses.from_eks_file
 
     Examples
     --------
@@ -166,6 +168,8 @@ def from_file(
                 "metadata in the file."
             )
         return from_nwb_file(file_path, **kwargs)
+    elif source_software == "EKS":
+        return from_eks_file(file_path, fps)
     else:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
@@ -376,9 +380,123 @@ def from_dlc_file(
     )
 
 
+def from_eks_file(
+    file_path: Path | str, fps: float | None = None
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an EKS (Ensemble Kalman Smoother) file.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path or str
+        Path to the EKS .csv file containing the predicted poses and
+        ensemble statistics.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        ensemble statistics, and associated metadata.
+
+    Notes
+    -----
+    EKS files have a similar structure to DeepLabCut CSV files but include
+    additional columns for ensemble statistics:
+    - x_ens_median, y_ens_median: Median of the ensemble predictions
+    - x_ens_var, y_ens_var: Variance of the ensemble predictions  
+    - x_posterior_var, y_posterior_var: Posterior variance from the smoother
+
+    See Also
+    --------
+    movement.io.load_poses.from_dlc_file
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_eks_file("path/to/file_eks.csv", fps=30)
+
+    """
+    # Read the CSV file using similar logic to DeepLabCut
+    file = ValidFile(file_path, expected_suffix=[".csv"])
+    
+    # Parse the CSV to get the DataFrame with multi-index columns
+    df = _df_from_eks_csv(file.path)
+    
+    # Extract individual and keypoint names
+    if "individuals" in df.columns.names:
+        individual_names = (
+            df.columns.get_level_values("individuals").unique().to_list()
+        )
+    else:
+        individual_names = ["individual_0"]
+    keypoint_names = (
+        df.columns.get_level_values("bodyparts").unique().to_list()
+    )
+    
+    # Get unique coord types
+    coord_types = df.columns.get_level_values("coords").unique().to_list()
+    
+    # Separate main tracking data (x, y, likelihood) from ensemble stats
+    main_coords = ["x", "y", "likelihood"]
+    ensemble_coords = [c for c in coord_types if c not in main_coords]
+    
+    # Extract main tracking data - need to select each coord separately and concatenate
+    # because xs doesn't support list keys
+    x_df = df.xs("x", level="coords", axis=1)
+    y_df = df.xs("y", level="coords", axis=1)
+    likelihood_df = df.xs("likelihood", level="coords", axis=1)
+    
+    # Stack the coordinates back together in the right order
+    # Shape will be (n_frames, n_individuals * n_keypoints) for each
+    x_data = x_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
+    y_data = y_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
+    likelihood_data = likelihood_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
+    
+    # Stack to create (n_frames, 3, n_keypoints, n_individuals)
+    # where the second axis contains x, y, likelihood
+    tracks_with_scores = np.stack([x_data, y_data, likelihood_data], axis=1)
+    # Transpose to match expected order (n_frames, 3, n_keypoints, n_individuals)
+    tracks_with_scores = tracks_with_scores.transpose(0, 1, 3, 2)
+    
+    # Create the base dataset
+    ds = from_numpy(
+        position_array=tracks_with_scores[:, :-1, :, :],
+        confidence_array=tracks_with_scores[:, -1, :, :],
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=fps,
+        source_software="EnsembleKalmanSmoother",
+    )
+    
+    # Add ensemble statistics as additional data variables
+    for coord in ensemble_coords:
+        coord_df = df.xs(coord, level="coords", axis=1)
+        coord_data = (
+            coord_df.to_numpy()
+            .reshape((-1, len(individual_names), len(keypoint_names)))
+            .transpose(0, 2, 1)
+        )
+        # Create xarray DataArray with proper dimensions
+        da = xr.DataArray(
+            coord_data,
+            dims=["time", "keypoints", "individuals"],
+            coords={
+                "time": ds.coords["time"],
+                "keypoints": ds.coords["keypoints"],
+                "individuals": ds.coords["individuals"],
+            },
+            name=coord,
+        )
+        ds[coord] = da
+    
+    return ds
+
+
 def from_multiview_files(
     file_path_dict: dict[str, Path | str],
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
+    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose", "EKS"],
     fps: float | None = None,
 ) -> xr.Dataset:
     """Load and merge pose tracking data from multiple views (cameras).
@@ -649,6 +767,50 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
     # Import the DeepLabCut poses as a DataFrame
     df = pd.read_csv(
         file.path,
+        skiprows=len(header_lines),
+        index_col=0,
+        names=np.array(columns),
+    )
+    df.columns.rename(level_names, inplace=True)
+    return df
+
+
+def _df_from_eks_csv(file_path: Path) -> pd.DataFrame:
+    """Create an EKS-style DataFrame from a .csv file.
+
+    EKS CSV files have a similar structure to DeepLabCut CSV files but
+    with additional columns for ensemble statistics.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the EKS-style .csv file containing pose tracks and ensemble stats.
+
+    Returns
+    -------
+    pandas.DataFrame
+        EKS-style DataFrame with multi-index columns.
+
+    """
+    # EKS CSV has the same header structure as DeepLabCut CSV
+    possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
+    with open(file_path) as f:
+        # if line starts with a possible level name, split it into a list
+        # of strings, and add it to the list of header lines
+        header_lines = [
+            line.strip().split(",")
+            for line in f.readlines()
+            if line.split(",")[0] in possible_level_names
+        ]
+    # Form multi-index column names from the header lines
+    level_names = [line[0] for line in header_lines]
+    column_tuples = list(
+        zip(*[line[1:] for line in header_lines], strict=False)
+    )
+    columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
+    # Import the EKS poses as a DataFrame
+    df = pd.read_csv(
+        file_path,
         skiprows=len(header_lines),
         index_col=0,
         names=np.array(columns),
