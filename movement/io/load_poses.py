@@ -134,6 +134,16 @@ def from_file(
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
+
+    Notes
+    -----
+    In movement, pose data can only be loaded if all individuals have
+    the same set of keypoints (i.e., the same labeled body parts).
+    While DeepLabCut supports assigning different keypoints to different
+    individuals (see the `DeepLabCut documentation for multi-animal project,
+    <https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project>`_),
+    this feature is not currently supported in movement.
+
     See Also
     --------
     movement.io.load_poses.from_dlc_file
@@ -369,6 +379,15 @@ def from_dlc_file(
     --------
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
+
+    Notes
+    -----
+    In movement, pose data can only be loaded if all individuals have
+    the same set of keypoints (i.e., the same labeled body parts).
+    While DeepLabCut supports assigning different keypoints to different
+    individuals (see the `DeepLabCut documentation for multi-animal project,
+    <https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project>`_),
+    this feature is not currently supported in movement.
 
     """
     return _ds_from_lp_or_dlc_file(
