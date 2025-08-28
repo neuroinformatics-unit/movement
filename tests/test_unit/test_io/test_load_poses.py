@@ -325,7 +325,7 @@ def test_load_from_eks_file():
     try:
         from pathlib import Path
 
-        file_path = Path("sub-460_strain-B6_2024-11-12T12_30_00_eks.csv")
+        file_path = Path("eks_output.csv")
         if not file_path.exists():
             pytest.skip("EKS example file not found")
 
@@ -338,14 +338,7 @@ def test_load_from_eks_file():
         assert "confidence" in ds.data_vars
 
         # Check ensemble statistics are present
-        ensemble_vars = [
-            "x_ens_median",
-            "y_ens_median",
-            "x_ens_var",
-            "y_ens_var",
-            "x_posterior_var",
-            "y_posterior_var",
-        ]
+        ensemble_vars = ["ens_median", "ens_var", "posterior_var"]
         for var in ensemble_vars:
             assert var in ds.data_vars
 
@@ -363,7 +356,12 @@ def test_load_from_eks_file():
         n_time, n_space, n_keypoints, n_individuals = ds.position.shape
         assert ds.confidence.shape == (n_time, n_keypoints, n_individuals)
         for var in ensemble_vars:
-            assert ds[var].shape == (n_time, n_keypoints, n_individuals)
+            assert ds[var].shape == (
+                n_time,
+                n_space,
+                n_keypoints,
+                n_individuals,
+            )
 
     except ImportError:
         pytest.skip("Required dependencies for EKS loading not available")
@@ -374,7 +372,7 @@ def test_load_from_file_eks():
     try:
         from pathlib import Path
 
-        file_path = Path("sub-460_strain-B6_2024-11-12T12_30_00_eks.csv")
+        file_path = Path("eks_output.csv")
         if not file_path.exists():
             pytest.skip("EKS example file not found")
 
