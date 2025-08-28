@@ -383,7 +383,7 @@ def from_dlc_file(
 def from_eks_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an EKS (Ensemble Kalman Smoother) file.
+    """Create a ``movement`` poses dataset from an EKS file.
 
     Parameters
     ----------
@@ -405,7 +405,7 @@ def from_eks_file(
     EKS files have a similar structure to DeepLabCut CSV files but include
     additional columns for ensemble statistics:
     - x_ens_median, y_ens_median: Median of the ensemble predictions
-    - x_ens_var, y_ens_var: Variance of the ensemble predictions  
+    - x_ens_var, y_ens_var: Variance of the ensemble predictions
     - x_posterior_var, y_posterior_var: Posterior variance from the smoother
 
     See Also
@@ -420,10 +420,10 @@ def from_eks_file(
     """
     # Read the CSV file using similar logic to DeepLabCut
     file = ValidFile(file_path, expected_suffix=[".csv"])
-    
+
     # Parse the CSV to get the DataFrame with multi-index columns
     df = _df_from_eks_csv(file.path)
-    
+
     # Extract individual and keypoint names
     if "individuals" in df.columns.names:
         individual_names = (
@@ -434,32 +434,45 @@ def from_eks_file(
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
-    
+
     # Get unique coord types
     coord_types = df.columns.get_level_values("coords").unique().to_list()
-    
+
     # Separate main tracking data (x, y, likelihood) from ensemble stats
     main_coords = ["x", "y", "likelihood"]
     ensemble_coords = [c for c in coord_types if c not in main_coords]
-    
-    # Extract main tracking data - need to select each coord separately and concatenate
+
+    # Extract main tracking data - need to select each coord separately
     # because xs doesn't support list keys
     x_df = df.xs("x", level="coords", axis=1)
     y_df = df.xs("y", level="coords", axis=1)
     likelihood_df = df.xs("likelihood", level="coords", axis=1)
-    
+
     # Stack the coordinates back together in the right order
     # Shape will be (n_frames, n_individuals * n_keypoints) for each
-    x_data = x_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
-    y_data = y_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
-    likelihood_data = likelihood_df.to_numpy().flatten().reshape(-1, len(individual_names), len(keypoint_names))
-    
+    x_data = (
+        x_df.to_numpy()
+        .flatten()
+        .reshape(-1, len(individual_names), len(keypoint_names))
+    )
+    y_data = (
+        y_df.to_numpy()
+        .flatten()
+        .reshape(-1, len(individual_names), len(keypoint_names))
+    )
+    likelihood_data = (
+        likelihood_df.to_numpy()
+        .flatten()
+        .reshape(-1, len(individual_names), len(keypoint_names))
+    )
+
     # Stack to create (n_frames, 3, n_keypoints, n_individuals)
     # where the second axis contains x, y, likelihood
     tracks_with_scores = np.stack([x_data, y_data, likelihood_data], axis=1)
-    # Transpose to match expected order (n_frames, 3, n_keypoints, n_individuals)
+    # Transpose to match expected order
+    # (n_frames, 3, n_keypoints, n_individuals)
     tracks_with_scores = tracks_with_scores.transpose(0, 1, 3, 2)
-    
+
     # Create the base dataset
     ds = from_numpy(
         position_array=tracks_with_scores[:, :-1, :, :],
@@ -469,28 +482,79 @@ def from_eks_file(
         fps=fps,
         source_software="EnsembleKalmanSmoother",
     )
-    
-    # Add ensemble statistics as additional data variables
+
+    # Group ensemble statistics by their type
+    # (ens_median, ens_var, posterior_var)
+    # Each will have x and y components as the space dimension
+    ensemble_stats: dict[str, dict[str, np.ndarray]] = {}
+
     for coord in ensemble_coords:
+        # Parse coordinate name to extract stat type and spatial component
+        # e.g., "x_ens_median" -> ("ens_median", "x")
+        if coord.startswith("x_"):
+            stat_name = coord[2:]  # Remove "x_" prefix
+            spatial_component = "x"
+        elif coord.startswith("y_"):
+            stat_name = coord[2:]  # Remove "y_" prefix
+            spatial_component = "y"
+        else:
+            # If it doesn't follow expected pattern, handle as before
+            coord_df = df.xs(coord, level="coords", axis=1)
+            coord_data = (
+                coord_df.to_numpy()
+                .reshape((-1, len(individual_names), len(keypoint_names)))
+                .transpose(0, 2, 1)
+            )
+            da = xr.DataArray(
+                coord_data,
+                dims=["time", "keypoints", "individuals"],
+                coords={
+                    "time": ds.coords["time"],
+                    "keypoints": ds.coords["keypoints"],
+                    "individuals": ds.coords["individuals"],
+                },
+                name=coord,
+            )
+            ds[coord] = da
+            continue
+
+        # Initialize the stat dict if needed
+        if stat_name not in ensemble_stats:
+            ensemble_stats[stat_name] = {}
+
+        # Extract the data for this coordinate
         coord_df = df.xs(coord, level="coords", axis=1)
         coord_data = (
             coord_df.to_numpy()
             .reshape((-1, len(individual_names), len(keypoint_names)))
             .transpose(0, 2, 1)
         )
-        # Create xarray DataArray with proper dimensions
-        da = xr.DataArray(
-            coord_data,
-            dims=["time", "keypoints", "individuals"],
-            coords={
-                "time": ds.coords["time"],
-                "keypoints": ds.coords["keypoints"],
-                "individuals": ds.coords["individuals"],
-            },
-            name=coord,
-        )
-        ds[coord] = da
-    
+
+        # Store the data indexed by spatial component
+        ensemble_stats[stat_name][spatial_component] = coord_data
+
+    # Create DataArrays with (time, space, keypoints, individuals) dims
+    for stat_name, spatial_data in ensemble_stats.items():
+        if "x" in spatial_data and "y" in spatial_data:
+            # Stack x and y into space dimension
+            stat_array = np.stack(
+                [spatial_data["x"], spatial_data["y"]], axis=1
+            )  # Results in (time, space=2, keypoints, individuals)
+
+            # Create xarray DataArray with proper dimensions
+            da = xr.DataArray(
+                stat_array,
+                dims=["time", "space", "keypoints", "individuals"],
+                coords={
+                    "time": ds.coords["time"],
+                    "space": ["x", "y"],
+                    "keypoints": ds.coords["keypoints"],
+                    "individuals": ds.coords["individuals"],
+                },
+                name=stat_name,
+            )
+            ds[stat_name] = da
+
     return ds
 
 
@@ -784,7 +848,7 @@ def _df_from_eks_csv(file_path: Path) -> pd.DataFrame:
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the EKS-style .csv file containing pose tracks and ensemble stats.
+        Path to the EKS-style .csv file with pose tracks and ensemble stats.
 
     Returns
     -------

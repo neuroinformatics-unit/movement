@@ -324,40 +324,47 @@ def test_load_from_eks_file():
     # otherwise skip the test
     try:
         from pathlib import Path
+
         file_path = Path("sub-460_strain-B6_2024-11-12T12_30_00_eks.csv")
         if not file_path.exists():
             pytest.skip("EKS example file not found")
-        
+
         # Load the EKS file
         ds = load_poses.from_eks_file(file_path, fps=30)
-        
+
         # Check that it's a valid dataset with the expected structure
         assert isinstance(ds, xr.Dataset)
         assert "position" in ds.data_vars
         assert "confidence" in ds.data_vars
-        
+
         # Check ensemble statistics are present
-        ensemble_vars = ['x_ens_median', 'y_ens_median', 'x_ens_var', 
-                        'y_ens_var', 'x_posterior_var', 'y_posterior_var']
+        ensemble_vars = [
+            "x_ens_median",
+            "y_ens_median",
+            "x_ens_var",
+            "y_ens_var",
+            "x_posterior_var",
+            "y_posterior_var",
+        ]
         for var in ensemble_vars:
             assert var in ds.data_vars
-        
+
         # Check dimensions
         assert "time" in ds.dims
         assert "individuals" in ds.dims
         assert "keypoints" in ds.dims
         assert "space" in ds.dims
-        
+
         # Check basic attributes
         assert ds.attrs["source_software"] == "EnsembleKalmanSmoother"
         assert ds.attrs["fps"] == 30
-        
+
         # Check shapes are consistent
         n_time, n_space, n_keypoints, n_individuals = ds.position.shape
         assert ds.confidence.shape == (n_time, n_keypoints, n_individuals)
         for var in ensemble_vars:
             assert ds[var].shape == (n_time, n_keypoints, n_individuals)
-            
+
     except ImportError:
         pytest.skip("Required dependencies for EKS loading not available")
 
@@ -366,16 +373,17 @@ def test_load_from_file_eks():
     """Test that loading EKS files via from_file() works correctly."""
     try:
         from pathlib import Path
+
         file_path = Path("sub-460_strain-B6_2024-11-12T12_30_00_eks.csv")
         if not file_path.exists():
             pytest.skip("EKS example file not found")
-        
+
         # Test loading via from_file
         ds = load_poses.from_file(file_path, source_software="EKS", fps=30)
-        
+
         # Should be identical to from_eks_file
         ds_direct = load_poses.from_eks_file(file_path, fps=30)
         xr.testing.assert_identical(ds, ds_direct)
-        
+
     except ImportError:
         pytest.skip("Required dependencies for EKS loading not available")
