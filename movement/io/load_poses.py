@@ -480,7 +480,7 @@ def from_eks_file(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
-        source_software="EnsembleKalmanSmoother",
+        source_software="EKS",
     )
 
     # Group ensemble statistics by their type

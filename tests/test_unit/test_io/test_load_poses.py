@@ -320,15 +320,11 @@ def test_load_from_eks_file():
     """Test that loading pose tracks from an EKS CSV file
     returns a proper Dataset with ensemble statistics.
     """
-    # Use the provided example EKS file if available,
-    # otherwise skip the test
+    file_path = DATA_PATHS.get("EKS_IBL-paw_multicam_right.predictions.csv")
+    if file_path is None:
+        pytest.skip("EKS example file not found")
+
     try:
-        from pathlib import Path
-
-        file_path = Path("eks_output.csv")
-        if not file_path.exists():
-            pytest.skip("EKS example file not found")
-
         # Load the EKS file
         ds = load_poses.from_eks_file(file_path, fps=30)
 
@@ -349,7 +345,7 @@ def test_load_from_eks_file():
         assert "space" in ds.dims
 
         # Check basic attributes
-        assert ds.attrs["source_software"] == "EnsembleKalmanSmoother"
+        assert ds.attrs["source_software"] == "EKS"
         assert ds.attrs["fps"] == 30
 
         # Check shapes are consistent
@@ -369,13 +365,11 @@ def test_load_from_eks_file():
 
 def test_load_from_file_eks():
     """Test that loading EKS files via from_file() works correctly."""
+    file_path = DATA_PATHS.get("EKS_IBL-paw_multicam_right.predictions.csv")
+    if file_path is None:
+        pytest.skip("EKS example file not found")
+
     try:
-        from pathlib import Path
-
-        file_path = Path("eks_output.csv")
-        if not file_path.exists():
-            pytest.skip("EKS example file not found")
-
         # Test loading via from_file
         ds = load_poses.from_file(file_path, source_software="EKS", fps=30)
 
