@@ -15,20 +15,45 @@ from movement.utils import vector
     "kinematic_variable, expected_kinematics_polar",
     [
         (
-            "displacement",
+            "forward_displacement",
+            [
+                np.vstack(
+                    [
+                        np.tile([math.sqrt(2), math.pi / 4], (9, 1)),
+                        np.zeros((1, 2)),
+                        # at time t=-1, the forward displacement cartesian
+                        # vector is (x=0,y=0).
+                        # This means that while rho=0, phi can be whatever.
+                        # However, current test implementation forces phi=0.
+                    ],
+                ),  # Individual 0, rho=√2, phi=45deg=π/4=atan(1)
+                np.vstack(
+                    [
+                        np.tile([math.sqrt(2), -math.pi / 4], (9, 1)),
+                        np.zeros((1, 2)),
+                    ]
+                ),  # Individual 1, rho=√2, phi=-45deg=-π/4=-atan(1)
+            ],
+        ),
+        (
+            "backward_displacement",
             [
                 np.vstack(
                     [
                         np.zeros((1, 2)),
-                        np.tile([math.sqrt(2), math.atan(1)], (9, 1)),
+                        # at time t=0, the backward displacement cartesian
+                        # vector is (x=0,y=0).
+                        # This means that while rho=0, phi can be whatever.
+                        # However, current test implementation forces phi=0.
+                        np.tile([math.sqrt(2), -math.pi * 3 / 4], (9, 1)),
                     ],
-                ),  # Individual 0, rho=sqrt(2), phi=45deg
+                ),  # Individual 0, rho=√2, phi=-135deg=-π3/4
                 np.vstack(
                     [
                         np.zeros((1, 2)),
-                        np.tile([math.sqrt(2), -math.atan(1)], (9, 1)),
+                        np.tile([math.sqrt(2), math.pi * 3 / 4], (9, 1)),
                     ]
-                ),  # Individual 1, rho=sqrt(2), phi=-45deg
+                ),  # Individual 1, rho=√2, phi=135deg=π3/4
             ],
         ),
         (

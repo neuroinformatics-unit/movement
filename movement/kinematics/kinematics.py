@@ -60,15 +60,16 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     return result
 
 
-def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute displacement array in cartesian coordinates.
+def compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute forward displacement array in cartesian coordinates.
 
-    The displacement array is defined as the difference between the position
-    array at time point ``t`` and the position array at time point ``t-1``.
+    The forward displacement array is defined as the difference between the
+    position array at time point ``t+1`` and the position array at time point
+    ``t``.
 
     As a result, for a given individual and keypoint, the displacement vector
-    at time point ``t``, is the vector pointing from the previous
-    ``(t-1)`` to the current ``(t)`` position, in cartesian coordinates.
+    at time point ``t``, is the vector pointing from the current ``t` position
+    to the next ``(t+1)``, in cartesian coordinates.
 
     Parameters
     ----------
@@ -98,9 +99,55 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
 
     """
     validate_dims_coords(data, {"time": [], "space": []})
-    result = data.diff(dim="time")
+    result = data.diff(dim="time", label="lower")
     result = result.reindex(data.coords, fill_value=0)
-    result.name = "displacement"
+    result.name = "forward_displacement"
+    return result
+
+
+def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute backward displacement array in cartesian coordinates.
+
+    The backward displacement array is defined as the difference between the
+    position array at time point ``t-1`` and the position array at time point
+    ``t``.
+
+    As a result, for a given individual and keypoint, the displacement vector
+    at time point ``t``, is the vector pointing from the current ``t` position
+    to the previous ``(t-1)`` in cartesian coordinates.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing displacement vectors in cartesian
+        coordinates.
+
+    Notes
+    -----
+    For the ``position`` array of a ``poses`` dataset, the ``displacement``
+    array will hold the displacement vectors for every keypoint and every
+    individual.
+
+    For the ``position`` array of a ``bboxes`` dataset, the ``displacement``
+    array will hold the displacement vectors for the centroid of every
+    individual bounding box.
+
+    For the ``shape`` array of a ``bboxes`` dataset, the
+    ``displacement`` array will hold vectors with the change in width and
+    height per bounding box, between consecutive time points.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    result = data.diff(dim="time", label="upper")
+    result = xr.ufuncs.negative(result)
+    result = result.reindex(data.coords, fill_value=0)
+    result.name = "backward_displacement"
     return result
 
 
@@ -290,7 +337,7 @@ def compute_path_length(
 
     if nan_policy == "ffill":
         result = compute_norm(
-            compute_displacement(data.ffill(dim="time")).isel(
+            compute_backward_displacement(data.ffill(dim="time")).isel(
                 time=slice(1, None)
             )  # skip first displacement (always 0)
         ).sum(dim="time", min_count=1)  # return NaN if no valid segment
@@ -372,7 +419,9 @@ def _compute_scaled_path_length(
 
     """
     # Skip first displacement segment (always 0) to not mess up the scaling
-    displacement = compute_displacement(data).isel(time=slice(1, None))
+    displacement = compute_backward_displacement(data).isel(
+        time=slice(1, None)
+    )
     # count number of valid displacement segments per point track
     valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
     # compute proportion of valid segments per point track
