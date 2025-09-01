@@ -65,7 +65,7 @@ To help you get started, we have prepared a detailed [contributing guide](https:
 
 - [Chat with the team on Zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement).
 - [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
-- [Follow this Zulip topic](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls) to receive updates about upcoming Community Calls. These typically run every other Friday from 11:00 to 11:45 (Europe/London time).
+- [Follow this Zulip topic](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls) to receive updates about upcoming Community Calls. These typically run every other Friday from 11:00 to 11:45 (London, U.K. time).
 
 ## Citation
 
