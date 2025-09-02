@@ -2,12 +2,14 @@
 
 import pandas as pd
 import pytest
+from numpy.testing import assert_array_equal
 
 from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
     BoxesStyle,
     LayerStyle,
     PointsStyle,
+    RoisStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -79,12 +81,22 @@ def default_style_attributes():
                 "translation": 5,
             },
         },
+        # Additional attributes for RoiStyle
+        RoisStyle: {
+            "color": "red",
+            "edge_width": 5.0,
+            "opacity": 1.0,
+            "text": {
+                "visible": True,
+                "anchor": "center",
+            },
+        },
     }
 
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle],
+    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle, RoisStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -260,7 +272,7 @@ def test_tracks_style_color_by(
         ("property_2", 2),
     ],
 )
-def test_shapes_style_set_color_by(
+def test_boxes_style_set_color_by(
     color_property,
     n_unique_values,
     sample_layer_style,
@@ -304,3 +316,31 @@ def test_shapes_style_set_color_by(
         isinstance(c, tuple) and len(c) == 4
         for c in boxes_style.edge_color_cycle
     )
+
+
+@pytest.mark.parametrize(
+    ["color", "expected_rgb"],
+    [
+        pytest.param("blue", (0.0, 0.0, 1.0), id="blue_as_str"),
+        pytest.param("red", (1.0, 0.0, 0.0), id="red_as_str"),
+        pytest.param((1.0, 0.0, 0.0, 1.0), (1.0, 0.0, 0.0), id="red_as_tuple"),
+        pytest.param(
+            (0.0, 0.0, 1.0, 0.5), (0.0, 0.0, 1.0), id="blue_as_tuple_alpha"
+        ),
+    ],
+)
+def test_rois_style_colors(color, expected_rgb):
+    """Test that setting the color attribute updates the face, edge,
+    and text colors. The face color must be transparent, while edges and
+    text must be opaque.
+    """
+    # Create a ROIs style object
+    rois_style = RoisStyle()
+    rois_style.color = color
+
+    # Convert expected_rgb to RGBA for comparison
+    expected_rgba = expected_rgb + (1.0,)
+    expected_face_rgba = expected_rgb + (0.25,)
+
+    assert_array_equal(rois_style.edge_and_text_color, expected_rgba)
+    assert_array_equal(rois_style.face_color, expected_face_rgba)
