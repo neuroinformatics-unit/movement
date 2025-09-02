@@ -56,9 +56,9 @@ from movement.io import load_poses
 
 To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general {func}`from_numpy()<movement.io.load_poses.from_numpy>` function, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
-::::{tab-set}
+:::::{tab-set}
 
-:::{tab-item} DeepLabCut
+::::{tab-item} DeepLabCut
 To load DeepLabCut files in .h5 format:
 
 ```python
@@ -83,9 +83,12 @@ formatted in the DeepLabCut style:
 ds = load_poses.from_dlc_style_df(df, fps=30)
 ```
 
+:::{note}
+In movement, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning different keypoints to different individuals (see the [DeepLabCut documentation for multi-animal project](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in movement.
 :::
+::::
 
-:::{tab-item} SLEAP
+::::{tab-item} SLEAP
 To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
 
 ```python
@@ -103,9 +106,9 @@ To load SLEAP files in .slp format (experimental, see notes in {func}`movement.i
 ds = load_poses.from_sleap_file("/path/to/file.predictions.slp", fps=30)
 ```
 
-:::
+::::
 
-:::{tab-item} LightningPose
+::::{tab-item} LightningPose
 To load LightningPose files in .csv format:
 
 ```python
@@ -124,9 +127,9 @@ directly load an appropriately formatted pandas DataFrame `df`:
 ds = load_poses.from_dlc_style_df(df, fps=30, source_software="LightningPose")
 ```
 
-:::
+::::
 
-:::{tab-item} Anipose
+::::{tab-item} Anipose
 To load Anipose files in .csv format:
 
 ```python
@@ -152,9 +155,9 @@ ds = load_poses.from_anipose_style_df(
 )
 ```
 
-:::
+::::
 
-:::{tab-item} NWB
+::::{tab-item} NWB
 To load NWB files in .nwb format:
 
 ```python
@@ -185,9 +188,9 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     )
 ```
 
-:::
+::::
 
-:::{tab-item} From NumPy
+::::{tab-item} From NumPy
 In the example below, we create random position data for two individuals, `Alice` and `Bob`,
 with three keypoints each: `snout`, `centre`, and `tail_base`. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
 
@@ -204,9 +207,9 @@ ds = load_poses.from_numpy(
 )
 ```
 
-:::
-
 ::::
+
+:::::
 
 The resulting poses data structure `ds` will include the predicted trajectories for each individual and
 keypoint, as well as the associated point-wise confidence values reported by
