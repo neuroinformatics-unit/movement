@@ -119,6 +119,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         data.sel(space="y"),
         data.sel(space="x"),
     )
+    phi = phi.where(rho != 0, 0)
     # Replace space dim with space_pol
     dims = list(data.dims)
     dims[dims.index("space")] = "space_pol"

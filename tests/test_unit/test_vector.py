@@ -20,7 +20,7 @@ class TestVector:
         time_coords = np.arange(len(x_vals))
         rho = np.sqrt(x_vals**2 + y_vals**2)
         phi = np.pi * np.array(
-            [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
+            [0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
         )
         cart = xr.DataArray(
             np.column_stack((x_vals, y_vals)),

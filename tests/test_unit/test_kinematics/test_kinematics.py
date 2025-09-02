@@ -8,19 +8,31 @@ from movement import kinematics
 
 
 @pytest.mark.parametrize(
-    "kinematic_variable", ["displacement", "velocity", "acceleration", "speed"]
+    "kinematic_variable",
+    [
+        "forward_displacement",
+        "backward_displacement",
+        "velocity",
+        "acceleration",
+        "speed",
+    ],
 )
 class TestComputeKinematics:
     """Test ``compute_[kinematic_variable]`` with valid and invalid inputs."""
 
+    forward_displacement = [
+        np.vstack([np.ones((9, 2)), np.zeros((1, 2))]),
+        np.multiply(
+            np.vstack([np.ones((9, 2)), np.zeros((1, 2))]),
+            np.array([1, -1]),
+        ),
+    ]  # [Individual 0, Individual 1]
     expected_kinematics = {
-        "displacement": [
-            np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
-            np.multiply(
-                np.vstack([np.zeros((1, 2)), np.ones((9, 2))]),
-                np.array([1, -1]),
-            ),
-        ],  # [Individual 0, Individual 1]
+        "forward_displacement": forward_displacement,
+        "backward_displacement": [
+            np.roll(-forward_displacement[0], 1, axis=0),
+            np.roll(-forward_displacement[1], 1, axis=0),
+        ],
         "velocity": [
             np.ones((10, 2)),
             np.multiply(np.ones((10, 2)), np.array([1, -1])),
@@ -46,7 +58,12 @@ class TestComputeKinematics:
         # Figure out which dimensions to expect in kinematic_array
         # and in the final xarray.DataArray
         expected_dims = ["time", "individuals"]
-        if kinematic_variable in ["displacement", "velocity", "acceleration"]:
+        if kinematic_variable in [
+            "forward_displacement",
+            "backward_displacement",
+            "velocity",
+            "acceleration",
+        ]:
             expected_dims.insert(1, "space")
         # Build expected data array from the expected numpy array
         expected_array = xr.DataArray(
@@ -76,7 +93,8 @@ class TestComputeKinematics:
             (
                 "valid_poses_dataset_with_nan",
                 {
-                    "displacement": [30, 0],
+                    "forward_displacement": [30, 0],
+                    "backward_displacement": [30, 0],
                     "velocity": [36, 0],
                     "acceleration": [40, 0],
                     "speed": [18, 0],
@@ -85,7 +103,8 @@ class TestComputeKinematics:
             (
                 "valid_bboxes_dataset_with_nan",
                 {
-                    "displacement": [10, 0],
+                    "forward_displacement": [10, 0],
+                    "backward_displacement": [10, 0],
                     "velocity": [12, 0],
                     "acceleration": [14, 0],
                     "speed": [6, 0],
@@ -318,3 +337,26 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+@pytest.mark.parametrize(
+    "valid_dataset", ["valid_poses_dataset", "valid_bboxes_dataset"]
+)
+def test_displacement_deprecation(valid_dataset, request):
+    """Test that calling median_filter raises a DeprecationWarning.
+    And that it forwards to rolling_filter with statistic='median'.
+    """
+    position = request.getfixturevalue(valid_dataset).position
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="compute_displacement.*deprecated.*compute_forward_displacement.*compute_backward_displacement",
+    ):
+        result = kinematics.compute_displacement(position)
+
+    # Ensure that median_filter correctly forwards to rolling_filter
+    expected_result = -kinematics.compute_backward_displacement(position)
+    assert result.equals(expected_result), (
+        "compute_displacement should produce the same output as "
+        "the negative of compute_backward_displacement"
+    )
