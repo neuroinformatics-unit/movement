@@ -207,8 +207,8 @@ def from_dlc_style_df(
     The "coords" level contains either:
     - the spatial coordinates "x", "y", "likelihood" (point-wise confidence scores)
     - the spatial coordinates "x", "y", "z",
-    The latter scenario applies when multiple DeepLabCut output files were 
-    triangulated to estimate 3D pose. 
+    The latter scenario applies when multiple DeepLabCut output files were
+    triangulated to estimate 3D pose.
     See further: https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html
     The row index corresponds to the frame number.
 
@@ -229,8 +229,6 @@ def from_dlc_style_df(
     )
     coord_names = df.columns.get_level_values("coords").unique().to_list()
 
-
-
     # Coords: ['x', 'y', 'z']
     if set(coord_names) == {"x", "y", "z"} and len(coord_names) == 3:
         tracks = (
@@ -245,7 +243,14 @@ def from_dlc_style_df(
     else:
         tracks_with_scores = (
             df.to_numpy()
-            .reshape((-1, len(individual_names), len(keypoint_names), len(coord_names)))
+            .reshape(
+                (
+                    -1,
+                    len(individual_names),
+                    len(keypoint_names),
+                    len(coord_names),
+                )
+            )
             .transpose(0, len(coord_names), 2, 1)
         )
         position_array = tracks_with_scores[:, :-1, :, :]
