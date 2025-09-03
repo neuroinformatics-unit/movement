@@ -191,7 +191,7 @@ def from_dlc_style_df(
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
-        (because they the same DataFrame format).
+        (because they use the same DataFrame format).
 
     Returns
     -------
@@ -204,8 +204,12 @@ def from_dlc_style_df(
     The DataFrame must have a multi-index column with the following levels:
     "scorer", ("individuals"), "bodyparts", "coords". The "individuals"
     level may be omitted if there is only one individual in the video.
-    The "coords" level contains the spatial coordinates "x", "y",
-    as well as "likelihood" (point-wise confidence scores).
+    The "coords" level contains either:
+    - the spatial coordinates "x", "y", "likelihood" (point-wise confidence scores)
+    - the spatial coordinates "x", "y", "z",
+    The latter scenario applies when multiple DeepLabCut output files were 
+    triangulated to estimate 3D pose. 
+    See further: https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html
     The row index corresponds to the frame number.
 
     See Also
@@ -223,16 +227,33 @@ def from_dlc_style_df(
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
-    # reshape the data into (n_frames, 3, n_keypoints, n_individuals)
-    # where the second axis contains "x", "y", "likelihood"
-    tracks_with_scores = (
-        df.to_numpy()
-        .reshape((-1, len(individual_names), len(keypoint_names), 3))
-        .transpose(0, 3, 2, 1)
-    )
+    coord_names = df.columns.get_level_values("coords").unique().to_list()
+
+
+
+    # Coords: ['x', 'y', 'z']
+    if set(coord_names) == {"x", "y", "z"} and len(coord_names) == 3:
+        tracks = (
+            df.to_numpy()
+            .reshape((-1, len(individual_names), len(keypoint_names), 3))
+            .transpose(0, 3, 2, 1)
+        )
+        position_array = tracks
+        confidence_array = None
+
+    # Coords: ['x', 'y', 'likelihood']
+    else:
+        tracks_with_scores = (
+            df.to_numpy()
+            .reshape((-1, len(individual_names), len(keypoint_names), len(coord_names)))
+            .transpose(0, len(coord_names), 2, 1)
+        )
+        position_array = tracks_with_scores[:, :-1, :, :]
+        confidence_array = tracks_with_scores[:, -1, :, :]
+
     return from_numpy(
-        position_array=tracks_with_scores[:, :-1, :, :],
-        confidence_array=tracks_with_scores[:, -1, :, :],
+        position_array=position_array,
+        confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
