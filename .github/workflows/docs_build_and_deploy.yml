@@ -60,4 +60,5 @@ jobs:
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
-          switcher_url: https://movement.neuroinformatics.dev/latest/_static/switcher.json
+          switcher-url: https://movement.neuroinformatics.dev/latest/_static/switcher.json
+          base-url: https://movement.neuroinformatics.dev
