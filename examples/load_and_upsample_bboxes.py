@@ -363,8 +363,10 @@ fig.tight_layout()
 # Export as a VIA tracks .csv file
 # ---------------------------------
 # Let's assume the dataset with the forward filled values is the best suited
-# for our task - we can now export the computed values to a VIA tracks .csv
-# file that is loadable in napari and the VIA annotation software.
+# for our task. We can now export the computed values to a VIA tracks .csv
+# file that is loadable in the ``movement`` napari widget
+# and in the `VGG Image Annotator (VIA) <https://www.robots.ox.ac.uk/~vgg/software/via/>`_
+# software.
 
 via_tracks_filepath = "tracking_output_via_tracks.csv"
 save_bboxes.to_via_tracks_file(ds_ff, via_tracks_filepath)
