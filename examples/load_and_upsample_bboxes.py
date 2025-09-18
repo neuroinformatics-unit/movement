@@ -20,7 +20,7 @@ from matplotlib import pyplot as plt
 
 from movement import sample_data
 from movement.filtering import interpolate_over_time
-from movement.io import load_bboxes
+from movement.io import load_bboxes, save_bboxes
 
 # %%
 # Load sample dataset
@@ -360,21 +360,25 @@ for frame_idx in range(6):
 fig.tight_layout()
 
 # %%
-# Export as .csv file
-# -------------------
+# Export as a VIA tracks .csv file
+# ---------------------------------
 # Let's assume the dataset with the forward filled values is the best suited
-# for our task - we can now export the computed values to a .csv file
-#
-# Note that currently we do not provide explicit methods to export a
-# ``movement`` bounding boxes dataset in a specific format. However, we can
-# save the bounding boxes’ trajectories to a .csv file using the
-# standard Python library :mod:`csv`.
+# for our task - we can now export the computed values to a VIA tracks .csv
+# file that is loadable in napari and the VIA annotation software.
+
+via_tracks_filepath = "tracking_output_via_tracks.csv"
+save_bboxes.to_via_tracks_file(ds_ff, via_tracks_filepath)
+
+# %%
+# Alternatively, we can save the bounding boxes’ trajectories to a
+# .csv file with a custom header using the standard Python library
+# :mod:`csv`.
 
 # define name for output csv file
-filepath = "tracking_output.csv"
+custom_csv_filepath = "tracking_output_custom.csv"
 
 # open the csv file in write mode
-with open(filepath, mode="w", newline="") as file:
+with open(custom_csv_filepath, mode="w", newline="") as file:
     writer = csv.writer(file)
 
     # write the header
@@ -392,6 +396,7 @@ with open(filepath, mode="w", newline="") as file:
 # %%
 # Clean-up
 # ----------------------
-# To remove the output file we have just created, we can run the following
+# To remove the output files we have just created, we can run the following
 # code.
-os.remove(filepath)
+os.remove(via_tracks_filepath)
+os.remove(custom_csv_filepath)
