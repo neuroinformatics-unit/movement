@@ -190,6 +190,7 @@ linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
+    "https://www.robots.ox.ac.uk/",  # occasional 404s
 ]
 
 
