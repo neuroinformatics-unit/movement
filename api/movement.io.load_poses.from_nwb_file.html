@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.9.0</p>
+    <p class="title logo__title">movement v0.10.0</p>
   
 </a></div>
     
@@ -398,6 +398,10 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
@@ -565,18 +569,18 @@
 <span class="sig-prename descclassname"><span class="pre">movement.io.load_poses.</span></span><span class="sig-name descname"><span class="pre">from_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processing_module_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'behavior'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pose_estimation_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PoseEstimation'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load_poses.html#from_nwb_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load_poses.from_nwb_file" title="Link to this definition">#</a></dt>
 <dd><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset from an NWB file.</p>
 <p>The input can be a path to an NWB file on disk or a
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object.
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object.
 The data will be extracted from the NWB file’s
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>
 (specified by <code class="docutils literal notranslate"><span class="pre">processing_module_key</span></code>) that contains the
 <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> object (specified by <code class="docutils literal notranslate"><span class="pre">pose_estimation_key</span></code>)
 formatted according to the <code class="docutils literal notranslate"><span class="pre">ndx-pose</span></code> NWB extension <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>Path</em><em> | </em><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><em>pynwb.file.NWBFile</em></a>) – Path to the NWB file on disk (ending in “.nwb”),
+<li><p><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>Path</em><em> | </em><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><em>pynwb.file.NWBFile</em></a>) – Path to the NWB file on disk (ending in “.nwb”),
 or an NWBFile object.</p></li>
-<li><p><strong>processing_module_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a> in the NWB file that
+<li><p><strong>processing_module_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a> in the NWB file that
 contains the pose estimation data. Default is “behavior”.</p></li>
 <li><p><strong>pose_estimation_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> object in the processing
 module (specified by <code class="docutils literal notranslate"><span class="pre">processing_module_key</span></code>).
@@ -588,7 +592,7 @@ Default is “PoseEstimation”.</p></li>
 confidence scores, and associated metadata.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)">xarray.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.9.1)">xarray.Dataset</a></p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -600,7 +604,7 @@ confidence scores, and associated metadata.</p>
 </aside>
 <p class="rubric">Examples</p>
 <p>Open an NWB file and load pose tracks from the
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object:</p>
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.9.0</p>
+    <p class="title logo__title">movement v0.10.0</p>
   
 </a></div>
     
@@ -507,7 +507,7 @@ and can be loaded from and saved to various third-party formats.</p>
 </tbody>
 </table>
 </div>
-<p>*Exporting any <code class="docutils literal notranslate"><span class="pre">movement</span></code> DataArray to a NumPy array is as simple as calling xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_numpy.html#xarray.DataArray.to_numpy" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_numpy()</span></code></a> method, so no specialised “Export/Save As” function is needed, see <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">xarray’s documentation</a> for more details.</p>
+<p>*Exporting any <code class="docutils literal notranslate"><span class="pre">movement</span></code> DataArray to a NumPy array is as simple as calling xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_numpy.html#xarray.DataArray.to_numpy" title="(in xarray v2025.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_numpy()</span></code></a> method, so no specialised “Export/Save As” function is needed, see <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">xarray’s documentation</a> for more details.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">movement</span></code> only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.</p>
@@ -625,7 +625,7 @@ NWB</label><div class="sd-tab-content docutils">
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>The above functions also accept an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object as input:</p>
+<p>The above functions also accept an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object as input:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBHDF5IO</span><span class="p">(</span><span class="s2">&quot;path/to/file.nwb&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
     <span class="n">nwb_file</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span>
@@ -665,11 +665,11 @@ the pose estimation software.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 </pre></div>
 </div>
-<p>We currently support loading bounding box tracks in the VGG Image Annotator (VIA) format only. However, like in the poses datasets, we additionally provide a <a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_numpy()</span></code></a> function, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
+<p>We currently support loading bounding box tracks in the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/">VGG Image Annotator (VIA)</a> format only. However, like in the poses datasets, we additionally provide a <a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_numpy()</span></code></a> function, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-6">
-VGG Image Annotator</label><div class="sd-tab-content docutils">
+VIA tracks .csv file</label><div class="sd-tab-content docutils">
 <p>To load a VIA tracks .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span><span class="s2">&quot;path/to/file.csv&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
@@ -681,7 +681,10 @@ VGG Image Annotator</label><div class="sd-tab-content docutils">
 <span class="p">)</span>
 </pre></div>
 </div>
+<div class="note admonition">
+<p class="admonition-title">Bounding boxes format</p>
 <p>Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> will hold in its <code class="docutils literal notranslate"><span class="pre">position</span></code> array the centroid of each bounding box.</p>
+</div>
 </div>
 <input id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-7">
@@ -757,17 +760,17 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 <input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-11">
 NWB</label><div class="sd-tab-content docutils">
-<p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
+<p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To allow adding additional data to NWB files before saving, <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file</span></code></a> does not write to disk directly.
-Instead, it returns a list of <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects—one per individual in the dataset—since NWB files are designed to represent data from a single individual.</p>
+Instead, it returns a list of <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects—one per individual in the dataset—since NWB files are designed to represent data from a single individual.</p>
 <p>The <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file</span></code></a> function also accepts
 a <a class="reference internal" href="../api/movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a> object as its <code class="docutils literal notranslate"><span class="pre">config</span></code> argument
 for customising metadata such as session or subject information in the resulting NWBFiles
 (see <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">the</span> <span class="pre">API</span> <span class="pre">reference</span></code></a> for examples).</p>
-<p>These <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects can then be saved to disk as .nwb files using <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.html#pynwb.NWBHDF5IO" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.NWBHDF5IO</span></code></a>:</p>
+<p>These <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects can then be saved to disk as .nwb files using <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.html#pynwb.NWBHDF5IO" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.NWBHDF5IO</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span>
 
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">nwb_files</span><span class="p">:</span>
@@ -780,8 +783,25 @@ for customising metadata such as session or subject information in the resulting
 </section>
 <section id="saving-bounding-box-tracks">
 <span id="target-saving-bboxes-tracks"></span><h3>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h3>
-<p>We currently do not provide explicit methods to export a movement bounding boxes dataset in a specific format. However, you can save the bounding box tracks to a .csv file using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
-<p>Here is an example of how you can save a bounding boxes dataset to a .csv file:</p>
+<p>We currently support exporting a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bboxes datasets</span></a> as a <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">VIA tracks .csv file</a>, so that you can visualise and correct your bounding box tracks with the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/via.html#">VGG Image Annotator (VIA-2) software</a>. Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
+VIA tracks .csv file</label><div class="sd-tab-content docutils">
+<p>To export your bounding boxes dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>, you will need to import the <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a> module:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_bboxes</span>
+</pre></div>
+</div>
+<p>Then you can save it as a VIA tracks .csv file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_bboxes</span><span class="o">.</span><span class="n">to_via_tracks_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;/path/to/output/file.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By default the <a class="reference internal" href="../api/movement.io.save_bboxes.to_via_tracks_file.html#movement.io.save_bboxes.to_via_tracks_file" title="movement.io.save_bboxes.to_via_tracks_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_bboxes.to_via_tracks_file()</span></code></a> function will try to derive the track IDs from the trailing numbers in the individuals’ names, but you can also set <code class="docutils literal notranslate"><span class="pre">track_ids_from_trailing_numbers=False</span></code> to assign the track IDs sequentially (0, 1, 2, …) based on the alphabetically sorted list of individuals.</p>
+</div>
+<input id="sd-tab-item-13" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-13">
+Custom .csv file</label><div class="sd-tab-content docutils">
+<p>Below is an example of how you can export a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset as a .csv file with a custom header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define name for output csv file</span>
 <span class="n">filepath</span> <span class="o">=</span> <span class="s2">&quot;tracking_output.csv&quot;</span>
 
@@ -802,15 +822,20 @@ for customising metadata such as session or subject information in the resulting
 
 </pre></div>
 </div>
-<p>Alternatively, we can convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset to a pandas DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.3.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
+<div class="note admonition">
+<p class="admonition-title">Using <code class="docutils literal notranslate"><span class="pre">pandas</span></code></p>
+<p>If you prefer to work with <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, you can alternatively convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset to a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v2.3.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
+</div>
+</div>
+</div>
 </section>
 </section>
 <section id="native-saving-and-loading-with-netcdf">
 <span id="target-netcdf"></span><h2>Native saving and loading with netCDF<a class="headerlink" href="#native-saving-and-loading-with-netcdf" title="Link to this heading">#</a></h2>
-<p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
+<p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.9.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
 xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">support for the netCDF file format</a>.</p>
 <p>netCDF is a binary file format for self-described datasets that originated in the geosciences,
-and netCDF files on disk directly correspond to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
+and netCDF files on disk directly correspond to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.9.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
 <p>Saving to netCDF is the recommended way to preserve the complete state of your analysis,
 including all variables, coordinates, and attributes.</p>
 <p>To save any xarray dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> to a netCDF file:</p>
@@ -823,10 +848,10 @@ including all variables, coordinates, and attributes.</p>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;my_data.nc&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Similarly, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object (e.g. the <code class="docutils literal notranslate"><span class="pre">position</span></code> variable
+<p>Similarly, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.9.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object (e.g. the <code class="docutils literal notranslate"><span class="pre">position</span></code> variable
 of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset) can be saved to disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_netcdf()</span></code></a> method, and loaded from disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2025.7.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a> function.
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2025.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_netcdf()</span></code></a> method, and loaded from disk using the
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2025.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a> function.
 As netCDF files correspond to Dataset objects,
 these functions internally convert the DataArray to a Dataset before saving,
 and then convert back when loading.</p>

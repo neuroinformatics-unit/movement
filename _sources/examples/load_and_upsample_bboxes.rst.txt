@@ -44,7 +44,7 @@ Imports
 
     from movement import sample_data
     from movement.filtering import interpolate_over_time
-    from movement.io import load_bboxes
+    from movement.io import load_bboxes, save_bboxes
 
 
 
@@ -670,28 +670,53 @@ are shown in green.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 363-372
+.. GENERATED FROM PYTHON SOURCE LINES 363-370
 
-Export as .csv file
--------------------
+Export as a VIA tracks .csv file
+---------------------------------
 Let's assume the dataset with the forward filled values is the best suited
-for our task - we can now export the computed values to a .csv file
+for our task. We can now export the computed values to a VIA tracks .csv
+file that is loadable in the ``movement`` napari widget
+and in the `VGG Image Annotator (VIA) <https://www.robots.ox.ac.uk/~vgg/software/via/>`_
+software.
 
-Note that currently we do not provide explicit methods to export a
-``movement`` bounding boxes dataset in a specific format. However, we can
-save the bounding boxes’ trajectories to a .csv file using the
-standard Python library :mod:`csv`.
+.. GENERATED FROM PYTHON SOURCE LINES 370-374
 
-.. GENERATED FROM PYTHON SOURCE LINES 372-392
+.. code-block:: Python
+
+
+    via_tracks_filepath = "tracking_output_via_tracks.csv"
+    save_bboxes.to_via_tracks_file(ds_ff, via_tracks_filepath)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    PosixPath('tracking_output_via_tracks.csv')
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 375-378
+
+Alternatively, we can save the bounding boxes’ trajectories to a
+.csv file with a custom header using the standard Python library
+:mod:`csv`.
+
+.. GENERATED FROM PYTHON SOURCE LINES 378-398
 
 .. code-block:: Python
 
 
     # define name for output csv file
-    filepath = "tracking_output.csv"
+    custom_csv_filepath = "tracking_output_custom.csv"
 
     # open the csv file in write mode
-    with open(filepath, mode="w", newline="") as file:
+    with open(custom_csv_filepath, mode="w", newline="") as file:
         writer = csv.writer(file)
 
         # write the header
@@ -713,18 +738,19 @@ standard Python library :mod:`csv`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 393-397
+.. GENERATED FROM PYTHON SOURCE LINES 399-403
 
 Clean-up
 ----------------------
-To remove the output file we have just created, we can run the following
+To remove the output files we have just created, we can run the following
 code.
 
-.. GENERATED FROM PYTHON SOURCE LINES 397-398
+.. GENERATED FROM PYTHON SOURCE LINES 403-405
 
 .. code-block:: Python
 
-    os.remove(filepath)
+    os.remove(via_tracks_filepath)
+    os.remove(custom_csv_filepath)
 
 
 
@@ -735,7 +761,7 @@ code.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.291 seconds)
+   **Total running time of the script:** (0 minutes 3.481 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_upsample_bboxes.py:

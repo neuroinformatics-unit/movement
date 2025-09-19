@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.9.0</p>
+    <p class="title logo__title">movement v0.10.0</p>
   
 </a></div>
     
@@ -377,6 +377,7 @@
 <li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_freemocap_data.html">Load and visualise FreeMoCap 3D data</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -634,7 +635,7 @@ In the rest of the example, the normalised data will be used.</p>
 <p>To look at pupil position—and later also velocity—over time, we use the
 pupil centroid (in this case the midpoint between keypoints <code class="docutils literal notranslate"><span class="pre">pupil-L</span></code> and
 <code class="docutils literal notranslate"><span class="pre">pupil-R</span></code>). The keypoint <code class="docutils literal notranslate"><span class="pre">pupil-C</span></code> is assigned using
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.assign_coords.html#xarray.DataArray.assign_coords" title="(in xarray v2025.7.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.assign_coords()</span></code></a>.</p>
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.assign_coords.html#xarray.DataArray.assign_coords" title="(in xarray v2025.9.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.assign_coords()</span></code></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pupil_centroid</span></a> <span class="o">=</span> <span class="p">(</span>
     <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">positions_norm</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pupil-L&quot;</span><span class="p">,</span> <span class="s2">&quot;pupil-R&quot;</span><span class="p">])</span>
     <span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
@@ -643,7 +644,7 @@ pupil centroid (in this case the midpoint between keypoints <code class="docutil
 </pre></div>
 </div>
 <p>The pupil centroid keypoint <code class="docutils literal notranslate"><span class="pre">pupil-C</span></code> is be added to the <code class="docutils literal notranslate"><span class="pre">positions_norm</span></code>
-using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2025.7.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a>.</p>
+using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2025.9.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">positions_norm</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="xarray.concat" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-function"><span class="n">xr</span><span class="o">.</span><span class="n">concat</span></a><span class="p">([</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">positions_norm</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pupil_centroid</span></a><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -759,7 +760,7 @@ option for the <code class="docutils literal notranslate"><span class="pre">stat
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="smooth.html#sphx-glr-examples-smooth-py"><span class="std std-ref">Smooth pose tracks</span></a> example.</p>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.674 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.299 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-mouse-eye-movements-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/mouse_eye_movements.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

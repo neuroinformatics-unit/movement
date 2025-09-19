@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.9.0</p>
+    <p class="title logo__title">movement v0.10.0</p>
   
 </a></div>
     
@@ -398,6 +398,10 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
@@ -576,18 +580,18 @@ are ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.7.2)"><em>xarray.DataArray</em></a>) – Spatial data to create histogram for. NaN values are dropped.</p></li>
+<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.9.1)"><em>xarray.DataArray</em></a>) – Spatial data to create histogram for. NaN values are dropped.</p></li>
 <li><p><strong>individuals</strong> (<em>Hashable</em><em>, </em><em>optional</em>) – The name of the individual(s) to be aggregated and plotted. By default,
 all individuals are aggregated.</p></li>
 <li><p><strong>keypoints</strong> (<em>Hashable</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>Hashable</em><em>]</em><em>, </em><em>optional</em>) – Name of a keypoint or list of such names. The centroid of all provided
 keypoints is computed, then plotted in the histogram.</p></li>
-<li><p><strong>ax</strong> (<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.5)"><em>matplotlib.axes.Axes</em></a><em>, </em><em>optional</em>) – Axes object on which to draw the histogram. If not provided, a new
+<li><p><strong>ax</strong> (<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.6)"><em>matplotlib.axes.Axes</em></a><em>, </em><em>optional</em>) – Axes object on which to draw the histogram. If not provided, a new
 figure and axes are created and returned.</p></li>
-<li><p><strong>kwargs</strong> (<em>Any</em>) – Keyword arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – Keyword arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'counts'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xedges'</span></code>, <code class="docutils literal notranslate"><span class="pre">'yedges'</span></code>], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.13)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'counts'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xedges'</span></code>, <code class="docutils literal notranslate"><span class="pre">'yedges'</span></code>], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
@@ -602,7 +606,7 @@ the input will be directly modified and returned in this value.</p></li>
 </dl>
 <p class="rubric">Notes</p>
 <p>The third return value of this method exposes the outputs from
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a> that would otherwise be lost if only
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a> that would otherwise be lost if only
 the figure and axes handles were returned. This information is returned
 as a dictionary.</p>
 <p>For data with <code class="docutils literal notranslate"><span class="pre">Nx</span></code> bins in the 1st spatial dimension, and <code class="docutils literal notranslate"><span class="pre">Ny</span></code> bins in
@@ -614,7 +618,7 @@ the 2nd spatial dimension.
 - <code class="docutils literal notranslate"><span class="pre">counts</span></code>, an <code class="docutils literal notranslate"><span class="pre">(Nx,</span> <span class="pre">Ny)</span></code> <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array with the count for each bin.</p>
 <p><code class="docutils literal notranslate"><span class="pre">counts[x,</span> <span class="pre">y]</span></code> is the number of datapoints in the
 <code class="docutils literal notranslate"><span class="pre">(xedges[x],</span> <span class="pre">xedges[x+1]),</span> <span class="pre">(yedges[y],</span> <span class="pre">yedges[y+1])</span></code> bin. These values
-are those returned from <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p>
+are those returned from <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p>
 <p class="rubric">Examples</p>
 <p>Simple use-case is to plot a histogram of the centroid of all
 keypoints, aggregated over all individuals.</p>
@@ -660,7 +664,7 @@ this function.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a></dt><dd><p>The underlying plotting function.</p>
+<dt><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a></dt><dd><p>The underlying plotting function.</p>
 </dd>
 </dl>
 </div>

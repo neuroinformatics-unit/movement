@@ -169,6 +169,23 @@ of ``movement``.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Load the .csv files from FreeMoCap into movement and visualise them in 3D.">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_load_freemocap_data_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_load_freemocap_data.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Load and visualise FreeMoCap 3D data</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -188,6 +205,7 @@ of ``movement``.
    /examples/compute_kinematics
    /examples/boundary_angles
    /examples/load_and_upsample_bboxes
+   /examples/load_freemocap_data
 
 .. target-examples-advanced:
 

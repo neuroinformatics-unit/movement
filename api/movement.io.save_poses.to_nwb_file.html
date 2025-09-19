@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../_static/documentation_options.js?v=82662543"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -129,7 +129,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.9.0</p>
+    <p class="title logo__title">movement v0.10.0</p>
   
 </a></div>
     
@@ -398,6 +398,10 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.save_poses.html">movement.io.save_poses</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_file.html">to_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
@@ -564,7 +568,7 @@
 <dt class="sig sig-object py" id="movement.io.save_poses.to_nwb_file">
 <span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_nwb_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_nwb_file" title="Link to this definition">#</a></dt>
 <dd><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to one or more NWBFile objects.</p>
-<p>The data will be written to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object(s)
+<p>The data will be written to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object(s)
 in the “behavior” processing module, formatted according to the
 <code class="docutils literal notranslate"><span class="pre">ndx-pose</span></code> NWB extension <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
 Each individual in the dataset will be written to a separate NWBFile,
@@ -573,10 +577,10 @@ Note that the NWBFile(s) are not automatically saved to disk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.7.2)"><em>xarray.Dataset</em></a>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset containing the data to be converted to
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.9.1)"><em>xarray.Dataset</em></a>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset containing the data to be converted to
 NWBFile(s).</p></li>
 <li><p><strong>config</strong> (<a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><em>NWBFileSaveConfig</em></a><em>, </em><em>optional</em>) – Configuration object containing keyword arguments to customise the
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> (s) that will be created
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> (s) that will be created
 for each individual.
 If None (default), default values will be used.</p></li>
 </ul>
@@ -587,7 +591,7 @@ will be returned. If the dataset contains multiple individuals,
 a list of NWBFile objects will be returned, one for each individual.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)">pynwb.file.NWBFile</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)">pynwb.file.NWBFile</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)">pynwb.file.NWBFile</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)">pynwb.file.NWBFile</a>]</p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -598,7 +602,7 @@ a list of NWBFile objects will be returned, one for each individual.</p>
 </aside>
 </aside>
 <p class="rubric">Examples</p>
-<p>Create <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> objects for each individual in
+<p>Create <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> objects for each individual in
 a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> and save them to disk:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.sample_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_dataset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
@@ -611,8 +615,8 @@ a <code class="docutils literal notranslate"><span class="pre">movement</span></
 </pre></div>
 </div>
 <p>Create NWBFiles with custom metadata shared across individuals.
-Specifically, we add metadata for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>,
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>, and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>
+Specifically, we add metadata for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>,
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>, and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>
 via the <a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a>
 object.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.nwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFileSaveConfig</span>
@@ -624,8 +628,8 @@ object.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Create NWBFiles with different <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>
-and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> metadata for each individual
+<p>Create NWBFiles with different <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>
+and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> metadata for each individual
 (e.g. <code class="docutils literal notranslate"><span class="pre">individual1</span></code>, <code class="docutils literal notranslate"><span class="pre">individual2</span></code>) in the dataset:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">NWBFileSaveConfig</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">nwbfile_kwargs</span><span class="o">=</span><span class="p">{</span>
