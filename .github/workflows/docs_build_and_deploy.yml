@@ -50,12 +50,10 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: |
-      (github.event_name == 'push' && github.ref_type == 'tag') ||
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
-        with:
-          secret_input: ${{ secrets.GITHUB_TOKEN }}
-          use-make: true
+    - uses: animeshsasan/actions/deploy_sphinx_docs_multiversion@ISSUE-91-doc-versioning
+      with:
+        secret_input: ${{ secrets.GITHUB_TOKEN }}
+        use-make: true
+        switcher-url: https://animeshsasan.github.io/movement/latest/_static/switcher.json
