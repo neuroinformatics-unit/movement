@@ -28,7 +28,7 @@ conda activate movement-env
 
 
 > [!Note]
-> Read the [documentation](https://movement.neuroinformatics.dev) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/user_guide/installation.html) and [examples](https://movement.neuroinformatics.dev/examples/index.html).
+> Read the [documentation](https://movement.neuroinformatics.dev/latest) for more information, including [full installation instructions](https://movement.neuroinformatics.dev/latest/user_guide/installation.html) and [examples](https://movement.neuroinformatics.dev/latest/examples/index.html).
 
 ## Overview
 
@@ -46,7 +46,7 @@ motion tracks, enabling steps such as data cleaning, visualisation,
 and motion quantification. We aim to support all popular animal tracking
 frameworks and file formats.
 
-Find out more on our [mission and scope](https://movement.neuroinformatics.dev/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/community/roadmaps.html).
+Find out more on our [mission and scope](https://movement.neuroinformatics.dev/latest/community/mission-scope.html) statement and our [roadmap](https://movement.neuroinformatics.dev/latest/community/roadmaps.html).
 
 <!-- Start Admonitions -->
 
@@ -61,7 +61,7 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/c
 ## Join the movement
 
 Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
-To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/community/contributing.html).
+To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/latest/community/contributing.html).
 
 - [Chat with the team on Zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement).
 - [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
