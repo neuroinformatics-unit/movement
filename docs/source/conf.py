@@ -152,7 +152,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://movement.neuroinformatics.dev/latest/_static/switcher.json",
-        "version_match": release,
+        "version_match": f"v{release}",
     },
     "logo": {
         "text": f"{project} v{release}",
