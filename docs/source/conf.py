@@ -31,6 +31,11 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
+if "dev" in release:
+    doc_version = "dev"
+else:
+    doc_version = f"v{release}"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -152,7 +157,7 @@ html_theme_options = {
     ],
     "switcher": {
         "json_url": "https://movement.neuroinformatics.dev/latest/_static/switcher.json",
-        "version_match": f"v{release}",
+        "version_match": doc_version,
     },
     "logo": {
         "text": f"{project} v{release}",
