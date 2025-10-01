@@ -28,7 +28,7 @@ and can be loaded from and saved to various third-party formats.
 | Source Software                                                             | Abbreviation | Source Format                                                                              | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------ | -------------------- | -------------------- |
 | [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                              | Pose                 | Load & Save          |
-| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap:tutorials/analysis) .h5 or .slp file                                      | Pose                 | Load & Save          |
+| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:learnings/export-analysis/) .h5 or .slp file                                      | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                     | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                 | Pose                 | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                     | Bounding box         | Load                 |
@@ -86,7 +86,7 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 :::
 
 :::{tab-item} SLEAP
-To load [SLEAP analysis files](sleap:tutorials/analysis) in .h5 format (recommended):
+To load [SLEAP analysis files](sleap-docs:learnings/export-analysis/) in .h5 format (recommended):
 
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)
@@ -315,7 +315,7 @@ Other attributes and data variables
 (i.e., `instance_scores`, `tracking_scores`, `edge_names`, `edge_inds`, `video_path`,
 `video_ind`, and `provenance`) are not currently supported. To learn more about what
 each attribute and data variable represents, see the
-[SLEAP documentation](sleap:api/sleap.info.write_tracking_h5.html#module-sleap.info.write_tracking_h5).
+[SLEAP documentation](sleap-docs:api/info/write_tracking_h5/#sleap.info.write_tracking_h5).
 ::::
 
 ::::{tab-item} LightningPose

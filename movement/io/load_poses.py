@@ -285,9 +285,9 @@ def from_sleap_file(
 
     References
     ----------
-    .. [1] https://sleap.ai/tutorials/analysis.html
+    .. [1] https://docs.sleap.ai/latest/learnings/export-analysis/
     .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L59
-    .. [3] https://sleap.ai/guides/proofreading.html
+    .. [3] https://docs.sleap.ai/latest/how-to-guides/tracking-and-proofreading/
 
     Examples
     --------
