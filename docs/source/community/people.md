@@ -93,6 +93,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/animeshsasan">
+                    <img src="https://avatars.githubusercontent.com/u/40558191?v=4" width="100;" alt="animeshsasan"/>
+                    <br />
+                    <sub><b>animeshsasan</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/vigji">
                     <img src="https://avatars.githubusercontent.com/u/10400212?v=4" width="100;" alt="vigji"/>
                     <br />
@@ -106,6 +113,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Tushar-Verma</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/DPWebster">
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
@@ -113,8 +122,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>DPWebster</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/harsh-bhanushali-05">
                     <img src="https://avatars.githubusercontent.com/u/109029538?v=4" width="100;" alt="harsh-bhanushali-05"/>
@@ -150,6 +157,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Lauraschwarz</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/yarikoptic">
                     <img src="https://avatars.githubusercontent.com/u/39889?v=4" width="100;" alt="yarikoptic"/>
@@ -157,8 +166,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Yaroslav Halchenko</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/angkul07">
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
