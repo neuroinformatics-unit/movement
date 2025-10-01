@@ -291,7 +291,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     References
     ----------
-    .. [1] https://sleap.ai/api/sleap.info.write_tracking_h5.html
+    .. [1] https://docs.sleap.ai/latest/api/info/write_tracking_h5/#sleap.info.write_tracking_h5
 
     Examples
     --------
