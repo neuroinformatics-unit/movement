@@ -111,6 +111,25 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         and ``phi`` in the dimension coordinate. The angles
         ``phi`` returned are in radians, in the range ``[-pi, pi]``.
 
+    Notes
+    -----
+    To compute the angle ``phi`` we rely on the :obj:`numpy.arctan2`
+    function, which follows the C standard [1]_. The C standard considers
+    the case in which the inputs to the `arctan2`[2]_ function are signed
+    zeros [3]_. For simplicity and interpretability, in ``movement`` we
+    only consider the case of unsigned (positive) zeros. We implement it
+    by setting the angle ``phi`` to 0 when the norm ``rho`` of the vector is 0.
+
+    References
+    ----------
+    .. [1] ISO/IEC standard 9899:1999, “Programming language C.”
+    .. [2] https://en.wikipedia.org/wiki/Atan2
+    .. [3] https://en.wikipedia.org/wiki/Signed_zero
+
+    See Also
+    --------
+    :obj:`numpy.arctan2`
+
     """
     validate_dims_coords(data, {"space": ["x", "y"]})
     rho = compute_norm(data)
@@ -119,7 +138,12 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
         data.sel(space="y"),
         data.sel(space="x"),
     )
-    phi = phi.where(rho != 0, 0)
+
+    # Make all zeros in phi positive zeros
+    # - where rho == 0, set phi to 0
+    # - where rho != 0, keep the phi value from atan2
+    phi = xr.where(np.isclose(rho.values, 0.0, atol=1e-9), 0.0, phi)
+
     # Replace space dim with space_pol
     dims = list(data.dims)
     dims[dims.index("space")] = "space_pol"
@@ -154,6 +178,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
     y = rho * np.sin(phi)
+
     # Replace space_pol dim with space
     dims = list(data.dims)
     dims[dims.index("space_pol")] = "space"
