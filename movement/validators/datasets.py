@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 
 import attrs
 import numpy as np
+import xarray as xr
 from attrs import converters, define, field, validators
 
 from movement.utils.logging import logger
@@ -426,3 +427,45 @@ class ValidBboxesDataset:
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
+
+
+def _validate_dataset(
+    ds: xr.Dataset,
+    dataset_validator: type[ValidBboxesDataset] | type[ValidPosesDataset],
+) -> None:
+    """Validate the input as a proper ``movement`` dataset.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset to validate.
+    dataset_validator : type[ValidBboxesDataset] | type[ValidPosesDataset]
+        Validator for the dataset.
+
+    Raises
+    ------
+    TypeError
+        If the input is not an xarray Dataset.
+    ValueError
+        If the dataset is missing required data variables or dimensions
+        for a valid ``movement`` dataset.
+
+    """
+    if not isinstance(ds, xr.Dataset):
+        raise logger.error(
+            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
+        )
+
+    missing_vars = set(dataset_validator.VAR_NAMES) - set(ds.data_vars)
+    if missing_vars:
+        raise logger.error(
+            ValueError(
+                f"Missing required data variables: {sorted(missing_vars)}"
+            )
+        )  # sort for a reproducible error message
+
+    missing_dims = set(dataset_validator.DIM_NAMES) - set(ds.dims)
+    if missing_dims:
+        raise logger.error(
+            ValueError(f"Missing required dimensions: {sorted(missing_dims)}")
+        )  # sort for a reproducible error message
