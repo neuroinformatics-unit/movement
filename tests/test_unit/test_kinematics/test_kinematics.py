@@ -337,26 +337,3 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
-
-
-@pytest.mark.parametrize(
-    "valid_dataset", ["valid_poses_dataset", "valid_bboxes_dataset"]
-)
-def test_displacement_deprecation(valid_dataset, request):
-    """Test that calling median_filter raises a DeprecationWarning.
-    And that it forwards to rolling_filter with statistic='median'.
-    """
-    position = request.getfixturevalue(valid_dataset).position
-
-    with pytest.warns(
-        DeprecationWarning,
-        match="compute_displacement.*deprecated.*compute_forward_displacement.*compute_backward_displacement",
-    ):
-        result = kinematics.compute_displacement(position)
-
-    # Ensure that median_filter correctly forwards to rolling_filter
-    expected_result = -kinematics.compute_backward_displacement(position)
-    assert result.equals(expected_result), (
-        "compute_displacement should produce the same output as "
-        "the negative of compute_backward_displacement"
-    )
