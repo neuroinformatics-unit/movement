@@ -289,7 +289,7 @@ def from_sleap_file(
     .. [1] https://docs.sleap.ai/latest/learnings/export-analysis/
     .. [2] https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py#L59
     .. [3] https://docs.sleap.ai/latest/guides/tracking-and-proofreading/
-    
+
     Examples
     --------
     >>> from movement.io import load_poses
