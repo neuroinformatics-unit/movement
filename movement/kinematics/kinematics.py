@@ -63,6 +63,11 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute displacement array in Cartesian coordinates.
 
+    .. deprecated:: 0.9.1
+        This function is deprecated and will be removed in a future release.
+        Use :func:`compute_forward_displacement` or
+        :func:`compute_backward_displacement` instead.
+
     The displacement array is defined as the difference between the position
     array at time point ``t`` and the position array at time point ``t-1``.
 
@@ -95,11 +100,6 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     For the ``shape`` array of a ``bboxes`` dataset, the
     ``displacement`` array will hold vectors with the change in width and
     height per bounding box, between consecutive time points.
-
-    .. deprecated:: 0.9.1
-       This function is deprecated and will be removed in a future release.
-       Use :func:`compute_forward_displacement` or
-       :func:`compute_backward_displacement` instead.
 
     """
     warnings.warn(
