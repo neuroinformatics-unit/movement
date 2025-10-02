@@ -213,6 +213,7 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 # position to the previous one:
 backward_displacement = kin.compute_backward_displacement(position)
 
+# %%
 # In this case, the backward displacement vector at the first timestep
 # is defined as the zero vector, since there is no previous position.
 

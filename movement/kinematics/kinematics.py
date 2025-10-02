@@ -139,7 +139,7 @@ def compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
 
     As a result, for a given individual and keypoint, the forward displacement
     vector at time point ``t``, is the vector pointing from the current ``t``
-    position to the next ``(t+1)``, in Cartesian coordinates.
+    position to the next ``t+1``, in Cartesian coordinates.
 
     Parameters
     ----------
@@ -182,7 +182,7 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
 
     As a result, for a given individual and keypoint, the backward displacement
     vector at time point ``t``, is the vector pointing from the current ``t``
-    position to the previous ``(t-1)`` in Cartesian coordinates.
+    position to the previous ``t-1`` in Cartesian coordinates.
 
     Parameters
     ----------

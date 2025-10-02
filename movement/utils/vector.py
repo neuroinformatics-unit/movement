@@ -115,7 +115,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     -----
     To compute the angle ``phi`` we rely on the :obj:`numpy.arctan2`
     function, which follows the C standard [1]_. The C standard considers
-    the case in which the inputs to the `arctan2`[2]_ function are signed
+    the case in which the inputs to the ``arctan2`` [2]_ function are signed
     zeros [3]_. For simplicity and interpretability, in ``movement`` we
     only consider the case of unsigned (positive) zeros. We implement it
     by setting the angle ``phi`` to 0 when the norm ``rho`` of the vector is 0.
