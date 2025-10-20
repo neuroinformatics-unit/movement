@@ -219,6 +219,7 @@ myst_url_schemes = {
     "via": "https://www.robots.ox.ac.uk/~vgg/software/via/{{path}}#{{fragment}}",
     "anipose": "https://anipose.readthedocs.io/en/latest/",
     "TRex": "https://trex.run/docs/",
+    "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
