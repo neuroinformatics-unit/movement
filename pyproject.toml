@@ -21,7 +21,7 @@ dependencies = [
   "tqdm",
   "shapely",
   "sleap-io",
-  "xarray[accel,io,viz]",
+  "xarray[accel,io,viz]!=2025.09.01,!=2025.10.0",
   "PyYAML",
   "napari-video>=0.2.13",
   "pyvideoreader>=0.5.3", # since switching to depend on openCV-headless
