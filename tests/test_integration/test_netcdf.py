@@ -65,14 +65,14 @@ def dataset_with_datetime_index(valid_poses_dataset):
 @pytest.mark.parametrize("engine", ["netcdf4", "scipy", "h5netcdf"])
 def test_ds_save_and_load_netcdf(dataset, engine, tmp_path, request):
     """Test that saving a movement dataset to a NetCDF file and then
-    loading it back returns the same Dataset.
+    loading it back (using the same engine) returns the same Dataset.
 
-    We test across all 3 NetCDF engines supported by xarray.
+    We test across 3 NetCDF engines supported by xarray.
     """
     ds = request.getfixturevalue(dataset)
-    netcdf_file = tmp_path / "test_dataset.nc"
+    netcdf_file = tmp_path / f"test_dataset_{engine}.nc"
     ds.to_netcdf(netcdf_file, engine=engine)
-    loaded_ds = xr.load_dataset(netcdf_file)
+    loaded_ds = xr.load_dataset(netcdf_file, engine=engine)
     xr.testing.assert_allclose(loaded_ds, ds)
     assert loaded_ds.attrs == ds.attrs
 
