@@ -13,13 +13,17 @@ def dlc_output_file(request, tmp_path):
     return tmp_path / request.param
 
 
-def test_load_and_save_to_dlc_style_df(valid_dlc_poses_df):
+@pytest.mark.parametrize(
+    "dlc_poses_df", ["valid_dlc_poses_df", "valid_dlc_3d_poses_df"]
+)
+def test_load_and_save_to_dlc_style_df(dlc_poses_df, request):
     """Test that loading pose tracks from a DLC-style DataFrame and
     converting back to a DataFrame returns the same data values.
     """
-    ds = load_poses.from_dlc_style_df(valid_dlc_poses_df)
+    dlc_poses_df = request.getfixturevalue(dlc_poses_df)
+    ds = load_poses.from_dlc_style_df(dlc_poses_df)
     df = save_poses.to_dlc_style_df(ds, split_individuals=False)
-    np.testing.assert_allclose(df.values, valid_dlc_poses_df.values)
+    np.testing.assert_allclose(df.values, dlc_poses_df.values)
 
 
 def test_save_and_load_dlc_file(dlc_output_file, valid_poses_dataset):
