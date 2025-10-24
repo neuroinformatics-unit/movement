@@ -37,14 +37,18 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
-    # Concatenate the pose tracks and confidence scores into one array
-    tracks_with_scores = np.concatenate(
-        (
-            ds.position.data,
-            ds.confidence.data[:, np.newaxis, ...],
-        ),
-        axis=1,
-    )
+    is_3d = "z" in columns.get_level_values("coords")
+    if is_3d:
+        tracks_with_scores = ds.position.data
+    else:
+        # Concatenate the pose tracks and confidence scores into one array
+        tracks_with_scores = np.concatenate(
+            (
+                ds.position.data,
+                ds.confidence.data[:, np.newaxis, ...],
+            ),
+            axis=1,
+        )
     # Reverse the order of the dimensions except for the time dimension
     transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
     tracks_with_scores = tracks_with_scores.transpose(transpose_order)
@@ -121,7 +125,12 @@ def to_dlc_style_df(
     _validate_dataset(ds, ValidPosesDataset)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
-    coords = ds.coords["space"].data.tolist() + ["likelihood"]
+    base_coords = ds.coords["space"].data.tolist()
+    coords = (
+        base_coords
+        if "z" in ds.coords["space"]
+        else base_coords + ["likelihood"]
+    )
     individuals = ds.coords["individuals"].data.tolist()
 
     if split_individuals:
