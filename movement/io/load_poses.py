@@ -202,14 +202,17 @@ def from_dlc_style_df(
     Notes
     -----
     The DataFrame must have a multi-index column with the following levels:
-    "scorer", ("individuals"), "bodyparts", "coords". The "individuals"
-    level may be omitted if there is only one individual in the video.
+    "scorer", ("individuals"), "bodyparts", "coords".
+    The "individuals" level may be omitted if there is only one individual
+    in the video.
     The "coords" level contains either:
-    - the spatial coordinates "x", "y", "likelihood" (point-wise confidence scores)
-    - the spatial coordinates "x", "y", "z",
-    The latter scenario applies when multiple DeepLabCut output files were
-    triangulated to estimate 3D pose.
-    See further: https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html
+
+    - the spatial coordinates "x", "y", and "likelihood"
+      (point-wise confidence scores), or
+    - the spatial coordinates "x", "y", and "z" (3D poses estimated by
+      `triangulating 2D poses from multiple DeepLabCut output files\
+      <https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html>`__).
+
     The row index corresponds to the frame number.
 
     See Also
