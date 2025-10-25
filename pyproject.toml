@@ -15,13 +15,16 @@ license = { text = "BSD-3-Clause" }
 dependencies = [
   "numpy>=2.0.0,<2.3.0",  # Upper pin is because of numba incompatibility
   "pandas",
+  # Upper-pin h5py and netcdf4 to avoid recent wheel regressions that surface as "NetCDF: HDF error"
+  "h5py<3.13.0",
+  "netCDF4<1.7.0",
   "h5py",
   "attrs",
   "pooch",
   "tqdm",
   "shapely",
   "sleap-io",
-  "xarray[accel,io,viz]>=2025.10.01",
+  "xarray[accel,io,viz]",
   "PyYAML",
   "napari-video>=0.2.13",
   "pyvideoreader>=0.5.3", # since switching to depend on openCV-headless
