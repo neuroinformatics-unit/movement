@@ -176,8 +176,6 @@ passenv =
     XAUTHORITY
     NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
     PYVISTA_OFF_SCREEN
-setenv =
-    HDF5_USE_FILE_LOCKING = FALSE
 extras =
     dev
 commands =
