@@ -15,10 +15,9 @@ license = { text = "BSD-3-Clause" }
 dependencies = [
   "numpy>=2.0.0,<2.3.0",  # Upper pin is because of numba incompatibility
   "pandas",
-  # Upper-pin h5py and netcdf4 to avoid recent wheel regressions that surface as "NetCDF: HDF error"
-  "h5py<3.13.0",
-  "netCDF4<1.7.0",
-  "h5py",
+  # Upper-pin on Linux to avoid recent wheel regressions that surface as "NetCDF: HDF error"
+  "netCDF4<1.7.0; sys_platform == 'linux'",
+  "h5py<3.13.0; sys_platform == 'linux'",
   "attrs",
   "pooch",
   "tqdm",
