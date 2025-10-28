@@ -14,8 +14,8 @@ For a library dedicated to analysing motion-tracking data, quantifying how far a
 
 Its implementation, however, produces results of complex interpretability. It defines, for a given individual and keypoint at timestep `t`, a vector that points to the opposite direction of its previous position at time `t-1`.
 
-For this reason, during the Hackday for [OSW 2025](https://neuroinformatics.dev/open-software-summer-school/2025/index.html) and as my first contribution to `movement`, I [offered myself](https://github.com/neuroinformatics-unit/osw25-hackday/issues/16) to work on a more intuitive interface for displacement vectors, supervisioned by [@sfmig](https://github.com/sfmig).
-In an inspiring collaborative effort to simplify the user experience, we are pleased to present the key changes introduced in [#657](https://github.com/neuroinformatics-unit/movement/pull/657). This update provides an elegant, well-tested, and thoroughly documented solution that reduces the mental load on users.
+For this reason, during the Hackday at [Open Software Week 2025](https://neuroinformatics.dev/open-software-summer-school/2025/index.html)—and as my first contribution to `movement`—I [volunteered](https://github.com/neuroinformatics-unit/osw25-hackday/issues/16) to develop a more intuitive interface for displacement vectors, under the supervision of [Sofía Miñano](https://github.com/sfmig). 
+These improvements were introduced in [#657](https://github.com/neuroinformatics-unit/movement/pull/657) through a collaborative effort. The update provides a simpler, well-tested, and better-documented implementation that makes displacement computations easier to understand and use.
 
 __API changes__
 
