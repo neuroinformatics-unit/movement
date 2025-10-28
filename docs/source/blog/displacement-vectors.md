@@ -22,7 +22,7 @@ __API changes__
 {mod}`kinematics <movement.kinematics>` has two new sister functions:
 
 - {func}`compute_forward_displacement <movement.kinematics.compute_forward_displacement>`, computing the vector defined at time `t` that goes from the position in the current frame to the position in the next frame, at `t+1`.
-- {func}`compute_backwards_displacement <movement.kinematics.compute_backwards_displacement>`, computing the vector defined at time `t` that goes from the position in the current frame to the position in the previous frame, at `t-1`.
+- {func}`compute_backward_displacement <movement.kinematics.compute_backward_displacement>`, computing the vector defined at time `t` that goes from the position in the current frame to the position in the previous frame, at `t-1`.
 
 In turn, we deprecated the old implementation {func}`compute_displacement <movement.kinematics.compute_displacement>`. We highly suggest you to re-think your use case in relation to _forward_ and _backward_ displacement vectors. For a drop-in replacement, however, see the example below:
 
