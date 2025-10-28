@@ -10,7 +10,7 @@ language: English
 # Improving displacement vectors
 
 Computing kinematic properties is a core functionality since early versions of `movement`, when they where first introduced by [Chang Huan Lo](https://github.com/lochhh) in [#106](https://github.com/neuroinformatics-unit/movement/pull/106).
-For a library focused on tracking analysis and motion quantification, it's essential that key information, such as the total distance traveled or the tracking point's location in adjacent frames (next or previous), can be easily calculated. That's why we introduced {func}`compute_displacement <movement.kinematics.compute_displacement>` so early on: it's a function that some of you may have used to have a grasp of your tracking data, and it is also featured in our {ref}`compute and visualise kinematics <sphx_glr_examples_compute_kinematics.py>` example<!--#compute-displacement-vectors heading-->.
+For a library dedicated to analysing motion-tracking data, quantifying how far a tracked point moves between consecutive frames is fundamental. This measure underpins subsequent computations, such as the total distance travelled along a path. That's why we introduced the `compute_displacement` function early on, and why it features in our {ref}`compute and visualise kinematics <sphx_glr_examples_compute_kinematics.py>` example<!--#compute-displacement-vectors heading-->.
 
 Its implementation, however, produces results of complex interpretability. It defines, for a given individual and keypoint at timestep `t`, a vector that points to the opposite direction of its previous position at time `t-1`.
 
