@@ -16,6 +16,7 @@ dependencies = [
   "numpy>=2.0.0,<2.3.0",  # Upper pin is because of numba incompatibility
   "pandas",
   "h5py",
+  "netCDF4<1.7.3",
   "attrs",
   "pooch",
   "tqdm",
