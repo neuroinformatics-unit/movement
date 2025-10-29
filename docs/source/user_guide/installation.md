@@ -29,10 +29,8 @@ uv venv --python=3.13
 ```
 
 Activate the virtual environment:
-```bash
+```sh
 source .venv/bin/activate  # On macOS and Linux
-```
-```powershell
 .venv\Scripts\activate     # On Windows PowerShell
 ```
 :::
