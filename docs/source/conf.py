@@ -207,7 +207,6 @@ myst_url_schemes = {
     "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
-    "mamba": "https://mamba.readthedocs.io/en/latest/",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/dev/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
