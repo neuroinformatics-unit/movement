@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
@@ -36,9 +37,14 @@ SUPPORTED_BBOXES_FILES = {
     "VIA-tracks": ["csv"],
 }
 
+SUPPORTED_NETCDF_FILES = {
+    "movement (netCDF)": ["nc"],
+}
+
 SUPPORTED_DATA_FILES = {
     **SUPPORTED_POSES_FILES,
     **SUPPORTED_BBOXES_FILES,
+    **SUPPORTED_NETCDF_FILES,
 }
 
 
@@ -178,12 +184,36 @@ class DataLoader(QWidget):
     def _format_data_for_layers(self):
         """Extract data required for the creation of the napari layers."""
         # Load data as a movement dataset
-        loader = (
-            load_poses
-            if self.source_software in SUPPORTED_POSES_FILES
-            else load_bboxes
-        )
-        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        # loader = (
+        #     load_poses
+        #     if self.source_software in SUPPORTED_POSES_FILES
+        #     else load_bboxes
+        # )
+        # ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        if self.source_software in SUPPORTED_NETCDF_FILES:
+            # Add logic for netCDF files
+            try:
+                ds = xr.open_dataset(self.file_path)
+            except Exception as e:
+                show_warning(f"Error opening netCDF file: {e}")
+                return
+            # Here 'position' is a required var.
+            if "position" not in ds.data_vars:
+                show_warning(
+                    "netCDF file is missing the required 'position' variable."
+                )
+                return
+            ds.attrs["fps"] = self.fps  # Add fps to attributes
+        else:
+            # Original Logic continue
+            loader = (
+                load_poses
+                if self.source_software in SUPPORTED_POSES_FILES
+                else load_bboxes
+            )
+            ds = loader.from_file(
+                self.file_path, self.source_software, self.fps
+            )
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
