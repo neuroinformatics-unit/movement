@@ -25,36 +25,67 @@ These are especially suitable if you're new to the project, and we recommend sta
 
 ## Contributing code
 
-
 ### Creating a development environment
-It is recommended to use [conda](conda:)
-or [mamba](mamba:) to create a
-development environment for `movement`. In the following we assume you have
-`conda` installed, but the same commands will also work with `mamba`/`micromamba`.
 
-First, create and activate a `conda` environment with some prerequisites:
+In order to make changes to `movement`, you will need to fork the [repository](movement-github:).
+If you are not familiar with `git`, we recommend reading up on [this guide](https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands).
 
-```sh
-conda create -n movement-dev -c conda-forge python=3.13 pytables
-conda activate movement-dev
-```
+1. Clone the forked repository to your local machine and change directories:
 
-To install `movement` for development, clone the [GitHub repository](movement-github:),
-and then run from within the repository:
+    ```sh
+    git clone https://github.com/neuroinformatics-unit/movement.git
+    cd movement
+    ```
 
-```sh
-pip install -e .[dev]  # works on most shells
-pip install -e '.[dev]'  # works on zsh (the default shell on macOS)
-```
+2. Set the upstream remote to the base `movement` repository:
 
-This will install the package in editable mode, including all dependencies
-required for development.
+    ```sh
+    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
+    ```
 
-Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
+3. Create an environment using [conda](conda:) or [uv](uv:) and install `movement` in editable mode, including development dependencies.
 
-```bash
-pre-commit install
-```
+    ::::{tab-set}
+
+    :::{tab-item} conda
+    First, create and activate a `conda` environment:
+
+    ```sh
+    conda create -n movement-dev -c conda-forge python=3.13
+    conda activate movement-dev
+    ```
+
+    Then, install the package in editable mode with development dependencies:
+
+    ```sh
+    pip install -e ".[dev]"
+    ```
+    :::
+
+    :::{tab-item} uv
+
+    First, create and activate a [virtual environment](uv:pip/environments/):
+
+    ```sh
+    uv venv --python=3.13
+    source .venv/bin/activate  # On macOS and Linux
+    .venv\Scripts\activate     # On Windows PowerShell
+    ```
+
+    Then, install the package in editable mode with development dependencies:
+
+    ```sh
+    uv pip install -e ".[dev]"
+    ```
+    :::
+
+    ::::
+
+4. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
+
+    ```sh
+    pre-commit install
+    ```
 
 ### Pull requests
 In all cases, please submit code to the main repository via a pull request (PR).
@@ -218,6 +249,8 @@ To edit the documentation, first clone the repository, and install `movement` in
 Then, install a few additional dependencies in your development environment to be able to build the documentation locally. To do this, run the following command from the root of the repository:
 ```sh
 pip install -r ./docs/requirements.txt
+# or, for uv users:
+uv pip install -r ./docs/requirements.txt
 ```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
