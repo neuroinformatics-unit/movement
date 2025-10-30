@@ -37,20 +37,25 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
-    # Concatenate the pose tracks and confidence scores into one array
-    tracks_with_scores = np.concatenate(
-        (
-            ds.position.data,
-            ds.confidence.data[:, np.newaxis, ...],
-        ),
-        axis=1,
+    # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
+    # Otherwise, concatenate position and confidence scores into one array
+    tracks = (
+        ds.position.data
+        if "z" in columns.get_level_values("coords")
+        else np.concatenate(
+            (
+                ds.position.data,
+                ds.confidence.data[:, np.newaxis, ...],
+            ),
+            axis=1,
+        )
     )
     # Reverse the order of the dimensions except for the time dimension
-    transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
-    tracks_with_scores = tracks_with_scores.transpose(transpose_order)
+    transpose_order = [0] + list(range(tracks.ndim - 1, 0, -1))
+    tracks = tracks.transpose(transpose_order)
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
-        data=tracks_with_scores.reshape(ds.sizes["time"], -1),
+        data=tracks.reshape(ds.sizes["time"], -1),
         index=np.arange(ds.sizes["time"], dtype=int),
         columns=columns,
         dtype=float,
@@ -109,9 +114,12 @@ def to_dlc_style_df(
     or "scorer", "individuals", "bodyparts", "coords"
     (if split_individuals is False).
 
-    Regardless of the provenance of the points-wise confidence scores,
-    they will be referred to as "likelihood", and stored in
-    the "coords" level (as DeepLabCut expects).
+    For 2D data, regardless of the provenance of the points-wise confidence
+    scores, they will be referred to as "likelihood", and stored in
+    the "coords" level as DeepLabCut expects.
+
+    For 3D data, the "coords" level will only contain "x", "y", and "z",
+    as DeepLabCut does not currently provide 3D likelihoods.
 
     See Also
     --------
@@ -121,23 +129,23 @@ def to_dlc_style_df(
     _validate_dataset(ds, ValidPosesDataset)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
-    coords = ds.coords["space"].data.tolist() + ["likelihood"]
+    base_coords = ds.coords["space"].data.tolist()
+    coords = (
+        base_coords
+        if "z" in ds.coords["space"]
+        else base_coords + ["likelihood"]
+    )
     individuals = ds.coords["individuals"].data.tolist()
-
     if split_individuals:
         df_dict = {}
-
         for individual in individuals:
             individual_data = ds.sel(individuals=individual)
-
             index_levels = ["scorer", "bodyparts", "coords"]
             columns = pd.MultiIndex.from_product(
                 [scorer, bodyparts, coords], names=index_levels
             )
-
             df = _ds_to_dlc_style_df(individual_data, columns)
             df_dict[individual] = df
-
         logger.info(
             "Converted poses dataset to DeepLabCut-style DataFrames "
             "per individual."
@@ -148,9 +156,7 @@ def to_dlc_style_df(
         columns = pd.MultiIndex.from_product(
             [scorer, individuals, bodyparts, coords], names=index_levels
         )
-
         df_all = _ds_to_dlc_style_df(ds, columns)
-
         logger.info("Converted poses dataset to DeepLabCut-style DataFrame.")
         return df_all
 

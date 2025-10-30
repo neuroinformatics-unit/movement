@@ -312,6 +312,24 @@ def valid_dlc_poses_df():
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))
 
 
+@pytest.fixture
+def valid_dlc_3d_poses_df(valid_dlc_poses_df):
+    """Mock and return a valid DLC-style 3D poses DataFrame.
+
+    The only difference between 2D and 3D DLC DataFrames is that
+    the coordinate level in the columns MultiIndex includes 'z' instead of
+    'likelihood'.
+    """
+    cols = [
+        (scorer, bodypart, "z" if coord == "likelihood" else coord)
+        for scorer, bodypart, coord in valid_dlc_poses_df.columns.to_list()
+    ]
+    valid_dlc_poses_df.columns = pd.MultiIndex.from_tuples(
+        cols, names=valid_dlc_poses_df.columns.names
+    )
+    return valid_dlc_poses_df
+
+
 # -------------------- Invalid bboxes datasets --------------------
 @pytest.fixture
 def missing_var_bboxes_dataset(valid_bboxes_dataset):
