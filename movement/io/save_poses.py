@@ -114,9 +114,12 @@ def to_dlc_style_df(
     or "scorer", "individuals", "bodyparts", "coords"
     (if split_individuals is False).
 
-    Regardless of the provenance of the points-wise confidence scores,
-    they will be referred to as "likelihood", and stored in
-    the "coords" level (as DeepLabCut expects).
+    For 2D data, regardless of the provenance of the points-wise confidence
+    scores, they will be referred to as "likelihood", and stored in
+    the "coords" level as DeepLabCut expects.
+
+    For 3D data, the "coords" level will only contain "x", "y", and "z",
+    as DeepLabCut does not currently provide 3D likelihoods.
 
     See Also
     --------
