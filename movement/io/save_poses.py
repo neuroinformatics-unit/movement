@@ -37,24 +37,25 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
-    is_3d = "z" in columns.get_level_values("coords")
-    if is_3d:
-        tracks_with_scores = ds.position.data
-    else:
-        # Concatenate the pose tracks and confidence scores into one array
-        tracks_with_scores = np.concatenate(
+    # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
+    # Otherwise, concatenate position and confidence scores into one array
+    tracks = (
+        ds.position.data
+        if "z" in columns.get_level_values("coords")
+        else np.concatenate(
             (
                 ds.position.data,
                 ds.confidence.data[:, np.newaxis, ...],
             ),
             axis=1,
         )
+    )
     # Reverse the order of the dimensions except for the time dimension
-    transpose_order = [0] + list(range(tracks_with_scores.ndim - 1, 0, -1))
-    tracks_with_scores = tracks_with_scores.transpose(transpose_order)
+    transpose_order = [0] + list(range(tracks.ndim - 1, 0, -1))
+    tracks = tracks.transpose(transpose_order)
     # Create DataFrame with multi-index columns
     df = pd.DataFrame(
-        data=tracks_with_scores.reshape(ds.sizes["time"], -1),
+        data=tracks.reshape(ds.sizes["time"], -1),
         index=np.arange(ds.sizes["time"], dtype=int),
         columns=columns,
         dtype=float,
@@ -132,21 +133,16 @@ def to_dlc_style_df(
         else base_coords + ["likelihood"]
     )
     individuals = ds.coords["individuals"].data.tolist()
-
     if split_individuals:
         df_dict = {}
-
         for individual in individuals:
             individual_data = ds.sel(individuals=individual)
-
             index_levels = ["scorer", "bodyparts", "coords"]
             columns = pd.MultiIndex.from_product(
                 [scorer, bodyparts, coords], names=index_levels
             )
-
             df = _ds_to_dlc_style_df(individual_data, columns)
             df_dict[individual] = df
-
         logger.info(
             "Converted poses dataset to DeepLabCut-style DataFrames "
             "per individual."
@@ -157,9 +153,7 @@ def to_dlc_style_df(
         columns = pd.MultiIndex.from_product(
             [scorer, individuals, bodyparts, coords], names=index_levels
         )
-
         df_all = _ds_to_dlc_style_df(ds, columns)
-
         logger.info("Converted poses dataset to DeepLabCut-style DataFrame.")
         return df_all
 
