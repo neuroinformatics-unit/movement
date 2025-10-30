@@ -220,7 +220,7 @@ def from_dlc_style_df(
     movement.io.load_poses.from_dlc_file
 
     """
-    # read names of individuals and keypoints from the DataFrame
+    # Read names of individuals and keypoints from the DataFrame
     if "individuals" in df.columns.names:
         individual_names = (
             df.columns.get_level_values("individuals").unique().to_list()
@@ -230,35 +230,22 @@ def from_dlc_style_df(
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
+    # Extract position (and confidence if present)
     coord_names = df.columns.get_level_values("coords").unique().to_list()
-
-    # Coords: ['x', 'y', 'z']
-    if set(coord_names) == {"x", "y", "z"} and len(coord_names) == 3:
-        tracks = (
-            df.to_numpy()
-            .reshape((-1, len(individual_names), len(keypoint_names), 3))
-            .transpose(0, 3, 2, 1)
-        )
+    n_coords = len(coord_names)
+    tracks = (
+        df.to_numpy()
+        .reshape((-1, len(individual_names), len(keypoint_names), n_coords))
+        .transpose(0, 3, 2, 1)
+    )
+    if "likelihood" in coord_names:  # Coords: ['x', 'y', 'likelihood']
+        likelihood_index = coord_names.index("likelihood")
+        confidence_array = tracks[:, likelihood_index, :, :]
+        pos_idx = [j for j in range(n_coords) if j != likelihood_index]
+        position_array = tracks[:, pos_idx, :, :]
+    else:  # Coords: ['x', 'y', 'z']
         position_array = tracks
         confidence_array = None
-
-    # Coords: ['x', 'y', 'likelihood']
-    else:
-        tracks_with_scores = (
-            df.to_numpy()
-            .reshape(
-                (
-                    -1,
-                    len(individual_names),
-                    len(keypoint_names),
-                    len(coord_names),
-                )
-            )
-            .transpose(0, len(coord_names), 2, 1)
-        )
-        position_array = tracks_with_scores[:, :-1, :, :]
-        confidence_array = tracks_with_scores[:, -1, :, :]
-
     return from_numpy(
         position_array=position_array,
         confidence_array=confidence_array,
