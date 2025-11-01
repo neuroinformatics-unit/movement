@@ -107,14 +107,21 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/CeliaLrt">
+                    <img src="https://avatars.githubusercontent.com/u/204997762?v=4" width="100;" alt="CeliaLrt"/>
+                    <br />
+                    <sub><b>CeliaLrt</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/DPWebster">
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
                     <br />
                     <sub><b>DPWebster</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/harsh-bhanushali-05">
                     <img src="https://avatars.githubusercontent.com/u/109029538?v=4" width="100;" alt="harsh-bhanushali-05"/>
@@ -150,6 +157,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Lauraschwarz</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/yarikoptic">
                     <img src="https://avatars.githubusercontent.com/u/39889?v=4" width="100;" alt="yarikoptic"/>
@@ -157,13 +166,18 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Yaroslav Halchenko</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/angkul07">
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
                     <br />
                     <sub><b>angkul</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/carlocastoldi">
+                    <img src="https://avatars.githubusercontent.com/u/34198340?v=4" width="100;" alt="carlocastoldi"/>
+                    <br />
+                    <sub><b>carlocastoldi</b></sub>
                 </a>
             </td>
             <td align="center">
