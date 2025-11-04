@@ -116,6 +116,15 @@ This is automatically updated via GitHub Actions and should not be modified.
 		</tr>
 		<tr>
             <td align="center">
+                <a href="https://github.com/CeliaLrt">
+                    <img src="https://avatars.githubusercontent.com/u/204997762?v=4" width="100;" alt="CeliaLrt"/>
+                    <br />
+                    <sub><b>CeliaLrt</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/DPWebster">
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
                     <br />
@@ -171,6 +180,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
                     <br />
                     <sub><b>angkul</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/carlocastoldi">
+                    <img src="https://avatars.githubusercontent.com/u/34198340?v=4" width="100;" alt="carlocastoldi"/>
+                    <br />
+                    <sub><b>carlocastoldi</b></sub>
                 </a>
             </td>
             <td align="center">
