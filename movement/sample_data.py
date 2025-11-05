@@ -8,12 +8,13 @@ are used.
 
 import shutil
 from pathlib import Path
+import logging
 
 import pooch
 import xarray
 import yaml
 from requests.exceptions import RequestException
-
+from contextlib import contextmanager
 from movement.io import load_bboxes, load_poses
 from movement.utils.logging import logger
 
@@ -30,6 +31,27 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # File name for the .yaml file in DATA_URL containing dataset metadata
 METADATA_FILE = "metadata.yaml"
+
+@contextmanager
+def hide_pooch_hash_logs():
+    """Hide only SHA256 hash printouts from pooch.retrieve when known_hash=None."""
+    logger = pooch.get_logger()
+
+    class HashFilter(logging.Filter):
+        def filter(self, record):
+            msg = record.getMessage()
+            # Suppress only hash display lines
+            return not (
+                "SHA256 hash of downloaded file" in msg
+                or "Use this value as the 'known_hash'" in msg
+            )
+
+    flt = HashFilter()
+    logger.addFilter(flt)
+    try:
+        yield
+    finally:
+        logger.removeFilter(flt)
 
 
 def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
@@ -54,13 +76,15 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
-    local_file_path = pooch.retrieve(
-        url=f"{DATA_URL}/{file_name}",
-        known_hash=None,
-        path=data_dir,
-        fname=f"temp_{file_name}",
-        progressbar=False,
-    )
+    with hide_pooch_hash_logs():
+        local_file_path = pooch.retrieve(
+            url=f"{DATA_URL}/{file_name}",
+            known_hash=None,
+            path=data_dir,
+            fname=f"temp_{file_name}",
+            progressbar=False,
+        )
+
     logger.debug(
         f"Successfully downloaded sample metadata file {file_name} "
         f"from {DATA_URL} to {data_dir}"
