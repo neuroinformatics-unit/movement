@@ -7,7 +7,9 @@ category: update
 language: English
 ---
 
-# Improving displacement vectors
+# Replacing displacement vectors for greater clarity
+
+This post introduces recent improvements to how movement computes displacement vectors, making the definitions more explicit, flexible, and intuitive for users.
 
 Computing kinematic properties is a core functionality since early versions of `movement`, when they where first introduced by [Chang Huan Lo](https://github.com/lochhh) in [#106](https://github.com/neuroinformatics-unit/movement/pull/106).
 For a library dedicated to analysing motion-tracking data, quantifying how far a tracked point moves between consecutive frames is fundamental. This measure underpins subsequent computations, such as the total distance travelled along a path. That's why we introduced the `compute_displacement` function early on, and why it features in our {ref}`compute and visualise kinematics <sphx_glr_examples_compute_kinematics.py>` example<!--#compute-displacement-vectors heading-->.
