@@ -40,11 +40,11 @@ In turn, we deprecated the old implementation {func}`compute_displacement <movem
   displacement = -kin.compute_backward_displacement(ds.position)
   ```
 
-__Breaking changes__
+__Related changes__
 
 We slightly modified the behaviour of vector conversion from Cartesian to polar coordinates. For simplicity and interpretability, {func}`cart2pol <movement.utils.vector.cart2pol>` now always sets the angle `phi` to 0 when the vector's norm `rho` is 0, rather than following the [C standard](https://www.iso.org/standard/29237.html) for [`arctan2`](https://en.wikipedia.org/wiki/Atan2). This change should not affect existing workflows, as a zero-length vector has an undefined direction—meaning it could point in any direction, and assigning `phi = 0` is a safe, neutral choice.
 
-## Conclusions
+## Reflections
 
 I would like to extend my sincere gratitude to the [Neuroinformatics Unit](https://neuroinformatics.dev/) for fostering an exceptional open environment that has even inspired me to enhance my own projects. Their efforts have motivated me to make [BraiAn](https://silvalab.codeberg.page/BraiAn/) more accessible to inexperienced researchers, to improve its interoperability and to develop automated pipelines for software verification.
 
