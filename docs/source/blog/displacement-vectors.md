@@ -28,7 +28,10 @@ __API changes__
 - {func}`compute_forward_displacement <movement.kinematics.compute_forward_displacement>`, computing the vector defined at time `t` that goes from the position in the current frame to the position in the next frame, at `t+1`.
 - {func}`compute_backward_displacement <movement.kinematics.compute_backward_displacement>`, computing the vector defined at time `t` that goes from the position in the current frame to the position in the previous frame, at `t-1`.
 
-In turn, we deprecated the old implementation {func}`compute_displacement <movement.kinematics.compute_displacement>`. We highly suggest you to re-think your use case in relation to _forward_ and _backward_ displacement vectors. For a drop-in replacement, however, see the example below:
+These functions replace the previous, more ambiguous `compute_displacement`, which has now been deprecated.
+The new API makes the directionality of displacement **explicit**, giving users greater **flexibility**. Depending on the context, one can now choose between forward- or backward-oriented vectors instead of relying on a single implicit definition.
+
+If you need a drop-in replacement for the old behaviour, you can use:
 
   ```python
   import movement.kinematics as kin
