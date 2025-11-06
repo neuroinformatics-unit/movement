@@ -1,11 +1,12 @@
 import json
+import re
 from typing import Any
 
 import numpy as np
 import pytest
 import xarray as xr
 
-from movement.transforms import scale
+from movement.transforms import get_homography_transform, scale
 
 SPATIAL_COORDS_2D = {"space": ["x", "y"]}
 SPATIAL_COORDS_3D = {"space": ["x", "y", "z"]}
@@ -279,3 +280,146 @@ def test_scale_log(sample_data_2d: xr.DataArray):
     assert len(log_entries) == 2
     verify_log_entry(log_entries[0], "2", "'elephants'")
     verify_log_entry(log_entries[1], "[1, 2]", "'crabs'")
+
+
+@pytest.mark.parametrize(
+    ["srcPoints", "dstPoints", "expected_transform"],
+    [
+        pytest.param(
+            np.array([[1, 1], [5, 1], [5, 3], [1, 3]], dtype=np.float32),
+            np.array([[1, 1], [5, 1], [5, 3], [1, 3]], dtype=np.float32),
+            np.array(
+                [
+                    [1.0, 0.0, 0.0],
+                    [0.0, 1.0, 0.0],
+                    [0.0, 0.0, 1.0],
+                ]
+            ),
+            id="Identical rectangles",
+        ),
+        pytest.param(
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32),
+            np.array(
+                [
+                    [3, -1],
+                    [4.73205081, 0],
+                    [3.98205081, 1.29903811],
+                    [2.25000000, 0.299038106],
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    [1.73205081, -0.75, 3.0],
+                    [1.0, 1.29903811, -1.0],
+                    [0.0, 0.0, 1.0],
+                ]
+            ),
+            id="Rotated and scaled square",
+        ),
+        pytest.param(
+            np.array(
+                [[0, 0], [0.5, 0], [1, 0], [1.0, 0.5], [1, 1], [0, 1]],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    [3, -1],
+                    [3.8660254, -0.5],
+                    [4.73205081, 0],
+                    [4.35705081, 0.649519053],
+                    [3.98205081, 1.29903811],
+                    [2.25000000, 0.299038106],
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    [1.73205081, -0.75, 3.0],
+                    [1.0, 1.29903811, -1.0],
+                    [0.0, 0.0, 1.0],
+                ]
+            ),
+            id="Rotated and scaled square with collinear points",
+        ),
+        pytest.param(
+            np.array(
+                [
+                    [0, 0],
+                    [5.0e-01, 1.0e-05],
+                    [0.5, 0],
+                    [1, 0],
+                    [1.0, 0.5],
+                    [1, 1],
+                    [0, 1],
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    [3, -1],
+                    [3.86601790, -0.499987010],
+                    [3.8660254, -0.5],
+                    [4.73205081, 0],
+                    [4.35705081, 0.649519053],
+                    [3.98205081, 1.29903811],
+                    [2.25000000, 0.299038106],
+                ],
+                dtype=np.float32,
+            ),
+            np.array(
+                [
+                    [1.73205081, -0.75, 3.0],
+                    [1.0, 1.29903811, -1.0],
+                    [0.0, 0.0, 1.0],
+                ]
+            ),
+            id="Rotated and scaled square with \
+                  collinear and degenerate points",
+        ),
+        pytest.param(
+            np.array([[1, 1], [5, 1], [5, 3]], dtype=np.float32),
+            np.array([[1, 1], [5, 1], [5, 3]], dtype=np.float32),
+            ValueError(
+                "Insufficient points to compute the \
+                    homography transformation."
+            ),
+            id="Insufficient points",
+        ),
+        pytest.param(
+            np.array(
+                [[1, 1], [5, 1], [5, 3], [4.999999, 3]], dtype=np.float32
+            ),
+            np.array(
+                [[1, 1], [5, 1], [5, 3], [4.999999, 3]], dtype=np.float32
+            ),
+            ValueError(
+                "Insufficient points to compute the \
+                    homography transformation."
+            ),
+            id="Insufficient points due to degeneracy",
+        ),
+        pytest.param(
+            np.array([[1, 1], [5, 1], [5, 3], [5, 2]], dtype=np.float32),
+            np.array([[1, 1], [5, 1], [5, 3], [5, 2]], dtype=np.float32),
+            ValueError(
+                "Insufficient points to compute the \
+                    homography transformation."
+            ),
+            id="Insufficient points due to collinearity",
+        ),
+    ],
+)
+def test_transform(
+    srcPoints: np.ndarray,
+    dstPoints: np.ndarray,
+    expected_transform: np.ndarray | ValueError,
+) -> None:
+    if isinstance(expected_transform, ValueError):
+        with pytest.raises(
+            type(expected_transform), match=re.escape(str(expected_transform))
+        ):
+            get_homography_transform(srcPoints, dstPoints)
+    else:
+        computed_transform = get_homography_transform(srcPoints, dstPoints)
+        assert np.allclose(computed_transform, expected_transform, atol=1e-6)
