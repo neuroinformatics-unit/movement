@@ -8,7 +8,7 @@ import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
-from napari.utils.notifications import show_warning
+from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
@@ -25,6 +25,11 @@ from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
+from movement.validators.datasets import (
+    ValidBboxesDataset,
+    ValidPosesDataset,
+    _validate_dataset,
+)
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -62,6 +67,22 @@ class DataLoader(QWidget):
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+
+        # FPS box state
+        self.source_software_combo.currentTextChanged.connect(
+            self._on_source_software_changed
+        )
+        # To set initial state of the FPS box
+        self._on_source_software_changed(
+            self.source_software_combo.currentText()
+        )
+
+        # frame slider range update to layer events
+        for action_str in ["inserted", "removed"]:
+            getattr(self.viewer.layers.events, action_str).connect(
+                self._update_frame_slider_range,
+            )
+        self._enable_layer_tooltips()
 
         # Connect frame slider range update to layer events
         for action_str in ["inserted", "removed"]:
@@ -115,6 +136,22 @@ class DataLoader(QWidget):
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
         self.layout().addRow("file path:", self.file_path_layout)
+
+    def _on_source_software_changed(self, current_text: str):
+        """Enable/disable the fps spinbox based on source software."""
+        is_netcdf = current_text in SUPPORTED_NETCDF_FILES
+        # Disable fps box if netCDF
+        self.fps_spinbox.setEnabled(not is_netcdf)
+
+        if is_netcdf:
+            self.fps_spinbox.setToolTip(
+                "FPS is read directly from the netCDF file."
+            )
+        else:
+            self.fps_spinbox.setToolTip(
+                "Set the frames per second of the tracking data.\n"
+                "This affects the displayed time when hovering over a point\n"
+            )
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
@@ -183,27 +220,37 @@ class DataLoader(QWidget):
 
     def _format_data_for_layers(self):
         """Extract data required for the creation of the napari layers."""
-        # Load data as a movement dataset
-        # loader = (
-        #     load_poses
-        #     if self.source_software in SUPPORTED_POSES_FILES
-        #     else load_bboxes
-        # )
-        # ds = loader.from_file(self.file_path, self.source_software, self.fps)
         if self.source_software in SUPPORTED_NETCDF_FILES:
             # Add logic for netCDF files
             try:
                 ds = xr.open_dataset(self.file_path)
             except Exception as e:
-                show_warning(f"Error opening netCDF file: {e}")
+                show_error(f"Error opening netCDF file: {e}")
                 return
-            # Here 'position' is a required var.
-            if "position" not in ds.data_vars:
-                show_warning(
-                    "netCDF file is missing the required 'position' variable."
+
+            # Get the dataset type from its attributes
+            ds_type = ds.attrs.get("ds_type", None)
+            validator = {
+                "poses": ValidPosesDataset,
+                "bboxes": ValidBboxesDataset,
+            }.get(ds_type)
+
+            if validator:
+                try:
+                    # Using validate_dataset function (currently Private)
+                    _validate_dataset(ds, validator)
+                except (ValueError, TypeError) as e:
+                    show_error(
+                        f"The netCDF file does not appear to be a valid "
+                        f"movement {ds_type} dataset: {e}"
+                    )
+                    return
+            else:
+                show_error(
+                    f"The netCDF file has an unknown 'ds_type' attribute:"
+                    f"{ds_type}."
                 )
                 return
-            ds.attrs["fps"] = self.fps  # Add fps to attributes
         else:
             # Original Logic continue
             loader = (
