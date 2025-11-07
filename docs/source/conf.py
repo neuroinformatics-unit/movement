@@ -191,7 +191,6 @@ linkcheck_ignore = [
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
     "https://www.robots.ox.ac.uk/",  # occasional 404s
-    "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
 ]
 
 
