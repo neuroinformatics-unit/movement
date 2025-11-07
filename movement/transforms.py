@@ -186,16 +186,20 @@ def get_homography_transform(
     srcPoints = np.asarray(srcPoints, dtype=np.float32)
     dstPoints = np.asarray(dstPoints, dtype=np.float32)
 
+    if len(srcPoints.shape) != 2 or len(dstPoints.shape) != 2:
+        raise ValueError("Points must be 2-dimensional arrays.")
+
     if srcPoints.shape != dstPoints.shape:
         raise ValueError(
             "Source and destination points must have the same shape."
         )
 
-    srcPoints, dstPoints = _filter_invalid_points(srcPoints, dstPoints)
-    num_points, dim = srcPoints.shape
-
+    dim = srcPoints.shape[1]
     if dim != 2:
         raise ValueError("Points must be 2-dimensional.")
+
+    srcPoints, dstPoints = _filter_invalid_points(srcPoints, dstPoints)
+    num_points = srcPoints.shape[0]
 
     if num_points < 4:
         raise ValueError(

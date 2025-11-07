@@ -381,8 +381,7 @@ def test_scale_log(sample_data_2d: xr.DataArray):
             np.array([[1, 1], [5, 1], [5, 3]], dtype=np.float32),
             np.array([[1, 1], [5, 1], [5, 3]], dtype=np.float32),
             ValueError(
-                "Insufficient points to compute the \
-                    homography transformation."
+                "Insufficient points to compute the homography transformation."
             ),
             id="Insufficient points",
         ),
@@ -394,8 +393,7 @@ def test_scale_log(sample_data_2d: xr.DataArray):
                 [[1, 1], [5, 1], [5, 3], [4.999999, 3]], dtype=np.float32
             ),
             ValueError(
-                "Insufficient points to compute the \
-                    homography transformation."
+                "Insufficient points to compute the homography transformation."
             ),
             id="Insufficient points due to degeneracy",
         ),
@@ -403,8 +401,7 @@ def test_scale_log(sample_data_2d: xr.DataArray):
             np.array([[1, 1], [5, 1], [5, 3], [5, 2]], dtype=np.float32),
             np.array([[1, 1], [5, 1], [5, 3], [5, 2]], dtype=np.float32),
             ValueError(
-                "Insufficient points to compute the \
-                    homography transformation."
+                "Insufficient points to compute the homography transformation."
             ),
             id="Insufficient points due to collinearity",
         ),
