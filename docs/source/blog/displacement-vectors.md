@@ -21,7 +21,7 @@ Its original implementation, however, produced results that were difficult to in
 For this reason, during the Hackday at [Open Software Week 2025](https://neuroinformatics.dev/open-software-summer-school/2025/index.html)—and as my first contribution to `movement`—I [volunteered](https://github.com/neuroinformatics-unit/osw25-hackday/issues/16) to develop a more intuitive interface for displacement vectors, under the supervision of [Sofía Miñano](https://github.com/sfmig).
 These improvements were introduced in [#657](https://github.com/neuroinformatics-unit/movement/pull/657) through a collaborative effort. The update provides a simpler, well-tested, and better-documented implementation that makes displacement computations easier to understand and use.
 
-![A diagram that shows the comparison between the previous implementation and the updated one.](resources/displacement_old_vs_new.png)
+![A diagram that shows the comparison between the previous implementation and the updated one.](../_static/blog_posts/displacement_old_vs_new.png)
 
 ## What's new?
 
