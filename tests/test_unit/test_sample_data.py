@@ -1,5 +1,6 @@
 """Test suite for the sample_data module."""
 
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -14,6 +15,7 @@ from movement.sample_data import (
     _fetch_metadata,
     fetch_dataset,
     fetch_dataset_paths,
+    hide_pooch_hash_logs,
     list_datasets,
 )
 
@@ -273,3 +275,61 @@ def test_fetch_and_unzip_exceptions(
             assert result == tmp_path / "poses" / "test"
             assert ".DS_Store" not in result_names
         assert expected_warning in caplog.records[-1].getMessage()
+
+
+@pytest.mark.parametrize(
+    "message, should_block",
+    [
+        ("SHA256 hash of downloaded file: abc123", True),
+        ("Use this value as the 'known_hash' argument", True),
+        ("Downloading file from ", False),
+    ],
+)
+def test_hide_pooch_hash_logs(message, should_block):
+    """Test that ``HashFilter`` blocks only hash-related messages."""
+    with hide_pooch_hash_logs():
+        logger = pooch.get_logger()
+        hash_filter = logger.filters[-1]
+
+        # Create a mock log record
+        record = logging.LogRecord(
+            name="pooch",
+            level=logging.INFO,
+            pathname="",
+            lineno=0,
+            msg=message,
+            args=(),
+            exc_info=None,
+        )
+
+        # The filter returns False to block, True to allow
+        message_allowed = hash_filter.filter(record)
+
+        if should_block:
+            assert not message_allowed, (
+                f"Expected message to be blocked but was allowed: '{message}'"
+            )
+        else:
+            assert message_allowed, (
+                f"Expected message to be allowed but was blocked: '{message}'"
+            )
+
+
+@pytest.mark.parametrize("raise_exception", [True, False])
+def test_hash_filter_removed_after_context(raise_exception):
+    """Test that the hash filter applied by ``hide_pooch_hash_logs``
+    is properly removed after exiting context, even when an exception occurs.
+    """
+    logger = pooch.get_logger()
+    initial_filter_count = len(logger.filters)
+
+    if raise_exception:
+        with pytest.raises(ValueError), hide_pooch_hash_logs():
+            assert len(logger.filters) == initial_filter_count + 1
+            raise ValueError("Test exception")
+    else:
+        with hide_pooch_hash_logs():
+            assert len(logger.filters) == initial_filter_count + 1
+
+    # Filter should be removed after context exits
+    assert len(logger.filters) == initial_filter_count

@@ -6,7 +6,9 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
+import logging
 import shutil
+from contextlib import contextmanager
 from pathlib import Path
 
 import pooch
@@ -32,6 +34,32 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 METADATA_FILE = "metadata.yaml"
 
 
+@contextmanager
+def hide_pooch_hash_logs():
+    """Hide SHA256 hash printouts from ``pooch.retrieve``.
+
+    This context manager temporarily suppresses SHA256 hash messages
+    when downloading files with Pooch.
+    """
+    logger = pooch.get_logger()
+
+    class HashFilter(logging.Filter):
+        def filter(self, record):
+            msg = record.getMessage()
+            # Suppress only hash display lines
+            return not (
+                "SHA256 hash of downloaded file" in msg
+                or "Use this value as the 'known_hash'" in msg
+            )
+
+    flt = HashFilter()
+    logger.addFilter(flt)
+    try:
+        yield
+    finally:
+        logger.removeFilter(flt)
+
+
 def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the metadata yaml file.
 
@@ -54,13 +82,15 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
-    local_file_path = pooch.retrieve(
-        url=f"{DATA_URL}/{file_name}",
-        known_hash=None,
-        path=data_dir,
-        fname=f"temp_{file_name}",
-        progressbar=False,
-    )
+    with hide_pooch_hash_logs():
+        local_file_path = pooch.retrieve(
+            url=f"{DATA_URL}/{file_name}",
+            known_hash=None,
+            path=data_dir,
+            fname=f"temp_{file_name}",
+            progressbar=False,
+        )
+
     logger.debug(
         f"Successfully downloaded sample metadata file {file_name} "
         f"from {DATA_URL} to {data_dir}"
