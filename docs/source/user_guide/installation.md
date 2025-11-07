@@ -23,10 +23,7 @@ Create and activate a new [virtual environment](uv:pip/environments/) inside you
 
 ```sh
 uv venv --python=3.13
-```
 
-Activate the virtual environment:
-```sh
 source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
 ```
