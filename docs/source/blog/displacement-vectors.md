@@ -1,6 +1,6 @@
 ---
 blogpost: true
-date: October 27, 2025
+date: November 7, 2025
 author: Carlo Castoldi
 location: Milan, Italy
 category: update
@@ -9,19 +9,21 @@ language: English
 
 # Replacing displacement vectors for greater clarity
 
-This post introduces recent improvements to how movement computes displacement vectors, making the definitions more explicit, flexible, and intuitive for users.
+This post introduces recent improvements to how ``movement`` computes displacement vectors, making the definitions more explicit, flexible, and intuitive for users.
+
+## Background
 
 Computing kinematic properties is a core functionality since early versions of `movement`, when they where first introduced by [Chang Huan Lo](https://github.com/lochhh) in [#106](https://github.com/neuroinformatics-unit/movement/pull/106).
 For a library dedicated to analysing motion-tracking data, quantifying how far a tracked point moves between consecutive frames is fundamental. This measure underpins subsequent computations, such as the total distance travelled along a path. That's why we introduced the `compute_displacement` function early on, and why it features in our {ref}`compute and visualise kinematics <sphx_glr_examples_compute_kinematics.py>` example<!--#compute-displacement-vectors heading-->.
 
-Its original implementation, however, produced results that were difficult to interpret. For a given individual and keypoint at timestep `t`, displacement was defined as the vector pointing from the previous position at `t-1` to the current position at `t`. This definition is somewhat counter-intuitive: it identifies the last spatial translation used by the keypoint in order to reach its current position. It informed of where the point _came from_ rather than where it is _going_.
+Its original implementation, however, produced results that were difficult to interpret. For a given individual and keypoint at timestep `t`, displacement was defined as the vector pointing from the previous position at `t-1` to the current position at `t`. This definition is somewhat counter-intuitive: it identifies the last spatial translation used by the keypoint to reach its current position. It indicates where the point _came from_ rather than where it is _going_.
 
 For this reason, during the Hackday at [Open Software Week 2025](https://neuroinformatics.dev/open-software-summer-school/2025/index.html)—and as my first contribution to `movement`—I [volunteered](https://github.com/neuroinformatics-unit/osw25-hackday/issues/16) to develop a more intuitive interface for displacement vectors, under the supervision of [Sofía Miñano](https://github.com/sfmig).
 These improvements were introduced in [#657](https://github.com/neuroinformatics-unit/movement/pull/657) through a collaborative effort. The update provides a simpler, well-tested, and better-documented implementation that makes displacement computations easier to understand and use.
 
 ![A diagram that shows the comparison between the previous implementation and the updated one.](resources/displacement_old_vs_new.png)
 
-__API changes__
+## What's new?
 
 {mod}`kinematics <movement.kinematics>` has two new sister functions:
 
