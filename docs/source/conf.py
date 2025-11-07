@@ -31,10 +31,7 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
-if "dev" in release:
-    doc_version = "dev"
-else:
-    doc_version = f"v{release}"
+doc_version = "dev" if "dev" in release else f"v{release}"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -201,6 +198,7 @@ linkcheck_ignore = [
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
     "https://www.robots.ox.ac.uk/",  # occasional 404s
+    "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
 ]
 
 
