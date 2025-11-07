@@ -1,0 +1,1082 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Compute and visualise kinematics &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f3b36f1a"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/compute_kinematics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.11.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/compute_kinematics.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Load and upsample bounding box tracks" href="load_and_upsample_bboxes.html" />
+    <link rel="prev" title="Compute distances and angles to regions of interest" href="boundary_angles.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="load_and_explore_poses.html">Load and explore pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter_and_interpolate.html">Drop outliers and interpolate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Compute and visualise kinematics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_freemocap_data.html">Load and visualise FreeMoCap 3D data</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Compute and visualise kinematics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-compute-kinematics-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code. or to run this example in your browser via Binder</p>
+</div>
+<section class="sphx-glr-example-title" id="compute-and-visualise-kinematics">
+<span id="sphx-glr-examples-compute-kinematics-py"></span><h1>Compute and visualise kinematics<a class="headerlink" href="#compute-and-visualise-kinematics" title="Link to this heading">#</a></h1>
+<p>Compute displacement, velocity and acceleration, and
+visualise the results.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For interactive plots: install ipympl with `pip install ipympl` and uncomment</span>
+<span class="c1"># the following line in your notebook</span>
+<span class="c1"># %matplotlib widget</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">kin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a>
+</pre></div>
+</div>
+</section>
+<section id="load-sample-dataset">
+<h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Link to this heading">#</a></h2>
+<p>First, we load an example dataset. In this case, we select the
+<code class="docutils literal notranslate"><span class="pre">SLEAP_three-mice_Aeon_proofread</span></code> sample data.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span></a><span class="p">(</span>
+    <span class="s2">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 27kB
+Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
+Coordinates:
+  * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoints    (keypoints) &lt;U8 32B &#39;centroid&#39;
+  * individuals  (individuals) &lt;U10 120B &#39;AEON3B_NTP&#39; &#39;AEON3B_TP1&#39; &#39;AEON3B_TP2&#39;
+Data variables:
+    position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
+    confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
+Attributes:
+    source_software:  SLEAP
+    ds_type:          poses
+    fps:              50.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
+    frame_path:       /home/runner/.movement/data/frames/three-mice_Aeon_fram...
+</pre></div>
+</div>
+<p>We can see in the printed description of the dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> that
+the data was acquired at 50 fps, and the time axis is expressed in seconds.
+It includes data for three individuals(<code class="docutils literal notranslate"><span class="pre">AEON3B_NTP</span></code>, <code class="docutils literal notranslate"><span class="pre">AEON3B_TP1</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">AEON3B_TP2</span></code>), and only one keypoint called <code class="docutils literal notranslate"><span class="pre">centroid</span></code> was tracked
+in <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> dimensions.</p>
+<p>The loaded dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains two data arrays:
+<code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.
+To compute displacement, velocity and acceleration, we will need the
+<code class="docutils literal notranslate"><span class="pre">position</span></code> one:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a>
+</pre></div>
+</div>
+</section>
+<section id="visualise-the-data">
+<h2>Visualise the data<a class="headerlink" href="#visualise-the-data" title="Link to this heading">#</a></h2>
+<p>First, let’s visualise the trajectories of the mice in the XY plane,
+colouring them by individual.
+For this we can use <a class="reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.plots.plot_centroid_trajectory()</span></code></a>
+which is a wrapper around <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html#matplotlib.pyplot.scatter" title="(in Matplotlib v3.10.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">matplotlib.pyplot.scatter()</span></code></a>.
+The fig and ax objects returned can be used to further customise the plot.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a single figure and axes</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Invert y-axis so (0,0) is in the top-left,</span>
+<span class="c1"># matching typical image coordinate systems</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>
+<span class="c1"># Plot trajectories for each mouse on the same axes</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">col</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">position</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">],</span>  <span class="c1"># colours</span>
+    <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span>
+        <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
+        <span class="n">individual</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>  <span class="c1"># Use the same axes for all plots</span>
+        <span class="n">c</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">col</span></a><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_001.png" srcset="../_images/sphx_glr_compute_kinematics_001.png" alt="Trajectory" class = "sphx-glr-single-img"/><p>We can see that the trajectories of the three mice are close to a circular
+arc. Notice that the x and y axes are set to equal scales, and that the
+origin of the coordinate system is at the top left of the image. This
+follows the convention for SLEAP and most image processing tools.</p>
+<p>We can also plot the trajectories of the mice in the XY plane independently,
+colouring the data points based on their timestamps. This is the default
+behaviour of
+<a class="reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_centroid_trajectory()</span></code></a>
+when the <code class="docutils literal notranslate"><span class="pre">c</span></code> argument is not provided:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">position</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.flatiter.html#numpy.flatiter" title="numpy.flatiter" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span><span class="o">.</span><span class="n">flat</span></a><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span>
+        <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
+        <span class="n">individual</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+        <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_aspect.html#matplotlib.axes.Axes.set_aspect" title="matplotlib.axes.Axes.set_aspect" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span></a><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlim.html#matplotlib.axes.Axes.set_xlim" title="matplotlib.axes.Axes.set_xlim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span></a><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">1250</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1100</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trajectory </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Time (frames)&quot;</span><span class="p">)</span>
+<span class="c1"># Hide the unused subplot (4th one)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_002.png" srcset="../_images/sphx_glr_compute_kinematics_002.png" alt="Trajectory AEON3B_NTP, Trajectory AEON3B_TP1, Trajectory AEON3B_TP2" class = "sphx-glr-single-img"/><p>These plots show that for this snippet of the data,
+two of the mice (<code class="docutils literal notranslate"><span class="pre">AEON3B_NTP</span></code> and <code class="docutils literal notranslate"><span class="pre">AEON3B_TP1</span></code>)
+moved around the circle in clockwise direction, and
+the third mouse (<code class="docutils literal notranslate"><span class="pre">AEON3B_TP2</span></code>) followed an anti-clockwise direction.</p>
+<p>We can also inspect the components of the position vector against time
+using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods. We use
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
+remove the dimension of length 1 from the data (the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.gcf.html#matplotlib.pyplot.gcf" title="matplotlib.pyplot.gcf" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span></a><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_003.png" srcset="../_images/sphx_glr_compute_kinematics_003.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><p>If we use <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s plotting function, the axes units are automatically
+taken from the data array. In our case, <code class="docutils literal notranslate"><span class="pre">time</span></code> is expressed in seconds,
+and the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> coordinates of the <code class="docutils literal notranslate"><span class="pre">position</span></code> are in pixels.</p>
+</section>
+<section id="compute-displacement-vectors">
+<h2>Compute displacement vectors<a class="headerlink" href="#compute-displacement-vectors" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../api/movement.kinematics.html#module-movement.kinematics" title="movement.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.kinematics</span></code></a> module
+provides functions to compute various kinematic variables,
+such as displacement, velocity, and acceleration. Below we showcase
+how these functions can be used.</p>
+<p>We can compute the forward displacement vectors as follows:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_displacement</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement" title="movement.kinematics.compute_forward_displacement" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_forward_displacement</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement" title="movement.kinematics.compute_forward_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_forward_displacement()</span></code></a>
+function will return a data array equivalent to the <code class="docutils literal notranslate"><span class="pre">position</span></code> one,
+but holding displacement data along the <code class="docutils literal notranslate"><span class="pre">space</span></code> axis.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">forward_displacement</span></code> data array holds, for a given individual and
+keypoint at timestep <code class="docutils literal notranslate"><span class="pre">t</span></code>, the vector that goes from its current position
+at time <code class="docutils literal notranslate"><span class="pre">t</span></code> to its next position at time <code class="docutils literal notranslate"><span class="pre">t+1</span></code>.</p>
+<p>And what happens in the last timestep, when there is no next timepoint?
+We define the forward displacement vector then to be the
+zero vector. This way the shape of the <code class="docutils literal notranslate"><span class="pre">forward_displacement</span></code> data array
+is the same as the <code class="docutils literal notranslate"><span class="pre">position</span></code> array:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape of position: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.shape.html#xarray.DataArray.shape" title="xarray.DataArray.shape" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">position</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shape of displacement: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.shape.html#xarray.DataArray.shape" title="xarray.DataArray.shape" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">forward_displacement</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Shape of position: (601, 2, 1, 3)
+Shape of displacement: (601, 2, 1, 3)
+</pre></div>
+</div>
+<p>We can visualise the forward displacement vectors with a quiver plot. In
+this case we focus on the mouse <code class="docutils literal notranslate"><span class="pre">AEON3B_TP2</span></code>:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a> <span class="o">=</span> <span class="s2">&quot;AEON3B_TP2&quot;</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_subplot.html#matplotlib.figure.Figure.add_subplot" title="matplotlib.figure.Figure.add_subplot" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span></a><span class="p">()</span>
+
+<span class="c1"># plot position data</span>
+<a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span><span class="o">.</span><span class="n">time</span></a><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># plot forward displacement vectors: at t, vector from t to t+1</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html#matplotlib.axes.Axes.quiver" title="matplotlib.axes.Axes.quiver" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">quiver</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">forward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">forward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">angles</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">scale_units</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">headwidth</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">headlength</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">headaxislength</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlim.html#matplotlib.axes.Axes.set_xlim" title="matplotlib.axes.Axes.set_xlim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span></a><span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">980</span><span class="p">,</span> <span class="mi">1080</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zoomed in forward trajectory of </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection.set_clim" title="matplotlib.collections.PathCollection.set_clim" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-method"><span class="n">sc</span><span class="o">.</span><span class="n">set_clim</span></a><span class="p">(</span><span class="mf">8.8</span><span class="p">,</span> <span class="mf">9.2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_004.png" srcset="../_images/sphx_glr_compute_kinematics_004.png" alt="Zoomed in forward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f9dc17a4d10&gt;
+</pre></div>
+</div>
+<p>We can visually verify that indeed the forward displacement vector
+connects the previous and current positions as expected.</p>
+<p>Similarly, with <a class="reference internal" href="../api/movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_backward_displacement()</span></code></a>
+we can compute the backward displacement vectors, which connect the current
+position to the previous one:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backward_displacement</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_backward_displacement</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case, the backward displacement vector at the first timestep
+is defined as the zero vector, since there is no previous position.</p>
+<p>Adapting the code snippet from above, we can visually check that the
+backward displacement vector is indeed the reverse of the forward
+displacement vector.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_subplot.html#matplotlib.figure.Figure.add_subplot" title="matplotlib.figure.Figure.add_subplot" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span></a><span class="p">()</span>
+
+<a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span><span class="o">.</span><span class="n">time</span></a><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html#matplotlib.axes.Axes.quiver" title="matplotlib.axes.Axes.quiver" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">quiver</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">backward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">backward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">angles</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">scale_units</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">headwidth</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
+    <span class="n">headlength</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+    <span class="n">headaxislength</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+<span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlim.html#matplotlib.axes.Axes.set_xlim" title="matplotlib.axes.Axes.set_xlim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span></a><span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">980</span><span class="p">,</span> <span class="mi">1080</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zoomed in backward trajectory of </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection.set_clim" title="matplotlib.collections.PathCollection.set_clim" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-method"><span class="n">sc</span><span class="o">.</span><span class="n">set_clim</span></a><span class="p">(</span><span class="mf">8.8</span><span class="p">,</span> <span class="mf">9.2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_005.png" srcset="../_images/sphx_glr_compute_kinematics_005.png" alt="Zoomed in backward trajectory of AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar object at 0x7f9dc2bbc6e0&gt;
+</pre></div>
+</div>
+</section>
+<section id="compute-path-length">
+<h2>Compute path length<a class="headerlink" href="#compute-path-length" title="Link to this heading">#</a></h2>
+<p>We can compute the distance travelled by the
+mouse as the sum of the lengths of all
+displacement vectors along its trajectory.
+Both backward and forward displacement vectors
+should give the same result:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># length of each forward displacement vector</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_displacement_lengths</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">forward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># length of each backward displacement vector</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">backward_displacement_lengths</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">backward_displacement</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># check their lengths are the same</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.testing.assert_almost_equal.html#numpy.testing.assert_almost_equal" title="numpy.testing.assert_almost_equal" class="sphx-glr-backref-module-numpy-testing sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">forward_displacement_lengths</span><span class="o">.</span><span class="n">values</span></a><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># exclude last timestep</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">backward_displacement_lengths</span><span class="o">.</span><span class="n">values</span></a><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>  <span class="c1"># exclude first timestep</span>
+<span class="p">)</span>
+
+<span class="c1"># sum the lengths of all displacement vectors (in pixels)</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">total_displacement_fwd</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sum.html#xarray.DataArray.sum" title="xarray.DataArray.sum" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">forward_displacement_lengths</span><span class="o">.</span><span class="n">sum</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">total_displacement_bwd</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sum.html#xarray.DataArray.sum" title="xarray.DataArray.sum" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">backward_displacement_lengths</span><span class="o">.</span><span class="n">sum</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span>
+    <span class="mi">0</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The mouse </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&#39;s path length is </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">total_displacement_fwd</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="s2">&quot;pixels long (using forward displacement)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;The mouse </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&#39;s path length is </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float32" title="numpy.float32" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">total_displacement_bwd</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="s2">&quot;pixels long (using backward displacement)&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>The mouse AEON3B_TP2&#39;s path length is 1640.09 pixels long (using forward displacement)
+The mouse AEON3B_TP2&#39;s path length is 1640.09 pixels long (using backward displacement)
+</pre></div>
+</div>
+<p>We provide a convenience function
+<a class="reference internal" href="../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_path_length()</span></code></a>
+to compute the path length for all individuals and keypoints in a position
+data array. We can verify that using this function gives the same result
+as before for the <code class="docutils literal notranslate"><span class="pre">AEON3B_TP2</span></code> mouse:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">path_lengths</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_path_length</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="p">)</span>
+
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a> <span class="ow">in</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">path_lengths</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Path length for </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">path_lengths</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> pixels&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Path length for AEON3B_NTP: 1014.40 pixels
+Path length for AEON3B_TP1: 1345.47 pixels
+Path length for AEON3B_TP2: 1640.09 pixels
+</pre></div>
+</div>
+</section>
+<section id="compute-velocity">
+<h2>Compute velocity<a class="headerlink" href="#compute-velocity" title="Link to this heading">#</a></h2>
+<p>We can also compute the velocity vectors for all individuals in our data
+array:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">velocity</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_velocity</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code></a>
+function will return a data array equivalent to
+the <code class="docutils literal notranslate"><span class="pre">position</span></code> one, but holding velocity data along the <code class="docutils literal notranslate"><span class="pre">space</span></code> axis,
+rather than position data. Notice how <code class="docutils literal notranslate"><span class="pre">xarray</span></code> nicely deals with the
+different individuals and spatial dimensions for us! ✨</p>
+<p>We can plot the components of the velocity vector against time
+using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods. We use
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to
+remove the dimension of length 1 from the data (the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">velocity</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.gcf.html#matplotlib.pyplot.gcf" title="matplotlib.pyplot.gcf" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span></a><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_006.png" srcset="../_images/sphx_glr_compute_kinematics_006.png" alt="individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2" class = "sphx-glr-single-img"/><p>The components of the velocity vector seem noisier than the components of
+the position vector.
+This is expected, since we are estimating the velocity using differences in
+position (which is somewhat noisy), over small stepsizes.
+More specifically, we use <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.gradient.html#numpy.gradient" title="(in NumPy v2.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.gradient()</span></code></a> internally, which
+uses second order central differences.</p>
+<p>We can also visualise the speed, as the magnitude (norm)
+of the velocity vector:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">velocity</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># compute the magnitude of the velocity vector for one mouse</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">speed_one_mouse</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">velocity</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">))</span>
+    <span class="c1"># plot speed against time</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">speed_one_mouse</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;speed (px/s)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_007.png" srcset="../_images/sphx_glr_compute_kinematics_007.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p>To visualise the direction of the velocity vector at each timestep, we can
+again use a quiver plot:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a> <span class="o">=</span> <span class="s2">&quot;AEON3B_TP2&quot;</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_subplot.html#matplotlib.figure.Figure.add_subplot" title="matplotlib.figure.Figure.add_subplot" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span></a><span class="p">()</span>
+<span class="c1"># plot trajectory (position data)</span>
+<a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">c</span><span class="o">=</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span><span class="o">.</span><span class="n">time</span></a><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># plot velocity vectors</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html#matplotlib.axes.Axes.quiver" title="matplotlib.axes.Axes.quiver" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">quiver</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">velocity</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">velocity</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+    <span class="n">angles</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">scale_units</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axis.html#matplotlib.axes.Axes.axis" title="matplotlib.axes.Axes.axis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axis</span></a><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Velocity quiver plot for </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/collections_api.html#matplotlib.collections.PathCollection" title="matplotlib.collections.PathCollection" class="sphx-glr-backref-module-matplotlib-collections sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sc</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_008.png" srcset="../_images/sphx_glr_compute_kinematics_008.png" alt="Velocity quiver plot for AEON3B_TP2" class = "sphx-glr-single-img"/><p>Here we scaled the length of vectors to half of their actual value
+(<code class="docutils literal notranslate"><span class="pre">scale=2</span></code>) for easier visualisation.</p>
+</section>
+<section id="compute-acceleration">
+<h2>Compute acceleration<a class="headerlink" href="#compute-acceleration" title="Link to this heading">#</a></h2>
+<p>Let’s now compute the acceleration for all individuals in our data
+array:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">accel</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration" title="movement.kinematics.compute_acceleration" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">kin</span><span class="o">.</span><span class="n">compute_acceleration</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>and plot of the components of the acceleration vector <code class="docutils literal notranslate"><span class="pre">ax</span></code>, <code class="docutils literal notranslate"><span class="pre">ay</span></code> per
+individual:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">accel</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># plot x-component of acceleration vector</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+        <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">accel</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ax&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># plot y-component of acceleration vector</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+        <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">accel</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ay&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;speed (px/s**2)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center right&quot;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.07</span><span class="p">,</span> <span class="mf">1.07</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_009.png" srcset="../_images/sphx_glr_compute_kinematics_009.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p>We can also compute and visualise the magnitude (norm) of the
+acceleration vector for each individual:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">accel</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="c1"># compute magnitude of the acceleration vector for one mouse</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">accel_one_mouse</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">compute_norm</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">accel</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">))</span>
+
+    <span class="c1"># plot acceleration against time</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">accel_one_mouse</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.str_" title="numpy.str_" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;time (s)&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;accel (px/s**2)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.tight_layout.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_kinematics_010.png" srcset="../_images/sphx_glr_compute_kinematics_010.png" alt="AEON3B_NTP, AEON3B_TP1, AEON3B_TP2" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.166 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-kinematics-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_kinematics.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/085258163d1f42f74bf76da18a848b11/compute_kinematics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">compute_kinematics.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/b14755a378a13dd501d6f42af59fe770/compute_kinematics.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">compute_kinematics.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/ca71f550238b5158e53386b6c0c02b99/compute_kinematics.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">compute_kinematics.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="boundary_angles.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Compute distances and angles to regions of interest</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="load_and_upsample_bboxes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Load and upsample bounding box tracks</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-sample-dataset">Load sample dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-the-data">Visualise the data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-displacement-vectors">Compute displacement vectors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-path-length">Compute path length</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-velocity">Compute velocity</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-acceleration">Compute acceleration</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/compute_kinematics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

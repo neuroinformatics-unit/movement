@@ -1,0 +1,23 @@
+﻿movement.validators.datasets
+============================
+
+.. rubric:: Description
+
+.. automodule:: movement.validators.datasets
+
+.. currentmodule:: movement.validators.datasets
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    ValidBboxesDataset
+    
+    ValidPosesDataset
+    
+
+
+

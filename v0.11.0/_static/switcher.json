@@ -1,0 +1,12 @@
+[
+  {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://movement.neuroinformatics.dev/dev"
+  },
+  {
+    "name": "v0.11.0 (latest)",
+    "version": "v0.11.0",
+    "url": "https://movement.neuroinformatics.dev/latest"
+  }
+]

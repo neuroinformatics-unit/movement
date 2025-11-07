@@ -1,0 +1,9 @@
+log\_to\_attrs
+==============
+
+.. currentmodule:: movement.utils.logging
+
+.. autofunction:: log_to_attrs
+
+.. minigallery:: movement.utils.logging.log_to_attrs
+   :add-heading: Examples using ``log_to_attrs``

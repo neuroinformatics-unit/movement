@@ -1,0 +1,1195 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.io.nwb &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=f3b36f1a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/nwb';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.11.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/nwb.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.nwb</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.io.nwb</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Helpers to convert between ``movement`` poses datasets and NWB files.</span>
+
+<span class="sd">The pose tracks in NWB files are formatted according to the ``ndx-pose``</span>
+<span class="sd">NWB extension, see https://github.com/rly/ndx-pose.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ndx_pose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_safe_dict_field</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a field that defaults to an empty dictionary.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="NWBFileSaveConfig">
+<a class="viewcode-back" href="../../../api/movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NWBFileSaveConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for saving ``movement poses`` dataset to NWBFile(s).</span>
+
+<span class="sd">    This class is used with :func:`movement.io.save_poses.to_nwb_file`</span>
+<span class="sd">    to add custom metadata to the NWBFile(s) created from a given</span>
+<span class="sd">    ``movement`` dataset.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nwbfile_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for :class:`pynwb.file.NWBFile`.</span>
+
+<span class="sd">        If ``nwbfile_kwargs`` is a single dictionary, the same keyword</span>
+<span class="sd">        arguments will be applied to all NWBFile objects except for</span>
+<span class="sd">        ``identifier``.</span>
+
+<span class="sd">        If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys</span>
+<span class="sd">        should correspond to individual names in the ``movement`` dataset,</span>
+<span class="sd">        and the inner dictionaries will be passed as keyword arguments to the</span>
+<span class="sd">        :class:`pynwb.file.NWBFile` constructor.</span>
+
+<span class="sd">        The following arguments cannot be overwritten:</span>
+
+<span class="sd">        - ``subject``: :class:`pynwb.file.Subject` created for the individual</span>
+<span class="sd">          using ``subject_kwargs``</span>
+
+<span class="sd">        The following arguments will have default values if not set:</span>
+
+<span class="sd">        - ``session_description``: &quot;not set&quot;</span>
+<span class="sd">        - ``session_start_time``: current UTC time</span>
+
+<span class="sd">        ``identifier`` will be set in the following order of precedence:</span>
+
+<span class="sd">        1. ``identifier`` in the inner dictionary</span>
+<span class="sd">        2. ``nwbfile_kwargs[&quot;identifier&quot;]`` (single-individual dataset only)</span>
+<span class="sd">        3. individual name in the ``movement`` dataset</span>
+
+<span class="sd">    processing_module_kwargs: dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for :class:`pynwb.base.ProcessingModule`.</span>
+
+<span class="sd">        If ``processing_module_kwargs`` is a single dictionary, the same</span>
+<span class="sd">        keyword arguments will be applied to all ProcessingModules.</span>
+
+<span class="sd">        If ``processing_module_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">        the outer keys should correspond to individual names in the</span>
+<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">        keyword arguments to the :class:`pynwb.file.ProcessingModule`</span>
+<span class="sd">        constructor.</span>
+
+<span class="sd">        The following arguments will have default values if not set:</span>
+
+<span class="sd">        - ``name``: &quot;behavior&quot;</span>
+<span class="sd">        - ``description``: &quot;processed behavioral data&quot;</span>
+
+<span class="sd">    subject_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for :class:`pynwb.file.Subject`.</span>
+
+<span class="sd">        If ``subject_kwargs`` is a single dictionary, the same keyword</span>
+<span class="sd">        arguments will be applied to all Subjects except for ``subject_id``.</span>
+
+<span class="sd">        If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys</span>
+<span class="sd">        should correspond to individual names in the ``movement`` dataset,</span>
+<span class="sd">        and the inner dictionaries will be passed as keyword arguments to the</span>
+<span class="sd">        :class:`pynwb.file.Subject` constructor.</span>
+
+<span class="sd">        ``subject_id`` will be set in the following order of precedence:</span>
+
+<span class="sd">        1. ``subject_id`` in the inner dictionary</span>
+<span class="sd">        2. ``subject_kwargs[&quot;subject_id&quot;]`` (single-individual dataset only)</span>
+<span class="sd">        3. individual name in the ``movement`` dataset</span>
+
+<span class="sd">    pose_estimation_series_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for ``ndx_pose.PoseEstimationSeries`` [1]_.</span>
+
+<span class="sd">        If ``pose_estimation_series_kwargs`` is a single dictionary, the same</span>
+<span class="sd">        keyword arguments will be applied to all PoseEstimationSeries objects.</span>
+
+<span class="sd">        If ``pose_estimation_series_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">        the outer keys should correspond to keypoint names in the</span>
+<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">        keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.</span>
+
+<span class="sd">        The following arguments will be set based on the dataset and cannot</span>
+<span class="sd">        be overwritten:</span>
+
+<span class="sd">        - ``data``: position data for the keypoint</span>
+<span class="sd">        - ``confidence``: confidence data for the keypoint</span>
+<span class="sd">        - ``timestamps``: time data for the keypoint</span>
+
+<span class="sd">        The following arguments will have default values if not set:</span>
+
+<span class="sd">        - ``unit``: &quot;pixels&quot;</span>
+<span class="sd">        - ``reference_frame``: &quot;(0,0,0) corresponds to ...&quot;</span>
+
+<span class="sd">        ``name`` will be set in the following order of precedence:</span>
+
+<span class="sd">        1. ``name`` in the inner dictionary</span>
+<span class="sd">        2. ``pose_estimation_series_kwargs[&quot;name&quot;]`` (single-keypoint</span>
+<span class="sd">           dataset only)</span>
+<span class="sd">        3. keypoint name in the ``movement`` dataset</span>
+
+<span class="sd">    pose_estimation_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.</span>
+
+<span class="sd">        If ``pose_estimation_kwargs`` is a single dictionary, the same</span>
+<span class="sd">        keyword arguments will be applied to all PoseEstimation objects.</span>
+
+<span class="sd">        If ``pose_estimation_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">        the outer keys should correspond to individual names in the</span>
+<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">        keyword arguments to the ``ndx_pose.PoseEstimation`` constructor.</span>
+
+<span class="sd">        The following arguments cannot be overwritten:</span>
+
+<span class="sd">        - ``pose_estimation_series``: list of PoseEstimationSeries objects</span>
+<span class="sd">        - ``skeleton``: Skeleton object</span>
+
+<span class="sd">        The following arguments will have default values if not set:</span>
+
+<span class="sd">        - ``source_software``: ``source_software`` attribute from the</span>
+<span class="sd">          ``movement`` dataset</span>
+<span class="sd">        - ``description``: &quot;Estimated positions of &lt;keypoints&gt; for</span>
+<span class="sd">          &lt;individual&gt; using &lt;source_software&gt;.&quot;</span>
+
+<span class="sd">        If specified, ``name`` will be set in the following</span>
+<span class="sd">        order of precedence:</span>
+
+<span class="sd">        1. ``name`` in the inner dictionary</span>
+<span class="sd">        2. ``pose_estimation_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
+<span class="sd">        3. individual name in the ``movement`` dataset</span>
+
+<span class="sd">    skeleton_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
+<span class="sd">        Keyword arguments for ``ndx_pose.Skeleton`` [1]_.</span>
+
+<span class="sd">        If ``skeleton_kwargs`` is a single dictionary, the same</span>
+<span class="sd">        keyword arguments will be applied to all Skeleton objects.</span>
+
+<span class="sd">        If ``skeleton_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">        the outer keys should correspond to individual names in the</span>
+<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">        keyword arguments to the ``ndx_pose.Skeleton`` constructor.</span>
+
+<span class="sd">        The following arguments cannot be overwritten:</span>
+
+<span class="sd">        - ``subject``: :class:`pynwb.file.Subject` created for the individual</span>
+<span class="sd">          using ``subject_kwargs``</span>
+
+<span class="sd">        The following arguments will have default values if not set:</span>
+
+<span class="sd">        - ``name``: &quot;&lt;individual&gt;_skeleton&quot;</span>
+<span class="sd">        - ``nodes``: list of keypoint names in the dataset</span>
+
+<span class="sd">        ``name`` will be set in the following order of precedence:</span>
+
+<span class="sd">        1. ``name`` in the inner dictionary</span>
+<span class="sd">        2. ``skeleton_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
+<span class="sd">        3. individual name in the ``movement`` dataset</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.save_poses.to_nwb_file</span>
+<span class="sd">        Example usage of this class to save a ``movement`` dataset</span>
+<span class="sd">        to an NWB file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+
+    <span class="n">nwbfile_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">processing_module_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">subject_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">pose_estimation_series_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">pose_estimation_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">skeleton_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+    <span class="n">DEFAULT_NWBFILE_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">session_description</span><span class="o">=</span><span class="s2">&quot;not set&quot;</span><span class="p">)</span>
+    <span class="n">DEFAULT_PROCESSING_MODULE_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;behavior&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;processed behavioral data&quot;</span>
+    <span class="p">)</span>
+    <span class="n">DEFAULT_POSE_ESTIMATION_SERIES_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">reference_frame</span><span class="o">=</span><span class="s2">&quot;(0,0,0) corresponds to ...&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;pixels&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">entity</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">entity_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">id_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">prioritise_entity</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve per-entity (individual/keypoint) or shared kwargs.</span>
+
+<span class="sd">        If the kwargs attribute (retrieved from ``attr_name``) is a</span>
+<span class="sd">        dictionary of dictionaries, the outer keys should correspond to</span>
+<span class="sd">        individual or keypoint names in the ``movement`` dataset,</span>
+<span class="sd">        and the inner dictionaries will be returned as keyword arguments</span>
+<span class="sd">        for an individual/keypoint.</span>
+
+<span class="sd">        If the retrieved attribute is a single dictionary, the same arguments</span>
+<span class="sd">        will be used for all individuals or keypoints except for ``id_key``,</span>
+<span class="sd">        which will be set in the following order of precedence:</span>
+<span class="sd">        1. ``entity`` (if provided)</span>
+<span class="sd">        2. ``kwargs[id_key]`` (if provided)</span>
+<span class="sd">        3. ``DEFAULT_&lt;attr_name&gt;[id_key]`` (class attribute)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attr_name : str</span>
+<span class="sd">            The name of the attribute in the class (e.g. ``nwbfile_kwargs``,</span>
+<span class="sd">            ``subject_kwargs``, ``pose_estimation_series_kwargs``) to be</span>
+<span class="sd">            resolved.</span>
+<span class="sd">        entity : str or None</span>
+<span class="sd">            Individual or keypoint name.</span>
+<span class="sd">        entity_type : str or None</span>
+<span class="sd">            Type of entity (i.e. &quot;individual&quot;, &quot;keypoint&quot;). Used in error</span>
+<span class="sd">            or warning messages.</span>
+<span class="sd">        id_key : str</span>
+<span class="sd">            The key in ``cfg`` corresponding to the entity identifier/name</span>
+<span class="sd">            (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the</span>
+<span class="sd">            returned dictionary.</span>
+<span class="sd">        prioritise_entity : bool, optional</span>
+<span class="sd">            Flag indicating whether ``entity`` should take precedence over</span>
+<span class="sd">            the ``id_key`` when the attribute is a shared config</span>
+<span class="sd">            (i.e. a single dictionary). Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments for a specific ``entity_type``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">infer_entity_or_raise</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">inferred</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">cfg</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> was provided. Assuming &#39;</span><span class="si">{</span><span class="n">inferred</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;since there is only one entry in </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">inferred</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;NWBFileSaveConfig has per-</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">, but no </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> was provided.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">cfg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;DEFAULT_</span><span class="si">{</span><span class="n">attr_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_per_entity_config</span><span class="p">(</span><span class="n">cfg</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">entity</span> <span class="o">=</span> <span class="n">infer_entity_or_raise</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="p">{}))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">base</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&#39; not found in </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;setting &#39;</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&#39; as </span><span class="si">{</span><span class="n">id_key</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">base</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">id_key</span><span class="p">,</span> <span class="n">entity</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Shared config</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">prioritise_entity</span><span class="p">:</span>
+                <span class="n">base</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">id_key</span><span class="p">,</span> <span class="n">entity</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">base</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity</span>
+        <span class="k">if</span> <span class="n">defaults</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">defaults</span><span class="p">,</span> <span class="o">**</span><span class="n">base</span><span class="p">}</span>  <span class="c1"># base overrides defaults</span>
+        <span class="k">return</span> <span class="n">base</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_nwbfile_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prioritise_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for :class:`pynwb.file.NWBFile`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        individual : str, optional</span>
+<span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            individual-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
+<span class="sd">            the ``identifier`` in shared ``nwbfile_kwargs``. Default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to :class:`pynwb.file.NWBFile`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;nwbfile_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;identifier&quot;</span><span class="p">,</span>
+            <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_individual</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;session_start_time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No session_start_time provided in nwbfile_kwargs; &quot;</span>
+                <span class="s2">&quot;using current UTC time as default.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;session_start_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_processing_module_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for :class:`pynwb.base.ProcessingModule`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        individual : str, optional</span>
+<span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            individual-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to :class:`pynwb.base.ProcessingModule`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;processing_module_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">individual</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_PROCESSING_MODULE_KWARGS</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_subject_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prioritise_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for :class:`pynwb.file.Subject`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        individual : str, optional</span>
+<span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            individual-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
+<span class="sd">            the ``subject_id`` in shared ``subject_kwargs``. Default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to :class:`pynwb.file.Subject`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;subject_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;subject_id&quot;</span><span class="p">,</span>
+            <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_individual</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_pose_estimation_series_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">prioritise_keypoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for ``ndx_pose.PoseEstimationSeries``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keypoint : str, optional</span>
+<span class="sd">            Keypoint name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            keypoint-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+<span class="sd">        prioritise_keypoint: bool, optional</span>
+<span class="sd">            Flag indicating whether ``keypoint`` should take precedence over</span>
+<span class="sd">            the ``name`` in shared ``pose_estimation_series_kwargs``.</span>
+<span class="sd">            Default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to</span>
+<span class="sd">            ``ndx_pose.PoseEstimationSeries``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;pose_estimation_series_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">keypoint</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_keypoint</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_pose_estimation_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prioritise_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for ``ndx_pose.PoseEstimation``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        individual : str, optional</span>
+<span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            individual-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
+<span class="sd">            the ``name`` in shared ``pose_estimation_kwargs``. Default is True.</span>
+<span class="sd">        defaults : dict, optional</span>
+<span class="sd">            Dataset-specific default values to be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to ``ndx_pose.PoseEstimation``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;pose_estimation_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_individual</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pose_estimation_kwargs</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Use ndx_pose default</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_skeleton_kwargs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">individual</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prioritise_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve the keyword arguments for ``ndx_pose.Skeleton``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        individual : str, optional</span>
+<span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
+<span class="sd">            individual-specific settings or fall back to shared or default</span>
+<span class="sd">            settings.</span>
+<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
+<span class="sd">            the ``name`` in shared ``skeleton_kwargs``. Default is True.</span>
+<span class="sd">        defaults : dict, optional</span>
+<span class="sd">            Dataset-specific default values to be used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[str, Any]</span>
+<span class="sd">            Keyword arguments to be passed to ``ndx_pose.Skeleton``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_kwargs</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="o">=</span><span class="s2">&quot;skeleton_kwargs&quot;</span><span class="p">,</span>
+            <span class="n">entity</span><span class="o">=</span><span class="n">individual</span><span class="p">,</span>
+            <span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+            <span class="n">id_key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+            <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_individual</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">defaults</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">defaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skeleton_kwargs</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;skeleton</span><span class="si">{</span><span class="sa">f</span><span class="s1">&#39;_</span><span class="si">{</span><span class="n">individual</span><span class="si">}</span><span class="s1">&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">individual</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">kwargs</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_per_entity_config</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">ConfigKwargsType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_has_key</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="n">ConfigKwargsType</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">cfg</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">sub_dict</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_to_pose_and_skeletons</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">NWBFileSaveConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">subject</span><span class="p">:</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">Subject</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">from_multi_individual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimation</span><span class="p">,</span> <span class="n">ndx_pose</span><span class="o">.</span><span class="n">Skeletons</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create PoseEstimation and Skeletons objects from a ``movement`` dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        A single-individual ``movement`` poses dataset.</span>
+<span class="sd">    config : movement.io.nwb.NWBFileSaveConfig</span>
+<span class="sd">        Configuration object containing keyword arguments to customise</span>
+<span class="sd">        the PoseEstimation and Skeletons objects created from the dataset.</span>
+<span class="sd">        If None (default), default values will be used.</span>
+<span class="sd">        See :class:`movement.io.nwb.NWBFileSaveConfig` for more details.</span>
+<span class="sd">    subject : pynwb.file.Subject, optional</span>
+<span class="sd">        Subject object to be linked in the Skeleton object.</span>
+<span class="sd">    from_multi_individual : bool, optional</span>
+<span class="sd">        Flag indicating whether ``ds`` originates from a multi-individual</span>
+<span class="sd">        dataset. Passed to the ``NWBFileSaveConfig`` methods to determine</span>
+<span class="sd">        whether to prioritise individual names in the dataset over ``name``</span>
+<span class="sd">        in shared ``pose_estimation_kwargs`` and ``skeleton_kwargs``.</span>
+<span class="sd">        Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pose_estimation : ndx_pose.PoseEstimation</span>
+<span class="sd">        PoseEstimation object containing PoseEstimationSeries objects</span>
+<span class="sd">        for each keypoint in the dataset.</span>
+<span class="sd">    skeletons : ndx_pose.Skeletons</span>
+<span class="sd">        Skeletons object containing all Skeleton objects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Dataset must contain only one individual to create &quot;</span>
+                <span class="s2">&quot;PoseEstimation and Skeletons objects.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
+    <span class="n">individual</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="c1"># Convert timestamps to seconds if necessary</span>
+    <span class="n">timestamps</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span>
+        <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">pose_estimation_series</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimationSeries</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">confidence</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">timestamps</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">_resolve_pose_estimation_series_kwargs</span><span class="p">(</span>
+                    <span class="n">keypoint</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoints</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">keypoint</span> <span class="ow">in</span> <span class="n">keypoints</span>
+    <span class="p">]</span>
+    <span class="n">skeleton_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ndx_pose</span><span class="o">.</span><span class="n">Skeleton</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_skeleton_kwargs</span><span class="p">(</span>
+                <span class="n">individual</span><span class="p">,</span> <span class="n">from_multi_individual</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="n">keypoints</span><span class="p">}</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">skeletons</span> <span class="o">=</span> <span class="n">ndx_pose</span><span class="o">.</span><span class="n">Skeletons</span><span class="p">(</span><span class="n">skeletons</span><span class="o">=</span><span class="n">skeleton_list</span><span class="p">)</span>
+    <span class="c1"># Group all PoseEstimationSeries into a PoseEstimation object</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Estimated positions of </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keypoints</span><span class="p">)</span><span class="si">}</span><span class="s2"> for &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">individual</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">ds</span><span class="o">.</span><span class="n">source_software</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">pose_estimation</span> <span class="o">=</span> <span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimation</span><span class="p">(</span>
+        <span class="n">pose_estimation_series</span><span class="o">=</span><span class="n">pose_estimation_series</span><span class="p">,</span>
+        <span class="n">skeleton</span><span class="o">=</span><span class="n">skeleton_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_pose_estimation_kwargs</span><span class="p">(</span>
+            <span class="n">individual</span><span class="p">,</span>
+            <span class="n">from_multi_individual</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+                <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="n">ds</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pose_estimation</span><span class="p">,</span> <span class="n">skeletons</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_processing_module</span><span class="p">(</span>
+    <span class="n">nwb_file</span><span class="p">:</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span>
+    <span class="n">processing_module_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">pose_estimation</span><span class="p">:</span> <span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimation</span><span class="p">,</span>
+    <span class="n">skeletons</span><span class="p">:</span> <span class="n">ndx_pose</span><span class="o">.</span><span class="n">Skeletons</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write behaviour processing data to an NWB file.</span>
+
+<span class="sd">    PoseEstimation or Skeletons objects will be written to the specified</span>
+<span class="sd">    ProcessingModule in the NWB file, formatted according to the</span>
+<span class="sd">    ``ndx-pose`` NWB extension. If the module does not exist, it will be</span>
+<span class="sd">    created. Existing objects in the NWB file will not be overwritten.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nwb_file : pynwb.file.NWBFile</span>
+<span class="sd">        The NWBFile object to which the data will be added.</span>
+<span class="sd">    processing_module_kwargs : dict[str, Any]</span>
+<span class="sd">        Keyword arguments for the :class:`pynwb.base.ProcessingModule` in the</span>
+<span class="sd">        NWB file. The ``name`` key will be used to determine the</span>
+<span class="sd">        ProcessingModule to which the data will be added.</span>
+<span class="sd">        If the ProcessingModule does not exist, it will be created with these</span>
+<span class="sd">        keyword arguments.</span>
+<span class="sd">    pose_estimation : ndx_pose.PoseEstimation</span>
+<span class="sd">        PoseEstimation object containing the pose data for an individual.</span>
+<span class="sd">    skeletons : ndx_pose.Skeletons</span>
+<span class="sd">        Skeletons object containing the skeleton data for an individual.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_to_processing_module</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">processing_module</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="n">obj_name</span><span class="si">}</span><span class="s2"> object to NWB file.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj_name</span><span class="si">}</span><span class="s2"> object already exists. Skipping...&quot;</span><span class="p">)</span>
+
+    <span class="n">processing_module_name</span> <span class="o">=</span> <span class="n">processing_module_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+    <span class="n">processing_module</span> <span class="o">=</span> <span class="n">nwb_file</span><span class="o">.</span><span class="n">processing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">processing_module_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">processing_module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">processing_module</span> <span class="o">=</span> <span class="n">nwb_file</span><span class="o">.</span><span class="n">create_processing_module</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">processing_module_kwargs</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Created </span><span class="si">{</span><span class="n">processing_module_name</span><span class="si">}</span><span class="s2"> processing module in NWB file.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Using existing </span><span class="si">{</span><span class="n">processing_module_name</span><span class="si">}</span><span class="s2"> processing module.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">add_to_processing_module</span><span class="p">(</span><span class="n">skeletons</span><span class="p">,</span> <span class="s2">&quot;Skeletons&quot;</span><span class="p">)</span>
+    <span class="n">add_to_processing_module</span><span class="p">(</span><span class="n">pose_estimation</span><span class="p">,</span> <span class="s2">&quot;PoseEstimation&quot;</span><span class="p">)</span>
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

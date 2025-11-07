@@ -1,0 +1,1047 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.kinematics.kinematics &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=f3b36f1a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/kinematics/kinematics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.11.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/kinematics/kinematics.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.kinematics.kinematics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.kinematics.kinematics</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Compute core kinematic variables such as time derivatives of ``position``.</span>
+
+<span class="sd">This module provides functions for computing fundamental kinematic properties</span>
+<span class="sd">such as forward &amp; backward displacement, velocity, acceleration, speed, and</span>
+<span class="sd">path length (distance travelled between two time points).</span>
+<span class="sd">The ``movement.kinematics`` subpackage encompasses a broader range of</span>
+<span class="sd">functionality (e.g., orientations and distances ), but this file is</span>
+<span class="sd">intended to isolate &#39;true&#39; kinematics for clarity. In a future release, the</span>
+<span class="sd">public API may be revised to reflect this distinction more explicitly.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_nan_values</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
+
+
+<div class="viewcode-block" id="compute_time_derivative">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the time-derivative of an array using numerical differentiation.</span>
+
+<span class="sd">    This function uses :meth:`xarray.DataArray.differentiate`,</span>
+<span class="sd">    which differentiates the array with the second-order</span>
+<span class="sd">    accurate central differences method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing ``time`` as a required dimension.</span>
+<span class="sd">    order : int</span>
+<span class="sd">        The order of the time-derivative. For an input containing position</span>
+<span class="sd">        data, use 1 to compute velocity, and 2 to compute acceleration. Value</span>
+<span class="sd">        must be a positive integer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the time-derivative of the input data.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :meth:`xarray.DataArray.differentiate` : The underlying method used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Order must be an integer, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">order</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">order</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order must be a positive integer.&quot;</span><span class="p">))</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">differentiate</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="compute_displacement">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_displacement.html#movement.kinematics.compute_displacement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute displacement array in Cartesian coordinates.</span>
+
+<span class="sd">    .. deprecated:: 0.9.1</span>
+<span class="sd">        This function is deprecated and will be removed in a future release.</span>
+<span class="sd">        Use :func:`compute_forward_displacement` or</span>
+<span class="sd">        :func:`compute_backward_displacement` instead.</span>
+
+<span class="sd">    The displacement array is defined as the difference between the position</span>
+<span class="sd">    array at time point ``t`` and the position array at time point ``t-1``.</span>
+
+<span class="sd">    As a result, for a given individual and keypoint, the displacement vector</span>
+<span class="sd">    at time point ``t``, is the vector pointing from the previous</span>
+<span class="sd">    ``(t-1)`` to the current ``(t)`` position, in Cartesian coordinates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing displacement vectors in Cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``displacement``</span>
+<span class="sd">    array will hold the displacement vectors for every keypoint and every</span>
+<span class="sd">    individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``displacement``</span>
+<span class="sd">    array will hold the displacement vectors for the centroid of every</span>
+<span class="sd">    individual bounding box.</span>
+
+<span class="sd">    For the ``shape`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``displacement`` array will hold vectors with the change in width and</span>
+<span class="sd">    height per bounding box, between consecutive time points.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;The function `movement.kinematics.compute_displacement` is deprecated&quot;</span>
+        <span class="s2">&quot; and will be removed in a future release. &quot;</span>
+        <span class="s2">&quot;Please use `movement.kinematics.compute_forward_displacement` or &quot;</span>
+        <span class="s2">&quot;`movement.kinematics.compute_backward_displacement` instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;displacement&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute forward displacement vectors in Cartesian coordinates.</span>
+
+<span class="sd">    The displacement vectors have origin at the position at time t,</span>
+<span class="sd">    pointing to the position at time t+1.</span>
+<span class="sd">    The last vector is of magnitude=0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="compute_forward_displacement">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute forward displacement array in Cartesian coordinates.</span>
+
+<span class="sd">    The forward displacement array is defined as the difference between the</span>
+<span class="sd">    position array at time point ``t+1`` and the position array at time point</span>
+<span class="sd">    ``t``.</span>
+
+<span class="sd">    As a result, for a given individual and keypoint, the forward displacement</span>
+<span class="sd">    vector at time point ``t``, is the vector pointing from the current ``t``</span>
+<span class="sd">    position to the next ``t+1``, in Cartesian coordinates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing forward displacement vectors in</span>
+<span class="sd">        Cartesian coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the</span>
+<span class="sd">    ``forward_displacement`` array will hold the forward displacement vectors</span>
+<span class="sd">    for every keypoint and every individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``forward_displacement`` array will hold the forward displacement vectors</span>
+<span class="sd">    for the centroid of every individual bounding box.</span>
+
+<span class="sd">    For the ``shape`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``forward_displacement`` array will hold vectors with the change in width</span>
+<span class="sd">    and height per bounding box, between consecutive time points.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;forward_displacement&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="compute_backward_displacement">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute backward displacement array in Cartesian coordinates.</span>
+
+<span class="sd">    The backward displacement array is defined as the difference between the</span>
+<span class="sd">    position array at time point ``t-1`` and the position array at time point</span>
+<span class="sd">    ``t``.</span>
+
+<span class="sd">    As a result, for a given individual and keypoint, the backward displacement</span>
+<span class="sd">    vector at time point ``t``, is the vector pointing from the current ``t``</span>
+<span class="sd">    position to the previous ``t-1`` in Cartesian coordinates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing backward displacement vectors in</span>
+<span class="sd">        Cartesian coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the</span>
+<span class="sd">    ``backward_displacement`` array will hold the backward displacement vectors</span>
+<span class="sd">    for every keypoint and every individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``backward_displacement`` array will hold the backward displacement vectors</span>
+<span class="sd">    for the centroid of every individual bounding box.</span>
+
+<span class="sd">    For the ``shape`` array of a ``bboxes`` dataset, the</span>
+<span class="sd">    ``backward_displacement`` array will hold vectors with the change in width</span>
+<span class="sd">    and height per bounding box, between consecutive time points.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fwd_displacement</span> <span class="o">=</span> <span class="n">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">backward_displacement</span> <span class="o">=</span> <span class="o">-</span><span class="n">fwd_displacement</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">backward_displacement</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;backward_displacement&quot;</span>
+    <span class="k">return</span> <span class="n">backward_displacement</span></div>
+
+
+
+<div class="viewcode-block" id="compute_velocity">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity array in Cartesian coordinates.</span>
+
+<span class="sd">    The velocity array is the first time-derivative of the position</span>
+<span class="sd">    array. It is computed by applying the second-order accurate central</span>
+<span class="sd">    differences method on the position array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing velocity vectors in Cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``velocity`` array</span>
+<span class="sd">    will hold the velocity vectors for every keypoint and every individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``velocity`` array</span>
+<span class="sd">    will hold the velocity vectors for the centroid of every individual</span>
+<span class="sd">    bounding box.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_time_derivative : The underlying function used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># validate only presence of Cartesian space dimension</span>
+    <span class="c1"># (presence of time dimension will be checked in compute_time_derivative)</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;velocity&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="compute_acceleration">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration array in Cartesian coordinates.</span>
+
+<span class="sd">    The acceleration array is the second time-derivative of the</span>
+<span class="sd">    position array. It is computed by applying the second-order accurate</span>
+<span class="sd">    central differences method on the velocity array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing acceleration vectors in Cartesian</span>
+<span class="sd">        coordinates.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    For the ``position`` array of a ``poses`` dataset, the ``acceleration``</span>
+<span class="sd">    array will hold the acceleration vectors for every keypoint and every</span>
+<span class="sd">    individual.</span>
+
+<span class="sd">    For the ``position`` array of a ``bboxes`` dataset, the ``acceleration``</span>
+<span class="sd">    array will hold the acceleration vectors for the centroid of every</span>
+<span class="sd">    individual bounding box.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_time_derivative : The underlying function used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># validate only presence of Cartesian space dimension</span>
+    <span class="c1"># (presence of time dimension will be checked in compute_time_derivative)</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;acceleration&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="compute_speed">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_speed.html#movement.kinematics.compute_speed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_speed</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute instantaneous speed at each time point.</span>
+
+<span class="sd">    Speed is a scalar quantity computed as the Euclidean norm (magnitude)</span>
+<span class="sd">    of the velocity vector at each time point.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the computed speed,</span>
+<span class="sd">        with dimensions matching those of the input data,</span>
+<span class="sd">        except ``space`` is removed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;speed&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="compute_path_length">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_length</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ffill&quot;</span><span class="p">,</span>
+    <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the length of a path travelled between two time points.</span>
+
+<span class="sd">    The path length is defined as the sum of the norms (magnitudes) of the</span>
+<span class="sd">    displacement vectors between two time points ``start`` and ``stop``,</span>
+<span class="sd">    which should be provided in the time units of the data array.</span>
+<span class="sd">    If not specified, the minimum and maximum time coordinates of the data</span>
+<span class="sd">    array are used as start and stop times, respectively.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+<span class="sd">    start : float, optional</span>
+<span class="sd">        The start time of the path. If None (default),</span>
+<span class="sd">        the minimum time coordinate in the data is used.</span>
+<span class="sd">    stop : float, optional</span>
+<span class="sd">        The end time of the path. If None (default),</span>
+<span class="sd">        the maximum time coordinate in the data is used.</span>
+<span class="sd">    nan_policy : Literal[&quot;ffill&quot;, &quot;scale&quot;], optional</span>
+<span class="sd">        Policy to handle NaN (missing) values. Can be one of the ``&quot;ffill&quot;``</span>
+<span class="sd">        or ``&quot;scale&quot;``. Defaults to ``&quot;ffill&quot;`` (forward fill).</span>
+<span class="sd">        See Notes for more details on the two policies.</span>
+<span class="sd">    nan_warn_threshold : float, optional</span>
+<span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
+<span class="sd">        this proportion of values missing, a warning will be emitted.</span>
+<span class="sd">        Defaults to 0.2 (20%).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the computed path length,</span>
+<span class="sd">        with dimensions matching those of the input data,</span>
+<span class="sd">        except ``time`` and ``space`` are removed.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Choosing ``nan_policy=&quot;ffill&quot;`` will use :meth:`xarray.DataArray.ffill`</span>
+<span class="sd">    to forward-fill missing segments (NaN values) across time.</span>
+<span class="sd">    This equates to assuming that a track remains stationary for</span>
+<span class="sd">    the duration of the missing segment and then instantaneously moves to</span>
+<span class="sd">    the next valid position, following a straight line. This approach tends</span>
+<span class="sd">    to underestimate the path length, and the error increases with the number</span>
+<span class="sd">    of missing values.</span>
+
+<span class="sd">    Choosing ``nan_policy=&quot;scale&quot;`` will adjust the path length based on the</span>
+<span class="sd">    the proportion of valid segments per point track. For example, if only</span>
+<span class="sd">    80% of segments are present, the path length will be computed based on</span>
+<span class="sd">    these and the result will be divided by 0.8. This approach assumes</span>
+<span class="sd">    that motion dynamics are similar across observed and missing time</span>
+<span class="sd">    segments, which may not accurately reflect actual conditions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
+    <span class="c1"># Check that the data is not empty or too short</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n_time</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least 2 time points are required to compute path length, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> were found. &quot;</span>
+                <span class="s2">&quot;Double-check the start and stop times.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;ffill&quot;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span>
+            <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>  <span class="c1"># skip first displacement (always 0)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># return NaN if no valid segment</span>
+    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_scaled_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Must be one of &#39;ffill&#39; or &#39;scale&#39;.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;path_length&quot;</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Issue warning if the proportion of NaN values exceeds a threshold.</span>
+
+<span class="sd">    The NaN proportion is evaluated per point track, and a given point is</span>
+<span class="sd">    considered NaN if any of its ``space`` coordinates are NaN. The warning</span>
+<span class="sd">    specifically lists the point tracks with at least (&gt;=)</span>
+<span class="sd">    ``nan_warn_threshold`` proportion of NaN values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data array.</span>
+<span class="sd">    nan_warn_threshold : float</span>
+<span class="sd">        The threshold for the proportion of NaN values. Must be a number</span>
+<span class="sd">        between 0 and 1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nan_warn_threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">nan_warn_threshold</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">nan_warn_threshold</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nan_warn_threshold must be between 0 and 1.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">n_nans</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">n_nans</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">nan_warn_threshold</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_to_warn_about</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The result may be unreliable for point tracks with many &quot;</span>
+            <span class="s2">&quot;missing values. The following tracks have at least &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nan_warn_threshold</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.3</span><span class="si">}</span><span class="s2"> % NaN values:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_to_warn_about</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_scaled_path_length</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute scaled path length based on proportion of valid segments.</span>
+
+<span class="sd">    Path length is first computed based on valid segments (non-NaN values</span>
+<span class="sd">    on both ends of the segment) and then scaled based on the proportion of</span>
+<span class="sd">    valid segments per point track - i.e. the result is divided by the</span>
+<span class="sd">    proportion of valid segments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the computed path length,</span>
+<span class="sd">        with dimensions matching those of the input data,</span>
+<span class="sd">        except ``time`` and ``space`` are removed.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Skip first displacement segment (always 0) to not mess up the scaling</span>
+    <span class="n">displacement</span> <span class="o">=</span> <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># count number of valid displacement segments per point track</span>
+    <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">displacement</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="c1"># compute proportion of valid segments per point track</span>
+    <span class="n">valid_proportion</span> <span class="o">=</span> <span class="n">valid_segments</span> <span class="o">/</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># return scaled path length</span>
+    <span class="k">return</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">displacement</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">valid_proportion</span>
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

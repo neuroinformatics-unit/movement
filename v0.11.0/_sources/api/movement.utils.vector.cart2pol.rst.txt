@@ -1,0 +1,9 @@
+cart2pol
+========
+
+.. currentmodule:: movement.utils.vector
+
+.. autofunction:: cart2pol
+
+.. minigallery:: movement.utils.vector.cart2pol
+   :add-heading: Examples using ``cart2pol``

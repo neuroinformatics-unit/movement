@@ -1,0 +1,946 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.utils.broadcasting &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=f3b36f1a"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/utils/broadcasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.11.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/utils/broadcasting.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.utils.broadcasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.utils.broadcasting</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Broadcasting operations across ``xarray.DataArray`` dimensions.</span>
+
+<span class="sd">This module essentially provides an equivalent functionality to</span>
+<span class="sd">:func:`numpy.apply_along_axis`, but for ``xarray.DataArray`` objects.</span>
+<span class="sd">This functionality is provided as a decorator, so it can be applied to both</span>
+<span class="sd">functions within the package and be available to users who would like to use it</span>
+<span class="sd">in their analysis.</span>
+<span class="sd">In essence; suppose that we have a function which takes a 1D-slice of a</span>
+<span class="sd">``xarray.DataArray`` and returns either a scalar value, or another 1D array.</span>
+<span class="sd">Typically, one would either have to call this function successively in a</span>
+<span class="sd">``for`` loop, looping over all the 1D slices in a ``xarray.DataArray`` that</span>
+<span class="sd">need to be examined, or re-write the function to be able to broadcast along the</span>
+<span class="sd">necessary dimension of the data structure.</span>
+
+<span class="sd">The :func:`make_broadcastable()\</span>
+<span class="sd">&lt;movement.utils.broadcasting.make_broadcastable&gt;` decorator takes care of the</span>
+<span class="sd">latter piece of work, allowing us to write functions that operate on 1D slices,</span>
+<span class="sd">then apply this decorator to have them work across ``xarray.DataArray``</span>
+<span class="sd">dimensions. The function</span>
+
+<span class="sd">&gt;&gt;&gt; def my_function(input_1d, *args, **kwargs):</span>
+<span class="sd">...     # do something</span>
+<span class="sd">...     return scalar_or_1d_output</span>
+
+<span class="sd">which previously only worked with 1D-slices can be decorated</span>
+
+<span class="sd">&gt;&gt;&gt; @make_broadcastable()</span>
+<span class="sd">... def my_function(input_1d, *args, **kwargs):</span>
+<span class="sd">...     # do something</span>
+<span class="sd">...     return scalar_or_1d_output</span>
+
+<span class="sd">effectively changing its call signature to</span>
+
+<span class="sd">&gt;&gt;&gt; def my_function(data_array, *args, dimension, **kwargs):</span>
+<span class="sd">...     # do my_function, but do it to all the slices</span>
+<span class="sd">...     # along the dimension of data_array.</span>
+<span class="sd">...     return data_array_output</span>
+
+<span class="sd">which will perform the action of ``my_function`` along the ``dimension`` given.</span>
+<span class="sd">The ``*args`` and ``**kwargs`` retain their original interpretations from</span>
+<span class="sd">``my_function`` too.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Concatenate</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+
+<span class="n">ScalarOr1D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ScalarOr1D&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)</span>
+<span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">)</span>
+<span class="n">KeywordArgs</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;KeywordArgs&quot;</span><span class="p">)</span>
+<span class="n">ClsMethod1DTo1D</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span>
+    <span class="n">ScalarOr1D</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">Function1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span>
+    <span class="n">ScalarOr1D</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">FunctionDaToDa</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+<span class="p">]</span>
+<span class="n">DecoratorInput</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Function1DTo1D</span> <span class="o">|</span> <span class="n">ClsMethod1DTo1D</span>
+<span class="n">Decorator</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DecoratorInput</span><span class="p">],</span> <span class="n">FunctionDaToDa</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="apply_along_da_axis">
+<a class="viewcode-back" href="../../../api/movement.utils.broadcasting.apply_along_da_axis.html#movement.utils.broadcasting.apply_along_da_axis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_along_da_axis</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ArrayLike</span><span class="p">],</span> <span class="n">ScalarOr1D</span><span class="p">],</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a function ``f`` across ``dimension`` of ``data``.</span>
+
+<span class="sd">    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a</span>
+<span class="sd">    one-dimensional :data:`numpy.typing.ArrayLike` object. It should return</span>
+<span class="sd">    either a scalar or one-dimensional :data:`numpy.typing.ArrayLike` object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f : Callable</span>
+<span class="sd">        Function that takes 1D inputs and returns either scalar or 1D outputs.</span>
+<span class="sd">        This will be cast across the ``dimension`` of the ``data``.</span>
+<span class="sd">    data: xarray.DataArray</span>
+<span class="sd">        Values to be cast over.</span>
+<span class="sd">    dimension : str</span>
+<span class="sd">        Dimension of ``data`` to broadcast ``f`` across.</span>
+<span class="sd">    new_dimension_name : str, optional</span>
+<span class="sd">        If ``f`` returns non-scalar values, the dimension in the output that</span>
+<span class="sd">        these values are returned along is given the name</span>
+<span class="sd">        ``new_dimension_name``. Defaults to ``&quot;result&quot;``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        Result of broadcasting ``f`` along the ``dimension`` of ``data``.</span>
+
+<span class="sd">        - If ``f`` returns a scalar or ``(1,)``-shaped output, the output has</span>
+<span class="sd">          one fewer dimension than ``data``, with ``dimension`` being dropped.</span>
+<span class="sd">          All other dimensions retain their names and sizes.</span>
+<span class="sd">        - If ``f`` returns a ``(n,)``-shaped output for ``n &gt; 1``; all non-</span>
+<span class="sd">          ``dimension`` dimensions of ``data`` retain their shapes. The</span>
+<span class="sd">          ``dimension`` dimension itself is replaced with a new dimension,</span>
+<span class="sd">          ``new_dimension_name``, containing the output of the application of</span>
+<span class="sd">          ``f``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">input_1D</span><span class="p">)),</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="n">dimension</span><span class="p">]],</span>
+        <span class="n">exclude_dims</span><span class="o">=</span><span class="nb">set</span><span class="p">((</span><span class="n">dimension</span><span class="p">,)),</span>
+        <span class="n">output_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="n">dimension</span><span class="p">]],</span>
+        <span class="n">vectorize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="n">dimension</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dimension</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Rename the non-1D output dimension according to request</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">dimension</span><span class="p">:</span> <span class="n">new_dimension_name</span> <span class="k">if</span> <span class="n">new_dimension_name</span> <span class="k">else</span> <span class="s2">&quot;result&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+
+<div class="viewcode-block" id="make_broadcastable">
+<a class="viewcode-back" href="../../../api/movement.utils.broadcasting.make_broadcastable.html#movement.utils.broadcasting.make_broadcastable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a decorator that allows a function to be broadcast.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    is_classmethod : bool</span>
+<span class="sd">        Whether the target of the decoration is a class method which takes</span>
+<span class="sd">        the ``self`` argument, or a standalone function that receives no</span>
+<span class="sd">        implicit arguments.</span>
+<span class="sd">    only_broadcastable_along : str, optional</span>
+<span class="sd">        Whether the decorated function should only support broadcasting along</span>
+<span class="sd">        this dimension. The returned function will not take the</span>
+<span class="sd">        ``broadcast_dimension`` argument, and will use the dimension provided</span>
+<span class="sd">        here as the value for this argument.</span>
+<span class="sd">    new_dimension_name : str, optional</span>
+<span class="sd">        Passed to :func:`apply_along_da_axis`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Decorator</span>
+<span class="sd">        Decorator function that can be applied with the</span>
+<span class="sd">        ``@make_broadcastable(...)`` syntax. See Notes for a description of</span>
+<span class="sd">        the action of the returned decorator.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The returned decorator (the &quot;``r_decorator``&quot;) extends a function that</span>
+<span class="sd">    acts on a 1D sequence of values, allowing it to be broadcast along the</span>
+<span class="sd">    axes of an input ``xarray.DataArray``.</span>
+
+<span class="sd">    The ``r_decorator`` takes a single parameter, ``f``. ``f`` should be a</span>
+<span class="sd">    ``Callable`` that acts on 1D inputs, that is to be converted into a</span>
+<span class="sd">    broadcast-able function ``fr``, applying the action of ``f`` along an axis</span>
+<span class="sd">    of an ``xarray.DataArray``. ``f`` should return either scalar or 1D</span>
+<span class="sd">    outputs.</span>
+
+<span class="sd">    If ``f`` is a class method, it should be callable as</span>
+<span class="sd">    ``f(self, [x, y, ...], *args, **kwargs)``.</span>
+<span class="sd">    Otherwise, ``f`` should be callable as</span>
+<span class="sd">    ``f([x, y, ...], *args, **kwargs)``.</span>
+
+<span class="sd">    The function ``fr`` returned by the ``r_decorator`` is callable with the</span>
+<span class="sd">    signature</span>
+<span class="sd">    ``fr([self,] data, *args, broadcast_dimension = str, **kwargs)``,</span>
+<span class="sd">    where the ``self`` argument is present only if ``f`` was a class method.</span>
+<span class="sd">    ``fr`` applies ``f`` along the ``broadcast_dimension`` of ``data``.</span>
+<span class="sd">    The ``*args`` and ``**kwargs`` match those passed to ``f``, and retain</span>
+<span class="sd">    the same interpretations and effects on the result. If ``data`` provided to</span>
+<span class="sd">    ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour</span>
+<span class="sd">    of ``f`` (and ignore the ``broadcast_dimension`` argument).</span>
+
+<span class="sd">    See the docstring of ``make_broadcastable_inner`` in the source code for a</span>
+<span class="sd">    more explicit explanation of the returned decorator.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    broadcastable_method : Convenience alias for ``is_classmethod = True``.</span>
+<span class="sd">    space_broadcastable : Convenience alias for</span>
+<span class="sd">        ``only_broadcastable_along = &quot;space&quot;``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Make a standalone function broadcast along the ``&quot;space&quot;`` axis of an</span>
+<span class="sd">    ``xarray.DataArray``.</span>
+
+<span class="sd">    &gt;&gt;&gt; @make_broadcastable(is_classmethod=False, only_broadcast_along=&quot;space&quot;)</span>
+<span class="sd">    ... def my_function(xyz_data, *args, **kwargs)</span>
+<span class="sd">    ...</span>
+<span class="sd">    ... # Call via the usual arguments, replacing the xyz_data argument with</span>
+<span class="sd">    ... # the xarray.DataArray to broadcast over</span>
+<span class="sd">    ... my_function(data_array, *args, **kwargs)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Make a class method broadcast along any axis of an ``xarray.DataArray``.</span>
+
+<span class="sd">    &gt;&gt;&gt; from dataclasses import dataclass</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; @dataclass</span>
+<span class="sd">    ... class MyClass:</span>
+<span class="sd">    ...     factor: float</span>
+<span class="sd">    ...     offset: float</span>
+<span class="sd">    ...</span>
+<span class="sd">    ...     @make_broadcastable(is_classmethod=True)</span>
+<span class="sd">    ...     def manipulate_values(self, xyz_values, *args, **kwargs):</span>
+<span class="sd">    ...         return self.factor * sum(xyz_values) + self.offset</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; m = MyClass(factor=5.9, offset=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; m.manipulate_values(</span>
+<span class="sd">    ...     data_array, *args, broadcast_dimension=&quot;time&quot;, **kwargs</span>
+<span class="sd">    ... )</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
+        <span class="n">only_broadcastable_along</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable_inner</span><span class="p">(</span>
+        <span class="n">f</span><span class="p">:</span> <span class="n">DecoratorInput</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FunctionDaToDa</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Broadcast a 1D function along a ``xarray.DataArray`` dimension.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        f : Callable</span>
+<span class="sd">            1D function to be converted into a broadcast-able function,, that</span>
+<span class="sd">            returns either a scalar value or 1D output. If ``f`` is a class</span>
+<span class="sd">            method, it should be callable as</span>
+<span class="sd">            ``f(self, [x, y, ...], *args, **kwargs)``.</span>
+<span class="sd">            Otherwise, ``f`` should be callable as</span>
+<span class="sd">            ``f([x, y, ...], *args, **kwargs).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Callable</span>
+<span class="sd">            Callable with signature</span>
+<span class="sd">            ``(self,) data, *args, broadcast_dimension = str, **kwargs``,</span>
+<span class="sd">            that applies ``f`` along the ``broadcast_dimension`` of ``data``.</span>
+<span class="sd">            ``*args`` and ``**kwargs`` match those passed to ``f``, and</span>
+<span class="sd">            retain the same interpretations.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        ``mypy`` cannot handle cases where arguments are injected</span>
+<span class="sd">        into functions: https://github.com/python/mypy/issues/16402.</span>
+<span class="sd">        As such, we ignore the ``valid-type`` errors where they are flagged by</span>
+<span class="sd">        the checker in cases such as this ``typing[valid-type]``. Typehints</span>
+<span class="sd">        provided are consistent with the (expected) input and output types,</span>
+<span class="sd">        however.</span>
+
+<span class="sd">        ``mypy`` does not like when a function, that is to be returned, has its</span>
+<span class="sd">        signature changed between cases. As such, it recommends defining all</span>
+<span class="sd">        the possible signatures first, then selecting one using an</span>
+<span class="sd">        ``if...elif...else`` block. We adhere to this convention in the method</span>
+<span class="sd">        below.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner_clsmethod</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+            <span class="n">broadcast_dimension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+            <span class="c1"># Preserve original functionality</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">apply_along_da_axis</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_1D</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">broadcast_dimension</span><span class="p">,</span>
+                <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner_clsmethod_fixeddim</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner_clsmethod</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">broadcast_dimension</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+            <span class="n">broadcast_dimension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+            <span class="c1"># Preserve original functionality</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">apply_along_da_axis</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">input_1D</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="n">broadcast_dimension</span><span class="p">,</span>
+                <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner_fixeddim</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="n">broadcast_dimension</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_classmethod</span> <span class="ow">and</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner_clsmethod_fixeddim</span>
+        <span class="k">elif</span> <span class="n">is_classmethod</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner_clsmethod</span>
+        <span class="k">elif</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner_fixeddim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">inner</span>
+
+    <span class="k">return</span> <span class="n">make_broadcastable_inner</span></div>
+
+
+
+<div class="viewcode-block" id="space_broadcastable">
+<a class="viewcode-back" href="../../../api/movement.utils.broadcasting.space_broadcastable.html#movement.utils.broadcasting.space_broadcastable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">space_broadcastable</span><span class="p">(</span>
+    <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a 1D function along the &#39;space&#39; dimension.</span>
+
+<span class="sd">    This is a convenience wrapper for</span>
+<span class="sd">    ``make_broadcastable(only_broadcastable_along=&#39;space&#39;)``,</span>
+<span class="sd">    and is primarily useful when we want to write a function that acts on</span>
+<span class="sd">    coordinates, that can only be cast across the &#39;space&#39; dimension of an</span>
+<span class="sd">    ``xarray.DataArray``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        Callable with signature</span>
+<span class="sd">        ``(self,) data, *args, broadcast_dimension = str, **kwargs``,</span>
+<span class="sd">        that applies ``f`` along the ``broadcast_dimension`` of ``data``.</span>
+<span class="sd">        ``*args`` and ``**kwargs`` match those passed to ``f``, and</span>
+<span class="sd">        retain the same interpretations.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    make_broadcastable : The aliased decorator function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">make_broadcastable</span><span class="p">(</span>
+        <span class="n">is_classmethod</span><span class="o">=</span><span class="n">is_classmethod</span><span class="p">,</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
+        <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="broadcastable_method">
+<a class="viewcode-back" href="../../../api/movement.utils.broadcasting.broadcastable_method.html#movement.utils.broadcasting.broadcastable_method">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">broadcastable_method</span><span class="p">(</span>
+    <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a class method along a ``xarray.DataArray`` dimension.</span>
+
+<span class="sd">    This is a convenience wrapper for</span>
+<span class="sd">    ``make_broadcastable(is_classmethod = True)``,</span>
+<span class="sd">    for use when extending class methods that act on coordinates, that we wish</span>
+<span class="sd">    to cast across the axes of an ``xarray.DataArray``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        Callable with signature</span>
+<span class="sd">        ``(self,) data, *args, broadcast_dimension = str, **kwargs``,</span>
+<span class="sd">        that applies ``f`` along the ``broadcast_dimension`` of ``data``.</span>
+<span class="sd">        ``*args`` and ``**kwargs`` match those passed to ``f``, and</span>
+<span class="sd">        retain the same interpretations.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    make_broadcastable : The aliased decorator function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">make_broadcastable</span><span class="p">(</span>
+        <span class="n">is_classmethod</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>
+        <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
