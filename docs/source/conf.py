@@ -31,6 +31,8 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
+doc_version = "dev" if "dev" in release else f"v{release}"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -150,9 +152,14 @@ html_theme_options = {
             "type": "fontawesome",
         },
     ],
+    "switcher": {
+        "json_url": "https://movement.neuroinformatics.dev/latest/_static/switcher.json",
+        "version_match": doc_version,
+    },
     "logo": {
         "text": f"{project} v{release}",
     },
+    "navbar_end": ["version-switcher", "navbar-icon-links"],
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
@@ -191,6 +198,7 @@ linkcheck_ignore = [
     "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
     "https://www.robots.ox.ac.uk/",  # occasional 404s
+    "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
 ]
 
 
