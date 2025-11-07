@@ -6,15 +6,16 @@ on GIN and are downloaded to the user's local machine the first time they
 are used.
 """
 
-import shutil
-from pathlib import Path
 import logging
+import shutil
+from contextlib import contextmanager
+from pathlib import Path
 
 import pooch
 import xarray
 import yaml
 from requests.exceptions import RequestException
-from contextlib import contextmanager
+
 from movement.io import load_bboxes, load_poses
 from movement.utils.logging import logger
 
@@ -32,9 +33,14 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 # File name for the .yaml file in DATA_URL containing dataset metadata
 METADATA_FILE = "metadata.yaml"
 
+
 @contextmanager
 def hide_pooch_hash_logs():
-    """Hide only SHA256 hash printouts from pooch.retrieve when known_hash=None."""
+    """Hide SHA256 hash printouts from ``pooch.retrieve``.
+
+    This context manager temporarily suppresses SHA256 hash messages
+    when downloading files with Pooch.
+    """
     logger = pooch.get_logger()
 
     class HashFilter(logging.Filter):
