@@ -198,8 +198,9 @@ ax.set_xlim(480, 600)
 ax.set_ylim(980, 1080)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+ax.set_title(f"Zoomed in forward trajectory of {mouse_name}")
 ax.invert_yaxis()
+sc.set_clim(8.8, 9.2)
 fig.colorbar(sc, ax=ax, label="time (s)")
 
 
@@ -250,8 +251,9 @@ ax.set_xlim(480, 600)
 ax.set_ylim(980, 1080)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")
-ax.set_title(f"Zoomed in trajectory of {mouse_name}")
+ax.set_title(f"Zoomed in backward trajectory of {mouse_name}")
 ax.invert_yaxis()
+sc.set_clim(8.8, 9.2)
 fig.colorbar(sc, ax=ax, label="time (s)")
 
 

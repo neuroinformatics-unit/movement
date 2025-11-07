@@ -17,6 +17,7 @@ dependencies = [
   "pandas",
   "h5py",
   "netCDF4<1.7.3",
+  "tables>=3.10.1",
   "attrs",
   "pooch",
   "tqdm",
@@ -156,7 +157,7 @@ check-hidden = true
 legacy_tox_ini = """
 [tox]
 requires =
-    tox-conda
+    tox>=4
     tox-gh-actions
 envlist = py{311,312,313}
 isolated_build = True
@@ -168,10 +169,6 @@ python =
     3.13: py313
 
 [testenv]
-conda_deps =
-    pytables
-conda_channels =
-    conda-forge
 passenv =
     CI
     GITHUB_ACTIONS
