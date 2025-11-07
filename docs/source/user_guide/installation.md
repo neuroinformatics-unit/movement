@@ -1,16 +1,15 @@
 (target-installation)=
 # Installation
 
-## Use a virtual environment
+## Create a virtual environment
 
-While not strictly required, it is highly recommended to install `movement` into a
-clean virtual environment, using tools such as [conda](conda:) or [uv](uv:).
-
-This should be set up before installing `movement`.
+While not strictly required, we strongly recommended installing `movement` in a
+clean virtual environment, using tools such as
+[conda](conda:) or [uv](uv:getting-started/installation/).
 
 ::::{tab-set}
 :::{tab-item} conda
-Create and activate a new environment:
+Create and activate a new [conda environment](conda:user-guide/tasks/manage-environments.html):
 ```sh
 conda create -y -n movement-env -c conda-forge python=3.13
 conda activate movement-env
@@ -20,11 +19,9 @@ We used `movement-env` as the environment name, but you can choose any name you 
 :::
 
 :::{tab-item} uv
-Make sure [uv is installed on your system](uv:getting-started/installation).
-Then create a [virtual environment](uv:pip/environments/) in your project directory:
+Create and activate a new [virtual environment](uv:pip/environments/) inside your project directory:
 
 ```sh
-uv init
 uv venv --python=3.13
 ```
 
@@ -41,7 +38,7 @@ With your environment activated, install `movement` using one of the methods bel
 
 ::::{tab-set}
 :::{tab-item} From conda-forge using conda
-To install the core package:
+Install the core package:
 ```sh
 conda install -c conda-forge movement
 ```
@@ -84,18 +81,15 @@ uv pip install "movement[napari]"
 :color: info
 :icon: info
 
-If you are running macOS 13 or earlier on Apple Silicon (M-series) hardware,
-we recommend installing `movement` via `conda-forge`,
-which provides pre-built Qt libraries compatible with macOS 13.
-Alternatively, upgrading to macOS 14 or later enables installation via `pip` or `uv`
-without compatibility issues.
-
+If you are using macOS 13 or earlier on Apple Silicon (M-series),
+we recommend installing `movement` via `conda-forge`.
+Alternatively, upgrade to macOS 14 to use any of the installation methods above.
 :::
 
 :::{admonition} For developers
 :class: tip
 
-If you plan to contribute to `movement`, see the [contributing guide](target-contributing)
+If you would like to contribute to `movement`, see our [contributing guide](target-contributing)
 for detailed developer setup instructions and coding guidelines.
 :::
 
@@ -118,12 +112,17 @@ window with the `movement` widget docked on the right-hand side.
 
 ## Update the package
 
-Always update using the same package manager you used for installation.
+:::{dropdown} Always update using the same package manager used for installation
+:icon: info
+:color: info
 
-If you are not sure which one you used, you can run `conda list movement` from your active `conda` environment
-and check whether the output shows `conda-forge` or `pypi` as the channel.
+If your environment was created with `conda`, first check which channel `movement` was installed from before updating.
+Run `conda list movement` in your active `conda` environment and look at the **Channel** column:
+- If the channel is `conda-forge`, update using `conda`.
+- If the channel is `pypi`, update using `pip`.
 
-To update `movement`, run the appropriate command below:
+:::
+
 
 ::::{tab-set}
 :::{tab-item} conda
@@ -162,20 +161,18 @@ on your system with `conda env list`.
 :::
 
 :::{tab-item} uv
-Simply delete the `.venv` folder in your project directory.
+Delete the `.venv` folder in your project directory.
 
-```bash
-rm -rf .venv       # On macOS and Linux
-```
 ```powershell
+rm -rf .venv       # On macOS and Linux
 rmdir /s /q .venv  # On Windows PowerShell
 ```
 
-Optionally, you may also clean the `uv` cache for unused packages:
+Optionally, you can clean the `uv` cache for unused packages:
 ```sh
 uv cache prune
 ```
 :::
 ::::
 
-Once the environment has been removed, you can create a new one following the [instructions](#use-a-virtual-environment) above.
+Once the environment has been removed, you can create a new one following the [instructions](#create-a-virtual-environment) above.

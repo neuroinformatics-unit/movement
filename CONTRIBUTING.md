@@ -30,10 +30,10 @@ These are especially suitable if you're new to the project, and we recommend sta
 In order to make changes to `movement`, you will need to fork the [repository](movement-github:).
 If you are not familiar with `git`, we recommend reading up on [this guide](https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands).
 
-1. Clone the forked repository to your local machine and change directories:
+1. Clone the forked repository to your local machine and change directory:
 
     ```sh
-    git clone https://github.com/neuroinformatics-unit/movement.git
+    git clone https://github.com/<your-github-username>/movement.git
     cd movement
     ```
 
@@ -43,7 +43,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     git remote add upstream https://github.com/neuroinformatics-unit/movement.git
     ```
 
-3. Create an environment using [conda](conda:) or [uv](uv:) and install `movement` in editable mode, including development dependencies.
+3. Create an environment using [conda](conda:) or [uv](uv:getting-started/installation/) and install `movement` in editable mode, including development dependencies.
 
     ::::{tab-set}
 
@@ -243,14 +243,12 @@ The deployment job runs on tag pushes (for PyPI releases) or manual triggers on 
 This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.
 
 ### Editing the documentation
-To edit the documentation, first clone the repository, and install `movement` in a
-[development environment](#creating-a-development-environment).
+To edit the documentation, ensure you have already set up a [development environment](#creating-a-development-environment).
 
-Then, install a few additional dependencies in your development environment to be able to build the documentation locally. To do this, run the following command from the root of the repository:
+To build the documentation locally, install the extra dependencies by running the following command from the repository root:
 ```sh
-pip install -r ./docs/requirements.txt
-# or, for uv users:
-uv pip install -r ./docs/requirements.txt
+pip install -r ./docs/requirements.txt      # conda env
+uv pip install -r ./docs/requirements.txt   # uv env
 ```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
