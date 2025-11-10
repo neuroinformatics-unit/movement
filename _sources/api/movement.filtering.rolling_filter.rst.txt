@@ -1,9 +1,0 @@
-rolling\_filter
-===============
-
-.. currentmodule:: movement.filtering
-
-.. autofunction:: rolling_filter
-
-.. minigallery:: movement.filtering.rolling_filter
-   :add-heading: Examples using ``rolling_filter``

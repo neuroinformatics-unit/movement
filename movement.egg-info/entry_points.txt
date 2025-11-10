@@ -1,0 +1,5 @@
+[console_scripts]
+movement = movement.cli_entrypoint:main
+
+[napari.manifest]
+movement = movement.napari:napari.yaml

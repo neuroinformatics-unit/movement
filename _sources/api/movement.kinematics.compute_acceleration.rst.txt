@@ -1,9 +1,0 @@
-﻿compute\_acceleration
-=====================
-
-.. currentmodule:: movement.kinematics
-
-.. autofunction:: compute_acceleration
-
-.. minigallery:: movement.kinematics.compute_acceleration
-   :add-heading: Examples using ``compute_acceleration``
